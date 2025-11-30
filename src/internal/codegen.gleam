@@ -1,6 +1,6 @@
 import argv
 import filepath
-import gleam/dynamic
+import gleam/dict
 import gleam/dynamic/decode
 import gleam/http/request
 import gleam/http/response
@@ -8,8 +8,9 @@ import gleam/httpc
 import gleam/io
 import gleam/json
 import gleam/list
-import gleam/option.{type Option, None}
+import gleam/option.{type Option, None, Some}
 import gleam/result
+import gleam/string
 import simplifile
 
 const check_versions = ["R4", "R4B", "R5"]
@@ -76,27 +77,31 @@ fn entry_decoder() -> decode.Decoder(Entry) {
 
 type Resource {
   Resource(
-    rest: Option(List(Rest)),
-    snapshot: Snapshot,
+    rest: List(Rest),
+    snapshot: Option(Snapshot),
     resource_type: String,
     name: String,
     url: String,
-    kind: String,
+    kind: Option(String),
     base_definition: Option(String),
   )
 }
 
 fn resource_decoder() -> decode.Decoder(Resource) {
-  use rest <- decode.optional_field(
-    "rest",
+  use rest <- decode.optional_field("rest", [], decode.list(rest_decoder()))
+  use snapshot <- decode.optional_field(
+    "snapshot",
     None,
-    decode.optional(decode.list(rest_decoder())),
+    decode.optional(snapshot_decoder()),
   )
-  use snapshot <- decode.field("snapshot", snapshot_decoder())
   use resource_type <- decode.field("resourceType", decode.string)
   use name <- decode.field("name", decode.string)
   use url <- decode.field("url", decode.string)
-  use kind <- decode.field("kind", decode.string)
+  use kind <- decode.optional_field(
+    "kind",
+    None,
+    decode.optional(decode.string),
+  )
   use base_definition <- decode.optional_field(
     "baseDefinition",
     None,
@@ -136,16 +141,19 @@ type RestResource {
 
 fn rest_resource_decoder() -> decode.Decoder(RestResource) {
   use type_ <- decode.field("type", decode.string)
-  use search_include <- decode.field(
+  use search_include <- decode.optional_field(
     "searchInclude",
+    [],
     decode.list(decode.string),
   )
-  use search_rev_include <- decode.field(
+  use search_rev_include <- decode.optional_field(
     "searchRevInclude",
+    [],
     decode.list(decode.string),
   )
-  use search_param <- decode.field(
+  use search_param <- decode.optional_field(
     "searchParam",
+    [],
     decode.list(search_param_decoder()),
   )
   decode.success(RestResource(
@@ -170,7 +178,11 @@ type Snapshot {
 }
 
 fn snapshot_decoder() -> decode.Decoder(Snapshot) {
-  use element <- decode.field("element", decode.list(element_decoder()))
+  use element <- decode.optional_field(
+    "element",
+    [],
+    decode.list(element_decoder()),
+  )
   decode.success(Snapshot(element:))
 }
 
@@ -179,7 +191,7 @@ type Element {
     path: String,
     min: Int,
     max: String,
-    type_: Option(List(Type)),
+    type_: List(Type),
     binding: Option(Binding),
   )
 }
@@ -190,11 +202,7 @@ fn element_decoder() -> decode.Decoder(Element) {
   use path <- decode.field("path", decode.string)
   use min <- decode.field("min", decode.int)
   use max <- decode.field("max", decode.string)
-  use type_ <- decode.optional_field(
-    "type",
-    None,
-    decode.optional(decode.list(type_decoder())),
-  )
+  use type_ <- decode.optional_field("type", [], decode.list(type_decoder()))
   use binding <- decode.optional_field(
     "binding",
     None,
@@ -204,26 +212,30 @@ fn element_decoder() -> decode.Decoder(Element) {
 }
 
 type Type {
-  Type(code: String, target_profile: Option(List(String)))
+  Type(code: String, target_profile: List(String))
 }
 
 fn type_decoder() -> decode.Decoder(Type) {
   use code <- decode.field("code", decode.string)
   use target_profile <- decode.optional_field(
     "targetProfile",
-    None,
-    decode.optional(decode.list(decode.string)),
+    [],
+    decode.list(decode.string),
   )
   decode.success(Type(code:, target_profile:))
 }
 
 type Binding {
-  Binding(strength: String, value_set: String)
+  Binding(strength: String, value_set: Option(String))
 }
 
 fn binding_decoder() -> decode.Decoder(Binding) {
   use strength <- decode.field("strength", decode.string)
-  use value_set <- decode.field("valueSet", decode.string)
+  use value_set <- decode.optional_field(
+    "value_set",
+    None,
+    decode.optional(decode.string),
+  )
   decode.success(Binding(strength:, value_set:))
 }
 
@@ -255,6 +267,14 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
     header: "",
     is_domain_resource: False,
   )
+  file_to_types(
+    spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
+    generate_structs_dir: generate_dir_ver,
+    fv: fhir_version,
+    valuesets: [],
+    header: "",
+    is_domain_resource: True,
+  )
   Nil
 }
 
@@ -267,8 +287,50 @@ fn file_to_types(
   is_domain_resource is_dr: Bool,
 ) {
   let assert Ok(spec) = simplifile.read(spec_file)
-  let assert Ok(b) = json.parse(from: spec, using: bundle_decoder())
-  use entry <- list.map(b.entry)
+  let assert Ok(bundle) = json.parse(from: spec, using: bundle_decoder())
+  let entries =
+    list.filter(bundle.entry, fn(e) {
+      case e.resource.kind, e.resource.name {
+        // uncomment to try just allergyintolerance
+        _, "AllergyIntolerance" -> True
+        _, _ -> False
+        _, "Base" -> False
+        _, "BackboneElement" -> False
+        Some("complex-type"), _ -> True
+        Some("resource"), _ -> True
+        _, _ -> False
+      }
+    })
+  use entry <- list.map(entries)
 
-  echo entry.resource.name
+  //map of type -> fields needed to list out all the BackboneElements
+  //because they're subcomponents eg Allergy -> Reaction
+  //and rather than nested, we want to write fields one after the other
+  let structs = dict.new()
+  //we want to write types in order of parsing backbone elements, but map order random
+  let struct_order = []
+  //put elts into name of current struct, eg AllergyIntolerance, AllergyIntoleranceReaction...
+
+  use snapshot <- option.map(entry.resource.snapshot)
+  use elt <- list.map(snapshot.element)
+  let pp = string.split(elt.path, ".")
+  let field_path = string.join(pp, "_")
+  let pp_minus_last = list.drop(pp, 1)
+  let field_path_minus_last = string.join(pp_minus_last, "_")
+  // need both field name to make the fields,
+  // and field name minus last to make the type
+  case elt.type_ {
+    [first, ..] -> {
+      //echo first.code
+      case first.code {
+        "BackboneElement" -> {
+          echo elt
+          Nil
+        }
+        _ -> Nil
+      }
+    }
+    _ -> Nil
+  }
+  Nil
 }
