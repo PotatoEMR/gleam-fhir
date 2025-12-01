@@ -13,7 +13,7 @@ import gleam/result
 import gleam/string
 import simplifile
 
-const check_versions = ["R4", "R4B", "R5"]
+const check_versions = ["r4", "r4b", "r5"]
 
 const zip_file_names = [
   "profiles-resources.json",
@@ -49,6 +49,7 @@ pub fn main() {
   }
 
   use fhir_version <- list.map(check_versions)
+
   let _ = case list.contains(args, fhir_version) {
     True -> gen_fhir(fhir_version, download_files)
     False -> Nil
@@ -123,10 +124,12 @@ type Rest {
   Rest(resource: List(RestResource))
 }
 
-//  use resource <- decode.field("resource", decode.list(todo as "Decoder for RestResource"))
-
 fn rest_decoder() -> decode.Decoder(Rest) {
-  use resource <- decode.field("resource", decode.list(rest_resource_decoder()))
+  use resource <- decode.optional_field(
+    "resource",
+    [],
+    decode.list(rest_resource_decoder()),
+  )
   decode.success(Rest(resource:))
 }
 
@@ -240,15 +243,17 @@ fn binding_decoder() -> decode.Decoder(Binding) {
 }
 
 fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
-  let extract_dir_ver = "src/internal/downloads/" <> fhir_version
+  let extract_dir_ver = filepath.join(download_dir, fhir_version)
 
   let _ = case download_files {
     True -> {
       let assert Ok(_) = simplifile.create_directory_all(extract_dir_ver)
       use filename <- list.map(zip_file_names)
-      echo fhir_url <> "/" <> fhir_version <> "/" <> filename
+      echo fhir_url <> "/" <> string.uppercase(fhir_version) <> "/" <> filename
       let assert Ok(req) =
-        request.to(fhir_url <> "/" <> fhir_version <> "/" <> filename)
+        request.to(
+          fhir_url <> "/" <> string.uppercase(fhir_version) <> "/" <> filename,
+        )
       let assert Ok(resp) = httpc.send(req)
       let write_path = filepath.join(extract_dir_ver, filename)
       let assert Ok(Nil) = simplifile.write(to: write_path, contents: resp.body)
@@ -258,10 +263,16 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
   }
 
   let generate_dir_ver = filepath.join(gen_into_dir, fhir_version)
+  case simplifile.delete(generate_dir_ver) {
+    Ok(_) -> Nil
+    Error(simplifile.Enoent) -> Nil
+    Error(_) -> panic as "could not remove fhir dir"
+  }
+  let assert Ok(_) = simplifile.create_directory_all(generate_dir_ver)
 
   file_to_types(
     spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
-    generate_structs_dir: generate_dir_ver,
+    gen_dir_ver: generate_dir_ver,
     fv: fhir_version,
     valuesets: [],
     header: "",
@@ -269,7 +280,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
   )
   file_to_types(
     spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
-    generate_structs_dir: generate_dir_ver,
+    gen_dir_ver: generate_dir_ver,
     fv: fhir_version,
     valuesets: [],
     header: "",
@@ -280,7 +291,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
 
 fn file_to_types(
   spec_file spec_file: String,
-  generate_structs_dir gendir: String,
+  gen_dir_ver generate_dir_ver: String,
   fv fhir_version: String,
   valuesets valuesets: List(string),
   header header: String,
@@ -306,31 +317,111 @@ fn file_to_types(
   //map of type -> fields needed to list out all the BackboneElements
   //because they're subcomponents eg Allergy -> Reaction
   //and rather than nested, we want to write fields one after the other
-  let structs = dict.new()
+  let starting_res_fields = dict.new() |> dict.insert(entry.resource.name, [])
   //we want to write types in order of parsing backbone elements, but map order random
-  let struct_order = []
   //put elts into name of current struct, eg AllergyIntolerance, AllergyIntoleranceReaction...
+  let type_order = [entry.resource.name]
+  let fields_and_order = #(starting_res_fields, type_order)
 
   use snapshot <- option.map(entry.resource.snapshot)
-  use elt <- list.map(snapshot.element)
-  let pp = string.split(elt.path, ".")
-  let field_path = string.join(pp, "_")
-  let pp_minus_last = list.drop(pp, 1)
-  let field_path_minus_last = string.join(pp_minus_last, "_")
-  // need both field name to make the fields,
-  // and field name minus last to make the type
-  case elt.type_ {
-    [first, ..] -> {
-      //echo first.code
-      case first.code {
-        "BackboneElement" -> {
-          echo elt
-          Nil
+
+  let fields_and_order =
+    list.fold(
+      over: snapshot.element,
+      from: fields_and_order,
+      with: fn(f_o, elt) {
+        let res_fields = f_o.0
+        let order = f_o.1
+        let pp = string.split(elt.path, ".")
+        let field_path = string.join(pp, "_")
+        //there must be a better way to drop last item?
+        let pp_minus_last = pp |> list.reverse |> list.drop(1) |> list.reverse
+        let field_path_minus_last = string.join(pp_minus_last, "_")
+
+        let appended_field = case dict.get(res_fields, field_path_minus_last) {
+          Ok(field_list) -> [elt, ..field_list]
+          Error(_) -> [elt]
         }
-        _ -> Nil
-      }
-    }
-    _ -> Nil
-  }
-  Nil
+        let res_fields =
+          dict.insert(res_fields, field_path_minus_last, appended_field)
+
+        let order = case elt.type_ {
+          [first, ..] -> {
+            case first.code {
+              "BackboneElement" -> [field_path, ..order]
+              _ -> order
+            }
+          }
+          [] -> order
+        }
+
+        #(res_fields, order)
+      },
+    )
+
+  let type_fields = fields_and_order.0
+  let type_order = fields_and_order.1
+  echo type_order
+  //use res_key <- list.map(dict.keys(type_fields))
+  //echo res_key
+  //echo dict.get(type_fields, res_key)
+
+  let gleam_fhir_types =
+    list.fold(over: type_order, from: "", with: fn(old_type_str, new_type) {
+      let new_doc_link =
+        string.concat([
+          "//",
+          string.replace(
+            entry.resource.url,
+            "hl7.org/fhir",
+            "hl7.org/fhir/" <> fhir_version,
+          ),
+          "#resource",
+        ])
+      let assert Ok(fields) = dict.get(type_fields, new_type)
+      let field_list =
+        list.fold(from: "", over: fields, with: fn(str, elt) {
+          let field_type = case elt.type_ {
+            [] -> "nothing? no types idk"
+            [one_type] ->
+              case one_type.code {
+                "BackboneElement" -> "backbone" <> one_type.code
+                "base64Binary" -> "String"
+                "boolean" -> "Bool"
+                "canonical" -> "String"
+                "code" -> "String"
+                "date" -> "String"
+                "dateTime" -> "String"
+                "decimal" -> "Float"
+                "id" -> "String"
+                "instant" -> "String"
+                "integer" -> "Int"
+                "integer64" -> "Int"
+                "markdown" -> "String"
+                "oid" -> "String"
+                "positiveInt" -> "Int"
+                "string" -> "String"
+                "time" -> "String"
+                "unsignedInt" -> "Int"
+                "uri" -> "String"
+                "url" -> "String"
+                "uuid" -> "String"
+                "xhtml" -> "String"
+                "http://hl7.org/fhirpath/System.String" -> "String"
+                _ -> one_type.code
+              }
+            _ -> "multiple types need custom type"
+          }
+          string.concat([elt.path, ": ", field_type, "\n", str])
+        })
+      let new_contents =
+        string.concat(["pub type ", new_type, "\n{\n", field_list, "\n}"])
+      string.join([new_doc_link, new_contents, old_type_str], "\n")
+    })
+
+  simplifile.write(
+    to: string.lowercase(filepath.join(generate_dir_ver, entry.resource.name))
+      <> ".gleam",
+    contents: gleam_fhir_types,
+  )
 }
