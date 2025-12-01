@@ -10,6 +10,7 @@ import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
+import gleam/set
 import gleam/string
 import simplifile
 
@@ -31,6 +32,18 @@ pub fn main() {
   io.println("🔥🔥🔥 bultaoreune")
 
   let args = argv.load().arguments
+
+  case
+    list.contains(args, "r4")
+    || list.contains(args, "r4b")
+    || list.contains(args, "r5")
+  {
+    False ->
+      io.println(
+        "run with args r4 r4b r5 to generate eg gleam run -m internal/codegen r4 r5",
+      )
+    True -> Nil
+  }
 
   let download_files = list.contains(args, "download")
   let _ = case download_files {
@@ -303,8 +316,8 @@ fn file_to_types(
     list.filter(bundle.entry, fn(e) {
       case e.resource.kind, e.resource.name {
         // uncomment to try just allergyintolerance
-        _, "AllergyIntolerance" -> True
-        _, _ -> False
+        // _, "AllergyIntolerance" -> True
+        // _, _ -> False
         _, "Base" -> False
         _, "BackboneElement" -> False
         Some("complex-type"), _ -> True
@@ -361,67 +374,155 @@ fn file_to_types(
 
   let type_fields = fields_and_order.0
   let type_order = fields_and_order.1
-  echo type_order
+  // echo type_order
   //use res_key <- list.map(dict.keys(type_fields))
   //echo res_key
   //echo dict.get(type_fields, res_key)
 
-  let gleam_fhir_types =
-    list.fold(over: type_order, from: "", with: fn(old_type_str, new_type) {
-      let new_doc_link =
-        string.concat([
-          "//",
-          string.replace(
-            entry.resource.url,
-            "hl7.org/fhir",
-            "hl7.org/fhir/" <> fhir_version,
-          ),
-          "#resource",
-        ])
-      let assert Ok(fields) = dict.get(type_fields, new_type)
-      let field_list =
-        list.fold(from: "", over: fields, with: fn(str, elt) {
-          let field_type = case elt.type_ {
-            [] -> "nothing? no types idk"
-            [one_type] ->
-              case one_type.code {
-                "BackboneElement" -> "backbone" <> one_type.code
-                "base64Binary" -> "String"
-                "boolean" -> "Bool"
-                "canonical" -> "String"
-                "code" -> "String"
-                "date" -> "String"
-                "dateTime" -> "String"
-                "decimal" -> "Float"
-                "id" -> "String"
-                "instant" -> "String"
-                "integer" -> "Int"
-                "integer64" -> "Int"
-                "markdown" -> "String"
-                "oid" -> "String"
-                "positiveInt" -> "Int"
-                "string" -> "String"
-                "time" -> "String"
-                "unsignedInt" -> "Int"
-                "uri" -> "String"
-                "url" -> "String"
-                "uuid" -> "String"
-                "xhtml" -> "String"
-                "http://hl7.org/fhirpath/System.String" -> "String"
-                _ -> one_type.code
+  let #(gleam_fhir_types, imports_needed) =
+    list.fold(
+      over: type_order,
+      from: #("", set.new()),
+      with: fn(types_and_imports, new_type) {
+        let old_type_str = types_and_imports.0
+        let imports = types_and_imports.1
+        let new_doc_link =
+          string.concat([
+            "//",
+            string.replace(
+              entry.resource.url,
+              "hl7.org/fhir",
+              "hl7.org/fhir/" <> fhir_version,
+            ),
+            "#resource",
+          ])
+        let assert Ok(fields) = dict.get(type_fields, new_type)
+        let field_list_and_import_list =
+          list.fold(
+            from: #("", set.new()),
+            over: fields,
+            with: fn(fields_and_fieldimports, elt: Element) {
+              let fields_acc = fields_and_fieldimports.0
+              let imports_acc = fields_and_fieldimports.1
+              let #(field_type, field_import) = case elt.type_ {
+                [one_type] ->
+                  case one_type.code {
+                    "BackboneElement" -> #(
+                      "backbone" <> one_type.code,
+                      Some(one_type.code),
+                    )
+                    "base64Binary" -> #("String", None)
+                    "boolean" -> #("Bool", None)
+                    "canonical" -> #("String", None)
+                    "code" -> #("String", None)
+                    "date" -> #("String", None)
+                    "dateTime" -> #("String", None)
+                    "decimal" -> #("Float", None)
+                    "id" -> #("String", None)
+                    "instant" -> #("String", None)
+                    "integer" -> #("Int", None)
+                    "integer64" -> #("Int", None)
+                    "markdown" -> #("String", None)
+                    "oid" -> #("String", None)
+                    "positiveInt" -> #("Int", None)
+                    "string" -> #("String", None)
+                    "time" -> #("String", None)
+                    "unsignedInt" -> #("Int", None)
+                    "uri" -> #("String", None)
+                    "url" -> #("String", None)
+                    "uuid" -> #("String", None)
+                    "xhtml" -> #("String", None)
+                    "http://hl7.org/fhirpath/System.String" -> #("String", None)
+                    _ -> #(one_type.code, Some(one_type.code))
+                    //other complex type case will just be itself eg "Annotation" -> "Annotation"
+                  }
+                [] -> #("Nil", None)
+                _ -> #("Nil", None)
               }
-            _ -> "multiple types need custom type"
-          }
-          string.concat([elt.path, ": ", field_type, "\n", str])
-        })
-      let new_contents =
-        string.concat(["pub type ", new_type, "\n{\n", field_list, "\n}"])
-      string.join([new_doc_link, new_contents, old_type_str], "\n")
+              let parts = string.split(elt.path, ".")
+              let assert Ok(elt_last_part) = list.reverse(parts) |> list.first
+              //for choice types, which will have a custom type
+              let elt_last_part = string.replace(elt_last_part, "[x]", "")
+              let elt_last_part = case elt_last_part {
+                //field names cant be reserved gleam words
+                "type" -> "type_"
+                "use" -> "use_"
+                "import" -> "import_"
+                "test" -> "test_"
+                "assert" -> "assert_"
+                _ -> elt_last_part
+              }
+              #(
+                string.concat([
+                  to_snake_case(elt_last_part),
+                  ": ",
+                  field_type,
+                  ",\n",
+                  fields_acc,
+                ]),
+                case field_import {
+                  None -> imports_acc
+                  Some(i) -> set.insert(imports_acc, i)
+                },
+              )
+            },
+          )
+        let new_contents =
+          string.concat([
+            "pub type ",
+            new_type,
+            "\n{\n",
+            new_type,
+            "(",
+            field_list_and_import_list.0,
+            ")\n}",
+          ])
+        //echo field_list_and_import_list.1
+        let new_type_str =
+          string.join([new_doc_link, new_contents, old_type_str], "\n")
+        #(new_type_str, set.union(imports, field_list_and_import_list.1))
+      },
+    )
+
+  let imports_needed = set.delete(imports_needed, "BackboneElement")
+  let imports_needed = set.delete(imports_needed, entry.resource.name)
+  let sl = set.to_list(imports_needed)
+  let il =
+    list.map(sl, fn(s) {
+      string.concat([
+        "import ",
+        fhir_version,
+        "/",
+        string.lowercase(s),
+        // to_snake_case(s),
+        ".{type ",
+        s,
+        "}",
+        "\n",
+      ])
     })
+  let imports_str = string.concat(il)
 
   simplifile.write(
-    to: string.lowercase(filepath.join(generate_dir_ver, entry.resource.name))
+    //    to: filepath.join(generate_dir_ver, to_snake_case(entry.resource.name))
+    to: filepath.join(generate_dir_ver, string.lowercase(entry.resource.name))
       <> ".gleam",
-    contents: gleam_fhir_types,
+    contents: string.concat([imports_str, "\n", gleam_fhir_types]),
   )
+}
+
+pub fn to_snake_case(input: String) -> String {
+  input
+  |> string.to_graphemes
+  |> list.fold("", fn(acc, char) {
+    case char == string.uppercase(char) && char != string.lowercase(char) {
+      True -> {
+        case acc {
+          "" -> string.lowercase(char)
+          _ -> acc <> "_" <> string.lowercase(char)
+        }
+      }
+      False -> acc <> char
+    }
+  })
 }
