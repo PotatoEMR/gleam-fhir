@@ -404,11 +404,12 @@ fn file_to_types(
             with: fn(fields_and_fieldimports, elt: Element) {
               let fields_acc = fields_and_fieldimports.0
               let imports_acc = fields_and_fieldimports.1
+              let allparts = string.split(elt.path, ".")
               let #(field_type, field_import) = case elt.type_ {
                 [one_type] ->
                   case one_type.code {
                     "BackboneElement" -> #(
-                      "backbone" <> one_type.code,
+                      string.concat(list.map(allparts, string.capitalise)),
                       Some(one_type.code),
                     )
                     "base64Binary" -> #("String", None)
@@ -433,14 +434,18 @@ fn file_to_types(
                     "uuid" -> #("String", None)
                     "xhtml" -> #("String", None)
                     "http://hl7.org/fhirpath/System.String" -> #("String", None)
-                    _ -> #(one_type.code, Some(one_type.code))
+                    _ -> {
+                      let complex_type_camel = string.capitalise(one_type.code)
+                      #(complex_type_camel, Some(complex_type_camel))
+                    }
                     //other complex type case will just be itself eg "Annotation" -> "Annotation"
+                    // and will require importing that type
                   }
                 [] -> #("Nil", None)
                 _ -> #("Nil", None)
               }
-              let parts = string.split(elt.path, ".")
-              let assert Ok(elt_last_part) = list.reverse(parts) |> list.first
+              let assert Ok(elt_last_part) =
+                list.reverse(allparts) |> list.first
               //for choice types, which will have a custom type
               let elt_last_part = string.replace(elt_last_part, "[x]", "")
               let elt_last_part = case elt_last_part {
@@ -456,7 +461,7 @@ fn file_to_types(
                 string.concat([
                   to_snake_case(elt_last_part),
                   ": ",
-                  field_type,
+                  cardinality(field_type, elt.min, elt.max),
                   ",\n",
                   fields_acc,
                 ]),
@@ -467,12 +472,38 @@ fn file_to_types(
               )
             },
           )
+        // only first letter and then each backbone elt is capital
+        // so you can see nested backbone elements
+        let camel_type =
+          new_type
+          |> string.split("_")
+          |> list.map(fn(s) { string.capitalise(s) })
+          |> string.concat
+        //conflict gleam list
+        let camel_type = case camel_type == "List" {
+          True -> "FhirList"
+          False -> camel_type
+        }
+        // first elt in tuple is all the fields for this type
+        // these quantity ones messed up idk why
+        let field_list_and_import_list = case
+          list.contains(
+            ["SimpleQuantity", "MoneyQuantity"],
+            entry.resource.name,
+          )
+        {
+          True -> #(
+            "id: Option(String), extension: List(Extension), value: Option(Float), comparator: Option(String), unit: Option(String), system: Option(String), code: Option(String),",
+            set.from_list(["Extension"]),
+          )
+          False -> field_list_and_import_list
+        }
         let new_contents =
           string.concat([
             "pub type ",
-            new_type,
+            camel_type,
             "\n{\n",
-            new_type,
+            camel_type,
             "(",
             field_list_and_import_list.0,
             ")\n}",
@@ -507,7 +538,12 @@ fn file_to_types(
     //    to: filepath.join(generate_dir_ver, to_snake_case(entry.resource.name))
     to: filepath.join(generate_dir_ver, string.lowercase(entry.resource.name))
       <> ".gleam",
-    contents: string.concat([imports_str, "\n", gleam_fhir_types]),
+    contents: string.concat([
+      "import gleam/option.{type Option}",
+      imports_str,
+      "\n",
+      gleam_fhir_types,
+    ]),
   )
 }
 
@@ -525,4 +561,14 @@ pub fn to_snake_case(input: String) -> String {
       False -> acc <> char
     }
   })
+}
+
+pub fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
+  case fieldmin, fieldmax {
+    _, "*" -> "List(" <> fieldtype <> ")"
+    //might be missing "must have at least 1" correctness for cases with 1..* but who cares
+    0, "1" -> "Option(" <> fieldtype <> ")"
+    1, "1" -> fieldtype
+    _, _ -> panic as "cardinality panic"
+  }
 }
