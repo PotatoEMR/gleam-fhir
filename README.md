@@ -20,5 +20,8 @@ Further documentation can be found at <https://hexdocs.pm/fhir>.
 
 ```sh
 gleam run -m internal/codegen R4 R4B R5 download 
-gleam test  # Run the tests
+```
+
+```sh
+rm -r .\src\r4\; gleam run -m internal/codegen r4; gleam format
 ```

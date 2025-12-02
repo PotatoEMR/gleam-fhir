@@ -282,7 +282,6 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
     Error(_) -> panic as "could not remove fhir dir"
   }
   let assert Ok(_) = simplifile.create_directory_all(generate_dir_ver)
-
   file_to_types(
     spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
     gen_dir_ver: generate_dir_ver,
@@ -310,6 +309,25 @@ fn file_to_types(
   header header: String,
   is_domain_resource is_dr: Bool,
 ) {
+  // putting basic datatypes all in one file here
+  // at least reference and identifier need to be in same module because cyclic definition
+  // putting that file in own folder so it goes at top and looks special
+  let basic_type_dir = "fhir_basic_types"
+  let basic_types_filename = "fhir"
+  let datatypes_dir = filepath.join(generate_dir_ver, basic_type_dir)
+  let datatypes_file =
+    filepath.join(datatypes_dir, basic_types_filename <> ".gleam")
+  let assert Ok(_) = case is_dr {
+    False -> {
+      let assert Ok(_) = simplifile.create_directory_all(datatypes_dir)
+      simplifile.write(
+        to: datatypes_file,
+        contents: "//basic fhir data types (primitive, general, meta, special purpose)\n//in one .gleam module because reference and identifier have cyclic definition\nimport gleam/option.{type Option}\n",
+      )
+    }
+    True -> Ok(Nil)
+  }
+  let assert Ok(_) = simplifile.create_directory_all(datatypes_dir)
   let assert Ok(spec) = simplifile.read(spec_file)
   let assert Ok(bundle) = json.parse(from: spec, using: bundle_decoder())
   let entries =
@@ -515,36 +533,45 @@ fn file_to_types(
       },
     )
 
+  // no backboneelement resource (just other types in own .gleam file)
+  // and doesnt need import own .gleam module
   let imports_needed = set.delete(imports_needed, "BackboneElement")
   let imports_needed = set.delete(imports_needed, entry.resource.name)
-  let sl = set.to_list(imports_needed)
-  let il =
-    list.map(sl, fn(s) {
-      string.concat([
-        "import ",
-        fhir_version,
-        "/",
-        string.lowercase(s),
-        // to_snake_case(s),
-        ".{type ",
-        s,
-        "}",
-        "\n",
-      ])
-    })
-  let imports_str = string.concat(il)
+  let imports_needed = set.delete(imports_needed, "Resource")
+  //only non basic type imported by all resources, in contained
+  let import_resource = case entry.resource.name {
+    "Resource" -> ""
+    "Binary" -> ""
+    _ -> string.concat(["\nimport ", fhir_version, "/resource.{type Resource}"])
+  }
+  let import_set_string =
+    set.to_list(imports_needed)
+    |> list.map(fn(s) { "type " <> s <> ", " })
+    |> string.concat()
+  let imports_str =
+    string.concat([
+      import_resource, "\nimport ", fhir_version, "/", basic_type_dir, "/",
+      basic_types_filename, ".{", import_set_string, "}\n",
+    ])
 
-  simplifile.write(
-    //    to: filepath.join(generate_dir_ver, to_snake_case(entry.resource.name))
-    to: filepath.join(generate_dir_ver, string.lowercase(entry.resource.name))
-      <> ".gleam",
-    contents: string.concat([
-      "import gleam/option.{type Option}",
-      imports_str,
-      "\n",
-      gleam_fhir_types,
-    ]),
-  )
+  case is_dr {
+    True ->
+      simplifile.write(
+        //    to: filepath.join(generate_dir_ver, to_snake_case(entry.resource.name))
+        to: filepath.join(
+          generate_dir_ver,
+          string.lowercase(entry.resource.name),
+        )
+          <> ".gleam",
+        contents: string.concat([
+          "import gleam/option.{type Option}",
+          imports_str,
+          "\n",
+          gleam_fhir_types,
+        ]),
+      )
+    False -> simplifile.append(to: datatypes_file, contents: gleam_fhir_types)
+  }
 }
 
 pub fn to_snake_case(input: String) -> String {
