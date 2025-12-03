@@ -19,9 +19,11 @@ Further documentation can be found at <https://hexdocs.pm/fhir>.
 ## Development
 
 ```sh
-gleam run -m internal/codegen R4 R4B R5 download 
+gleam run -m internal/codegen r4 r4B r5 download 
 ```
 
 ```sh
 rm -r .\src\r4\; gleam run -m internal/codegen r4; gleam format
 ```
+
+how to support link type eg Provenance.entity.agent links to 0..* Provenance.agent
