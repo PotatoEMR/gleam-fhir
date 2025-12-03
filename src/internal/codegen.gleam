@@ -283,7 +283,11 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
   }
   let all_types =
     string.concat([
-      "////hi\nimport gleam/option.{type Option}\n",
+      "////FHIR ",
+      fhir_version,
+      " types\n////https://hl7.org/fhir/",
+      fhir_version,
+      "\nimport gleam/option.{type Option}\n",
       file_to_types(
         spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
         fv: fhir_version,

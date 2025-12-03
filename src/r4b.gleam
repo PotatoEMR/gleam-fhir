@@ -1,4 +1,5 @@
-////hi
+////FHIR r4b types
+////https://hl7.org/fhir/r4b
 
 import gleam/option.{type Option}
 
