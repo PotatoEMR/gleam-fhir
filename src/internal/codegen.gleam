@@ -21,14 +21,16 @@ const zip_file_names = [
 
 const fhir_url = "https://www.hl7.org/fhir"
 
-const download_dir = "src\\internal\\downloads"
-
 const gen_into_dir = "src"
+
+pub fn const_download_dir() {
+  filepath.join(gen_into_dir, "internal") |> filepath.join("downloads")
+}
 
 pub fn main() {
   io.println("🔥🔥🔥 bultaoreune")
 
-  let args = argv.load().arguments
+  let args = argv.load().arguments |> list.map(fn(s) { string.lowercase(s) })
 
   case
     list.contains(args, "r4")
@@ -43,6 +45,7 @@ pub fn main() {
   }
 
   let download_files = list.contains(args, "download")
+  let download_dir = const_download_dir()
   let _ = case download_files {
     True -> {
       case simplifile.delete(download_dir) {
@@ -253,7 +256,7 @@ fn binding_decoder() -> decode.Decoder(Binding) {
 }
 
 fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
-  let extract_dir_ver = filepath.join(download_dir, fhir_version)
+  let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
 
   let _ = case download_files {
     True -> {
@@ -297,6 +300,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
         fv: fhir_version,
       ),
     ])
+  io.println("generated " <> generated_gleamfile)
   let assert Ok(_) =
     simplifile.write(to: generated_gleamfile, contents: all_types)
   Nil
