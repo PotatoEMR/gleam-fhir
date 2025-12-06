@@ -24,7 +24,7 @@ const fhir_url = "https://www.hl7.org/fhir"
 
 const gen_into_dir = "src"
 
-pub fn const_download_dir() {
+fn const_download_dir() {
   filepath.join(gen_into_dir, "internal") |> filepath.join("downloads")
 }
 
@@ -558,7 +558,7 @@ fn string_to_type(fhir_type: String, allparts: List(String)) -> String {
 
 // replace capital HelloThere with lowercase hello_there
 // but if the previous character was a capital it will not add an underscore
-pub fn to_snake_case(input: String) -> String {
+fn to_snake_case(input: String) -> String {
   input
   |> string.to_graphemes
   |> list.fold(#("", False), fn(acc, char) {
@@ -577,7 +577,7 @@ pub fn to_snake_case(input: String) -> String {
   |> fn(pair) { pair.0 }
 }
 
-pub fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
+fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
   case fieldmin, fieldmax {
     _, "*" -> "List(" <> fieldtype <> ")"
     //might be missing "must have at least 1" correctness for cases with 1..* but who cares
@@ -650,7 +650,7 @@ fn codesystem_concept_decoder() -> decode.Decoder(CodesystemConcept) {
   decode.success(CodesystemConcept(code:, display:))
 }
 
-pub fn valueset_to_types(valueset vs_file: String, resources res_file: String) {
+fn valueset_to_types(valueset vs_file: String, resources res_file: String) {
   let assert Ok(res) = simplifile.read(res_file)
     as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
   let assert Ok(res_bundle) = json.parse(from: res, using: bundle_decoder())
@@ -691,29 +691,31 @@ pub fn valueset_to_types(valueset vs_file: String, resources res_file: String) {
     as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
   let assert Ok(vs_bundle) =
     json.parse(from: vs_spec, using: vs_bundle_decoder())
-  list.fold(from: "", over: vs_bundle.entry, with: fn(acc1, vs_entry: VSEntry) {
-    let vs_url = vs_entry.resource.value_set
-    case vs_url {
-      None -> acc1
-      Some(valueset_url_str) -> {
-        case set.contains(need_codes, valueset_url_str) {
-          True -> {
-            case
-              string.contains(
+  let vs_imports =
+    "import gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\n"
+  list.fold(
+    from: vs_imports,
+    over: vs_bundle.entry,
+    with: fn(acc1, vs_entry: VSEntry) {
+      let vs_url = vs_entry.resource.value_set
+      case vs_url {
+        None -> acc1
+        Some(valueset_url_str) -> {
+          case set.contains(need_codes, valueset_url_str) {
+            True -> {
+              string.concat([
+                acc1,
                 getconcept(vs_entry.resource),
-                "Medicationstatuscodes",
-              )
-            {
-              True -> io.println("found " <> valueset_url_str)
-              False -> Nil
+                valueset_encoder(vs_entry.resource),
+                valueset_decoder(vs_entry.resource),
+              ])
             }
-            string.concat([acc1, getconcept(vs_entry.resource)])
+            False -> acc1
           }
-          False -> acc1
         }
       }
-    }
-  })
+    },
+  )
 }
 
 // look for http://hl7.org/fhir/allergy-intolerance-criticality
@@ -724,14 +726,7 @@ fn getconcept(vs_res: Codesystem) -> String {
   //  let assert Some(name) = vs_res.name
   // these bastards gave http://hl7.org/fhir/ValueSet/medication-statement-status and http://hl7.org/fhir/ValueSet/medication-status the same name
   // in fairness nobody said name unique...
-  let assert Some(url) = vs_res.url
-  let assert Ok(urlname) = url |> string.split("/") |> list.last()
-  let cname =
-    urlname
-    |> string.replace(" ", "")
-    |> string.replace("-", "")
-    |> string.replace("_", "")
-    |> string.capitalise
+  let cname = concept_name_from_url(vs_res.url)
   string.concat([
     "\npub type ",
     cname,
@@ -742,19 +737,8 @@ fn getconcept(vs_res: Codesystem) -> String {
       with: fn(acc: String, vs_concept: CodesystemConcept) {
         acc
         <> cname
-        <> str_replace_many(vs_concept.code, [
-          #("-", ""),
-          #(".", ""),
-          #("!=", "Notequal"),
-          #("=", "Equal"),
-          #(">=", "Greaterthanoreq"),
-          #(">", "Greaterthan"),
-          #("<=", "Lessthanoreq"),
-          #("<", "Lessthan"),
-        ])
+        <> codetovarname(vs_concept.code)
         |> string.capitalise()
-        |> string.replace("_", "")
-        |> string.replace("0bsd", "Bsd0")
         <> "\n"
       },
     ),
@@ -762,8 +746,87 @@ fn getconcept(vs_res: Codesystem) -> String {
   ])
 }
 
+fn codetovarname(c: String) {
+  str_replace_many(c, [
+    #("-", ""),
+    #(".", ""),
+    #("_", ""),
+    #("!=", "Notequal"),
+    #("=", "Equal"),
+    #(">=", "Greaterthanoreq"),
+    #(">", "Greaterthan"),
+    #("<=", "Lessthanoreq"),
+    #("<", "Lessthan"),
+  ])
+}
+
+fn concept_name_from_url(u) {
+  let assert Some(url) = u
+  let assert Ok(urlname) = url |> string.split("/") |> list.last()
+  urlname
+  |> string.replace(" ", "")
+  |> string.replace("-", "")
+  |> string.replace("_", "")
+  |> string.capitalise
+}
+
 fn str_replace_many(s: String, badchars: List(#(String, String))) -> String {
   list.fold(from: s, over: badchars, with: fn(acc, bc) {
     string.replace(acc, bc.0, bc.1)
   })
+}
+
+fn valueset_encoder(vs_res: Codesystem) -> String {
+  let cname = concept_name_from_url(vs_res.url)
+  let cname_lower = cname |> string.lowercase()
+  let template = "pub fn CNAMELOWER_to_json(CNAMELOWER: CNAMECAPITAL) -> Json {
+    case CNAMELOWER {" <> list.fold(
+      from: "",
+      over: vs_res.concept,
+      with: fn(acc: String, concept: CodesystemConcept) {
+        acc
+        <> "CODETYPE -> json.string(\"ACTUALCODE\")\n"
+        |> string.replace(
+          "CODETYPE",
+          cname
+            <> codetovarname(concept.code)
+          |> string.capitalise(),
+        )
+        |> string.replace("ACTUALCODE", concept.code)
+      },
+    ) <> "}
+  }
+  "
+  template
+  |> string.replace("CNAMELOWER", cname_lower)
+  |> string.replace("CNAMECAPITAL", cname |> string.capitalise())
+}
+
+fn valueset_decoder(vs_res: Codesystem) -> String {
+  let cname = concept_name_from_url(vs_res.url)
+  let cname_lower = cname |> string.lowercase()
+  let assert Ok(failure_code) = list.first(vs_res.concept)
+  let template = "pub fn CNAMELOWER_decoder() -> Decoder(CNAMECAPITAL) {
+    use variant <- decode.then(decode.string)
+    case variant {" <> list.fold(
+      from: "",
+      over: vs_res.concept,
+      with: fn(acc: String, concept: CodesystemConcept) {
+        acc
+        <> "\"ACTUALCODE\" -> decode.success(CODETYPE)\n"
+        |> string.replace(
+          "CODETYPE",
+          cname
+            <> codetovarname(concept.code)
+          |> string.capitalise(),
+        )
+        |> string.replace("ACTUALCODE", concept.code)
+      },
+    ) <> "_ -> decode.failure(" <> cname <> codetovarname(failure_code.code)
+    |> string.capitalise() <> ", \"CNAMECAPITAL\")}
+  }
+  "
+  template
+  |> string.replace("CNAMELOWER", cname_lower)
+  |> string.replace("CNAMECAPITAL", cname |> string.capitalise())
 }
