@@ -8,6 +8,7 @@ import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
+import gleam/set
 import gleam/string
 import simplifile
 
@@ -248,7 +249,7 @@ type Binding {
 fn binding_decoder() -> decode.Decoder(Binding) {
   use strength <- decode.field("strength", decode.string)
   use value_set <- decode.optional_field(
-    "value_set",
+    "valueSet",
     None,
     decode.optional(decode.string),
   )
@@ -277,13 +278,18 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
     False -> [Nil]
   }
 
-  let generated_gleamfile =
-    filepath.join(gen_into_dir, fhir_version) <> ".gleam"
-  case simplifile.delete(generated_gleamfile) {
-    Ok(_) -> Nil
-    Error(simplifile.Enoent) -> Nil
-    Error(_) -> panic as "could not remove fhir dir"
-  }
+  let gen_gleamfile = filepath.join(gen_into_dir, fhir_version) <> ".gleam"
+  let gen_vsfile =
+    filepath.join(gen_into_dir, fhir_version) <> "valuesets.gleam"
+  let gen_clientfile =
+    filepath.join(gen_into_dir, fhir_version) <> "client.gleam"
+  list.map([gen_gleamfile, gen_vsfile, gen_clientfile], fn(generated_gleamfile) {
+    case simplifile.delete(generated_gleamfile) {
+      Ok(_) -> Nil
+      Error(simplifile.Enoent) -> Nil
+      Error(_) -> panic as "could not remove fhir dir"
+    }
+  })
   let all_types =
     string.concat([
       "////FHIR ",
@@ -300,9 +306,18 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
         fv: fhir_version,
       ),
     ])
-  io.println("generated " <> generated_gleamfile)
-  let assert Ok(_) =
-    simplifile.write(to: generated_gleamfile, contents: all_types)
+  let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: all_types)
+  io.println("generated " <> gen_gleamfile)
+
+  //gen valuesets for resource fields with required code binding
+  let all_vs =
+    valueset_to_types(
+      resources: filepath.join(extract_dir_ver, "profiles-resources.json"),
+      valueset: filepath.join(extract_dir_ver, "valuesets.json"),
+    )
+  let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
+  io.println("generated " <> gen_vsfile)
+
   Nil
 }
 
@@ -570,4 +585,185 @@ pub fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
     1, "1" -> fieldtype
     _, _ -> panic as "cardinality panic"
   }
+}
+
+type VSBundle {
+  VSBundle(entry: List(VSEntry))
+}
+
+fn vs_bundle_decoder() -> decode.Decoder(VSBundle) {
+  use entry <- decode.field("entry", decode.list(vs_entry_decoder()))
+  decode.success(VSBundle(entry:))
+}
+
+type VSEntry {
+  VSEntry(resource: Codesystem)
+}
+
+fn vs_entry_decoder() -> decode.Decoder(VSEntry) {
+  use resource <- decode.field("resource", codesystem_decoder())
+  decode.success(VSEntry(resource:))
+}
+
+pub type Codesystem {
+  Codesystem(
+    value_set: Option(String),
+    name: Option(String),
+    url: Option(String),
+    concept: List(CodesystemConcept),
+  )
+}
+
+fn codesystem_decoder() -> decode.Decoder(Codesystem) {
+  use value_set <- decode.optional_field(
+    "valueSet",
+    None,
+    decode.optional(decode.string),
+  )
+  use name <- decode.optional_field(
+    "name",
+    None,
+    decode.optional(decode.string),
+  )
+
+  use url <- decode.optional_field("url", None, decode.optional(decode.string))
+
+  use concept <- decode.optional_field(
+    "concept",
+    [],
+    decode.list(codesystem_concept_decoder()),
+  )
+  decode.success(Codesystem(value_set:, name:, url:, concept:))
+}
+
+pub type CodesystemConcept {
+  CodesystemConcept(code: String, display: Option(String))
+}
+
+fn codesystem_concept_decoder() -> decode.Decoder(CodesystemConcept) {
+  use code <- decode.field("code", decode.string)
+  use display <- decode.optional_field(
+    "display",
+    None,
+    decode.optional(decode.string),
+  )
+  decode.success(CodesystemConcept(code:, display:))
+}
+
+pub fn valueset_to_types(valueset vs_file: String, resources res_file: String) {
+  let assert Ok(res) = simplifile.read(res_file)
+    as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
+  let assert Ok(res_bundle) = json.parse(from: res, using: bundle_decoder())
+  // there must be a much nicer way to chain these
+  // will probably be a cool gleam realization moment
+  // terrible ugly for now though
+  let need_codes =
+    res_bundle.entry
+    |> list.fold(set.new(), fn(acc1, e) {
+      e.resource.snapshot
+      |> option.map(fn(snapshot) {
+        snapshot.element
+        |> list.fold(acc1, fn(acc2, elt) {
+          case elt.type_ {
+            [one_type] if one_type.code == "code" ->
+              case elt.binding {
+                Some(x) ->
+                  case x.value_set {
+                    Some(vs) -> {
+                      case string.split(vs, "|") {
+                        //get rid of |version in http://some.valueset|4.0.1
+                        [url] -> set.insert(acc2, url)
+                        [url, ..] -> set.insert(acc2, url)
+                        [] -> acc2
+                      }
+                    }
+                    _ -> acc2
+                  }
+                None -> acc2
+              }
+            _ -> acc2
+          }
+        })
+      })
+      |> option.unwrap(acc1)
+    })
+  let assert Ok(vs_spec) = simplifile.read(vs_file)
+    as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
+  let assert Ok(vs_bundle) =
+    json.parse(from: vs_spec, using: vs_bundle_decoder())
+  list.fold(from: "", over: vs_bundle.entry, with: fn(acc1, vs_entry: VSEntry) {
+    let vs_url = vs_entry.resource.value_set
+    case vs_url {
+      None -> acc1
+      Some(valueset_url_str) -> {
+        case set.contains(need_codes, valueset_url_str) {
+          True -> {
+            case
+              string.contains(
+                getconcept(vs_entry.resource),
+                "Medicationstatuscodes",
+              )
+            {
+              True -> io.println("found " <> valueset_url_str)
+              False -> Nil
+            }
+            string.concat([acc1, getconcept(vs_entry.resource)])
+          }
+          False -> acc1
+        }
+      }
+    }
+  })
+}
+
+// look for http://hl7.org/fhir/allergy-intolerance-criticality
+// look for http://hl7.org/fhir/ValueSet/allergy-intolerance-criticality
+// dont have AllergyIntoleranceCriticality
+
+fn getconcept(vs_res: Codesystem) -> String {
+  //  let assert Some(name) = vs_res.name
+  // these bastards gave http://hl7.org/fhir/ValueSet/medication-statement-status and http://hl7.org/fhir/ValueSet/medication-status the same name
+  // in fairness nobody said name unique...
+  let assert Some(url) = vs_res.url
+  let assert Ok(urlname) = url |> string.split("/") |> list.last()
+  let cname =
+    urlname
+    |> string.replace(" ", "")
+    |> string.replace("-", "")
+    |> string.replace("_", "")
+    |> string.capitalise
+  string.concat([
+    "\npub type ",
+    cname,
+    "{",
+    list.fold(
+      over: vs_res.concept,
+      from: "",
+      with: fn(acc: String, vs_concept: CodesystemConcept) {
+        acc
+        <> cname
+        <> str_replace_many(vs_concept.code, [
+          #("-", ""),
+          #(".", ""),
+          #("!=", "Notequal"),
+          #("=", "Equal"),
+          #(">=", "Greaterthanoreq"),
+          #(">", "Greaterthan"),
+          #("<=", "Lessthanoreq"),
+          #("<", "Lessthan"),
+        ])
+        |> string.capitalise()
+        |> string.replace("_", "")
+        |> string.replace("0bsd", "Bsd0")
+        <> "\n"
+      },
+    ),
+    "}\n",
+  ])
+}
+
+fn str_replace_many(s: String, badchars: List(#(String, String))) -> String {
+  list.fold(from: s, over: badchars, with: fn(acc, bc) {
+    string.replace(acc, bc.0, bc.1)
+  })
 }
