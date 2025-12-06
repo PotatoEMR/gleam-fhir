@@ -447,7 +447,8 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                 let field_name_new =
                   camel_type <> string.capitalise(elt_last_part)
                 let field_type = case elt.type_ {
-                  [one_type] -> string_to_type(one_type.code, allparts)
+                  [one_type] ->
+                    string_to_type(one_type.code, allparts, fhir_version)
                   [] -> "Nil"
                   _ -> field_name_new
                 }
@@ -478,9 +479,13 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           "(",
                           to_snake_case(elt_last_part),
                           ": ",
-                          string_to_type(typ.code, [
-                            "should probably pull type switch separate from backbone elt",
-                          ]),
+                          string_to_type(
+                            typ.code,
+                            [
+                              "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
+                            ],
+                            fhir_version,
+                          ),
                           ")",
                         ])
                       }),
@@ -525,13 +530,29 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
   })
 }
 
-fn string_to_type(fhir_type: String, allparts: List(String)) -> String {
+fn string_to_type(
+  fhir_type: String,
+  allparts: List(String),
+  fhir_version: String,
+) -> String {
   case fhir_type {
-    "BackboneElement" -> string.concat(list.map(allparts, string.capitalise))
+    "BackboneElement" ->
+      allparts |> list.map(string.capitalise) |> string.concat()
     "base64Binary" -> "String"
     "boolean" -> "Bool"
     "canonical" -> "String"
-    "code" -> "String"
+    "code" ->
+      fhir_version
+      <> "valuesets."
+      <> {
+        let s = allparts |> string.concat()
+        case s {
+          "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding" ->
+            "String"
+          //not a code idk should we even generate this?
+          _ -> s |> string.capitalise()
+        }
+      }
     "date" -> "String"
     "dateTime" -> "String"
     "decimal" -> "Float"
