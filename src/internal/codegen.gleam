@@ -296,7 +296,9 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
       fhir_version,
       " types\n////https://hl7.org/fhir/",
       fhir_version,
-      "\nimport gleam/option.{type Option}\n",
+      "\nimport gleam/option.{type Option}\nimport ",
+      fhir_version,
+      "valuesets\n",
       file_to_types(
         spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
         fv: fhir_version,
@@ -314,6 +316,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
     valueset_to_types(
       resources: filepath.join(extract_dir_ver, "profiles-resources.json"),
       valueset: filepath.join(extract_dir_ver, "valuesets.json"),
+      types: filepath.join(extract_dir_ver, "profiles-types.json"),
     )
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
@@ -448,7 +451,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                   camel_type <> string.capitalise(elt_last_part)
                 let field_type = case elt.type_ {
                   [one_type] ->
-                    string_to_type(one_type.code, allparts, fhir_version)
+                    string_to_type(one_type.code, allparts, fhir_version, elt)
                   [] -> "Nil"
                   _ -> field_name_new
                 }
@@ -485,6 +488,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                               "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
                             ],
                             fhir_version,
+                            elt,
                           ),
                           ")",
                         ])
@@ -534,6 +538,7 @@ fn string_to_type(
   fhir_type: String,
   allparts: List(String),
   fhir_version: String,
+  elt: Element,
 ) -> String {
   case fhir_type {
     "BackboneElement" ->
@@ -541,18 +546,52 @@ fn string_to_type(
     "base64Binary" -> "String"
     "boolean" -> "Bool"
     "canonical" -> "String"
-    "code" ->
-      fhir_version
-      <> "valuesets."
-      <> {
-        let s = allparts |> string.concat()
-        case s {
-          "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding" ->
-            "String"
-          //not a code idk should we even generate this?
-          _ -> s |> string.capitalise()
+    "code" -> {
+      let s = allparts |> string.concat()
+      case s {
+        "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding" ->
+          "String"
+        //not a code idk should we even generate this?
+        _ -> {
+          case elt.binding {
+            Some(x) ->
+              case x.strength {
+                "required" -> {
+                  case x.value_set {
+                    Some(vs) -> {
+                      case string.split(vs, "|") {
+                        //get rid of |version in http://some.valueset|4.0.1
+                        [_] -> panic as "huh idk 3"
+                        [url, ..] ->
+                          case
+                            string.contains(url, "v3-Confidentiality")
+                            || string.contains(url, "mimetypes")
+                            || string.contains(url, "currencies")
+                            || string.contains(url, "all-languages")
+                            || string.contains(url, "ucum-units")
+                          {
+                            True -> "String"
+                            //idk whats going on here, probably i dont understand valueset composition
+                            False ->
+                              fhir_version
+                              <> "valuesets."
+                              <> concept_name_from_url(Some(url))
+                          }
+                        [] -> panic as "huh idk"
+                      }
+                    }
+                    _ -> panic as "huh idk 2"
+                  }
+                }
+                _ -> "String"
+                //mostly just elt.languages doesnt have "required" code binding
+              }
+            None -> "String"
+            //these codes dont have required binding?
+          }
         }
       }
+    }
     "date" -> "String"
     "dateTime" -> "String"
     "decimal" -> "Float"
@@ -608,22 +647,22 @@ fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
   }
 }
 
-type VSBundle {
-  VSBundle(entry: List(VSEntry))
+type CSBundle {
+  CSBundle(entry: List(CSEntry))
 }
 
-fn vs_bundle_decoder() -> decode.Decoder(VSBundle) {
-  use entry <- decode.field("entry", decode.list(vs_entry_decoder()))
-  decode.success(VSBundle(entry:))
+fn cs_bundle_decoder() -> decode.Decoder(CSBundle) {
+  use entry <- decode.field("entry", decode.list(cs_entry_decoder()))
+  decode.success(CSBundle(entry:))
 }
 
-type VSEntry {
-  VSEntry(resource: Codesystem)
+type CSEntry {
+  CSEntry(resource: Codesystem)
 }
 
-fn vs_entry_decoder() -> decode.Decoder(VSEntry) {
+fn cs_entry_decoder() -> decode.Decoder(CSEntry) {
   use resource <- decode.field("resource", codesystem_decoder())
-  decode.success(VSEntry(resource:))
+  decode.success(CSEntry(resource:))
 }
 
 pub type Codesystem {
@@ -671,94 +710,252 @@ fn codesystem_concept_decoder() -> decode.Decoder(CodesystemConcept) {
   decode.success(CodesystemConcept(code:, display:))
 }
 
-fn valueset_to_types(valueset vs_file: String, resources res_file: String) {
-  let assert Ok(res) = simplifile.read(res_file)
-    as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
-  let assert Ok(res_bundle) = json.parse(from: res, using: bundle_decoder())
-  // there must be a much nicer way to chain these
-  // will probably be a cool gleam realization moment
-  // terrible ugly for now though
+//valuesets can include codesystems
+type VSBundle {
+  VSBundle(entry: List(VSEntry))
+}
+
+fn vs_bundle_decoder() -> decode.Decoder(VSBundle) {
+  use entry <- decode.field("entry", decode.list(vs_entry_decoder()))
+  decode.success(VSBundle(entry:))
+}
+
+type VSEntry {
+  VSEntry(resource: Valueset)
+}
+
+fn vs_entry_decoder() -> decode.Decoder(VSEntry) {
+  use resource <- decode.field("resource", valueset_decoder())
+  decode.success(VSEntry(resource:))
+}
+
+pub type Valueset {
+  Valueset(url: Option(String), compose: Option(ValuesetCompose))
+}
+
+fn valueset_decoder() -> decode.Decoder(Valueset) {
+  use url <- decode.field("url", decode.optional(decode.string))
+  use compose <- decode.optional_field(
+    "compose",
+    None,
+    decode.optional(valueset_compose_decoder()),
+  )
+  decode.success(Valueset(url:, compose:))
+}
+
+pub type ValuesetCompose {
+  ValuesetCompose(include: List(ValuesetComposeInclude))
+}
+
+fn valueset_compose_decoder() -> decode.Decoder(ValuesetCompose) {
+  use include <- decode.field(
+    "include",
+    decode.list(valueset_compose_include_decoder()),
+  )
+  decode.success(ValuesetCompose(include:))
+}
+
+pub type ValuesetComposeInclude {
+  ValuesetComposeInclude(
+    system: Option(String),
+    concept: List(ValuesetComposeIncludeConcept),
+    value_set: List(String),
+  )
+}
+
+fn valueset_compose_include_decoder() -> decode.Decoder(ValuesetComposeInclude) {
+  use system <- decode.optional_field(
+    "system",
+    None,
+    decode.optional(decode.string),
+  )
+  use concept <- decode.optional_field(
+    "concept",
+    [],
+    decode.list(valueset_compose_include_concept_decoder()),
+  )
+  use value_set <- decode.optional_field(
+    "valueSet",
+    [],
+    decode.list(decode.string),
+  )
+  decode.success(ValuesetComposeInclude(system:, concept:, value_set:))
+}
+
+pub type ValuesetComposeIncludeConcept {
+  ValuesetComposeIncludeConcept(code: String, display: Option(String))
+}
+
+fn valueset_compose_include_concept_decoder() -> decode.Decoder(
+  ValuesetComposeIncludeConcept,
+) {
+  use code <- decode.field("code", decode.string)
+  use display <- decode.optional_field(
+    "display",
+    None,
+    decode.optional(decode.string),
+  )
+  decode.success(ValuesetComposeIncludeConcept(code:, display:))
+}
+
+fn valueset_to_types(
+  valueset vs_file: String,
+  resources res_file: String,
+  types types_file: String,
+) {
+  // valueset bindings needed by codes, eg
+  // http://hl7.org/fhir/ValueSet/allergy-intolerance-criticality
+  // ^ concepts in codesystem -> valueset compose
+  // http://hl7.org/fhir/ValueSet/immunization-status
+  // ^ concepts directly in valueset
   let need_codes =
-    res_bundle.entry
-    |> list.fold(set.new(), fn(acc1, e) {
-      e.resource.snapshot
-      |> option.map(fn(snapshot) {
-        snapshot.element
-        |> list.fold(acc1, fn(acc2, elt) {
-          case elt.type_ {
-            [one_type] if one_type.code == "code" ->
-              case elt.binding {
-                Some(x) ->
-                  case x.value_set {
-                    Some(vs) -> {
-                      case string.split(vs, "|") {
-                        //get rid of |version in http://some.valueset|4.0.1
-                        [url] -> set.insert(acc2, url)
-                        [url, ..] -> set.insert(acc2, url)
-                        [] -> acc2
-                      }
-                    }
-                    _ -> acc2
-                  }
-                None -> acc2
-              }
-            _ -> acc2
-          }
-        })
-      })
-      |> option.unwrap(acc1)
-    })
+    set.union(get_needed_codes(res_file), get_needed_codes(types_file))
   let assert Ok(vs_spec) = simplifile.read(vs_file)
     as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
   let assert Ok(vs_bundle) =
     json.parse(from: vs_spec, using: vs_bundle_decoder())
+  let assert Ok(cs_bundle) =
+    json.parse(from: vs_spec, using: cs_bundle_decoder())
+  let system_to_codesystem =
+    list.fold(over: cs_bundle.entry, from: dict.new(), with: insert_codesystem)
   let vs_imports =
     "import gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\n"
   list.fold(
     from: vs_imports,
     over: vs_bundle.entry,
-    with: fn(acc1, vs_entry: VSEntry) {
-      let vs_url = vs_entry.resource.value_set
-      case vs_url {
-        None -> acc1
-        Some(valueset_url_str) -> {
-          case set.contains(need_codes, valueset_url_str) {
-            True -> {
+    with: fn(vs_acc, vs_entry: VSEntry) {
+      let vs_url = vs_entry.resource.url
+      let assert Some(valueset_url_str) = vs_url
+      case set.contains(need_codes, valueset_url_str) {
+        True -> {
+          //io.println("ok go for it " <> valueset_url_str)
+          let cname = concept_name_from_url(vs_entry.resource.url)
+          case cname {
+            //not trying to make valuesets out of these because they dont have items in the profiles-types json
+            "Currencies" -> vs_acc
+            "Mimetypes" -> vs_acc
+            //r5 problem only
+            "Alllanguages" -> vs_acc
+            "Ucumunits" -> vs_acc
+            _ -> {
+              let vs_concepts_list_finally =
+                get_vs_concepts(vs_entry.resource, system_to_codesystem)
               string.concat([
-                acc1,
-                getconcept(vs_entry.resource),
-                valueset_encoder(vs_entry.resource),
-                valueset_decoder(vs_entry.resource),
+                vs_acc,
+                get_concepts_str(cname, vs_concepts_list_finally),
+                gen_valueset_encoder(cname, vs_concepts_list_finally),
+                gen_valueset_decoder(cname, vs_concepts_list_finally),
               ])
             }
-            False -> acc1
           }
+        }
+        False -> {
+          //io.println("not in need_codes " <> valueset_url_str)
+          vs_acc
         }
       }
     },
   )
 }
 
-// look for http://hl7.org/fhir/allergy-intolerance-criticality
-// look for http://hl7.org/fhir/ValueSet/allergy-intolerance-criticality
-// dont have AllergyIntoleranceCriticality
+fn insert_codesystem(
+  sys_to_codesys: dict.Dict(String, Codesystem),
+  cse: CSEntry,
+) {
+  let assert Some(url) = cse.resource.url
+  dict.insert(sys_to_codesys, url, cse.resource)
+}
 
-fn getconcept(vs_res: Codesystem) -> String {
-  //  let assert Some(name) = vs_res.name
-  // these bastards gave http://hl7.org/fhir/ValueSet/medication-statement-status and http://hl7.org/fhir/ValueSet/medication-status the same name
-  // in fairness nobody said name unique...
-  let cname = concept_name_from_url(vs_res.url)
+fn get_needed_codes(filename: String) {
+  let assert Ok(res) = simplifile.read(filename)
+    as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
+  let assert Ok(res_bundle) = json.parse(from: res, using: bundle_decoder())
+  // there must be a much nicer way to chain these
+  // will probably be a cool gleam realization moment
+  // terrible ugly for now though
+  res_bundle.entry
+  |> list.fold(set.new(), fn(acc1, e) {
+    e.resource.snapshot
+    |> option.map(fn(snapshot) {
+      snapshot.element
+      |> list.fold(acc1, fn(acc2, elt) {
+        case elt.type_ {
+          [one_type] if one_type.code == "code" -> {
+            case elt.binding {
+              Some(x) ->
+                case x.value_set {
+                  Some(vs) -> {
+                    case string.split(vs, "|") {
+                      //get rid of |version in http://some.valueset|4.0.1
+                      [url] -> set.insert(acc2, url)
+                      [url, ..] -> set.insert(acc2, url)
+                      [] -> acc2
+                    }
+                  }
+                  _ -> acc2
+                }
+              None -> acc2
+            }
+          }
+          _ -> acc2
+        }
+      })
+    })
+    |> option.unwrap(acc1)
+  })
+}
+
+fn get_vs_concepts(vs_res: Valueset, codesystems: dict.Dict(String, Codesystem)) {
+  let assert Some(vs_compose) = vs_res.compose
+  let vs_incl: List(ValuesetComposeInclude) = vs_compose.include
+  // there are valuesets AND codesystems
+  // codesystems are the simple lists of codes but they dont have everything
+  // valuesets include code systems which is annoying at best
+  // this gets codes either from valuesets directly or by getting code from codesystem included in valueset
+  // TODO there can also be weird rules for including (is-a or filter)????? idk
+  vs_incl
+  |> list.map(fn(vci: ValuesetComposeInclude) {
+    case vci.concept {
+      [] -> {
+        case vci.system {
+          None -> []
+          Some(vci_sys) -> {
+            let cs = dict.get(codesystems, vci_sys)
+            case cs {
+              Error(_) -> []
+              Ok(concept_codesystem) -> {
+                list.map(concept_codesystem.concept, fn(cs_c) {
+                  ValuesetComposeIncludeConcept(
+                    code: cs_c.code,
+                    display: cs_c.display,
+                  )
+                })
+              }
+            }
+          }
+        }
+      }
+      _ -> vci.concept
+    }
+  })
+  |> list.flatten
+}
+
+fn get_concepts_str(
+  cname: String,
+  vs_concept_list: List(ValuesetComposeIncludeConcept),
+) {
   string.concat([
     "\npub type ",
     cname,
     "{",
     list.fold(
-      over: vs_res.concept,
+      over: vs_concept_list,
       from: "",
-      with: fn(acc: String, vs_concept: CodesystemConcept) {
+      with: fn(acc: String, vs_concept_finally: ValuesetComposeIncludeConcept) {
         acc
         <> cname
-        <> codetovarname(vs_concept.code)
+        <> codetovarname(vs_concept_finally.code)
         |> string.capitalise()
         <> "\n"
       },
@@ -772,6 +969,7 @@ fn codetovarname(c: String) {
     #("-", ""),
     #(".", ""),
     #("_", ""),
+    #("/", ""),
     #("!=", "Notequal"),
     #("=", "Equal"),
     #(">=", "Greaterthanoreq"),
@@ -797,14 +995,16 @@ fn str_replace_many(s: String, badchars: List(#(String, String))) -> String {
   })
 }
 
-fn valueset_encoder(vs_res: Codesystem) -> String {
-  let cname = concept_name_from_url(vs_res.url)
+fn gen_valueset_encoder(
+  cname: String,
+  vs_concept_list: List(ValuesetComposeIncludeConcept),
+) -> String {
   let cname_lower = cname |> string.lowercase()
   let template = "pub fn CNAMELOWER_to_json(CNAMELOWER: CNAMECAPITAL) -> Json {
     case CNAMELOWER {" <> list.fold(
       from: "",
-      over: vs_res.concept,
-      with: fn(acc: String, concept: CodesystemConcept) {
+      over: vs_concept_list,
+      with: fn(acc: String, concept: ValuesetComposeIncludeConcept) {
         acc
         <> "CODETYPE -> json.string(\"ACTUALCODE\")\n"
         |> string.replace(
@@ -823,16 +1023,19 @@ fn valueset_encoder(vs_res: Codesystem) -> String {
   |> string.replace("CNAMECAPITAL", cname |> string.capitalise())
 }
 
-fn valueset_decoder(vs_res: Codesystem) -> String {
-  let cname = concept_name_from_url(vs_res.url)
+fn gen_valueset_decoder(
+  cname: String,
+  vs_concept_list: List(ValuesetComposeIncludeConcept),
+) -> String {
   let cname_lower = cname |> string.lowercase()
-  let assert Ok(failure_code) = list.first(vs_res.concept)
+  //let assert Ok(failure_code) = list.first(vs_res.concept)
+  let assert Ok(fail) = list.first(vs_concept_list)
   let template = "pub fn CNAMELOWER_decoder() -> Decoder(CNAMECAPITAL) {
     use variant <- decode.then(decode.string)
     case variant {" <> list.fold(
       from: "",
-      over: vs_res.concept,
-      with: fn(acc: String, concept: CodesystemConcept) {
+      over: vs_concept_list,
+      with: fn(acc: String, concept: ValuesetComposeIncludeConcept) {
         acc
         <> "\"ACTUALCODE\" -> decode.success(CODETYPE)\n"
         |> string.replace(
@@ -843,7 +1046,7 @@ fn valueset_decoder(vs_res: Codesystem) -> String {
         )
         |> string.replace("ACTUALCODE", concept.code)
       },
-    ) <> "_ -> decode.failure(" <> cname <> codetovarname(failure_code.code)
+    ) <> "_ -> decode.failure(" <> cname <> codetovarname(fail.code)
     |> string.capitalise() <> ", \"CNAMECAPITAL\")}
   }
   "
