@@ -1,4 +1,7 @@
+import gleam/option.{Some}
 import gleeunit
+
+//import r4
 
 pub fn main() -> Nil {
   gleeunit.main()
@@ -6,8 +9,9 @@ pub fn main() -> Nil {
 
 // gleeunit test functions end in `_test`
 pub fn hello_world_test() {
-  let name = "Joe"
-  let greeting = "Hello, " <> name <> "!"
-
-  assert greeting == "Hello, Joe!"
+  todo
+  // let ref = r4.new_reference()
+  // let myallergy =
+  //   r4.Allergyintolerance(..r4.new_allergyintolerance(ref), id: Some("abc"))
+  // assert myallergy.id == Some("abc")
 }

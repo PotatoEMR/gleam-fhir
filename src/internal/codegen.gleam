@@ -296,7 +296,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
       fhir_version,
       " types\n////https://hl7.org/fhir/",
       fhir_version,
-      "\nimport gleam/option.{type Option}\nimport ",
+      "\nimport gleam/option.{type Option, None}\nimport ",
       fhir_version,
       "valuesets\n",
       file_to_types(
@@ -370,6 +370,13 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                 pp |> list.reverse |> list.drop(1) |> list.reverse
               let field_path_minus_last = string.join(pp_minus_last, "_")
 
+              //idk why but they just make these quantity
+              let field_path_minus_last = case entry.resource.name {
+                "SimpleQuantity" -> "Simple" <> field_path_minus_last
+                "MoneyQuantity" -> "Money" <> field_path_minus_last
+                _ -> field_path_minus_last
+              }
+
               let appended_field = case
                 dict.get(res_fields, field_path_minus_last)
               {
@@ -388,17 +395,12 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                 }
                 [] -> order
               }
-
               #(res_fields, order)
             },
           )
 
         let type_fields = fields_and_order.0
         let type_order = fields_and_order.1
-        // echo type_order
-        //use res_key <- list.map(dict.keys(type_fields))
-        //echo res_key
-        //echo dict.get(type_fields, res_key)
 
         list.fold(over: type_order, from: "", with: fn(old_type_acc, new_type) {
           let new_doc_link =
@@ -424,13 +426,22 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
             False -> camel_type
           }
           let assert Ok(fields) = dict.get(type_fields, new_type)
-          let #(field_list, choicetypes) =
+          let fields = case entry.resource.name {
+            "SimpleQuantity" ->
+              list.filter(fields, fn(x) { x.path != "Quantity.comparator" })
+            //simplequantity has no comparator
+            _ -> fields
+          }
+          //make type fields, its [x] types, type_new() args and fields
+          let #(field_list, choicetypes, newfunc_args, newfunc_fields) =
             list.fold(
-              from: #("", list.new()),
+              from: #("", list.new(), "", ""),
               over: fields,
               with: fn(acc, elt: Element) {
                 let fields_acc = acc.0
                 let choicetypes_acc = acc.1
+                let newfunc_args_acc = acc.2
+                let newfunc_fields_acc = acc.3
                 let allparts = string.split(elt.path, ".")
                 let assert Ok(elt_last_part) =
                   list.reverse(allparts) |> list.first
@@ -455,9 +466,10 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                   [] -> "Nil"
                   _ -> field_name_new
                 }
+                let elt_snake = to_snake_case(elt_last_part)
                 let this_type_fields =
                   string.concat([
-                    to_snake_case(elt_last_part),
+                    elt_snake,
                     ": ",
                     cardinality(field_type, elt.min, elt.max),
                     ",\n",
@@ -480,7 +492,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           field_name_new,
                           string.capitalise(typ.code),
                           "(",
-                          to_snake_case(elt_last_part),
+                          elt_snake,
                           ": ",
                           string_to_type(
                             typ.code,
@@ -498,21 +510,26 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                     ..choicetypes_acc
                   ]
                 }
-                #(this_type_fields, choicetypes_acc)
+                let #(newfunc_arg, newfunc_field) = case elt.max {
+                  "*" -> #("", elt_snake <> ": [],")
+                  _ ->
+                    case elt.min {
+                      0 -> #("", elt_snake <> ": None,")
+                      1 -> #(elt_snake <> ",", elt_snake <> ":,")
+                      _ -> panic as "cardinality panic 2"
+                    }
+                }
+                #(
+                  this_type_fields,
+                  choicetypes_acc,
+                  newfunc_args_acc <> newfunc_arg,
+                  newfunc_fields_acc <> newfunc_field,
+                )
               },
             )
+          //now have #(field_list, choicetypes, newfunc_args, newfunc_fields) tuple should prolly be custom type or something
           // first elt in tuple is all the fields for this type
-          // these quantity ones messed up idk why
-          let field_list = case
-            list.contains(
-              ["SimpleQuantity", "MoneyQuantity"],
-              entry.resource.name,
-            )
-          {
-            True ->
-              "id: Option(String), extension: List(Extension), value: Option(Float), comparator: Option(String), unit: Option(String), system: Option(String), code: Option(String),"
-            False -> field_list
-          }
+
           let type_newfields =
             string.concat([
               "pub type ",
@@ -523,9 +540,29 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
               field_list,
               ")\n}",
             ])
+          let snake_type = to_snake_case(camel_type)
+          let type_new_newfunc =
+            string.concat([
+              "pub fn ",
+              snake_type,
+              "_new(",
+              newfunc_args,
+              ") ->" <> camel_type,
+              "{",
+              camel_type,
+              "(",
+              newfunc_fields,
+              ")\n}",
+            ])
           let type_choicetypes = string.join(choicetypes, "\n")
           string.join(
-            [new_doc_link, type_newfields, type_choicetypes, old_type_acc],
+            [
+              new_doc_link,
+              type_newfields,
+              type_choicetypes,
+              type_new_newfunc,
+              old_type_acc,
+            ],
             "\n",
           )
         })
@@ -646,6 +683,8 @@ fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
     _, _ -> panic as "cardinality panic"
   }
 }
+
+//region valuesets
 
 type CSBundle {
   CSBundle(entry: List(CSEntry))

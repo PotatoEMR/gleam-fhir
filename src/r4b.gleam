@@ -1,12 +1,16 @@
 ////FHIR r4b types
 ////https://hl7.org/fhir/r4b
 
-import gleam/option.{type Option}
+import gleam/option.{type Option, None}
 import r4bvaluesets
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Element#resource
 pub type Element {
   Element(id: Option(String), extension: List(Extension))
+}
+
+pub fn element_new() -> Element {
+  Element(extension: [], id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Address#resource
@@ -27,6 +31,23 @@ pub type Address {
   )
 }
 
+pub fn address_new() -> Address {
+  Address(
+    period: None,
+    country: None,
+    postal_code: None,
+    state: None,
+    district: None,
+    city: None,
+    line: [],
+    text: None,
+    type_: None,
+    use_: None,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Age#resource
 pub type Age {
   Age(
@@ -37,6 +58,18 @@ pub type Age {
     unit: Option(String),
     system: Option(String),
     code: Option(String),
+  )
+}
+
+pub fn age_new() -> Age {
+  Age(
+    code: None,
+    system: None,
+    unit: None,
+    comparator: None,
+    value: None,
+    extension: [],
+    id: None,
   )
 }
 
@@ -57,6 +90,10 @@ pub type AnnotationAuthor {
   AnnotationAuthorString(author: String)
 }
 
+pub fn annotation_new(text) -> Annotation {
+  Annotation(text:, time: None, author: None, extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Attachment#resource
 pub type Attachment {
   Attachment(
@@ -73,6 +110,21 @@ pub type Attachment {
   )
 }
 
+pub fn attachment_new() -> Attachment {
+  Attachment(
+    creation: None,
+    title: None,
+    hash: None,
+    size: None,
+    url: None,
+    data: None,
+    language: None,
+    content_type: None,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CodeableConcept#resource
 pub type Codeableconcept {
   Codeableconcept(
@@ -83,6 +135,10 @@ pub type Codeableconcept {
   )
 }
 
+pub fn codeableconcept_new() -> Codeableconcept {
+  Codeableconcept(text: None, coding: [], extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CodeableReference#resource
 pub type Codeablereference {
   Codeablereference(
@@ -91,6 +147,10 @@ pub type Codeablereference {
     concept: Option(Codeableconcept),
     reference: Option(Reference),
   )
+}
+
+pub fn codeablereference_new() -> Codeablereference {
+  Codeablereference(reference: None, concept: None, extension: [], id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Coding#resource
@@ -106,6 +166,18 @@ pub type Coding {
   )
 }
 
+pub fn coding_new() -> Coding {
+  Coding(
+    user_selected: None,
+    display: None,
+    code: None,
+    version: None,
+    system: None,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ContactDetail#resource
 pub type Contactdetail {
   Contactdetail(
@@ -114,6 +186,10 @@ pub type Contactdetail {
     name: Option(String),
     telecom: List(Contactpoint),
   )
+}
+
+pub fn contactdetail_new() -> Contactdetail {
+  Contactdetail(telecom: [], name: None, extension: [], id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/ContactPoint#resource
@@ -129,6 +205,18 @@ pub type Contactpoint {
   )
 }
 
+pub fn contactpoint_new() -> Contactpoint {
+  Contactpoint(
+    period: None,
+    rank: None,
+    use_: None,
+    value: None,
+    system: None,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Contributor#resource
 pub type Contributor {
   Contributor(
@@ -138,6 +226,10 @@ pub type Contributor {
     name: String,
     contact: List(Contactdetail),
   )
+}
+
+pub fn contributor_new(name, type_) -> Contributor {
+  Contributor(contact: [], name:, type_:, extension: [], id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Count#resource
@@ -150,6 +242,18 @@ pub type Count {
     unit: Option(String),
     system: Option(String),
     code: Option(String),
+  )
+}
+
+pub fn count_new() -> Count {
+  Count(
+    code: None,
+    system: None,
+    unit: None,
+    comparator: None,
+    value: None,
+    extension: [],
+    id: None,
   )
 }
 
@@ -175,6 +279,21 @@ pub type DatarequirementSubject {
   DatarequirementSubjectReference(subject: Reference)
 }
 
+pub fn datarequirement_new(type_) -> Datarequirement {
+  Datarequirement(
+    sort: [],
+    limit: None,
+    date_filter: [],
+    code_filter: [],
+    must_support: [],
+    subject: None,
+    profile: [],
+    type_:,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Distance#resource
 pub type Distance {
   Distance(
@@ -185,6 +304,18 @@ pub type Distance {
     unit: Option(String),
     system: Option(String),
     code: Option(String),
+  )
+}
+
+pub fn distance_new() -> Distance {
+  Distance(
+    code: None,
+    system: None,
+    unit: None,
+    comparator: None,
+    value: None,
+    extension: [],
+    id: None,
   )
 }
 
@@ -216,6 +347,27 @@ pub type DosageAsneeded {
   DosageAsneededCodeableconcept(as_needed: Codeableconcept)
 }
 
+pub fn dosage_new() -> Dosage {
+  Dosage(
+    max_dose_per_lifetime: None,
+    max_dose_per_administration: None,
+    max_dose_per_period: None,
+    dose_and_rate: [],
+    method: None,
+    route: None,
+    site: None,
+    as_needed: None,
+    timing: None,
+    patient_instruction: None,
+    additional_instruction: [],
+    text: None,
+    sequence: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Duration#resource
 pub type Duration {
   Duration(
@@ -226,6 +378,18 @@ pub type Duration {
     unit: Option(String),
     system: Option(String),
     code: Option(String),
+  )
+}
+
+pub fn duration_new() -> Duration {
+  Duration(
+    code: None,
+    system: None,
+    unit: None,
+    comparator: None,
+    value: None,
+    extension: [],
+    id: None,
   )
 }
 
@@ -469,6 +633,48 @@ pub type ElementdefinitionMaxvalue {
   ElementdefinitionMaxvalueQuantity(max_value: Quantity)
 }
 
+pub fn elementdefinition_new(path) -> Elementdefinition {
+  Elementdefinition(
+    mapping: [],
+    binding: None,
+    is_summary: None,
+    is_modifier_reason: None,
+    is_modifier: None,
+    must_support: None,
+    constraint: [],
+    condition: [],
+    max_length: None,
+    max_value: None,
+    min_value: None,
+    example: [],
+    pattern: None,
+    fixed: None,
+    order_meaning: None,
+    meaning_when_missing: None,
+    default_value: None,
+    type_: [],
+    content_reference: None,
+    base: None,
+    max: None,
+    min: None,
+    alias: [],
+    requirements: None,
+    comment: None,
+    definition: None,
+    short: None,
+    slicing: None,
+    code: [],
+    label: None,
+    slice_is_constraining: None,
+    slice_name: None,
+    representation: [],
+    path:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Expression#resource
 pub type Expression {
   Expression(
@@ -479,6 +685,18 @@ pub type Expression {
     language: String,
     expression: Option(String),
     reference: Option(String),
+  )
+}
+
+pub fn expression_new(language) -> Expression {
+  Expression(
+    reference: None,
+    expression: None,
+    language:,
+    name: None,
+    description: None,
+    extension: [],
+    id: None,
   )
 }
 
@@ -547,6 +765,10 @@ pub type ExtensionValue {
   ExtensionValueDosage(value: Dosage)
 }
 
+pub fn extension_new(url) -> Extension {
+  Extension(value: None, url:, extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/HumanName#resource
 pub type Humanname {
   Humanname(
@@ -559,6 +781,20 @@ pub type Humanname {
     prefix: List(String),
     suffix: List(String),
     period: Option(Period),
+  )
+}
+
+pub fn humanname_new() -> Humanname {
+  Humanname(
+    period: None,
+    suffix: [],
+    prefix: [],
+    given: [],
+    family: None,
+    text: None,
+    use_: None,
+    extension: [],
+    id: None,
   )
 }
 
@@ -576,6 +812,19 @@ pub type Identifier {
   )
 }
 
+pub fn identifier_new() -> Identifier {
+  Identifier(
+    assigner: None,
+    period: None,
+    value: None,
+    system: None,
+    type_: None,
+    use_: None,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MarketingStatus#resource
 pub type Marketingstatus {
   Marketingstatus(
@@ -587,6 +836,19 @@ pub type Marketingstatus {
     status: Codeableconcept,
     date_range: Option(Period),
     restore_date: Option(String),
+  )
+}
+
+pub fn marketingstatus_new(status) -> Marketingstatus {
+  Marketingstatus(
+    restore_date: None,
+    date_range: None,
+    status:,
+    jurisdiction: None,
+    country: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -604,6 +866,19 @@ pub type Meta {
   )
 }
 
+pub fn meta_new() -> Meta {
+  Meta(
+    tag: [],
+    security: [],
+    profile: [],
+    source: None,
+    last_updated: None,
+    version_id: None,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Money#resource
 pub type Money {
   Money(
@@ -614,6 +889,10 @@ pub type Money {
   )
 }
 
+pub fn money_new() -> Money {
+  Money(currency: None, value: None, extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Narrative#resource
 pub type Narrative {
   Narrative(
@@ -622,6 +901,10 @@ pub type Narrative {
     status: r4bvaluesets.Narrativestatus,
     div: String,
   )
+}
+
+pub fn narrative_new(div, status) -> Narrative {
+  Narrative(div:, status:, extension: [], id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/ParameterDefinition#resource
@@ -639,6 +922,20 @@ pub type Parameterdefinition {
   )
 }
 
+pub fn parameterdefinition_new(type_, use_) -> Parameterdefinition {
+  Parameterdefinition(
+    profile: None,
+    type_:,
+    documentation: None,
+    max: None,
+    min: None,
+    use_:,
+    name: None,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Period#resource
 pub type Period {
   Period(
@@ -647,6 +944,10 @@ pub type Period {
     start: Option(String),
     end: Option(String),
   )
+}
+
+pub fn period_new() -> Period {
+  Period(end: None, start: None, extension: [], id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Population#resource
@@ -666,6 +967,18 @@ pub type Population {
 pub type PopulationAge {
   PopulationAgeRange(age: Range)
   PopulationAgeCodeableconcept(age: Codeableconcept)
+}
+
+pub fn population_new() -> Population {
+  Population(
+    physiological_condition: None,
+    race: None,
+    gender: None,
+    age: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/ProdCharacteristic#resource
@@ -688,6 +1001,25 @@ pub type Prodcharacteristic {
   )
 }
 
+pub fn prodcharacteristic_new() -> Prodcharacteristic {
+  Prodcharacteristic(
+    scoring: None,
+    image: [],
+    imprint: [],
+    color: [],
+    shape: None,
+    external_diameter: None,
+    nominal_volume: None,
+    weight: None,
+    depth: None,
+    width: None,
+    height: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ProductShelfLife#resource
 pub type Productshelflife {
   Productshelflife(
@@ -698,6 +1030,18 @@ pub type Productshelflife {
     type_: Codeableconcept,
     period: Quantity,
     special_precautions_for_storage: List(Codeableconcept),
+  )
+}
+
+pub fn productshelflife_new(period, type_) -> Productshelflife {
+  Productshelflife(
+    special_precautions_for_storage: [],
+    period:,
+    type_:,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -714,6 +1058,18 @@ pub type Quantity {
   )
 }
 
+pub fn quantity_new() -> Quantity {
+  Quantity(
+    code: None,
+    system: None,
+    unit: None,
+    comparator: None,
+    value: None,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Range#resource
 pub type Range {
   Range(
@@ -724,6 +1080,10 @@ pub type Range {
   )
 }
 
+pub fn range_new() -> Range {
+  Range(high: None, low: None, extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Ratio#resource
 pub type Ratio {
   Ratio(
@@ -732,6 +1092,10 @@ pub type Ratio {
     numerator: Option(Quantity),
     denominator: Option(Quantity),
   )
+}
+
+pub fn ratio_new() -> Ratio {
+  Ratio(denominator: None, numerator: None, extension: [], id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/RatioRange#resource
@@ -745,6 +1109,16 @@ pub type Ratiorange {
   )
 }
 
+pub fn ratiorange_new() -> Ratiorange {
+  Ratiorange(
+    denominator: None,
+    high_numerator: None,
+    low_numerator: None,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Reference#resource
 pub type Reference {
   Reference(
@@ -754,6 +1128,17 @@ pub type Reference {
     type_: Option(String),
     identifier: Option(Identifier),
     display: Option(String),
+  )
+}
+
+pub fn reference_new() -> Reference {
+  Reference(
+    display: None,
+    identifier: None,
+    type_: None,
+    reference: None,
+    extension: [],
+    id: None,
   )
 }
 
@@ -772,6 +1157,20 @@ pub type Relatedartifact {
   )
 }
 
+pub fn relatedartifact_new(type_) -> Relatedartifact {
+  Relatedartifact(
+    resource: None,
+    document: None,
+    url: None,
+    citation: None,
+    display: None,
+    label: None,
+    type_:,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SampledData#resource
 pub type Sampleddata {
   Sampleddata(
@@ -784,6 +1183,20 @@ pub type Sampleddata {
     upper_limit: Option(Float),
     dimensions: Int,
     data: Option(String),
+  )
+}
+
+pub fn sampleddata_new(dimensions, period, origin) -> Sampleddata {
+  Sampleddata(
+    data: None,
+    dimensions:,
+    upper_limit: None,
+    lower_limit: None,
+    factor: None,
+    period:,
+    origin:,
+    extension: [],
+    id: None,
   )
 }
 
@@ -802,6 +1215,20 @@ pub type Signature {
   )
 }
 
+pub fn signature_new(who, when) -> Signature {
+  Signature(
+    data: None,
+    sig_format: None,
+    target_format: None,
+    on_behalf_of: None,
+    who:,
+    when:,
+    type_: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Timing#resource
 pub type Timing {
   Timing(
@@ -811,6 +1238,17 @@ pub type Timing {
     event: List(String),
     repeat: Option(Element),
     code: Option(Codeableconcept),
+  )
+}
+
+pub fn timing_new() -> Timing {
+  Timing(
+    code: None,
+    repeat: None,
+    event: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -835,6 +1273,18 @@ pub type TriggerdefinitionTiming {
   TriggerdefinitionTimingDatetime(timing: String)
 }
 
+pub fn triggerdefinition_new(type_) -> Triggerdefinition {
+  Triggerdefinition(
+    condition: None,
+    data: [],
+    timing: None,
+    name: None,
+    type_:,
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/UsageContext#resource
 pub type Usagecontext {
   Usagecontext(
@@ -853,16 +1303,32 @@ pub type UsagecontextValue {
   UsagecontextValueReference(value: Reference)
 }
 
+pub fn usagecontext_new(value, code) -> Usagecontext {
+  Usagecontext(value:, code:, extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MoneyQuantity#resource
 pub type Moneyquantity {
   Moneyquantity(
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(String),
+    comparator: Option(r4bvaluesets.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
+  )
+}
+
+pub fn moneyquantity_new() -> Moneyquantity {
+  Moneyquantity(
+    code: None,
+    system: None,
+    unit: None,
+    comparator: None,
+    value: None,
+    extension: [],
+    id: None,
   )
 }
 
@@ -872,10 +1338,20 @@ pub type Simplequantity {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(String),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
+  )
+}
+
+pub fn simplequantity_new() -> Simplequantity {
+  Simplequantity(
+    code: None,
+    system: None,
+    unit: None,
+    value: None,
+    extension: [],
+    id: None,
   )
 }
 
@@ -887,6 +1363,10 @@ pub type Resource {
     implicit_rules: Option(String),
     language: Option(String),
   )
+}
+
+pub fn resource_new() -> Resource {
+  Resource(language: None, implicit_rules: None, meta: None, id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Account#resource
@@ -914,6 +1394,30 @@ pub type Account {
   )
 }
 
+pub fn account_new(status) -> Account {
+  Account(
+    part_of: None,
+    guarantor: [],
+    description: None,
+    owner: None,
+    coverage: [],
+    service_period: None,
+    subject: [],
+    name: None,
+    type_: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Account#resource
 pub type AccountCoverage {
   AccountCoverage(
@@ -922,6 +1426,16 @@ pub type AccountCoverage {
     modifier_extension: List(Extension),
     coverage: Reference,
     priority: Option(Int),
+  )
+}
+
+pub fn account_coverage_new(coverage) -> AccountCoverage {
+  AccountCoverage(
+    priority: None,
+    coverage:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -934,6 +1448,17 @@ pub type AccountGuarantor {
     party: Reference,
     on_hold: Option(Bool),
     period: Option(Period),
+  )
+}
+
+pub fn account_guarantor_new(party) -> AccountGuarantor {
+  AccountGuarantor(
+    period: None,
+    on_hold: None,
+    party:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1020,6 +1545,65 @@ pub type ActivitydefinitionProduct {
   ActivitydefinitionProductCodeableconcept(product: Codeableconcept)
 }
 
+pub fn activitydefinition_new(status) -> Activitydefinition {
+  Activitydefinition(
+    dynamic_value: [],
+    transform: None,
+    observation_result_requirement: [],
+    observation_requirement: [],
+    specimen_requirement: [],
+    body_site: [],
+    dosage: [],
+    quantity: None,
+    product: None,
+    participant: [],
+    location: None,
+    timing: None,
+    do_not_perform: None,
+    priority: None,
+    intent: None,
+    code: None,
+    profile: None,
+    kind: None,
+    library: [],
+    related_artifact: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    topic: [],
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    usage: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    subject: None,
+    experimental: None,
+    status:,
+    subtitle: None,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ActivityDefinition#resource
 pub type ActivitydefinitionParticipant {
   ActivitydefinitionParticipant(
@@ -1031,6 +1615,18 @@ pub type ActivitydefinitionParticipant {
   )
 }
 
+pub fn activitydefinition_participant_new(
+  type_,
+) -> ActivitydefinitionParticipant {
+  ActivitydefinitionParticipant(
+    role: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ActivityDefinition#resource
 pub type ActivitydefinitionDynamicvalue {
   ActivitydefinitionDynamicvalue(
@@ -1039,6 +1635,19 @@ pub type ActivitydefinitionDynamicvalue {
     modifier_extension: List(Extension),
     path: String,
     expression: Expression,
+  )
+}
+
+pub fn activitydefinition_dynamicvalue_new(
+  expression,
+  path,
+) -> ActivitydefinitionDynamicvalue {
+  ActivitydefinitionDynamicvalue(
+    expression:,
+    path:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1068,6 +1677,31 @@ pub type Administrableproductdefinition {
   )
 }
 
+pub fn administrableproductdefinition_new(
+  status,
+) -> Administrableproductdefinition {
+  Administrableproductdefinition(
+    route_of_administration: [],
+    property: [],
+    device: None,
+    ingredient: [],
+    produced_from: [],
+    unit_of_presentation: None,
+    administrable_dose_form: None,
+    form_of: [],
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/AdministrableProductDefinition#resource
 pub type AdministrableproductdefinitionProperty {
   AdministrableproductdefinitionProperty(
@@ -1091,6 +1725,19 @@ pub type AdministrableproductdefinitionPropertyValue {
   AdministrableproductdefinitionPropertyValueAttachment(value: Attachment)
 }
 
+pub fn administrableproductdefinition_property_new(
+  type_,
+) -> AdministrableproductdefinitionProperty {
+  AdministrableproductdefinitionProperty(
+    status: None,
+    value: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/AdministrableProductDefinition#resource
 pub type AdministrableproductdefinitionRouteofadministration {
   AdministrableproductdefinitionRouteofadministration(
@@ -1109,6 +1756,23 @@ pub type AdministrableproductdefinitionRouteofadministration {
   )
 }
 
+pub fn administrableproductdefinition_routeofadministration_new(
+  code,
+) -> AdministrableproductdefinitionRouteofadministration {
+  AdministrableproductdefinitionRouteofadministration(
+    target_species: [],
+    max_treatment_period: None,
+    max_dose_per_treatment_period: None,
+    max_dose_per_day: None,
+    max_single_dose: None,
+    first_dose: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/AdministrableProductDefinition#resource
 pub type AdministrableproductdefinitionRouteofadministrationTargetspecies {
   AdministrableproductdefinitionRouteofadministrationTargetspecies(
@@ -1122,6 +1786,18 @@ pub type AdministrableproductdefinitionRouteofadministrationTargetspecies {
   )
 }
 
+pub fn administrableproductdefinition_routeofadministration_targetspecies_new(
+  code,
+) -> AdministrableproductdefinitionRouteofadministrationTargetspecies {
+  AdministrableproductdefinitionRouteofadministrationTargetspecies(
+    withdrawal_period: [],
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/AdministrableProductDefinition#resource
 pub type AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdrawalperiod {
   AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdrawalperiod(
@@ -1131,6 +1807,20 @@ pub type AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdra
     tissue: Codeableconcept,
     value: Quantity,
     supporting_information: Option(String),
+  )
+}
+
+pub fn administrableproductdefinition_routeofadministration_targetspecies_withdrawalperiod_new(
+  value,
+  tissue,
+) -> AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdrawalperiod {
+  AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdrawalperiod(
+    supporting_information: None,
+    value:,
+    tissue:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1168,6 +1858,39 @@ pub type Adverseevent {
   )
 }
 
+pub fn adverseevent_new(subject, actuality) -> Adverseevent {
+  Adverseevent(
+    study: [],
+    reference_document: [],
+    subject_medical_history: [],
+    suspect_entity: [],
+    contributor: [],
+    recorder: None,
+    outcome: None,
+    severity: None,
+    seriousness: None,
+    location: None,
+    resulting_condition: [],
+    recorded_date: None,
+    detected: None,
+    date: None,
+    encounter: None,
+    subject:,
+    event: None,
+    category: [],
+    actuality:,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/AdverseEvent#resource
 pub type AdverseeventSuspectentity {
   AdverseeventSuspectentity(
@@ -1176,6 +1899,16 @@ pub type AdverseeventSuspectentity {
     modifier_extension: List(Extension),
     instance: Reference,
     causality: List(AdverseeventSuspectentityCausality),
+  )
+}
+
+pub fn adverseevent_suspectentity_new(instance) -> AdverseeventSuspectentity {
+  AdverseeventSuspectentity(
+    causality: [],
+    instance:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1189,6 +1922,18 @@ pub type AdverseeventSuspectentityCausality {
     product_relatedness: Option(String),
     author: Option(Reference),
     method: Option(Codeableconcept),
+  )
+}
+
+pub fn adverseevent_suspectentity_causality_new() -> AdverseeventSuspectentityCausality {
+  AdverseeventSuspectentityCausality(
+    method: None,
+    author: None,
+    product_relatedness: None,
+    assessment: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1231,6 +1976,35 @@ pub type AllergyintoleranceOnset {
   AllergyintoleranceOnsetString(onset: String)
 }
 
+pub fn allergyintolerance_new(patient) -> Allergyintolerance {
+  Allergyintolerance(
+    reaction: [],
+    note: [],
+    last_occurrence: None,
+    asserter: None,
+    recorder: None,
+    recorded_date: None,
+    onset: None,
+    encounter: None,
+    patient:,
+    code: None,
+    criticality: None,
+    category: [],
+    type_: None,
+    verification_status: None,
+    clinical_status: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/AllergyIntolerance#resource
 pub type AllergyintoleranceReaction {
   AllergyintoleranceReaction(
@@ -1244,6 +2018,21 @@ pub type AllergyintoleranceReaction {
     severity: Option(r4bvaluesets.Reactioneventseverity),
     exposure_route: Option(Codeableconcept),
     note: List(Annotation),
+  )
+}
+
+pub fn allergyintolerance_reaction_new() -> AllergyintoleranceReaction {
+  AllergyintoleranceReaction(
+    note: [],
+    exposure_route: None,
+    severity: None,
+    onset: None,
+    description: None,
+    manifestation: [],
+    substance: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1283,6 +2072,41 @@ pub type Appointment {
   )
 }
 
+pub fn appointment_new(status) -> Appointment {
+  Appointment(
+    requested_period: [],
+    participant: [],
+    based_on: [],
+    patient_instruction: None,
+    comment: None,
+    created: None,
+    slot: [],
+    minutes_duration: None,
+    end: None,
+    start: None,
+    supporting_information: [],
+    description: None,
+    priority: None,
+    reason_reference: [],
+    reason_code: [],
+    appointment_type: None,
+    specialty: [],
+    service_type: [],
+    service_category: [],
+    cancelation_reason: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Appointment#resource
 pub type AppointmentParticipant {
   AppointmentParticipant(
@@ -1294,6 +2118,19 @@ pub type AppointmentParticipant {
     required: Option(r4bvaluesets.Participantrequired),
     status: r4bvaluesets.Participationstatus,
     period: Option(Period),
+  )
+}
+
+pub fn appointment_participant_new(status) -> AppointmentParticipant {
+  AppointmentParticipant(
+    period: None,
+    status:,
+    required: None,
+    actor: None,
+    type_: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1316,6 +2153,30 @@ pub type Appointmentresponse {
     actor: Option(Reference),
     participant_status: r4bvaluesets.Participationstatus,
     comment: Option(String),
+  )
+}
+
+pub fn appointmentresponse_new(
+  participant_status,
+  appointment,
+) -> Appointmentresponse {
+  Appointmentresponse(
+    comment: None,
+    participant_status:,
+    actor: None,
+    participant_type: [],
+    end: None,
+    start: None,
+    appointment:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -1344,6 +2205,30 @@ pub type Auditevent {
   )
 }
 
+pub fn auditevent_new(source, recorded, type_) -> Auditevent {
+  Auditevent(
+    entity: [],
+    source:,
+    agent: [],
+    purpose_of_event: [],
+    outcome_desc: None,
+    outcome: None,
+    recorded:,
+    period: None,
+    action: None,
+    subtype: [],
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/AuditEvent#resource
 pub type AuditeventAgent {
   AuditeventAgent(
@@ -1364,6 +2249,25 @@ pub type AuditeventAgent {
   )
 }
 
+pub fn auditevent_agent_new(requestor) -> AuditeventAgent {
+  AuditeventAgent(
+    purpose_of_use: [],
+    network: None,
+    media: None,
+    policy: [],
+    location: None,
+    requestor:,
+    name: None,
+    alt_id: None,
+    who: None,
+    role: [],
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/AuditEvent#resource
 pub type AuditeventAgentNetwork {
   AuditeventAgentNetwork(
@@ -1372,6 +2276,16 @@ pub type AuditeventAgentNetwork {
     modifier_extension: List(Extension),
     address: Option(String),
     type_: Option(r4bvaluesets.Networktype),
+  )
+}
+
+pub fn auditevent_agent_network_new() -> AuditeventAgentNetwork {
+  AuditeventAgentNetwork(
+    type_: None,
+    address: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1384,6 +2298,17 @@ pub type AuditeventSource {
     site: Option(String),
     observer: Reference,
     type_: List(Coding),
+  )
+}
+
+pub fn auditevent_source_new(observer) -> AuditeventSource {
+  AuditeventSource(
+    type_: [],
+    observer:,
+    site: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1405,6 +2330,23 @@ pub type AuditeventEntity {
   )
 }
 
+pub fn auditevent_entity_new() -> AuditeventEntity {
+  AuditeventEntity(
+    detail: [],
+    query: None,
+    description: None,
+    name: None,
+    security_label: [],
+    lifecycle: None,
+    role: None,
+    type_: None,
+    what: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/AuditEvent#resource
 pub type AuditeventEntityDetail {
   AuditeventEntityDetail(
@@ -1420,6 +2362,16 @@ pub type AuditeventEntityDetail {
 pub type AuditeventEntityDetailValue {
   AuditeventEntityDetailValueString(value: String)
   AuditeventEntityDetailValueBase64binary(value: String)
+}
+
+pub fn auditevent_entity_detail_new(value, type_) -> AuditeventEntityDetail {
+  AuditeventEntityDetail(
+    value:,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Basic#resource
@@ -1441,6 +2393,24 @@ pub type Basic {
   )
 }
 
+pub fn basic_new(code) -> Basic {
+  Basic(
+    author: None,
+    created: None,
+    subject: None,
+    code:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Binary#resource
 pub type Binary {
   Binary(
@@ -1451,6 +2421,18 @@ pub type Binary {
     content_type: String,
     security_context: Option(Reference),
     data: Option(String),
+  )
+}
+
+pub fn binary_new(content_type) -> Binary {
+  Binary(
+    data: None,
+    security_context: None,
+    content_type:,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -1479,6 +2461,30 @@ pub type Biologicallyderivedproduct {
   )
 }
 
+pub fn biologicallyderivedproduct_new() -> Biologicallyderivedproduct {
+  Biologicallyderivedproduct(
+    storage: [],
+    manipulation: None,
+    processing: [],
+    collection: None,
+    parent: [],
+    quantity: None,
+    request: [],
+    status: None,
+    product_code: None,
+    product_category: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/BiologicallyDerivedProduct#resource
 pub type BiologicallyderivedproductCollection {
   BiologicallyderivedproductCollection(
@@ -1495,6 +2501,17 @@ pub type BiologicallyderivedproductCollection {
 pub type BiologicallyderivedproductCollectionCollected {
   BiologicallyderivedproductCollectionCollectedDatetime(collected: String)
   BiologicallyderivedproductCollectionCollectedPeriod(collected: Period)
+}
+
+pub fn biologicallyderivedproduct_collection_new() -> BiologicallyderivedproductCollection {
+  BiologicallyderivedproductCollection(
+    collected: None,
+    source: None,
+    collector: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/BiologicallyDerivedProduct#resource
@@ -1516,6 +2533,18 @@ pub type BiologicallyderivedproductProcessingTime {
   BiologicallyderivedproductProcessingTimePeriod(time: Period)
 }
 
+pub fn biologicallyderivedproduct_processing_new() -> BiologicallyderivedproductProcessing {
+  BiologicallyderivedproductProcessing(
+    time: None,
+    additive: None,
+    procedure: None,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/BiologicallyDerivedProduct#resource
 pub type BiologicallyderivedproductManipulation {
   BiologicallyderivedproductManipulation(
@@ -1533,6 +2562,16 @@ pub type BiologicallyderivedproductManipulationTime {
   BiologicallyderivedproductManipulationTimePeriod(time: Period)
 }
 
+pub fn biologicallyderivedproduct_manipulation_new() -> BiologicallyderivedproductManipulation {
+  BiologicallyderivedproductManipulation(
+    time: None,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/BiologicallyDerivedProduct#resource
 pub type BiologicallyderivedproductStorage {
   BiologicallyderivedproductStorage(
@@ -1543,6 +2582,18 @@ pub type BiologicallyderivedproductStorage {
     temperature: Option(Float),
     scale: Option(r4bvaluesets.Productstoragescale),
     duration: Option(Period),
+  )
+}
+
+pub fn biologicallyderivedproduct_storage_new() -> BiologicallyderivedproductStorage {
+  BiologicallyderivedproductStorage(
+    duration: None,
+    scale: None,
+    temperature: None,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1568,6 +2619,27 @@ pub type Bodystructure {
   )
 }
 
+pub fn bodystructure_new(patient) -> Bodystructure {
+  Bodystructure(
+    patient:,
+    image: [],
+    description: None,
+    location_qualifier: [],
+    location: None,
+    morphology: None,
+    active: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Bundle#resource
 pub type Bundle {
   Bundle(
@@ -1585,6 +2657,22 @@ pub type Bundle {
   )
 }
 
+pub fn bundle_new(type_) -> Bundle {
+  Bundle(
+    signature: None,
+    entry: [],
+    link: [],
+    total: None,
+    timestamp: None,
+    type_:,
+    identifier: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Bundle#resource
 pub type BundleLink {
   BundleLink(
@@ -1594,6 +2682,10 @@ pub type BundleLink {
     relation: String,
     url: String,
   )
+}
+
+pub fn bundle_link_new(url, relation) -> BundleLink {
+  BundleLink(url:, relation:, modifier_extension: [], extension: [], id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Bundle#resource
@@ -1611,6 +2703,20 @@ pub type BundleEntry {
   )
 }
 
+pub fn bundle_entry_new() -> BundleEntry {
+  BundleEntry(
+    response: None,
+    request: None,
+    search: None,
+    resource: None,
+    full_url: None,
+    link: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Bundle#resource
 pub type BundleEntrySearch {
   BundleEntrySearch(
@@ -1619,6 +2725,16 @@ pub type BundleEntrySearch {
     modifier_extension: List(Extension),
     mode: Option(r4bvaluesets.Searchentrymode),
     score: Option(Float),
+  )
+}
+
+pub fn bundle_entry_search_new() -> BundleEntrySearch {
+  BundleEntrySearch(
+    score: None,
+    mode: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1637,6 +2753,20 @@ pub type BundleEntryRequest {
   )
 }
 
+pub fn bundle_entry_request_new(url, method) -> BundleEntryRequest {
+  BundleEntryRequest(
+    if_none_exist: None,
+    if_match: None,
+    if_modified_since: None,
+    if_none_match: None,
+    url:,
+    method:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Bundle#resource
 pub type BundleEntryResponse {
   BundleEntryResponse(
@@ -1648,6 +2778,19 @@ pub type BundleEntryResponse {
     etag: Option(String),
     last_modified: Option(String),
     outcome: Option(Resource),
+  )
+}
+
+pub fn bundle_entry_response_new(status) -> BundleEntryResponse {
+  BundleEntryResponse(
+    outcome: None,
+    last_modified: None,
+    etag: None,
+    location: None,
+    status:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1691,6 +2834,50 @@ pub type Capabilitystatement {
   )
 }
 
+pub fn capabilitystatement_new(
+  fhir_version,
+  kind,
+  date,
+  status,
+) -> Capabilitystatement {
+  Capabilitystatement(
+    document: [],
+    messaging: [],
+    rest: [],
+    implementation_guide: [],
+    patch_format: [],
+    format: [],
+    fhir_version:,
+    implementation: None,
+    software: None,
+    imports: [],
+    instantiates: [],
+    kind:,
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date:,
+    experimental: None,
+    status:,
+    title: None,
+    name: None,
+    version: None,
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CapabilityStatement#resource
 pub type CapabilitystatementSoftware {
   CapabilitystatementSoftware(
@@ -1703,6 +2890,17 @@ pub type CapabilitystatementSoftware {
   )
 }
 
+pub fn capabilitystatement_software_new(name) -> CapabilitystatementSoftware {
+  CapabilitystatementSoftware(
+    release_date: None,
+    version: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CapabilityStatement#resource
 pub type CapabilitystatementImplementation {
   CapabilitystatementImplementation(
@@ -1712,6 +2910,19 @@ pub type CapabilitystatementImplementation {
     description: String,
     url: Option(String),
     custodian: Option(Reference),
+  )
+}
+
+pub fn capabilitystatement_implementation_new(
+  description,
+) -> CapabilitystatementImplementation {
+  CapabilitystatementImplementation(
+    custodian: None,
+    url: None,
+    description:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1732,6 +2943,22 @@ pub type CapabilitystatementRest {
   )
 }
 
+pub fn capabilitystatement_rest_new(mode) -> CapabilitystatementRest {
+  CapabilitystatementRest(
+    compartment: [],
+    operation: [],
+    search_param: [],
+    interaction: [],
+    resource: [],
+    security: None,
+    documentation: None,
+    mode:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CapabilityStatement#resource
 pub type CapabilitystatementRestSecurity {
   CapabilitystatementRestSecurity(
@@ -1741,6 +2968,17 @@ pub type CapabilitystatementRestSecurity {
     cors: Option(Bool),
     service: List(Codeableconcept),
     description: Option(String),
+  )
+}
+
+pub fn capabilitystatement_rest_security_new() -> CapabilitystatementRestSecurity {
+  CapabilitystatementRestSecurity(
+    description: None,
+    service: [],
+    cors: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1770,6 +3008,33 @@ pub type CapabilitystatementRestResource {
   )
 }
 
+pub fn capabilitystatement_rest_resource_new(
+  type_,
+) -> CapabilitystatementRestResource {
+  CapabilitystatementRestResource(
+    operation: [],
+    search_param: [],
+    search_rev_include: [],
+    search_include: [],
+    reference_policy: [],
+    conditional_delete: None,
+    conditional_update: None,
+    conditional_read: None,
+    conditional_create: None,
+    update_create: None,
+    read_history: None,
+    versioning: None,
+    interaction: [],
+    documentation: None,
+    supported_profile: [],
+    profile: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CapabilityStatement#resource
 pub type CapabilitystatementRestResourceInteraction {
   CapabilitystatementRestResourceInteraction(
@@ -1778,6 +3043,18 @@ pub type CapabilitystatementRestResourceInteraction {
     modifier_extension: List(Extension),
     code: r4bvaluesets.Typerestfulinteraction,
     documentation: Option(String),
+  )
+}
+
+pub fn capabilitystatement_rest_resource_interaction_new(
+  code,
+) -> CapabilitystatementRestResourceInteraction {
+  CapabilitystatementRestResourceInteraction(
+    documentation: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1794,6 +3071,21 @@ pub type CapabilitystatementRestResourceSearchparam {
   )
 }
 
+pub fn capabilitystatement_rest_resource_searchparam_new(
+  type_,
+  name,
+) -> CapabilitystatementRestResourceSearchparam {
+  CapabilitystatementRestResourceSearchparam(
+    documentation: None,
+    type_:,
+    definition: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CapabilityStatement#resource
 pub type CapabilitystatementRestResourceOperation {
   CapabilitystatementRestResourceOperation(
@@ -1806,6 +3098,20 @@ pub type CapabilitystatementRestResourceOperation {
   )
 }
 
+pub fn capabilitystatement_rest_resource_operation_new(
+  definition,
+  name,
+) -> CapabilitystatementRestResourceOperation {
+  CapabilitystatementRestResourceOperation(
+    documentation: None,
+    definition:,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CapabilityStatement#resource
 pub type CapabilitystatementRestInteraction {
   CapabilitystatementRestInteraction(
@@ -1814,6 +3120,18 @@ pub type CapabilitystatementRestInteraction {
     modifier_extension: List(Extension),
     code: r4bvaluesets.Systemrestfulinteraction,
     documentation: Option(String),
+  )
+}
+
+pub fn capabilitystatement_rest_interaction_new(
+  code,
+) -> CapabilitystatementRestInteraction {
+  CapabilitystatementRestInteraction(
+    documentation: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1830,6 +3148,18 @@ pub type CapabilitystatementMessaging {
   )
 }
 
+pub fn capabilitystatement_messaging_new() -> CapabilitystatementMessaging {
+  CapabilitystatementMessaging(
+    supported_message: [],
+    documentation: None,
+    reliable_cache: None,
+    endpoint: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CapabilityStatement#resource
 pub type CapabilitystatementMessagingEndpoint {
   CapabilitystatementMessagingEndpoint(
@@ -1838,6 +3168,19 @@ pub type CapabilitystatementMessagingEndpoint {
     modifier_extension: List(Extension),
     protocol: Coding,
     address: String,
+  )
+}
+
+pub fn capabilitystatement_messaging_endpoint_new(
+  address,
+  protocol,
+) -> CapabilitystatementMessagingEndpoint {
+  CapabilitystatementMessagingEndpoint(
+    address:,
+    protocol:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1852,6 +3195,19 @@ pub type CapabilitystatementMessagingSupportedmessage {
   )
 }
 
+pub fn capabilitystatement_messaging_supportedmessage_new(
+  definition,
+  mode,
+) -> CapabilitystatementMessagingSupportedmessage {
+  CapabilitystatementMessagingSupportedmessage(
+    definition:,
+    mode:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CapabilityStatement#resource
 pub type CapabilitystatementDocument {
   CapabilitystatementDocument(
@@ -1861,6 +3217,20 @@ pub type CapabilitystatementDocument {
     mode: r4bvaluesets.Documentmode,
     documentation: Option(String),
     profile: String,
+  )
+}
+
+pub fn capabilitystatement_document_new(
+  profile,
+  mode,
+) -> CapabilitystatementDocument {
+  CapabilitystatementDocument(
+    profile:,
+    documentation: None,
+    mode:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1901,6 +3271,42 @@ pub type Careplan {
   )
 }
 
+pub fn careplan_new(subject, intent, status) -> Careplan {
+  Careplan(
+    note: [],
+    activity: [],
+    goal: [],
+    supporting_info: [],
+    addresses: [],
+    care_team: [],
+    contributor: [],
+    author: None,
+    created: None,
+    period: None,
+    encounter: None,
+    subject:,
+    description: None,
+    title: None,
+    category: [],
+    intent:,
+    status:,
+    part_of: [],
+    replaces: [],
+    based_on: [],
+    instantiates_uri: [],
+    instantiates_canonical: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CarePlan#resource
 pub type CareplanActivity {
   CareplanActivity(
@@ -1912,6 +3318,19 @@ pub type CareplanActivity {
     progress: List(Annotation),
     reference: Option(Reference),
     detail: Option(CareplanActivityDetail),
+  )
+}
+
+pub fn careplan_activity_new() -> CareplanActivity {
+  CareplanActivity(
+    detail: None,
+    reference: None,
+    progress: [],
+    outcome_reference: [],
+    outcome_codeable_concept: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -1954,6 +3373,31 @@ pub type CareplanActivityDetailProduct {
   CareplanActivityDetailProductReference(product: Reference)
 }
 
+pub fn careplan_activity_detail_new(status) -> CareplanActivityDetail {
+  CareplanActivityDetail(
+    description: None,
+    quantity: None,
+    daily_amount: None,
+    product: None,
+    performer: [],
+    location: None,
+    scheduled: None,
+    do_not_perform: None,
+    status_reason: None,
+    status:,
+    goal: [],
+    reason_reference: [],
+    reason_code: [],
+    code: None,
+    instantiates_uri: [],
+    instantiates_canonical: [],
+    kind: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CareTeam#resource
 pub type Careteam {
   Careteam(
@@ -1981,6 +3425,32 @@ pub type Careteam {
   )
 }
 
+pub fn careteam_new() -> Careteam {
+  Careteam(
+    note: [],
+    telecom: [],
+    managing_organization: [],
+    reason_reference: [],
+    reason_code: [],
+    participant: [],
+    period: None,
+    encounter: None,
+    subject: None,
+    name: None,
+    category: [],
+    status: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CareTeam#resource
 pub type CareteamParticipant {
   CareteamParticipant(
@@ -1991,6 +3461,18 @@ pub type CareteamParticipant {
     member: Option(Reference),
     on_behalf_of: Option(Reference),
     period: Option(Period),
+  )
+}
+
+pub fn careteam_participant_new() -> CareteamParticipant {
+  CareteamParticipant(
+    period: None,
+    on_behalf_of: None,
+    member: None,
+    role: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2021,6 +3503,32 @@ pub type Catalogentry {
   )
 }
 
+pub fn catalogentry_new(referenced_item, orderable) -> Catalogentry {
+  Catalogentry(
+    related_entry: [],
+    additional_classification: [],
+    additional_characteristic: [],
+    last_updated: None,
+    valid_to: None,
+    validity_period: None,
+    status: None,
+    classification: [],
+    additional_identifier: [],
+    referenced_item:,
+    orderable:,
+    type_: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CatalogEntry#resource
 pub type CatalogentryRelatedentry {
   CatalogentryRelatedentry(
@@ -2029,6 +3537,19 @@ pub type CatalogentryRelatedentry {
     modifier_extension: List(Extension),
     relationtype: r4bvaluesets.Relationtype,
     item: Reference,
+  )
+}
+
+pub fn catalogentry_relatedentry_new(
+  item,
+  relationtype,
+) -> CatalogentryRelatedentry {
+  CatalogentryRelatedentry(
+    item:,
+    relationtype:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2085,6 +3606,45 @@ pub type ChargeitemProduct {
   ChargeitemProductCodeableconcept(product: Codeableconcept)
 }
 
+pub fn chargeitem_new(subject, code, status) -> Chargeitem {
+  Chargeitem(
+    supporting_information: [],
+    note: [],
+    account: [],
+    product: None,
+    service: [],
+    reason: [],
+    entered_date: None,
+    enterer: None,
+    override_reason: None,
+    price_override: None,
+    factor_override: None,
+    bodysite: [],
+    quantity: None,
+    cost_center: None,
+    requesting_organization: None,
+    performing_organization: None,
+    performer: [],
+    occurrence: None,
+    context: None,
+    subject:,
+    code:,
+    part_of: [],
+    status:,
+    definition_canonical: [],
+    definition_uri: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ChargeItem#resource
 pub type ChargeitemPerformer {
   ChargeitemPerformer(
@@ -2093,6 +3653,16 @@ pub type ChargeitemPerformer {
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
     actor: Reference,
+  )
+}
+
+pub fn chargeitem_performer_new(actor) -> ChargeitemPerformer {
+  ChargeitemPerformer(
+    actor:,
+    function: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2133,6 +3703,42 @@ pub type Chargeitemdefinition {
   )
 }
 
+pub fn chargeitemdefinition_new(status, url) -> Chargeitemdefinition {
+  Chargeitemdefinition(
+    property_group: [],
+    applicability: [],
+    instance: [],
+    code: None,
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    replaces: [],
+    part_of: [],
+    derived_from_uri: [],
+    title: None,
+    version: None,
+    identifier: [],
+    url:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ChargeItemDefinition#resource
 pub type ChargeitemdefinitionApplicability {
   ChargeitemdefinitionApplicability(
@@ -2142,6 +3748,17 @@ pub type ChargeitemdefinitionApplicability {
     description: Option(String),
     language: Option(String),
     expression: Option(String),
+  )
+}
+
+pub fn chargeitemdefinition_applicability_new() -> ChargeitemdefinitionApplicability {
+  ChargeitemdefinitionApplicability(
+    expression: None,
+    language: None,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2156,6 +3773,16 @@ pub type ChargeitemdefinitionPropertygroup {
   )
 }
 
+pub fn chargeitemdefinition_propertygroup_new() -> ChargeitemdefinitionPropertygroup {
+  ChargeitemdefinitionPropertygroup(
+    price_component: [],
+    applicability: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ChargeItemDefinition#resource
 pub type ChargeitemdefinitionPropertygroupPricecomponent {
   ChargeitemdefinitionPropertygroupPricecomponent(
@@ -2166,6 +3793,20 @@ pub type ChargeitemdefinitionPropertygroupPricecomponent {
     code: Option(Codeableconcept),
     factor: Option(Float),
     amount: Option(Money),
+  )
+}
+
+pub fn chargeitemdefinition_propertygroup_pricecomponent_new(
+  type_,
+) -> ChargeitemdefinitionPropertygroupPricecomponent {
+  ChargeitemdefinitionPropertygroupPricecomponent(
+    amount: None,
+    factor: None,
+    code: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2212,6 +3853,48 @@ pub type Citation {
   )
 }
 
+pub fn citation_new(status) -> Citation {
+  Citation(
+    cited_artifact: None,
+    relates_to: [],
+    status_date: [],
+    current_state: [],
+    note: [],
+    classification: [],
+    summary: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationSummary {
   CitationSummary(
@@ -2220,6 +3903,16 @@ pub type CitationSummary {
     modifier_extension: List(Extension),
     style: Option(Codeableconcept),
     text: String,
+  )
+}
+
+pub fn citation_summary_new(text) -> CitationSummary {
+  CitationSummary(
+    text:,
+    style: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2234,6 +3927,16 @@ pub type CitationClassification {
   )
 }
 
+pub fn citation_classification_new() -> CitationClassification {
+  CitationClassification(
+    classifier: [],
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationStatusdate {
   CitationStatusdate(
@@ -2243,6 +3946,17 @@ pub type CitationStatusdate {
     activity: Codeableconcept,
     actual: Option(Bool),
     period: Period,
+  )
+}
+
+pub fn citation_statusdate_new(period, activity) -> CitationStatusdate {
+  CitationStatusdate(
+    period:,
+    actual: None,
+    activity:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2264,6 +3978,17 @@ pub type CitationRelatestoTarget {
   CitationRelatestoTargetIdentifier(target: Identifier)
   CitationRelatestoTargetReference(target: Reference)
   CitationRelatestoTargetAttachment(target: Attachment)
+}
+
+pub fn citation_relatesto_new(target, relationship_type) -> CitationRelatesto {
+  CitationRelatesto(
+    target:,
+    target_classifier: [],
+    relationship_type:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
@@ -2290,6 +4015,29 @@ pub type CitationCitedartifact {
   )
 }
 
+pub fn citation_citedartifact_new() -> CitationCitedartifact {
+  CitationCitedartifact(
+    note: [],
+    contributorship: None,
+    classification: [],
+    web_location: [],
+    publication_form: [],
+    relates_to: [],
+    part: None,
+    abstract: [],
+    title: [],
+    status_date: [],
+    current_state: [],
+    version: None,
+    date_accessed: None,
+    related_identifier: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationCitedartifactVersion {
   CitationCitedartifactVersion(
@@ -2298,6 +4046,16 @@ pub type CitationCitedartifactVersion {
     modifier_extension: List(Extension),
     value: String,
     base_citation: Option(Reference),
+  )
+}
+
+pub fn citation_citedartifact_version_new(value) -> CitationCitedartifactVersion {
+  CitationCitedartifactVersion(
+    base_citation: None,
+    value:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2313,6 +4071,20 @@ pub type CitationCitedartifactStatusdate {
   )
 }
 
+pub fn citation_citedartifact_statusdate_new(
+  period,
+  activity,
+) -> CitationCitedartifactStatusdate {
+  CitationCitedartifactStatusdate(
+    period:,
+    actual: None,
+    activity:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationCitedartifactTitle {
   CitationCitedartifactTitle(
@@ -2322,6 +4094,17 @@ pub type CitationCitedartifactTitle {
     type_: List(Codeableconcept),
     language: Option(Codeableconcept),
     text: String,
+  )
+}
+
+pub fn citation_citedartifact_title_new(text) -> CitationCitedartifactTitle {
+  CitationCitedartifactTitle(
+    text:,
+    language: None,
+    type_: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2338,6 +4121,20 @@ pub type CitationCitedartifactAbstract {
   )
 }
 
+pub fn citation_citedartifact_abstract_new(
+  text,
+) -> CitationCitedartifactAbstract {
+  CitationCitedartifactAbstract(
+    copyright: None,
+    text:,
+    language: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationCitedartifactPart {
   CitationCitedartifactPart(
@@ -2347,6 +4144,17 @@ pub type CitationCitedartifactPart {
     type_: Option(Codeableconcept),
     value: Option(String),
     base_citation: Option(Reference),
+  )
+}
+
+pub fn citation_citedartifact_part_new() -> CitationCitedartifactPart {
+  CitationCitedartifactPart(
+    base_citation: None,
+    value: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2368,6 +4176,20 @@ pub type CitationCitedartifactRelatestoTarget {
   CitationCitedartifactRelatestoTargetIdentifier(target: Identifier)
   CitationCitedartifactRelatestoTargetReference(target: Reference)
   CitationCitedartifactRelatestoTargetAttachment(target: Attachment)
+}
+
+pub fn citation_citedartifact_relatesto_new(
+  target,
+  relationship_type,
+) -> CitationCitedartifactRelatesto {
+  CitationCitedartifactRelatesto(
+    target:,
+    target_classifier: [],
+    relationship_type:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
@@ -2392,6 +4214,25 @@ pub type CitationCitedartifactPublicationform {
   )
 }
 
+pub fn citation_citedartifact_publicationform_new() -> CitationCitedartifactPublicationform {
+  CitationCitedartifactPublicationform(
+    copyright: None,
+    page_count: None,
+    last_page: None,
+    first_page: None,
+    page_string: None,
+    accession_number: None,
+    language: [],
+    last_revision_date: None,
+    article_date: None,
+    periodic_release: None,
+    published_in: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationCitedartifactPublicationformPublishedin {
   CitationCitedartifactPublicationformPublishedin(
@@ -2403,6 +4244,19 @@ pub type CitationCitedartifactPublicationformPublishedin {
     title: Option(String),
     publisher: Option(Reference),
     publisher_location: Option(String),
+  )
+}
+
+pub fn citation_citedartifact_publicationform_publishedin_new() -> CitationCitedartifactPublicationformPublishedin {
+  CitationCitedartifactPublicationformPublishedin(
+    publisher_location: None,
+    publisher: None,
+    title: None,
+    identifier: [],
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2421,6 +4275,18 @@ pub type CitationCitedartifactPublicationformPeriodicrelease {
   )
 }
 
+pub fn citation_citedartifact_publicationform_periodicrelease_new() -> CitationCitedartifactPublicationformPeriodicrelease {
+  CitationCitedartifactPublicationformPeriodicrelease(
+    date_of_publication: None,
+    issue: None,
+    volume: None,
+    cited_medium: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationCitedartifactPublicationformPeriodicreleaseDateofpublication {
   CitationCitedartifactPublicationformPeriodicreleaseDateofpublication(
@@ -2436,6 +4302,20 @@ pub type CitationCitedartifactPublicationformPeriodicreleaseDateofpublication {
   )
 }
 
+pub fn citation_citedartifact_publicationform_periodicrelease_dateofpublication_new() -> CitationCitedartifactPublicationformPeriodicreleaseDateofpublication {
+  CitationCitedartifactPublicationformPeriodicreleaseDateofpublication(
+    text: None,
+    season: None,
+    day: None,
+    month: None,
+    year: None,
+    date: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationCitedartifactWeblocation {
   CitationCitedartifactWeblocation(
@@ -2444,6 +4324,16 @@ pub type CitationCitedartifactWeblocation {
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
     url: Option(String),
+  )
+}
+
+pub fn citation_citedartifact_weblocation_new() -> CitationCitedartifactWeblocation {
+  CitationCitedartifactWeblocation(
+    url: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2456,6 +4346,17 @@ pub type CitationCitedartifactClassification {
     type_: Option(Codeableconcept),
     classifier: List(Codeableconcept),
     who_classified: Option(CitationCitedartifactClassificationWhoclassified),
+  )
+}
+
+pub fn citation_citedartifact_classification_new() -> CitationCitedartifactClassification {
+  CitationCitedartifactClassification(
+    who_classified: None,
+    classifier: [],
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2473,6 +4374,19 @@ pub type CitationCitedartifactClassificationWhoclassified {
   )
 }
 
+pub fn citation_citedartifact_classification_whoclassified_new() -> CitationCitedartifactClassificationWhoclassified {
+  CitationCitedartifactClassificationWhoclassified(
+    free_to_share: None,
+    classifier_copyright: None,
+    publisher: None,
+    organization: None,
+    person: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationCitedartifactContributorship {
   CitationCitedartifactContributorship(
@@ -2482,6 +4396,17 @@ pub type CitationCitedartifactContributorship {
     complete: Option(Bool),
     entry: List(CitationCitedartifactContributorshipEntry),
     summary: List(CitationCitedartifactContributorshipSummary),
+  )
+}
+
+pub fn citation_citedartifact_contributorship_new() -> CitationCitedartifactContributorship {
+  CitationCitedartifactContributorship(
+    summary: [],
+    entry: [],
+    complete: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2510,6 +4435,26 @@ pub type CitationCitedartifactContributorshipEntry {
   )
 }
 
+pub fn citation_citedartifact_contributorship_entry_new() -> CitationCitedartifactContributorshipEntry {
+  CitationCitedartifactContributorshipEntry(
+    list_order: None,
+    corresponding_contact: None,
+    contribution_instance: [],
+    role: None,
+    contribution_type: [],
+    telecom: [],
+    address: [],
+    affiliation_info: [],
+    identifier: [],
+    collective_name: None,
+    initials: None,
+    name: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationCitedartifactContributorshipEntryAffiliationinfo {
   CitationCitedartifactContributorshipEntryAffiliationinfo(
@@ -2519,6 +4464,17 @@ pub type CitationCitedartifactContributorshipEntryAffiliationinfo {
     affiliation: Option(String),
     role: Option(String),
     identifier: List(Identifier),
+  )
+}
+
+pub fn citation_citedartifact_contributorship_entry_affiliationinfo_new() -> CitationCitedartifactContributorshipEntryAffiliationinfo {
+  CitationCitedartifactContributorshipEntryAffiliationinfo(
+    identifier: [],
+    role: None,
+    affiliation: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2533,6 +4489,18 @@ pub type CitationCitedartifactContributorshipEntryContributioninstance {
   )
 }
 
+pub fn citation_citedartifact_contributorship_entry_contributioninstance_new(
+  type_,
+) -> CitationCitedartifactContributorshipEntryContributioninstance {
+  CitationCitedartifactContributorshipEntryContributioninstance(
+    time: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Citation#resource
 pub type CitationCitedartifactContributorshipSummary {
   CitationCitedartifactContributorshipSummary(
@@ -2543,6 +4511,20 @@ pub type CitationCitedartifactContributorshipSummary {
     style: Option(Codeableconcept),
     source: Option(Codeableconcept),
     value: String,
+  )
+}
+
+pub fn citation_citedartifact_contributorship_summary_new(
+  value,
+) -> CitationCitedartifactContributorshipSummary {
+  CitationCitedartifactContributorshipSummary(
+    value:,
+    source: None,
+    style: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2587,6 +4569,54 @@ pub type Claim {
   )
 }
 
+pub fn claim_new(
+  priority,
+  provider,
+  created,
+  patient,
+  use_,
+  type_,
+  status,
+) -> Claim {
+  Claim(
+    total: None,
+    item: [],
+    accident: None,
+    insurance: [],
+    procedure: [],
+    diagnosis: [],
+    supporting_info: [],
+    care_team: [],
+    facility: None,
+    referral: None,
+    payee: None,
+    original_prescription: None,
+    prescription: None,
+    related: [],
+    funds_reserve: None,
+    priority:,
+    provider:,
+    insurer: None,
+    enterer: None,
+    created:,
+    billable_period: None,
+    patient:,
+    use_:,
+    sub_type: None,
+    type_:,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Claim#resource
 pub type ClaimRelated {
   ClaimRelated(
@@ -2596,6 +4626,17 @@ pub type ClaimRelated {
     claim: Option(Reference),
     relationship: Option(Codeableconcept),
     reference: Option(Identifier),
+  )
+}
+
+pub fn claim_related_new() -> ClaimRelated {
+  ClaimRelated(
+    reference: None,
+    relationship: None,
+    claim: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2610,6 +4651,16 @@ pub type ClaimPayee {
   )
 }
 
+pub fn claim_payee_new(type_) -> ClaimPayee {
+  ClaimPayee(
+    party: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Claim#resource
 pub type ClaimCareteam {
   ClaimCareteam(
@@ -2621,6 +4672,19 @@ pub type ClaimCareteam {
     responsible: Option(Bool),
     role: Option(Codeableconcept),
     qualification: Option(Codeableconcept),
+  )
+}
+
+pub fn claim_careteam_new(provider, sequence) -> ClaimCareteam {
+  ClaimCareteam(
+    qualification: None,
+    role: None,
+    responsible: None,
+    provider:,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2654,6 +4718,20 @@ pub type ClaimSupportinginfoValue {
   ClaimSupportinginfoValueReference(value: Reference)
 }
 
+pub fn claim_supportinginfo_new(category, sequence) -> ClaimSupportinginfo {
+  ClaimSupportinginfo(
+    reason: None,
+    value: None,
+    timing: None,
+    code: None,
+    category:,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Claim#resource
 pub type ClaimDiagnosis {
   ClaimDiagnosis(
@@ -2672,6 +4750,19 @@ pub type ClaimDiagnosis {
 pub type ClaimDiagnosisDiagnosis {
   ClaimDiagnosisDiagnosisCodeableconcept(diagnosis: Codeableconcept)
   ClaimDiagnosisDiagnosisReference(diagnosis: Reference)
+}
+
+pub fn claim_diagnosis_new(diagnosis, sequence) -> ClaimDiagnosis {
+  ClaimDiagnosis(
+    package_code: None,
+    on_admission: None,
+    type_: [],
+    diagnosis:,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Claim#resource
@@ -2694,6 +4785,19 @@ pub type ClaimProcedureProcedure {
   ClaimProcedureProcedureReference(procedure: Reference)
 }
 
+pub fn claim_procedure_new(procedure, sequence) -> ClaimProcedure {
+  ClaimProcedure(
+    udi: [],
+    procedure:,
+    date: None,
+    type_: [],
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Claim#resource
 pub type ClaimInsurance {
   ClaimInsurance(
@@ -2707,6 +4811,21 @@ pub type ClaimInsurance {
     business_arrangement: Option(String),
     pre_auth_ref: List(String),
     claim_response: Option(Reference),
+  )
+}
+
+pub fn claim_insurance_new(coverage, focal, sequence) -> ClaimInsurance {
+  ClaimInsurance(
+    claim_response: None,
+    pre_auth_ref: [],
+    business_arrangement: None,
+    coverage:,
+    identifier: None,
+    focal:,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2726,6 +4845,17 @@ pub type ClaimAccident {
 pub type ClaimAccidentLocation {
   ClaimAccidentLocationAddress(location: Address)
   ClaimAccidentLocationReference(location: Reference)
+}
+
+pub fn claim_accident_new(date) -> ClaimAccident {
+  ClaimAccident(
+    location: None,
+    type_: None,
+    date:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Claim#resource
@@ -2771,6 +4901,35 @@ pub type ClaimItemLocation {
   ClaimItemLocationReference(location: Reference)
 }
 
+pub fn claim_item_new(product_or_service, sequence) -> ClaimItem {
+  ClaimItem(
+    detail: [],
+    encounter: [],
+    sub_site: [],
+    body_site: None,
+    udi: [],
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    location: None,
+    serviced: None,
+    program_code: [],
+    modifier: [],
+    product_or_service:,
+    category: None,
+    revenue: None,
+    information_sequence: [],
+    procedure_sequence: [],
+    diagnosis_sequence: [],
+    care_team_sequence: [],
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Claim#resource
 pub type ClaimItemDetail {
   ClaimItemDetail(
@@ -2792,6 +4951,26 @@ pub type ClaimItemDetail {
   )
 }
 
+pub fn claim_item_detail_new(product_or_service, sequence) -> ClaimItemDetail {
+  ClaimItemDetail(
+    sub_detail: [],
+    udi: [],
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    program_code: [],
+    modifier: [],
+    product_or_service:,
+    category: None,
+    revenue: None,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Claim#resource
 pub type ClaimItemDetailSubdetail {
   ClaimItemDetailSubdetail(
@@ -2809,6 +4988,28 @@ pub type ClaimItemDetailSubdetail {
     factor: Option(Float),
     net: Option(Money),
     udi: List(Reference),
+  )
+}
+
+pub fn claim_item_detail_subdetail_new(
+  product_or_service,
+  sequence,
+) -> ClaimItemDetailSubdetail {
+  ClaimItemDetailSubdetail(
+    udi: [],
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    program_code: [],
+    modifier: [],
+    product_or_service:,
+    category: None,
+    revenue: None,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2853,6 +5054,54 @@ pub type Claimresponse {
   )
 }
 
+pub fn claimresponse_new(
+  outcome,
+  insurer,
+  created,
+  patient,
+  use_,
+  type_,
+  status,
+) -> Claimresponse {
+  Claimresponse(
+    error: [],
+    insurance: [],
+    communication_request: [],
+    process_note: [],
+    form: None,
+    form_code: None,
+    funds_reserve: None,
+    payment: None,
+    total: [],
+    adjudication: [],
+    add_item: [],
+    item: [],
+    payee_type: None,
+    pre_auth_period: None,
+    pre_auth_ref: None,
+    disposition: None,
+    outcome:,
+    request: None,
+    requestor: None,
+    insurer:,
+    created:,
+    patient:,
+    use_:,
+    sub_type: None,
+    type_:,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClaimResponse#resource
 pub type ClaimresponseItem {
   ClaimresponseItem(
@@ -2863,6 +5112,18 @@ pub type ClaimresponseItem {
     note_number: List(Int),
     adjudication: List(ClaimresponseItemAdjudication),
     detail: List(ClaimresponseItemDetail),
+  )
+}
+
+pub fn claimresponse_item_new(item_sequence) -> ClaimresponseItem {
+  ClaimresponseItem(
+    detail: [],
+    adjudication: [],
+    note_number: [],
+    item_sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2879,6 +5140,20 @@ pub type ClaimresponseItemAdjudication {
   )
 }
 
+pub fn claimresponse_item_adjudication_new(
+  category,
+) -> ClaimresponseItemAdjudication {
+  ClaimresponseItemAdjudication(
+    value: None,
+    amount: None,
+    reason: None,
+    category:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClaimResponse#resource
 pub type ClaimresponseItemDetail {
   ClaimresponseItemDetail(
@@ -2892,6 +5167,18 @@ pub type ClaimresponseItemDetail {
   )
 }
 
+pub fn claimresponse_item_detail_new(detail_sequence) -> ClaimresponseItemDetail {
+  ClaimresponseItemDetail(
+    sub_detail: [],
+    adjudication: [],
+    note_number: [],
+    detail_sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClaimResponse#resource
 pub type ClaimresponseItemDetailSubdetail {
   ClaimresponseItemDetailSubdetail(
@@ -2901,6 +5188,19 @@ pub type ClaimresponseItemDetailSubdetail {
     sub_detail_sequence: Int,
     note_number: List(Int),
     adjudication: List(Nil),
+  )
+}
+
+pub fn claimresponse_item_detail_subdetail_new(
+  sub_detail_sequence,
+) -> ClaimresponseItemDetailSubdetail {
+  ClaimresponseItemDetailSubdetail(
+    adjudication: [],
+    note_number: [],
+    sub_detail_sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2944,6 +5244,32 @@ pub type ClaimresponseAdditemLocation {
   ClaimresponseAdditemLocationReference(location: Reference)
 }
 
+pub fn claimresponse_additem_new(product_or_service) -> ClaimresponseAdditem {
+  ClaimresponseAdditem(
+    detail: [],
+    adjudication: [],
+    note_number: [],
+    sub_site: [],
+    body_site: None,
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    location: None,
+    serviced: None,
+    program_code: [],
+    modifier: [],
+    product_or_service:,
+    provider: [],
+    subdetail_sequence: [],
+    detail_sequence: [],
+    item_sequence: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClaimResponse#resource
 pub type ClaimresponseAdditemDetail {
   ClaimresponseAdditemDetail(
@@ -2959,6 +5285,25 @@ pub type ClaimresponseAdditemDetail {
     note_number: List(Int),
     adjudication: List(Nil),
     sub_detail: List(ClaimresponseAdditemDetailSubdetail),
+  )
+}
+
+pub fn claimresponse_additem_detail_new(
+  product_or_service,
+) -> ClaimresponseAdditemDetail {
+  ClaimresponseAdditemDetail(
+    sub_detail: [],
+    adjudication: [],
+    note_number: [],
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    modifier: [],
+    product_or_service:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -2979,6 +5324,24 @@ pub type ClaimresponseAdditemDetailSubdetail {
   )
 }
 
+pub fn claimresponse_additem_detail_subdetail_new(
+  product_or_service,
+) -> ClaimresponseAdditemDetailSubdetail {
+  ClaimresponseAdditemDetailSubdetail(
+    adjudication: [],
+    note_number: [],
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    modifier: [],
+    product_or_service:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClaimResponse#resource
 pub type ClaimresponseTotal {
   ClaimresponseTotal(
@@ -2987,6 +5350,16 @@ pub type ClaimresponseTotal {
     modifier_extension: List(Extension),
     category: Codeableconcept,
     amount: Money,
+  )
+}
+
+pub fn claimresponse_total_new(amount, category) -> ClaimresponseTotal {
+  ClaimresponseTotal(
+    amount:,
+    category:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3005,6 +5378,20 @@ pub type ClaimresponsePayment {
   )
 }
 
+pub fn claimresponse_payment_new(amount, type_) -> ClaimresponsePayment {
+  ClaimresponsePayment(
+    identifier: None,
+    amount:,
+    date: None,
+    adjustment_reason: None,
+    adjustment: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClaimResponse#resource
 pub type ClaimresponseProcessnote {
   ClaimresponseProcessnote(
@@ -3015,6 +5402,18 @@ pub type ClaimresponseProcessnote {
     type_: Option(r4bvaluesets.Notetype),
     text: String,
     language: Option(Codeableconcept),
+  )
+}
+
+pub fn claimresponse_processnote_new(text) -> ClaimresponseProcessnote {
+  ClaimresponseProcessnote(
+    language: None,
+    text:,
+    type_: None,
+    number: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3032,6 +5431,23 @@ pub type ClaimresponseInsurance {
   )
 }
 
+pub fn claimresponse_insurance_new(
+  coverage,
+  focal,
+  sequence,
+) -> ClaimresponseInsurance {
+  ClaimresponseInsurance(
+    claim_response: None,
+    business_arrangement: None,
+    coverage:,
+    focal:,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClaimResponse#resource
 pub type ClaimresponseError {
   ClaimresponseError(
@@ -3042,6 +5458,18 @@ pub type ClaimresponseError {
     detail_sequence: Option(Int),
     sub_detail_sequence: Option(Int),
     code: Codeableconcept,
+  )
+}
+
+pub fn claimresponse_error_new(code) -> ClaimresponseError {
+  ClaimresponseError(
+    code:,
+    sub_detail_sequence: None,
+    detail_sequence: None,
+    item_sequence: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3085,6 +5513,39 @@ pub type ClinicalimpressionEffective {
   ClinicalimpressionEffectivePeriod(effective: Period)
 }
 
+pub fn clinicalimpression_new(subject, status) -> Clinicalimpression {
+  Clinicalimpression(
+    note: [],
+    supporting_info: [],
+    prognosis_reference: [],
+    prognosis_codeable_concept: [],
+    finding: [],
+    summary: None,
+    protocol: [],
+    investigation: [],
+    problem: [],
+    previous: None,
+    assessor: None,
+    date: None,
+    effective: None,
+    encounter: None,
+    subject:,
+    description: None,
+    code: None,
+    status_reason: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClinicalImpression#resource
 pub type ClinicalimpressionInvestigation {
   ClinicalimpressionInvestigation(
@@ -3093,6 +5554,18 @@ pub type ClinicalimpressionInvestigation {
     modifier_extension: List(Extension),
     code: Codeableconcept,
     item: List(Reference),
+  )
+}
+
+pub fn clinicalimpression_investigation_new(
+  code,
+) -> ClinicalimpressionInvestigation {
+  ClinicalimpressionInvestigation(
+    item: [],
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3105,6 +5578,17 @@ pub type ClinicalimpressionFinding {
     item_codeable_concept: Option(Codeableconcept),
     item_reference: Option(Reference),
     basis: Option(String),
+  )
+}
+
+pub fn clinicalimpression_finding_new() -> ClinicalimpressionFinding {
+  ClinicalimpressionFinding(
+    basis: None,
+    item_reference: None,
+    item_codeable_concept: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3133,6 +5617,30 @@ pub type Clinicalusedefinition {
   )
 }
 
+pub fn clinicalusedefinition_new(type_) -> Clinicalusedefinition {
+  Clinicalusedefinition(
+    warning: None,
+    undesirable_effect: None,
+    population: [],
+    interaction: None,
+    indication: None,
+    contraindication: None,
+    status: None,
+    subject: [],
+    category: [],
+    type_:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClinicalUseDefinition#resource
 pub type ClinicalusedefinitionContraindication {
   ClinicalusedefinitionContraindication(
@@ -3147,6 +5655,19 @@ pub type ClinicalusedefinitionContraindication {
   )
 }
 
+pub fn clinicalusedefinition_contraindication_new() -> ClinicalusedefinitionContraindication {
+  ClinicalusedefinitionContraindication(
+    other_therapy: [],
+    indication: [],
+    comorbidity: [],
+    disease_status: None,
+    disease_symptom_procedure: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClinicalUseDefinition#resource
 pub type ClinicalusedefinitionContraindicationOthertherapy {
   ClinicalusedefinitionContraindicationOthertherapy(
@@ -3155,6 +5676,19 @@ pub type ClinicalusedefinitionContraindicationOthertherapy {
     modifier_extension: List(Extension),
     relationship_type: Codeableconcept,
     therapy: Codeablereference,
+  )
+}
+
+pub fn clinicalusedefinition_contraindication_othertherapy_new(
+  therapy,
+  relationship_type,
+) -> ClinicalusedefinitionContraindicationOthertherapy {
+  ClinicalusedefinitionContraindicationOthertherapy(
+    therapy:,
+    relationship_type:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3180,6 +5714,21 @@ pub type ClinicalusedefinitionIndicationDuration {
   ClinicalusedefinitionIndicationDurationString(duration: String)
 }
 
+pub fn clinicalusedefinition_indication_new() -> ClinicalusedefinitionIndication {
+  ClinicalusedefinitionIndication(
+    other_therapy: [],
+    undesirable_effect: [],
+    duration: None,
+    intended_effect: None,
+    comorbidity: [],
+    disease_status: None,
+    disease_symptom_procedure: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClinicalUseDefinition#resource
 pub type ClinicalusedefinitionInteraction {
   ClinicalusedefinitionInteraction(
@@ -3191,6 +5740,19 @@ pub type ClinicalusedefinitionInteraction {
     effect: Option(Codeablereference),
     incidence: Option(Codeableconcept),
     management: List(Codeableconcept),
+  )
+}
+
+pub fn clinicalusedefinition_interaction_new() -> ClinicalusedefinitionInteraction {
+  ClinicalusedefinitionInteraction(
+    management: [],
+    incidence: None,
+    effect: None,
+    type_: None,
+    interactant: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3212,6 +5774,17 @@ pub type ClinicalusedefinitionInteractionInteractantItem {
   )
 }
 
+pub fn clinicalusedefinition_interaction_interactant_new(
+  item,
+) -> ClinicalusedefinitionInteractionInteractant {
+  ClinicalusedefinitionInteractionInteractant(
+    item:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClinicalUseDefinition#resource
 pub type ClinicalusedefinitionUndesirableeffect {
   ClinicalusedefinitionUndesirableeffect(
@@ -3224,6 +5797,17 @@ pub type ClinicalusedefinitionUndesirableeffect {
   )
 }
 
+pub fn clinicalusedefinition_undesirableeffect_new() -> ClinicalusedefinitionUndesirableeffect {
+  ClinicalusedefinitionUndesirableeffect(
+    frequency_of_occurrence: None,
+    classification: None,
+    symptom_condition_effect: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ClinicalUseDefinition#resource
 pub type ClinicalusedefinitionWarning {
   ClinicalusedefinitionWarning(
@@ -3232,6 +5816,16 @@ pub type ClinicalusedefinitionWarning {
     modifier_extension: List(Extension),
     description: Option(String),
     code: Option(Codeableconcept),
+  )
+}
+
+pub fn clinicalusedefinition_warning_new() -> ClinicalusedefinitionWarning {
+  ClinicalusedefinitionWarning(
+    code: None,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3275,6 +5869,45 @@ pub type Codesystem {
   )
 }
 
+pub fn codesystem_new(content, status) -> Codesystem {
+  Codesystem(
+    concept: [],
+    property: [],
+    filter: [],
+    count: None,
+    supplements: None,
+    content:,
+    version_needed: None,
+    compositional: None,
+    hierarchy_meaning: None,
+    value_set: None,
+    case_sensitive: None,
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CodeSystem#resource
 pub type CodesystemFilter {
   CodesystemFilter(
@@ -3288,6 +5921,18 @@ pub type CodesystemFilter {
   )
 }
 
+pub fn codesystem_filter_new(value, code) -> CodesystemFilter {
+  CodesystemFilter(
+    value:,
+    operator: [],
+    description: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CodeSystem#resource
 pub type CodesystemProperty {
   CodesystemProperty(
@@ -3298,6 +5943,18 @@ pub type CodesystemProperty {
     uri: Option(String),
     description: Option(String),
     type_: r4bvaluesets.Conceptpropertytype,
+  )
+}
+
+pub fn codesystem_property_new(type_, code) -> CodesystemProperty {
+  CodesystemProperty(
+    type_:,
+    description: None,
+    uri: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3316,6 +5973,20 @@ pub type CodesystemConcept {
   )
 }
 
+pub fn codesystem_concept_new(code) -> CodesystemConcept {
+  CodesystemConcept(
+    concept: [],
+    property: [],
+    designation: [],
+    definition: None,
+    display: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CodeSystem#resource
 pub type CodesystemConceptDesignation {
   CodesystemConceptDesignation(
@@ -3325,6 +5996,17 @@ pub type CodesystemConceptDesignation {
     language: Option(String),
     use_: Option(Coding),
     value: String,
+  )
+}
+
+pub fn codesystem_concept_designation_new(value) -> CodesystemConceptDesignation {
+  CodesystemConceptDesignation(
+    value:,
+    use_: None,
+    language: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3348,6 +6030,16 @@ pub type CodesystemConceptPropertyValue {
   CodesystemConceptPropertyValueBoolean(value: Bool)
   CodesystemConceptPropertyValueDatetime(value: String)
   CodesystemConceptPropertyValueDecimal(value: Float)
+}
+
+pub fn codesystem_concept_property_new(value, code) -> CodesystemConceptProperty {
+  CodesystemConceptProperty(
+    value:,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Communication#resource
@@ -3387,6 +6079,42 @@ pub type Communication {
   )
 }
 
+pub fn communication_new(status) -> Communication {
+  Communication(
+    note: [],
+    payload: [],
+    reason_reference: [],
+    reason_code: [],
+    sender: None,
+    recipient: [],
+    received: None,
+    sent: None,
+    encounter: None,
+    about: [],
+    topic: None,
+    subject: None,
+    medium: [],
+    priority: None,
+    category: [],
+    status_reason: None,
+    status:,
+    in_response_to: [],
+    part_of: [],
+    based_on: [],
+    instantiates_uri: [],
+    instantiates_canonical: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Communication#resource
 pub type CommunicationPayload {
   CommunicationPayload(
@@ -3402,6 +6130,15 @@ pub type CommunicationPayloadContent {
   CommunicationPayloadContentString(content: String)
   CommunicationPayloadContentAttachment(content: Attachment)
   CommunicationPayloadContentReference(content: Reference)
+}
+
+pub fn communication_payload_new(content) -> CommunicationPayload {
+  CommunicationPayload(
+    content:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/CommunicationRequest#resource
@@ -3446,6 +6183,41 @@ pub type CommunicationrequestOccurrence {
   CommunicationrequestOccurrencePeriod(occurrence: Period)
 }
 
+pub fn communicationrequest_new(status) -> Communicationrequest {
+  Communicationrequest(
+    note: [],
+    reason_reference: [],
+    reason_code: [],
+    sender: None,
+    recipient: [],
+    requester: None,
+    authored_on: None,
+    occurrence: None,
+    payload: [],
+    encounter: None,
+    about: [],
+    subject: None,
+    medium: [],
+    do_not_perform: None,
+    priority: None,
+    category: [],
+    status_reason: None,
+    status:,
+    group_identifier: None,
+    replaces: [],
+    based_on: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CommunicationRequest#resource
 pub type CommunicationrequestPayload {
   CommunicationrequestPayload(
@@ -3461,6 +6233,15 @@ pub type CommunicationrequestPayloadContent {
   CommunicationrequestPayloadContentString(content: String)
   CommunicationrequestPayloadContentAttachment(content: Attachment)
   CommunicationrequestPayloadContentReference(content: Reference)
+}
+
+pub fn communicationrequest_payload_new(content) -> CommunicationrequestPayload {
+  CommunicationrequestPayload(
+    content:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/CompartmentDefinition#resource
@@ -3491,6 +6272,39 @@ pub type Compartmentdefinition {
   )
 }
 
+pub fn compartmentdefinition_new(
+  search,
+  code,
+  status,
+  name,
+  url,
+) -> Compartmentdefinition {
+  Compartmentdefinition(
+    resource: [],
+    search:,
+    code:,
+    purpose: None,
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    name:,
+    version: None,
+    url:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CompartmentDefinition#resource
 pub type CompartmentdefinitionResource {
   CompartmentdefinitionResource(
@@ -3500,6 +6314,17 @@ pub type CompartmentdefinitionResource {
     code: r4bvaluesets.Resourcetypes,
     param: List(String),
     documentation: Option(String),
+  )
+}
+
+pub fn compartmentdefinition_resource_new(code) -> CompartmentdefinitionResource {
+  CompartmentdefinitionResource(
+    documentation: None,
+    param: [],
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3532,6 +6357,34 @@ pub type Composition {
   )
 }
 
+pub fn composition_new(title, date, type_, status) -> Composition {
+  Composition(
+    section: [],
+    event: [],
+    relates_to: [],
+    custodian: None,
+    attester: [],
+    confidentiality: None,
+    title:,
+    author: [],
+    date:,
+    encounter: None,
+    subject: None,
+    category: [],
+    type_:,
+    status:,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Composition#resource
 pub type CompositionAttester {
   CompositionAttester(
@@ -3541,6 +6394,17 @@ pub type CompositionAttester {
     mode: r4bvaluesets.Compositionattestationmode,
     time: Option(String),
     party: Option(Reference),
+  )
+}
+
+pub fn composition_attester_new(mode) -> CompositionAttester {
+  CompositionAttester(
+    party: None,
+    time: None,
+    mode:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3561,6 +6425,16 @@ pub type CompositionRelatestoTarget {
   CompositionRelatestoTargetReference(target: Reference)
 }
 
+pub fn composition_relatesto_new(target, code) -> CompositionRelatesto {
+  CompositionRelatesto(
+    target:,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Composition#resource
 pub type CompositionEvent {
   CompositionEvent(
@@ -3570,6 +6444,17 @@ pub type CompositionEvent {
     code: List(Codeableconcept),
     period: Option(Period),
     detail: List(Reference),
+  )
+}
+
+pub fn composition_event_new() -> CompositionEvent {
+  CompositionEvent(
+    detail: [],
+    period: None,
+    code: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3589,6 +6474,24 @@ pub type CompositionSection {
     entry: List(Reference),
     empty_reason: Option(Codeableconcept),
     section: List(Nil),
+  )
+}
+
+pub fn composition_section_new() -> CompositionSection {
+  CompositionSection(
+    section: [],
+    empty_reason: None,
+    entry: [],
+    ordered_by: None,
+    mode: None,
+    text: None,
+    focus: None,
+    author: [],
+    code: None,
+    title: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3636,6 +6539,37 @@ pub type ConceptmapTarget {
   ConceptmapTargetCanonical(target: String)
 }
 
+pub fn conceptmap_new(status) -> Conceptmap {
+  Conceptmap(
+    group: [],
+    target: None,
+    source: None,
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    title: None,
+    name: None,
+    version: None,
+    identifier: None,
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ConceptMap#resource
 pub type ConceptmapGroup {
   ConceptmapGroup(
@@ -3651,6 +6585,20 @@ pub type ConceptmapGroup {
   )
 }
 
+pub fn conceptmap_group_new() -> ConceptmapGroup {
+  ConceptmapGroup(
+    unmapped: None,
+    element: [],
+    target_version: None,
+    target: None,
+    source_version: None,
+    source: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ConceptMap#resource
 pub type ConceptmapGroupElement {
   ConceptmapGroupElement(
@@ -3660,6 +6608,17 @@ pub type ConceptmapGroupElement {
     code: Option(String),
     display: Option(String),
     target: List(ConceptmapGroupElementTarget),
+  )
+}
+
+pub fn conceptmap_group_element_new() -> ConceptmapGroupElement {
+  ConceptmapGroupElement(
+    target: [],
+    display: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3678,6 +6637,22 @@ pub type ConceptmapGroupElementTarget {
   )
 }
 
+pub fn conceptmap_group_element_target_new(
+  equivalence,
+) -> ConceptmapGroupElementTarget {
+  ConceptmapGroupElementTarget(
+    product: [],
+    depends_on: [],
+    comment: None,
+    equivalence:,
+    display: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ConceptMap#resource
 pub type ConceptmapGroupElementTargetDependson {
   ConceptmapGroupElementTargetDependson(
@@ -3691,6 +6666,21 @@ pub type ConceptmapGroupElementTargetDependson {
   )
 }
 
+pub fn conceptmap_group_element_target_dependson_new(
+  value,
+  property,
+) -> ConceptmapGroupElementTargetDependson {
+  ConceptmapGroupElementTargetDependson(
+    display: None,
+    value:,
+    system: None,
+    property:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ConceptMap#resource
 pub type ConceptmapGroupUnmapped {
   ConceptmapGroupUnmapped(
@@ -3701,6 +6691,18 @@ pub type ConceptmapGroupUnmapped {
     code: Option(String),
     display: Option(String),
     url: Option(String),
+  )
+}
+
+pub fn conceptmap_group_unmapped_new(mode) -> ConceptmapGroupUnmapped {
+  ConceptmapGroupUnmapped(
+    url: None,
+    display: None,
+    code: None,
+    mode:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3753,6 +6755,36 @@ pub type ConditionAbatement {
   ConditionAbatementString(abatement: String)
 }
 
+pub fn condition_new(subject) -> Condition {
+  Condition(
+    note: [],
+    evidence: [],
+    stage: [],
+    asserter: None,
+    recorder: None,
+    recorded_date: None,
+    abatement: None,
+    onset: None,
+    encounter: None,
+    subject:,
+    body_site: [],
+    code: None,
+    severity: None,
+    category: [],
+    verification_status: None,
+    clinical_status: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Condition#resource
 pub type ConditionStage {
   ConditionStage(
@@ -3765,6 +6797,17 @@ pub type ConditionStage {
   )
 }
 
+pub fn condition_stage_new() -> ConditionStage {
+  ConditionStage(
+    type_: None,
+    assessment: [],
+    summary: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Condition#resource
 pub type ConditionEvidence {
   ConditionEvidence(
@@ -3773,6 +6816,16 @@ pub type ConditionEvidence {
     modifier_extension: List(Extension),
     code: List(Codeableconcept),
     detail: List(Reference),
+  )
+}
+
+pub fn condition_evidence_new() -> ConditionEvidence {
+  ConditionEvidence(
+    detail: [],
+    code: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3809,6 +6862,32 @@ pub type ConsentSource {
   ConsentSourceReference(source: Reference)
 }
 
+pub fn consent_new(scope, status) -> Consent {
+  Consent(
+    provision: None,
+    verification: [],
+    policy_rule: None,
+    policy: [],
+    source: None,
+    organization: [],
+    performer: [],
+    date_time: None,
+    patient: None,
+    category: [],
+    scope:,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Consent#resource
 pub type ConsentPolicy {
   ConsentPolicy(
@@ -3817,6 +6896,16 @@ pub type ConsentPolicy {
     modifier_extension: List(Extension),
     authority: Option(String),
     uri: Option(String),
+  )
+}
+
+pub fn consent_policy_new() -> ConsentPolicy {
+  ConsentPolicy(
+    uri: None,
+    authority: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3829,6 +6918,17 @@ pub type ConsentVerification {
     verified: Bool,
     verified_with: Option(Reference),
     verification_date: Option(String),
+  )
+}
+
+pub fn consent_verification_new(verified) -> ConsentVerification {
+  ConsentVerification(
+    verification_date: None,
+    verified_with: None,
+    verified:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3852,6 +6952,25 @@ pub type ConsentProvision {
   )
 }
 
+pub fn consent_provision_new() -> ConsentProvision {
+  ConsentProvision(
+    provision: [],
+    data: [],
+    data_period: None,
+    code: [],
+    class: [],
+    purpose: [],
+    security_label: [],
+    action: [],
+    actor: [],
+    period: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Consent#resource
 pub type ConsentProvisionActor {
   ConsentProvisionActor(
@@ -3863,6 +6982,16 @@ pub type ConsentProvisionActor {
   )
 }
 
+pub fn consent_provision_actor_new(reference, role) -> ConsentProvisionActor {
+  ConsentProvisionActor(
+    reference:,
+    role:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Consent#resource
 pub type ConsentProvisionData {
   ConsentProvisionData(
@@ -3871,6 +7000,16 @@ pub type ConsentProvisionData {
     modifier_extension: List(Extension),
     meaning: r4bvaluesets.Consentdatameaning,
     reference: Reference,
+  )
+}
+
+pub fn consent_provision_data_new(reference, meaning) -> ConsentProvisionData {
+  ConsentProvisionData(
+    reference:,
+    meaning:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3933,6 +7072,52 @@ pub type ContractLegallybinding {
   ContractLegallybindingReference(legally_binding: Reference)
 }
 
+pub fn contract_new() -> Contract {
+  Contract(
+    legally_binding: None,
+    rule: [],
+    legal: [],
+    friendly: [],
+    signer: [],
+    relevant_history: [],
+    supporting_info: [],
+    term: [],
+    content_definition: None,
+    sub_type: [],
+    type_: None,
+    topic: None,
+    scope: None,
+    author: None,
+    alias: [],
+    subtitle: None,
+    title: None,
+    name: None,
+    site: [],
+    domain: [],
+    authority: [],
+    subject: [],
+    expiration_type: None,
+    applies: None,
+    issued: None,
+    content_derivative: None,
+    instantiates_uri: None,
+    instantiates_canonical: None,
+    legal_state: None,
+    status: None,
+    version: None,
+    url: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Contract#resource
 pub type ContractContentdefinition {
   ContractContentdefinition(
@@ -3945,6 +7130,23 @@ pub type ContractContentdefinition {
     publication_date: Option(String),
     publication_status: r4bvaluesets.Contractpublicationstatus,
     copyright: Option(String),
+  )
+}
+
+pub fn contract_contentdefinition_new(
+  publication_status,
+  type_,
+) -> ContractContentdefinition {
+  ContractContentdefinition(
+    copyright: None,
+    publication_status:,
+    publication_date: None,
+    publisher: None,
+    sub_type: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -3975,6 +7177,26 @@ pub type ContractTermTopic {
   ContractTermTopicReference(topic: Reference)
 }
 
+pub fn contract_term_new(offer) -> ContractTerm {
+  ContractTerm(
+    group: [],
+    action: [],
+    asset: [],
+    offer:,
+    security_label: [],
+    text: None,
+    sub_type: None,
+    type_: None,
+    topic: None,
+    applies: None,
+    issued: None,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Contract#resource
 pub type ContractTermSecuritylabel {
   ContractTermSecuritylabel(
@@ -3985,6 +7207,20 @@ pub type ContractTermSecuritylabel {
     classification: Coding,
     category: List(Coding),
     control: List(Coding),
+  )
+}
+
+pub fn contract_term_securitylabel_new(
+  classification,
+) -> ContractTermSecuritylabel {
+  ContractTermSecuritylabel(
+    control: [],
+    category: [],
+    classification:,
+    number: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4007,6 +7243,24 @@ pub type ContractTermOffer {
   )
 }
 
+pub fn contract_term_offer_new() -> ContractTermOffer {
+  ContractTermOffer(
+    security_label_number: [],
+    link_id: [],
+    text: None,
+    answer: [],
+    decision_mode: [],
+    decision: None,
+    type_: None,
+    topic: None,
+    party: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Contract#resource
 pub type ContractTermOfferParty {
   ContractTermOfferParty(
@@ -4015,6 +7269,16 @@ pub type ContractTermOfferParty {
     modifier_extension: List(Extension),
     reference: List(Reference),
     role: Codeableconcept,
+  )
+}
+
+pub fn contract_term_offer_party_new(role) -> ContractTermOfferParty {
+  ContractTermOfferParty(
+    role:,
+    reference: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4044,6 +7308,15 @@ pub type ContractTermOfferAnswerValue {
   ContractTermOfferAnswerValueReference(value: Reference)
 }
 
+pub fn contract_term_offer_answer_new(value) -> ContractTermOfferAnswer {
+  ContractTermOfferAnswer(
+    value:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Contract#resource
 pub type ContractTermAsset {
   ContractTermAsset(
@@ -4068,6 +7341,29 @@ pub type ContractTermAsset {
   )
 }
 
+pub fn contract_term_asset_new() -> ContractTermAsset {
+  ContractTermAsset(
+    valued_item: [],
+    security_label_number: [],
+    answer: [],
+    link_id: [],
+    text: None,
+    use_period: [],
+    period: [],
+    period_type: [],
+    condition: None,
+    context: [],
+    relationship: None,
+    subtype: [],
+    type_reference: [],
+    type_: [],
+    scope: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Contract#resource
 pub type ContractTermAssetContext {
   ContractTermAssetContext(
@@ -4077,6 +7373,17 @@ pub type ContractTermAssetContext {
     reference: Option(Reference),
     code: List(Codeableconcept),
     text: Option(String),
+  )
+}
+
+pub fn contract_term_asset_context_new() -> ContractTermAssetContext {
+  ContractTermAssetContext(
+    text: None,
+    code: [],
+    reference: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4107,6 +7414,28 @@ pub type ContractTermAssetValueditem {
 pub type ContractTermAssetValueditemEntity {
   ContractTermAssetValueditemEntityCodeableconcept(entity: Codeableconcept)
   ContractTermAssetValueditemEntityReference(entity: Reference)
+}
+
+pub fn contract_term_asset_valueditem_new() -> ContractTermAssetValueditem {
+  ContractTermAssetValueditem(
+    security_label_number: [],
+    link_id: [],
+    recipient: None,
+    responsible: None,
+    payment_date: None,
+    payment: None,
+    net: None,
+    points: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    effective_time: None,
+    identifier: None,
+    entity: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Contract#resource
@@ -4146,6 +7475,35 @@ pub type ContractTermActionOccurrence {
   ContractTermActionOccurrenceTiming(occurrence: Timing)
 }
 
+pub fn contract_term_action_new(status, intent, type_) -> ContractTermAction {
+  ContractTermAction(
+    security_label_number: [],
+    note: [],
+    reason_link_id: [],
+    reason: [],
+    reason_reference: [],
+    reason_code: [],
+    performer_link_id: [],
+    performer: None,
+    performer_role: None,
+    performer_type: [],
+    requester_link_id: [],
+    requester: [],
+    occurrence: None,
+    context_link_id: [],
+    context: None,
+    status:,
+    link_id: [],
+    intent:,
+    subject: [],
+    type_:,
+    do_not_perform: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Contract#resource
 pub type ContractTermActionSubject {
   ContractTermActionSubject(
@@ -4154,6 +7512,16 @@ pub type ContractTermActionSubject {
     modifier_extension: List(Extension),
     reference: List(Reference),
     role: Option(Codeableconcept),
+  )
+}
+
+pub fn contract_term_action_subject_new() -> ContractTermActionSubject {
+  ContractTermActionSubject(
+    role: None,
+    reference: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4166,6 +7534,17 @@ pub type ContractSigner {
     type_: Coding,
     party: Reference,
     signature: List(Signature),
+  )
+}
+
+pub fn contract_signer_new(party, type_) -> ContractSigner {
+  ContractSigner(
+    signature: [],
+    party:,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4185,6 +7564,10 @@ pub type ContractFriendlyContent {
   ContractFriendlyContentReference(content: Reference)
 }
 
+pub fn contract_friendly_new(content) -> ContractFriendly {
+  ContractFriendly(content:, modifier_extension: [], extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Contract#resource
 pub type ContractLegal {
   ContractLegal(
@@ -4201,6 +7584,10 @@ pub type ContractLegalContent {
   ContractLegalContentReference(content: Reference)
 }
 
+pub fn contract_legal_new(content) -> ContractLegal {
+  ContractLegal(content:, modifier_extension: [], extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Contract#resource
 pub type ContractRule {
   ContractRule(
@@ -4215,6 +7602,10 @@ pub type ContractRule {
 pub type ContractRuleContent {
   ContractRuleContentAttachment(content: Attachment)
   ContractRuleContentReference(content: Reference)
+}
+
+pub fn contract_rule_new(content) -> ContractRule {
+  ContractRule(content:, modifier_extension: [], extension: [], id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Coverage#resource
@@ -4248,6 +7639,36 @@ pub type Coverage {
   )
 }
 
+pub fn coverage_new(beneficiary, status) -> Coverage {
+  Coverage(
+    contract: [],
+    subrogation: None,
+    cost_to_beneficiary: [],
+    network: None,
+    order: None,
+    class: [],
+    payor: [],
+    period: None,
+    relationship: None,
+    dependent: None,
+    beneficiary:,
+    subscriber_id: None,
+    subscriber: None,
+    policy_holder: None,
+    type_: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Coverage#resource
 pub type CoverageClass {
   CoverageClass(
@@ -4257,6 +7678,17 @@ pub type CoverageClass {
     type_: Codeableconcept,
     value: String,
     name: Option(String),
+  )
+}
+
+pub fn coverage_class_new(value, type_) -> CoverageClass {
+  CoverageClass(
+    name: None,
+    value:,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4278,6 +7710,17 @@ pub type CoverageCosttobeneficiaryValue {
   CoverageCosttobeneficiaryValueMoney(value: Money)
 }
 
+pub fn coverage_costtobeneficiary_new(value) -> CoverageCosttobeneficiary {
+  CoverageCosttobeneficiary(
+    exception: [],
+    value:,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Coverage#resource
 pub type CoverageCosttobeneficiaryException {
   CoverageCosttobeneficiaryException(
@@ -4286,6 +7729,18 @@ pub type CoverageCosttobeneficiaryException {
     modifier_extension: List(Extension),
     type_: Codeableconcept,
     period: Option(Period),
+  )
+}
+
+pub fn coverage_costtobeneficiary_exception_new(
+  type_,
+) -> CoverageCosttobeneficiaryException {
+  CoverageCosttobeneficiaryException(
+    period: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4323,6 +7778,38 @@ pub type CoverageeligibilityrequestServiced {
   CoverageeligibilityrequestServicedPeriod(serviced: Period)
 }
 
+pub fn coverageeligibilityrequest_new(
+  insurer,
+  created,
+  patient,
+  status,
+) -> Coverageeligibilityrequest {
+  Coverageeligibilityrequest(
+    item: [],
+    insurance: [],
+    supporting_info: [],
+    facility: None,
+    insurer:,
+    provider: None,
+    enterer: None,
+    created:,
+    serviced: None,
+    patient:,
+    purpose: [],
+    priority: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CoverageEligibilityRequest#resource
 pub type CoverageeligibilityrequestSupportinginfo {
   CoverageeligibilityrequestSupportinginfo(
@@ -4335,6 +7822,20 @@ pub type CoverageeligibilityrequestSupportinginfo {
   )
 }
 
+pub fn coverageeligibilityrequest_supportinginfo_new(
+  information,
+  sequence,
+) -> CoverageeligibilityrequestSupportinginfo {
+  CoverageeligibilityrequestSupportinginfo(
+    applies_to_all: None,
+    information:,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CoverageEligibilityRequest#resource
 pub type CoverageeligibilityrequestInsurance {
   CoverageeligibilityrequestInsurance(
@@ -4344,6 +7845,19 @@ pub type CoverageeligibilityrequestInsurance {
     focal: Option(Bool),
     coverage: Reference,
     business_arrangement: Option(String),
+  )
+}
+
+pub fn coverageeligibilityrequest_insurance_new(
+  coverage,
+) -> CoverageeligibilityrequestInsurance {
+  CoverageeligibilityrequestInsurance(
+    business_arrangement: None,
+    coverage:,
+    focal: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4366,6 +7880,24 @@ pub type CoverageeligibilityrequestItem {
   )
 }
 
+pub fn coverageeligibilityrequest_item_new() -> CoverageeligibilityrequestItem {
+  CoverageeligibilityrequestItem(
+    detail: [],
+    diagnosis: [],
+    facility: None,
+    unit_price: None,
+    quantity: None,
+    provider: None,
+    modifier: [],
+    product_or_service: None,
+    category: None,
+    supporting_info_sequence: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CoverageEligibilityRequest#resource
 pub type CoverageeligibilityrequestItemDiagnosis {
   CoverageeligibilityrequestItemDiagnosis(
@@ -4383,6 +7915,15 @@ pub type CoverageeligibilityrequestItemDiagnosisDiagnosis {
   )
   CoverageeligibilityrequestItemDiagnosisDiagnosisReference(
     diagnosis: Reference,
+  )
+}
+
+pub fn coverageeligibilityrequest_item_diagnosis_new() -> CoverageeligibilityrequestItemDiagnosis {
+  CoverageeligibilityrequestItemDiagnosis(
+    diagnosis: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4421,6 +7962,41 @@ pub type CoverageeligibilityresponseServiced {
   CoverageeligibilityresponseServicedPeriod(serviced: Period)
 }
 
+pub fn coverageeligibilityresponse_new(
+  insurer,
+  outcome,
+  request,
+  created,
+  patient,
+  status,
+) -> Coverageeligibilityresponse {
+  Coverageeligibilityresponse(
+    error: [],
+    form: None,
+    pre_auth_ref: None,
+    insurance: [],
+    insurer:,
+    disposition: None,
+    outcome:,
+    request:,
+    requestor: None,
+    created:,
+    serviced: None,
+    patient:,
+    purpose: [],
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CoverageEligibilityResponse#resource
 pub type CoverageeligibilityresponseInsurance {
   CoverageeligibilityresponseInsurance(
@@ -4431,6 +8007,20 @@ pub type CoverageeligibilityresponseInsurance {
     inforce: Option(Bool),
     benefit_period: Option(Period),
     item: List(CoverageeligibilityresponseInsuranceItem),
+  )
+}
+
+pub fn coverageeligibilityresponse_insurance_new(
+  coverage,
+) -> CoverageeligibilityresponseInsurance {
+  CoverageeligibilityresponseInsurance(
+    item: [],
+    benefit_period: None,
+    inforce: None,
+    coverage:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4454,6 +8044,28 @@ pub type CoverageeligibilityresponseInsuranceItem {
     authorization_required: Option(Bool),
     authorization_supporting: List(Codeableconcept),
     authorization_url: Option(String),
+  )
+}
+
+pub fn coverageeligibilityresponse_insurance_item_new() -> CoverageeligibilityresponseInsuranceItem {
+  CoverageeligibilityresponseInsuranceItem(
+    authorization_url: None,
+    authorization_supporting: [],
+    authorization_required: None,
+    benefit: [],
+    term: None,
+    unit: None,
+    network: None,
+    description: None,
+    name: None,
+    excluded: None,
+    provider: None,
+    modifier: [],
+    product_or_service: None,
+    category: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4485,6 +8097,19 @@ pub type CoverageeligibilityresponseInsuranceItemBenefitUsed {
   CoverageeligibilityresponseInsuranceItemBenefitUsedMoney(used: Money)
 }
 
+pub fn coverageeligibilityresponse_insurance_item_benefit_new(
+  type_,
+) -> CoverageeligibilityresponseInsuranceItemBenefit {
+  CoverageeligibilityresponseInsuranceItemBenefit(
+    used: None,
+    allowed: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/CoverageEligibilityResponse#resource
 pub type CoverageeligibilityresponseError {
   CoverageeligibilityresponseError(
@@ -4492,6 +8117,17 @@ pub type CoverageeligibilityresponseError {
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
+  )
+}
+
+pub fn coverageeligibilityresponse_error_new(
+  code,
+) -> CoverageeligibilityresponseError {
+  CoverageeligibilityresponseError(
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4527,6 +8163,31 @@ pub type DetectedissueIdentified {
   DetectedissueIdentifiedPeriod(identified: Period)
 }
 
+pub fn detectedissue_new(status) -> Detectedissue {
+  Detectedissue(
+    mitigation: [],
+    reference: None,
+    detail: None,
+    evidence: [],
+    implicated: [],
+    author: None,
+    identified: None,
+    patient: None,
+    severity: None,
+    code: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DetectedIssue#resource
 pub type DetectedissueEvidence {
   DetectedissueEvidence(
@@ -4535,6 +8196,16 @@ pub type DetectedissueEvidence {
     modifier_extension: List(Extension),
     code: List(Codeableconcept),
     detail: List(Reference),
+  )
+}
+
+pub fn detectedissue_evidence_new() -> DetectedissueEvidence {
+  DetectedissueEvidence(
+    detail: [],
+    code: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4547,6 +8218,17 @@ pub type DetectedissueMitigation {
     action: Codeableconcept,
     date: Option(String),
     author: Option(Reference),
+  )
+}
+
+pub fn detectedissue_mitigation_new(action) -> DetectedissueMitigation {
+  DetectedissueMitigation(
+    author: None,
+    date: None,
+    action:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4590,6 +8272,45 @@ pub type Device {
   )
 }
 
+pub fn device_new() -> Device {
+  Device(
+    parent: None,
+    safety: [],
+    note: [],
+    url: None,
+    location: None,
+    contact: [],
+    owner: None,
+    patient: None,
+    property: [],
+    version: [],
+    specialization: [],
+    type_: None,
+    part_number: None,
+    model_number: None,
+    device_name: [],
+    serial_number: None,
+    lot_number: None,
+    expiration_date: None,
+    manufacture_date: None,
+    manufacturer: None,
+    distinct_identifier: None,
+    status_reason: [],
+    status: None,
+    udi_carrier: [],
+    definition: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Device#resource
 pub type DeviceUdicarrier {
   DeviceUdicarrier(
@@ -4605,6 +8326,20 @@ pub type DeviceUdicarrier {
   )
 }
 
+pub fn device_udicarrier_new() -> DeviceUdicarrier {
+  DeviceUdicarrier(
+    entry_type: None,
+    carrier_hrf: None,
+    carrier_aidc: None,
+    jurisdiction: None,
+    issuer: None,
+    device_identifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Device#resource
 pub type DeviceDevicename {
   DeviceDevicename(
@@ -4616,6 +8351,16 @@ pub type DeviceDevicename {
   )
 }
 
+pub fn device_devicename_new(type_, name) -> DeviceDevicename {
+  DeviceDevicename(
+    type_:,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Device#resource
 pub type DeviceSpecialization {
   DeviceSpecialization(
@@ -4624,6 +8369,16 @@ pub type DeviceSpecialization {
     modifier_extension: List(Extension),
     system_type: Codeableconcept,
     version: Option(String),
+  )
+}
+
+pub fn device_specialization_new(system_type) -> DeviceSpecialization {
+  DeviceSpecialization(
+    version: None,
+    system_type:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4639,6 +8394,17 @@ pub type DeviceVersion {
   )
 }
 
+pub fn device_version_new(value) -> DeviceVersion {
+  DeviceVersion(
+    value:,
+    component: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Device#resource
 pub type DeviceProperty {
   DeviceProperty(
@@ -4648,6 +8414,17 @@ pub type DeviceProperty {
     type_: Codeableconcept,
     value_quantity: List(Quantity),
     value_code: List(Codeableconcept),
+  )
+}
+
+pub fn device_property_new(type_) -> DeviceProperty {
+  DeviceProperty(
+    value_code: [],
+    value_quantity: [],
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4693,6 +8470,41 @@ pub type DevicedefinitionManufacturer {
   DevicedefinitionManufacturerReference(manufacturer: Reference)
 }
 
+pub fn devicedefinition_new() -> Devicedefinition {
+  Devicedefinition(
+    material: [],
+    parent_device: None,
+    quantity: None,
+    note: [],
+    online_information: None,
+    url: None,
+    contact: [],
+    owner: None,
+    property: [],
+    capability: [],
+    language_code: [],
+    physical_characteristics: None,
+    shelf_life_storage: [],
+    safety: [],
+    version: [],
+    specialization: [],
+    type_: None,
+    model_number: None,
+    device_name: [],
+    manufacturer: None,
+    udi_device_identifier: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DeviceDefinition#resource
 pub type DevicedefinitionUdideviceidentifier {
   DevicedefinitionUdideviceidentifier(
@@ -4702,6 +8514,21 @@ pub type DevicedefinitionUdideviceidentifier {
     device_identifier: String,
     issuer: String,
     jurisdiction: String,
+  )
+}
+
+pub fn devicedefinition_udideviceidentifier_new(
+  jurisdiction,
+  issuer,
+  device_identifier,
+) -> DevicedefinitionUdideviceidentifier {
+  DevicedefinitionUdideviceidentifier(
+    jurisdiction:,
+    issuer:,
+    device_identifier:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4716,6 +8543,19 @@ pub type DevicedefinitionDevicename {
   )
 }
 
+pub fn devicedefinition_devicename_new(
+  type_,
+  name,
+) -> DevicedefinitionDevicename {
+  DevicedefinitionDevicename(
+    type_:,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DeviceDefinition#resource
 pub type DevicedefinitionSpecialization {
   DevicedefinitionSpecialization(
@@ -4727,6 +8567,18 @@ pub type DevicedefinitionSpecialization {
   )
 }
 
+pub fn devicedefinition_specialization_new(
+  system_type,
+) -> DevicedefinitionSpecialization {
+  DevicedefinitionSpecialization(
+    version: None,
+    system_type:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DeviceDefinition#resource
 pub type DevicedefinitionCapability {
   DevicedefinitionCapability(
@@ -4735,6 +8587,16 @@ pub type DevicedefinitionCapability {
     modifier_extension: List(Extension),
     type_: Codeableconcept,
     description: List(Codeableconcept),
+  )
+}
+
+pub fn devicedefinition_capability_new(type_) -> DevicedefinitionCapability {
+  DevicedefinitionCapability(
+    description: [],
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4750,6 +8612,17 @@ pub type DevicedefinitionProperty {
   )
 }
 
+pub fn devicedefinition_property_new(type_) -> DevicedefinitionProperty {
+  DevicedefinitionProperty(
+    value_code: [],
+    value_quantity: [],
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DeviceDefinition#resource
 pub type DevicedefinitionMaterial {
   DevicedefinitionMaterial(
@@ -4759,6 +8632,17 @@ pub type DevicedefinitionMaterial {
     substance: Codeableconcept,
     alternate: Option(Bool),
     allergenic_indicator: Option(Bool),
+  )
+}
+
+pub fn devicedefinition_material_new(substance) -> DevicedefinitionMaterial {
+  DevicedefinitionMaterial(
+    allergenic_indicator: None,
+    alternate: None,
+    substance:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4786,6 +8670,29 @@ pub type Devicemetric {
   )
 }
 
+pub fn devicemetric_new(category, type_) -> Devicemetric {
+  Devicemetric(
+    calibration: [],
+    measurement_period: None,
+    category:,
+    color: None,
+    operational_status: None,
+    parent: None,
+    source: None,
+    unit: None,
+    type_:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DeviceMetric#resource
 pub type DevicemetricCalibration {
   DevicemetricCalibration(
@@ -4795,6 +8702,17 @@ pub type DevicemetricCalibration {
     type_: Option(r4bvaluesets.Metriccalibrationtype),
     state: Option(r4bvaluesets.Metriccalibrationstate),
     time: Option(String),
+  )
+}
+
+pub fn devicemetric_calibration_new() -> DevicemetricCalibration {
+  DevicemetricCalibration(
+    time: None,
+    state: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4849,6 +8767,43 @@ pub type DevicerequestOccurrence {
   DevicerequestOccurrenceTiming(occurrence: Timing)
 }
 
+pub fn devicerequest_new(subject, code, intent) -> Devicerequest {
+  Devicerequest(
+    relevant_history: [],
+    note: [],
+    supporting_info: [],
+    insurance: [],
+    reason_reference: [],
+    reason_code: [],
+    performer: None,
+    performer_type: None,
+    requester: None,
+    authored_on: None,
+    occurrence: None,
+    encounter: None,
+    subject:,
+    parameter: [],
+    code:,
+    priority: None,
+    intent:,
+    status: None,
+    group_identifier: None,
+    prior_request: [],
+    based_on: [],
+    instantiates_uri: [],
+    instantiates_canonical: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DeviceRequest#resource
 pub type DevicerequestParameter {
   DevicerequestParameter(
@@ -4866,6 +8821,16 @@ pub type DevicerequestParameterValue {
   DevicerequestParameterValueQuantity(value: Quantity)
   DevicerequestParameterValueRange(value: Range)
   DevicerequestParameterValueBoolean(value: Bool)
+}
+
+pub fn devicerequest_parameter_new() -> DevicerequestParameter {
+  DevicerequestParameter(
+    value: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/DeviceUseStatement#resource
@@ -4900,6 +8865,32 @@ pub type DeviceusestatementTiming {
   DeviceusestatementTimingTiming(timing: Timing)
   DeviceusestatementTimingPeriod(timing: Period)
   DeviceusestatementTimingDatetime(timing: String)
+}
+
+pub fn deviceusestatement_new(device, subject, status) -> Deviceusestatement {
+  Deviceusestatement(
+    note: [],
+    body_site: None,
+    reason_reference: [],
+    reason_code: [],
+    device:,
+    source: None,
+    recorded_on: None,
+    timing: None,
+    derived_from: [],
+    subject:,
+    status:,
+    based_on: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/DiagnosticReport#resource
@@ -4940,6 +8931,37 @@ pub type DiagnosticreportEffective {
   DiagnosticreportEffectivePeriod(effective: Period)
 }
 
+pub fn diagnosticreport_new(code, status) -> Diagnosticreport {
+  Diagnosticreport(
+    presented_form: [],
+    conclusion_code: [],
+    conclusion: None,
+    media: [],
+    imaging_study: [],
+    result: [],
+    specimen: [],
+    results_interpreter: [],
+    performer: [],
+    issued: None,
+    effective: None,
+    encounter: None,
+    subject: None,
+    code:,
+    category: [],
+    status:,
+    based_on: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DiagnosticReport#resource
 pub type DiagnosticreportMedia {
   DiagnosticreportMedia(
@@ -4948,6 +8970,16 @@ pub type DiagnosticreportMedia {
     modifier_extension: List(Extension),
     comment: Option(String),
     link: Reference,
+  )
+}
+
+pub fn diagnosticreport_media_new(link) -> DiagnosticreportMedia {
+  DiagnosticreportMedia(
+    link:,
+    comment: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -4977,6 +9009,31 @@ pub type Documentmanifest {
   )
 }
 
+pub fn documentmanifest_new(status) -> Documentmanifest {
+  Documentmanifest(
+    related: [],
+    content: [],
+    description: None,
+    source: None,
+    recipient: [],
+    author: [],
+    created: None,
+    subject: None,
+    type_: None,
+    status:,
+    identifier: [],
+    master_identifier: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DocumentManifest#resource
 pub type DocumentmanifestRelated {
   DocumentmanifestRelated(
@@ -4985,6 +9042,16 @@ pub type DocumentmanifestRelated {
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
     ref: Option(Reference),
+  )
+}
+
+pub fn documentmanifest_related_new() -> DocumentmanifestRelated {
+  DocumentmanifestRelated(
+    ref: None,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5018,6 +9085,35 @@ pub type Documentreference {
   )
 }
 
+pub fn documentreference_new(status) -> Documentreference {
+  Documentreference(
+    context: None,
+    content: [],
+    security_label: [],
+    description: None,
+    relates_to: [],
+    custodian: None,
+    authenticator: None,
+    author: [],
+    date: None,
+    subject: None,
+    category: [],
+    type_: None,
+    doc_status: None,
+    status:,
+    identifier: [],
+    master_identifier: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DocumentReference#resource
 pub type DocumentreferenceRelatesto {
   DocumentreferenceRelatesto(
@@ -5029,6 +9125,19 @@ pub type DocumentreferenceRelatesto {
   )
 }
 
+pub fn documentreference_relatesto_new(
+  target,
+  code,
+) -> DocumentreferenceRelatesto {
+  DocumentreferenceRelatesto(
+    target:,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DocumentReference#resource
 pub type DocumentreferenceContent {
   DocumentreferenceContent(
@@ -5037,6 +9146,16 @@ pub type DocumentreferenceContent {
     modifier_extension: List(Extension),
     attachment: Attachment,
     format: Option(Coding),
+  )
+}
+
+pub fn documentreference_content_new(attachment) -> DocumentreferenceContent {
+  DocumentreferenceContent(
+    format: None,
+    attachment:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5056,6 +9175,21 @@ pub type DocumentreferenceContext {
   )
 }
 
+pub fn documentreference_context_new() -> DocumentreferenceContext {
+  DocumentreferenceContext(
+    related: [],
+    source_patient_info: None,
+    practice_setting: None,
+    facility_type: None,
+    period: None,
+    event: [],
+    encounter: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/DomainResource#resource
 pub type Domainresource {
   Domainresource(
@@ -5067,6 +9201,19 @@ pub type Domainresource {
     contained: List(Resource),
     extension: List(Extension),
     modifier_extension: List(Extension),
+  )
+}
+
+pub fn domainresource_new() -> Domainresource {
+  Domainresource(
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -5107,6 +9254,42 @@ pub type Encounter {
   )
 }
 
+pub fn encounter_new(class, status) -> Encounter {
+  Encounter(
+    part_of: None,
+    service_provider: None,
+    location: [],
+    hospitalization: None,
+    account: [],
+    diagnosis: [],
+    reason_reference: [],
+    reason_code: [],
+    length: None,
+    period: None,
+    appointment: [],
+    participant: [],
+    based_on: [],
+    episode_of_care: [],
+    subject: None,
+    priority: None,
+    service_type: None,
+    type_: [],
+    class_history: [],
+    class:,
+    status_history: [],
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Encounter#resource
 pub type EncounterStatushistory {
   EncounterStatushistory(
@@ -5118,6 +9301,16 @@ pub type EncounterStatushistory {
   )
 }
 
+pub fn encounter_statushistory_new(period, status) -> EncounterStatushistory {
+  EncounterStatushistory(
+    period:,
+    status:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Encounter#resource
 pub type EncounterClasshistory {
   EncounterClasshistory(
@@ -5126,6 +9319,16 @@ pub type EncounterClasshistory {
     modifier_extension: List(Extension),
     class: Coding,
     period: Period,
+  )
+}
+
+pub fn encounter_classhistory_new(period, class) -> EncounterClasshistory {
+  EncounterClasshistory(
+    period:,
+    class:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5141,6 +9344,17 @@ pub type EncounterParticipant {
   )
 }
 
+pub fn encounter_participant_new() -> EncounterParticipant {
+  EncounterParticipant(
+    individual: None,
+    period: None,
+    type_: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Encounter#resource
 pub type EncounterDiagnosis {
   EncounterDiagnosis(
@@ -5150,6 +9364,17 @@ pub type EncounterDiagnosis {
     condition: Reference,
     use_: Option(Codeableconcept),
     rank: Option(Int),
+  )
+}
+
+pub fn encounter_diagnosis_new(condition) -> EncounterDiagnosis {
+  EncounterDiagnosis(
+    rank: None,
+    use_: None,
+    condition:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5171,6 +9396,23 @@ pub type EncounterHospitalization {
   )
 }
 
+pub fn encounter_hospitalization_new() -> EncounterHospitalization {
+  EncounterHospitalization(
+    discharge_disposition: None,
+    destination: None,
+    special_arrangement: [],
+    special_courtesy: [],
+    diet_preference: [],
+    re_admission: None,
+    admit_source: None,
+    origin: None,
+    pre_admission_identifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Encounter#resource
 pub type EncounterLocation {
   EncounterLocation(
@@ -5181,6 +9423,18 @@ pub type EncounterLocation {
     status: Option(r4bvaluesets.Encounterlocationstatus),
     physical_type: Option(Codeableconcept),
     period: Option(Period),
+  )
+}
+
+pub fn encounter_location_new(location) -> EncounterLocation {
+  EncounterLocation(
+    period: None,
+    physical_type: None,
+    status: None,
+    location:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5209,6 +9463,30 @@ pub type Endpoint {
   )
 }
 
+pub fn endpoint_new(address, connection_type, status) -> Endpoint {
+  Endpoint(
+    header: [],
+    address:,
+    payload_mime_type: [],
+    payload_type: [],
+    period: None,
+    contact: [],
+    managing_organization: None,
+    name: None,
+    connection_type:,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/EnrollmentRequest#resource
 pub type Enrollmentrequest {
   Enrollmentrequest(
@@ -5227,6 +9505,26 @@ pub type Enrollmentrequest {
     provider: Option(Reference),
     candidate: Option(Reference),
     coverage: Option(Reference),
+  )
+}
+
+pub fn enrollmentrequest_new() -> Enrollmentrequest {
+  Enrollmentrequest(
+    coverage: None,
+    candidate: None,
+    provider: None,
+    insurer: None,
+    created: None,
+    status: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -5249,6 +9547,27 @@ pub type Enrollmentresponse {
     created: Option(String),
     organization: Option(Reference),
     request_provider: Option(Reference),
+  )
+}
+
+pub fn enrollmentresponse_new() -> Enrollmentresponse {
+  Enrollmentresponse(
+    request_provider: None,
+    organization: None,
+    created: None,
+    disposition: None,
+    outcome: None,
+    request: None,
+    status: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -5278,6 +9597,31 @@ pub type Episodeofcare {
   )
 }
 
+pub fn episodeofcare_new(patient, status) -> Episodeofcare {
+  Episodeofcare(
+    account: [],
+    team: [],
+    care_manager: None,
+    referral_request: [],
+    period: None,
+    managing_organization: None,
+    patient:,
+    diagnosis: [],
+    type_: [],
+    status_history: [],
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/EpisodeOfCare#resource
 pub type EpisodeofcareStatushistory {
   EpisodeofcareStatushistory(
@@ -5286,6 +9630,19 @@ pub type EpisodeofcareStatushistory {
     modifier_extension: List(Extension),
     status: r4bvaluesets.Episodeofcarestatus,
     period: Period,
+  )
+}
+
+pub fn episodeofcare_statushistory_new(
+  period,
+  status,
+) -> EpisodeofcareStatushistory {
+  EpisodeofcareStatushistory(
+    period:,
+    status:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5298,6 +9655,17 @@ pub type EpisodeofcareDiagnosis {
     condition: Reference,
     role: Option(Codeableconcept),
     rank: Option(Int),
+  )
+}
+
+pub fn episodeofcare_diagnosis_new(condition) -> EpisodeofcareDiagnosis {
+  EpisodeofcareDiagnosis(
+    rank: None,
+    role: None,
+    condition:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5349,6 +9717,47 @@ pub type EventdefinitionSubject {
   EventdefinitionSubjectReference(subject: Reference)
 }
 
+pub fn eventdefinition_new(status) -> Eventdefinition {
+  Eventdefinition(
+    trigger: [],
+    related_artifact: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    topic: [],
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    usage: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    subject: None,
+    experimental: None,
+    status:,
+    subtitle: None,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Evidence#resource
 pub type Evidence {
   Evidence(
@@ -5394,6 +9803,44 @@ pub type EvidenceCiteas {
   EvidenceCiteasMarkdown(cite_as: String)
 }
 
+pub fn evidence_new(status) -> Evidence {
+  Evidence(
+    certainty: [],
+    statistic: [],
+    study_type: None,
+    synthesis_type: None,
+    variable_definition: [],
+    note: [],
+    assertion: None,
+    description: None,
+    related_artifact: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    contact: [],
+    publisher: None,
+    last_review_date: None,
+    approval_date: None,
+    use_context: [],
+    date: None,
+    status:,
+    cite_as: None,
+    title: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Evidence#resource
 pub type EvidenceVariabledefinition {
   EvidenceVariabledefinition(
@@ -5406,6 +9853,22 @@ pub type EvidenceVariabledefinition {
     observed: Option(Reference),
     intended: Option(Reference),
     directness_match: Option(Codeableconcept),
+  )
+}
+
+pub fn evidence_variabledefinition_new(
+  variable_role,
+) -> EvidenceVariabledefinition {
+  EvidenceVariabledefinition(
+    directness_match: None,
+    intended: None,
+    observed: None,
+    variable_role:,
+    note: [],
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5428,6 +9891,24 @@ pub type EvidenceStatistic {
   )
 }
 
+pub fn evidence_statistic_new() -> EvidenceStatistic {
+  EvidenceStatistic(
+    model_characteristic: [],
+    attribute_estimate: [],
+    sample_size: None,
+    number_affected: None,
+    number_of_events: None,
+    quantity: None,
+    category: None,
+    statistic_type: None,
+    note: [],
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Evidence#resource
 pub type EvidenceStatisticSamplesize {
   EvidenceStatisticSamplesize(
@@ -5439,6 +9920,19 @@ pub type EvidenceStatisticSamplesize {
     number_of_studies: Option(Int),
     number_of_participants: Option(Int),
     known_data_count: Option(Int),
+  )
+}
+
+pub fn evidence_statistic_samplesize_new() -> EvidenceStatisticSamplesize {
+  EvidenceStatisticSamplesize(
+    known_data_count: None,
+    number_of_participants: None,
+    number_of_studies: None,
+    note: [],
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5458,6 +9952,21 @@ pub type EvidenceStatisticAttributeestimate {
   )
 }
 
+pub fn evidence_statistic_attributeestimate_new() -> EvidenceStatisticAttributeestimate {
+  EvidenceStatisticAttributeestimate(
+    attribute_estimate: [],
+    range: None,
+    level: None,
+    quantity: None,
+    type_: None,
+    note: [],
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Evidence#resource
 pub type EvidenceStatisticModelcharacteristic {
   EvidenceStatisticModelcharacteristic(
@@ -5468,6 +9977,20 @@ pub type EvidenceStatisticModelcharacteristic {
     value: Option(Quantity),
     variable: List(EvidenceStatisticModelcharacteristicVariable),
     attribute_estimate: List(Nil),
+  )
+}
+
+pub fn evidence_statistic_modelcharacteristic_new(
+  code,
+) -> EvidenceStatisticModelcharacteristic {
+  EvidenceStatisticModelcharacteristic(
+    attribute_estimate: [],
+    variable: [],
+    value: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5485,6 +10008,21 @@ pub type EvidenceStatisticModelcharacteristicVariable {
   )
 }
 
+pub fn evidence_statistic_modelcharacteristic_variable_new(
+  variable_definition,
+) -> EvidenceStatisticModelcharacteristicVariable {
+  EvidenceStatisticModelcharacteristicVariable(
+    value_range: [],
+    value_quantity: [],
+    value_category: [],
+    handling: None,
+    variable_definition:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Evidence#resource
 pub type EvidenceCertainty {
   EvidenceCertainty(
@@ -5497,6 +10035,20 @@ pub type EvidenceCertainty {
     rating: Option(Codeableconcept),
     rater: Option(String),
     subcomponent: List(Nil),
+  )
+}
+
+pub fn evidence_certainty_new() -> EvidenceCertainty {
+  EvidenceCertainty(
+    subcomponent: [],
+    rater: None,
+    rating: None,
+    type_: None,
+    note: [],
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5538,6 +10090,37 @@ pub type EvidencereportCiteas {
   EvidencereportCiteasMarkdown(cite_as: String)
 }
 
+pub fn evidencereport_new(subject, status) -> Evidencereport {
+  Evidencereport(
+    section: [],
+    relates_to: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    contact: [],
+    publisher: None,
+    subject:,
+    related_artifact: [],
+    note: [],
+    type_: None,
+    cite_as: None,
+    related_identifier: [],
+    identifier: [],
+    use_context: [],
+    status:,
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/EvidenceReport#resource
 pub type EvidencereportSubject {
   EvidencereportSubject(
@@ -5546,6 +10129,16 @@ pub type EvidencereportSubject {
     modifier_extension: List(Extension),
     characteristic: List(EvidencereportSubjectCharacteristic),
     note: List(Annotation),
+  )
+}
+
+pub fn evidencereport_subject_new() -> EvidencereportSubject {
+  EvidencereportSubject(
+    note: [],
+    characteristic: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5573,6 +10166,21 @@ pub type EvidencereportSubjectCharacteristicValue {
   EvidencereportSubjectCharacteristicValueRange(value: Range)
 }
 
+pub fn evidencereport_subject_characteristic_new(
+  value,
+  code,
+) -> EvidencereportSubjectCharacteristic {
+  EvidencereportSubjectCharacteristic(
+    period: None,
+    exclude: None,
+    value:,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/EvidenceReport#resource
 pub type EvidencereportRelatesto {
   EvidencereportRelatesto(
@@ -5588,6 +10196,16 @@ pub type EvidencereportRelatesto {
 pub type EvidencereportRelatestoTarget {
   EvidencereportRelatestoTargetIdentifier(target: Identifier)
   EvidencereportRelatestoTargetReference(target: Reference)
+}
+
+pub fn evidencereport_relatesto_new(target, code) -> EvidencereportRelatesto {
+  EvidencereportRelatesto(
+    target:,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/EvidenceReport#resource
@@ -5608,6 +10226,26 @@ pub type EvidencereportSection {
     entry_quantity: List(Quantity),
     empty_reason: Option(Codeableconcept),
     section: List(Nil),
+  )
+}
+
+pub fn evidencereport_section_new() -> EvidencereportSection {
+  EvidencereportSection(
+    section: [],
+    empty_reason: None,
+    entry_quantity: [],
+    entry_reference: [],
+    entry_classifier: [],
+    ordered_by: None,
+    mode: None,
+    text: None,
+    author: [],
+    focus_reference: None,
+    focus: None,
+    title: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5649,6 +10287,43 @@ pub type Evidencevariable {
   )
 }
 
+pub fn evidencevariable_new(status) -> Evidencevariable {
+  Evidencevariable(
+    category: [],
+    handling: None,
+    characteristic: [],
+    characteristic_combination: None,
+    actual: None,
+    related_artifact: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    contact: [],
+    publisher: None,
+    use_context: [],
+    note: [],
+    description: None,
+    date: None,
+    status:,
+    subtitle: None,
+    short_title: None,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/EvidenceVariable#resource
 pub type EvidencevariableCharacteristic {
   EvidencevariableCharacteristic(
@@ -5675,6 +10350,23 @@ pub type EvidencevariableCharacteristicDefinition {
   EvidencevariableCharacteristicDefinitionExpression(definition: Expression)
 }
 
+pub fn evidencevariable_characteristic_new(
+  definition,
+) -> EvidencevariableCharacteristic {
+  EvidencevariableCharacteristic(
+    group_measure: None,
+    time_from_start: None,
+    exclude: None,
+    device: None,
+    method: None,
+    definition:,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/EvidenceVariable#resource
 pub type EvidencevariableCharacteristicTimefromstart {
   EvidencevariableCharacteristicTimefromstart(
@@ -5685,6 +10377,18 @@ pub type EvidencevariableCharacteristicTimefromstart {
     quantity: Option(Quantity),
     range: Option(Range),
     note: List(Annotation),
+  )
+}
+
+pub fn evidencevariable_characteristic_timefromstart_new() -> EvidencevariableCharacteristicTimefromstart {
+  EvidencevariableCharacteristicTimefromstart(
+    note: [],
+    range: None,
+    quantity: None,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5704,6 +10408,16 @@ pub type EvidencevariableCategoryValue {
   EvidencevariableCategoryValueCodeableconcept(value: Codeableconcept)
   EvidencevariableCategoryValueQuantity(value: Quantity)
   EvidencevariableCategoryValueRange(value: Range)
+}
+
+pub fn evidencevariable_category_new() -> EvidencevariableCategory {
+  EvidencevariableCategory(
+    value: None,
+    name: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExampleScenario#resource
@@ -5737,6 +10451,36 @@ pub type Examplescenario {
   )
 }
 
+pub fn examplescenario_new(status) -> Examplescenario {
+  Examplescenario(
+    workflow: [],
+    process: [],
+    instance: [],
+    actor: [],
+    purpose: None,
+    copyright: None,
+    jurisdiction: [],
+    use_context: [],
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExampleScenario#resource
 pub type ExamplescenarioActor {
   ExamplescenarioActor(
@@ -5747,6 +10491,18 @@ pub type ExamplescenarioActor {
     type_: r4bvaluesets.Examplescenarioactortype,
     name: Option(String),
     description: Option(String),
+  )
+}
+
+pub fn examplescenario_actor_new(type_, actor_id) -> ExamplescenarioActor {
+  ExamplescenarioActor(
+    description: None,
+    name: None,
+    type_:,
+    actor_id:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5765,6 +10521,23 @@ pub type ExamplescenarioInstance {
   )
 }
 
+pub fn examplescenario_instance_new(
+  resource_type,
+  resource_id,
+) -> ExamplescenarioInstance {
+  ExamplescenarioInstance(
+    contained_instance: [],
+    version: [],
+    description: None,
+    name: None,
+    resource_type:,
+    resource_id:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExampleScenario#resource
 pub type ExamplescenarioInstanceVersion {
   ExamplescenarioInstanceVersion(
@@ -5776,6 +10549,19 @@ pub type ExamplescenarioInstanceVersion {
   )
 }
 
+pub fn examplescenario_instance_version_new(
+  description,
+  version_id,
+) -> ExamplescenarioInstanceVersion {
+  ExamplescenarioInstanceVersion(
+    description:,
+    version_id:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExampleScenario#resource
 pub type ExamplescenarioInstanceContainedinstance {
   ExamplescenarioInstanceContainedinstance(
@@ -5784,6 +10570,18 @@ pub type ExamplescenarioInstanceContainedinstance {
     modifier_extension: List(Extension),
     resource_id: String,
     version_id: Option(String),
+  )
+}
+
+pub fn examplescenario_instance_containedinstance_new(
+  resource_id,
+) -> ExamplescenarioInstanceContainedinstance {
+  ExamplescenarioInstanceContainedinstance(
+    version_id: None,
+    resource_id:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5801,6 +10599,19 @@ pub type ExamplescenarioProcess {
   )
 }
 
+pub fn examplescenario_process_new(title) -> ExamplescenarioProcess {
+  ExamplescenarioProcess(
+    step: [],
+    post_conditions: None,
+    pre_conditions: None,
+    description: None,
+    title:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExampleScenario#resource
 pub type ExamplescenarioProcessStep {
   ExamplescenarioProcessStep(
@@ -5811,6 +10622,18 @@ pub type ExamplescenarioProcessStep {
     pause: Option(Bool),
     operation: Option(ExamplescenarioProcessStepOperation),
     alternative: List(ExamplescenarioProcessStepAlternative),
+  )
+}
+
+pub fn examplescenario_process_step_new() -> ExamplescenarioProcessStep {
+  ExamplescenarioProcessStep(
+    alternative: [],
+    operation: None,
+    pause: None,
+    process: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5833,6 +10656,26 @@ pub type ExamplescenarioProcessStepOperation {
   )
 }
 
+pub fn examplescenario_process_step_operation_new(
+  number,
+) -> ExamplescenarioProcessStepOperation {
+  ExamplescenarioProcessStepOperation(
+    response: None,
+    request: None,
+    receiver_active: None,
+    initiator_active: None,
+    description: None,
+    receiver: None,
+    initiator: None,
+    name: None,
+    type_: None,
+    number:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExampleScenario#resource
 pub type ExamplescenarioProcessStepAlternative {
   ExamplescenarioProcessStepAlternative(
@@ -5842,6 +10685,19 @@ pub type ExamplescenarioProcessStepAlternative {
     title: String,
     description: Option(String),
     step: List(Nil),
+  )
+}
+
+pub fn examplescenario_process_step_alternative_new(
+  title,
+) -> ExamplescenarioProcessStepAlternative {
+  ExamplescenarioProcessStepAlternative(
+    step: [],
+    description: None,
+    title:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5902,6 +10758,71 @@ pub type Explanationofbenefit {
   )
 }
 
+pub fn explanationofbenefit_new(
+  outcome,
+  provider,
+  insurer,
+  created,
+  patient,
+  use_,
+  type_,
+  status,
+) -> Explanationofbenefit {
+  Explanationofbenefit(
+    benefit_balance: [],
+    benefit_period: None,
+    process_note: [],
+    form: None,
+    form_code: None,
+    payment: None,
+    total: [],
+    adjudication: [],
+    add_item: [],
+    item: [],
+    accident: None,
+    insurance: [],
+    precedence: None,
+    procedure: [],
+    diagnosis: [],
+    supporting_info: [],
+    care_team: [],
+    pre_auth_ref_period: [],
+    pre_auth_ref: [],
+    disposition: None,
+    outcome:,
+    claim_response: None,
+    claim: None,
+    facility: None,
+    referral: None,
+    payee: None,
+    original_prescription: None,
+    prescription: None,
+    related: [],
+    funds_reserve: None,
+    funds_reserve_requested: None,
+    priority: None,
+    provider:,
+    insurer:,
+    enterer: None,
+    created:,
+    billable_period: None,
+    patient:,
+    use_:,
+    sub_type: None,
+    type_:,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
 pub type ExplanationofbenefitRelated {
   ExplanationofbenefitRelated(
@@ -5911,6 +10832,17 @@ pub type ExplanationofbenefitRelated {
     claim: Option(Reference),
     relationship: Option(Codeableconcept),
     reference: Option(Identifier),
+  )
+}
+
+pub fn explanationofbenefit_related_new() -> ExplanationofbenefitRelated {
+  ExplanationofbenefitRelated(
+    reference: None,
+    relationship: None,
+    claim: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5925,6 +10857,16 @@ pub type ExplanationofbenefitPayee {
   )
 }
 
+pub fn explanationofbenefit_payee_new() -> ExplanationofbenefitPayee {
+  ExplanationofbenefitPayee(
+    party: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
 pub type ExplanationofbenefitCareteam {
   ExplanationofbenefitCareteam(
@@ -5936,6 +10878,22 @@ pub type ExplanationofbenefitCareteam {
     responsible: Option(Bool),
     role: Option(Codeableconcept),
     qualification: Option(Codeableconcept),
+  )
+}
+
+pub fn explanationofbenefit_careteam_new(
+  provider,
+  sequence,
+) -> ExplanationofbenefitCareteam {
+  ExplanationofbenefitCareteam(
+    qualification: None,
+    role: None,
+    responsible: None,
+    provider:,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -5969,6 +10927,23 @@ pub type ExplanationofbenefitSupportinginfoValue {
   ExplanationofbenefitSupportinginfoValueReference(value: Reference)
 }
 
+pub fn explanationofbenefit_supportinginfo_new(
+  category,
+  sequence,
+) -> ExplanationofbenefitSupportinginfo {
+  ExplanationofbenefitSupportinginfo(
+    reason: None,
+    value: None,
+    timing: None,
+    code: None,
+    category:,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
 pub type ExplanationofbenefitDiagnosis {
   ExplanationofbenefitDiagnosis(
@@ -5989,6 +10964,22 @@ pub type ExplanationofbenefitDiagnosisDiagnosis {
     diagnosis: Codeableconcept,
   )
   ExplanationofbenefitDiagnosisDiagnosisReference(diagnosis: Reference)
+}
+
+pub fn explanationofbenefit_diagnosis_new(
+  diagnosis,
+  sequence,
+) -> ExplanationofbenefitDiagnosis {
+  ExplanationofbenefitDiagnosis(
+    package_code: None,
+    on_admission: None,
+    type_: [],
+    diagnosis:,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
@@ -6013,6 +11004,22 @@ pub type ExplanationofbenefitProcedureProcedure {
   ExplanationofbenefitProcedureProcedureReference(procedure: Reference)
 }
 
+pub fn explanationofbenefit_procedure_new(
+  procedure,
+  sequence,
+) -> ExplanationofbenefitProcedure {
+  ExplanationofbenefitProcedure(
+    udi: [],
+    procedure:,
+    date: None,
+    type_: [],
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
 pub type ExplanationofbenefitInsurance {
   ExplanationofbenefitInsurance(
@@ -6022,6 +11029,20 @@ pub type ExplanationofbenefitInsurance {
     focal: Bool,
     coverage: Reference,
     pre_auth_ref: List(String),
+  )
+}
+
+pub fn explanationofbenefit_insurance_new(
+  coverage,
+  focal,
+) -> ExplanationofbenefitInsurance {
+  ExplanationofbenefitInsurance(
+    pre_auth_ref: [],
+    coverage:,
+    focal:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6041,6 +11062,17 @@ pub type ExplanationofbenefitAccident {
 pub type ExplanationofbenefitAccidentLocation {
   ExplanationofbenefitAccidentLocationAddress(location: Address)
   ExplanationofbenefitAccidentLocationReference(location: Reference)
+}
+
+pub fn explanationofbenefit_accident_new() -> ExplanationofbenefitAccident {
+  ExplanationofbenefitAccident(
+    location: None,
+    type_: None,
+    date: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
@@ -6088,6 +11120,40 @@ pub type ExplanationofbenefitItemLocation {
   ExplanationofbenefitItemLocationReference(location: Reference)
 }
 
+pub fn explanationofbenefit_item_new(
+  product_or_service,
+  sequence,
+) -> ExplanationofbenefitItem {
+  ExplanationofbenefitItem(
+    detail: [],
+    adjudication: [],
+    note_number: [],
+    encounter: [],
+    sub_site: [],
+    body_site: None,
+    udi: [],
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    location: None,
+    serviced: None,
+    program_code: [],
+    modifier: [],
+    product_or_service:,
+    category: None,
+    revenue: None,
+    information_sequence: [],
+    procedure_sequence: [],
+    diagnosis_sequence: [],
+    care_team_sequence: [],
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
 pub type ExplanationofbenefitItemAdjudication {
   ExplanationofbenefitItemAdjudication(
@@ -6098,6 +11164,20 @@ pub type ExplanationofbenefitItemAdjudication {
     reason: Option(Codeableconcept),
     amount: Option(Money),
     value: Option(Float),
+  )
+}
+
+pub fn explanationofbenefit_item_adjudication_new(
+  category,
+) -> ExplanationofbenefitItemAdjudication {
+  ExplanationofbenefitItemAdjudication(
+    value: None,
+    amount: None,
+    reason: None,
+    category:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6124,6 +11204,31 @@ pub type ExplanationofbenefitItemDetail {
   )
 }
 
+pub fn explanationofbenefit_item_detail_new(
+  product_or_service,
+  sequence,
+) -> ExplanationofbenefitItemDetail {
+  ExplanationofbenefitItemDetail(
+    sub_detail: [],
+    adjudication: [],
+    note_number: [],
+    udi: [],
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    program_code: [],
+    modifier: [],
+    product_or_service:,
+    category: None,
+    revenue: None,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
 pub type ExplanationofbenefitItemDetailSubdetail {
   ExplanationofbenefitItemDetailSubdetail(
@@ -6143,6 +11248,30 @@ pub type ExplanationofbenefitItemDetailSubdetail {
     udi: List(Reference),
     note_number: List(Int),
     adjudication: List(Nil),
+  )
+}
+
+pub fn explanationofbenefit_item_detail_subdetail_new(
+  product_or_service,
+  sequence,
+) -> ExplanationofbenefitItemDetailSubdetail {
+  ExplanationofbenefitItemDetailSubdetail(
+    adjudication: [],
+    note_number: [],
+    udi: [],
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    program_code: [],
+    modifier: [],
+    product_or_service:,
+    category: None,
+    revenue: None,
+    sequence:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6186,6 +11315,34 @@ pub type ExplanationofbenefitAdditemLocation {
   ExplanationofbenefitAdditemLocationReference(location: Reference)
 }
 
+pub fn explanationofbenefit_additem_new(
+  product_or_service,
+) -> ExplanationofbenefitAdditem {
+  ExplanationofbenefitAdditem(
+    detail: [],
+    adjudication: [],
+    note_number: [],
+    sub_site: [],
+    body_site: None,
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    location: None,
+    serviced: None,
+    program_code: [],
+    modifier: [],
+    product_or_service:,
+    provider: [],
+    sub_detail_sequence: [],
+    detail_sequence: [],
+    item_sequence: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
 pub type ExplanationofbenefitAdditemDetail {
   ExplanationofbenefitAdditemDetail(
@@ -6201,6 +11358,25 @@ pub type ExplanationofbenefitAdditemDetail {
     note_number: List(Int),
     adjudication: List(Nil),
     sub_detail: List(ExplanationofbenefitAdditemDetailSubdetail),
+  )
+}
+
+pub fn explanationofbenefit_additem_detail_new(
+  product_or_service,
+) -> ExplanationofbenefitAdditemDetail {
+  ExplanationofbenefitAdditemDetail(
+    sub_detail: [],
+    adjudication: [],
+    note_number: [],
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    modifier: [],
+    product_or_service:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6221,6 +11397,24 @@ pub type ExplanationofbenefitAdditemDetailSubdetail {
   )
 }
 
+pub fn explanationofbenefit_additem_detail_subdetail_new(
+  product_or_service,
+) -> ExplanationofbenefitAdditemDetailSubdetail {
+  ExplanationofbenefitAdditemDetailSubdetail(
+    adjudication: [],
+    note_number: [],
+    net: None,
+    factor: None,
+    unit_price: None,
+    quantity: None,
+    modifier: [],
+    product_or_service:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
 pub type ExplanationofbenefitTotal {
   ExplanationofbenefitTotal(
@@ -6229,6 +11423,19 @@ pub type ExplanationofbenefitTotal {
     modifier_extension: List(Extension),
     category: Codeableconcept,
     amount: Money,
+  )
+}
+
+pub fn explanationofbenefit_total_new(
+  amount,
+  category,
+) -> ExplanationofbenefitTotal {
+  ExplanationofbenefitTotal(
+    amount:,
+    category:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6247,6 +11454,20 @@ pub type ExplanationofbenefitPayment {
   )
 }
 
+pub fn explanationofbenefit_payment_new() -> ExplanationofbenefitPayment {
+  ExplanationofbenefitPayment(
+    identifier: None,
+    amount: None,
+    date: None,
+    adjustment_reason: None,
+    adjustment: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ExplanationOfBenefit#resource
 pub type ExplanationofbenefitProcessnote {
   ExplanationofbenefitProcessnote(
@@ -6257,6 +11478,18 @@ pub type ExplanationofbenefitProcessnote {
     type_: Option(r4bvaluesets.Notetype),
     text: Option(String),
     language: Option(Codeableconcept),
+  )
+}
+
+pub fn explanationofbenefit_processnote_new() -> ExplanationofbenefitProcessnote {
+  ExplanationofbenefitProcessnote(
+    language: None,
+    text: None,
+    type_: None,
+    number: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6274,6 +11507,24 @@ pub type ExplanationofbenefitBenefitbalance {
     unit: Option(Codeableconcept),
     term: Option(Codeableconcept),
     financial: List(ExplanationofbenefitBenefitbalanceFinancial),
+  )
+}
+
+pub fn explanationofbenefit_benefitbalance_new(
+  category,
+) -> ExplanationofbenefitBenefitbalance {
+  ExplanationofbenefitBenefitbalance(
+    financial: [],
+    term: None,
+    unit: None,
+    network: None,
+    description: None,
+    name: None,
+    excluded: None,
+    category:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6300,6 +11551,19 @@ pub type ExplanationofbenefitBenefitbalanceFinancialAllowed {
 pub type ExplanationofbenefitBenefitbalanceFinancialUsed {
   ExplanationofbenefitBenefitbalanceFinancialUsedUnsignedint(used: Int)
   ExplanationofbenefitBenefitbalanceFinancialUsedMoney(used: Money)
+}
+
+pub fn explanationofbenefit_benefitbalance_financial_new(
+  type_,
+) -> ExplanationofbenefitBenefitbalanceFinancial {
+  ExplanationofbenefitBenefitbalanceFinancial(
+    used: None,
+    allowed: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/FamilyMemberHistory#resource
@@ -6357,6 +11621,41 @@ pub type FamilymemberhistoryDeceased {
   FamilymemberhistoryDeceasedString(deceased: String)
 }
 
+pub fn familymemberhistory_new(
+  relationship,
+  patient,
+  status,
+) -> Familymemberhistory {
+  Familymemberhistory(
+    condition: [],
+    note: [],
+    reason_reference: [],
+    reason_code: [],
+    deceased: None,
+    estimated_age: None,
+    age: None,
+    born: None,
+    sex: None,
+    relationship:,
+    name: None,
+    date: None,
+    patient:,
+    data_absent_reason: None,
+    status:,
+    instantiates_uri: [],
+    instantiates_canonical: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/FamilyMemberHistory#resource
 pub type FamilymemberhistoryCondition {
   FamilymemberhistoryCondition(
@@ -6379,6 +11678,19 @@ pub type FamilymemberhistoryConditionOnset {
   FamilymemberhistoryConditionOnsetString(onset: String)
 }
 
+pub fn familymemberhistory_condition_new(code) -> FamilymemberhistoryCondition {
+  FamilymemberhistoryCondition(
+    note: [],
+    onset: None,
+    contributed_to_death: None,
+    outcome: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Flag#resource
 pub type Flag {
   Flag(
@@ -6398,6 +11710,27 @@ pub type Flag {
     period: Option(Period),
     encounter: Option(Reference),
     author: Option(Reference),
+  )
+}
+
+pub fn flag_new(subject, code, status) -> Flag {
+  Flag(
+    author: None,
+    encounter: None,
+    period: None,
+    subject:,
+    code:,
+    category: [],
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -6437,6 +11770,35 @@ pub type GoalStart {
   GoalStartCodeableconcept(start: Codeableconcept)
 }
 
+pub fn goal_new(subject, description, lifecycle_status) -> Goal {
+  Goal(
+    outcome_reference: [],
+    outcome_code: [],
+    note: [],
+    addresses: [],
+    expressed_by: None,
+    status_reason: None,
+    status_date: None,
+    target: [],
+    start: None,
+    subject:,
+    description:,
+    priority: None,
+    category: [],
+    achievement_status: None,
+    lifecycle_status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Goal#resource
 pub type GoalTarget {
   GoalTarget(
@@ -6464,6 +11826,17 @@ pub type GoalTargetDetail {
 pub type GoalTargetDue {
   GoalTargetDueDate(due: String)
   GoalTargetDueDuration(due: Duration)
+}
+
+pub fn goal_target_new() -> GoalTarget {
+  GoalTarget(
+    due: None,
+    detail: None,
+    measure: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/GraphDefinition#resource
@@ -6495,6 +11868,34 @@ pub type Graphdefinition {
   )
 }
 
+pub fn graphdefinition_new(start, status, name) -> Graphdefinition {
+  Graphdefinition(
+    link: [],
+    profile: None,
+    start:,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    name:,
+    version: None,
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/GraphDefinition#resource
 pub type GraphdefinitionLink {
   GraphdefinitionLink(
@@ -6507,6 +11908,20 @@ pub type GraphdefinitionLink {
     max: Option(String),
     description: Option(String),
     target: List(GraphdefinitionLinkTarget),
+  )
+}
+
+pub fn graphdefinition_link_new() -> GraphdefinitionLink {
+  GraphdefinitionLink(
+    target: [],
+    description: None,
+    max: None,
+    min: None,
+    slice_name: None,
+    path: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6524,6 +11939,19 @@ pub type GraphdefinitionLinkTarget {
   )
 }
 
+pub fn graphdefinition_link_target_new(type_) -> GraphdefinitionLinkTarget {
+  GraphdefinitionLinkTarget(
+    link: [],
+    compartment: [],
+    profile: None,
+    params: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/GraphDefinition#resource
 pub type GraphdefinitionLinkTargetCompartment {
   GraphdefinitionLinkTargetCompartment(
@@ -6535,6 +11963,23 @@ pub type GraphdefinitionLinkTargetCompartment {
     rule: r4bvaluesets.Graphcompartmentrule,
     expression: Option(String),
     description: Option(String),
+  )
+}
+
+pub fn graphdefinition_link_target_compartment_new(
+  rule,
+  code,
+  use_,
+) -> GraphdefinitionLinkTargetCompartment {
+  GraphdefinitionLinkTargetCompartment(
+    description: None,
+    expression: None,
+    rule:,
+    code:,
+    use_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6562,6 +12007,29 @@ pub type Group {
   )
 }
 
+pub fn group_new(actual, type_) -> Group {
+  Group(
+    member: [],
+    characteristic: [],
+    managing_entity: None,
+    quantity: None,
+    name: None,
+    code: None,
+    actual:,
+    type_:,
+    active: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Group#resource
 pub type GroupCharacteristic {
   GroupCharacteristic(
@@ -6584,6 +12052,18 @@ pub type GroupCharacteristicValue {
   GroupCharacteristicValueReference(value: Reference)
 }
 
+pub fn group_characteristic_new(exclude, value, code) -> GroupCharacteristic {
+  GroupCharacteristic(
+    period: None,
+    exclude:,
+    value:,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Group#resource
 pub type GroupMember {
   GroupMember(
@@ -6593,6 +12073,17 @@ pub type GroupMember {
     entity: Reference,
     period: Option(Period),
     inactive: Option(Bool),
+  )
+}
+
+pub fn group_member_new(entity) -> GroupMember {
+  GroupMember(
+    inactive: None,
+    period: None,
+    entity:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6630,6 +12121,34 @@ pub type GuidanceresponseModule {
   GuidanceresponseModuleUri(module: String)
   GuidanceresponseModuleCanonical(module: String)
   GuidanceresponseModuleCodeableconcept(module: Codeableconcept)
+}
+
+pub fn guidanceresponse_new(status, module) -> Guidanceresponse {
+  Guidanceresponse(
+    data_requirement: [],
+    result: None,
+    output_parameters: None,
+    evaluation_message: [],
+    note: [],
+    reason_reference: [],
+    reason_code: [],
+    performer: None,
+    occurrence_date_time: None,
+    encounter: None,
+    subject: None,
+    status:,
+    module:,
+    identifier: [],
+    request_identifier: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/HealthcareService#resource
@@ -6670,6 +12189,43 @@ pub type Healthcareservice {
   )
 }
 
+pub fn healthcareservice_new() -> Healthcareservice {
+  Healthcareservice(
+    endpoint: [],
+    availability_exceptions: None,
+    not_available: [],
+    available_time: [],
+    appointment_required: None,
+    referral_method: [],
+    communication: [],
+    characteristic: [],
+    program: [],
+    eligibility: [],
+    service_provision_code: [],
+    coverage_area: [],
+    telecom: [],
+    photo: None,
+    extra_details: None,
+    comment: None,
+    name: None,
+    location: [],
+    specialty: [],
+    type_: [],
+    category: [],
+    provided_by: None,
+    active: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/HealthcareService#resource
 pub type HealthcareserviceEligibility {
   HealthcareserviceEligibility(
@@ -6678,6 +12234,16 @@ pub type HealthcareserviceEligibility {
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
     comment: Option(String),
+  )
+}
+
+pub fn healthcareservice_eligibility_new() -> HealthcareserviceEligibility {
+  HealthcareserviceEligibility(
+    comment: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6694,6 +12260,18 @@ pub type HealthcareserviceAvailabletime {
   )
 }
 
+pub fn healthcareservice_availabletime_new() -> HealthcareserviceAvailabletime {
+  HealthcareserviceAvailabletime(
+    available_end_time: None,
+    available_start_time: None,
+    all_day: None,
+    days_of_week: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/HealthcareService#resource
 pub type HealthcareserviceNotavailable {
   HealthcareserviceNotavailable(
@@ -6702,6 +12280,18 @@ pub type HealthcareserviceNotavailable {
     modifier_extension: List(Extension),
     description: String,
     during: Option(Period),
+  )
+}
+
+pub fn healthcareservice_notavailable_new(
+  description,
+) -> HealthcareserviceNotavailable {
+  HealthcareserviceNotavailable(
+    during: None,
+    description:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6739,6 +12329,39 @@ pub type Imagingstudy {
   )
 }
 
+pub fn imagingstudy_new(subject, status) -> Imagingstudy {
+  Imagingstudy(
+    series: [],
+    description: None,
+    note: [],
+    reason_reference: [],
+    reason_code: [],
+    location: None,
+    procedure_code: [],
+    procedure_reference: None,
+    number_of_instances: None,
+    number_of_series: None,
+    endpoint: [],
+    interpreter: [],
+    referrer: None,
+    based_on: [],
+    started: None,
+    encounter: None,
+    subject:,
+    modality: [],
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImagingStudy#resource
 pub type ImagingstudySeries {
   ImagingstudySeries(
@@ -6760,6 +12383,26 @@ pub type ImagingstudySeries {
   )
 }
 
+pub fn imagingstudy_series_new(modality, uid) -> ImagingstudySeries {
+  ImagingstudySeries(
+    instance: [],
+    performer: [],
+    started: None,
+    specimen: [],
+    laterality: None,
+    body_site: None,
+    endpoint: [],
+    number_of_instances: None,
+    description: None,
+    modality:,
+    number: None,
+    uid:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImagingStudy#resource
 pub type ImagingstudySeriesPerformer {
   ImagingstudySeriesPerformer(
@@ -6768,6 +12411,16 @@ pub type ImagingstudySeriesPerformer {
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
     actor: Reference,
+  )
+}
+
+pub fn imagingstudy_series_performer_new(actor) -> ImagingstudySeriesPerformer {
+  ImagingstudySeriesPerformer(
+    actor:,
+    function: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6781,6 +12434,21 @@ pub type ImagingstudySeriesInstance {
     sop_class: Coding,
     number: Option(Int),
     title: Option(String),
+  )
+}
+
+pub fn imagingstudy_series_instance_new(
+  sop_class,
+  uid,
+) -> ImagingstudySeriesInstance {
+  ImagingstudySeriesInstance(
+    title: None,
+    number: None,
+    sop_class:,
+    uid:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6832,6 +12500,52 @@ pub type ImmunizationOccurrence {
   ImmunizationOccurrenceString(occurrence: String)
 }
 
+pub fn immunization_new(
+  occurrence,
+  patient,
+  vaccine_code,
+  status,
+) -> Immunization {
+  Immunization(
+    protocol_applied: [],
+    reaction: [],
+    funding_source: None,
+    program_eligibility: [],
+    education: [],
+    subpotent_reason: [],
+    is_subpotent: None,
+    reason_reference: [],
+    reason_code: [],
+    note: [],
+    performer: [],
+    dose_quantity: None,
+    route: None,
+    site: None,
+    expiration_date: None,
+    lot_number: None,
+    manufacturer: None,
+    location: None,
+    report_origin: None,
+    primary_source: None,
+    recorded: None,
+    occurrence:,
+    encounter: None,
+    patient:,
+    vaccine_code:,
+    status_reason: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Immunization#resource
 pub type ImmunizationPerformer {
   ImmunizationPerformer(
@@ -6840,6 +12554,16 @@ pub type ImmunizationPerformer {
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
     actor: Reference,
+  )
+}
+
+pub fn immunization_performer_new(actor) -> ImmunizationPerformer {
+  ImmunizationPerformer(
+    actor:,
+    function: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6856,6 +12580,18 @@ pub type ImmunizationEducation {
   )
 }
 
+pub fn immunization_education_new() -> ImmunizationEducation {
+  ImmunizationEducation(
+    presentation_date: None,
+    publication_date: None,
+    reference: None,
+    document_type: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Immunization#resource
 pub type ImmunizationReaction {
   ImmunizationReaction(
@@ -6865,6 +12601,17 @@ pub type ImmunizationReaction {
     date: Option(String),
     detail: Option(Reference),
     reported: Option(Bool),
+  )
+}
+
+pub fn immunization_reaction_new() -> ImmunizationReaction {
+  ImmunizationReaction(
+    reported: None,
+    detail: None,
+    date: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -6892,6 +12639,21 @@ pub type ImmunizationProtocolappliedDosenumber {
 pub type ImmunizationProtocolappliedSeriesdoses {
   ImmunizationProtocolappliedSeriesdosesPositiveint(series_doses: Int)
   ImmunizationProtocolappliedSeriesdosesString(series_doses: String)
+}
+
+pub fn immunization_protocolapplied_new(
+  dose_number,
+) -> ImmunizationProtocolapplied {
+  ImmunizationProtocolapplied(
+    series_doses: None,
+    dose_number:,
+    target_disease: [],
+    authority: None,
+    series: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImmunizationEvaluation#resource
@@ -6933,6 +12695,38 @@ pub type ImmunizationevaluationSeriesdoses {
   ImmunizationevaluationSeriesdosesString(series_doses: String)
 }
 
+pub fn immunizationevaluation_new(
+  dose_status,
+  immunization_event,
+  target_disease,
+  patient,
+  status,
+) -> Immunizationevaluation {
+  Immunizationevaluation(
+    series_doses: None,
+    dose_number: None,
+    series: None,
+    description: None,
+    dose_status_reason: [],
+    dose_status:,
+    immunization_event:,
+    target_disease:,
+    authority: None,
+    date: None,
+    patient:,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImmunizationRecommendation#resource
 pub type Immunizationrecommendation {
   Immunizationrecommendation(
@@ -6949,6 +12743,27 @@ pub type Immunizationrecommendation {
     date: String,
     authority: Option(Reference),
     recommendation: List(ImmunizationrecommendationRecommendation),
+  )
+}
+
+pub fn immunizationrecommendation_new(
+  date,
+  patient,
+) -> Immunizationrecommendation {
+  Immunizationrecommendation(
+    recommendation: [],
+    authority: None,
+    date:,
+    patient:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -6991,6 +12806,28 @@ pub type ImmunizationrecommendationRecommendationSeriesdoses {
   )
 }
 
+pub fn immunizationrecommendation_recommendation_new(
+  forecast_status,
+) -> ImmunizationrecommendationRecommendation {
+  ImmunizationrecommendationRecommendation(
+    supporting_patient_information: [],
+    supporting_immunization: [],
+    series_doses: None,
+    dose_number: None,
+    series: None,
+    description: None,
+    date_criterion: [],
+    forecast_reason: [],
+    forecast_status:,
+    contraindicated_vaccine_code: [],
+    target_disease: None,
+    vaccine_code: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImmunizationRecommendation#resource
 pub type ImmunizationrecommendationRecommendationDatecriterion {
   ImmunizationrecommendationRecommendationDatecriterion(
@@ -6999,6 +12836,19 @@ pub type ImmunizationrecommendationRecommendationDatecriterion {
     modifier_extension: List(Extension),
     code: Codeableconcept,
     value: String,
+  )
+}
+
+pub fn immunizationrecommendation_recommendation_datecriterion_new(
+  value,
+  code,
+) -> ImmunizationrecommendationRecommendationDatecriterion {
+  ImmunizationrecommendationRecommendationDatecriterion(
+    value:,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7036,6 +12886,44 @@ pub type Implementationguide {
   )
 }
 
+pub fn implementationguide_new(
+  package_id,
+  status,
+  name,
+  url,
+) -> Implementationguide {
+  Implementationguide(
+    manifest: None,
+    definition: None,
+    global: [],
+    depends_on: [],
+    fhir_version: [],
+    license: None,
+    package_id:,
+    copyright: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    title: None,
+    name:,
+    version: None,
+    url:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImplementationGuide#resource
 pub type ImplementationguideDependson {
   ImplementationguideDependson(
@@ -7048,6 +12936,17 @@ pub type ImplementationguideDependson {
   )
 }
 
+pub fn implementationguide_dependson_new(uri) -> ImplementationguideDependson {
+  ImplementationguideDependson(
+    version: None,
+    package_id: None,
+    uri:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImplementationGuide#resource
 pub type ImplementationguideGlobal {
   ImplementationguideGlobal(
@@ -7056,6 +12955,19 @@ pub type ImplementationguideGlobal {
     modifier_extension: List(Extension),
     type_: r4bvaluesets.Resourcetypes,
     profile: String,
+  )
+}
+
+pub fn implementationguide_global_new(
+  profile,
+  type_,
+) -> ImplementationguideGlobal {
+  ImplementationguideGlobal(
+    profile:,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7073,6 +12985,19 @@ pub type ImplementationguideDefinition {
   )
 }
 
+pub fn implementationguide_definition_new() -> ImplementationguideDefinition {
+  ImplementationguideDefinition(
+    template: [],
+    parameter: [],
+    page: None,
+    resource: [],
+    grouping: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImplementationGuide#resource
 pub type ImplementationguideDefinitionGrouping {
   ImplementationguideDefinitionGrouping(
@@ -7081,6 +13006,18 @@ pub type ImplementationguideDefinitionGrouping {
     modifier_extension: List(Extension),
     name: String,
     description: Option(String),
+  )
+}
+
+pub fn implementationguide_definition_grouping_new(
+  name,
+) -> ImplementationguideDefinitionGrouping {
+  ImplementationguideDefinitionGrouping(
+    description: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7105,6 +13042,22 @@ pub type ImplementationguideDefinitionResourceExample {
   ImplementationguideDefinitionResourceExampleCanonical(example: String)
 }
 
+pub fn implementationguide_definition_resource_new(
+  reference,
+) -> ImplementationguideDefinitionResource {
+  ImplementationguideDefinitionResource(
+    grouping_id: None,
+    example: None,
+    description: None,
+    name: None,
+    fhir_version: [],
+    reference:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImplementationGuide#resource
 pub type ImplementationguideDefinitionPage {
   ImplementationguideDefinitionPage(
@@ -7124,6 +13077,22 @@ pub type ImplementationguideDefinitionPageName {
   ImplementationguideDefinitionPageNameReference(name: Reference)
 }
 
+pub fn implementationguide_definition_page_new(
+  generation,
+  title,
+  name,
+) -> ImplementationguideDefinitionPage {
+  ImplementationguideDefinitionPage(
+    page: [],
+    generation:,
+    title:,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImplementationGuide#resource
 pub type ImplementationguideDefinitionParameter {
   ImplementationguideDefinitionParameter(
@@ -7132,6 +13101,19 @@ pub type ImplementationguideDefinitionParameter {
     modifier_extension: List(Extension),
     code: r4bvaluesets.Guideparametercode,
     value: String,
+  )
+}
+
+pub fn implementationguide_definition_parameter_new(
+  value,
+  code,
+) -> ImplementationguideDefinitionParameter {
+  ImplementationguideDefinitionParameter(
+    value:,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7147,6 +13129,20 @@ pub type ImplementationguideDefinitionTemplate {
   )
 }
 
+pub fn implementationguide_definition_template_new(
+  source,
+  code,
+) -> ImplementationguideDefinitionTemplate {
+  ImplementationguideDefinitionTemplate(
+    scope: None,
+    source:,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImplementationGuide#resource
 pub type ImplementationguideManifest {
   ImplementationguideManifest(
@@ -7158,6 +13154,19 @@ pub type ImplementationguideManifest {
     page: List(ImplementationguideManifestPage),
     image: List(String),
     other: List(String),
+  )
+}
+
+pub fn implementationguide_manifest_new() -> ImplementationguideManifest {
+  ImplementationguideManifest(
+    other: [],
+    image: [],
+    page: [],
+    resource: [],
+    rendering: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7179,6 +13188,19 @@ pub type ImplementationguideManifestResourceExample {
   ImplementationguideManifestResourceExampleCanonical(example: String)
 }
 
+pub fn implementationguide_manifest_resource_new(
+  reference,
+) -> ImplementationguideManifestResource {
+  ImplementationguideManifestResource(
+    relative_path: None,
+    example: None,
+    reference:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ImplementationGuide#resource
 pub type ImplementationguideManifestPage {
   ImplementationguideManifestPage(
@@ -7188,6 +13210,19 @@ pub type ImplementationguideManifestPage {
     name: String,
     title: Option(String),
     anchor: List(String),
+  )
+}
+
+pub fn implementationguide_manifest_page_new(
+  name,
+) -> ImplementationguideManifestPage {
+  ImplementationguideManifestPage(
+    anchor: [],
+    title: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7213,6 +13248,27 @@ pub type Ingredient {
   )
 }
 
+pub fn ingredient_new(substance, role, status) -> Ingredient {
+  Ingredient(
+    substance:,
+    manufacturer: [],
+    allergenic_indicator: None,
+    function: [],
+    role:,
+    for: [],
+    status:,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Ingredient#resource
 pub type IngredientManufacturer {
   IngredientManufacturer(
@@ -7224,6 +13280,16 @@ pub type IngredientManufacturer {
   )
 }
 
+pub fn ingredient_manufacturer_new(manufacturer) -> IngredientManufacturer {
+  IngredientManufacturer(
+    manufacturer:,
+    role: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Ingredient#resource
 pub type IngredientSubstance {
   IngredientSubstance(
@@ -7232,6 +13298,16 @@ pub type IngredientSubstance {
     modifier_extension: List(Extension),
     code: Codeablereference,
     strength: List(IngredientSubstanceStrength),
+  )
+}
+
+pub fn ingredient_substance_new(code) -> IngredientSubstance {
+  IngredientSubstance(
+    strength: [],
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7263,6 +13339,21 @@ pub type IngredientSubstanceStrengthConcentration {
   IngredientSubstanceStrengthConcentrationRatiorange(concentration: Ratiorange)
 }
 
+pub fn ingredient_substance_strength_new() -> IngredientSubstanceStrength {
+  IngredientSubstanceStrength(
+    reference_strength: [],
+    country: [],
+    measurement_point: None,
+    text_concentration: None,
+    concentration: None,
+    text_presentation: None,
+    presentation: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Ingredient#resource
 pub type IngredientSubstanceStrengthReferencestrength {
   IngredientSubstanceStrengthReferencestrength(
@@ -7281,6 +13372,20 @@ pub type IngredientSubstanceStrengthReferencestrengthStrength {
   IngredientSubstanceStrengthReferencestrengthStrengthRatio(strength: Ratio)
   IngredientSubstanceStrengthReferencestrengthStrengthRatiorange(
     strength: Ratiorange,
+  )
+}
+
+pub fn ingredient_substance_strength_referencestrength_new(
+  strength,
+) -> IngredientSubstanceStrengthReferencestrength {
+  IngredientSubstanceStrengthReferencestrength(
+    country: [],
+    measurement_point: None,
+    strength:,
+    substance: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7312,6 +13417,33 @@ pub type Insuranceplan {
   )
 }
 
+pub fn insuranceplan_new() -> Insuranceplan {
+  Insuranceplan(
+    plan: [],
+    coverage: [],
+    network: [],
+    endpoint: [],
+    contact: [],
+    coverage_area: [],
+    administered_by: None,
+    owned_by: None,
+    period: None,
+    alias: [],
+    name: None,
+    type_: [],
+    status: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/InsurancePlan#resource
 pub type InsuranceplanContact {
   InsuranceplanContact(
@@ -7322,6 +13454,18 @@ pub type InsuranceplanContact {
     name: Option(Humanname),
     telecom: List(Contactpoint),
     address: Option(Address),
+  )
+}
+
+pub fn insuranceplan_contact_new() -> InsuranceplanContact {
+  InsuranceplanContact(
+    address: None,
+    telecom: [],
+    name: None,
+    purpose: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7337,6 +13481,17 @@ pub type InsuranceplanCoverage {
   )
 }
 
+pub fn insuranceplan_coverage_new(type_) -> InsuranceplanCoverage {
+  InsuranceplanCoverage(
+    benefit: [],
+    network: [],
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/InsurancePlan#resource
 pub type InsuranceplanCoverageBenefit {
   InsuranceplanCoverageBenefit(
@@ -7349,6 +13504,17 @@ pub type InsuranceplanCoverageBenefit {
   )
 }
 
+pub fn insuranceplan_coverage_benefit_new(type_) -> InsuranceplanCoverageBenefit {
+  InsuranceplanCoverageBenefit(
+    limit: [],
+    requirement: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/InsurancePlan#resource
 pub type InsuranceplanCoverageBenefitLimit {
   InsuranceplanCoverageBenefitLimit(
@@ -7357,6 +13523,16 @@ pub type InsuranceplanCoverageBenefitLimit {
     modifier_extension: List(Extension),
     value: Option(Quantity),
     code: Option(Codeableconcept),
+  )
+}
+
+pub fn insuranceplan_coverage_benefit_limit_new() -> InsuranceplanCoverageBenefitLimit {
+  InsuranceplanCoverageBenefitLimit(
+    code: None,
+    value: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7375,6 +13551,20 @@ pub type InsuranceplanPlan {
   )
 }
 
+pub fn insuranceplan_plan_new() -> InsuranceplanPlan {
+  InsuranceplanPlan(
+    specific_cost: [],
+    general_cost: [],
+    network: [],
+    coverage_area: [],
+    type_: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/InsurancePlan#resource
 pub type InsuranceplanPlanGeneralcost {
   InsuranceplanPlanGeneralcost(
@@ -7385,6 +13575,18 @@ pub type InsuranceplanPlanGeneralcost {
     group_size: Option(Int),
     cost: Option(Money),
     comment: Option(String),
+  )
+}
+
+pub fn insuranceplan_plan_generalcost_new() -> InsuranceplanPlanGeneralcost {
+  InsuranceplanPlanGeneralcost(
+    comment: None,
+    cost: None,
+    group_size: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7399,6 +13601,18 @@ pub type InsuranceplanPlanSpecificcost {
   )
 }
 
+pub fn insuranceplan_plan_specificcost_new(
+  category,
+) -> InsuranceplanPlanSpecificcost {
+  InsuranceplanPlanSpecificcost(
+    benefit: [],
+    category:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/InsurancePlan#resource
 pub type InsuranceplanPlanSpecificcostBenefit {
   InsuranceplanPlanSpecificcostBenefit(
@@ -7407,6 +13621,18 @@ pub type InsuranceplanPlanSpecificcostBenefit {
     modifier_extension: List(Extension),
     type_: Codeableconcept,
     cost: List(InsuranceplanPlanSpecificcostBenefitCost),
+  )
+}
+
+pub fn insuranceplan_plan_specificcost_benefit_new(
+  type_,
+) -> InsuranceplanPlanSpecificcostBenefit {
+  InsuranceplanPlanSpecificcostBenefit(
+    cost: [],
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7420,6 +13646,20 @@ pub type InsuranceplanPlanSpecificcostBenefitCost {
     applicability: Option(Codeableconcept),
     qualifiers: List(Codeableconcept),
     value: Option(Quantity),
+  )
+}
+
+pub fn insuranceplan_plan_specificcost_benefit_cost_new(
+  type_,
+) -> InsuranceplanPlanSpecificcostBenefitCost {
+  InsuranceplanPlanSpecificcostBenefitCost(
+    value: None,
+    qualifiers: [],
+    applicability: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7453,6 +13693,35 @@ pub type Invoice {
   )
 }
 
+pub fn invoice_new(status) -> Invoice {
+  Invoice(
+    note: [],
+    payment_terms: None,
+    total_gross: None,
+    total_net: None,
+    total_price_component: [],
+    line_item: [],
+    account: None,
+    issuer: None,
+    participant: [],
+    date: None,
+    recipient: None,
+    subject: None,
+    type_: None,
+    cancelled_reason: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Invoice#resource
 pub type InvoiceParticipant {
   InvoiceParticipant(
@@ -7461,6 +13730,16 @@ pub type InvoiceParticipant {
     modifier_extension: List(Extension),
     role: Option(Codeableconcept),
     actor: Reference,
+  )
+}
+
+pub fn invoice_participant_new(actor) -> InvoiceParticipant {
+  InvoiceParticipant(
+    actor:,
+    role: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7482,6 +13761,17 @@ pub type InvoiceLineitemChargeitem {
   InvoiceLineitemChargeitemCodeableconcept(charge_item: Codeableconcept)
 }
 
+pub fn invoice_lineitem_new(charge_item) -> InvoiceLineitem {
+  InvoiceLineitem(
+    price_component: [],
+    charge_item:,
+    sequence: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Invoice#resource
 pub type InvoiceLineitemPricecomponent {
   InvoiceLineitemPricecomponent(
@@ -7492,6 +13782,20 @@ pub type InvoiceLineitemPricecomponent {
     code: Option(Codeableconcept),
     factor: Option(Float),
     amount: Option(Money),
+  )
+}
+
+pub fn invoice_lineitem_pricecomponent_new(
+  type_,
+) -> InvoiceLineitemPricecomponent {
+  InvoiceLineitemPricecomponent(
+    amount: None,
+    factor: None,
+    code: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7546,6 +13850,50 @@ pub type LibrarySubject {
   LibrarySubjectReference(subject: Reference)
 }
 
+pub fn library_new(type_, status) -> Library {
+  Library(
+    content: [],
+    data_requirement: [],
+    parameter: [],
+    related_artifact: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    topic: [],
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    usage: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    subject: None,
+    type_:,
+    experimental: None,
+    status:,
+    subtitle: None,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Linkage#resource
 pub type Linkage {
   Linkage(
@@ -7563,6 +13911,22 @@ pub type Linkage {
   )
 }
 
+pub fn linkage_new() -> Linkage {
+  Linkage(
+    item: [],
+    author: None,
+    active: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Linkage#resource
 pub type LinkageItem {
   LinkageItem(
@@ -7571,6 +13935,16 @@ pub type LinkageItem {
     modifier_extension: List(Extension),
     type_: r4bvaluesets.Linkagetype,
     resource: Reference,
+  )
+}
+
+pub fn linkage_item_new(resource, type_) -> LinkageItem {
+  LinkageItem(
+    resource:,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7601,6 +13975,32 @@ pub type FhirList {
   )
 }
 
+pub fn fhir_list_new(mode, status) -> FhirList {
+  FhirList(
+    empty_reason: None,
+    entry: [],
+    note: [],
+    ordered_by: None,
+    source: None,
+    date: None,
+    encounter: None,
+    subject: None,
+    code: None,
+    title: None,
+    mode:,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/List#resource
 pub type ListEntry {
   ListEntry(
@@ -7611,6 +14011,18 @@ pub type ListEntry {
     deleted: Option(Bool),
     date: Option(String),
     item: Reference,
+  )
+}
+
+pub fn list_entry_new(item) -> ListEntry {
+  ListEntry(
+    item:,
+    date: None,
+    deleted: None,
+    flag: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7645,6 +14057,36 @@ pub type Location {
   )
 }
 
+pub fn location_new() -> Location {
+  Location(
+    endpoint: [],
+    availability_exceptions: None,
+    hours_of_operation: [],
+    part_of: None,
+    managing_organization: None,
+    position: None,
+    physical_type: None,
+    address: None,
+    telecom: [],
+    type_: [],
+    mode: None,
+    description: None,
+    alias: [],
+    name: None,
+    operational_status: None,
+    status: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Location#resource
 pub type LocationPosition {
   LocationPosition(
@@ -7654,6 +14096,17 @@ pub type LocationPosition {
     longitude: Float,
     latitude: Float,
     altitude: Option(Float),
+  )
+}
+
+pub fn location_position_new(latitude, longitude) -> LocationPosition {
+  LocationPosition(
+    altitude: None,
+    latitude:,
+    longitude:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7667,6 +14120,18 @@ pub type LocationHoursofoperation {
     all_day: Option(Bool),
     opening_time: Option(String),
     closing_time: Option(String),
+  )
+}
+
+pub fn location_hoursofoperation_new() -> LocationHoursofoperation {
+  LocationHoursofoperation(
+    closing_time: None,
+    opening_time: None,
+    all_day: None,
+    days_of_week: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7691,6 +14156,29 @@ pub type Manufactureditemdefinition {
   )
 }
 
+pub fn manufactureditemdefinition_new(
+  manufactured_dose_form,
+  status,
+) -> Manufactureditemdefinition {
+  Manufactureditemdefinition(
+    property: [],
+    ingredient: [],
+    manufacturer: [],
+    unit_of_presentation: None,
+    manufactured_dose_form:,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ManufacturedItemDefinition#resource
 pub type ManufactureditemdefinitionProperty {
   ManufactureditemdefinitionProperty(
@@ -7709,6 +14197,18 @@ pub type ManufactureditemdefinitionPropertyValue {
   ManufactureditemdefinitionPropertyValueDate(value: String)
   ManufactureditemdefinitionPropertyValueBoolean(value: Bool)
   ManufactureditemdefinitionPropertyValueAttachment(value: Attachment)
+}
+
+pub fn manufactureditemdefinition_property_new(
+  type_,
+) -> ManufactureditemdefinitionProperty {
+  ManufactureditemdefinitionProperty(
+    value: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Measure#resource
@@ -7772,6 +14272,60 @@ pub type MeasureSubject {
   MeasureSubjectReference(subject: Reference)
 }
 
+pub fn measure_new(status) -> Measure {
+  Measure(
+    supplemental_data: [],
+    group: [],
+    guidance: None,
+    definition: [],
+    improvement_notation: None,
+    clinical_recommendation_statement: None,
+    rationale: None,
+    rate_aggregation: None,
+    risk_adjustment: None,
+    type_: [],
+    composite_scoring: None,
+    scoring: None,
+    disclaimer: None,
+    library: [],
+    related_artifact: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    topic: [],
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    usage: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    subject: None,
+    experimental: None,
+    status:,
+    subtitle: None,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Measure#resource
 pub type MeasureGroup {
   MeasureGroup(
@@ -7785,6 +14339,18 @@ pub type MeasureGroup {
   )
 }
 
+pub fn measure_group_new() -> MeasureGroup {
+  MeasureGroup(
+    stratifier: [],
+    population: [],
+    description: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Measure#resource
 pub type MeasureGroupPopulation {
   MeasureGroupPopulation(
@@ -7794,6 +14360,17 @@ pub type MeasureGroupPopulation {
     code: Option(Codeableconcept),
     description: Option(String),
     criteria: Expression,
+  )
+}
+
+pub fn measure_group_population_new(criteria) -> MeasureGroupPopulation {
+  MeasureGroupPopulation(
+    criteria:,
+    description: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7810,6 +14387,18 @@ pub type MeasureGroupStratifier {
   )
 }
 
+pub fn measure_group_stratifier_new() -> MeasureGroupStratifier {
+  MeasureGroupStratifier(
+    component: [],
+    criteria: None,
+    description: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Measure#resource
 pub type MeasureGroupStratifierComponent {
   MeasureGroupStratifierComponent(
@@ -7819,6 +14408,19 @@ pub type MeasureGroupStratifierComponent {
     code: Option(Codeableconcept),
     description: Option(String),
     criteria: Expression,
+  )
+}
+
+pub fn measure_group_stratifier_component_new(
+  criteria,
+) -> MeasureGroupStratifierComponent {
+  MeasureGroupStratifierComponent(
+    criteria:,
+    description: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7832,6 +14434,18 @@ pub type MeasureSupplementaldata {
     usage: List(Codeableconcept),
     description: Option(String),
     criteria: Expression,
+  )
+}
+
+pub fn measure_supplementaldata_new(criteria) -> MeasureSupplementaldata {
+  MeasureSupplementaldata(
+    criteria:,
+    description: None,
+    usage: [],
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7860,6 +14474,30 @@ pub type Measurereport {
   )
 }
 
+pub fn measurereport_new(period, measure, type_, status) -> Measurereport {
+  Measurereport(
+    evaluated_resource: [],
+    group: [],
+    improvement_notation: None,
+    period:,
+    reporter: None,
+    date: None,
+    subject: None,
+    measure:,
+    type_:,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MeasureReport#resource
 pub type MeasurereportGroup {
   MeasurereportGroup(
@@ -7870,6 +14508,18 @@ pub type MeasurereportGroup {
     population: List(MeasurereportGroupPopulation),
     measure_score: Option(Quantity),
     stratifier: List(MeasurereportGroupStratifier),
+  )
+}
+
+pub fn measurereport_group_new() -> MeasurereportGroup {
+  MeasurereportGroup(
+    stratifier: [],
+    measure_score: None,
+    population: [],
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7885,6 +14535,17 @@ pub type MeasurereportGroupPopulation {
   )
 }
 
+pub fn measurereport_group_population_new() -> MeasurereportGroupPopulation {
+  MeasurereportGroupPopulation(
+    subject_results: None,
+    count: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MeasureReport#resource
 pub type MeasurereportGroupStratifier {
   MeasurereportGroupStratifier(
@@ -7893,6 +14554,16 @@ pub type MeasurereportGroupStratifier {
     modifier_extension: List(Extension),
     code: List(Codeableconcept),
     stratum: List(MeasurereportGroupStratifierStratum),
+  )
+}
+
+pub fn measurereport_group_stratifier_new() -> MeasurereportGroupStratifier {
+  MeasurereportGroupStratifier(
+    stratum: [],
+    code: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7909,6 +14580,18 @@ pub type MeasurereportGroupStratifierStratum {
   )
 }
 
+pub fn measurereport_group_stratifier_stratum_new() -> MeasurereportGroupStratifierStratum {
+  MeasurereportGroupStratifierStratum(
+    measure_score: None,
+    population: [],
+    component: [],
+    value: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MeasureReport#resource
 pub type MeasurereportGroupStratifierStratumComponent {
   MeasurereportGroupStratifierStratumComponent(
@@ -7917,6 +14600,19 @@ pub type MeasurereportGroupStratifierStratumComponent {
     modifier_extension: List(Extension),
     code: Codeableconcept,
     value: Codeableconcept,
+  )
+}
+
+pub fn measurereport_group_stratifier_stratum_component_new(
+  value,
+  code,
+) -> MeasurereportGroupStratifierStratumComponent {
+  MeasurereportGroupStratifierStratumComponent(
+    value:,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7929,6 +14625,17 @@ pub type MeasurereportGroupStratifierStratumPopulation {
     code: Option(Codeableconcept),
     count: Option(Int),
     subject_results: Option(Reference),
+  )
+}
+
+pub fn measurereport_group_stratifier_stratum_population_new() -> MeasurereportGroupStratifierStratumPopulation {
+  MeasurereportGroupStratifierStratumPopulation(
+    subject_results: None,
+    count: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -7974,6 +14681,41 @@ pub type MediaCreated {
   MediaCreatedPeriod(created: Period)
 }
 
+pub fn media_new(content, status) -> Media {
+  Media(
+    note: [],
+    content:,
+    duration: None,
+    frames: None,
+    width: None,
+    height: None,
+    device: None,
+    device_name: None,
+    body_site: None,
+    reason_code: [],
+    operator: None,
+    issued: None,
+    created: None,
+    encounter: None,
+    subject: None,
+    view: None,
+    modality: None,
+    type_: None,
+    status:,
+    part_of: [],
+    based_on: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Medication#resource
 pub type Medication {
   Medication(
@@ -7996,6 +14738,27 @@ pub type Medication {
   )
 }
 
+pub fn medication_new() -> Medication {
+  Medication(
+    batch: None,
+    ingredient: [],
+    amount: None,
+    form: None,
+    manufacturer: None,
+    status: None,
+    code: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Medication#resource
 pub type MedicationIngredient {
   MedicationIngredient(
@@ -8014,6 +14777,17 @@ pub type MedicationIngredientItem {
   MedicationIngredientItemReference(item: Reference)
 }
 
+pub fn medication_ingredient_new(item) -> MedicationIngredient {
+  MedicationIngredient(
+    strength: None,
+    is_active: None,
+    item:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Medication#resource
 pub type MedicationBatch {
   MedicationBatch(
@@ -8022,6 +14796,16 @@ pub type MedicationBatch {
     modifier_extension: List(Extension),
     lot_number: Option(String),
     expiration_date: Option(String),
+  )
+}
+
+pub fn medication_batch_new() -> MedicationBatch {
+  MedicationBatch(
+    expiration_date: None,
+    lot_number: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8070,6 +14854,43 @@ pub type MedicationadministrationEffective {
   MedicationadministrationEffectivePeriod(effective: Period)
 }
 
+pub fn medicationadministration_new(
+  effective,
+  subject,
+  medication,
+  status,
+) -> Medicationadministration {
+  Medicationadministration(
+    event_history: [],
+    dosage: None,
+    note: [],
+    device: [],
+    request: None,
+    reason_reference: [],
+    reason_code: [],
+    performer: [],
+    effective:,
+    supporting_information: [],
+    context: None,
+    subject:,
+    medication:,
+    category: None,
+    status_reason: [],
+    status:,
+    part_of: [],
+    instantiates: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationAdministration#resource
 pub type MedicationadministrationPerformer {
   MedicationadministrationPerformer(
@@ -8078,6 +14899,18 @@ pub type MedicationadministrationPerformer {
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
     actor: Reference,
+  )
+}
+
+pub fn medicationadministration_performer_new(
+  actor,
+) -> MedicationadministrationPerformer {
+  MedicationadministrationPerformer(
+    actor:,
+    function: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8100,6 +14933,20 @@ pub type MedicationadministrationDosage {
 pub type MedicationadministrationDosageRate {
   MedicationadministrationDosageRateRatio(rate: Ratio)
   MedicationadministrationDosageRateQuantity(rate: Quantity)
+}
+
+pub fn medicationadministration_dosage_new() -> MedicationadministrationDosage {
+  MedicationadministrationDosage(
+    rate: None,
+    dose: None,
+    method: None,
+    route: None,
+    site: None,
+    text: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationDispense#resource
@@ -8152,6 +14999,43 @@ pub type MedicationdispenseMedication {
   MedicationdispenseMedicationReference(medication: Reference)
 }
 
+pub fn medicationdispense_new(medication, status) -> Medicationdispense {
+  Medicationdispense(
+    event_history: [],
+    detected_issue: [],
+    substitution: None,
+    dosage_instruction: [],
+    note: [],
+    receiver: [],
+    destination: None,
+    when_handed_over: None,
+    when_prepared: None,
+    days_supply: None,
+    quantity: None,
+    type_: None,
+    authorizing_prescription: [],
+    location: None,
+    performer: [],
+    supporting_information: [],
+    context: None,
+    subject: None,
+    medication:,
+    category: None,
+    status_reason: None,
+    status:,
+    part_of: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationDispense#resource
 pub type MedicationdispensePerformer {
   MedicationdispensePerformer(
@@ -8160,6 +15044,16 @@ pub type MedicationdispensePerformer {
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
     actor: Reference,
+  )
+}
+
+pub fn medicationdispense_performer_new(actor) -> MedicationdispensePerformer {
+  MedicationdispensePerformer(
+    actor:,
+    function: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8173,6 +15067,20 @@ pub type MedicationdispenseSubstitution {
     type_: Option(Codeableconcept),
     reason: List(Codeableconcept),
     responsible_party: List(Reference),
+  )
+}
+
+pub fn medicationdispense_substitution_new(
+  was_substituted,
+) -> MedicationdispenseSubstitution {
+  MedicationdispenseSubstitution(
+    responsible_party: [],
+    reason: [],
+    type_: None,
+    was_substituted:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8214,6 +15122,41 @@ pub type Medicationknowledge {
   )
 }
 
+pub fn medicationknowledge_new() -> Medicationknowledge {
+  Medicationknowledge(
+    kinetics: [],
+    regulatory: [],
+    contraindication: [],
+    drug_characteristic: [],
+    packaging: None,
+    medicine_classification: [],
+    administration_guidelines: [],
+    monitoring_program: [],
+    cost: [],
+    intended_route: [],
+    preparation_instruction: None,
+    ingredient: [],
+    monograph: [],
+    product_type: [],
+    associated_medication: [],
+    related_medication_knowledge: [],
+    synonym: [],
+    amount: None,
+    dose_form: None,
+    manufacturer: None,
+    status: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationKnowledge#resource
 pub type MedicationknowledgeRelatedmedicationknowledge {
   MedicationknowledgeRelatedmedicationknowledge(
@@ -8225,6 +15168,18 @@ pub type MedicationknowledgeRelatedmedicationknowledge {
   )
 }
 
+pub fn medicationknowledge_relatedmedicationknowledge_new(
+  type_,
+) -> MedicationknowledgeRelatedmedicationknowledge {
+  MedicationknowledgeRelatedmedicationknowledge(
+    reference: [],
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationKnowledge#resource
 pub type MedicationknowledgeMonograph {
   MedicationknowledgeMonograph(
@@ -8233,6 +15188,16 @@ pub type MedicationknowledgeMonograph {
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
     source: Option(Reference),
+  )
+}
+
+pub fn medicationknowledge_monograph_new() -> MedicationknowledgeMonograph {
+  MedicationknowledgeMonograph(
+    source: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8254,6 +15219,17 @@ pub type MedicationknowledgeIngredientItem {
   MedicationknowledgeIngredientItemReference(item: Reference)
 }
 
+pub fn medicationknowledge_ingredient_new(item) -> MedicationknowledgeIngredient {
+  MedicationknowledgeIngredient(
+    strength: None,
+    is_active: None,
+    item:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationKnowledge#resource
 pub type MedicationknowledgeCost {
   MedicationknowledgeCost(
@@ -8266,6 +15242,17 @@ pub type MedicationknowledgeCost {
   )
 }
 
+pub fn medicationknowledge_cost_new(cost, type_) -> MedicationknowledgeCost {
+  MedicationknowledgeCost(
+    cost:,
+    source: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationKnowledge#resource
 pub type MedicationknowledgeMonitoringprogram {
   MedicationknowledgeMonitoringprogram(
@@ -8274,6 +15261,16 @@ pub type MedicationknowledgeMonitoringprogram {
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
     name: Option(String),
+  )
+}
+
+pub fn medicationknowledge_monitoringprogram_new() -> MedicationknowledgeMonitoringprogram {
+  MedicationknowledgeMonitoringprogram(
+    name: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8301,6 +15298,17 @@ pub type MedicationknowledgeAdministrationguidelinesIndication {
   )
 }
 
+pub fn medicationknowledge_administrationguidelines_new() -> MedicationknowledgeAdministrationguidelines {
+  MedicationknowledgeAdministrationguidelines(
+    patient_characteristics: [],
+    indication: None,
+    dosage: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationKnowledge#resource
 pub type MedicationknowledgeAdministrationguidelinesDosage {
   MedicationknowledgeAdministrationguidelinesDosage(
@@ -8309,6 +15317,18 @@ pub type MedicationknowledgeAdministrationguidelinesDosage {
     modifier_extension: List(Extension),
     type_: Codeableconcept,
     dosage: List(Dosage),
+  )
+}
+
+pub fn medicationknowledge_administrationguidelines_dosage_new(
+  type_,
+) -> MedicationknowledgeAdministrationguidelinesDosage {
+  MedicationknowledgeAdministrationguidelinesDosage(
+    dosage: [],
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8333,6 +15353,18 @@ pub type MedicationknowledgeAdministrationguidelinesPatientcharacteristicsCharac
   )
 }
 
+pub fn medicationknowledge_administrationguidelines_patientcharacteristics_new(
+  characteristic,
+) -> MedicationknowledgeAdministrationguidelinesPatientcharacteristics {
+  MedicationknowledgeAdministrationguidelinesPatientcharacteristics(
+    value: [],
+    characteristic:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationKnowledge#resource
 pub type MedicationknowledgeMedicineclassification {
   MedicationknowledgeMedicineclassification(
@@ -8344,6 +15376,18 @@ pub type MedicationknowledgeMedicineclassification {
   )
 }
 
+pub fn medicationknowledge_medicineclassification_new(
+  type_,
+) -> MedicationknowledgeMedicineclassification {
+  MedicationknowledgeMedicineclassification(
+    classification: [],
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationKnowledge#resource
 pub type MedicationknowledgePackaging {
   MedicationknowledgePackaging(
@@ -8352,6 +15396,16 @@ pub type MedicationknowledgePackaging {
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
     quantity: Option(Quantity),
+  )
+}
+
+pub fn medicationknowledge_packaging_new() -> MedicationknowledgePackaging {
+  MedicationknowledgePackaging(
+    quantity: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8376,6 +15430,16 @@ pub type MedicationknowledgeDrugcharacteristicValue {
   MedicationknowledgeDrugcharacteristicValueBase64binary(value: String)
 }
 
+pub fn medicationknowledge_drugcharacteristic_new() -> MedicationknowledgeDrugcharacteristic {
+  MedicationknowledgeDrugcharacteristic(
+    value: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationKnowledge#resource
 pub type MedicationknowledgeRegulatory {
   MedicationknowledgeRegulatory(
@@ -8386,6 +15450,20 @@ pub type MedicationknowledgeRegulatory {
     substitution: List(MedicationknowledgeRegulatorySubstitution),
     schedule: List(MedicationknowledgeRegulatorySchedule),
     max_dispense: Option(MedicationknowledgeRegulatoryMaxdispense),
+  )
+}
+
+pub fn medicationknowledge_regulatory_new(
+  regulatory_authority,
+) -> MedicationknowledgeRegulatory {
+  MedicationknowledgeRegulatory(
+    max_dispense: None,
+    schedule: [],
+    substitution: [],
+    regulatory_authority:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8400,6 +15478,19 @@ pub type MedicationknowledgeRegulatorySubstitution {
   )
 }
 
+pub fn medicationknowledge_regulatory_substitution_new(
+  allowed,
+  type_,
+) -> MedicationknowledgeRegulatorySubstitution {
+  MedicationknowledgeRegulatorySubstitution(
+    allowed:,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationKnowledge#resource
 pub type MedicationknowledgeRegulatorySchedule {
   MedicationknowledgeRegulatorySchedule(
@@ -8407,6 +15498,17 @@ pub type MedicationknowledgeRegulatorySchedule {
     extension: List(Extension),
     modifier_extension: List(Extension),
     schedule: Codeableconcept,
+  )
+}
+
+pub fn medicationknowledge_regulatory_schedule_new(
+  schedule,
+) -> MedicationknowledgeRegulatorySchedule {
+  MedicationknowledgeRegulatorySchedule(
+    schedule:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8421,6 +15523,18 @@ pub type MedicationknowledgeRegulatoryMaxdispense {
   )
 }
 
+pub fn medicationknowledge_regulatory_maxdispense_new(
+  quantity,
+) -> MedicationknowledgeRegulatoryMaxdispense {
+  MedicationknowledgeRegulatoryMaxdispense(
+    period: None,
+    quantity:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationKnowledge#resource
 pub type MedicationknowledgeKinetics {
   MedicationknowledgeKinetics(
@@ -8430,6 +15544,17 @@ pub type MedicationknowledgeKinetics {
     area_under_curve: List(Quantity),
     lethal_dose50: List(Quantity),
     half_life_period: Option(Duration),
+  )
+}
+
+pub fn medicationknowledge_kinetics_new() -> MedicationknowledgeKinetics {
+  MedicationknowledgeKinetics(
+    half_life_period: None,
+    lethal_dose50: [],
+    area_under_curve: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8491,6 +15616,56 @@ pub type MedicationrequestMedication {
   MedicationrequestMedicationReference(medication: Reference)
 }
 
+pub fn medicationrequest_new(
+  subject,
+  medication,
+  intent,
+  status,
+) -> Medicationrequest {
+  Medicationrequest(
+    event_history: [],
+    detected_issue: [],
+    prior_prescription: None,
+    substitution: None,
+    dispense_request: None,
+    dosage_instruction: [],
+    note: [],
+    insurance: [],
+    course_of_therapy_type: None,
+    group_identifier: None,
+    based_on: [],
+    instantiates_uri: [],
+    instantiates_canonical: [],
+    reason_reference: [],
+    reason_code: [],
+    recorder: None,
+    performer_type: None,
+    performer: None,
+    requester: None,
+    authored_on: None,
+    supporting_information: [],
+    encounter: None,
+    subject:,
+    medication:,
+    reported: None,
+    do_not_perform: None,
+    priority: None,
+    category: [],
+    intent:,
+    status_reason: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationRequest#resource
 pub type MedicationrequestDispenserequest {
   MedicationrequestDispenserequest(
@@ -8507,6 +15682,21 @@ pub type MedicationrequestDispenserequest {
   )
 }
 
+pub fn medicationrequest_dispenserequest_new() -> MedicationrequestDispenserequest {
+  MedicationrequestDispenserequest(
+    performer: None,
+    expected_supply_duration: None,
+    quantity: None,
+    number_of_repeats_allowed: None,
+    validity_period: None,
+    dispense_interval: None,
+    initial_fill: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationRequest#resource
 pub type MedicationrequestDispenserequestInitialfill {
   MedicationrequestDispenserequestInitialfill(
@@ -8515,6 +15705,16 @@ pub type MedicationrequestDispenserequestInitialfill {
     modifier_extension: List(Extension),
     quantity: Option(Quantity),
     duration: Option(Duration),
+  )
+}
+
+pub fn medicationrequest_dispenserequest_initialfill_new() -> MedicationrequestDispenserequestInitialfill {
+  MedicationrequestDispenserequestInitialfill(
+    duration: None,
+    quantity: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8533,6 +15733,18 @@ pub type MedicationrequestSubstitution {
 pub type MedicationrequestSubstitutionAllowed {
   MedicationrequestSubstitutionAllowedBoolean(allowed: Bool)
   MedicationrequestSubstitutionAllowedCodeableconcept(allowed: Codeableconcept)
+}
+
+pub fn medicationrequest_substitution_new(
+  allowed,
+) -> MedicationrequestSubstitution {
+  MedicationrequestSubstitution(
+    reason: None,
+    allowed:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicationStatement#resource
@@ -8578,6 +15790,40 @@ pub type MedicationstatementEffective {
   MedicationstatementEffectivePeriod(effective: Period)
 }
 
+pub fn medicationstatement_new(
+  subject,
+  medication,
+  status,
+) -> Medicationstatement {
+  Medicationstatement(
+    dosage: [],
+    note: [],
+    reason_reference: [],
+    reason_code: [],
+    derived_from: [],
+    information_source: None,
+    date_asserted: None,
+    effective: None,
+    context: None,
+    subject:,
+    medication:,
+    category: None,
+    status_reason: [],
+    status:,
+    part_of: [],
+    based_on: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicinalProductDefinition#resource
 pub type Medicinalproductdefinition {
   Medicinalproductdefinition(
@@ -8620,6 +15866,47 @@ pub type Medicinalproductdefinition {
   )
 }
 
+pub fn medicinalproductdefinition_new() -> Medicinalproductdefinition {
+  Medicinalproductdefinition(
+    characteristic: [],
+    operation: [],
+    cross_reference: [],
+    name: [],
+    code: [],
+    clinical_trial: [],
+    contact: [],
+    master_file: [],
+    attached_document: [],
+    impurity: [],
+    ingredient: [],
+    packaged_medicinal_product: [],
+    marketing_status: [],
+    classification: [],
+    pediatric_use_indicator: None,
+    special_measures: [],
+    additional_monitoring_indicator: None,
+    legal_status_of_supply: None,
+    indication: None,
+    route: [],
+    combined_pharmaceutical_dose_form: None,
+    description: None,
+    status_date: None,
+    status: None,
+    version: None,
+    domain: None,
+    type_: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicinalProductDefinition#resource
 pub type MedicinalproductdefinitionContact {
   MedicinalproductdefinitionContact(
@@ -8628,6 +15915,18 @@ pub type MedicinalproductdefinitionContact {
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
     contact: Reference,
+  )
+}
+
+pub fn medicinalproductdefinition_contact_new(
+  contact,
+) -> MedicinalproductdefinitionContact {
+  MedicinalproductdefinitionContact(
+    contact:,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8644,6 +15943,20 @@ pub type MedicinalproductdefinitionName {
   )
 }
 
+pub fn medicinalproductdefinition_name_new(
+  product_name,
+) -> MedicinalproductdefinitionName {
+  MedicinalproductdefinitionName(
+    country_language: [],
+    name_part: [],
+    type_: None,
+    product_name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicinalProductDefinition#resource
 pub type MedicinalproductdefinitionNameNamepart {
   MedicinalproductdefinitionNameNamepart(
@@ -8652,6 +15965,19 @@ pub type MedicinalproductdefinitionNameNamepart {
     modifier_extension: List(Extension),
     part: String,
     type_: Codeableconcept,
+  )
+}
+
+pub fn medicinalproductdefinition_name_namepart_new(
+  type_,
+  part,
+) -> MedicinalproductdefinitionNameNamepart {
+  MedicinalproductdefinitionNameNamepart(
+    type_:,
+    part:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8667,6 +15993,20 @@ pub type MedicinalproductdefinitionNameCountrylanguage {
   )
 }
 
+pub fn medicinalproductdefinition_name_countrylanguage_new(
+  language,
+  country,
+) -> MedicinalproductdefinitionNameCountrylanguage {
+  MedicinalproductdefinitionNameCountrylanguage(
+    language:,
+    jurisdiction: None,
+    country:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MedicinalProductDefinition#resource
 pub type MedicinalproductdefinitionCrossreference {
   MedicinalproductdefinitionCrossreference(
@@ -8675,6 +16015,18 @@ pub type MedicinalproductdefinitionCrossreference {
     modifier_extension: List(Extension),
     product: Codeablereference,
     type_: Option(Codeableconcept),
+  )
+}
+
+pub fn medicinalproductdefinition_crossreference_new(
+  product,
+) -> MedicinalproductdefinitionCrossreference {
+  MedicinalproductdefinitionCrossreference(
+    type_: None,
+    product:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8688,6 +16040,18 @@ pub type MedicinalproductdefinitionOperation {
     effective_date: Option(Period),
     organization: List(Reference),
     confidentiality_indicator: Option(Codeableconcept),
+  )
+}
+
+pub fn medicinalproductdefinition_operation_new() -> MedicinalproductdefinitionOperation {
+  MedicinalproductdefinitionOperation(
+    confidentiality_indicator: None,
+    organization: [],
+    effective_date: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8711,6 +16075,18 @@ pub type MedicinalproductdefinitionCharacteristicValue {
   MedicinalproductdefinitionCharacteristicValueDate(value: String)
   MedicinalproductdefinitionCharacteristicValueBoolean(value: Bool)
   MedicinalproductdefinitionCharacteristicValueAttachment(value: Attachment)
+}
+
+pub fn medicinalproductdefinition_characteristic_new(
+  type_,
+) -> MedicinalproductdefinitionCharacteristic {
+  MedicinalproductdefinitionCharacteristic(
+    value: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/MessageDefinition#resource
@@ -8757,6 +16133,43 @@ pub type MessagedefinitionEvent {
   MessagedefinitionEventUri(event: String)
 }
 
+pub fn messagedefinition_new(event, date, status) -> Messagedefinition {
+  Messagedefinition(
+    graph: [],
+    allowed_response: [],
+    response_required: None,
+    focus: [],
+    category: None,
+    event:,
+    parent: [],
+    base: None,
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date:,
+    experimental: None,
+    status:,
+    replaces: [],
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MessageDefinition#resource
 pub type MessagedefinitionFocus {
   MessagedefinitionFocus(
@@ -8770,6 +16183,18 @@ pub type MessagedefinitionFocus {
   )
 }
 
+pub fn messagedefinition_focus_new(min, code) -> MessagedefinitionFocus {
+  MessagedefinitionFocus(
+    max: None,
+    min:,
+    profile: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MessageDefinition#resource
 pub type MessagedefinitionAllowedresponse {
   MessagedefinitionAllowedresponse(
@@ -8778,6 +16203,18 @@ pub type MessagedefinitionAllowedresponse {
     modifier_extension: List(Extension),
     message: String,
     situation: Option(String),
+  )
+}
+
+pub fn messagedefinition_allowedresponse_new(
+  message,
+) -> MessagedefinitionAllowedresponse {
+  MessagedefinitionAllowedresponse(
+    situation: None,
+    message:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8812,6 +16249,30 @@ pub type MessageheaderEvent {
   MessageheaderEventUri(event: String)
 }
 
+pub fn messageheader_new(source, event) -> Messageheader {
+  Messageheader(
+    definition: None,
+    focus: [],
+    response: None,
+    reason: None,
+    responsible: None,
+    source:,
+    author: None,
+    enterer: None,
+    sender: None,
+    destination: [],
+    event:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MessageHeader#resource
 pub type MessageheaderDestination {
   MessageheaderDestination(
@@ -8822,6 +16283,18 @@ pub type MessageheaderDestination {
     target: Option(Reference),
     endpoint: String,
     receiver: Option(Reference),
+  )
+}
+
+pub fn messageheader_destination_new(endpoint) -> MessageheaderDestination {
+  MessageheaderDestination(
+    receiver: None,
+    endpoint:,
+    target: None,
+    name: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8839,6 +16312,19 @@ pub type MessageheaderSource {
   )
 }
 
+pub fn messageheader_source_new(endpoint) -> MessageheaderSource {
+  MessageheaderSource(
+    endpoint:,
+    contact: None,
+    version: None,
+    software: None,
+    name: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MessageHeader#resource
 pub type MessageheaderResponse {
   MessageheaderResponse(
@@ -8848,6 +16334,17 @@ pub type MessageheaderResponse {
     identifier: String,
     code: r4bvaluesets.Responsecode,
     details: Option(Reference),
+  )
+}
+
+pub fn messageheader_response_new(code, identifier) -> MessageheaderResponse {
+  MessageheaderResponse(
+    details: None,
+    code:,
+    identifier:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8881,6 +16378,35 @@ pub type Molecularsequence {
   )
 }
 
+pub fn molecularsequence_new(coordinate_system) -> Molecularsequence {
+  Molecularsequence(
+    structure_variant: [],
+    pointer: [],
+    repository: [],
+    read_coverage: None,
+    quality: [],
+    observed_seq: None,
+    variant: [],
+    reference_seq: None,
+    quantity: None,
+    performer: None,
+    device: None,
+    specimen: None,
+    patient: None,
+    coordinate_system:,
+    type_: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MolecularSequence#resource
 pub type MolecularsequenceReferenceseq {
   MolecularsequenceReferenceseq(
@@ -8899,6 +16425,23 @@ pub type MolecularsequenceReferenceseq {
   )
 }
 
+pub fn molecularsequence_referenceseq_new() -> MolecularsequenceReferenceseq {
+  MolecularsequenceReferenceseq(
+    window_end: None,
+    window_start: None,
+    strand: None,
+    reference_seq_string: None,
+    reference_seq_pointer: None,
+    reference_seq_id: None,
+    orientation: None,
+    genome_build: None,
+    chromosome: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MolecularSequence#resource
 pub type MolecularsequenceVariant {
   MolecularsequenceVariant(
@@ -8911,6 +16454,20 @@ pub type MolecularsequenceVariant {
     reference_allele: Option(String),
     cigar: Option(String),
     variant_pointer: Option(Reference),
+  )
+}
+
+pub fn molecularsequence_variant_new() -> MolecularsequenceVariant {
+  MolecularsequenceVariant(
+    variant_pointer: None,
+    cigar: None,
+    reference_allele: None,
+    observed_allele: None,
+    end: None,
+    start: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8938,6 +16495,29 @@ pub type MolecularsequenceQuality {
   )
 }
 
+pub fn molecularsequence_quality_new(type_) -> MolecularsequenceQuality {
+  MolecularsequenceQuality(
+    roc: None,
+    f_score: None,
+    recall: None,
+    precision: None,
+    gt_fp: None,
+    query_fp: None,
+    truth_fn: None,
+    query_tp: None,
+    truth_tp: None,
+    method: None,
+    score: None,
+    end: None,
+    start: None,
+    standard_sequence: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MolecularSequence#resource
 pub type MolecularsequenceQualityRoc {
   MolecularsequenceQualityRoc(
@@ -8951,6 +16531,21 @@ pub type MolecularsequenceQualityRoc {
     precision: List(Float),
     sensitivity: List(Float),
     f_measure: List(Float),
+  )
+}
+
+pub fn molecularsequence_quality_roc_new() -> MolecularsequenceQualityRoc {
+  MolecularsequenceQualityRoc(
+    f_measure: [],
+    sensitivity: [],
+    precision: [],
+    num_fn: [],
+    num_fp: [],
+    num_tp: [],
+    score: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -8969,6 +16564,20 @@ pub type MolecularsequenceRepository {
   )
 }
 
+pub fn molecularsequence_repository_new(type_) -> MolecularsequenceRepository {
+  MolecularsequenceRepository(
+    readset_id: None,
+    variantset_id: None,
+    dataset_id: None,
+    name: None,
+    url: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MolecularSequence#resource
 pub type MolecularsequenceStructurevariant {
   MolecularsequenceStructurevariant(
@@ -8983,6 +16592,19 @@ pub type MolecularsequenceStructurevariant {
   )
 }
 
+pub fn molecularsequence_structurevariant_new() -> MolecularsequenceStructurevariant {
+  MolecularsequenceStructurevariant(
+    inner: None,
+    outer: None,
+    length: None,
+    exact: None,
+    variant_type: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MolecularSequence#resource
 pub type MolecularsequenceStructurevariantOuter {
   MolecularsequenceStructurevariantOuter(
@@ -8994,6 +16616,16 @@ pub type MolecularsequenceStructurevariantOuter {
   )
 }
 
+pub fn molecularsequence_structurevariant_outer_new() -> MolecularsequenceStructurevariantOuter {
+  MolecularsequenceStructurevariantOuter(
+    end: None,
+    start: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/MolecularSequence#resource
 pub type MolecularsequenceStructurevariantInner {
   MolecularsequenceStructurevariantInner(
@@ -9002,6 +16634,16 @@ pub type MolecularsequenceStructurevariantInner {
     modifier_extension: List(Extension),
     start: Option(Int),
     end: Option(Int),
+  )
+}
+
+pub fn molecularsequence_structurevariant_inner_new() -> MolecularsequenceStructurevariantInner {
+  MolecularsequenceStructurevariantInner(
+    end: None,
+    start: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9032,6 +16674,32 @@ pub type Namingsystem {
   )
 }
 
+pub fn namingsystem_new(date, kind, status, name) -> Namingsystem {
+  Namingsystem(
+    unique_id: [],
+    usage: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    type_: None,
+    responsible: None,
+    contact: [],
+    publisher: None,
+    date:,
+    kind:,
+    status:,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/NamingSystem#resource
 pub type NamingsystemUniqueid {
   NamingsystemUniqueid(
@@ -9043,6 +16711,19 @@ pub type NamingsystemUniqueid {
     preferred: Option(Bool),
     comment: Option(String),
     period: Option(Period),
+  )
+}
+
+pub fn namingsystem_uniqueid_new(value, type_) -> NamingsystemUniqueid {
+  NamingsystemUniqueid(
+    period: None,
+    comment: None,
+    preferred: None,
+    value:,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9077,6 +16758,36 @@ pub type Nutritionorder {
   )
 }
 
+pub fn nutritionorder_new(date_time, patient, intent, status) -> Nutritionorder {
+  Nutritionorder(
+    note: [],
+    enteral_formula: None,
+    supplement: [],
+    oral_diet: None,
+    exclude_food_modifier: [],
+    food_preference_modifier: [],
+    allergy_intolerance: [],
+    orderer: None,
+    date_time:,
+    encounter: None,
+    patient:,
+    intent:,
+    status:,
+    instantiates: [],
+    instantiates_uri: [],
+    instantiates_canonical: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/NutritionOrder#resource
 pub type NutritionorderOraldiet {
   NutritionorderOraldiet(
@@ -9092,6 +16803,20 @@ pub type NutritionorderOraldiet {
   )
 }
 
+pub fn nutritionorder_oraldiet_new() -> NutritionorderOraldiet {
+  NutritionorderOraldiet(
+    instruction: None,
+    fluid_consistency_type: [],
+    texture: [],
+    nutrient: [],
+    schedule: [],
+    type_: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/NutritionOrder#resource
 pub type NutritionorderOraldietNutrient {
   NutritionorderOraldietNutrient(
@@ -9100,6 +16825,16 @@ pub type NutritionorderOraldietNutrient {
     modifier_extension: List(Extension),
     modifier: Option(Codeableconcept),
     amount: Option(Quantity),
+  )
+}
+
+pub fn nutritionorder_oraldiet_nutrient_new() -> NutritionorderOraldietNutrient {
+  NutritionorderOraldietNutrient(
+    amount: None,
+    modifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9114,6 +16849,16 @@ pub type NutritionorderOraldietTexture {
   )
 }
 
+pub fn nutritionorder_oraldiet_texture_new() -> NutritionorderOraldietTexture {
+  NutritionorderOraldietTexture(
+    food_type: None,
+    modifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/NutritionOrder#resource
 pub type NutritionorderSupplement {
   NutritionorderSupplement(
@@ -9125,6 +16870,19 @@ pub type NutritionorderSupplement {
     schedule: List(Timing),
     quantity: Option(Quantity),
     instruction: Option(String),
+  )
+}
+
+pub fn nutritionorder_supplement_new() -> NutritionorderSupplement {
+  NutritionorderSupplement(
+    instruction: None,
+    quantity: None,
+    schedule: [],
+    product_name: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9146,6 +16904,23 @@ pub type NutritionorderEnteralformula {
   )
 }
 
+pub fn nutritionorder_enteralformula_new() -> NutritionorderEnteralformula {
+  NutritionorderEnteralformula(
+    administration_instruction: None,
+    max_volume_to_deliver: None,
+    administration: [],
+    routeof_administration: None,
+    caloric_density: None,
+    additive_product_name: None,
+    additive_type: None,
+    base_formula_product_name: None,
+    base_formula_type: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/NutritionOrder#resource
 pub type NutritionorderEnteralformulaAdministration {
   NutritionorderEnteralformulaAdministration(
@@ -9162,6 +16937,17 @@ pub type NutritionorderEnteralformulaAdministration {
 pub type NutritionorderEnteralformulaAdministrationRate {
   NutritionorderEnteralformulaAdministrationRateQuantity(rate: Quantity)
   NutritionorderEnteralformulaAdministrationRateRatio(rate: Ratio)
+}
+
+pub fn nutritionorder_enteralformula_administration_new() -> NutritionorderEnteralformulaAdministration {
+  NutritionorderEnteralformulaAdministration(
+    rate: None,
+    quantity: None,
+    schedule: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/NutritionProduct#resource
@@ -9188,6 +16974,29 @@ pub type Nutritionproduct {
   )
 }
 
+pub fn nutritionproduct_new(status) -> Nutritionproduct {
+  Nutritionproduct(
+    note: [],
+    instance: None,
+    product_characteristic: [],
+    known_allergen: [],
+    ingredient: [],
+    nutrient: [],
+    manufacturer: [],
+    code: None,
+    category: [],
+    status:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/NutritionProduct#resource
 pub type NutritionproductNutrient {
   NutritionproductNutrient(
@@ -9199,6 +17008,16 @@ pub type NutritionproductNutrient {
   )
 }
 
+pub fn nutritionproduct_nutrient_new() -> NutritionproductNutrient {
+  NutritionproductNutrient(
+    amount: [],
+    item: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/NutritionProduct#resource
 pub type NutritionproductIngredient {
   NutritionproductIngredient(
@@ -9207,6 +17026,16 @@ pub type NutritionproductIngredient {
     modifier_extension: List(Extension),
     item: Codeablereference,
     amount: List(Ratio),
+  )
+}
+
+pub fn nutritionproduct_ingredient_new(item) -> NutritionproductIngredient {
+  NutritionproductIngredient(
+    amount: [],
+    item:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9233,6 +17062,19 @@ pub type NutritionproductProductcharacteristicValue {
   NutritionproductProductcharacteristicValueBoolean(value: Bool)
 }
 
+pub fn nutritionproduct_productcharacteristic_new(
+  value,
+  type_,
+) -> NutritionproductProductcharacteristic {
+  NutritionproductProductcharacteristic(
+    value:,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/NutritionProduct#resource
 pub type NutritionproductInstance {
   NutritionproductInstance(
@@ -9244,6 +17086,19 @@ pub type NutritionproductInstance {
     lot_number: Option(String),
     expiry: Option(String),
     use_by: Option(String),
+  )
+}
+
+pub fn nutritionproduct_instance_new() -> NutritionproductInstance {
+  NutritionproductInstance(
+    use_by: None,
+    expiry: None,
+    lot_number: None,
+    identifier: [],
+    quantity: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9308,6 +17163,43 @@ pub type ObservationValue {
   ObservationValuePeriod(value: Period)
 }
 
+pub fn observation_new(code, status) -> Observation {
+  Observation(
+    component: [],
+    derived_from: [],
+    has_member: [],
+    reference_range: [],
+    device: None,
+    specimen: None,
+    method: None,
+    body_site: None,
+    note: [],
+    interpretation: [],
+    data_absent_reason: None,
+    value: None,
+    performer: [],
+    issued: None,
+    effective: None,
+    encounter: None,
+    focus: [],
+    subject: None,
+    code:,
+    category: [],
+    status:,
+    part_of: [],
+    based_on: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Observation#resource
 pub type ObservationReferencerange {
   ObservationReferencerange(
@@ -9320,6 +17212,20 @@ pub type ObservationReferencerange {
     applies_to: List(Codeableconcept),
     age: Option(Range),
     text: Option(String),
+  )
+}
+
+pub fn observation_referencerange_new() -> ObservationReferencerange {
+  ObservationReferencerange(
+    text: None,
+    age: None,
+    applies_to: [],
+    type_: None,
+    high: None,
+    low: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9352,6 +17258,19 @@ pub type ObservationComponentValue {
   ObservationComponentValuePeriod(value: Period)
 }
 
+pub fn observation_component_new(code) -> ObservationComponent {
+  ObservationComponent(
+    reference_range: [],
+    interpretation: [],
+    data_absent_reason: None,
+    value: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ObservationDefinition#resource
 pub type Observationdefinition {
   Observationdefinition(
@@ -9379,6 +17298,32 @@ pub type Observationdefinition {
   )
 }
 
+pub fn observationdefinition_new(code) -> Observationdefinition {
+  Observationdefinition(
+    critical_coded_value_set: None,
+    abnormal_coded_value_set: None,
+    normal_coded_value_set: None,
+    valid_coded_value_set: None,
+    qualified_interval: [],
+    quantitative_details: None,
+    preferred_report_name: None,
+    method: None,
+    multiple_results_allowed: None,
+    permitted_data_type: [],
+    identifier: [],
+    code:,
+    category: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ObservationDefinition#resource
 pub type ObservationdefinitionQuantitativedetails {
   ObservationdefinitionQuantitativedetails(
@@ -9389,6 +17334,18 @@ pub type ObservationdefinitionQuantitativedetails {
     unit: Option(Codeableconcept),
     conversion_factor: Option(Float),
     decimal_precision: Option(Int),
+  )
+}
+
+pub fn observationdefinition_quantitativedetails_new() -> ObservationdefinitionQuantitativedetails {
+  ObservationdefinitionQuantitativedetails(
+    decimal_precision: None,
+    conversion_factor: None,
+    unit: None,
+    customary_unit: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9406,6 +17363,22 @@ pub type ObservationdefinitionQualifiedinterval {
     age: Option(Range),
     gestational_age: Option(Range),
     condition: Option(String),
+  )
+}
+
+pub fn observationdefinition_qualifiedinterval_new() -> ObservationdefinitionQualifiedinterval {
+  ObservationdefinitionQualifiedinterval(
+    condition: None,
+    gestational_age: None,
+    age: None,
+    gender: None,
+    applies_to: [],
+    context: None,
+    range: None,
+    category: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9449,6 +17422,53 @@ pub type Operationdefinition {
   )
 }
 
+pub fn operationdefinition_new(
+  instance,
+  type_,
+  system,
+  code,
+  kind,
+  status,
+  name,
+) -> Operationdefinition {
+  Operationdefinition(
+    overload: [],
+    parameter: [],
+    output_profile: None,
+    input_profile: None,
+    instance:,
+    type_:,
+    system:,
+    resource: [],
+    base: None,
+    comment: None,
+    code:,
+    affects_state: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    kind:,
+    status:,
+    title: None,
+    name:,
+    version: None,
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/OperationDefinition#resource
 pub type OperationdefinitionParameter {
   OperationdefinitionParameter(
@@ -9469,6 +17489,30 @@ pub type OperationdefinitionParameter {
   )
 }
 
+pub fn operationdefinition_parameter_new(
+  max,
+  min,
+  use_,
+  name,
+) -> OperationdefinitionParameter {
+  OperationdefinitionParameter(
+    part: [],
+    referenced_from: [],
+    binding: None,
+    search_type: None,
+    target_profile: [],
+    type_: None,
+    documentation: None,
+    max:,
+    min:,
+    use_:,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/OperationDefinition#resource
 pub type OperationdefinitionParameterBinding {
   OperationdefinitionParameterBinding(
@@ -9477,6 +17521,19 @@ pub type OperationdefinitionParameterBinding {
     modifier_extension: List(Extension),
     strength: r4bvaluesets.Bindingstrength,
     value_set: String,
+  )
+}
+
+pub fn operationdefinition_parameter_binding_new(
+  value_set,
+  strength,
+) -> OperationdefinitionParameterBinding {
+  OperationdefinitionParameterBinding(
+    value_set:,
+    strength:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9491,6 +17548,18 @@ pub type OperationdefinitionParameterReferencedfrom {
   )
 }
 
+pub fn operationdefinition_parameter_referencedfrom_new(
+  source,
+) -> OperationdefinitionParameterReferencedfrom {
+  OperationdefinitionParameterReferencedfrom(
+    source_id: None,
+    source:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/OperationDefinition#resource
 pub type OperationdefinitionOverload {
   OperationdefinitionOverload(
@@ -9499,6 +17568,16 @@ pub type OperationdefinitionOverload {
     modifier_extension: List(Extension),
     parameter_name: List(String),
     comment: Option(String),
+  )
+}
+
+pub fn operationdefinition_overload_new() -> OperationdefinitionOverload {
+  OperationdefinitionOverload(
+    comment: None,
+    parameter_name: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9517,6 +17596,20 @@ pub type Operationoutcome {
   )
 }
 
+pub fn operationoutcome_new() -> Operationoutcome {
+  Operationoutcome(
+    issue: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/OperationOutcome#resource
 pub type OperationoutcomeIssue {
   OperationoutcomeIssue(
@@ -9529,6 +17622,20 @@ pub type OperationoutcomeIssue {
     diagnostics: Option(String),
     location: List(String),
     expression: List(String),
+  )
+}
+
+pub fn operationoutcome_issue_new(code, severity) -> OperationoutcomeIssue {
+  OperationoutcomeIssue(
+    expression: [],
+    location: [],
+    diagnostics: None,
+    details: None,
+    code:,
+    severity:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9556,6 +17663,29 @@ pub type Organization {
   )
 }
 
+pub fn organization_new() -> Organization {
+  Organization(
+    endpoint: [],
+    contact: [],
+    part_of: None,
+    address: [],
+    telecom: [],
+    alias: [],
+    name: None,
+    type_: [],
+    active: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Organization#resource
 pub type OrganizationContact {
   OrganizationContact(
@@ -9566,6 +17696,18 @@ pub type OrganizationContact {
     name: Option(Humanname),
     telecom: List(Contactpoint),
     address: Option(Address),
+  )
+}
+
+pub fn organization_contact_new() -> OrganizationContact {
+  OrganizationContact(
+    address: None,
+    telecom: [],
+    name: None,
+    purpose: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9592,6 +17734,31 @@ pub type Organizationaffiliation {
     healthcare_service: List(Reference),
     telecom: List(Contactpoint),
     endpoint: List(Reference),
+  )
+}
+
+pub fn organizationaffiliation_new() -> Organizationaffiliation {
+  Organizationaffiliation(
+    endpoint: [],
+    telecom: [],
+    healthcare_service: [],
+    location: [],
+    specialty: [],
+    code: [],
+    network: [],
+    participating_organization: None,
+    organization: None,
+    period: None,
+    active: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -9623,6 +17790,33 @@ pub type Packagedproductdefinition {
   )
 }
 
+pub fn packagedproductdefinition_new() -> Packagedproductdefinition {
+  Packagedproductdefinition(
+    package: None,
+    manufacturer: [],
+    copackaged_indicator: None,
+    characteristic: [],
+    marketing_status: [],
+    legal_status_of_supply: [],
+    description: None,
+    contained_item_quantity: [],
+    status_date: None,
+    status: None,
+    package_for: [],
+    type_: None,
+    name: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PackagedProductDefinition#resource
 pub type PackagedproductdefinitionLegalstatusofsupply {
   PackagedproductdefinitionLegalstatusofsupply(
@@ -9631,6 +17825,16 @@ pub type PackagedproductdefinitionLegalstatusofsupply {
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
     jurisdiction: Option(Codeableconcept),
+  )
+}
+
+pub fn packagedproductdefinition_legalstatusofsupply_new() -> PackagedproductdefinitionLegalstatusofsupply {
+  PackagedproductdefinitionLegalstatusofsupply(
+    jurisdiction: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9653,6 +17857,24 @@ pub type PackagedproductdefinitionPackage {
   )
 }
 
+pub fn packagedproductdefinition_package_new() -> PackagedproductdefinitionPackage {
+  PackagedproductdefinitionPackage(
+    package: [],
+    contained_item: [],
+    property: [],
+    manufacturer: [],
+    shelf_life_storage: [],
+    alternate_material: [],
+    material: [],
+    quantity: None,
+    type_: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PackagedProductDefinition#resource
 pub type PackagedproductdefinitionPackageShelflifestorage {
   PackagedproductdefinitionPackageShelflifestorage(
@@ -9671,6 +17893,17 @@ pub type PackagedproductdefinitionPackageShelflifestoragePeriod {
     period: Duration,
   )
   PackagedproductdefinitionPackageShelflifestoragePeriodString(period: String)
+}
+
+pub fn packagedproductdefinition_package_shelflifestorage_new() -> PackagedproductdefinitionPackageShelflifestorage {
+  PackagedproductdefinitionPackageShelflifestorage(
+    special_precautions_for_storage: [],
+    period: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/PackagedProductDefinition#resource
@@ -9695,6 +17928,18 @@ pub type PackagedproductdefinitionPackagePropertyValue {
   PackagedproductdefinitionPackagePropertyValueAttachment(value: Attachment)
 }
 
+pub fn packagedproductdefinition_package_property_new(
+  type_,
+) -> PackagedproductdefinitionPackageProperty {
+  PackagedproductdefinitionPackageProperty(
+    value: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PackagedProductDefinition#resource
 pub type PackagedproductdefinitionPackageContaineditem {
   PackagedproductdefinitionPackageContaineditem(
@@ -9706,6 +17951,18 @@ pub type PackagedproductdefinitionPackageContaineditem {
   )
 }
 
+pub fn packagedproductdefinition_package_containeditem_new(
+  item,
+) -> PackagedproductdefinitionPackageContaineditem {
+  PackagedproductdefinitionPackageContaineditem(
+    amount: None,
+    item:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Parameters#resource
 pub type Parameters {
   Parameters(
@@ -9714,6 +17971,16 @@ pub type Parameters {
     implicit_rules: Option(String),
     language: Option(String),
     parameter: List(ParametersParameter),
+  )
+}
+
+pub fn parameters_new() -> Parameters {
+  Parameters(
+    parameter: [],
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -9784,6 +18051,18 @@ pub type ParametersParameterValue {
   ParametersParameterValueMeta(value: Meta)
 }
 
+pub fn parameters_parameter_new(name) -> ParametersParameter {
+  ParametersParameter(
+    part: [],
+    resource: None,
+    value: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Patient#resource
 pub type Patient {
   Patient(
@@ -9826,6 +18105,35 @@ pub type PatientMultiplebirth {
   PatientMultiplebirthInteger(multiple_birth: Int)
 }
 
+pub fn patient_new() -> Patient {
+  Patient(
+    link: [],
+    managing_organization: None,
+    general_practitioner: [],
+    communication: [],
+    contact: [],
+    photo: [],
+    multiple_birth: None,
+    marital_status: None,
+    address: [],
+    deceased: None,
+    birth_date: None,
+    gender: None,
+    telecom: [],
+    name: [],
+    active: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Patient#resource
 pub type PatientContact {
   PatientContact(
@@ -9842,6 +18150,21 @@ pub type PatientContact {
   )
 }
 
+pub fn patient_contact_new() -> PatientContact {
+  PatientContact(
+    period: None,
+    organization: None,
+    gender: None,
+    address: None,
+    telecom: [],
+    name: None,
+    relationship: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Patient#resource
 pub type PatientCommunication {
   PatientCommunication(
@@ -9850,6 +18173,16 @@ pub type PatientCommunication {
     modifier_extension: List(Extension),
     language: Codeableconcept,
     preferred: Option(Bool),
+  )
+}
+
+pub fn patient_communication_new(language) -> PatientCommunication {
+  PatientCommunication(
+    preferred: None,
+    language:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9862,6 +18195,10 @@ pub type PatientLink {
     other: Reference,
     type_: r4bvaluesets.Linktype,
   )
+}
+
+pub fn patient_link_new(type_, other) -> PatientLink {
+  PatientLink(type_:, other:, modifier_extension: [], extension: [], id: None)
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/PaymentNotice#resource
@@ -9887,6 +18224,37 @@ pub type Paymentnotice {
     recipient: Reference,
     amount: Money,
     payment_status: Option(Codeableconcept),
+  )
+}
+
+pub fn paymentnotice_new(
+  amount,
+  recipient,
+  payment,
+  created,
+  status,
+) -> Paymentnotice {
+  Paymentnotice(
+    payment_status: None,
+    amount:,
+    recipient:,
+    payee: None,
+    payment_date: None,
+    payment:,
+    provider: None,
+    created:,
+    response: None,
+    request: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -9919,6 +18287,39 @@ pub type Paymentreconciliation {
   )
 }
 
+pub fn paymentreconciliation_new(
+  payment_amount,
+  payment_date,
+  created,
+  status,
+) -> Paymentreconciliation {
+  Paymentreconciliation(
+    process_note: [],
+    form_code: None,
+    detail: [],
+    payment_identifier: None,
+    payment_amount:,
+    payment_date:,
+    disposition: None,
+    outcome: None,
+    requestor: None,
+    request: None,
+    payment_issuer: None,
+    created:,
+    period: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PaymentReconciliation#resource
 pub type PaymentreconciliationDetail {
   PaymentreconciliationDetail(
@@ -9938,6 +18339,24 @@ pub type PaymentreconciliationDetail {
   )
 }
 
+pub fn paymentreconciliation_detail_new(type_) -> PaymentreconciliationDetail {
+  PaymentreconciliationDetail(
+    amount: None,
+    payee: None,
+    responsible: None,
+    date: None,
+    response: None,
+    submitter: None,
+    request: None,
+    type_:,
+    predecessor: None,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PaymentReconciliation#resource
 pub type PaymentreconciliationProcessnote {
   PaymentreconciliationProcessnote(
@@ -9946,6 +18365,16 @@ pub type PaymentreconciliationProcessnote {
     modifier_extension: List(Extension),
     type_: Option(r4bvaluesets.Notetype),
     text: Option(String),
+  )
+}
+
+pub fn paymentreconciliation_processnote_new() -> PaymentreconciliationProcessnote {
+  PaymentreconciliationProcessnote(
+    text: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -9973,6 +18402,29 @@ pub type Person {
   )
 }
 
+pub fn person_new() -> Person {
+  Person(
+    link: [],
+    active: None,
+    managing_organization: None,
+    photo: None,
+    address: [],
+    birth_date: None,
+    gender: None,
+    telecom: [],
+    name: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Person#resource
 pub type PersonLink {
   PersonLink(
@@ -9981,6 +18433,16 @@ pub type PersonLink {
     modifier_extension: List(Extension),
     target: Reference,
     assurance: Option(r4bvaluesets.Identityassurancelevel),
+  )
+}
+
+pub fn person_link_new(target) -> PersonLink {
+  PersonLink(
+    assurance: None,
+    target:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10036,6 +18498,50 @@ pub type PlandefinitionSubject {
   PlandefinitionSubjectCanonical(subject: String)
 }
 
+pub fn plandefinition_new(status) -> Plandefinition {
+  Plandefinition(
+    action: [],
+    goal: [],
+    library: [],
+    related_artifact: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    topic: [],
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    usage: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    subject: None,
+    experimental: None,
+    status:,
+    type_: None,
+    subtitle: None,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PlanDefinition#resource
 pub type PlandefinitionGoal {
   PlandefinitionGoal(
@@ -10049,6 +18555,21 @@ pub type PlandefinitionGoal {
     addresses: List(Codeableconcept),
     documentation: List(Relatedartifact),
     target: List(PlandefinitionGoalTarget),
+  )
+}
+
+pub fn plandefinition_goal_new(description) -> PlandefinitionGoal {
+  PlandefinitionGoal(
+    target: [],
+    documentation: [],
+    addresses: [],
+    start: None,
+    priority: None,
+    description:,
+    category: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10069,6 +18590,17 @@ pub type PlandefinitionGoalTargetDetail {
   PlandefinitionGoalTargetDetailQuantity(detail: Quantity)
   PlandefinitionGoalTargetDetailRange(detail: Range)
   PlandefinitionGoalTargetDetailCodeableconcept(detail: Codeableconcept)
+}
+
+pub fn plandefinition_goal_target_new() -> PlandefinitionGoalTarget {
+  PlandefinitionGoalTarget(
+    due: None,
+    detail: None,
+    measure: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/PlanDefinition#resource
@@ -10130,6 +18662,41 @@ pub type PlandefinitionActionDefinition {
   PlandefinitionActionDefinitionUri(definition: String)
 }
 
+pub fn plandefinition_action_new() -> PlandefinitionAction {
+  PlandefinitionAction(
+    action: [],
+    dynamic_value: [],
+    transform: None,
+    definition: None,
+    cardinality_behavior: None,
+    precheck_behavior: None,
+    required_behavior: None,
+    selection_behavior: None,
+    grouping_behavior: None,
+    type_: None,
+    participant: [],
+    timing: None,
+    related_action: [],
+    output: [],
+    input: [],
+    condition: [],
+    trigger: [],
+    subject: None,
+    goal_id: [],
+    documentation: [],
+    reason: [],
+    code: [],
+    priority: None,
+    text_equivalent: None,
+    description: None,
+    title: None,
+    prefix: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PlanDefinition#resource
 pub type PlandefinitionActionCondition {
   PlandefinitionActionCondition(
@@ -10138,6 +18705,18 @@ pub type PlandefinitionActionCondition {
     modifier_extension: List(Extension),
     kind: r4bvaluesets.Actionconditionkind,
     expression: Option(Expression),
+  )
+}
+
+pub fn plandefinition_action_condition_new(
+  kind,
+) -> PlandefinitionActionCondition {
+  PlandefinitionActionCondition(
+    expression: None,
+    kind:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10159,6 +18738,20 @@ pub type PlandefinitionActionRelatedactionOffset {
   PlandefinitionActionRelatedactionOffsetRange(offset: Range)
 }
 
+pub fn plandefinition_action_relatedaction_new(
+  relationship,
+  action_id,
+) -> PlandefinitionActionRelatedaction {
+  PlandefinitionActionRelatedaction(
+    offset: None,
+    relationship:,
+    action_id:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PlanDefinition#resource
 pub type PlandefinitionActionParticipant {
   PlandefinitionActionParticipant(
@@ -10170,6 +18763,18 @@ pub type PlandefinitionActionParticipant {
   )
 }
 
+pub fn plandefinition_action_participant_new(
+  type_,
+) -> PlandefinitionActionParticipant {
+  PlandefinitionActionParticipant(
+    role: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PlanDefinition#resource
 pub type PlandefinitionActionDynamicvalue {
   PlandefinitionActionDynamicvalue(
@@ -10178,6 +18783,16 @@ pub type PlandefinitionActionDynamicvalue {
     modifier_extension: List(Extension),
     path: Option(String),
     expression: Option(Expression),
+  )
+}
+
+pub fn plandefinition_action_dynamicvalue_new() -> PlandefinitionActionDynamicvalue {
+  PlandefinitionActionDynamicvalue(
+    expression: None,
+    path: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10205,6 +18820,29 @@ pub type Practitioner {
   )
 }
 
+pub fn practitioner_new() -> Practitioner {
+  Practitioner(
+    communication: [],
+    qualification: [],
+    photo: [],
+    birth_date: None,
+    gender: None,
+    address: [],
+    telecom: [],
+    name: [],
+    active: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Practitioner#resource
 pub type PractitionerQualification {
   PractitionerQualification(
@@ -10215,6 +18853,18 @@ pub type PractitionerQualification {
     code: Codeableconcept,
     period: Option(Period),
     issuer: Option(Reference),
+  )
+}
+
+pub fn practitioner_qualification_new(code) -> PractitionerQualification {
+  PractitionerQualification(
+    issuer: None,
+    period: None,
+    code:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10246,6 +18896,33 @@ pub type Practitionerrole {
   )
 }
 
+pub fn practitionerrole_new() -> Practitionerrole {
+  Practitionerrole(
+    endpoint: [],
+    availability_exceptions: None,
+    not_available: [],
+    available_time: [],
+    telecom: [],
+    healthcare_service: [],
+    location: [],
+    specialty: [],
+    code: [],
+    organization: None,
+    practitioner: None,
+    period: None,
+    active: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PractitionerRole#resource
 pub type PractitionerroleAvailabletime {
   PractitionerroleAvailabletime(
@@ -10259,6 +18936,18 @@ pub type PractitionerroleAvailabletime {
   )
 }
 
+pub fn practitionerrole_availabletime_new() -> PractitionerroleAvailabletime {
+  PractitionerroleAvailabletime(
+    available_end_time: None,
+    available_start_time: None,
+    all_day: None,
+    days_of_week: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/PractitionerRole#resource
 pub type PractitionerroleNotavailable {
   PractitionerroleNotavailable(
@@ -10267,6 +18956,18 @@ pub type PractitionerroleNotavailable {
     modifier_extension: List(Extension),
     description: String,
     during: Option(Period),
+  )
+}
+
+pub fn practitionerrole_notavailable_new(
+  description,
+) -> PractitionerroleNotavailable {
+  PractitionerroleNotavailable(
+    during: None,
+    description:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10321,6 +19022,47 @@ pub type ProcedurePerformed {
   ProcedurePerformedRange(performed: Range)
 }
 
+pub fn procedure_new(subject, status) -> Procedure {
+  Procedure(
+    used_code: [],
+    used_reference: [],
+    focal_device: [],
+    note: [],
+    follow_up: [],
+    complication_detail: [],
+    complication: [],
+    report: [],
+    outcome: None,
+    body_site: [],
+    reason_reference: [],
+    reason_code: [],
+    location: None,
+    performer: [],
+    asserter: None,
+    recorder: None,
+    performed: None,
+    encounter: None,
+    subject:,
+    code: None,
+    category: None,
+    status_reason: None,
+    status:,
+    part_of: [],
+    based_on: [],
+    instantiates_uri: [],
+    instantiates_canonical: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Procedure#resource
 pub type ProcedurePerformer {
   ProcedurePerformer(
@@ -10333,6 +19075,17 @@ pub type ProcedurePerformer {
   )
 }
 
+pub fn procedure_performer_new(actor) -> ProcedurePerformer {
+  ProcedurePerformer(
+    on_behalf_of: None,
+    actor:,
+    function: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Procedure#resource
 pub type ProcedureFocaldevice {
   ProcedureFocaldevice(
@@ -10341,6 +19094,16 @@ pub type ProcedureFocaldevice {
     modifier_extension: List(Extension),
     action: Option(Codeableconcept),
     manipulated: Reference,
+  )
+}
+
+pub fn procedure_focaldevice_new(manipulated) -> ProcedureFocaldevice {
+  ProcedureFocaldevice(
+    manipulated:,
+    action: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10374,6 +19137,29 @@ pub type ProvenanceOccurred {
   ProvenanceOccurredDatetime(occurred: String)
 }
 
+pub fn provenance_new(recorded) -> Provenance {
+  Provenance(
+    signature: [],
+    entity: [],
+    agent: [],
+    activity: None,
+    reason: [],
+    location: None,
+    policy: [],
+    recorded:,
+    occurred: None,
+    target: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Provenance#resource
 pub type ProvenanceAgent {
   ProvenanceAgent(
@@ -10387,6 +19173,18 @@ pub type ProvenanceAgent {
   )
 }
 
+pub fn provenance_agent_new(who) -> ProvenanceAgent {
+  ProvenanceAgent(
+    on_behalf_of: None,
+    who:,
+    role: [],
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Provenance#resource
 pub type ProvenanceEntity {
   ProvenanceEntity(
@@ -10396,6 +19194,17 @@ pub type ProvenanceEntity {
     role: r4bvaluesets.Provenanceentityrole,
     what: Reference,
     agent: List(Nil),
+  )
+}
+
+pub fn provenance_entity_new(what, role) -> ProvenanceEntity {
+  ProvenanceEntity(
+    agent: [],
+    what:,
+    role:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10435,6 +19244,41 @@ pub type Questionnaire {
   )
 }
 
+pub fn questionnaire_new(status) -> Questionnaire {
+  Questionnaire(
+    item: [],
+    code: [],
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    subject_type: [],
+    experimental: None,
+    status:,
+    derived_from: [],
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Questionnaire#resource
 pub type QuestionnaireItem {
   QuestionnaireItem(
@@ -10457,6 +19301,30 @@ pub type QuestionnaireItem {
     answer_option: List(QuestionnaireItemAnsweroption),
     initial: List(QuestionnaireItemInitial),
     item: List(Nil),
+  )
+}
+
+pub fn questionnaire_item_new(type_, link_id) -> QuestionnaireItem {
+  QuestionnaireItem(
+    item: [],
+    initial: [],
+    answer_option: [],
+    answer_value_set: None,
+    max_length: None,
+    read_only: None,
+    repeats: None,
+    required: None,
+    enable_behavior: None,
+    enable_when: [],
+    type_:,
+    text: None,
+    prefix: None,
+    code: [],
+    definition: None,
+    link_id:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10486,6 +19354,21 @@ pub type QuestionnaireItemEnablewhenAnswer {
   QuestionnaireItemEnablewhenAnswerReference(answer: Reference)
 }
 
+pub fn questionnaire_item_enablewhen_new(
+  answer,
+  operator,
+  question,
+) -> QuestionnaireItemEnablewhen {
+  QuestionnaireItemEnablewhen(
+    answer:,
+    operator:,
+    question:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Questionnaire#resource
 pub type QuestionnaireItemAnsweroption {
   QuestionnaireItemAnsweroption(
@@ -10505,6 +19388,18 @@ pub type QuestionnaireItemAnsweroptionValue {
   QuestionnaireItemAnsweroptionValueString(value: String)
   QuestionnaireItemAnsweroptionValueCoding(value: Coding)
   QuestionnaireItemAnsweroptionValueReference(value: Reference)
+}
+
+pub fn questionnaire_item_answeroption_new(
+  value,
+) -> QuestionnaireItemAnsweroption {
+  QuestionnaireItemAnsweroption(
+    initial_selected: None,
+    value:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Questionnaire#resource
@@ -10533,6 +19428,15 @@ pub type QuestionnaireItemInitialValue {
   QuestionnaireItemInitialValueReference(value: Reference)
 }
 
+pub fn questionnaire_item_initial_new(value) -> QuestionnaireItemInitial {
+  QuestionnaireItemInitial(
+    value:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/QuestionnaireResponse#resource
 pub type Questionnaireresponse {
   Questionnaireresponse(
@@ -10558,6 +19462,30 @@ pub type Questionnaireresponse {
   )
 }
 
+pub fn questionnaireresponse_new(status) -> Questionnaireresponse {
+  Questionnaireresponse(
+    item: [],
+    source: None,
+    author: None,
+    authored: None,
+    encounter: None,
+    subject: None,
+    status:,
+    questionnaire: None,
+    part_of: [],
+    based_on: [],
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/QuestionnaireResponse#resource
 pub type QuestionnaireresponseItem {
   QuestionnaireresponseItem(
@@ -10569,6 +19497,19 @@ pub type QuestionnaireresponseItem {
     text: Option(String),
     answer: List(QuestionnaireresponseItemAnswer),
     item: List(Nil),
+  )
+}
+
+pub fn questionnaireresponse_item_new(link_id) -> QuestionnaireresponseItem {
+  QuestionnaireresponseItem(
+    item: [],
+    answer: [],
+    text: None,
+    definition: None,
+    link_id:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10599,6 +19540,16 @@ pub type QuestionnaireresponseItemAnswerValue {
   QuestionnaireresponseItemAnswerValueReference(value: Reference)
 }
 
+pub fn questionnaireresponse_item_answer_new() -> QuestionnaireresponseItemAnswer {
+  QuestionnaireresponseItemAnswer(
+    item: [],
+    value: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/RegulatedAuthorization#resource
 pub type Regulatedauthorization {
   Regulatedauthorization(
@@ -10627,6 +19578,33 @@ pub type Regulatedauthorization {
   )
 }
 
+pub fn regulatedauthorization_new() -> Regulatedauthorization {
+  Regulatedauthorization(
+    case_: None,
+    regulator: None,
+    holder: None,
+    basis: [],
+    intended_use: None,
+    indication: None,
+    validity_period: None,
+    status_date: None,
+    status: None,
+    region: [],
+    description: None,
+    type_: None,
+    subject: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/RegulatedAuthorization#resource
 pub type RegulatedauthorizationCase {
   RegulatedauthorizationCase(
@@ -10645,6 +19623,19 @@ pub type RegulatedauthorizationCase {
 pub type RegulatedauthorizationCaseDate {
   RegulatedauthorizationCaseDatePeriod(date: Period)
   RegulatedauthorizationCaseDateDatetime(date: String)
+}
+
+pub fn regulatedauthorization_case_new() -> RegulatedauthorizationCase {
+  RegulatedauthorizationCase(
+    application: [],
+    date: None,
+    status: None,
+    type_: None,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/RelatedPerson#resource
@@ -10673,6 +19664,31 @@ pub type Relatedperson {
   )
 }
 
+pub fn relatedperson_new(patient) -> Relatedperson {
+  Relatedperson(
+    communication: [],
+    period: None,
+    photo: [],
+    address: [],
+    birth_date: None,
+    gender: None,
+    telecom: [],
+    name: [],
+    relationship: [],
+    patient:,
+    active: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/RelatedPerson#resource
 pub type RelatedpersonCommunication {
   RelatedpersonCommunication(
@@ -10681,6 +19697,16 @@ pub type RelatedpersonCommunication {
     modifier_extension: List(Extension),
     language: Codeableconcept,
     preferred: Option(Bool),
+  )
+}
+
+pub fn relatedperson_communication_new(language) -> RelatedpersonCommunication {
+  RelatedpersonCommunication(
+    preferred: None,
+    language:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10713,6 +19739,37 @@ pub type Requestgroup {
     reason_reference: List(Reference),
     note: List(Annotation),
     action: List(RequestgroupAction),
+  )
+}
+
+pub fn requestgroup_new(intent, status) -> Requestgroup {
+  Requestgroup(
+    action: [],
+    note: [],
+    reason_reference: [],
+    reason_code: [],
+    author: None,
+    authored_on: None,
+    encounter: None,
+    subject: None,
+    code: None,
+    priority: None,
+    intent:,
+    status:,
+    group_identifier: None,
+    replaces: [],
+    based_on: [],
+    instantiates_uri: [],
+    instantiates_canonical: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -10754,6 +19811,33 @@ pub type RequestgroupActionTiming {
   RequestgroupActionTimingTiming(timing: Timing)
 }
 
+pub fn requestgroup_action_new() -> RequestgroupAction {
+  RequestgroupAction(
+    action: [],
+    resource: None,
+    cardinality_behavior: None,
+    precheck_behavior: None,
+    required_behavior: None,
+    selection_behavior: None,
+    grouping_behavior: None,
+    type_: None,
+    participant: [],
+    timing: None,
+    related_action: [],
+    condition: [],
+    documentation: [],
+    code: [],
+    priority: None,
+    text_equivalent: None,
+    description: None,
+    title: None,
+    prefix: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/RequestGroup#resource
 pub type RequestgroupActionCondition {
   RequestgroupActionCondition(
@@ -10762,6 +19846,16 @@ pub type RequestgroupActionCondition {
     modifier_extension: List(Extension),
     kind: r4bvaluesets.Actionconditionkind,
     expression: Option(Expression),
+  )
+}
+
+pub fn requestgroup_action_condition_new(kind) -> RequestgroupActionCondition {
+  RequestgroupActionCondition(
+    expression: None,
+    kind:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -10781,6 +19875,20 @@ pub type RequestgroupActionRelatedaction {
 pub type RequestgroupActionRelatedactionOffset {
   RequestgroupActionRelatedactionOffsetDuration(offset: Duration)
   RequestgroupActionRelatedactionOffsetRange(offset: Range)
+}
+
+pub fn requestgroup_action_relatedaction_new(
+  relationship,
+  action_id,
+) -> RequestgroupActionRelatedaction {
+  RequestgroupActionRelatedaction(
+    offset: None,
+    relationship:,
+    action_id:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/ResearchDefinition#resource
@@ -10837,6 +19945,53 @@ pub type ResearchdefinitionSubject {
   ResearchdefinitionSubjectReference(subject: Reference)
 }
 
+pub fn researchdefinition_new(population, status) -> Researchdefinition {
+  Researchdefinition(
+    outcome: None,
+    exposure_alternative: None,
+    exposure: None,
+    population:,
+    library: [],
+    related_artifact: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    topic: [],
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    usage: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    comment: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    subject: None,
+    experimental: None,
+    status:,
+    subtitle: None,
+    short_title: None,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ResearchElementDefinition#resource
 pub type Researchelementdefinition {
   Researchelementdefinition(
@@ -10888,6 +20043,52 @@ pub type Researchelementdefinition {
 pub type ResearchelementdefinitionSubject {
   ResearchelementdefinitionSubjectCodeableconcept(subject: Codeableconcept)
   ResearchelementdefinitionSubjectReference(subject: Reference)
+}
+
+pub fn researchelementdefinition_new(type_, status) -> Researchelementdefinition {
+  Researchelementdefinition(
+    characteristic: [],
+    variable_type: None,
+    type_:,
+    library: [],
+    related_artifact: [],
+    endorser: [],
+    reviewer: [],
+    editor: [],
+    author: [],
+    topic: [],
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    usage: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    comment: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    subject: None,
+    experimental: None,
+    status:,
+    subtitle: None,
+    short_title: None,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/ResearchElementDefinition#resource
@@ -10961,6 +20162,28 @@ pub type ResearchelementdefinitionCharacteristicParticipanteffective {
   )
 }
 
+pub fn researchelementdefinition_characteristic_new(
+  definition,
+) -> ResearchelementdefinitionCharacteristic {
+  ResearchelementdefinitionCharacteristic(
+    participant_effective_group_measure: None,
+    participant_effective_time_from_start: None,
+    participant_effective: None,
+    participant_effective_description: None,
+    study_effective_group_measure: None,
+    study_effective_time_from_start: None,
+    study_effective: None,
+    study_effective_description: None,
+    unit_of_measure: None,
+    exclude: None,
+    usage_context: [],
+    definition:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ResearchStudy#resource
 pub type Researchstudy {
   Researchstudy(
@@ -10999,6 +20222,43 @@ pub type Researchstudy {
   )
 }
 
+pub fn researchstudy_new(status) -> Researchstudy {
+  Researchstudy(
+    objective: [],
+    arm: [],
+    note: [],
+    reason_stopped: None,
+    site: [],
+    principal_investigator: None,
+    sponsor: None,
+    period: None,
+    enrollment: [],
+    description: None,
+    location: [],
+    keyword: [],
+    related_artifact: [],
+    contact: [],
+    condition: [],
+    focus: [],
+    category: [],
+    phase: None,
+    primary_purpose_type: None,
+    status:,
+    part_of: [],
+    protocol: [],
+    title: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ResearchStudy#resource
 pub type ResearchstudyArm {
   ResearchstudyArm(
@@ -11011,6 +20271,17 @@ pub type ResearchstudyArm {
   )
 }
 
+pub fn researchstudy_arm_new(name) -> ResearchstudyArm {
+  ResearchstudyArm(
+    description: None,
+    type_: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ResearchStudy#resource
 pub type ResearchstudyObjective {
   ResearchstudyObjective(
@@ -11019,6 +20290,16 @@ pub type ResearchstudyObjective {
     modifier_extension: List(Extension),
     name: Option(String),
     type_: Option(Codeableconcept),
+  )
+}
+
+pub fn researchstudy_objective_new() -> ResearchstudyObjective {
+  ResearchstudyObjective(
+    type_: None,
+    name: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11041,6 +20322,27 @@ pub type Researchsubject {
     assigned_arm: Option(String),
     actual_arm: Option(String),
     consent: Option(Reference),
+  )
+}
+
+pub fn researchsubject_new(individual, study, status) -> Researchsubject {
+  Researchsubject(
+    consent: None,
+    actual_arm: None,
+    assigned_arm: None,
+    individual:,
+    study:,
+    period: None,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -11081,6 +20383,36 @@ pub type RiskassessmentOccurrence {
   RiskassessmentOccurrencePeriod(occurrence: Period)
 }
 
+pub fn riskassessment_new(subject, status) -> Riskassessment {
+  Riskassessment(
+    note: [],
+    mitigation: None,
+    prediction: [],
+    basis: [],
+    reason_reference: [],
+    reason_code: [],
+    performer: None,
+    condition: None,
+    occurrence: None,
+    encounter: None,
+    subject:,
+    code: None,
+    method: None,
+    status:,
+    parent: None,
+    based_on: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/RiskAssessment#resource
 pub type RiskassessmentPrediction {
   RiskassessmentPrediction(
@@ -11108,6 +20440,20 @@ pub type RiskassessmentPredictionWhen {
   RiskassessmentPredictionWhenRange(when: Range)
 }
 
+pub fn riskassessment_prediction_new() -> RiskassessmentPrediction {
+  RiskassessmentPrediction(
+    rationale: None,
+    when: None,
+    relative_risk: None,
+    qualitative_risk: None,
+    probability: None,
+    outcome: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Schedule#resource
 pub type Schedule {
   Schedule(
@@ -11127,6 +20473,27 @@ pub type Schedule {
     actor: List(Reference),
     planning_horizon: Option(Period),
     comment: Option(String),
+  )
+}
+
+pub fn schedule_new() -> Schedule {
+  Schedule(
+    comment: None,
+    planning_horizon: None,
+    actor: [],
+    specialty: [],
+    service_type: [],
+    service_category: [],
+    active: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -11170,6 +20537,52 @@ pub type Searchparameter {
   )
 }
 
+pub fn searchparameter_new(
+  type_,
+  code,
+  description,
+  status,
+  name,
+  url,
+) -> Searchparameter {
+  Searchparameter(
+    component: [],
+    chain: [],
+    modifier: [],
+    comparator: [],
+    multiple_and: None,
+    multiple_or: None,
+    target: [],
+    xpath_usage: None,
+    xpath: None,
+    expression: None,
+    type_:,
+    base: [],
+    code:,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description:,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    derived_from: None,
+    name:,
+    version: None,
+    url:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SearchParameter#resource
 pub type SearchparameterComponent {
   SearchparameterComponent(
@@ -11178,6 +20591,19 @@ pub type SearchparameterComponent {
     modifier_extension: List(Extension),
     definition: String,
     expression: String,
+  )
+}
+
+pub fn searchparameter_component_new(
+  expression,
+  definition,
+) -> SearchparameterComponent {
+  SearchparameterComponent(
+    expression:,
+    definition:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11248,6 +20674,52 @@ pub type ServicerequestAsneeded {
   ServicerequestAsneededCodeableconcept(as_needed: Codeableconcept)
 }
 
+pub fn servicerequest_new(subject, intent, status) -> Servicerequest {
+  Servicerequest(
+    relevant_history: [],
+    patient_instruction: None,
+    note: [],
+    body_site: [],
+    specimen: [],
+    supporting_info: [],
+    insurance: [],
+    reason_reference: [],
+    reason_code: [],
+    location_reference: [],
+    location_code: [],
+    performer: [],
+    performer_type: None,
+    requester: None,
+    authored_on: None,
+    as_needed: None,
+    occurrence: None,
+    encounter: None,
+    subject:,
+    quantity: None,
+    order_detail: [],
+    code: None,
+    do_not_perform: None,
+    priority: None,
+    category: [],
+    intent:,
+    status:,
+    requisition: None,
+    replaces: [],
+    based_on: [],
+    instantiates_uri: [],
+    instantiates_canonical: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Slot#resource
 pub type Slot {
   Slot(
@@ -11270,6 +20742,30 @@ pub type Slot {
     end: String,
     overbooked: Option(Bool),
     comment: Option(String),
+  )
+}
+
+pub fn slot_new(end, start, status, schedule) -> Slot {
+  Slot(
+    comment: None,
+    overbooked: None,
+    end:,
+    start:,
+    status:,
+    schedule:,
+    appointment_type: None,
+    specialty: [],
+    service_type: [],
+    service_category: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -11297,6 +20793,32 @@ pub type Specimen {
     container: List(SpecimenContainer),
     condition: List(Codeableconcept),
     note: List(Annotation),
+  )
+}
+
+pub fn specimen_new() -> Specimen {
+  Specimen(
+    note: [],
+    condition: [],
+    container: [],
+    processing: [],
+    collection: None,
+    request: [],
+    parent: [],
+    received_time: None,
+    subject: None,
+    type_: None,
+    status: None,
+    accession_identifier: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -11330,6 +20852,21 @@ pub type SpecimenCollectionFastingstatus {
   SpecimenCollectionFastingstatusDuration(fasting_status: Duration)
 }
 
+pub fn specimen_collection_new() -> SpecimenCollection {
+  SpecimenCollection(
+    fasting_status: None,
+    body_site: None,
+    method: None,
+    quantity: None,
+    duration: None,
+    collected: None,
+    collector: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Specimen#resource
 pub type SpecimenProcessing {
   SpecimenProcessing(
@@ -11347,6 +20884,18 @@ pub type SpecimenProcessing {
 pub type SpecimenProcessingTime {
   SpecimenProcessingTimeDatetime(time: String)
   SpecimenProcessingTimePeriod(time: Period)
+}
+
+pub fn specimen_processing_new() -> SpecimenProcessing {
+  SpecimenProcessing(
+    time: None,
+    additive: [],
+    procedure: None,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Specimen#resource
@@ -11370,6 +20919,20 @@ pub type SpecimenContainerAdditive {
   SpecimenContainerAdditiveReference(additive: Reference)
 }
 
+pub fn specimen_container_new() -> SpecimenContainer {
+  SpecimenContainer(
+    additive: None,
+    specimen_quantity: None,
+    capacity: None,
+    type_: None,
+    description: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SpecimenDefinition#resource
 pub type Specimendefinition {
   Specimendefinition(
@@ -11390,6 +20953,25 @@ pub type Specimendefinition {
   )
 }
 
+pub fn specimendefinition_new() -> Specimendefinition {
+  Specimendefinition(
+    type_tested: [],
+    collection: [],
+    time_aspect: None,
+    patient_preparation: [],
+    type_collected: None,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SpecimenDefinition#resource
 pub type SpecimendefinitionTypetested {
   SpecimendefinitionTypetested(
@@ -11404,6 +20986,24 @@ pub type SpecimendefinitionTypetested {
     retention_time: Option(Duration),
     rejection_criterion: List(Codeableconcept),
     handling: List(SpecimendefinitionTypetestedHandling),
+  )
+}
+
+pub fn specimendefinition_typetested_new(
+  preference,
+) -> SpecimendefinitionTypetested {
+  SpecimendefinitionTypetested(
+    handling: [],
+    rejection_criterion: [],
+    retention_time: None,
+    requirement: None,
+    container: None,
+    preference:,
+    type_: None,
+    is_derived: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11434,6 +21034,22 @@ pub type SpecimendefinitionTypetestedContainerMinimumvolume {
   )
 }
 
+pub fn specimendefinition_typetested_container_new() -> SpecimendefinitionTypetestedContainer {
+  SpecimendefinitionTypetestedContainer(
+    preparation: None,
+    additive: [],
+    minimum_volume: None,
+    capacity: None,
+    description: None,
+    cap: None,
+    type_: None,
+    material: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SpecimenDefinition#resource
 pub type SpecimendefinitionTypetestedContainerAdditive {
   SpecimendefinitionTypetestedContainerAdditive(
@@ -11454,6 +21070,17 @@ pub type SpecimendefinitionTypetestedContainerAdditiveAdditive {
   )
 }
 
+pub fn specimendefinition_typetested_container_additive_new(
+  additive,
+) -> SpecimendefinitionTypetestedContainerAdditive {
+  SpecimendefinitionTypetestedContainerAdditive(
+    additive:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SpecimenDefinition#resource
 pub type SpecimendefinitionTypetestedHandling {
   SpecimendefinitionTypetestedHandling(
@@ -11464,6 +21091,18 @@ pub type SpecimendefinitionTypetestedHandling {
     temperature_range: Option(Range),
     max_duration: Option(Duration),
     instruction: Option(String),
+  )
+}
+
+pub fn specimendefinition_typetested_handling_new() -> SpecimendefinitionTypetestedHandling {
+  SpecimendefinitionTypetestedHandling(
+    instruction: None,
+    max_duration: None,
+    temperature_range: None,
+    temperature_qualifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11508,6 +21147,53 @@ pub type Structuredefinition {
   )
 }
 
+pub fn structuredefinition_new(
+  type_,
+  abstract,
+  kind,
+  status,
+  name,
+  url,
+) -> Structuredefinition {
+  Structuredefinition(
+    differential: None,
+    snapshot: None,
+    derivation: None,
+    base_definition: None,
+    type_:,
+    context_invariant: [],
+    context: [],
+    abstract:,
+    kind:,
+    mapping: [],
+    fhir_version: None,
+    keyword: [],
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    title: None,
+    name:,
+    version: None,
+    identifier: [],
+    url:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/StructureDefinition#resource
 pub type StructuredefinitionMapping {
   StructuredefinitionMapping(
@@ -11518,6 +21204,18 @@ pub type StructuredefinitionMapping {
     uri: Option(String),
     name: Option(String),
     comment: Option(String),
+  )
+}
+
+pub fn structuredefinition_mapping_new(identity) -> StructuredefinitionMapping {
+  StructuredefinitionMapping(
+    comment: None,
+    name: None,
+    uri: None,
+    identity:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11532,6 +21230,19 @@ pub type StructuredefinitionContext {
   )
 }
 
+pub fn structuredefinition_context_new(
+  expression,
+  type_,
+) -> StructuredefinitionContext {
+  StructuredefinitionContext(
+    expression:,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/StructureDefinition#resource
 pub type StructuredefinitionSnapshot {
   StructuredefinitionSnapshot(
@@ -11542,6 +21253,15 @@ pub type StructuredefinitionSnapshot {
   )
 }
 
+pub fn structuredefinition_snapshot_new() -> StructuredefinitionSnapshot {
+  StructuredefinitionSnapshot(
+    element: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/StructureDefinition#resource
 pub type StructuredefinitionDifferential {
   StructuredefinitionDifferential(
@@ -11549,6 +21269,15 @@ pub type StructuredefinitionDifferential {
     extension: List(Extension),
     modifier_extension: List(Extension),
     element: List(Elementdefinition),
+  )
+}
+
+pub fn structuredefinition_differential_new() -> StructuredefinitionDifferential {
+  StructuredefinitionDifferential(
+    element: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11584,6 +21313,37 @@ pub type Structuremap {
   )
 }
 
+pub fn structuremap_new(status, name, url) -> Structuremap {
+  Structuremap(
+    group: [],
+    import_: [],
+    structure: [],
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    title: None,
+    name:,
+    version: None,
+    identifier: [],
+    url:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/StructureMap#resource
 pub type StructuremapStructure {
   StructuremapStructure(
@@ -11594,6 +21354,18 @@ pub type StructuremapStructure {
     mode: r4bvaluesets.Mapmodelmode,
     alias: Option(String),
     documentation: Option(String),
+  )
+}
+
+pub fn structuremap_structure_new(mode, url) -> StructuremapStructure {
+  StructuremapStructure(
+    documentation: None,
+    alias: None,
+    mode:,
+    url:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11612,6 +21384,20 @@ pub type StructuremapGroup {
   )
 }
 
+pub fn structuremap_group_new(type_mode, name) -> StructuremapGroup {
+  StructuremapGroup(
+    rule: [],
+    input: [],
+    documentation: None,
+    type_mode:,
+    extends: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/StructureMap#resource
 pub type StructuremapGroupInput {
   StructuremapGroupInput(
@@ -11622,6 +21408,18 @@ pub type StructuremapGroupInput {
     type_: Option(String),
     mode: r4bvaluesets.Mapinputmode,
     documentation: Option(String),
+  )
+}
+
+pub fn structuremap_group_input_new(mode, name) -> StructuremapGroupInput {
+  StructuremapGroupInput(
+    documentation: None,
+    mode:,
+    type_: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11637,6 +21435,20 @@ pub type StructuremapGroupRule {
     rule: List(Nil),
     dependent: List(StructuremapGroupRuleDependent),
     documentation: Option(String),
+  )
+}
+
+pub fn structuremap_group_rule_new(name) -> StructuremapGroupRule {
+  StructuremapGroupRule(
+    documentation: None,
+    dependent: [],
+    rule: [],
+    target: [],
+    source: [],
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11730,6 +21542,27 @@ pub type StructuremapGroupRuleSourceDefaultvalue {
   StructuremapGroupRuleSourceDefaultvalueMeta(default_value: Meta)
 }
 
+pub fn structuremap_group_rule_source_new(
+  context,
+) -> StructuremapGroupRuleSource {
+  StructuremapGroupRuleSource(
+    log_message: None,
+    check: None,
+    condition: None,
+    variable: None,
+    list_mode: None,
+    element: None,
+    default_value: None,
+    type_: None,
+    max: None,
+    min: None,
+    context:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/StructureMap#resource
 pub type StructuremapGroupRuleTarget {
   StructuremapGroupRuleTarget(
@@ -11744,6 +21577,22 @@ pub type StructuremapGroupRuleTarget {
     list_rule_id: Option(String),
     transform: Option(r4bvaluesets.Maptransform),
     parameter: List(StructuremapGroupRuleTargetParameter),
+  )
+}
+
+pub fn structuremap_group_rule_target_new() -> StructuremapGroupRuleTarget {
+  StructuremapGroupRuleTarget(
+    parameter: [],
+    transform: None,
+    list_rule_id: None,
+    list_mode: [],
+    variable: None,
+    element: None,
+    context_type: None,
+    context: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11766,6 +21615,17 @@ pub type StructuremapGroupRuleTargetParameterValue {
   StructuremapGroupRuleTargetParameterValueDecimal(value: Float)
 }
 
+pub fn structuremap_group_rule_target_parameter_new(
+  value,
+) -> StructuremapGroupRuleTargetParameter {
+  StructuremapGroupRuleTargetParameter(
+    value:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/StructureMap#resource
 pub type StructuremapGroupRuleDependent {
   StructuremapGroupRuleDependent(
@@ -11774,6 +21634,18 @@ pub type StructuremapGroupRuleDependent {
     modifier_extension: List(Extension),
     name: String,
     variable: List(String),
+  )
+}
+
+pub fn structuremap_group_rule_dependent_new(
+  name,
+) -> StructuremapGroupRuleDependent {
+  StructuremapGroupRuleDependent(
+    variable: [],
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11798,6 +21670,26 @@ pub type Subscription {
   )
 }
 
+pub fn subscription_new(channel, criteria, reason, status) -> Subscription {
+  Subscription(
+    channel:,
+    error: None,
+    criteria:,
+    reason:,
+    end: None,
+    contact: [],
+    status:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Subscription#resource
 pub type SubscriptionChannel {
   SubscriptionChannel(
@@ -11808,6 +21700,18 @@ pub type SubscriptionChannel {
     endpoint: Option(String),
     payload: Option(String),
     header: List(String),
+  )
+}
+
+pub fn subscription_channel_new(type_) -> SubscriptionChannel {
+  SubscriptionChannel(
+    header: [],
+    payload: None,
+    endpoint: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11832,6 +21736,26 @@ pub type Subscriptionstatus {
   )
 }
 
+pub fn subscriptionstatus_new(subscription, type_) -> Subscriptionstatus {
+  Subscriptionstatus(
+    error: [],
+    topic: None,
+    subscription:,
+    notification_event: [],
+    events_since_subscription_start: None,
+    type_:,
+    status: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubscriptionStatus#resource
 pub type SubscriptionstatusNotificationevent {
   SubscriptionstatusNotificationevent(
@@ -11842,6 +21766,20 @@ pub type SubscriptionstatusNotificationevent {
     timestamp: Option(String),
     focus: Option(Reference),
     additional_context: List(Reference),
+  )
+}
+
+pub fn subscriptionstatus_notificationevent_new(
+  event_number,
+) -> SubscriptionstatusNotificationevent {
+  SubscriptionstatusNotificationevent(
+    additional_context: [],
+    focus: None,
+    timestamp: None,
+    event_number:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11881,6 +21819,41 @@ pub type Subscriptiontopic {
   )
 }
 
+pub fn subscriptiontopic_new(status, url) -> Subscriptiontopic {
+  Subscriptiontopic(
+    notification_shape: [],
+    can_filter_by: [],
+    event_trigger: [],
+    resource_trigger: [],
+    effective_period: None,
+    last_review_date: None,
+    approval_date: None,
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    derived_from: [],
+    title: None,
+    version: None,
+    identifier: [],
+    url:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubscriptionTopic#resource
 pub type SubscriptiontopicResourcetrigger {
   SubscriptiontopicResourcetrigger(
@@ -11892,6 +21865,21 @@ pub type SubscriptiontopicResourcetrigger {
     supported_interaction: List(r4bvaluesets.Interactiontrigger),
     query_criteria: Option(SubscriptiontopicResourcetriggerQuerycriteria),
     fhir_path_criteria: Option(String),
+  )
+}
+
+pub fn subscriptiontopic_resourcetrigger_new(
+  resource,
+) -> SubscriptiontopicResourcetrigger {
+  SubscriptiontopicResourcetrigger(
+    fhir_path_criteria: None,
+    query_criteria: None,
+    supported_interaction: [],
+    resource:,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11909,6 +21897,19 @@ pub type SubscriptiontopicResourcetriggerQuerycriteria {
   )
 }
 
+pub fn subscriptiontopic_resourcetrigger_querycriteria_new() -> SubscriptiontopicResourcetriggerQuerycriteria {
+  SubscriptiontopicResourcetriggerQuerycriteria(
+    require_both: None,
+    result_for_delete: None,
+    current: None,
+    result_for_create: None,
+    previous: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubscriptionTopic#resource
 pub type SubscriptiontopicEventtrigger {
   SubscriptiontopicEventtrigger(
@@ -11918,6 +21919,20 @@ pub type SubscriptiontopicEventtrigger {
     description: Option(String),
     event: Codeableconcept,
     resource: String,
+  )
+}
+
+pub fn subscriptiontopic_eventtrigger_new(
+  resource,
+  event,
+) -> SubscriptiontopicEventtrigger {
+  SubscriptiontopicEventtrigger(
+    resource:,
+    event:,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11935,6 +21950,21 @@ pub type SubscriptiontopicCanfilterby {
   )
 }
 
+pub fn subscriptiontopic_canfilterby_new(
+  filter_parameter,
+) -> SubscriptiontopicCanfilterby {
+  SubscriptiontopicCanfilterby(
+    modifier: [],
+    filter_definition: None,
+    filter_parameter:,
+    resource: None,
+    description: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubscriptionTopic#resource
 pub type SubscriptiontopicNotificationshape {
   SubscriptiontopicNotificationshape(
@@ -11944,6 +21974,19 @@ pub type SubscriptiontopicNotificationshape {
     resource: String,
     include: List(String),
     rev_include: List(String),
+  )
+}
+
+pub fn subscriptiontopic_notificationshape_new(
+  resource,
+) -> SubscriptiontopicNotificationshape {
+  SubscriptiontopicNotificationshape(
+    rev_include: [],
+    include: [],
+    resource:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11968,6 +22011,26 @@ pub type Substance {
   )
 }
 
+pub fn substance_new(code) -> Substance {
+  Substance(
+    ingredient: [],
+    instance: [],
+    description: None,
+    code:,
+    category: [],
+    status: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Substance#resource
 pub type SubstanceInstance {
   SubstanceInstance(
@@ -11977,6 +22040,17 @@ pub type SubstanceInstance {
     identifier: Option(Identifier),
     expiry: Option(String),
     quantity: Option(Quantity),
+  )
+}
+
+pub fn substance_instance_new() -> SubstanceInstance {
+  SubstanceInstance(
+    quantity: None,
+    expiry: None,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -11995,6 +22069,16 @@ pub type SubstanceIngredient {
 pub type SubstanceIngredientSubstance {
   SubstanceIngredientSubstanceCodeableconcept(substance: Codeableconcept)
   SubstanceIngredientSubstanceReference(substance: Reference)
+}
+
+pub fn substance_ingredient_new(substance) -> SubstanceIngredient {
+  SubstanceIngredient(
+    substance:,
+    quantity: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubstanceDefinition#resource
@@ -12030,6 +22114,38 @@ pub type Substancedefinition {
   )
 }
 
+pub fn substancedefinition_new() -> Substancedefinition {
+  Substancedefinition(
+    source_material: None,
+    relationship: [],
+    name: [],
+    code: [],
+    structure: None,
+    molecular_weight: [],
+    property: [],
+    moiety: [],
+    supplier: [],
+    manufacturer: [],
+    note: [],
+    information_source: [],
+    description: None,
+    grade: [],
+    domain: None,
+    classification: [],
+    status: None,
+    version: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubstanceDefinition#resource
 pub type SubstancedefinitionMoiety {
   SubstancedefinitionMoiety(
@@ -12053,6 +22169,22 @@ pub type SubstancedefinitionMoietyAmount {
   SubstancedefinitionMoietyAmountString(amount: String)
 }
 
+pub fn substancedefinition_moiety_new() -> SubstancedefinitionMoiety {
+  SubstancedefinitionMoiety(
+    measurement_type: None,
+    amount: None,
+    molecular_formula: None,
+    optical_activity: None,
+    stereochemistry: None,
+    name: None,
+    identifier: None,
+    role: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubstanceDefinition#resource
 pub type SubstancedefinitionProperty {
   SubstancedefinitionProperty(
@@ -12073,6 +22205,16 @@ pub type SubstancedefinitionPropertyValue {
   SubstancedefinitionPropertyValueAttachment(value: Attachment)
 }
 
+pub fn substancedefinition_property_new(type_) -> SubstancedefinitionProperty {
+  SubstancedefinitionProperty(
+    value: None,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubstanceDefinition#resource
 pub type SubstancedefinitionMolecularweight {
   SubstancedefinitionMolecularweight(
@@ -12082,6 +22224,19 @@ pub type SubstancedefinitionMolecularweight {
     method: Option(Codeableconcept),
     type_: Option(Codeableconcept),
     amount: Quantity,
+  )
+}
+
+pub fn substancedefinition_molecularweight_new(
+  amount,
+) -> SubstancedefinitionMolecularweight {
+  SubstancedefinitionMolecularweight(
+    amount:,
+    type_: None,
+    method: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12102,6 +22257,22 @@ pub type SubstancedefinitionStructure {
   )
 }
 
+pub fn substancedefinition_structure_new() -> SubstancedefinitionStructure {
+  SubstancedefinitionStructure(
+    representation: [],
+    source_document: [],
+    technique: [],
+    molecular_weight: None,
+    molecular_formula_by_moiety: None,
+    molecular_formula: None,
+    optical_activity: None,
+    stereochemistry: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubstanceDefinition#resource
 pub type SubstancedefinitionStructureRepresentation {
   SubstancedefinitionStructureRepresentation(
@@ -12112,6 +22283,18 @@ pub type SubstancedefinitionStructureRepresentation {
     representation: Option(String),
     format: Option(Codeableconcept),
     document: Option(Reference),
+  )
+}
+
+pub fn substancedefinition_structure_representation_new() -> SubstancedefinitionStructureRepresentation {
+  SubstancedefinitionStructureRepresentation(
+    document: None,
+    format: None,
+    representation: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12126,6 +22309,19 @@ pub type SubstancedefinitionCode {
     status_date: Option(String),
     note: List(Annotation),
     source: List(Reference),
+  )
+}
+
+pub fn substancedefinition_code_new() -> SubstancedefinitionCode {
+  SubstancedefinitionCode(
+    source: [],
+    note: [],
+    status_date: None,
+    status: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12149,6 +22345,25 @@ pub type SubstancedefinitionName {
   )
 }
 
+pub fn substancedefinition_name_new(name) -> SubstancedefinitionName {
+  SubstancedefinitionName(
+    source: [],
+    official: [],
+    translation: [],
+    synonym: [],
+    jurisdiction: [],
+    domain: [],
+    language: [],
+    preferred: None,
+    status: None,
+    type_: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubstanceDefinition#resource
 pub type SubstancedefinitionNameOfficial {
   SubstancedefinitionNameOfficial(
@@ -12158,6 +22373,17 @@ pub type SubstancedefinitionNameOfficial {
     authority: Option(Codeableconcept),
     status: Option(Codeableconcept),
     date: Option(String),
+  )
+}
+
+pub fn substancedefinition_name_official_new() -> SubstancedefinitionNameOfficial {
+  SubstancedefinitionNameOfficial(
+    date: None,
+    status: None,
+    authority: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12196,6 +22422,23 @@ pub type SubstancedefinitionRelationshipAmount {
   SubstancedefinitionRelationshipAmountString(amount: String)
 }
 
+pub fn substancedefinition_relationship_new(
+  type_,
+) -> SubstancedefinitionRelationship {
+  SubstancedefinitionRelationship(
+    source: [],
+    comparator: None,
+    ratio_high_limit_amount: None,
+    amount: None,
+    is_defining: None,
+    type_:,
+    substance_definition: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SubstanceDefinition#resource
 pub type SubstancedefinitionSourcematerial {
   SubstancedefinitionSourcematerial(
@@ -12207,6 +22450,19 @@ pub type SubstancedefinitionSourcematerial {
     species: Option(Codeableconcept),
     part: Option(Codeableconcept),
     country_of_origin: List(Codeableconcept),
+  )
+}
+
+pub fn substancedefinition_sourcematerial_new() -> SubstancedefinitionSourcematerial {
+  SubstancedefinitionSourcematerial(
+    country_of_origin: [],
+    part: None,
+    species: None,
+    genus: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12242,6 +22498,30 @@ pub type SupplydeliveryOccurrence {
   SupplydeliveryOccurrenceTiming(occurrence: Timing)
 }
 
+pub fn supplydelivery_new() -> Supplydelivery {
+  Supplydelivery(
+    receiver: [],
+    destination: None,
+    supplier: None,
+    occurrence: None,
+    supplied_item: None,
+    type_: None,
+    patient: None,
+    status: None,
+    part_of: [],
+    based_on: [],
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SupplyDelivery#resource
 pub type SupplydeliverySupplieditem {
   SupplydeliverySupplieditem(
@@ -12257,6 +22537,16 @@ pub type SupplydeliverySupplieditem {
 pub type SupplydeliverySupplieditemItem {
   SupplydeliverySupplieditemItemCodeableconcept(item: Codeableconcept)
   SupplydeliverySupplieditemItemReference(item: Reference)
+}
+
+pub fn supplydelivery_supplieditem_new() -> SupplydeliverySupplieditem {
+  SupplydeliverySupplieditem(
+    item: None,
+    quantity: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/SupplyRequest#resource
@@ -12301,6 +22591,34 @@ pub type SupplyrequestOccurrence {
   SupplyrequestOccurrenceTiming(occurrence: Timing)
 }
 
+pub fn supplyrequest_new(quantity, item) -> Supplyrequest {
+  Supplyrequest(
+    deliver_to: None,
+    deliver_from: None,
+    reason_reference: [],
+    reason_code: [],
+    supplier: [],
+    requester: None,
+    authored_on: None,
+    occurrence: None,
+    parameter: [],
+    quantity:,
+    item:,
+    priority: None,
+    category: None,
+    status: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/SupplyRequest#resource
 pub type SupplyrequestParameter {
   SupplyrequestParameter(
@@ -12318,6 +22636,16 @@ pub type SupplyrequestParameterValue {
   SupplyrequestParameterValueQuantity(value: Quantity)
   SupplyrequestParameterValueRange(value: Range)
   SupplyrequestParameterValueBoolean(value: Bool)
+}
+
+pub fn supplyrequest_parameter_new() -> SupplyrequestParameter {
+  SupplyrequestParameter(
+    value: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
 }
 
 ///http://hl7.org/fhir/r4b/StructureDefinition/Task#resource
@@ -12365,6 +22693,50 @@ pub type Task {
   )
 }
 
+pub fn task_new(intent, status) -> Task {
+  Task(
+    output: [],
+    input: [],
+    restriction: None,
+    relevant_history: [],
+    note: [],
+    insurance: [],
+    reason_reference: None,
+    reason_code: None,
+    location: None,
+    owner: None,
+    performer_type: [],
+    requester: None,
+    last_modified: None,
+    authored_on: None,
+    execution_period: None,
+    encounter: None,
+    for: None,
+    focus: None,
+    description: None,
+    code: None,
+    priority: None,
+    intent:,
+    business_status: None,
+    status_reason: None,
+    status:,
+    part_of: [],
+    group_identifier: None,
+    based_on: [],
+    instantiates_uri: None,
+    instantiates_canonical: None,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Task#resource
 pub type TaskRestriction {
   TaskRestriction(
@@ -12374,6 +22746,17 @@ pub type TaskRestriction {
     repetitions: Option(Int),
     period: Option(Period),
     recipient: List(Reference),
+  )
+}
+
+pub fn task_restriction_new() -> TaskRestriction {
+  TaskRestriction(
+    recipient: [],
+    period: None,
+    repetitions: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12442,6 +22825,10 @@ pub type TaskInputValue {
   TaskInputValueMeta(value: Meta)
 }
 
+pub fn task_input_new(value, type_) -> TaskInput {
+  TaskInput(value:, type_:, modifier_extension: [], extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/Task#resource
 pub type TaskOutput {
   TaskOutput(
@@ -12507,6 +22894,10 @@ pub type TaskOutputValue {
   TaskOutputValueMeta(value: Meta)
 }
 
+pub fn task_output_new(value, type_) -> TaskOutput {
+  TaskOutput(value:, type_:, modifier_extension: [], extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TerminologyCapabilities#resource
 pub type Terminologycapabilities {
   Terminologycapabilities(
@@ -12545,6 +22936,47 @@ pub type Terminologycapabilities {
   )
 }
 
+pub fn terminologycapabilities_new(
+  kind,
+  date,
+  status,
+) -> Terminologycapabilities {
+  Terminologycapabilities(
+    closure: None,
+    translation: None,
+    validate_code: None,
+    code_search: None,
+    expansion: None,
+    code_system: [],
+    locked_date: None,
+    implementation: None,
+    software: None,
+    kind:,
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date:,
+    experimental: None,
+    status:,
+    title: None,
+    name: None,
+    version: None,
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TerminologyCapabilities#resource
 pub type TerminologycapabilitiesSoftware {
   TerminologycapabilitiesSoftware(
@@ -12553,6 +22985,18 @@ pub type TerminologycapabilitiesSoftware {
     modifier_extension: List(Extension),
     name: String,
     version: Option(String),
+  )
+}
+
+pub fn terminologycapabilities_software_new(
+  name,
+) -> TerminologycapabilitiesSoftware {
+  TerminologycapabilitiesSoftware(
+    version: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12567,6 +23011,18 @@ pub type TerminologycapabilitiesImplementation {
   )
 }
 
+pub fn terminologycapabilities_implementation_new(
+  description,
+) -> TerminologycapabilitiesImplementation {
+  TerminologycapabilitiesImplementation(
+    url: None,
+    description:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TerminologyCapabilities#resource
 pub type TerminologycapabilitiesCodesystem {
   TerminologycapabilitiesCodesystem(
@@ -12576,6 +23032,17 @@ pub type TerminologycapabilitiesCodesystem {
     uri: Option(String),
     version: List(TerminologycapabilitiesCodesystemVersion),
     subsumption: Option(Bool),
+  )
+}
+
+pub fn terminologycapabilities_codesystem_new() -> TerminologycapabilitiesCodesystem {
+  TerminologycapabilitiesCodesystem(
+    subsumption: None,
+    version: [],
+    uri: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12594,6 +23061,20 @@ pub type TerminologycapabilitiesCodesystemVersion {
   )
 }
 
+pub fn terminologycapabilities_codesystem_version_new() -> TerminologycapabilitiesCodesystemVersion {
+  TerminologycapabilitiesCodesystemVersion(
+    property: [],
+    filter: [],
+    language: [],
+    compositional: None,
+    is_default: None,
+    code: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TerminologyCapabilities#resource
 pub type TerminologycapabilitiesCodesystemVersionFilter {
   TerminologycapabilitiesCodesystemVersionFilter(
@@ -12602,6 +23083,18 @@ pub type TerminologycapabilitiesCodesystemVersionFilter {
     modifier_extension: List(Extension),
     code: String,
     op: List(String),
+  )
+}
+
+pub fn terminologycapabilities_codesystem_version_filter_new(
+  code,
+) -> TerminologycapabilitiesCodesystemVersionFilter {
+  TerminologycapabilitiesCodesystemVersionFilter(
+    op: [],
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12619,6 +23112,19 @@ pub type TerminologycapabilitiesExpansion {
   )
 }
 
+pub fn terminologycapabilities_expansion_new() -> TerminologycapabilitiesExpansion {
+  TerminologycapabilitiesExpansion(
+    text_filter: None,
+    parameter: [],
+    incomplete: None,
+    paging: None,
+    hierarchical: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TerminologyCapabilities#resource
 pub type TerminologycapabilitiesExpansionParameter {
   TerminologycapabilitiesExpansionParameter(
@@ -12627,6 +23133,18 @@ pub type TerminologycapabilitiesExpansionParameter {
     modifier_extension: List(Extension),
     name: String,
     documentation: Option(String),
+  )
+}
+
+pub fn terminologycapabilities_expansion_parameter_new(
+  name,
+) -> TerminologycapabilitiesExpansionParameter {
+  TerminologycapabilitiesExpansionParameter(
+    documentation: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12640,6 +23158,17 @@ pub type TerminologycapabilitiesValidatecode {
   )
 }
 
+pub fn terminologycapabilities_validatecode_new(
+  translations,
+) -> TerminologycapabilitiesValidatecode {
+  TerminologycapabilitiesValidatecode(
+    translations:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TerminologyCapabilities#resource
 pub type TerminologycapabilitiesTranslation {
   TerminologycapabilitiesTranslation(
@@ -12650,6 +23179,17 @@ pub type TerminologycapabilitiesTranslation {
   )
 }
 
+pub fn terminologycapabilities_translation_new(
+  needs_map,
+) -> TerminologycapabilitiesTranslation {
+  TerminologycapabilitiesTranslation(
+    needs_map:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TerminologyCapabilities#resource
 pub type TerminologycapabilitiesClosure {
   TerminologycapabilitiesClosure(
@@ -12657,6 +23197,15 @@ pub type TerminologycapabilitiesClosure {
     extension: List(Extension),
     modifier_extension: List(Extension),
     translation: Option(Bool),
+  )
+}
+
+pub fn terminologycapabilities_closure_new() -> TerminologycapabilitiesClosure {
+  TerminologycapabilitiesClosure(
+    translation: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12686,6 +23235,31 @@ pub type Testreport {
   )
 }
 
+pub fn testreport_new(result, test_script, status) -> Testreport {
+  Testreport(
+    teardown: None,
+    test_: [],
+    setup: None,
+    participant: [],
+    issued: None,
+    tester: None,
+    score: None,
+    result:,
+    test_script:,
+    status:,
+    name: None,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestReport#resource
 pub type TestreportParticipant {
   TestreportParticipant(
@@ -12695,6 +23269,17 @@ pub type TestreportParticipant {
     type_: r4bvaluesets.Reportparticipanttype,
     uri: String,
     display: Option(String),
+  )
+}
+
+pub fn testreport_participant_new(uri, type_) -> TestreportParticipant {
+  TestreportParticipant(
+    display: None,
+    uri:,
+    type_:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12708,6 +23293,10 @@ pub type TestreportSetup {
   )
 }
 
+pub fn testreport_setup_new() -> TestreportSetup {
+  TestreportSetup(action: [], modifier_extension: [], extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestReport#resource
 pub type TestreportSetupAction {
   TestreportSetupAction(
@@ -12716,6 +23305,16 @@ pub type TestreportSetupAction {
     modifier_extension: List(Extension),
     operation: Option(TestreportSetupActionOperation),
     assert_: Option(TestreportSetupActionAssert),
+  )
+}
+
+pub fn testreport_setup_action_new() -> TestreportSetupAction {
+  TestreportSetupAction(
+    assert_: None,
+    operation: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12731,6 +23330,19 @@ pub type TestreportSetupActionOperation {
   )
 }
 
+pub fn testreport_setup_action_operation_new(
+  result,
+) -> TestreportSetupActionOperation {
+  TestreportSetupActionOperation(
+    detail: None,
+    message: None,
+    result:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestReport#resource
 pub type TestreportSetupActionAssert {
   TestreportSetupActionAssert(
@@ -12740,6 +23352,17 @@ pub type TestreportSetupActionAssert {
     result: r4bvaluesets.Reportactionresultcodes,
     message: Option(String),
     detail: Option(String),
+  )
+}
+
+pub fn testreport_setup_action_assert_new(result) -> TestreportSetupActionAssert {
+  TestreportSetupActionAssert(
+    detail: None,
+    message: None,
+    result:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12755,6 +23378,17 @@ pub type TestreportTest {
   )
 }
 
+pub fn testreport_test_new() -> TestreportTest {
+  TestreportTest(
+    action: [],
+    description: None,
+    name: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestReport#resource
 pub type TestreportTestAction {
   TestreportTestAction(
@@ -12763,6 +23397,16 @@ pub type TestreportTestAction {
     modifier_extension: List(Extension),
     operation: Option(Nil),
     assert_: Option(Nil),
+  )
+}
+
+pub fn testreport_test_action_new() -> TestreportTestAction {
+  TestreportTestAction(
+    assert_: None,
+    operation: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12776,6 +23420,15 @@ pub type TestreportTeardown {
   )
 }
 
+pub fn testreport_teardown_new() -> TestreportTeardown {
+  TestreportTeardown(
+    action: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestReport#resource
 pub type TestreportTeardownAction {
   TestreportTeardownAction(
@@ -12783,6 +23436,15 @@ pub type TestreportTeardownAction {
     extension: List(Extension),
     modifier_extension: List(Extension),
     operation: Nil,
+  )
+}
+
+pub fn testreport_teardown_action_new(operation) -> TestreportTeardownAction {
+  TestreportTeardownAction(
+    operation:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12824,6 +23486,43 @@ pub type Testscript {
   )
 }
 
+pub fn testscript_new(status, name, url) -> Testscript {
+  Testscript(
+    teardown: None,
+    test_: [],
+    setup: None,
+    variable: [],
+    profile: [],
+    fixture: [],
+    metadata: None,
+    destination: [],
+    origin: [],
+    copyright: None,
+    purpose: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    title: None,
+    name:,
+    version: None,
+    identifier: None,
+    url:,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestScript#resource
 pub type TestscriptOrigin {
   TestscriptOrigin(
@@ -12832,6 +23531,16 @@ pub type TestscriptOrigin {
     modifier_extension: List(Extension),
     index: Int,
     profile: Coding,
+  )
+}
+
+pub fn testscript_origin_new(profile, index) -> TestscriptOrigin {
+  TestscriptOrigin(
+    profile:,
+    index:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12846,6 +23555,16 @@ pub type TestscriptDestination {
   )
 }
 
+pub fn testscript_destination_new(profile, index) -> TestscriptDestination {
+  TestscriptDestination(
+    profile:,
+    index:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestScript#resource
 pub type TestscriptMetadata {
   TestscriptMetadata(
@@ -12857,6 +23576,16 @@ pub type TestscriptMetadata {
   )
 }
 
+pub fn testscript_metadata_new() -> TestscriptMetadata {
+  TestscriptMetadata(
+    capability: [],
+    link: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestScript#resource
 pub type TestscriptMetadataLink {
   TestscriptMetadataLink(
@@ -12865,6 +23594,16 @@ pub type TestscriptMetadataLink {
     modifier_extension: List(Extension),
     url: String,
     description: Option(String),
+  )
+}
+
+pub fn testscript_metadata_link_new(url) -> TestscriptMetadataLink {
+  TestscriptMetadataLink(
+    description: None,
+    url:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12884,6 +23623,25 @@ pub type TestscriptMetadataCapability {
   )
 }
 
+pub fn testscript_metadata_capability_new(
+  capabilities,
+  validated,
+  required,
+) -> TestscriptMetadataCapability {
+  TestscriptMetadataCapability(
+    capabilities:,
+    link: [],
+    destination: None,
+    origin: [],
+    description: None,
+    validated:,
+    required:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestScript#resource
 pub type TestscriptFixture {
   TestscriptFixture(
@@ -12893,6 +23651,17 @@ pub type TestscriptFixture {
     autocreate: Bool,
     autodelete: Bool,
     resource: Option(Reference),
+  )
+}
+
+pub fn testscript_fixture_new(autodelete, autocreate) -> TestscriptFixture {
+  TestscriptFixture(
+    resource: None,
+    autodelete:,
+    autocreate:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12913,6 +23682,22 @@ pub type TestscriptVariable {
   )
 }
 
+pub fn testscript_variable_new(name) -> TestscriptVariable {
+  TestscriptVariable(
+    source_id: None,
+    path: None,
+    hint: None,
+    header_field: None,
+    expression: None,
+    description: None,
+    default_value: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestScript#resource
 pub type TestscriptSetup {
   TestscriptSetup(
@@ -12923,6 +23708,10 @@ pub type TestscriptSetup {
   )
 }
 
+pub fn testscript_setup_new() -> TestscriptSetup {
+  TestscriptSetup(action: [], modifier_extension: [], extension: [], id: None)
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestScript#resource
 pub type TestscriptSetupAction {
   TestscriptSetupAction(
@@ -12931,6 +23720,16 @@ pub type TestscriptSetupAction {
     modifier_extension: List(Extension),
     operation: Option(TestscriptSetupActionOperation),
     assert_: Option(TestscriptSetupActionAssert),
+  )
+}
+
+pub fn testscript_setup_action_new() -> TestscriptSetupAction {
+  TestscriptSetupAction(
+    assert_: None,
+    operation: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -12960,6 +23759,33 @@ pub type TestscriptSetupActionOperation {
   )
 }
 
+pub fn testscript_setup_action_operation_new(
+  encode_request_url,
+) -> TestscriptSetupActionOperation {
+  TestscriptSetupActionOperation(
+    url: None,
+    target_id: None,
+    source_id: None,
+    response_id: None,
+    request_id: None,
+    request_header: [],
+    params: None,
+    origin: None,
+    method: None,
+    encode_request_url:,
+    destination: None,
+    content_type: None,
+    accept: None,
+    description: None,
+    label: None,
+    resource: None,
+    type_: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestScript#resource
 pub type TestscriptSetupActionOperationRequestheader {
   TestscriptSetupActionOperationRequestheader(
@@ -12968,6 +23794,19 @@ pub type TestscriptSetupActionOperationRequestheader {
     modifier_extension: List(Extension),
     field: String,
     value: String,
+  )
+}
+
+pub fn testscript_setup_action_operation_requestheader_new(
+  value,
+  field,
+) -> TestscriptSetupActionOperationRequestheader {
+  TestscriptSetupActionOperationRequestheader(
+    value:,
+    field:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -13002,6 +23841,38 @@ pub type TestscriptSetupActionAssert {
   )
 }
 
+pub fn testscript_setup_action_assert_new(
+  warning_only,
+) -> TestscriptSetupActionAssert {
+  TestscriptSetupActionAssert(
+    warning_only:,
+    value: None,
+    validate_profile_id: None,
+    source_id: None,
+    response_code: None,
+    response: None,
+    resource: None,
+    request_url: None,
+    request_method: None,
+    path: None,
+    operator: None,
+    navigation_links: None,
+    minimum_id: None,
+    header_field: None,
+    expression: None,
+    content_type: None,
+    compare_to_source_path: None,
+    compare_to_source_expression: None,
+    compare_to_source_id: None,
+    direction: None,
+    description: None,
+    label: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestScript#resource
 pub type TestscriptTest {
   TestscriptTest(
@@ -13011,6 +23882,17 @@ pub type TestscriptTest {
     name: Option(String),
     description: Option(String),
     action: List(TestscriptTestAction),
+  )
+}
+
+pub fn testscript_test_new() -> TestscriptTest {
+  TestscriptTest(
+    action: [],
+    description: None,
+    name: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -13025,6 +23907,16 @@ pub type TestscriptTestAction {
   )
 }
 
+pub fn testscript_test_action_new() -> TestscriptTestAction {
+  TestscriptTestAction(
+    assert_: None,
+    operation: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestScript#resource
 pub type TestscriptTeardown {
   TestscriptTeardown(
@@ -13035,6 +23927,15 @@ pub type TestscriptTeardown {
   )
 }
 
+pub fn testscript_teardown_new() -> TestscriptTeardown {
+  TestscriptTeardown(
+    action: [],
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/TestScript#resource
 pub type TestscriptTeardownAction {
   TestscriptTeardownAction(
@@ -13042,6 +23943,15 @@ pub type TestscriptTeardownAction {
     extension: List(Extension),
     modifier_extension: List(Extension),
     operation: Nil,
+  )
+}
+
+pub fn testscript_teardown_action_new(operation) -> TestscriptTeardownAction {
+  TestscriptTeardownAction(
+    operation:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -13077,6 +23987,37 @@ pub type Valueset {
   )
 }
 
+pub fn valueset_new(status) -> Valueset {
+  Valueset(
+    expansion: None,
+    compose: None,
+    copyright: None,
+    purpose: None,
+    immutable: None,
+    jurisdiction: [],
+    use_context: [],
+    description: None,
+    contact: [],
+    publisher: None,
+    date: None,
+    experimental: None,
+    status:,
+    title: None,
+    name: None,
+    version: None,
+    identifier: [],
+    url: None,
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ValueSet#resource
 pub type ValuesetCompose {
   ValuesetCompose(
@@ -13087,6 +24028,18 @@ pub type ValuesetCompose {
     inactive: Option(Bool),
     include: List(ValuesetComposeInclude),
     exclude: List(Nil),
+  )
+}
+
+pub fn valueset_compose_new() -> ValuesetCompose {
+  ValuesetCompose(
+    exclude: [],
+    include: [],
+    inactive: None,
+    locked_date: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -13104,6 +24057,19 @@ pub type ValuesetComposeInclude {
   )
 }
 
+pub fn valueset_compose_include_new() -> ValuesetComposeInclude {
+  ValuesetComposeInclude(
+    value_set: [],
+    filter: [],
+    concept: [],
+    version: None,
+    system: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ValueSet#resource
 pub type ValuesetComposeIncludeConcept {
   ValuesetComposeIncludeConcept(
@@ -13113,6 +24079,19 @@ pub type ValuesetComposeIncludeConcept {
     code: String,
     display: Option(String),
     designation: List(ValuesetComposeIncludeConceptDesignation),
+  )
+}
+
+pub fn valueset_compose_include_concept_new(
+  code,
+) -> ValuesetComposeIncludeConcept {
+  ValuesetComposeIncludeConcept(
+    designation: [],
+    display: None,
+    code:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -13128,6 +24107,19 @@ pub type ValuesetComposeIncludeConceptDesignation {
   )
 }
 
+pub fn valueset_compose_include_concept_designation_new(
+  value,
+) -> ValuesetComposeIncludeConceptDesignation {
+  ValuesetComposeIncludeConceptDesignation(
+    value:,
+    use_: None,
+    language: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ValueSet#resource
 pub type ValuesetComposeIncludeFilter {
   ValuesetComposeIncludeFilter(
@@ -13137,6 +24129,21 @@ pub type ValuesetComposeIncludeFilter {
     property: String,
     op: r4bvaluesets.Filteroperator,
     value: String,
+  )
+}
+
+pub fn valueset_compose_include_filter_new(
+  value,
+  op,
+  property,
+) -> ValuesetComposeIncludeFilter {
+  ValuesetComposeIncludeFilter(
+    value:,
+    op:,
+    property:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -13152,6 +24159,20 @@ pub type ValuesetExpansion {
     offset: Option(Int),
     parameter: List(ValuesetExpansionParameter),
     contains: List(ValuesetExpansionContains),
+  )
+}
+
+pub fn valueset_expansion_new(timestamp) -> ValuesetExpansion {
+  ValuesetExpansion(
+    contains: [],
+    parameter: [],
+    offset: None,
+    total: None,
+    timestamp:,
+    identifier: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -13177,6 +24198,16 @@ pub type ValuesetExpansionParameterValue {
   ValuesetExpansionParameterValueDatetime(value: String)
 }
 
+pub fn valueset_expansion_parameter_new(name) -> ValuesetExpansionParameter {
+  ValuesetExpansionParameter(
+    value: None,
+    name:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/ValueSet#resource
 pub type ValuesetExpansionContains {
   ValuesetExpansionContains(
@@ -13191,6 +24222,22 @@ pub type ValuesetExpansionContains {
     display: Option(String),
     designation: List(Nil),
     contains: List(Nil),
+  )
+}
+
+pub fn valueset_expansion_contains_new() -> ValuesetExpansionContains {
+  ValuesetExpansionContains(
+    contains: [],
+    designation: [],
+    display: None,
+    code: None,
+    version: None,
+    inactive: None,
+    abstract: None,
+    system: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -13222,6 +24269,33 @@ pub type Verificationresult {
   )
 }
 
+pub fn verificationresult_new(status) -> Verificationresult {
+  Verificationresult(
+    validator: [],
+    attestation: None,
+    primary_source: [],
+    failure_action: None,
+    next_scheduled: None,
+    last_performed: None,
+    frequency: None,
+    validation_process: [],
+    validation_type: None,
+    status_date: None,
+    status:,
+    need: None,
+    target_location: [],
+    target: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/VerificationResult#resource
 pub type VerificationresultPrimarysource {
   VerificationresultPrimarysource(
@@ -13235,6 +24309,21 @@ pub type VerificationresultPrimarysource {
     validation_date: Option(String),
     can_push_updates: Option(Codeableconcept),
     push_type_available: List(Codeableconcept),
+  )
+}
+
+pub fn verificationresult_primarysource_new() -> VerificationresultPrimarysource {
+  VerificationresultPrimarysource(
+    push_type_available: [],
+    can_push_updates: None,
+    validation_date: None,
+    validation_status: None,
+    communication_method: [],
+    type_: [],
+    who: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -13255,6 +24344,22 @@ pub type VerificationresultAttestation {
   )
 }
 
+pub fn verificationresult_attestation_new() -> VerificationresultAttestation {
+  VerificationresultAttestation(
+    source_signature: None,
+    proxy_signature: None,
+    proxy_identity_certificate: None,
+    source_identity_certificate: None,
+    date: None,
+    communication_method: None,
+    on_behalf_of: None,
+    who: None,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/VerificationResult#resource
 pub type VerificationresultValidator {
   VerificationresultValidator(
@@ -13264,6 +24369,19 @@ pub type VerificationresultValidator {
     organization: Reference,
     identity_certificate: Option(String),
     attestation_signature: Option(Signature),
+  )
+}
+
+pub fn verificationresult_validator_new(
+  organization,
+) -> VerificationresultValidator {
+  VerificationresultValidator(
+    attestation_signature: None,
+    identity_certificate: None,
+    organization:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
 
@@ -13286,6 +24404,33 @@ pub type Visionprescription {
     date_written: String,
     prescriber: Reference,
     lens_specification: List(VisionprescriptionLensspecification),
+  )
+}
+
+pub fn visionprescription_new(
+  prescriber,
+  date_written,
+  patient,
+  created,
+  status,
+) -> Visionprescription {
+  Visionprescription(
+    lens_specification: [],
+    prescriber:,
+    date_written:,
+    encounter: None,
+    patient:,
+    created:,
+    status:,
+    identifier: [],
+    modifier_extension: [],
+    extension: [],
+    contained: [],
+    text: None,
+    language: None,
+    implicit_rules: None,
+    meta: None,
+    id: None,
   )
 }
 
@@ -13312,6 +24457,31 @@ pub type VisionprescriptionLensspecification {
   )
 }
 
+pub fn visionprescription_lensspecification_new(
+  eye,
+  product,
+) -> VisionprescriptionLensspecification {
+  VisionprescriptionLensspecification(
+    note: [],
+    brand: None,
+    color: None,
+    duration: None,
+    diameter: None,
+    back_curve: None,
+    power: None,
+    add: None,
+    prism: [],
+    axis: None,
+    cylinder: None,
+    sphere: None,
+    eye:,
+    product:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
+  )
+}
+
 ///http://hl7.org/fhir/r4b/StructureDefinition/VisionPrescription#resource
 pub type VisionprescriptionLensspecificationPrism {
   VisionprescriptionLensspecificationPrism(
@@ -13320,5 +24490,18 @@ pub type VisionprescriptionLensspecificationPrism {
     modifier_extension: List(Extension),
     amount: Float,
     base: r4bvaluesets.Visionbasecodes,
+  )
+}
+
+pub fn visionprescription_lensspecification_prism_new(
+  base,
+  amount,
+) -> VisionprescriptionLensspecificationPrism {
+  VisionprescriptionLensspecificationPrism(
+    base:,
+    amount:,
+    modifier_extension: [],
+    extension: [],
+    id: None,
   )
 }
