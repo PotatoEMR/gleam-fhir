@@ -90,7 +90,7 @@ pub type AnnotationAuthor {
   AnnotationAuthorString(author: String)
 }
 
-pub fn annotation_new(text) -> Annotation {
+pub fn annotation_new(text text: String) -> Annotation {
   Annotation(text:, time: None, author: None, extension: [], id: None)
 }
 
@@ -270,7 +270,10 @@ pub type Contributor {
   )
 }
 
-pub fn contributor_new(name, type_) -> Contributor {
+pub fn contributor_new(
+  name name: String,
+  type_ type_: r5valuesets.Contributortype,
+) -> Contributor {
   Contributor(contact: [], name:, type_:, extension: [], id: None)
 }
 
@@ -322,7 +325,9 @@ pub type DatarequirementSubject {
   DatarequirementSubjectReference(subject: Reference)
 }
 
-pub fn datarequirement_new(type_) -> Datarequirement {
+pub fn datarequirement_new(
+  type_ type_: r5valuesets.Fhirtypes,
+) -> Datarequirement {
   Datarequirement(
     sort: [],
     limit: None,
@@ -697,7 +702,7 @@ pub type ElementdefinitionMaxvalue {
   ElementdefinitionMaxvalueQuantity(max_value: Quantity)
 }
 
-pub fn elementdefinition_new(path) -> Elementdefinition {
+pub fn elementdefinition_new(path path: String) -> Elementdefinition {
   Elementdefinition(
     mapping: [],
     binding: None,
@@ -861,7 +866,7 @@ pub type ExtensionValue {
   ExtensionValueMeta(value: Meta)
 }
 
-pub fn extension_new(url) -> Extension {
+pub fn extension_new(url url: String) -> Extension {
   Extension(value: None, url:, extension: [], id: None)
 }
 
@@ -935,7 +940,7 @@ pub type Marketingstatus {
   )
 }
 
-pub fn marketingstatus_new(status) -> Marketingstatus {
+pub fn marketingstatus_new(status status: Codeableconcept) -> Marketingstatus {
   Marketingstatus(
     restore_date: None,
     date_range: None,
@@ -987,7 +992,9 @@ pub type Monetarycomponent {
   )
 }
 
-pub fn monetarycomponent_new(type_) -> Monetarycomponent {
+pub fn monetarycomponent_new(
+  type_ type_: r5valuesets.Pricecomponenttype,
+) -> Monetarycomponent {
   Monetarycomponent(
     amount: None,
     factor: None,
@@ -1022,7 +1029,10 @@ pub type Narrative {
   )
 }
 
-pub fn narrative_new(div, status) -> Narrative {
+pub fn narrative_new(
+  div div: String,
+  status status: r5valuesets.Narrativestatus,
+) -> Narrative {
   Narrative(div:, status:, extension: [], id: None)
 }
 
@@ -1041,7 +1051,10 @@ pub type Parameterdefinition {
   )
 }
 
-pub fn parameterdefinition_new(type_, use_) -> Parameterdefinition {
+pub fn parameterdefinition_new(
+  type_ type_: r5valuesets.Fhirtypes,
+  use_ use_: r5valuesets.Operationparameteruse,
+) -> Parameterdefinition {
   Parameterdefinition(
     profile: None,
     type_:,
@@ -1222,7 +1235,9 @@ pub type Relatedartifact {
   )
 }
 
-pub fn relatedartifact_new(type_) -> Relatedartifact {
+pub fn relatedartifact_new(
+  type_ type_: r5valuesets.Relatedartifacttype,
+) -> Relatedartifact {
   Relatedartifact(
     publication_date: None,
     publication_status: None,
@@ -1257,7 +1272,11 @@ pub type Sampleddata {
   )
 }
 
-pub fn sampleddata_new(dimensions, interval_unit, origin) -> Sampleddata {
+pub fn sampleddata_new(
+  dimensions dimensions: Int,
+  interval_unit interval_unit: String,
+  origin origin: Quantity,
+) -> Sampleddata {
   Sampleddata(
     data: None,
     offsets: None,
@@ -1349,7 +1368,9 @@ pub type TriggerdefinitionTiming {
   TriggerdefinitionTimingDatetime(timing: String)
 }
 
-pub fn triggerdefinition_new(type_) -> Triggerdefinition {
+pub fn triggerdefinition_new(
+  type_ type_: r5valuesets.Triggertype,
+) -> Triggerdefinition {
   Triggerdefinition(
     condition: None,
     data: [],
@@ -1381,7 +1402,10 @@ pub type UsagecontextValue {
   UsagecontextValueReference(value: Reference)
 }
 
-pub fn usagecontext_new(value, code) -> Usagecontext {
+pub fn usagecontext_new(
+  value value: UsagecontextValue,
+  code code: Coding,
+) -> Usagecontext {
   Usagecontext(value:, code:, extension: [], id: None)
 }
 
@@ -1513,7 +1537,7 @@ pub type Account {
   )
 }
 
-pub fn account_new(status) -> Account {
+pub fn account_new(status status: r5valuesets.Accountstatus) -> Account {
   Account(
     calculated_at: None,
     balance: [],
@@ -1554,7 +1578,7 @@ pub type AccountCoverage {
   )
 }
 
-pub fn account_coverage_new(coverage) -> AccountCoverage {
+pub fn account_coverage_new(coverage coverage: Reference) -> AccountCoverage {
   AccountCoverage(
     priority: None,
     coverage:,
@@ -1576,7 +1600,7 @@ pub type AccountGuarantor {
   )
 }
 
-pub fn account_guarantor_new(party) -> AccountGuarantor {
+pub fn account_guarantor_new(party party: Reference) -> AccountGuarantor {
   AccountGuarantor(
     period: None,
     on_hold: None,
@@ -1602,7 +1626,9 @@ pub type AccountDiagnosis {
   )
 }
 
-pub fn account_diagnosis_new(condition) -> AccountDiagnosis {
+pub fn account_diagnosis_new(
+  condition condition: Codeablereference,
+) -> AccountDiagnosis {
   AccountDiagnosis(
     package_code: [],
     on_admission: None,
@@ -1631,7 +1657,7 @@ pub type AccountProcedure {
   )
 }
 
-pub fn account_procedure_new(code) -> AccountProcedure {
+pub fn account_procedure_new(code code: Codeablereference) -> AccountProcedure {
   AccountProcedure(
     device: [],
     package_code: [],
@@ -1656,7 +1682,9 @@ pub type AccountRelatedaccount {
   )
 }
 
-pub fn account_relatedaccount_new(account) -> AccountRelatedaccount {
+pub fn account_relatedaccount_new(
+  account account: Reference,
+) -> AccountRelatedaccount {
   AccountRelatedaccount(
     account:,
     relationship: None,
@@ -1679,7 +1707,7 @@ pub type AccountBalance {
   )
 }
 
-pub fn account_balance_new(amount) -> AccountBalance {
+pub fn account_balance_new(amount amount: Money) -> AccountBalance {
   AccountBalance(
     amount:,
     estimate: None,
@@ -1787,7 +1815,9 @@ pub type ActivitydefinitionProduct {
   ActivitydefinitionProductCodeableconcept(product: Codeableconcept)
 }
 
-pub fn activitydefinition_new(status) -> Activitydefinition {
+pub fn activitydefinition_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Activitydefinition {
   Activitydefinition(
     dynamic_value: [],
     transform: None,
@@ -1888,8 +1918,8 @@ pub type ActivitydefinitionDynamicvalue {
 }
 
 pub fn activitydefinition_dynamicvalue_new(
-  expression,
-  path,
+  expression expression: Expression,
+  path path: String,
 ) -> ActivitydefinitionDynamicvalue {
   ActivitydefinitionDynamicvalue(
     expression:,
@@ -1942,7 +1972,10 @@ pub type ActordefinitionVersionalgorithm {
   ActordefinitionVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn actordefinition_new(type_, status) -> Actordefinition {
+pub fn actordefinition_new(
+  type_ type_: r5valuesets.Examplescenarioactortype,
+  status status: r5valuesets.Publicationstatus,
+) -> Actordefinition {
   Actordefinition(
     derived_from: [],
     capabilities: None,
@@ -2005,7 +2038,7 @@ pub type Administrableproductdefinition {
 }
 
 pub fn administrableproductdefinition_new(
-  status,
+  status status: r5valuesets.Publicationstatus,
 ) -> Administrableproductdefinition {
   Administrableproductdefinition(
     route_of_administration: [],
@@ -2056,7 +2089,7 @@ pub type AdministrableproductdefinitionPropertyValue {
 }
 
 pub fn administrableproductdefinition_property_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> AdministrableproductdefinitionProperty {
   AdministrableproductdefinitionProperty(
     status: None,
@@ -2087,7 +2120,7 @@ pub type AdministrableproductdefinitionRouteofadministration {
 }
 
 pub fn administrableproductdefinition_routeofadministration_new(
-  code,
+  code code: Codeableconcept,
 ) -> AdministrableproductdefinitionRouteofadministration {
   AdministrableproductdefinitionRouteofadministration(
     target_species: [],
@@ -2117,7 +2150,7 @@ pub type AdministrableproductdefinitionRouteofadministrationTargetspecies {
 }
 
 pub fn administrableproductdefinition_routeofadministration_targetspecies_new(
-  code,
+  code code: Codeableconcept,
 ) -> AdministrableproductdefinitionRouteofadministrationTargetspecies {
   AdministrableproductdefinitionRouteofadministrationTargetspecies(
     withdrawal_period: [],
@@ -2141,8 +2174,8 @@ pub type AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdra
 }
 
 pub fn administrableproductdefinition_routeofadministration_targetspecies_withdrawalperiod_new(
-  value,
-  tissue,
+  value value: Quantity,
+  tissue tissue: Codeableconcept,
 ) -> AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdrawalperiod {
   AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdrawalperiod(
     supporting_information: None,
@@ -2199,7 +2232,11 @@ pub type AdverseeventOccurrence {
   AdverseeventOccurrenceTiming(occurrence: Timing)
 }
 
-pub fn adverseevent_new(subject, actuality, status) -> Adverseevent {
+pub fn adverseevent_new(
+  subject subject: Reference,
+  actuality actuality: r5valuesets.Adverseeventactuality,
+  status status: r5valuesets.Adverseeventstatus,
+) -> Adverseevent {
   Adverseevent(
     note: [],
     supporting_info: [],
@@ -2247,7 +2284,9 @@ pub type AdverseeventParticipant {
   )
 }
 
-pub fn adverseevent_participant_new(actor) -> AdverseeventParticipant {
+pub fn adverseevent_participant_new(
+  actor actor: Reference,
+) -> AdverseeventParticipant {
   AdverseeventParticipant(
     actor:,
     function: None,
@@ -2274,7 +2313,9 @@ pub type AdverseeventSuspectentityInstance {
   AdverseeventSuspectentityInstanceReference(instance: Reference)
 }
 
-pub fn adverseevent_suspectentity_new(instance) -> AdverseeventSuspectentity {
+pub fn adverseevent_suspectentity_new(
+  instance instance: AdverseeventSuspectentityInstance,
+) -> AdverseeventSuspectentity {
   AdverseeventSuspectentity(
     causality: None,
     instance:,
@@ -2324,7 +2365,7 @@ pub type AdverseeventContributingfactorItem {
 }
 
 pub fn adverseevent_contributingfactor_new(
-  item,
+  item item: AdverseeventContributingfactorItem,
 ) -> AdverseeventContributingfactor {
   AdverseeventContributingfactor(
     item:,
@@ -2350,7 +2391,9 @@ pub type AdverseeventPreventiveactionItem {
   AdverseeventPreventiveactionItemCodeableconcept(item: Codeableconcept)
 }
 
-pub fn adverseevent_preventiveaction_new(item) -> AdverseeventPreventiveaction {
+pub fn adverseevent_preventiveaction_new(
+  item item: AdverseeventPreventiveactionItem,
+) -> AdverseeventPreventiveaction {
   AdverseeventPreventiveaction(
     item:,
     modifier_extension: [],
@@ -2375,7 +2418,9 @@ pub type AdverseeventMitigatingactionItem {
   AdverseeventMitigatingactionItemCodeableconcept(item: Codeableconcept)
 }
 
-pub fn adverseevent_mitigatingaction_new(item) -> AdverseeventMitigatingaction {
+pub fn adverseevent_mitigatingaction_new(
+  item item: AdverseeventMitigatingactionItem,
+) -> AdverseeventMitigatingaction {
   AdverseeventMitigatingaction(
     item:,
     modifier_extension: [],
@@ -2400,7 +2445,9 @@ pub type AdverseeventSupportinginfoItem {
   AdverseeventSupportinginfoItemCodeableconcept(item: Codeableconcept)
 }
 
-pub fn adverseevent_supportinginfo_new(item) -> AdverseeventSupportinginfo {
+pub fn adverseevent_supportinginfo_new(
+  item item: AdverseeventSupportinginfoItem,
+) -> AdverseeventSupportinginfo {
   AdverseeventSupportinginfo(
     item:,
     modifier_extension: [],
@@ -2447,7 +2494,7 @@ pub type AllergyintoleranceOnset {
   AllergyintoleranceOnsetString(onset: String)
 }
 
-pub fn allergyintolerance_new(patient) -> Allergyintolerance {
+pub fn allergyintolerance_new(patient patient: Reference) -> Allergyintolerance {
   Allergyintolerance(
     reaction: [],
     note: [],
@@ -2487,7 +2534,7 @@ pub type AllergyintoleranceParticipant {
 }
 
 pub fn allergyintolerance_participant_new(
-  actor,
+  actor actor: Reference,
 ) -> AllergyintoleranceParticipant {
   AllergyintoleranceParticipant(
     actor:,
@@ -2575,7 +2622,9 @@ pub type Appointment {
   )
 }
 
-pub fn appointment_new(status) -> Appointment {
+pub fn appointment_new(
+  status status: r5valuesets.Appointmentstatus,
+) -> Appointment {
   Appointment(
     recurrence_template: [],
     occurrence_changed: None,
@@ -2634,7 +2683,9 @@ pub type AppointmentParticipant {
   )
 }
 
-pub fn appointment_participant_new(status) -> AppointmentParticipant {
+pub fn appointment_participant_new(
+  status status: r5valuesets.Participationstatus,
+) -> AppointmentParticipant {
   AppointmentParticipant(
     status:,
     required: None,
@@ -2667,7 +2718,7 @@ pub type AppointmentRecurrencetemplate {
 }
 
 pub fn appointment_recurrencetemplate_new(
-  recurrence_type,
+  recurrence_type recurrence_type: Codeableconcept,
 ) -> AppointmentRecurrencetemplate {
   AppointmentRecurrencetemplate(
     excluding_recurrence_id: [],
@@ -2733,7 +2784,7 @@ pub type AppointmentRecurrencetemplateMonthlytemplate {
 }
 
 pub fn appointment_recurrencetemplate_monthlytemplate_new(
-  month_interval,
+  month_interval month_interval: Int,
 ) -> AppointmentRecurrencetemplateMonthlytemplate {
   AppointmentRecurrencetemplateMonthlytemplate(
     month_interval:,
@@ -2757,7 +2808,7 @@ pub type AppointmentRecurrencetemplateYearlytemplate {
 }
 
 pub fn appointment_recurrencetemplate_yearlytemplate_new(
-  year_interval,
+  year_interval year_interval: Int,
 ) -> AppointmentRecurrencetemplateYearlytemplate {
   AppointmentRecurrencetemplateYearlytemplate(
     year_interval:,
@@ -2794,8 +2845,8 @@ pub type Appointmentresponse {
 }
 
 pub fn appointmentresponse_new(
-  participant_status,
-  appointment,
+  participant_status participant_status: r5valuesets.Appointmentresponsestatus,
+  appointment appointment: Reference,
 ) -> Appointmentresponse {
   Appointmentresponse(
     recurrence_id: None,
@@ -2859,7 +2910,9 @@ pub type ArtifactassessmentArtifact {
   ArtifactassessmentArtifactUri(artifact: String)
 }
 
-pub fn artifactassessment_new(artifact) -> Artifactassessment {
+pub fn artifactassessment_new(
+  artifact artifact: ArtifactassessmentArtifact,
+) -> Artifactassessment {
   Artifactassessment(
     disposition: None,
     workflow_status: None,
@@ -2954,7 +3007,11 @@ pub type AuditeventOccurred {
   AuditeventOccurredDatetime(occurred: String)
 }
 
-pub fn auditevent_new(source, recorded, code) -> Auditevent {
+pub fn auditevent_new(
+  source source: AuditeventSource,
+  recorded recorded: String,
+  code code: Codeableconcept,
+) -> Auditevent {
   Auditevent(
     entity: [],
     source:,
@@ -2992,7 +3049,7 @@ pub type AuditeventOutcome {
   )
 }
 
-pub fn auditevent_outcome_new(code) -> AuditeventOutcome {
+pub fn auditevent_outcome_new(code code: Coding) -> AuditeventOutcome {
   AuditeventOutcome(
     detail: [],
     code:,
@@ -3026,7 +3083,7 @@ pub type AuditeventAgentNetwork {
   AuditeventAgentNetworkString(network: String)
 }
 
-pub fn auditevent_agent_new(who) -> AuditeventAgent {
+pub fn auditevent_agent_new(who who: Reference) -> AuditeventAgent {
   AuditeventAgent(
     authorization: [],
     network: None,
@@ -3054,7 +3111,7 @@ pub type AuditeventSource {
   )
 }
 
-pub fn auditevent_source_new(observer) -> AuditeventSource {
+pub fn auditevent_source_new(observer observer: Reference) -> AuditeventSource {
   AuditeventSource(
     type_: [],
     observer:,
@@ -3120,7 +3177,10 @@ pub type AuditeventEntityDetailValue {
   AuditeventEntityDetailValueBase64binary(value: String)
 }
 
-pub fn auditevent_entity_detail_new(value, type_) -> AuditeventEntityDetail {
+pub fn auditevent_entity_detail_new(
+  value value: AuditeventEntityDetailValue,
+  type_ type_: Codeableconcept,
+) -> AuditeventEntityDetail {
   AuditeventEntityDetail(
     value:,
     type_:,
@@ -3149,7 +3209,7 @@ pub type Basic {
   )
 }
 
-pub fn basic_new(code) -> Basic {
+pub fn basic_new(code code: Codeableconcept) -> Basic {
   Basic(
     author: None,
     created: None,
@@ -3180,7 +3240,7 @@ pub type Binary {
   )
 }
 
-pub fn binary_new(content_type) -> Binary {
+pub fn binary_new(content_type content_type: String) -> Binary {
   Binary(
     data: None,
     security_context: None,
@@ -3299,8 +3359,8 @@ pub type BiologicallyderivedproductPropertyValue {
 }
 
 pub fn biologicallyderivedproduct_property_new(
-  value,
-  type_,
+  value value: BiologicallyderivedproductPropertyValue,
+  type_ type_: Codeableconcept,
 ) -> BiologicallyderivedproductProperty {
   BiologicallyderivedproductProperty(
     value:,
@@ -3342,9 +3402,9 @@ pub type Biologicallyderivedproductdispense {
 }
 
 pub fn biologicallyderivedproductdispense_new(
-  patient,
-  product,
-  status,
+  patient patient: Reference,
+  product product: Reference,
+  status status: r5valuesets.Biologicallyderivedproductdispensestatus,
 ) -> Biologicallyderivedproductdispense {
   Biologicallyderivedproductdispense(
     usage_instruction: None,
@@ -3386,7 +3446,7 @@ pub type BiologicallyderivedproductdispensePerformer {
 }
 
 pub fn biologicallyderivedproductdispense_performer_new(
-  actor,
+  actor actor: Reference,
 ) -> BiologicallyderivedproductdispensePerformer {
   BiologicallyderivedproductdispensePerformer(
     actor:,
@@ -3419,7 +3479,7 @@ pub type Bodystructure {
   )
 }
 
-pub fn bodystructure_new(patient) -> Bodystructure {
+pub fn bodystructure_new(patient patient: Reference) -> Bodystructure {
   Bodystructure(
     patient:,
     image: [],
@@ -3457,7 +3517,7 @@ pub type BodystructureIncludedstructure {
 }
 
 pub fn bodystructure_includedstructure_new(
-  structure,
+  structure structure: Codeableconcept,
 ) -> BodystructureIncludedstructure {
   BodystructureIncludedstructure(
     qualifier: [],
@@ -3537,7 +3597,7 @@ pub type Bundle {
   )
 }
 
-pub fn bundle_new(type_) -> Bundle {
+pub fn bundle_new(type_ type_: r5valuesets.Bundletype) -> Bundle {
   Bundle(
     issues: None,
     signature: None,
@@ -3565,7 +3625,10 @@ pub type BundleLink {
   )
 }
 
-pub fn bundle_link_new(url, relation) -> BundleLink {
+pub fn bundle_link_new(
+  url url: String,
+  relation relation: r5valuesets.Ianalinkrelations,
+) -> BundleLink {
   BundleLink(url:, relation:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -3634,7 +3697,10 @@ pub type BundleEntryRequest {
   )
 }
 
-pub fn bundle_entry_request_new(url, method) -> BundleEntryRequest {
+pub fn bundle_entry_request_new(
+  url url: String,
+  method method: r5valuesets.Httpverb,
+) -> BundleEntryRequest {
   BundleEntryRequest(
     if_none_exist: None,
     if_match: None,
@@ -3662,7 +3728,7 @@ pub type BundleEntryResponse {
   )
 }
 
-pub fn bundle_entry_response_new(status) -> BundleEntryResponse {
+pub fn bundle_entry_response_new(status status: String) -> BundleEntryResponse {
   BundleEntryResponse(
     outcome: None,
     last_modified: None,
@@ -3712,7 +3778,9 @@ pub type CanonicalresourceVersionalgorithm {
   CanonicalresourceVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn canonicalresource_new(status) -> Canonicalresource {
+pub fn canonicalresource_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Canonicalresource {
   Canonicalresource(
     copyright_label: None,
     copyright: None,
@@ -3793,10 +3861,10 @@ pub type CapabilitystatementVersionalgorithm {
 }
 
 pub fn capabilitystatement_new(
-  fhir_version,
-  kind,
-  date,
-  status,
+  fhir_version fhir_version: r5valuesets.Fhirversion,
+  kind kind: r5valuesets.Capabilitystatementkind,
+  date date: String,
+  status status: r5valuesets.Publicationstatus,
 ) -> Capabilitystatement {
   Capabilitystatement(
     document: [],
@@ -3852,7 +3920,9 @@ pub type CapabilitystatementSoftware {
   )
 }
 
-pub fn capabilitystatement_software_new(name) -> CapabilitystatementSoftware {
+pub fn capabilitystatement_software_new(
+  name name: String,
+) -> CapabilitystatementSoftware {
   CapabilitystatementSoftware(
     release_date: None,
     version: None,
@@ -3876,7 +3946,7 @@ pub type CapabilitystatementImplementation {
 }
 
 pub fn capabilitystatement_implementation_new(
-  description,
+  description description: String,
 ) -> CapabilitystatementImplementation {
   CapabilitystatementImplementation(
     custodian: None,
@@ -3905,7 +3975,9 @@ pub type CapabilitystatementRest {
   )
 }
 
-pub fn capabilitystatement_rest_new(mode) -> CapabilitystatementRest {
+pub fn capabilitystatement_rest_new(
+  mode mode: r5valuesets.Restfulcapabilitymode,
+) -> CapabilitystatementRest {
   CapabilitystatementRest(
     compartment: [],
     operation: [],
@@ -3972,7 +4044,7 @@ pub type CapabilitystatementRestResource {
 }
 
 pub fn capabilitystatement_rest_resource_new(
-  type_,
+  type_ type_: r5valuesets.Resourcetypes,
 ) -> CapabilitystatementRestResource {
   CapabilitystatementRestResource(
     operation: [],
@@ -4011,7 +4083,7 @@ pub type CapabilitystatementRestResourceInteraction {
 }
 
 pub fn capabilitystatement_rest_resource_interaction_new(
-  code,
+  code code: r5valuesets.Typerestfulinteraction,
 ) -> CapabilitystatementRestResourceInteraction {
   CapabilitystatementRestResourceInteraction(
     documentation: None,
@@ -4036,8 +4108,8 @@ pub type CapabilitystatementRestResourceSearchparam {
 }
 
 pub fn capabilitystatement_rest_resource_searchparam_new(
-  type_,
-  name,
+  type_ type_: r5valuesets.Searchparamtype,
+  name name: String,
 ) -> CapabilitystatementRestResourceSearchparam {
   CapabilitystatementRestResourceSearchparam(
     documentation: None,
@@ -4063,8 +4135,8 @@ pub type CapabilitystatementRestResourceOperation {
 }
 
 pub fn capabilitystatement_rest_resource_operation_new(
-  definition,
-  name,
+  definition definition: String,
+  name name: String,
 ) -> CapabilitystatementRestResourceOperation {
   CapabilitystatementRestResourceOperation(
     documentation: None,
@@ -4088,7 +4160,7 @@ pub type CapabilitystatementRestInteraction {
 }
 
 pub fn capabilitystatement_rest_interaction_new(
-  code,
+  code code: r5valuesets.Systemrestfulinteraction,
 ) -> CapabilitystatementRestInteraction {
   CapabilitystatementRestInteraction(
     documentation: None,
@@ -4136,8 +4208,8 @@ pub type CapabilitystatementMessagingEndpoint {
 }
 
 pub fn capabilitystatement_messaging_endpoint_new(
-  address,
-  protocol,
+  address address: String,
+  protocol protocol: Coding,
 ) -> CapabilitystatementMessagingEndpoint {
   CapabilitystatementMessagingEndpoint(
     address:,
@@ -4160,8 +4232,8 @@ pub type CapabilitystatementMessagingSupportedmessage {
 }
 
 pub fn capabilitystatement_messaging_supportedmessage_new(
-  definition,
-  mode,
+  definition definition: String,
+  mode mode: r5valuesets.Eventcapabilitymode,
 ) -> CapabilitystatementMessagingSupportedmessage {
   CapabilitystatementMessagingSupportedmessage(
     definition:,
@@ -4185,8 +4257,8 @@ pub type CapabilitystatementDocument {
 }
 
 pub fn capabilitystatement_document_new(
-  profile,
-  mode,
+  profile profile: String,
+  mode mode: r5valuesets.Documentmode,
 ) -> CapabilitystatementDocument {
   CapabilitystatementDocument(
     profile:,
@@ -4235,7 +4307,11 @@ pub type Careplan {
   )
 }
 
-pub fn careplan_new(subject, intent, status) -> Careplan {
+pub fn careplan_new(
+  subject subject: Reference,
+  intent intent: r5valuesets.Careplanintent,
+  status status: r5valuesets.Requeststatus,
+) -> Careplan {
   Careplan(
     note: [],
     activity: [],
@@ -4421,7 +4497,11 @@ pub type ChargeitemOccurrence {
   ChargeitemOccurrenceTiming(occurrence: Timing)
 }
 
-pub fn chargeitem_new(subject, code, status) -> Chargeitem {
+pub fn chargeitem_new(
+  subject subject: Reference,
+  code code: Codeableconcept,
+  status status: r5valuesets.Chargeitemstatus,
+) -> Chargeitem {
   Chargeitem(
     supporting_information: [],
     note: [],
@@ -4471,7 +4551,7 @@ pub type ChargeitemPerformer {
   )
 }
 
-pub fn chargeitem_performer_new(actor) -> ChargeitemPerformer {
+pub fn chargeitem_performer_new(actor actor: Reference) -> ChargeitemPerformer {
   ChargeitemPerformer(
     actor:,
     function: None,
@@ -4527,7 +4607,9 @@ pub type ChargeitemdefinitionVersionalgorithm {
   ChargeitemdefinitionVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn chargeitemdefinition_new(status) -> Chargeitemdefinition {
+pub fn chargeitemdefinition_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Chargeitemdefinition {
   Chargeitemdefinition(
     property_group: [],
     applicability: [],
@@ -4661,7 +4743,7 @@ pub type CitationVersionalgorithm {
   CitationVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn citation_new(status) -> Citation {
+pub fn citation_new(status status: r5valuesets.Publicationstatus) -> Citation {
   Citation(
     cited_artifact: None,
     related_artifact: [],
@@ -4716,7 +4798,7 @@ pub type CitationSummary {
   )
 }
 
-pub fn citation_summary_new(text) -> CitationSummary {
+pub fn citation_summary_new(text text: String) -> CitationSummary {
   CitationSummary(
     text:,
     style: None,
@@ -4759,7 +4841,10 @@ pub type CitationStatusdate {
   )
 }
 
-pub fn citation_statusdate_new(period, activity) -> CitationStatusdate {
+pub fn citation_statusdate_new(
+  period period: Period,
+  activity activity: Codeableconcept,
+) -> CitationStatusdate {
   CitationStatusdate(
     period:,
     actual: None,
@@ -4828,7 +4913,9 @@ pub type CitationCitedartifactVersion {
   )
 }
 
-pub fn citation_citedartifact_version_new(value) -> CitationCitedartifactVersion {
+pub fn citation_citedartifact_version_new(
+  value value: String,
+) -> CitationCitedartifactVersion {
   CitationCitedartifactVersion(
     base_citation: None,
     value:,
@@ -4851,8 +4938,8 @@ pub type CitationCitedartifactStatusdate {
 }
 
 pub fn citation_citedartifact_statusdate_new(
-  period,
-  activity,
+  period period: Period,
+  activity activity: Codeableconcept,
 ) -> CitationCitedartifactStatusdate {
   CitationCitedartifactStatusdate(
     period:,
@@ -4876,7 +4963,9 @@ pub type CitationCitedartifactTitle {
   )
 }
 
-pub fn citation_citedartifact_title_new(text) -> CitationCitedartifactTitle {
+pub fn citation_citedartifact_title_new(
+  text text: String,
+) -> CitationCitedartifactTitle {
   CitationCitedartifactTitle(
     text:,
     language: None,
@@ -4901,7 +4990,7 @@ pub type CitationCitedartifactAbstract {
 }
 
 pub fn citation_citedartifact_abstract_new(
-  text,
+  text text: String,
 ) -> CitationCitedartifactAbstract {
   CitationCitedartifactAbstract(
     copyright: None,
@@ -4955,7 +5044,7 @@ pub type CitationCitedartifactRelatesto {
 }
 
 pub fn citation_citedartifact_relatesto_new(
-  type_,
+  type_ type_: r5valuesets.Relatedartifacttypeall,
 ) -> CitationCitedartifactRelatesto {
   CitationCitedartifactRelatesto(
     resource_reference: None,
@@ -5133,7 +5222,7 @@ pub type CitationCitedartifactContributorshipEntry {
 }
 
 pub fn citation_citedartifact_contributorship_entry_new(
-  contributor,
+  contributor contributor: Reference,
 ) -> CitationCitedartifactContributorshipEntry {
   CitationCitedartifactContributorshipEntry(
     ranking_order: None,
@@ -5162,7 +5251,7 @@ pub type CitationCitedartifactContributorshipEntryContributioninstance {
 }
 
 pub fn citation_citedartifact_contributorship_entry_contributioninstance_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> CitationCitedartifactContributorshipEntryContributioninstance {
   CitationCitedartifactContributorshipEntryContributioninstance(
     time: None,
@@ -5187,7 +5276,7 @@ pub type CitationCitedartifactContributorshipSummary {
 }
 
 pub fn citation_citedartifact_contributorship_summary_new(
-  value,
+  value value: String,
 ) -> CitationCitedartifactContributorshipSummary {
   CitationCitedartifactContributorshipSummary(
     value:,
@@ -5246,7 +5335,13 @@ pub type Claim {
   )
 }
 
-pub fn claim_new(created, patient, use_, type_, status) -> Claim {
+pub fn claim_new(
+  created created: String,
+  patient patient: Reference,
+  use_ use_: r5valuesets.Claimuse,
+  type_ type_: Codeableconcept,
+  status status: r5valuesets.Fmstatus,
+) -> Claim {
   Claim(
     total: None,
     item: [],
@@ -5325,7 +5420,7 @@ pub type ClaimPayee {
   )
 }
 
-pub fn claim_payee_new(type_) -> ClaimPayee {
+pub fn claim_payee_new(type_ type_: Codeableconcept) -> ClaimPayee {
   ClaimPayee(
     party: None,
     type_:,
@@ -5352,7 +5447,10 @@ pub type ClaimEventWhen {
   ClaimEventWhenPeriod(when: Period)
 }
 
-pub fn claim_event_new(when, type_) -> ClaimEvent {
+pub fn claim_event_new(
+  when when: ClaimEventWhen,
+  type_ type_: Codeableconcept,
+) -> ClaimEvent {
   ClaimEvent(when:, type_:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -5370,7 +5468,10 @@ pub type ClaimCareteam {
   )
 }
 
-pub fn claim_careteam_new(provider, sequence) -> ClaimCareteam {
+pub fn claim_careteam_new(
+  provider provider: Reference,
+  sequence sequence: Int,
+) -> ClaimCareteam {
   ClaimCareteam(
     specialty: None,
     role: None,
@@ -5414,7 +5515,10 @@ pub type ClaimSupportinginfoValue {
   ClaimSupportinginfoValueIdentifier(value: Identifier)
 }
 
-pub fn claim_supportinginfo_new(category, sequence) -> ClaimSupportinginfo {
+pub fn claim_supportinginfo_new(
+  category category: Codeableconcept,
+  sequence sequence: Int,
+) -> ClaimSupportinginfo {
   ClaimSupportinginfo(
     reason: None,
     value: None,
@@ -5447,7 +5551,10 @@ pub type ClaimDiagnosisDiagnosis {
   ClaimDiagnosisDiagnosisReference(diagnosis: Reference)
 }
 
-pub fn claim_diagnosis_new(diagnosis, sequence) -> ClaimDiagnosis {
+pub fn claim_diagnosis_new(
+  diagnosis diagnosis: ClaimDiagnosisDiagnosis,
+  sequence sequence: Int,
+) -> ClaimDiagnosis {
   ClaimDiagnosis(
     on_admission: None,
     type_: [],
@@ -5479,7 +5586,10 @@ pub type ClaimProcedureProcedure {
   ClaimProcedureProcedureReference(procedure: Reference)
 }
 
-pub fn claim_procedure_new(procedure, sequence) -> ClaimProcedure {
+pub fn claim_procedure_new(
+  procedure procedure: ClaimProcedureProcedure,
+  sequence sequence: Int,
+) -> ClaimProcedure {
   ClaimProcedure(
     udi: [],
     procedure:,
@@ -5508,7 +5618,11 @@ pub type ClaimInsurance {
   )
 }
 
-pub fn claim_insurance_new(coverage, focal, sequence) -> ClaimInsurance {
+pub fn claim_insurance_new(
+  coverage coverage: Reference,
+  focal focal: Bool,
+  sequence sequence: Int,
+) -> ClaimInsurance {
   ClaimInsurance(
     claim_response: None,
     pre_auth_ref: [],
@@ -5541,7 +5655,7 @@ pub type ClaimAccidentLocation {
   ClaimAccidentLocationReference(location: Reference)
 }
 
-pub fn claim_accident_new(date) -> ClaimAccident {
+pub fn claim_accident_new(date date: String) -> ClaimAccident {
   ClaimAccident(
     location: None,
     type_: None,
@@ -5599,7 +5713,7 @@ pub type ClaimItemLocation {
   ClaimItemLocationReference(location: Reference)
 }
 
-pub fn claim_item_new(sequence) -> ClaimItem {
+pub fn claim_item_new(sequence sequence: Int) -> ClaimItem {
   ClaimItem(
     detail: [],
     encounter: [],
@@ -5678,7 +5792,7 @@ pub type ClaimItemDetail {
   )
 }
 
-pub fn claim_item_detail_new(sequence) -> ClaimItemDetail {
+pub fn claim_item_detail_new(sequence sequence: Int) -> ClaimItemDetail {
   ClaimItemDetail(
     sub_detail: [],
     udi: [],
@@ -5726,7 +5840,9 @@ pub type ClaimItemDetailSubdetail {
   )
 }
 
-pub fn claim_item_detail_subdetail_new(sequence) -> ClaimItemDetailSubdetail {
+pub fn claim_item_detail_subdetail_new(
+  sequence sequence: Int,
+) -> ClaimItemDetailSubdetail {
   ClaimItemDetailSubdetail(
     udi: [],
     net: None,
@@ -5796,12 +5912,12 @@ pub type Claimresponse {
 }
 
 pub fn claimresponse_new(
-  outcome,
-  created,
-  patient,
-  use_,
-  type_,
-  status,
+  outcome outcome: r5valuesets.Claimoutcome,
+  created created: String,
+  patient patient: Reference,
+  use_ use_: r5valuesets.Claimuse,
+  type_ type_: Codeableconcept,
+  status status: r5valuesets.Fmstatus,
 ) -> Claimresponse {
   Claimresponse(
     error: [],
@@ -5864,7 +5980,10 @@ pub type ClaimresponseEventWhen {
   ClaimresponseEventWhenPeriod(when: Period)
 }
 
-pub fn claimresponse_event_new(when, type_) -> ClaimresponseEvent {
+pub fn claimresponse_event_new(
+  when when: ClaimresponseEventWhen,
+  type_ type_: Codeableconcept,
+) -> ClaimresponseEvent {
   ClaimresponseEvent(
     when:,
     type_:,
@@ -5889,7 +6008,9 @@ pub type ClaimresponseItem {
   )
 }
 
-pub fn claimresponse_item_new(item_sequence) -> ClaimresponseItem {
+pub fn claimresponse_item_new(
+  item_sequence item_sequence: Int,
+) -> ClaimresponseItem {
   ClaimresponseItem(
     detail: [],
     adjudication: [],
@@ -5942,7 +6063,7 @@ pub type ClaimresponseItemAdjudication {
 }
 
 pub fn claimresponse_item_adjudication_new(
-  category,
+  category category: Codeableconcept,
 ) -> ClaimresponseItemAdjudication {
   ClaimresponseItemAdjudication(
     quantity: None,
@@ -5970,7 +6091,9 @@ pub type ClaimresponseItemDetail {
   )
 }
 
-pub fn claimresponse_item_detail_new(detail_sequence) -> ClaimresponseItemDetail {
+pub fn claimresponse_item_detail_new(
+  detail_sequence detail_sequence: Int,
+) -> ClaimresponseItemDetail {
   ClaimresponseItemDetail(
     sub_detail: [],
     adjudication: [],
@@ -5999,7 +6122,7 @@ pub type ClaimresponseItemDetailSubdetail {
 }
 
 pub fn claimresponse_item_detail_subdetail_new(
-  sub_detail_sequence,
+  sub_detail_sequence sub_detail_sequence: Int,
 ) -> ClaimresponseItemDetailSubdetail {
   ClaimresponseItemDetailSubdetail(
     adjudication: [],
@@ -6209,7 +6332,10 @@ pub type ClaimresponseTotal {
   )
 }
 
-pub fn claimresponse_total_new(amount, category) -> ClaimresponseTotal {
+pub fn claimresponse_total_new(
+  amount amount: Money,
+  category category: Codeableconcept,
+) -> ClaimresponseTotal {
   ClaimresponseTotal(
     amount:,
     category:,
@@ -6234,7 +6360,10 @@ pub type ClaimresponsePayment {
   )
 }
 
-pub fn claimresponse_payment_new(amount, type_) -> ClaimresponsePayment {
+pub fn claimresponse_payment_new(
+  amount amount: Money,
+  type_ type_: Codeableconcept,
+) -> ClaimresponsePayment {
   ClaimresponsePayment(
     identifier: None,
     amount:,
@@ -6261,7 +6390,9 @@ pub type ClaimresponseProcessnote {
   )
 }
 
-pub fn claimresponse_processnote_new(text) -> ClaimresponseProcessnote {
+pub fn claimresponse_processnote_new(
+  text text: String,
+) -> ClaimresponseProcessnote {
   ClaimresponseProcessnote(
     language: None,
     text:,
@@ -6288,9 +6419,9 @@ pub type ClaimresponseInsurance {
 }
 
 pub fn claimresponse_insurance_new(
-  coverage,
-  focal,
-  sequence,
+  coverage coverage: Reference,
+  focal focal: Bool,
+  sequence sequence: Int,
 ) -> ClaimresponseInsurance {
   ClaimresponseInsurance(
     claim_response: None,
@@ -6318,7 +6449,7 @@ pub type ClaimresponseError {
   )
 }
 
-pub fn claimresponse_error_new(code) -> ClaimresponseError {
+pub fn claimresponse_error_new(code code: Codeableconcept) -> ClaimresponseError {
   ClaimresponseError(
     expression: [],
     code:,
@@ -6370,7 +6501,10 @@ pub type ClinicalimpressionEffective {
   ClinicalimpressionEffectivePeriod(effective: Period)
 }
 
-pub fn clinicalimpression_new(subject, status) -> Clinicalimpression {
+pub fn clinicalimpression_new(
+  subject subject: Reference,
+  status status: r5valuesets.Eventstatus,
+) -> Clinicalimpression {
   Clinicalimpression(
     note: [],
     supporting_info: [],
@@ -6449,7 +6583,9 @@ pub type Clinicalusedefinition {
   )
 }
 
-pub fn clinicalusedefinition_new(type_) -> Clinicalusedefinition {
+pub fn clinicalusedefinition_new(
+  type_ type_: r5valuesets.Clinicalusedefinitiontype,
+) -> Clinicalusedefinition {
   Clinicalusedefinition(
     warning: None,
     undesirable_effect: None,
@@ -6515,8 +6651,8 @@ pub type ClinicalusedefinitionContraindicationOthertherapy {
 }
 
 pub fn clinicalusedefinition_contraindication_othertherapy_new(
-  treatment,
-  relationship_type,
+  treatment treatment: Codeablereference,
+  relationship_type relationship_type: Codeableconcept,
 ) -> ClinicalusedefinitionContraindicationOthertherapy {
   ClinicalusedefinitionContraindicationOthertherapy(
     treatment:,
@@ -6612,7 +6748,7 @@ pub type ClinicalusedefinitionInteractionInteractantItem {
 }
 
 pub fn clinicalusedefinition_interaction_interactant_new(
-  item,
+  item item: ClinicalusedefinitionInteractionInteractantItem,
 ) -> ClinicalusedefinitionInteractionInteractant {
   ClinicalusedefinitionInteractionInteractant(
     item:,
@@ -6723,7 +6859,10 @@ pub type CodesystemVersionalgorithm {
   CodesystemVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn codesystem_new(content, status) -> Codesystem {
+pub fn codesystem_new(
+  content content: r5valuesets.Codesystemcontentmode,
+  status status: r5valuesets.Publicationstatus,
+) -> Codesystem {
   Codesystem(
     concept: [],
     property: [],
@@ -6786,7 +6925,10 @@ pub type CodesystemFilter {
   )
 }
 
-pub fn codesystem_filter_new(value, code) -> CodesystemFilter {
+pub fn codesystem_filter_new(
+  value value: String,
+  code code: String,
+) -> CodesystemFilter {
   CodesystemFilter(
     value:,
     operator: [],
@@ -6811,7 +6953,10 @@ pub type CodesystemProperty {
   )
 }
 
-pub fn codesystem_property_new(type_, code) -> CodesystemProperty {
+pub fn codesystem_property_new(
+  type_ type_: r5valuesets.Conceptpropertytype,
+  code code: String,
+) -> CodesystemProperty {
   CodesystemProperty(
     type_:,
     description: None,
@@ -6838,7 +6983,7 @@ pub type CodesystemConcept {
   )
 }
 
-pub fn codesystem_concept_new(code) -> CodesystemConcept {
+pub fn codesystem_concept_new(code code: String) -> CodesystemConcept {
   CodesystemConcept(
     concept: [],
     property: [],
@@ -6865,7 +7010,9 @@ pub type CodesystemConceptDesignation {
   )
 }
 
-pub fn codesystem_concept_designation_new(value) -> CodesystemConceptDesignation {
+pub fn codesystem_concept_designation_new(
+  value value: String,
+) -> CodesystemConceptDesignation {
   CodesystemConceptDesignation(
     value:,
     additional_use: [],
@@ -6899,7 +7046,10 @@ pub type CodesystemConceptPropertyValue {
   CodesystemConceptPropertyValueDecimal(value: Float)
 }
 
-pub fn codesystem_concept_property_new(value, code) -> CodesystemConceptProperty {
+pub fn codesystem_concept_property_new(
+  value value: CodesystemConceptPropertyValue,
+  code code: String,
+) -> CodesystemConceptProperty {
   CodesystemConceptProperty(
     value:,
     code:,
@@ -6945,7 +7095,9 @@ pub type Communication {
   )
 }
 
-pub fn communication_new(status) -> Communication {
+pub fn communication_new(
+  status status: r5valuesets.Eventstatus,
+) -> Communication {
   Communication(
     note: [],
     payload: [],
@@ -6997,7 +7149,9 @@ pub type CommunicationPayloadContent {
   CommunicationPayloadContentCodeableconcept(content: Codeableconcept)
 }
 
-pub fn communication_payload_new(content) -> CommunicationPayload {
+pub fn communication_payload_new(
+  content content: CommunicationPayloadContent,
+) -> CommunicationPayload {
   CommunicationPayload(
     content:,
     modifier_extension: [],
@@ -7048,7 +7202,10 @@ pub type CommunicationrequestOccurrence {
   CommunicationrequestOccurrencePeriod(occurrence: Period)
 }
 
-pub fn communicationrequest_new(intent, status) -> Communicationrequest {
+pub fn communicationrequest_new(
+  intent intent: r5valuesets.Requestintent,
+  status status: r5valuesets.Requeststatus,
+) -> Communicationrequest {
   Communicationrequest(
     note: [],
     reason: [],
@@ -7100,7 +7257,9 @@ pub type CommunicationrequestPayloadContent {
   CommunicationrequestPayloadContentCodeableconcept(content: Codeableconcept)
 }
 
-pub fn communicationrequest_payload_new(content) -> CommunicationrequestPayload {
+pub fn communicationrequest_payload_new(
+  content content: CommunicationrequestPayloadContent,
+) -> CommunicationrequestPayload {
   CommunicationrequestPayload(
     content:,
     modifier_extension: [],
@@ -7146,11 +7305,11 @@ pub type CompartmentdefinitionVersionalgorithm {
 }
 
 pub fn compartmentdefinition_new(
-  search,
-  code,
-  status,
-  name,
-  url,
+  search search: Bool,
+  code code: r5valuesets.Compartmenttype,
+  status status: r5valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
 ) -> Compartmentdefinition {
   Compartmentdefinition(
     resource: [],
@@ -7194,7 +7353,9 @@ pub type CompartmentdefinitionResource {
   )
 }
 
-pub fn compartmentdefinition_resource_new(code) -> CompartmentdefinitionResource {
+pub fn compartmentdefinition_resource_new(
+  code code: r5valuesets.Resourcetypes,
+) -> CompartmentdefinitionResource {
   CompartmentdefinitionResource(
     end_param: None,
     start_param: None,
@@ -7240,7 +7401,12 @@ pub type Composition {
   )
 }
 
-pub fn composition_new(title, date, type_, status) -> Composition {
+pub fn composition_new(
+  title title: String,
+  date date: String,
+  type_ type_: Codeableconcept,
+  status status: r5valuesets.Compositionstatus,
+) -> Composition {
   Composition(
     section: [],
     event: [],
@@ -7284,7 +7450,9 @@ pub type CompositionAttester {
   )
 }
 
-pub fn composition_attester_new(mode) -> CompositionAttester {
+pub fn composition_attester_new(
+  mode mode: Codeableconcept,
+) -> CompositionAttester {
   CompositionAttester(
     party: None,
     time: None,
@@ -7414,7 +7582,9 @@ pub type ConceptmapTargetscope {
   ConceptmapTargetscopeCanonical(target_scope: String)
 }
 
-pub fn conceptmap_new(status) -> Conceptmap {
+pub fn conceptmap_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Conceptmap {
   Conceptmap(
     group: [],
     target_scope: None,
@@ -7472,7 +7642,10 @@ pub type ConceptmapProperty {
   )
 }
 
-pub fn conceptmap_property_new(type_, code) -> ConceptmapProperty {
+pub fn conceptmap_property_new(
+  type_ type_: r5valuesets.Conceptmappropertytype,
+  code code: String,
+) -> ConceptmapProperty {
   ConceptmapProperty(
     system: None,
     type_:,
@@ -7499,8 +7672,8 @@ pub type ConceptmapAdditionalattribute {
 }
 
 pub fn conceptmap_additionalattribute_new(
-  type_,
-  code,
+  type_ type_: r5valuesets.Conceptmapattributetype,
+  code code: String,
 ) -> ConceptmapAdditionalattribute {
   ConceptmapAdditionalattribute(
     type_:,
@@ -7583,7 +7756,7 @@ pub type ConceptmapGroupElementTarget {
 }
 
 pub fn conceptmap_group_element_target_new(
-  relationship,
+  relationship relationship: r5valuesets.Conceptmaprelationship,
 ) -> ConceptmapGroupElementTarget {
   ConceptmapGroupElementTarget(
     product: [],
@@ -7623,8 +7796,8 @@ pub type ConceptmapGroupElementTargetPropertyValue {
 }
 
 pub fn conceptmap_group_element_target_property_new(
-  value,
-  code,
+  value value: ConceptmapGroupElementTargetPropertyValue,
+  code code: String,
 ) -> ConceptmapGroupElementTargetProperty {
   ConceptmapGroupElementTargetProperty(
     value:,
@@ -7657,7 +7830,7 @@ pub type ConceptmapGroupElementTargetDependsonValue {
 }
 
 pub fn conceptmap_group_element_target_dependson_new(
-  attribute,
+  attribute attribute: String,
 ) -> ConceptmapGroupElementTargetDependson {
   ConceptmapGroupElementTargetDependson(
     value_set: None,
@@ -7684,7 +7857,9 @@ pub type ConceptmapGroupUnmapped {
   )
 }
 
-pub fn conceptmap_group_unmapped_new(mode) -> ConceptmapGroupUnmapped {
+pub fn conceptmap_group_unmapped_new(
+  mode mode: r5valuesets.Conceptmapunmappedmode,
+) -> ConceptmapGroupUnmapped {
   ConceptmapGroupUnmapped(
     other_map: None,
     relationship: None,
@@ -7746,7 +7921,10 @@ pub type ConditionAbatement {
   ConditionAbatementString(abatement: String)
 }
 
-pub fn condition_new(subject, clinical_status) -> Condition {
+pub fn condition_new(
+  subject subject: Reference,
+  clinical_status clinical_status: Codeableconcept,
+) -> Condition {
   Condition(
     note: [],
     evidence: [],
@@ -7786,7 +7964,7 @@ pub type ConditionParticipant {
   )
 }
 
-pub fn condition_participant_new(actor) -> ConditionParticipant {
+pub fn condition_participant_new(actor actor: Reference) -> ConditionParticipant {
   ConditionParticipant(
     actor:,
     function: None,
@@ -7868,7 +8046,10 @@ pub type ConditiondefinitionVersionalgorithm {
   ConditiondefinitionVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn conditiondefinition_new(code, status) -> Conditiondefinition {
+pub fn conditiondefinition_new(
+  code code: Codeableconcept,
+  status status: r5valuesets.Publicationstatus,
+) -> Conditiondefinition {
   Conditiondefinition(
     plan: [],
     questionnaire: [],
@@ -7971,8 +8152,8 @@ pub type ConditiondefinitionPreconditionValue {
 }
 
 pub fn conditiondefinition_precondition_new(
-  code,
-  type_,
+  code code: Codeableconcept,
+  type_ type_: r5valuesets.Conditionpreconditiontype,
 ) -> ConditiondefinitionPrecondition {
   ConditiondefinitionPrecondition(
     value: None,
@@ -7996,8 +8177,8 @@ pub type ConditiondefinitionQuestionnaire {
 }
 
 pub fn conditiondefinition_questionnaire_new(
-  reference,
-  purpose,
+  reference reference: Reference,
+  purpose purpose: r5valuesets.Conditionquestionnairepurpose,
 ) -> ConditiondefinitionQuestionnaire {
   ConditiondefinitionQuestionnaire(
     reference:,
@@ -8019,7 +8200,9 @@ pub type ConditiondefinitionPlan {
   )
 }
 
-pub fn conditiondefinition_plan_new(reference) -> ConditiondefinitionPlan {
+pub fn conditiondefinition_plan_new(
+  reference reference: Reference,
+) -> ConditiondefinitionPlan {
   ConditiondefinitionPlan(
     reference:,
     role: None,
@@ -8061,7 +8244,7 @@ pub type Consent {
   )
 }
 
-pub fn consent_new(status) -> Consent {
+pub fn consent_new(status status: r5valuesets.Consentstatecodes) -> Consent {
   Consent(
     provision: [],
     decision: None,
@@ -8127,7 +8310,7 @@ pub type ConsentVerification {
   )
 }
 
-pub fn consent_verification_new(verified) -> ConsentVerification {
+pub fn consent_verification_new(verified verified: Bool) -> ConsentVerification {
   ConsentVerification(
     verification_date: [],
     verified_with: None,
@@ -8213,7 +8396,10 @@ pub type ConsentProvisionData {
   )
 }
 
-pub fn consent_provision_data_new(reference, meaning) -> ConsentProvisionData {
+pub fn consent_provision_data_new(
+  reference reference: Reference,
+  meaning meaning: r5valuesets.Consentdatameaning,
+) -> ConsentProvisionData {
   ConsentProvisionData(
     reference:,
     meaning:,
@@ -8344,8 +8530,8 @@ pub type ContractContentdefinition {
 }
 
 pub fn contract_contentdefinition_new(
-  publication_status,
-  type_,
+  publication_status publication_status: r5valuesets.Contractpublicationstatus,
+  type_ type_: Codeableconcept,
 ) -> ContractContentdefinition {
   ContractContentdefinition(
     copyright: None,
@@ -8387,7 +8573,7 @@ pub type ContractTermTopic {
   ContractTermTopicReference(topic: Reference)
 }
 
-pub fn contract_term_new(offer) -> ContractTerm {
+pub fn contract_term_new(offer offer: ContractTermOffer) -> ContractTerm {
   ContractTerm(
     group: [],
     action: [],
@@ -8421,7 +8607,7 @@ pub type ContractTermSecuritylabel {
 }
 
 pub fn contract_term_securitylabel_new(
-  classification,
+  classification classification: Coding,
 ) -> ContractTermSecuritylabel {
   ContractTermSecuritylabel(
     control: [],
@@ -8482,7 +8668,9 @@ pub type ContractTermOfferParty {
   )
 }
 
-pub fn contract_term_offer_party_new(role) -> ContractTermOfferParty {
+pub fn contract_term_offer_party_new(
+  role role: Codeableconcept,
+) -> ContractTermOfferParty {
   ContractTermOfferParty(
     role:,
     reference: [],
@@ -8518,7 +8706,9 @@ pub type ContractTermOfferAnswerValue {
   ContractTermOfferAnswerValueReference(value: Reference)
 }
 
-pub fn contract_term_offer_answer_new(value) -> ContractTermOfferAnswer {
+pub fn contract_term_offer_answer_new(
+  value value: ContractTermOfferAnswerValue,
+) -> ContractTermOfferAnswer {
   ContractTermOfferAnswer(
     value:,
     modifier_extension: [],
@@ -8683,7 +8873,11 @@ pub type ContractTermActionOccurrence {
   ContractTermActionOccurrenceTiming(occurrence: Timing)
 }
 
-pub fn contract_term_action_new(status, intent, type_) -> ContractTermAction {
+pub fn contract_term_action_new(
+  status status: Codeableconcept,
+  intent intent: Codeableconcept,
+  type_ type_: Codeableconcept,
+) -> ContractTermAction {
   ContractTermAction(
     security_label_number: [],
     note: [],
@@ -8743,7 +8937,10 @@ pub type ContractSigner {
   )
 }
 
-pub fn contract_signer_new(party, type_) -> ContractSigner {
+pub fn contract_signer_new(
+  party party: Reference,
+  type_ type_: Coding,
+) -> ContractSigner {
   ContractSigner(
     signature: [],
     party:,
@@ -8770,7 +8967,9 @@ pub type ContractFriendlyContent {
   ContractFriendlyContentReference(content: Reference)
 }
 
-pub fn contract_friendly_new(content) -> ContractFriendly {
+pub fn contract_friendly_new(
+  content content: ContractFriendlyContent,
+) -> ContractFriendly {
   ContractFriendly(content:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -8790,7 +8989,9 @@ pub type ContractLegalContent {
   ContractLegalContentReference(content: Reference)
 }
 
-pub fn contract_legal_new(content) -> ContractLegal {
+pub fn contract_legal_new(
+  content content: ContractLegalContent,
+) -> ContractLegal {
   ContractLegal(content:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -8810,7 +9011,7 @@ pub type ContractRuleContent {
   ContractRuleContentReference(content: Reference)
 }
 
-pub fn contract_rule_new(content) -> ContractRule {
+pub fn contract_rule_new(content content: ContractRuleContent) -> ContractRule {
   ContractRule(content:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -8848,7 +9049,11 @@ pub type Coverage {
   )
 }
 
-pub fn coverage_new(beneficiary, kind, status) -> Coverage {
+pub fn coverage_new(
+  beneficiary beneficiary: Reference,
+  kind kind: r5valuesets.Coveragekind,
+  status status: r5valuesets.Fmstatus,
+) -> Coverage {
   Coverage(
     insurance_plan: None,
     contract: [],
@@ -8892,7 +9097,7 @@ pub type CoveragePaymentby {
   )
 }
 
-pub fn coverage_paymentby_new(party) -> CoveragePaymentby {
+pub fn coverage_paymentby_new(party party: Reference) -> CoveragePaymentby {
   CoveragePaymentby(
     responsibility: None,
     party:,
@@ -8914,7 +9119,10 @@ pub type CoverageClass {
   )
 }
 
-pub fn coverage_class_new(value, type_) -> CoverageClass {
+pub fn coverage_class_new(
+  value value: Identifier,
+  type_ type_: Codeableconcept,
+) -> CoverageClass {
   CoverageClass(
     name: None,
     value:,
@@ -8974,7 +9182,7 @@ pub type CoverageCosttobeneficiaryException {
 }
 
 pub fn coverage_costtobeneficiary_exception_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> CoverageCosttobeneficiaryException {
   CoverageCosttobeneficiaryException(
     period: None,
@@ -9021,10 +9229,10 @@ pub type CoverageeligibilityrequestServiced {
 }
 
 pub fn coverageeligibilityrequest_new(
-  insurer,
-  created,
-  patient,
-  status,
+  insurer insurer: Reference,
+  created created: String,
+  patient patient: Reference,
+  status status: r5valuesets.Fmstatus,
 ) -> Coverageeligibilityrequest {
   Coverageeligibilityrequest(
     item: [],
@@ -9071,8 +9279,8 @@ pub type CoverageeligibilityrequestEventWhen {
 }
 
 pub fn coverageeligibilityrequest_event_new(
-  when,
-  type_,
+  when when: CoverageeligibilityrequestEventWhen,
+  type_ type_: Codeableconcept,
 ) -> CoverageeligibilityrequestEvent {
   CoverageeligibilityrequestEvent(
     when:,
@@ -9096,8 +9304,8 @@ pub type CoverageeligibilityrequestSupportinginfo {
 }
 
 pub fn coverageeligibilityrequest_supportinginfo_new(
-  information,
-  sequence,
+  information information: Reference,
+  sequence sequence: Int,
 ) -> CoverageeligibilityrequestSupportinginfo {
   CoverageeligibilityrequestSupportinginfo(
     applies_to_all: None,
@@ -9122,7 +9330,7 @@ pub type CoverageeligibilityrequestInsurance {
 }
 
 pub fn coverageeligibilityrequest_insurance_new(
-  coverage,
+  coverage coverage: Reference,
 ) -> CoverageeligibilityrequestInsurance {
   CoverageeligibilityrequestInsurance(
     business_arrangement: None,
@@ -9237,12 +9445,12 @@ pub type CoverageeligibilityresponseServiced {
 }
 
 pub fn coverageeligibilityresponse_new(
-  insurer,
-  outcome,
-  request,
-  created,
-  patient,
-  status,
+  insurer insurer: Reference,
+  outcome outcome: r5valuesets.Eligibilityoutcome,
+  request request: Reference,
+  created created: String,
+  patient patient: Reference,
+  status status: r5valuesets.Fmstatus,
 ) -> Coverageeligibilityresponse {
   Coverageeligibilityresponse(
     error: [],
@@ -9290,8 +9498,8 @@ pub type CoverageeligibilityresponseEventWhen {
 }
 
 pub fn coverageeligibilityresponse_event_new(
-  when,
-  type_,
+  when when: CoverageeligibilityresponseEventWhen,
+  type_ type_: Codeableconcept,
 ) -> CoverageeligibilityresponseEvent {
   CoverageeligibilityresponseEvent(
     when:,
@@ -9316,7 +9524,7 @@ pub type CoverageeligibilityresponseInsurance {
 }
 
 pub fn coverageeligibilityresponse_insurance_new(
-  coverage,
+  coverage coverage: Reference,
 ) -> CoverageeligibilityresponseInsurance {
   CoverageeligibilityresponseInsurance(
     item: [],
@@ -9403,7 +9611,7 @@ pub type CoverageeligibilityresponseInsuranceItemBenefitUsed {
 }
 
 pub fn coverageeligibilityresponse_insurance_item_benefit_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> CoverageeligibilityresponseInsuranceItemBenefit {
   CoverageeligibilityresponseInsuranceItemBenefit(
     used: None,
@@ -9427,7 +9635,7 @@ pub type CoverageeligibilityresponseError {
 }
 
 pub fn coverageeligibilityresponse_error_new(
-  code,
+  code code: Codeableconcept,
 ) -> CoverageeligibilityresponseError {
   CoverageeligibilityresponseError(
     expression: [],
@@ -9472,7 +9680,9 @@ pub type DetectedissueIdentified {
   DetectedissueIdentifiedPeriod(identified: Period)
 }
 
-pub fn detectedissue_new(status) -> Detectedissue {
+pub fn detectedissue_new(
+  status status: r5valuesets.Detectedissuestatus,
+) -> Detectedissue {
   Detectedissue(
     mitigation: [],
     reference: None,
@@ -9533,7 +9743,9 @@ pub type DetectedissueMitigation {
   )
 }
 
-pub fn detectedissue_mitigation_new(action) -> DetectedissueMitigation {
+pub fn detectedissue_mitigation_new(
+  action action: Codeableconcept,
+) -> DetectedissueMitigation {
   DetectedissueMitigation(
     note: [],
     author: None,
@@ -9651,7 +9863,10 @@ pub type DeviceUdicarrier {
   )
 }
 
-pub fn device_udicarrier_new(issuer, device_identifier) -> DeviceUdicarrier {
+pub fn device_udicarrier_new(
+  issuer issuer: String,
+  device_identifier device_identifier: String,
+) -> DeviceUdicarrier {
   DeviceUdicarrier(
     entry_type: None,
     carrier_hrf: None,
@@ -9677,7 +9892,10 @@ pub type DeviceName {
   )
 }
 
-pub fn device_name_new(type_, value) -> DeviceName {
+pub fn device_name_new(
+  type_ type_: r5valuesets.Devicenametype,
+  value value: String,
+) -> DeviceName {
   DeviceName(
     display: None,
     type_:,
@@ -9701,7 +9919,7 @@ pub type DeviceVersion {
   )
 }
 
-pub fn device_version_new(value) -> DeviceVersion {
+pub fn device_version_new(value value: String) -> DeviceVersion {
   DeviceVersion(
     value:,
     install_date: None,
@@ -9725,7 +9943,9 @@ pub type DeviceConformsto {
   )
 }
 
-pub fn device_conformsto_new(specification) -> DeviceConformsto {
+pub fn device_conformsto_new(
+  specification specification: Codeableconcept,
+) -> DeviceConformsto {
   DeviceConformsto(
     version: None,
     specification:,
@@ -9758,7 +9978,10 @@ pub type DevicePropertyValue {
   DevicePropertyValueAttachment(value: Attachment)
 }
 
-pub fn device_property_new(value, type_) -> DeviceProperty {
+pub fn device_property_new(
+  value value: DevicePropertyValue,
+  type_ type_: Codeableconcept,
+) -> DeviceProperty {
   DeviceProperty(
     value:,
     type_:,
@@ -9791,7 +10014,10 @@ pub type Deviceassociation {
   )
 }
 
-pub fn deviceassociation_new(status, device) -> Deviceassociation {
+pub fn deviceassociation_new(
+  status status: Codeableconcept,
+  device device: Reference,
+) -> Deviceassociation {
   Deviceassociation(
     operation: [],
     period: None,
@@ -9825,7 +10051,9 @@ pub type DeviceassociationOperation {
   )
 }
 
-pub fn deviceassociation_operation_new(status) -> DeviceassociationOperation {
+pub fn deviceassociation_operation_new(
+  status status: Codeableconcept,
+) -> DeviceassociationOperation {
   DeviceassociationOperation(
     period: None,
     operator: [],
@@ -9931,9 +10159,9 @@ pub type DevicedefinitionUdideviceidentifier {
 }
 
 pub fn devicedefinition_udideviceidentifier_new(
-  jurisdiction,
-  issuer,
-  device_identifier,
+  jurisdiction jurisdiction: String,
+  issuer issuer: String,
+  device_identifier device_identifier: String,
 ) -> DevicedefinitionUdideviceidentifier {
   DevicedefinitionUdideviceidentifier(
     market_distribution: [],
@@ -9958,8 +10186,8 @@ pub type DevicedefinitionUdideviceidentifierMarketdistribution {
 }
 
 pub fn devicedefinition_udideviceidentifier_marketdistribution_new(
-  sub_jurisdiction,
-  market_period,
+  sub_jurisdiction sub_jurisdiction: String,
+  market_period market_period: Period,
 ) -> DevicedefinitionUdideviceidentifierMarketdistribution {
   DevicedefinitionUdideviceidentifierMarketdistribution(
     sub_jurisdiction:,
@@ -9984,10 +10212,10 @@ pub type DevicedefinitionRegulatoryidentifier {
 }
 
 pub fn devicedefinition_regulatoryidentifier_new(
-  jurisdiction,
-  issuer,
-  device_identifier,
-  type_,
+  jurisdiction jurisdiction: String,
+  issuer issuer: String,
+  device_identifier device_identifier: String,
+  type_ type_: r5valuesets.Devicedefinitionregulatoryidentifiertype,
 ) -> DevicedefinitionRegulatoryidentifier {
   DevicedefinitionRegulatoryidentifier(
     jurisdiction:,
@@ -10012,8 +10240,8 @@ pub type DevicedefinitionDevicename {
 }
 
 pub fn devicedefinition_devicename_new(
-  type_,
-  name,
+  type_ type_: r5valuesets.Devicenametype,
+  name name: String,
 ) -> DevicedefinitionDevicename {
   DevicedefinitionDevicename(
     type_:,
@@ -10036,7 +10264,7 @@ pub type DevicedefinitionClassification {
 }
 
 pub fn devicedefinition_classification_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> DevicedefinitionClassification {
   DevicedefinitionClassification(
     justification: [],
@@ -10061,7 +10289,7 @@ pub type DevicedefinitionConformsto {
 }
 
 pub fn devicedefinition_conformsto_new(
-  specification,
+  specification specification: Codeableconcept,
 ) -> DevicedefinitionConformsto {
   DevicedefinitionConformsto(
     source: [],
@@ -10085,7 +10313,9 @@ pub type DevicedefinitionHaspart {
   )
 }
 
-pub fn devicedefinition_haspart_new(reference) -> DevicedefinitionHaspart {
+pub fn devicedefinition_haspart_new(
+  reference reference: Reference,
+) -> DevicedefinitionHaspart {
   DevicedefinitionHaspart(
     count: None,
     reference:,
@@ -10157,7 +10387,9 @@ pub type DevicedefinitionVersion {
   )
 }
 
-pub fn devicedefinition_version_new(value) -> DevicedefinitionVersion {
+pub fn devicedefinition_version_new(
+  value value: String,
+) -> DevicedefinitionVersion {
   DevicedefinitionVersion(
     value:,
     component: None,
@@ -10190,7 +10422,10 @@ pub type DevicedefinitionPropertyValue {
   DevicedefinitionPropertyValueAttachment(value: Attachment)
 }
 
-pub fn devicedefinition_property_new(value, type_) -> DevicedefinitionProperty {
+pub fn devicedefinition_property_new(
+  value value: DevicedefinitionPropertyValue,
+  type_ type_: Codeableconcept,
+) -> DevicedefinitionProperty {
   DevicedefinitionProperty(
     value:,
     type_:,
@@ -10212,8 +10447,8 @@ pub type DevicedefinitionLink {
 }
 
 pub fn devicedefinition_link_new(
-  related_device,
-  relation,
+  related_device related_device: Codeablereference,
+  relation relation: Coding,
 ) -> DevicedefinitionLink {
   DevicedefinitionLink(
     related_device:,
@@ -10236,7 +10471,9 @@ pub type DevicedefinitionMaterial {
   )
 }
 
-pub fn devicedefinition_material_new(substance) -> DevicedefinitionMaterial {
+pub fn devicedefinition_material_new(
+  substance substance: Codeableconcept,
+) -> DevicedefinitionMaterial {
   DevicedefinitionMaterial(
     allergenic_indicator: None,
     alternate: None,
@@ -10291,8 +10528,8 @@ pub type DevicedefinitionCorrectiveaction {
 }
 
 pub fn devicedefinition_correctiveaction_new(
-  period,
-  recall,
+  period period: Period,
+  recall recall: Bool,
 ) -> DevicedefinitionCorrectiveaction {
   DevicedefinitionCorrectiveaction(
     period:,
@@ -10318,8 +10555,8 @@ pub type DevicedefinitionChargeitem {
 }
 
 pub fn devicedefinition_chargeitem_new(
-  count,
-  charge_item_code,
+  count count: Quantity,
+  charge_item_code charge_item_code: Codeablereference,
 ) -> DevicedefinitionChargeitem {
   DevicedefinitionChargeitem(
     use_context: [],
@@ -10367,7 +10604,11 @@ pub type Devicedispense {
   )
 }
 
-pub fn devicedispense_new(subject, device, status) -> Devicedispense {
+pub fn devicedispense_new(
+  subject subject: Reference,
+  device device: Codeablereference,
+  status status: r5valuesets.Devicedispensestatus,
+) -> Devicedispense {
   Devicedispense(
     event_history: [],
     usage_instruction: None,
@@ -10412,7 +10653,9 @@ pub type DevicedispensePerformer {
   )
 }
 
-pub fn devicedispense_performer_new(actor) -> DevicedispensePerformer {
+pub fn devicedispense_performer_new(
+  actor actor: Reference,
+) -> DevicedispensePerformer {
   DevicedispensePerformer(
     actor:,
     function: None,
@@ -10445,7 +10688,11 @@ pub type Devicemetric {
   )
 }
 
-pub fn devicemetric_new(category, device, type_) -> Devicemetric {
+pub fn devicemetric_new(
+  category category: r5valuesets.Metriccategory,
+  device device: Reference,
+  type_ type_: Codeableconcept,
+) -> Devicemetric {
   Devicemetric(
     calibration: [],
     measurement_frequency: None,
@@ -10537,7 +10784,11 @@ pub type DevicerequestOccurrence {
   DevicerequestOccurrenceTiming(occurrence: Timing)
 }
 
-pub fn devicerequest_new(subject, code, intent) -> Devicerequest {
+pub fn devicerequest_new(
+  subject subject: Reference,
+  code code: Codeablereference,
+  intent intent: r5valuesets.Requestintent,
+) -> Devicerequest {
   Devicerequest(
     relevant_history: [],
     note: [],
@@ -10643,7 +10894,11 @@ pub type DeviceusageTiming {
   DeviceusageTimingDatetime(timing: String)
 }
 
-pub fn deviceusage_new(device, patient, status) -> Deviceusage {
+pub fn deviceusage_new(
+  device device: Codeablereference,
+  patient patient: Reference,
+  status status: r5valuesets.Deviceusagestatus,
+) -> Deviceusage {
   Deviceusage(
     note: [],
     body_site: None,
@@ -10684,7 +10939,9 @@ pub type DeviceusageAdherence {
   )
 }
 
-pub fn deviceusage_adherence_new(code) -> DeviceusageAdherence {
+pub fn deviceusage_adherence_new(
+  code code: Codeableconcept,
+) -> DeviceusageAdherence {
   DeviceusageAdherence(
     reason: [],
     code:,
@@ -10735,7 +10992,10 @@ pub type DiagnosticreportEffective {
   DiagnosticreportEffectivePeriod(effective: Period)
 }
 
-pub fn diagnosticreport_new(code, status) -> Diagnosticreport {
+pub fn diagnosticreport_new(
+  code code: Codeableconcept,
+  status status: r5valuesets.Diagnosticreportstatus,
+) -> Diagnosticreport {
   Diagnosticreport(
     presented_form: [],
     conclusion_code: [],
@@ -10781,8 +11041,8 @@ pub type DiagnosticreportSupportinginfo {
 }
 
 pub fn diagnosticreport_supportinginfo_new(
-  reference,
-  type_,
+  reference reference: Reference,
+  type_ type_: Codeableconcept,
 ) -> DiagnosticreportSupportinginfo {
   DiagnosticreportSupportinginfo(
     reference:,
@@ -10804,7 +11064,7 @@ pub type DiagnosticreportMedia {
   )
 }
 
-pub fn diagnosticreport_media_new(link) -> DiagnosticreportMedia {
+pub fn diagnosticreport_media_new(link link: Reference) -> DiagnosticreportMedia {
   DiagnosticreportMedia(
     link:,
     comment: None,
@@ -10851,7 +11111,9 @@ pub type Documentreference {
   )
 }
 
-pub fn documentreference_new(status) -> Documentreference {
+pub fn documentreference_new(
+  status status: r5valuesets.Documentreferencestatus,
+) -> Documentreference {
   Documentreference(
     content: [],
     security_label: [],
@@ -10899,7 +11161,9 @@ pub type DocumentreferenceAttester {
   )
 }
 
-pub fn documentreference_attester_new(mode) -> DocumentreferenceAttester {
+pub fn documentreference_attester_new(
+  mode mode: Codeableconcept,
+) -> DocumentreferenceAttester {
   DocumentreferenceAttester(
     party: None,
     time: None,
@@ -10922,8 +11186,8 @@ pub type DocumentreferenceRelatesto {
 }
 
 pub fn documentreference_relatesto_new(
-  target,
-  code,
+  target target: Reference,
+  code code: Codeableconcept,
 ) -> DocumentreferenceRelatesto {
   DocumentreferenceRelatesto(
     target:,
@@ -10945,7 +11209,9 @@ pub type DocumentreferenceContent {
   )
 }
 
-pub fn documentreference_content_new(attachment) -> DocumentreferenceContent {
+pub fn documentreference_content_new(
+  attachment attachment: Attachment,
+) -> DocumentreferenceContent {
   DocumentreferenceContent(
     profile: [],
     attachment:,
@@ -10973,7 +11239,7 @@ pub type DocumentreferenceContentProfileValue {
 }
 
 pub fn documentreference_content_profile_new(
-  value,
+  value value: DocumentreferenceContentProfileValue,
 ) -> DocumentreferenceContentProfile {
   DocumentreferenceContentProfile(
     value:,
@@ -11052,7 +11318,7 @@ pub type Encounter {
   )
 }
 
-pub fn encounter_new(status) -> Encounter {
+pub fn encounter_new(status status: r5valuesets.Encounterstatus) -> Encounter {
   Encounter(
     location: [],
     admission: None,
@@ -11200,7 +11466,7 @@ pub type EncounterLocation {
   )
 }
 
-pub fn encounter_location_new(location) -> EncounterLocation {
+pub fn encounter_location_new(location location: Reference) -> EncounterLocation {
   EncounterLocation(
     period: None,
     form: None,
@@ -11239,7 +11505,10 @@ pub type Encounterhistory {
   )
 }
 
-pub fn encounterhistory_new(class, status) -> Encounterhistory {
+pub fn encounterhistory_new(
+  class class: Codeableconcept,
+  status status: r5valuesets.Encounterstatus,
+) -> Encounterhistory {
   Encounterhistory(
     location: [],
     length: None,
@@ -11276,7 +11545,9 @@ pub type EncounterhistoryLocation {
   )
 }
 
-pub fn encounterhistory_location_new(location) -> EncounterhistoryLocation {
+pub fn encounterhistory_location_new(
+  location location: Reference,
+) -> EncounterhistoryLocation {
   EncounterhistoryLocation(
     form: None,
     location:,
@@ -11312,7 +11583,10 @@ pub type Endpoint {
   )
 }
 
-pub fn endpoint_new(address, status) -> Endpoint {
+pub fn endpoint_new(
+  address address: String,
+  status status: r5valuesets.Endpointstatus,
+) -> Endpoint {
   Endpoint(
     header: [],
     address:,
@@ -11469,7 +11743,10 @@ pub type Episodeofcare {
   )
 }
 
-pub fn episodeofcare_new(patient, status) -> Episodeofcare {
+pub fn episodeofcare_new(
+  patient patient: Reference,
+  status status: r5valuesets.Episodeofcarestatus,
+) -> Episodeofcare {
   Episodeofcare(
     account: [],
     care_team: [],
@@ -11507,8 +11784,8 @@ pub type EpisodeofcareStatushistory {
 }
 
 pub fn episodeofcare_statushistory_new(
-  period,
-  status,
+  period period: Period,
+  status status: r5valuesets.Episodeofcarestatus,
 ) -> EpisodeofcareStatushistory {
   EpisodeofcareStatushistory(
     period:,
@@ -11617,7 +11894,9 @@ pub type EventdefinitionSubject {
   EventdefinitionSubjectReference(subject: Reference)
 }
 
-pub fn eventdefinition_new(status) -> Eventdefinition {
+pub fn eventdefinition_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Eventdefinition {
   Eventdefinition(
     trigger: [],
     related_artifact: [],
@@ -11717,7 +11996,7 @@ pub type EvidenceCiteas {
   EvidenceCiteasMarkdown(cite_as: String)
 }
 
-pub fn evidence_new(status) -> Evidence {
+pub fn evidence_new(status status: r5valuesets.Publicationstatus) -> Evidence {
   Evidence(
     certainty: [],
     statistic: [],
@@ -11777,7 +12056,7 @@ pub type EvidenceVariabledefinition {
 }
 
 pub fn evidence_variabledefinition_new(
-  variable_role,
+  variable_role variable_role: Codeableconcept,
 ) -> EvidenceVariabledefinition {
   EvidenceVariabledefinition(
     directness_match: None,
@@ -11901,7 +12180,7 @@ pub type EvidenceStatisticModelcharacteristic {
 }
 
 pub fn evidence_statistic_modelcharacteristic_new(
-  code,
+  code code: Codeableconcept,
 ) -> EvidenceStatisticModelcharacteristic {
   EvidenceStatisticModelcharacteristic(
     attribute_estimate: [],
@@ -11929,7 +12208,7 @@ pub type EvidenceStatisticModelcharacteristicVariable {
 }
 
 pub fn evidence_statistic_modelcharacteristic_variable_new(
-  variable_definition,
+  variable_definition variable_definition: Reference,
 ) -> EvidenceStatisticModelcharacteristicVariable {
   EvidenceStatisticModelcharacteristicVariable(
     value_range: [],
@@ -12010,7 +12289,10 @@ pub type EvidencereportCiteas {
   EvidencereportCiteasMarkdown(cite_as: String)
 }
 
-pub fn evidencereport_new(subject, status) -> Evidencereport {
+pub fn evidencereport_new(
+  subject subject: EvidencereportSubject,
+  status status: r5valuesets.Publicationstatus,
+) -> Evidencereport {
   Evidencereport(
     section: [],
     relates_to: [],
@@ -12087,8 +12369,8 @@ pub type EvidencereportSubjectCharacteristicValue {
 }
 
 pub fn evidencereport_subject_characteristic_new(
-  value,
-  code,
+  value value: EvidencereportSubjectCharacteristicValue,
+  code code: Codeableconcept,
 ) -> EvidencereportSubjectCharacteristic {
   EvidencereportSubjectCharacteristic(
     period: None,
@@ -12112,7 +12394,10 @@ pub type EvidencereportRelatesto {
   )
 }
 
-pub fn evidencereport_relatesto_new(target, code) -> EvidencereportRelatesto {
+pub fn evidencereport_relatesto_new(
+  target target: EvidencereportRelatestoTarget,
+  code code: r5valuesets.Reportrelationtype,
+) -> EvidencereportRelatesto {
   EvidencereportRelatesto(
     target:,
     code:,
@@ -12238,7 +12523,9 @@ pub type EvidencevariableVersionalgorithm {
   EvidencevariableVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn evidencevariable_new(status) -> Evidencevariable {
+pub fn evidencevariable_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Evidencevariable {
   Evidencevariable(
     category: [],
     handling: None,
@@ -12375,8 +12662,8 @@ pub type EvidencevariableCharacteristicDefinitionbytypeandvalueValue {
 }
 
 pub fn evidencevariable_characteristic_definitionbytypeandvalue_new(
-  value,
-  type_,
+  value value: EvidencevariableCharacteristicDefinitionbytypeandvalueValue,
+  type_ type_: Codeableconcept,
 ) -> EvidencevariableCharacteristicDefinitionbytypeandvalue {
   EvidencevariableCharacteristicDefinitionbytypeandvalue(
     offset: None,
@@ -12403,7 +12690,7 @@ pub type EvidencevariableCharacteristicDefinitionbycombination {
 }
 
 pub fn evidencevariable_characteristic_definitionbycombination_new(
-  code,
+  code code: r5valuesets.Characteristiccombination,
 ) -> EvidencevariableCharacteristicDefinitionbycombination {
   EvidencevariableCharacteristicDefinitionbycombination(
     characteristic: [],
@@ -12520,7 +12807,9 @@ pub type ExamplescenarioVersionalgorithm {
   ExamplescenarioVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn examplescenario_new(status) -> Examplescenario {
+pub fn examplescenario_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Examplescenario {
   Examplescenario(
     process: [],
     instance: [],
@@ -12566,7 +12855,11 @@ pub type ExamplescenarioActor {
   )
 }
 
-pub fn examplescenario_actor_new(title, type_, key) -> ExamplescenarioActor {
+pub fn examplescenario_actor_new(
+  title title: String,
+  type_ type_: r5valuesets.Examplescenarioactortype,
+  key key: String,
+) -> ExamplescenarioActor {
   ExamplescenarioActor(
     description: None,
     title:,
@@ -12603,9 +12896,9 @@ pub type ExamplescenarioInstanceStructureprofile {
 }
 
 pub fn examplescenario_instance_new(
-  title,
-  structure_type,
-  key,
+  title title: String,
+  structure_type structure_type: Coding,
+  key key: String,
 ) -> ExamplescenarioInstance {
   ExamplescenarioInstance(
     contained_instance: [],
@@ -12637,8 +12930,8 @@ pub type ExamplescenarioInstanceVersion {
 }
 
 pub fn examplescenario_instance_version_new(
-  title,
-  key,
+  title title: String,
+  key key: String,
 ) -> ExamplescenarioInstanceVersion {
   ExamplescenarioInstanceVersion(
     content: None,
@@ -12663,7 +12956,7 @@ pub type ExamplescenarioInstanceContainedinstance {
 }
 
 pub fn examplescenario_instance_containedinstance_new(
-  instance_reference,
+  instance_reference instance_reference: String,
 ) -> ExamplescenarioInstanceContainedinstance {
   ExamplescenarioInstanceContainedinstance(
     version_reference: None,
@@ -12688,7 +12981,9 @@ pub type ExamplescenarioProcess {
   )
 }
 
-pub fn examplescenario_process_new(title) -> ExamplescenarioProcess {
+pub fn examplescenario_process_new(
+  title title: String,
+) -> ExamplescenarioProcess {
   ExamplescenarioProcess(
     step: [],
     post_conditions: None,
@@ -12749,7 +13044,7 @@ pub type ExamplescenarioProcessStepOperation {
 }
 
 pub fn examplescenario_process_step_operation_new(
-  title,
+  title title: String,
 ) -> ExamplescenarioProcessStepOperation {
   ExamplescenarioProcessStepOperation(
     response: None,
@@ -12780,7 +13075,7 @@ pub type ExamplescenarioProcessStepAlternative {
 }
 
 pub fn examplescenario_process_step_alternative_new(
-  title,
+  title title: String,
 ) -> ExamplescenarioProcessStepAlternative {
   ExamplescenarioProcessStepAlternative(
     step: [],
@@ -12856,12 +13151,12 @@ pub type Explanationofbenefit {
 }
 
 pub fn explanationofbenefit_new(
-  outcome,
-  created,
-  patient,
-  use_,
-  type_,
-  status,
+  outcome outcome: r5valuesets.Claimoutcome,
+  created created: String,
+  patient patient: Reference,
+  use_ use_: r5valuesets.Claimuse,
+  type_ type_: Codeableconcept,
+  status status: r5valuesets.Explanationofbenefitstatus,
 ) -> Explanationofbenefit {
   Explanationofbenefit(
     benefit_balance: [],
@@ -12964,7 +13259,10 @@ pub type ExplanationofbenefitEventWhen {
   ExplanationofbenefitEventWhenPeriod(when: Period)
 }
 
-pub fn explanationofbenefit_event_new(when, type_) -> ExplanationofbenefitEvent {
+pub fn explanationofbenefit_event_new(
+  when when: ExplanationofbenefitEventWhen,
+  type_ type_: Codeableconcept,
+) -> ExplanationofbenefitEvent {
   ExplanationofbenefitEvent(
     when:,
     type_:,
@@ -13010,8 +13308,8 @@ pub type ExplanationofbenefitCareteam {
 }
 
 pub fn explanationofbenefit_careteam_new(
-  provider,
-  sequence,
+  provider provider: Reference,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitCareteam {
   ExplanationofbenefitCareteam(
     specialty: None,
@@ -13057,8 +13355,8 @@ pub type ExplanationofbenefitSupportinginfoValue {
 }
 
 pub fn explanationofbenefit_supportinginfo_new(
-  category,
-  sequence,
+  category category: Codeableconcept,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitSupportinginfo {
   ExplanationofbenefitSupportinginfo(
     reason: None,
@@ -13095,8 +13393,8 @@ pub type ExplanationofbenefitDiagnosisDiagnosis {
 }
 
 pub fn explanationofbenefit_diagnosis_new(
-  diagnosis,
-  sequence,
+  diagnosis diagnosis: ExplanationofbenefitDiagnosisDiagnosis,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitDiagnosis {
   ExplanationofbenefitDiagnosis(
     on_admission: None,
@@ -13132,8 +13430,8 @@ pub type ExplanationofbenefitProcedureProcedure {
 }
 
 pub fn explanationofbenefit_procedure_new(
-  procedure,
-  sequence,
+  procedure procedure: ExplanationofbenefitProcedureProcedure,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitProcedure {
   ExplanationofbenefitProcedure(
     udi: [],
@@ -13160,8 +13458,8 @@ pub type ExplanationofbenefitInsurance {
 }
 
 pub fn explanationofbenefit_insurance_new(
-  coverage,
-  focal,
+  coverage coverage: Reference,
+  focal focal: Bool,
 ) -> ExplanationofbenefitInsurance {
   ExplanationofbenefitInsurance(
     pre_auth_ref: [],
@@ -13252,7 +13550,9 @@ pub type ExplanationofbenefitItemLocation {
   ExplanationofbenefitItemLocationReference(location: Reference)
 }
 
-pub fn explanationofbenefit_item_new(sequence) -> ExplanationofbenefitItem {
+pub fn explanationofbenefit_item_new(
+  sequence sequence: Int,
+) -> ExplanationofbenefitItem {
   ExplanationofbenefitItem(
     detail: [],
     adjudication: [],
@@ -13348,7 +13648,7 @@ pub type ExplanationofbenefitItemAdjudication {
 }
 
 pub fn explanationofbenefit_item_adjudication_new(
-  category,
+  category category: Codeableconcept,
 ) -> ExplanationofbenefitItemAdjudication {
   ExplanationofbenefitItemAdjudication(
     quantity: None,
@@ -13390,7 +13690,7 @@ pub type ExplanationofbenefitItemDetail {
 }
 
 pub fn explanationofbenefit_item_detail_new(
-  sequence,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitItemDetail {
   ExplanationofbenefitItemDetail(
     sub_detail: [],
@@ -13446,7 +13746,7 @@ pub type ExplanationofbenefitItemDetailSubdetail {
 }
 
 pub fn explanationofbenefit_item_detail_subdetail_new(
-  sequence,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitItemDetailSubdetail {
   ExplanationofbenefitItemDetailSubdetail(
     adjudication: [],
@@ -13676,8 +13976,8 @@ pub type ExplanationofbenefitTotal {
 }
 
 pub fn explanationofbenefit_total_new(
-  amount,
-  category,
+  amount amount: Money,
+  category category: Codeableconcept,
 ) -> ExplanationofbenefitTotal {
   ExplanationofbenefitTotal(
     amount:,
@@ -13760,7 +14060,7 @@ pub type ExplanationofbenefitBenefitbalance {
 }
 
 pub fn explanationofbenefit_benefitbalance_new(
-  category,
+  category category: Codeableconcept,
 ) -> ExplanationofbenefitBenefitbalance {
   ExplanationofbenefitBenefitbalance(
     financial: [],
@@ -13803,7 +14103,7 @@ pub type ExplanationofbenefitBenefitbalanceFinancialUsed {
 }
 
 pub fn explanationofbenefit_benefitbalance_financial_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> ExplanationofbenefitBenefitbalanceFinancial {
   ExplanationofbenefitBenefitbalanceFinancial(
     used: None,
@@ -13872,9 +14172,9 @@ pub type FamilymemberhistoryDeceased {
 }
 
 pub fn familymemberhistory_new(
-  relationship,
-  patient,
-  status,
+  relationship relationship: Codeableconcept,
+  patient patient: Reference,
+  status status: r5valuesets.Historystatus,
 ) -> Familymemberhistory {
   Familymemberhistory(
     procedure: [],
@@ -13919,7 +14219,7 @@ pub type FamilymemberhistoryParticipant {
 }
 
 pub fn familymemberhistory_participant_new(
-  actor,
+  actor actor: Reference,
 ) -> FamilymemberhistoryParticipant {
   FamilymemberhistoryParticipant(
     actor:,
@@ -13952,7 +14252,9 @@ pub type FamilymemberhistoryConditionOnset {
   FamilymemberhistoryConditionOnsetString(onset: String)
 }
 
-pub fn familymemberhistory_condition_new(code) -> FamilymemberhistoryCondition {
+pub fn familymemberhistory_condition_new(
+  code code: Codeableconcept,
+) -> FamilymemberhistoryCondition {
   FamilymemberhistoryCondition(
     note: [],
     onset: None,
@@ -13988,7 +14290,9 @@ pub type FamilymemberhistoryProcedurePerformed {
   FamilymemberhistoryProcedurePerformedDatetime(performed: String)
 }
 
-pub fn familymemberhistory_procedure_new(code) -> FamilymemberhistoryProcedure {
+pub fn familymemberhistory_procedure_new(
+  code code: Codeableconcept,
+) -> FamilymemberhistoryProcedure {
   FamilymemberhistoryProcedure(
     note: [],
     performed: None,
@@ -14023,7 +14327,11 @@ pub type Flag {
   )
 }
 
-pub fn flag_new(subject, code, status) -> Flag {
+pub fn flag_new(
+  subject subject: Reference,
+  code code: Codeableconcept,
+  status status: r5valuesets.Flagstatus,
+) -> Flag {
   Flag(
     author: None,
     encounter: None,
@@ -14106,7 +14414,10 @@ pub type Genomicstudy {
   )
 }
 
-pub fn genomicstudy_new(subject, status) -> Genomicstudy {
+pub fn genomicstudy_new(
+  subject subject: Reference,
+  status status: r5valuesets.Genomicstudystatus,
+) -> Genomicstudy {
   Genomicstudy(
     analysis: [],
     description: None,
@@ -14315,7 +14626,11 @@ pub type GoalStart {
   GoalStartCodeableconcept(start: Codeableconcept)
 }
 
-pub fn goal_new(subject, description, lifecycle_status) -> Goal {
+pub fn goal_new(
+  subject subject: Reference,
+  description description: Codeableconcept,
+  lifecycle_status lifecycle_status: r5valuesets.Goalstatus,
+) -> Goal {
   Goal(
     outcome: [],
     note: [],
@@ -14424,7 +14739,10 @@ pub type GraphdefinitionVersionalgorithm {
   GraphdefinitionVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn graphdefinition_new(status, name) -> Graphdefinition {
+pub fn graphdefinition_new(
+  status status: r5valuesets.Publicationstatus,
+  name name: String,
+) -> Graphdefinition {
   Graphdefinition(
     link: [],
     node: [],
@@ -14470,7 +14788,10 @@ pub type GraphdefinitionNode {
   )
 }
 
-pub fn graphdefinition_node_new(type_, node_id) -> GraphdefinitionNode {
+pub fn graphdefinition_node_new(
+  type_ type_: r5valuesets.Versionindependentallresourcetypes,
+  node_id node_id: String,
+) -> GraphdefinitionNode {
   GraphdefinitionNode(
     profile: None,
     type_:,
@@ -14500,7 +14821,10 @@ pub type GraphdefinitionLink {
   )
 }
 
-pub fn graphdefinition_link_new(target_id, source_id) -> GraphdefinitionLink {
+pub fn graphdefinition_link_new(
+  target_id target_id: String,
+  source_id source_id: String,
+) -> GraphdefinitionLink {
   GraphdefinitionLink(
     compartment: [],
     params: None,
@@ -14532,9 +14856,9 @@ pub type GraphdefinitionLinkCompartment {
 }
 
 pub fn graphdefinition_link_compartment_new(
-  code,
-  rule,
-  use_,
+  code code: r5valuesets.Compartmenttype,
+  rule rule: r5valuesets.Graphcompartmentrule,
+  use_ use_: r5valuesets.Graphcompartmentuse,
 ) -> GraphdefinitionLinkCompartment {
   GraphdefinitionLinkCompartment(
     description: None,
@@ -14573,7 +14897,10 @@ pub type Group {
   )
 }
 
-pub fn group_new(membership, type_) -> Group {
+pub fn group_new(
+  membership membership: r5valuesets.Groupmembershipbasis,
+  type_ type_: r5valuesets.Grouptype,
+) -> Group {
   Group(
     member: [],
     characteristic: [],
@@ -14619,7 +14946,11 @@ pub type GroupCharacteristicValue {
   GroupCharacteristicValueReference(value: Reference)
 }
 
-pub fn group_characteristic_new(exclude, value, code) -> GroupCharacteristic {
+pub fn group_characteristic_new(
+  exclude exclude: Bool,
+  value value: GroupCharacteristicValue,
+  code code: Codeableconcept,
+) -> GroupCharacteristic {
   GroupCharacteristic(
     period: None,
     exclude:,
@@ -14643,7 +14974,7 @@ pub type GroupMember {
   )
 }
 
-pub fn group_member_new(entity) -> GroupMember {
+pub fn group_member_new(entity entity: Reference) -> GroupMember {
   GroupMember(
     inactive: None,
     period: None,
@@ -14689,7 +15020,10 @@ pub type GuidanceresponseModule {
   GuidanceresponseModuleCodeableconcept(module: Codeableconcept)
 }
 
-pub fn guidanceresponse_new(status, module) -> Guidanceresponse {
+pub fn guidanceresponse_new(
+  status status: r5valuesets.Guidanceresponsestatus,
+  module module: GuidanceresponseModule,
+) -> Guidanceresponse {
   Guidanceresponse(
     data_requirement: [],
     result: [],
@@ -14841,7 +15175,10 @@ pub type Imagingselection {
   )
 }
 
-pub fn imagingselection_new(code, status) -> Imagingselection {
+pub fn imagingselection_new(
+  code code: Codeableconcept,
+  status status: r5valuesets.Imagingselectionstatus,
+) -> Imagingselection {
   Imagingselection(
     instance: [],
     focus: [],
@@ -14907,7 +15244,9 @@ pub type ImagingselectionInstance {
   )
 }
 
-pub fn imagingselection_instance_new(uid) -> ImagingselectionInstance {
+pub fn imagingselection_instance_new(
+  uid uid: String,
+) -> ImagingselectionInstance {
   ImagingselectionInstance(
     image_region3_d: [],
     image_region2_d: [],
@@ -14933,7 +15272,7 @@ pub type ImagingselectionInstanceImageregion2d {
 }
 
 pub fn imagingselection_instance_imageregion2d_new(
-  region_type,
+  region_type region_type: r5valuesets.Imagingselection2dgraphictype,
 ) -> ImagingselectionInstanceImageregion2d {
   ImagingselectionInstanceImageregion2d(
     coordinate: [],
@@ -14956,7 +15295,7 @@ pub type ImagingselectionInstanceImageregion3d {
 }
 
 pub fn imagingselection_instance_imageregion3d_new(
-  region_type,
+  region_type region_type: r5valuesets.Imagingselection3dgraphictype,
 ) -> ImagingselectionInstanceImageregion3d {
   ImagingselectionInstanceImageregion3d(
     coordinate: [],
@@ -14999,7 +15338,10 @@ pub type Imagingstudy {
   )
 }
 
-pub fn imagingstudy_new(subject, status) -> Imagingstudy {
+pub fn imagingstudy_new(
+  subject subject: Reference,
+  status status: r5valuesets.Imagingstudystatus,
+) -> Imagingstudy {
   Imagingstudy(
     series: [],
     description: None,
@@ -15051,7 +15393,10 @@ pub type ImagingstudySeries {
   )
 }
 
-pub fn imagingstudy_series_new(modality, uid) -> ImagingstudySeries {
+pub fn imagingstudy_series_new(
+  modality modality: Codeableconcept,
+  uid uid: String,
+) -> ImagingstudySeries {
   ImagingstudySeries(
     instance: [],
     performer: [],
@@ -15082,7 +15427,9 @@ pub type ImagingstudySeriesPerformer {
   )
 }
 
-pub fn imagingstudy_series_performer_new(actor) -> ImagingstudySeriesPerformer {
+pub fn imagingstudy_series_performer_new(
+  actor actor: Reference,
+) -> ImagingstudySeriesPerformer {
   ImagingstudySeriesPerformer(
     actor:,
     function: None,
@@ -15106,8 +15453,8 @@ pub type ImagingstudySeriesInstance {
 }
 
 pub fn imagingstudy_series_instance_new(
-  sop_class,
-  uid,
+  sop_class sop_class: Coding,
+  uid uid: String,
 ) -> ImagingstudySeriesInstance {
   ImagingstudySeriesInstance(
     title: None,
@@ -15169,10 +15516,10 @@ pub type ImmunizationOccurrence {
 }
 
 pub fn immunization_new(
-  occurrence,
-  patient,
-  vaccine_code,
-  status,
+  occurrence occurrence: ImmunizationOccurrence,
+  patient patient: Reference,
+  vaccine_code vaccine_code: Codeableconcept,
+  status status: r5valuesets.Immunizationstatus,
 ) -> Immunization {
   Immunization(
     protocol_applied: [],
@@ -15225,7 +15572,9 @@ pub type ImmunizationPerformer {
   )
 }
 
-pub fn immunization_performer_new(actor) -> ImmunizationPerformer {
+pub fn immunization_performer_new(
+  actor actor: Reference,
+) -> ImmunizationPerformer {
   ImmunizationPerformer(
     actor:,
     function: None,
@@ -15247,8 +15596,8 @@ pub type ImmunizationProgrameligibility {
 }
 
 pub fn immunization_programeligibility_new(
-  program_status,
-  program,
+  program_status program_status: Codeableconcept,
+  program program: Codeableconcept,
 ) -> ImmunizationProgrameligibility {
   ImmunizationProgrameligibility(
     program_status:,
@@ -15297,7 +15646,7 @@ pub type ImmunizationProtocolapplied {
 }
 
 pub fn immunization_protocolapplied_new(
-  dose_number,
+  dose_number dose_number: String,
 ) -> ImmunizationProtocolapplied {
   ImmunizationProtocolapplied(
     series_doses: None,
@@ -15339,11 +15688,11 @@ pub type Immunizationevaluation {
 }
 
 pub fn immunizationevaluation_new(
-  dose_status,
-  immunization_event,
-  target_disease,
-  patient,
-  status,
+  dose_status dose_status: Codeableconcept,
+  immunization_event immunization_event: Reference,
+  target_disease target_disease: Codeableconcept,
+  patient patient: Reference,
+  status status: r5valuesets.Immunizationevaluationstatus,
 ) -> Immunizationevaluation {
   Immunizationevaluation(
     series_doses: None,
@@ -15390,8 +15739,8 @@ pub type Immunizationrecommendation {
 }
 
 pub fn immunizationrecommendation_new(
-  date,
-  patient,
+  date date: String,
+  patient patient: Reference,
 ) -> Immunizationrecommendation {
   Immunizationrecommendation(
     recommendation: [],
@@ -15432,7 +15781,7 @@ pub type ImmunizationrecommendationRecommendation {
 }
 
 pub fn immunizationrecommendation_recommendation_new(
-  forecast_status,
+  forecast_status forecast_status: Codeableconcept,
 ) -> ImmunizationrecommendationRecommendation {
   ImmunizationrecommendationRecommendation(
     supporting_patient_information: [],
@@ -15465,8 +15814,8 @@ pub type ImmunizationrecommendationRecommendationDatecriterion {
 }
 
 pub fn immunizationrecommendation_recommendation_datecriterion_new(
-  value,
-  code,
+  value value: String,
+  code code: Codeableconcept,
 ) -> ImmunizationrecommendationRecommendationDatecriterion {
   ImmunizationrecommendationRecommendationDatecriterion(
     value:,
@@ -15522,10 +15871,10 @@ pub type ImplementationguideVersionalgorithm {
 }
 
 pub fn implementationguide_new(
-  package_id,
-  status,
-  name,
-  url,
+  package_id package_id: String,
+  status status: r5valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
 ) -> Implementationguide {
   Implementationguide(
     manifest: None,
@@ -15576,7 +15925,9 @@ pub type ImplementationguideDependson {
   )
 }
 
-pub fn implementationguide_dependson_new(uri) -> ImplementationguideDependson {
+pub fn implementationguide_dependson_new(
+  uri uri: String,
+) -> ImplementationguideDependson {
   ImplementationguideDependson(
     reason: None,
     version: None,
@@ -15600,8 +15951,8 @@ pub type ImplementationguideGlobal {
 }
 
 pub fn implementationguide_global_new(
-  profile,
-  type_,
+  profile profile: String,
+  type_ type_: r5valuesets.Resourcetypes,
 ) -> ImplementationguideGlobal {
   ImplementationguideGlobal(
     profile:,
@@ -15651,7 +16002,7 @@ pub type ImplementationguideDefinitionGrouping {
 }
 
 pub fn implementationguide_definition_grouping_new(
-  name,
+  name name: String,
 ) -> ImplementationguideDefinitionGrouping {
   ImplementationguideDefinitionGrouping(
     description: None,
@@ -15679,7 +16030,7 @@ pub type ImplementationguideDefinitionResource {
 }
 
 pub fn implementationguide_definition_resource_new(
-  reference,
+  reference reference: Reference,
 ) -> ImplementationguideDefinitionResource {
   ImplementationguideDefinitionResource(
     grouping_id: None,
@@ -15717,9 +16068,9 @@ pub type ImplementationguideDefinitionPageSource {
 }
 
 pub fn implementationguide_definition_page_new(
-  generation,
-  title,
-  name,
+  generation generation: r5valuesets.Guidepagegeneration,
+  title title: String,
+  name name: String,
 ) -> ImplementationguideDefinitionPage {
   ImplementationguideDefinitionPage(
     page: [],
@@ -15745,8 +16096,8 @@ pub type ImplementationguideDefinitionParameter {
 }
 
 pub fn implementationguide_definition_parameter_new(
-  value,
-  code,
+  value value: String,
+  code code: Coding,
 ) -> ImplementationguideDefinitionParameter {
   ImplementationguideDefinitionParameter(
     value:,
@@ -15770,8 +16121,8 @@ pub type ImplementationguideDefinitionTemplate {
 }
 
 pub fn implementationguide_definition_template_new(
-  source,
-  code,
+  source source: String,
+  code code: String,
 ) -> ImplementationguideDefinitionTemplate {
   ImplementationguideDefinitionTemplate(
     scope: None,
@@ -15824,7 +16175,7 @@ pub type ImplementationguideManifestResource {
 }
 
 pub fn implementationguide_manifest_resource_new(
-  reference,
+  reference reference: Reference,
 ) -> ImplementationguideManifestResource {
   ImplementationguideManifestResource(
     relative_path: None,
@@ -15850,7 +16201,7 @@ pub type ImplementationguideManifestPage {
 }
 
 pub fn implementationguide_manifest_page_new(
-  name,
+  name name: String,
 ) -> ImplementationguideManifestPage {
   ImplementationguideManifestPage(
     anchor: [],
@@ -15886,7 +16237,11 @@ pub type Ingredient {
   )
 }
 
-pub fn ingredient_new(substance, role, status) -> Ingredient {
+pub fn ingredient_new(
+  substance substance: IngredientSubstance,
+  role role: Codeableconcept,
+  status status: r5valuesets.Publicationstatus,
+) -> Ingredient {
   Ingredient(
     substance:,
     manufacturer: [],
@@ -15920,7 +16275,9 @@ pub type IngredientManufacturer {
   )
 }
 
-pub fn ingredient_manufacturer_new(manufacturer) -> IngredientManufacturer {
+pub fn ingredient_manufacturer_new(
+  manufacturer manufacturer: Reference,
+) -> IngredientManufacturer {
   IngredientManufacturer(
     manufacturer:,
     role: None,
@@ -15941,7 +16298,9 @@ pub type IngredientSubstance {
   )
 }
 
-pub fn ingredient_substance_new(code) -> IngredientSubstance {
+pub fn ingredient_substance_new(
+  code code: Codeablereference,
+) -> IngredientSubstance {
   IngredientSubstance(
     strength: [],
     code:,
@@ -16029,8 +16388,8 @@ pub type IngredientSubstanceStrengthReferencestrengthStrength {
 }
 
 pub fn ingredient_substance_strength_referencestrength_new(
-  strength,
-  substance,
+  strength strength: IngredientSubstanceStrengthReferencestrengthStrength,
+  substance substance: Codeablereference,
 ) -> IngredientSubstanceStrengthReferencestrength {
   IngredientSubstanceStrengthReferencestrength(
     country: [],
@@ -16110,7 +16469,9 @@ pub type InsuranceplanCoverage {
   )
 }
 
-pub fn insuranceplan_coverage_new(type_) -> InsuranceplanCoverage {
+pub fn insuranceplan_coverage_new(
+  type_ type_: Codeableconcept,
+) -> InsuranceplanCoverage {
   InsuranceplanCoverage(
     benefit: [],
     network: [],
@@ -16133,7 +16494,9 @@ pub type InsuranceplanCoverageBenefit {
   )
 }
 
-pub fn insuranceplan_coverage_benefit_new(type_) -> InsuranceplanCoverageBenefit {
+pub fn insuranceplan_coverage_benefit_new(
+  type_ type_: Codeableconcept,
+) -> InsuranceplanCoverageBenefit {
   InsuranceplanCoverageBenefit(
     limit: [],
     requirement: None,
@@ -16231,7 +16594,7 @@ pub type InsuranceplanPlanSpecificcost {
 }
 
 pub fn insuranceplan_plan_specificcost_new(
-  category,
+  category category: Codeableconcept,
 ) -> InsuranceplanPlanSpecificcost {
   InsuranceplanPlanSpecificcost(
     benefit: [],
@@ -16254,7 +16617,7 @@ pub type InsuranceplanPlanSpecificcostBenefit {
 }
 
 pub fn insuranceplan_plan_specificcost_benefit_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> InsuranceplanPlanSpecificcostBenefit {
   InsuranceplanPlanSpecificcostBenefit(
     cost: [],
@@ -16279,7 +16642,7 @@ pub type InsuranceplanPlanSpecificcostBenefitCost {
 }
 
 pub fn insuranceplan_plan_specificcost_benefit_cost_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> InsuranceplanPlanSpecificcostBenefitCost {
   InsuranceplanPlanSpecificcostBenefitCost(
     value: None,
@@ -16320,7 +16683,9 @@ pub type Inventoryitem {
   )
 }
 
-pub fn inventoryitem_new(status) -> Inventoryitem {
+pub fn inventoryitem_new(
+  status status: r5valuesets.Inventoryitemstatus,
+) -> Inventoryitem {
   Inventoryitem(
     product_reference: None,
     instance: None,
@@ -16359,7 +16724,11 @@ pub type InventoryitemName {
   )
 }
 
-pub fn inventoryitem_name_new(name, language, name_type) -> InventoryitemName {
+pub fn inventoryitem_name_new(
+  name name: String,
+  language language: r5valuesets.Languages,
+  name_type name_type: Coding,
+) -> InventoryitemName {
   InventoryitemName(
     name:,
     language:,
@@ -16382,8 +16751,8 @@ pub type InventoryitemResponsibleorganization {
 }
 
 pub fn inventoryitem_responsibleorganization_new(
-  organization,
-  role,
+  organization organization: Reference,
+  role role: Codeableconcept,
 ) -> InventoryitemResponsibleorganization {
   InventoryitemResponsibleorganization(
     organization:,
@@ -16428,9 +16797,9 @@ pub type InventoryitemAssociation {
 }
 
 pub fn inventoryitem_association_new(
-  quantity,
-  related_item,
-  association_type,
+  quantity quantity: Ratio,
+  related_item related_item: Reference,
+  association_type association_type: Codeableconcept,
 ) -> InventoryitemAssociation {
   InventoryitemAssociation(
     quantity:,
@@ -16471,8 +16840,8 @@ pub type InventoryitemCharacteristicValue {
 }
 
 pub fn inventoryitem_characteristic_new(
-  value,
-  characteristic_type,
+  value value: InventoryitemCharacteristicValue,
+  characteristic_type characteristic_type: Codeableconcept,
 ) -> InventoryitemCharacteristic {
   InventoryitemCharacteristic(
     value:,
@@ -16535,9 +16904,9 @@ pub type Inventoryreport {
 }
 
 pub fn inventoryreport_new(
-  reported_date_time,
-  count_type,
-  status,
+  reported_date_time reported_date_time: String,
+  count_type count_type: r5valuesets.Inventoryreportcounttype,
+  status status: r5valuesets.Inventoryreportstatus,
 ) -> Inventoryreport {
   Inventoryreport(
     note: [],
@@ -16599,8 +16968,8 @@ pub type InventoryreportInventorylistingItem {
 }
 
 pub fn inventoryreport_inventorylisting_item_new(
-  item,
-  quantity,
+  item item: Codeablereference,
+  quantity quantity: Quantity,
 ) -> InventoryreportInventorylistingItem {
   InventoryreportInventorylistingItem(
     item:,
@@ -16650,7 +17019,7 @@ pub type InvoicePeriod {
   InvoicePeriodPeriod(period: Period)
 }
 
-pub fn invoice_new(status) -> Invoice {
+pub fn invoice_new(status status: r5valuesets.Invoicestatus) -> Invoice {
   Invoice(
     note: [],
     payment_terms: None,
@@ -16692,7 +17061,7 @@ pub type InvoiceParticipant {
   )
 }
 
-pub fn invoice_participant_new(actor) -> InvoiceParticipant {
+pub fn invoice_participant_new(actor actor: Reference) -> InvoiceParticipant {
   InvoiceParticipant(
     actor:,
     role: None,
@@ -16727,7 +17096,9 @@ pub type InvoiceLineitemChargeitem {
   InvoiceLineitemChargeitemCodeableconcept(charge_item: Codeableconcept)
 }
 
-pub fn invoice_lineitem_new(charge_item) -> InvoiceLineitem {
+pub fn invoice_lineitem_new(
+  charge_item charge_item: InvoiceLineitemChargeitem,
+) -> InvoiceLineitem {
   InvoiceLineitem(
     price_component: [],
     charge_item:,
@@ -16798,7 +17169,10 @@ pub type LibrarySubject {
   LibrarySubjectReference(subject: Reference)
 }
 
-pub fn library_new(type_, status) -> Library {
+pub fn library_new(
+  type_ type_: Codeableconcept,
+  status status: r5valuesets.Publicationstatus,
+) -> Library {
   Library(
     content: [],
     data_requirement: [],
@@ -16888,7 +17262,10 @@ pub type LinkageItem {
   )
 }
 
-pub fn linkage_item_new(resource, type_) -> LinkageItem {
+pub fn linkage_item_new(
+  resource resource: Reference,
+  type_ type_: r5valuesets.Linkagetype,
+) -> LinkageItem {
   LinkageItem(
     resource:,
     type_:,
@@ -16925,7 +17302,10 @@ pub type FhirList {
   )
 }
 
-pub fn fhir_list_new(mode, status) -> FhirList {
+pub fn fhir_list_new(
+  mode mode: r5valuesets.Listmode,
+  status status: r5valuesets.Liststatus,
+) -> FhirList {
   FhirList(
     empty_reason: None,
     entry: [],
@@ -16964,7 +17344,7 @@ pub type ListEntry {
   )
 }
 
-pub fn list_entry_new(item) -> ListEntry {
+pub fn list_entry_new(item item: Reference) -> ListEntry {
   ListEntry(
     item:,
     date: None,
@@ -17051,7 +17431,10 @@ pub type LocationPosition {
   )
 }
 
-pub fn location_position_new(latitude, longitude) -> LocationPosition {
+pub fn location_position_new(
+  latitude latitude: Float,
+  longitude longitude: Float,
+) -> LocationPosition {
   LocationPosition(
     altitude: None,
     latitude:,
@@ -17087,8 +17470,8 @@ pub type Manufactureditemdefinition {
 }
 
 pub fn manufactureditemdefinition_new(
-  manufactured_dose_form,
-  status,
+  manufactured_dose_form manufactured_dose_form: Codeableconcept,
+  status status: r5valuesets.Publicationstatus,
 ) -> Manufactureditemdefinition {
   Manufactureditemdefinition(
     component: [],
@@ -17135,7 +17518,7 @@ pub type ManufactureditemdefinitionPropertyValue {
 }
 
 pub fn manufactureditemdefinition_property_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> ManufactureditemdefinitionProperty {
   ManufactureditemdefinitionProperty(
     value: None,
@@ -17162,7 +17545,7 @@ pub type ManufactureditemdefinitionComponent {
 }
 
 pub fn manufactureditemdefinition_component_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> ManufactureditemdefinitionComponent {
   ManufactureditemdefinitionComponent(
     component: [],
@@ -17273,7 +17656,7 @@ pub type MeasureSubject {
   MeasureSubjectReference(subject: Reference)
 }
 
-pub fn measure_new(status) -> Measure {
+pub fn measure_new(status status: r5valuesets.Publicationstatus) -> Measure {
   Measure(
     supplemental_data: [],
     group: [],
@@ -17502,7 +17885,9 @@ pub type MeasureSupplementaldata {
   )
 }
 
-pub fn measure_supplementaldata_new(criteria) -> MeasureSupplementaldata {
+pub fn measure_supplementaldata_new(
+  criteria criteria: Expression,
+) -> MeasureSupplementaldata {
   MeasureSupplementaldata(
     criteria:,
     description: None,
@@ -17546,7 +17931,11 @@ pub type Measurereport {
   )
 }
 
-pub fn measurereport_new(period, type_, status) -> Measurereport {
+pub fn measurereport_new(
+  period period: Period,
+  type_ type_: r5valuesets.Measurereporttype,
+  status status: r5valuesets.Measurereportstatus,
+) -> Measurereport {
   Measurereport(
     evaluated_resource: [],
     supplemental_data: [],
@@ -17743,8 +18132,8 @@ pub type MeasurereportGroupStratifierStratumComponentValue {
 }
 
 pub fn measurereport_group_stratifier_stratum_component_new(
-  value,
-  code,
+  value value: MeasurereportGroupStratifierStratumComponentValue,
+  code code: Codeableconcept,
 ) -> MeasurereportGroupStratifierStratumComponent {
   MeasurereportGroupStratifierStratumComponent(
     value:,
@@ -17849,7 +18238,9 @@ pub type MedicationIngredientStrength {
   MedicationIngredientStrengthQuantity(strength: Quantity)
 }
 
-pub fn medication_ingredient_new(item) -> MedicationIngredient {
+pub fn medication_ingredient_new(
+  item item: Codeablereference,
+) -> MedicationIngredient {
   MedicationIngredient(
     strength: None,
     is_active: None,
@@ -17924,10 +18315,10 @@ pub type MedicationadministrationOccurence {
 }
 
 pub fn medicationadministration_new(
-  occurence,
-  subject,
-  medication,
-  status,
+  occurence occurence: MedicationadministrationOccurence,
+  subject subject: Reference,
+  medication medication: Codeablereference,
+  status status: r5valuesets.Medicationadminstatus,
 ) -> Medicationadministration {
   Medicationadministration(
     event_history: [],
@@ -17974,7 +18365,7 @@ pub type MedicationadministrationPerformer {
 }
 
 pub fn medicationadministration_performer_new(
-  actor,
+  actor actor: Codeablereference,
 ) -> MedicationadministrationPerformer {
   MedicationadministrationPerformer(
     actor:,
@@ -18061,7 +18452,11 @@ pub type Medicationdispense {
   )
 }
 
-pub fn medicationdispense_new(subject, medication, status) -> Medicationdispense {
+pub fn medicationdispense_new(
+  subject subject: Reference,
+  medication medication: Codeablereference,
+  status status: r5valuesets.Medicationdispensestatus,
+) -> Medicationdispense {
   Medicationdispense(
     event_history: [],
     substitution: None,
@@ -18112,7 +18507,9 @@ pub type MedicationdispensePerformer {
   )
 }
 
-pub fn medicationdispense_performer_new(actor) -> MedicationdispensePerformer {
+pub fn medicationdispense_performer_new(
+  actor actor: Reference,
+) -> MedicationdispensePerformer {
   MedicationdispensePerformer(
     actor:,
     function: None,
@@ -18136,7 +18533,7 @@ pub type MedicationdispenseSubstitution {
 }
 
 pub fn medicationdispense_substitution_new(
-  was_substituted,
+  was_substituted was_substituted: Bool,
 ) -> MedicationdispenseSubstitution {
   MedicationdispenseSubstitution(
     responsible_party: None,
@@ -18230,7 +18627,7 @@ pub type MedicationknowledgeRelatedmedicationknowledge {
 }
 
 pub fn medicationknowledge_relatedmedicationknowledge_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> MedicationknowledgeRelatedmedicationknowledge {
   MedicationknowledgeRelatedmedicationknowledge(
     reference: [],
@@ -18281,7 +18678,10 @@ pub type MedicationknowledgeCostCost {
   MedicationknowledgeCostCostCodeableconcept(cost: Codeableconcept)
 }
 
-pub fn medicationknowledge_cost_new(cost, type_) -> MedicationknowledgeCost {
+pub fn medicationknowledge_cost_new(
+  cost cost: MedicationknowledgeCostCost,
+  type_ type_: Codeableconcept,
+) -> MedicationknowledgeCost {
   MedicationknowledgeCost(
     cost:,
     source: None,
@@ -18376,7 +18776,7 @@ pub type MedicationknowledgeIndicationguidelineDosingguidelineDosage {
 }
 
 pub fn medicationknowledge_indicationguideline_dosingguideline_dosage_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> MedicationknowledgeIndicationguidelineDosingguidelineDosage {
   MedicationknowledgeIndicationguidelineDosingguidelineDosage(
     dosage: [],
@@ -18414,7 +18814,7 @@ pub type MedicationknowledgeIndicationguidelineDosingguidelinePatientcharacteris
 }
 
 pub fn medicationknowledge_indicationguideline_dosingguideline_patientcharacteristic_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> MedicationknowledgeIndicationguidelineDosingguidelinePatientcharacteristic {
   MedicationknowledgeIndicationguidelineDosingguidelinePatientcharacteristic(
     value: None,
@@ -18444,7 +18844,7 @@ pub type MedicationknowledgeMedicineclassificationSource {
 }
 
 pub fn medicationknowledge_medicineclassification_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> MedicationknowledgeMedicineclassification {
   MedicationknowledgeMedicineclassification(
     classification: [],
@@ -18529,8 +18929,8 @@ pub type MedicationknowledgeStorageguidelineEnvironmentalsettingValue {
 }
 
 pub fn medicationknowledge_storageguideline_environmentalsetting_new(
-  value,
-  type_,
+  value value: MedicationknowledgeStorageguidelineEnvironmentalsettingValue,
+  type_ type_: Codeableconcept,
 ) -> MedicationknowledgeStorageguidelineEnvironmentalsetting {
   MedicationknowledgeStorageguidelineEnvironmentalsetting(
     value:,
@@ -18555,7 +18955,7 @@ pub type MedicationknowledgeRegulatory {
 }
 
 pub fn medicationknowledge_regulatory_new(
-  regulatory_authority,
+  regulatory_authority regulatory_authority: Reference,
 ) -> MedicationknowledgeRegulatory {
   MedicationknowledgeRegulatory(
     max_dispense: None,
@@ -18580,8 +18980,8 @@ pub type MedicationknowledgeRegulatorySubstitution {
 }
 
 pub fn medicationknowledge_regulatory_substitution_new(
-  allowed,
-  type_,
+  allowed allowed: Bool,
+  type_ type_: Codeableconcept,
 ) -> MedicationknowledgeRegulatorySubstitution {
   MedicationknowledgeRegulatorySubstitution(
     allowed:,
@@ -18604,7 +19004,7 @@ pub type MedicationknowledgeRegulatoryMaxdispense {
 }
 
 pub fn medicationknowledge_regulatory_maxdispense_new(
-  quantity,
+  quantity quantity: Quantity,
 ) -> MedicationknowledgeRegulatoryMaxdispense {
   MedicationknowledgeRegulatoryMaxdispense(
     period: None,
@@ -18664,7 +19064,7 @@ pub type MedicationknowledgeDefinitionalIngredientStrength {
 }
 
 pub fn medicationknowledge_definitional_ingredient_new(
-  item,
+  item item: Codeablereference,
 ) -> MedicationknowledgeDefinitionalIngredient {
   MedicationknowledgeDefinitionalIngredient(
     strength: None,
@@ -18762,10 +19162,10 @@ pub type Medicationrequest {
 }
 
 pub fn medicationrequest_new(
-  subject,
-  medication,
-  intent,
-  status,
+  subject subject: Reference,
+  medication medication: Codeablereference,
+  intent intent: r5valuesets.Medicationrequestintent,
+  status status: r5valuesets.Medicationrequeststatus,
 ) -> Medicationrequest {
   Medicationrequest(
     event_history: [],
@@ -18886,7 +19286,7 @@ pub type MedicationrequestSubstitutionAllowed {
 }
 
 pub fn medicationrequest_substitution_new(
-  allowed,
+  allowed allowed: MedicationrequestSubstitutionAllowed,
 ) -> MedicationrequestSubstitution {
   MedicationrequestSubstitution(
     reason: None,
@@ -18936,9 +19336,9 @@ pub type MedicationstatementEffective {
 }
 
 pub fn medicationstatement_new(
-  subject,
-  medication,
-  status,
+  subject subject: Reference,
+  medication medication: Codeablereference,
+  status status: r5valuesets.Medicationstatementstatus,
 ) -> Medicationstatement {
   Medicationstatement(
     adherence: None,
@@ -18980,7 +19380,9 @@ pub type MedicationstatementAdherence {
   )
 }
 
-pub fn medicationstatement_adherence_new(code) -> MedicationstatementAdherence {
+pub fn medicationstatement_adherence_new(
+  code code: Codeableconcept,
+) -> MedicationstatementAdherence {
   MedicationstatementAdherence(
     reason: None,
     code:,
@@ -19087,7 +19489,7 @@ pub type MedicinalproductdefinitionContact {
 }
 
 pub fn medicinalproductdefinition_contact_new(
-  contact,
+  contact contact: Reference,
 ) -> MedicinalproductdefinitionContact {
   MedicinalproductdefinitionContact(
     contact:,
@@ -19112,7 +19514,7 @@ pub type MedicinalproductdefinitionName {
 }
 
 pub fn medicinalproductdefinition_name_new(
-  product_name,
+  product_name product_name: String,
 ) -> MedicinalproductdefinitionName {
   MedicinalproductdefinitionName(
     usage: [],
@@ -19137,8 +19539,8 @@ pub type MedicinalproductdefinitionNamePart {
 }
 
 pub fn medicinalproductdefinition_name_part_new(
-  type_,
-  part,
+  type_ type_: Codeableconcept,
+  part part: String,
 ) -> MedicinalproductdefinitionNamePart {
   MedicinalproductdefinitionNamePart(
     type_:,
@@ -19162,8 +19564,8 @@ pub type MedicinalproductdefinitionNameUsage {
 }
 
 pub fn medicinalproductdefinition_name_usage_new(
-  language,
-  country,
+  language language: Codeableconcept,
+  country country: Codeableconcept,
 ) -> MedicinalproductdefinitionNameUsage {
   MedicinalproductdefinitionNameUsage(
     language:,
@@ -19187,7 +19589,7 @@ pub type MedicinalproductdefinitionCrossreference {
 }
 
 pub fn medicinalproductdefinition_crossreference_new(
-  product,
+  product product: Codeablereference,
 ) -> MedicinalproductdefinitionCrossreference {
   MedicinalproductdefinitionCrossreference(
     type_: None,
@@ -19248,7 +19650,7 @@ pub type MedicinalproductdefinitionCharacteristicValue {
 }
 
 pub fn medicinalproductdefinition_characteristic_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> MedicinalproductdefinitionCharacteristic {
   MedicinalproductdefinitionCharacteristic(
     value: None,
@@ -19311,7 +19713,11 @@ pub type MessagedefinitionEvent {
   MessagedefinitionEventUri(event: String)
 }
 
-pub fn messagedefinition_new(event, date, status) -> Messagedefinition {
+pub fn messagedefinition_new(
+  event event: MessagedefinitionEvent,
+  date date: String,
+  status status: r5valuesets.Publicationstatus,
+) -> Messagedefinition {
   Messagedefinition(
     graph: None,
     allowed_response: [],
@@ -19363,7 +19769,10 @@ pub type MessagedefinitionFocus {
   )
 }
 
-pub fn messagedefinition_focus_new(min, code) -> MessagedefinitionFocus {
+pub fn messagedefinition_focus_new(
+  min min: Int,
+  code code: r5valuesets.Resourcetypes,
+) -> MessagedefinitionFocus {
   MessagedefinitionFocus(
     max: None,
     min:,
@@ -19387,7 +19796,7 @@ pub type MessagedefinitionAllowedresponse {
 }
 
 pub fn messagedefinition_allowedresponse_new(
-  message,
+  message message: String,
 ) -> MessagedefinitionAllowedresponse {
   MessagedefinitionAllowedresponse(
     situation: None,
@@ -19428,7 +19837,10 @@ pub type MessageheaderEvent {
   MessageheaderEventCanonical(event: String)
 }
 
-pub fn messageheader_new(source, event) -> Messageheader {
+pub fn messageheader_new(
+  source source: MessageheaderSource,
+  event event: MessageheaderEvent,
+) -> Messageheader {
   Messageheader(
     definition: None,
     focus: [],
@@ -19527,7 +19939,10 @@ pub type MessageheaderResponse {
   )
 }
 
-pub fn messageheader_response_new(code, identifier) -> MessageheaderResponse {
+pub fn messageheader_response_new(
+  code code: r5valuesets.Responsecode,
+  identifier identifier: Identifier,
+) -> MessageheaderResponse {
   MessageheaderResponse(
     details: None,
     code:,
@@ -19584,7 +19999,9 @@ pub type MetadataresourceVersionalgorithm {
   MetadataresourceVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn metadataresource_new(status) -> Metadataresource {
+pub fn metadataresource_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Metadataresource {
   Metadataresource(
     related_artifact: [],
     endorser: [],
@@ -19685,7 +20102,7 @@ pub type MolecularsequenceRelative {
 }
 
 pub fn molecularsequence_relative_new(
-  coordinate_system,
+  coordinate_system coordinate_system: Codeableconcept,
 ) -> MolecularsequenceRelative {
   MolecularsequenceRelative(
     edit: [],
@@ -19817,7 +20234,12 @@ pub type NamingsystemVersionalgorithm {
   NamingsystemVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn namingsystem_new(date, kind, status, name) -> Namingsystem {
+pub fn namingsystem_new(
+  date date: String,
+  kind kind: r5valuesets.Namingsystemtype,
+  status status: r5valuesets.Publicationstatus,
+  name name: String,
+) -> Namingsystem {
   Namingsystem(
     unique_id: [],
     usage: None,
@@ -19876,7 +20298,10 @@ pub type NamingsystemUniqueid {
   )
 }
 
-pub fn namingsystem_uniqueid_new(value, type_) -> NamingsystemUniqueid {
+pub fn namingsystem_uniqueid_new(
+  value value: String,
+  type_ type_: r5valuesets.Namingsystemidentifiertype,
+) -> NamingsystemUniqueid {
   NamingsystemUniqueid(
     authoritative: None,
     period: None,
@@ -19936,7 +20361,10 @@ pub type NutritionintakeReported {
   NutritionintakeReportedReference(reported: Reference)
 }
 
-pub fn nutritionintake_new(subject, status) -> Nutritionintake {
+pub fn nutritionintake_new(
+  subject subject: Reference,
+  status status: r5valuesets.Eventstatus,
+) -> Nutritionintake {
   Nutritionintake(
     note: [],
     reason: [],
@@ -19986,8 +20414,8 @@ pub type NutritionintakeConsumeditem {
 }
 
 pub fn nutritionintake_consumeditem_new(
-  nutrition_product,
-  type_,
+  nutrition_product nutrition_product: Codeablereference,
+  type_ type_: Codeableconcept,
 ) -> NutritionintakeConsumeditem {
   NutritionintakeConsumeditem(
     not_consumed_reason: None,
@@ -20015,8 +20443,8 @@ pub type NutritionintakeIngredientlabel {
 }
 
 pub fn nutritionintake_ingredientlabel_new(
-  amount,
-  nutrient,
+  amount amount: Quantity,
+  nutrient nutrient: Codeablereference,
 ) -> NutritionintakeIngredientlabel {
   NutritionintakeIngredientlabel(
     amount:,
@@ -20038,7 +20466,9 @@ pub type NutritionintakePerformer {
   )
 }
 
-pub fn nutritionintake_performer_new(actor) -> NutritionintakePerformer {
+pub fn nutritionintake_performer_new(
+  actor actor: Reference,
+) -> NutritionintakePerformer {
   NutritionintakePerformer(
     actor:,
     function: None,
@@ -20085,7 +20515,12 @@ pub type Nutritionorder {
   )
 }
 
-pub fn nutritionorder_new(date_time, subject, intent, status) -> Nutritionorder {
+pub fn nutritionorder_new(
+  date_time date_time: String,
+  subject subject: Reference,
+  intent intent: r5valuesets.Requestintent,
+  status status: r5valuesets.Requeststatus,
+) -> Nutritionorder {
   Nutritionorder(
     note: [],
     enteral_formula: None,
@@ -20399,7 +20834,9 @@ pub type Nutritionproduct {
   )
 }
 
-pub fn nutritionproduct_new(status) -> Nutritionproduct {
+pub fn nutritionproduct_new(
+  status status: r5valuesets.Nutritionproductstatus,
+) -> Nutritionproduct {
   Nutritionproduct(
     note: [],
     instance: [],
@@ -20454,7 +20891,9 @@ pub type NutritionproductIngredient {
   )
 }
 
-pub fn nutritionproduct_ingredient_new(item) -> NutritionproductIngredient {
+pub fn nutritionproduct_ingredient_new(
+  item item: Codeablereference,
+) -> NutritionproductIngredient {
   NutritionproductIngredient(
     amount: [],
     item:,
@@ -20486,8 +20925,8 @@ pub type NutritionproductCharacteristicValue {
 }
 
 pub fn nutritionproduct_characteristic_new(
-  value,
-  type_,
+  value value: NutritionproductCharacteristicValue,
+  type_ type_: Codeableconcept,
 ) -> NutritionproductCharacteristic {
   NutritionproductCharacteristic(
     value:,
@@ -20601,7 +21040,10 @@ pub type ObservationValue {
   ObservationValueReference(value: Reference)
 }
 
-pub fn observation_new(code, status) -> Observation {
+pub fn observation_new(
+  code code: Codeableconcept,
+  status status: r5valuesets.Observationstatus,
+) -> Observation {
   Observation(
     component: [],
     derived_from: [],
@@ -20653,7 +21095,10 @@ pub type ObservationTriggeredby {
   )
 }
 
-pub fn observation_triggeredby_new(type_, observation) -> ObservationTriggeredby {
+pub fn observation_triggeredby_new(
+  type_ type_: r5valuesets.Observationtriggeredbytype,
+  observation observation: Reference,
+) -> ObservationTriggeredby {
   ObservationTriggeredby(
     reason: None,
     type_:,
@@ -20726,7 +21171,9 @@ pub type ObservationComponentValue {
   ObservationComponentValueReference(value: Reference)
 }
 
-pub fn observation_component_new(code) -> ObservationComponent {
+pub fn observation_component_new(
+  code code: Codeableconcept,
+) -> ObservationComponent {
   ObservationComponent(
     reference_range: [],
     interpretation: [],
@@ -20796,7 +21243,10 @@ pub type ObservationdefinitionVersionalgorithm {
   ObservationdefinitionVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn observationdefinition_new(code, status) -> Observationdefinition {
+pub fn observationdefinition_new(
+  code code: Codeableconcept,
+  status status: r5valuesets.Publicationstatus,
+) -> Observationdefinition {
   Observationdefinition(
     component: [],
     has_member: [],
@@ -20901,7 +21351,7 @@ pub type ObservationdefinitionComponent {
 }
 
 pub fn observationdefinition_component_new(
-  code,
+  code code: Codeableconcept,
 ) -> ObservationdefinitionComponent {
   ObservationdefinitionComponent(
     qualified_value: [],
@@ -20965,13 +21415,13 @@ pub type OperationdefinitionVersionalgorithm {
 }
 
 pub fn operationdefinition_new(
-  instance,
-  type_,
-  system,
-  code,
-  kind,
-  status,
-  name,
+  instance instance: Bool,
+  type_ type_: Bool,
+  system system: Bool,
+  code code: String,
+  kind kind: r5valuesets.Operationkind,
+  status status: r5valuesets.Publicationstatus,
+  name name: String,
 ) -> Operationdefinition {
   Operationdefinition(
     overload: [],
@@ -21038,10 +21488,10 @@ pub type OperationdefinitionParameter {
 }
 
 pub fn operationdefinition_parameter_new(
-  max,
-  min,
-  use_,
-  name,
+  max max: String,
+  min min: Int,
+  use_ use_: r5valuesets.Operationparameteruse,
+  name name: String,
 ) -> OperationdefinitionParameter {
   OperationdefinitionParameter(
     part: [],
@@ -21075,8 +21525,8 @@ pub type OperationdefinitionParameterBinding {
 }
 
 pub fn operationdefinition_parameter_binding_new(
-  value_set,
-  strength,
+  value_set value_set: String,
+  strength strength: r5valuesets.Bindingstrength,
 ) -> OperationdefinitionParameterBinding {
   OperationdefinitionParameterBinding(
     value_set:,
@@ -21099,7 +21549,7 @@ pub type OperationdefinitionParameterReferencedfrom {
 }
 
 pub fn operationdefinition_parameter_referencedfrom_new(
-  source,
+  source source: String,
 ) -> OperationdefinitionParameterReferencedfrom {
   OperationdefinitionParameterReferencedfrom(
     source_id: None,
@@ -21175,7 +21625,10 @@ pub type OperationoutcomeIssue {
   )
 }
 
-pub fn operationoutcome_issue_new(code, severity) -> OperationoutcomeIssue {
+pub fn operationoutcome_issue_new(
+  code code: r5valuesets.Issuetype,
+  severity severity: r5valuesets.Issueseverity,
+) -> OperationoutcomeIssue {
   OperationoutcomeIssue(
     expression: [],
     location: [],
@@ -21249,7 +21702,9 @@ pub type OrganizationQualification {
   )
 }
 
-pub fn organization_qualification_new(code) -> OrganizationQualification {
+pub fn organization_qualification_new(
+  code code: Codeableconcept,
+) -> OrganizationQualification {
   OrganizationQualification(
     issuer: None,
     period: None,
@@ -21452,7 +21907,7 @@ pub type PackagedproductdefinitionPackagingPropertyValue {
 }
 
 pub fn packagedproductdefinition_packaging_property_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> PackagedproductdefinitionPackagingProperty {
   PackagedproductdefinitionPackagingProperty(
     value: None,
@@ -21475,7 +21930,7 @@ pub type PackagedproductdefinitionPackagingContaineditem {
 }
 
 pub fn packagedproductdefinition_packaging_containeditem_new(
-  item,
+  item item: Codeablereference,
 ) -> PackagedproductdefinitionPackagingContaineditem {
   PackagedproductdefinitionPackagingContaineditem(
     amount: None,
@@ -21578,7 +22033,7 @@ pub type ParametersParameterValue {
   ParametersParameterValueMeta(value: Meta)
 }
 
-pub fn parameters_parameter_new(name) -> ParametersParameter {
+pub fn parameters_parameter_new(name name: String) -> ParametersParameter {
   ParametersParameter(
     part: [],
     resource: None,
@@ -21703,7 +22158,9 @@ pub type PatientCommunication {
   )
 }
 
-pub fn patient_communication_new(language) -> PatientCommunication {
+pub fn patient_communication_new(
+  language language: Codeableconcept,
+) -> PatientCommunication {
   PatientCommunication(
     preferred: None,
     language:,
@@ -21724,7 +22181,10 @@ pub type PatientLink {
   )
 }
 
-pub fn patient_link_new(type_, other) -> PatientLink {
+pub fn patient_link_new(
+  type_ type_: r5valuesets.Linktype,
+  other other: Reference,
+) -> PatientLink {
   PatientLink(type_:, other:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -21754,7 +22214,12 @@ pub type Paymentnotice {
   )
 }
 
-pub fn paymentnotice_new(amount, recipient, created, status) -> Paymentnotice {
+pub fn paymentnotice_new(
+  amount amount: Money,
+  recipient recipient: Reference,
+  created created: String,
+  status status: r5valuesets.Fmstatus,
+) -> Paymentnotice {
   Paymentnotice(
     payment_status: None,
     amount:,
@@ -21823,11 +22288,11 @@ pub type Paymentreconciliation {
 }
 
 pub fn paymentreconciliation_new(
-  amount,
-  date,
-  created,
-  status,
-  type_,
+  amount amount: Money,
+  date date: String,
+  created created: String,
+  status status: r5valuesets.Fmstatus,
+  type_ type_: Codeableconcept,
 ) -> Paymentreconciliation {
   Paymentreconciliation(
     process_note: [],
@@ -21962,7 +22427,10 @@ pub type Permission {
   )
 }
 
-pub fn permission_new(combining, status) -> Permission {
+pub fn permission_new(
+  combining combining: r5valuesets.Permissionrulecombining,
+  status status: r5valuesets.Permissionstatus,
+) -> Permission {
   Permission(
     rule: [],
     combining:,
@@ -22065,8 +22533,8 @@ pub type PermissionRuleDataResource {
 }
 
 pub fn permission_rule_data_resource_new(
-  reference,
-  meaning,
+  reference reference: Reference,
+  meaning meaning: r5valuesets.Consentdatameaning,
 ) -> PermissionRuleDataResource {
   PermissionRuleDataResource(
     reference:,
@@ -22170,7 +22638,9 @@ pub type PersonCommunication {
   )
 }
 
-pub fn person_communication_new(language) -> PersonCommunication {
+pub fn person_communication_new(
+  language language: Codeableconcept,
+) -> PersonCommunication {
   PersonCommunication(
     preferred: None,
     language:,
@@ -22191,7 +22661,7 @@ pub type PersonLink {
   )
 }
 
-pub fn person_link_new(target) -> PersonLink {
+pub fn person_link_new(target target: Reference) -> PersonLink {
   PersonLink(
     assurance: None,
     target:,
@@ -22269,7 +22739,9 @@ pub type PlandefinitionAsneeded {
   PlandefinitionAsneededCodeableconcept(as_needed: Codeableconcept)
 }
 
-pub fn plandefinition_new(status) -> Plandefinition {
+pub fn plandefinition_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Plandefinition {
   Plandefinition(
     as_needed: None,
     action: [],
@@ -22333,7 +22805,9 @@ pub type PlandefinitionGoal {
   )
 }
 
-pub fn plandefinition_goal_new(description) -> PlandefinitionGoal {
+pub fn plandefinition_goal_new(
+  description description: Codeableconcept,
+) -> PlandefinitionGoal {
   PlandefinitionGoal(
     target: [],
     documentation: [],
@@ -22538,7 +23012,7 @@ pub type PlandefinitionActionCondition {
 }
 
 pub fn plandefinition_action_condition_new(
-  kind,
+  kind kind: r5valuesets.Actionconditionkind,
 ) -> PlandefinitionActionCondition {
   PlandefinitionActionCondition(
     expression: None,
@@ -22615,8 +23089,8 @@ pub type PlandefinitionActionRelatedactionOffset {
 }
 
 pub fn plandefinition_action_relatedaction_new(
-  relationship,
-  target_id,
+  relationship relationship: r5valuesets.Actionrelationshiptype,
+  target_id target_id: String,
 ) -> PlandefinitionActionRelatedaction {
   PlandefinitionActionRelatedaction(
     offset: None,
@@ -22747,7 +23221,9 @@ pub type PractitionerQualification {
   )
 }
 
-pub fn practitioner_qualification_new(code) -> PractitionerQualification {
+pub fn practitioner_qualification_new(
+  code code: Codeableconcept,
+) -> PractitionerQualification {
   PractitionerQualification(
     issuer: None,
     period: None,
@@ -22770,7 +23246,9 @@ pub type PractitionerCommunication {
   )
 }
 
-pub fn practitioner_communication_new(language) -> PractitionerCommunication {
+pub fn practitioner_communication_new(
+  language language: Codeableconcept,
+) -> PractitionerCommunication {
   PractitionerCommunication(
     preferred: None,
     language:,
@@ -22893,7 +23371,10 @@ pub type ProcedureReported {
   ProcedureReportedReference(reported: Reference)
 }
 
-pub fn procedure_new(subject, status) -> Procedure {
+pub fn procedure_new(
+  subject subject: Reference,
+  status status: r5valuesets.Eventstatus,
+) -> Procedure {
   Procedure(
     supporting_info: [],
     used: [],
@@ -22947,7 +23428,7 @@ pub type ProcedurePerformer {
   )
 }
 
-pub fn procedure_performer_new(actor) -> ProcedurePerformer {
+pub fn procedure_performer_new(actor actor: Reference) -> ProcedurePerformer {
   ProcedurePerformer(
     period: None,
     on_behalf_of: None,
@@ -22970,7 +23451,9 @@ pub type ProcedureFocaldevice {
   )
 }
 
-pub fn procedure_focaldevice_new(manipulated) -> ProcedureFocaldevice {
+pub fn procedure_focaldevice_new(
+  manipulated manipulated: Reference,
+) -> ProcedureFocaldevice {
   ProcedureFocaldevice(
     manipulated:,
     action: None,
@@ -23052,7 +23535,7 @@ pub type ProvenanceAgent {
   )
 }
 
-pub fn provenance_agent_new(who) -> ProvenanceAgent {
+pub fn provenance_agent_new(who who: Reference) -> ProvenanceAgent {
   ProvenanceAgent(
     on_behalf_of: None,
     who:,
@@ -23076,7 +23559,10 @@ pub type ProvenanceEntity {
   )
 }
 
-pub fn provenance_entity_new(what, role) -> ProvenanceEntity {
+pub fn provenance_entity_new(
+  what what: Reference,
+  role role: r5valuesets.Provenanceentityrole,
+) -> ProvenanceEntity {
   ProvenanceEntity(
     agent: [],
     what:,
@@ -23131,7 +23617,9 @@ pub type QuestionnaireVersionalgorithm {
   QuestionnaireVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn questionnaire_new(status) -> Questionnaire {
+pub fn questionnaire_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Questionnaire {
   Questionnaire(
     item: [],
     code: [],
@@ -23195,7 +23683,10 @@ pub type QuestionnaireItem {
   )
 }
 
-pub fn questionnaire_item_new(type_, link_id) -> QuestionnaireItem {
+pub fn questionnaire_item_new(
+  type_ type_: r5valuesets.Itemtype,
+  link_id link_id: String,
+) -> QuestionnaireItem {
   QuestionnaireItem(
     item: [],
     initial: [],
@@ -23248,9 +23739,9 @@ pub type QuestionnaireItemEnablewhenAnswer {
 }
 
 pub fn questionnaire_item_enablewhen_new(
-  answer,
-  operator,
-  question,
+  answer answer: QuestionnaireItemEnablewhenAnswer,
+  operator operator: r5valuesets.Questionnaireenableoperator,
+  question question: String,
 ) -> QuestionnaireItemEnablewhen {
   QuestionnaireItemEnablewhen(
     answer:,
@@ -23284,7 +23775,7 @@ pub type QuestionnaireItemAnsweroptionValue {
 }
 
 pub fn questionnaire_item_answeroption_new(
-  value,
+  value value: QuestionnaireItemAnsweroptionValue,
 ) -> QuestionnaireItemAnsweroption {
   QuestionnaireItemAnsweroption(
     initial_selected: None,
@@ -23321,7 +23812,9 @@ pub type QuestionnaireItemInitialValue {
   QuestionnaireItemInitialValueReference(value: Reference)
 }
 
-pub fn questionnaire_item_initial_new(value) -> QuestionnaireItemInitial {
+pub fn questionnaire_item_initial_new(
+  value value: QuestionnaireItemInitialValue,
+) -> QuestionnaireItemInitial {
   QuestionnaireItemInitial(
     value:,
     modifier_extension: [],
@@ -23355,7 +23848,10 @@ pub type Questionnaireresponse {
   )
 }
 
-pub fn questionnaireresponse_new(status, questionnaire) -> Questionnaireresponse {
+pub fn questionnaireresponse_new(
+  status status: r5valuesets.Questionnaireanswersstatus,
+  questionnaire questionnaire: String,
+) -> Questionnaireresponse {
   Questionnaireresponse(
     item: [],
     source: None,
@@ -23393,7 +23889,9 @@ pub type QuestionnaireresponseItem {
   )
 }
 
-pub fn questionnaireresponse_item_new(link_id) -> QuestionnaireresponseItem {
+pub fn questionnaireresponse_item_new(
+  link_id link_id: String,
+) -> QuestionnaireresponseItem {
   QuestionnaireresponseItem(
     item: [],
     answer: [],
@@ -23434,7 +23932,7 @@ pub type QuestionnaireresponseItemAnswerValue {
 }
 
 pub fn questionnaireresponse_item_answer_new(
-  value,
+  value value: QuestionnaireresponseItemAnswerValue,
 ) -> QuestionnaireresponseItemAnswer {
   QuestionnaireresponseItemAnswer(
     item: [],
@@ -23561,7 +24059,7 @@ pub type Relatedperson {
   )
 }
 
-pub fn relatedperson_new(patient) -> Relatedperson {
+pub fn relatedperson_new(patient patient: Reference) -> Relatedperson {
   Relatedperson(
     communication: [],
     period: None,
@@ -23597,7 +24095,9 @@ pub type RelatedpersonCommunication {
   )
 }
 
-pub fn relatedperson_communication_new(language) -> RelatedpersonCommunication {
+pub fn relatedperson_communication_new(
+  language language: Codeableconcept,
+) -> RelatedpersonCommunication {
   RelatedpersonCommunication(
     preferred: None,
     language:,
@@ -23639,7 +24139,10 @@ pub type Requestorchestration {
   )
 }
 
-pub fn requestorchestration_new(intent, status) -> Requestorchestration {
+pub fn requestorchestration_new(
+  intent intent: r5valuesets.Requestintent,
+  status status: r5valuesets.Requeststatus,
+) -> Requestorchestration {
   Requestorchestration(
     action: [],
     note: [],
@@ -23769,7 +24272,7 @@ pub type RequestorchestrationActionCondition {
 }
 
 pub fn requestorchestration_action_condition_new(
-  kind,
+  kind kind: r5valuesets.Actionconditionkind,
 ) -> RequestorchestrationActionCondition {
   RequestorchestrationActionCondition(
     expression: None,
@@ -23846,8 +24349,8 @@ pub type RequestorchestrationActionRelatedactionOffset {
 }
 
 pub fn requestorchestration_action_relatedaction_new(
-  relationship,
-  target_id,
+  relationship relationship: r5valuesets.Actionrelationshiptype,
+  target_id target_id: String,
 ) -> RequestorchestrationActionRelatedaction {
   RequestorchestrationActionRelatedaction(
     offset: None,
@@ -23957,7 +24460,9 @@ pub type RequirementsVersionalgorithm {
   RequirementsVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn requirements_new(status) -> Requirements {
+pub fn requirements_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Requirements {
   Requirements(
     statement: [],
     actor: [],
@@ -24010,7 +24515,10 @@ pub type RequirementsStatement {
   )
 }
 
-pub fn requirements_statement_new(requirement, key) -> RequirementsStatement {
+pub fn requirements_statement_new(
+  requirement requirement: String,
+  key key: String,
+) -> RequirementsStatement {
   RequirementsStatement(
     source: [],
     reference: [],
@@ -24074,7 +24582,9 @@ pub type Researchstudy {
   )
 }
 
-pub fn researchstudy_new(status) -> Researchstudy {
+pub fn researchstudy_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Researchstudy {
   Researchstudy(
     result: [],
     outcome_measure: [],
@@ -24154,7 +24664,9 @@ pub type ResearchstudyAssociatedparty {
   )
 }
 
-pub fn researchstudy_associatedparty_new(role) -> ResearchstudyAssociatedparty {
+pub fn researchstudy_associatedparty_new(
+  role role: Codeableconcept,
+) -> ResearchstudyAssociatedparty {
   ResearchstudyAssociatedparty(
     party: None,
     classifier: [],
@@ -24179,7 +24691,9 @@ pub type ResearchstudyProgressstatus {
   )
 }
 
-pub fn researchstudy_progressstatus_new(state) -> ResearchstudyProgressstatus {
+pub fn researchstudy_progressstatus_new(
+  state state: Codeableconcept,
+) -> ResearchstudyProgressstatus {
   ResearchstudyProgressstatus(
     period: None,
     actual: None,
@@ -24230,7 +24744,9 @@ pub type ResearchstudyComparisongroup {
   )
 }
 
-pub fn researchstudy_comparisongroup_new(name) -> ResearchstudyComparisongroup {
+pub fn researchstudy_comparisongroup_new(
+  name name: String,
+) -> ResearchstudyComparisongroup {
   ResearchstudyComparisongroup(
     observed_group: None,
     intended_exposure: [],
@@ -24315,7 +24831,11 @@ pub type Researchsubject {
   )
 }
 
-pub fn researchsubject_new(subject, study, status) -> Researchsubject {
+pub fn researchsubject_new(
+  subject subject: Reference,
+  study study: Reference,
+  status status: r5valuesets.Publicationstatus,
+) -> Researchsubject {
   Researchsubject(
     consent: [],
     actual_comparison_group: None,
@@ -24402,7 +24922,10 @@ pub type RiskassessmentOccurrence {
   RiskassessmentOccurrencePeriod(occurrence: Period)
 }
 
-pub fn riskassessment_new(subject, status) -> Riskassessment {
+pub fn riskassessment_new(
+  subject subject: Reference,
+  status status: r5valuesets.Observationstatus,
+) -> Riskassessment {
   Riskassessment(
     note: [],
     mitigation: None,
@@ -24569,12 +25092,12 @@ pub type SearchparameterVersionalgorithm {
 }
 
 pub fn searchparameter_new(
-  type_,
-  code,
-  description,
-  status,
-  name,
-  url,
+  type_ type_: r5valuesets.Searchparamtype,
+  code code: String,
+  description description: String,
+  status status: r5valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
 ) -> Searchparameter {
   Searchparameter(
     component: [],
@@ -24631,8 +25154,8 @@ pub type SearchparameterComponent {
 }
 
 pub fn searchparameter_component_new(
-  expression,
-  definition,
+  expression expression: String,
+  definition definition: String,
 ) -> SearchparameterComponent {
   SearchparameterComponent(
     expression:,
@@ -24710,7 +25233,11 @@ pub type ServicerequestAsneeded {
   ServicerequestAsneededCodeableconcept(as_needed: Codeableconcept)
 }
 
-pub fn servicerequest_new(subject, intent, status) -> Servicerequest {
+pub fn servicerequest_new(
+  subject subject: Reference,
+  intent intent: r5valuesets.Requestintent,
+  status status: r5valuesets.Requeststatus,
+) -> Servicerequest {
   Servicerequest(
     relevant_history: [],
     patient_instruction: [],
@@ -24800,8 +25327,8 @@ pub type ServicerequestOrderdetailParameterValue {
 }
 
 pub fn servicerequest_orderdetail_parameter_new(
-  value,
-  code,
+  value value: ServicerequestOrderdetailParameterValue,
+  code code: Codeableconcept,
 ) -> ServicerequestOrderdetailParameter {
   ServicerequestOrderdetailParameter(
     value:,
@@ -24862,7 +25389,12 @@ pub type Slot {
   )
 }
 
-pub fn slot_new(end, start, status, schedule) -> Slot {
+pub fn slot_new(
+  end end: String,
+  start start: String,
+  status status: r5valuesets.Slotstatus,
+  schedule schedule: Reference,
+) -> Slot {
   Slot(
     comment: None,
     overbooked: None,
@@ -24956,7 +25488,10 @@ pub type SpecimenFeature {
   )
 }
 
-pub fn specimen_feature_new(description, type_) -> SpecimenFeature {
+pub fn specimen_feature_new(
+  description description: String,
+  type_ type_: Codeableconcept,
+) -> SpecimenFeature {
   SpecimenFeature(
     description:,
     type_:,
@@ -25058,7 +25593,7 @@ pub type SpecimenContainer {
   )
 }
 
-pub fn specimen_container_new(device) -> SpecimenContainer {
+pub fn specimen_container_new(device device: Reference) -> SpecimenContainer {
   SpecimenContainer(
     specimen_quantity: None,
     location: None,
@@ -25123,7 +25658,9 @@ pub type SpecimendefinitionSubject {
   SpecimendefinitionSubjectReference(subject: Reference)
 }
 
-pub fn specimendefinition_new(status) -> Specimendefinition {
+pub fn specimendefinition_new(
+  status status: r5valuesets.Publicationstatus,
+) -> Specimendefinition {
   Specimendefinition(
     type_tested: [],
     collection: [],
@@ -25184,7 +25721,7 @@ pub type SpecimendefinitionTypetested {
 }
 
 pub fn specimendefinition_typetested_new(
-  preference,
+  preference preference: r5valuesets.Specimencontainedpreference,
 ) -> SpecimendefinitionTypetested {
   SpecimendefinitionTypetested(
     testing_destination: [],
@@ -25267,7 +25804,7 @@ pub type SpecimendefinitionTypetestedContainerAdditiveAdditive {
 }
 
 pub fn specimendefinition_typetested_container_additive_new(
-  additive,
+  additive additive: SpecimendefinitionTypetestedContainerAdditiveAdditive,
 ) -> SpecimendefinitionTypetestedContainerAdditive {
   SpecimendefinitionTypetestedContainerAdditive(
     additive:,
@@ -25352,12 +25889,12 @@ pub type StructuredefinitionVersionalgorithm {
 }
 
 pub fn structuredefinition_new(
-  type_,
-  abstract,
-  kind,
-  status,
-  name,
-  url,
+  type_ type_: String,
+  abstract abstract: Bool,
+  kind kind: r5valuesets.Structuredefinitionkind,
+  status status: r5valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
 ) -> Structuredefinition {
   Structuredefinition(
     differential: None,
@@ -25413,7 +25950,9 @@ pub type StructuredefinitionMapping {
   )
 }
 
-pub fn structuredefinition_mapping_new(identity) -> StructuredefinitionMapping {
+pub fn structuredefinition_mapping_new(
+  identity identity: String,
+) -> StructuredefinitionMapping {
   StructuredefinitionMapping(
     comment: None,
     name: None,
@@ -25437,8 +25976,8 @@ pub type StructuredefinitionContext {
 }
 
 pub fn structuredefinition_context_new(
-  expression,
-  type_,
+  expression expression: String,
+  type_ type_: r5valuesets.Extensioncontexttype,
 ) -> StructuredefinitionContext {
   StructuredefinitionContext(
     expression:,
@@ -25528,7 +26067,11 @@ pub type StructuremapVersionalgorithm {
   StructuremapVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn structuremap_new(status, name, url) -> Structuremap {
+pub fn structuremap_new(
+  status status: r5valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
+) -> Structuremap {
   Structuremap(
     group: [],
     const_: [],
@@ -25575,7 +26118,10 @@ pub type StructuremapStructure {
   )
 }
 
-pub fn structuremap_structure_new(mode, url) -> StructuremapStructure {
+pub fn structuremap_structure_new(
+  mode mode: r5valuesets.Mapmodelmode,
+  url url: String,
+) -> StructuremapStructure {
   StructuremapStructure(
     documentation: None,
     alias: None,
@@ -25623,7 +26169,7 @@ pub type StructuremapGroup {
   )
 }
 
-pub fn structuremap_group_new(name) -> StructuremapGroup {
+pub fn structuremap_group_new(name name: String) -> StructuremapGroup {
   StructuremapGroup(
     rule: [],
     input: [],
@@ -25650,7 +26196,10 @@ pub type StructuremapGroupInput {
   )
 }
 
-pub fn structuremap_group_input_new(mode, name) -> StructuremapGroupInput {
+pub fn structuremap_group_input_new(
+  mode mode: r5valuesets.Mapinputmode,
+  name name: String,
+) -> StructuremapGroupInput {
   StructuremapGroupInput(
     documentation: None,
     mode:,
@@ -25712,7 +26261,7 @@ pub type StructuremapGroupRuleSource {
 }
 
 pub fn structuremap_group_rule_source_new(
-  context,
+  context context: String,
 ) -> StructuremapGroupRuleSource {
   StructuremapGroupRuleSource(
     log_message: None,
@@ -25786,7 +26335,7 @@ pub type StructuremapGroupRuleTargetParameterValue {
 }
 
 pub fn structuremap_group_rule_target_parameter_new(
-  value,
+  value value: StructuremapGroupRuleTargetParameterValue,
 ) -> StructuremapGroupRuleTargetParameter {
   StructuremapGroupRuleTargetParameter(
     value:,
@@ -25808,7 +26357,7 @@ pub type StructuremapGroupRuleDependent {
 }
 
 pub fn structuremap_group_rule_dependent_new(
-  name,
+  name name: String,
 ) -> StructuremapGroupRuleDependent {
   StructuremapGroupRuleDependent(
     parameter: [],
@@ -25850,7 +26399,11 @@ pub type Subscription {
   )
 }
 
-pub fn subscription_new(channel_type, topic, status) -> Subscription {
+pub fn subscription_new(
+  channel_type channel_type: Coding,
+  topic topic: String,
+  status status: r5valuesets.Subscriptionstatus,
+) -> Subscription {
   Subscription(
     max_count: None,
     content: None,
@@ -25895,8 +26448,8 @@ pub type SubscriptionFilterby {
 }
 
 pub fn subscription_filterby_new(
-  value,
-  filter_parameter,
+  value value: String,
+  filter_parameter filter_parameter: String,
 ) -> SubscriptionFilterby {
   SubscriptionFilterby(
     value:,
@@ -25921,7 +26474,10 @@ pub type SubscriptionParameter {
   )
 }
 
-pub fn subscription_parameter_new(value, name) -> SubscriptionParameter {
+pub fn subscription_parameter_new(
+  value value: String,
+  name name: String,
+) -> SubscriptionParameter {
   SubscriptionParameter(
     value:,
     name:,
@@ -25952,7 +26508,10 @@ pub type Subscriptionstatus {
   )
 }
 
-pub fn subscriptionstatus_new(subscription, type_) -> Subscriptionstatus {
+pub fn subscriptionstatus_new(
+  subscription subscription: Reference,
+  type_ type_: r5valuesets.Subscriptionnotificationtype,
+) -> Subscriptionstatus {
   Subscriptionstatus(
     error: [],
     topic: None,
@@ -25986,7 +26545,7 @@ pub type SubscriptionstatusNotificationevent {
 }
 
 pub fn subscriptionstatus_notificationevent_new(
-  event_number,
+  event_number event_number: Int,
 ) -> SubscriptionstatusNotificationevent {
   SubscriptionstatusNotificationevent(
     additional_context: [],
@@ -26044,7 +26603,10 @@ pub type SubscriptiontopicVersionalgorithm {
   SubscriptiontopicVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn subscriptiontopic_new(status, url) -> Subscriptiontopic {
+pub fn subscriptiontopic_new(
+  status status: r5valuesets.Publicationstatus,
+  url url: String,
+) -> Subscriptiontopic {
   Subscriptiontopic(
     notification_shape: [],
     can_filter_by: [],
@@ -26097,7 +26659,7 @@ pub type SubscriptiontopicResourcetrigger {
 }
 
 pub fn subscriptiontopic_resourcetrigger_new(
-  resource,
+  resource resource: String,
 ) -> SubscriptiontopicResourcetrigger {
   SubscriptiontopicResourcetrigger(
     fhir_path_criteria: None,
@@ -26151,8 +26713,8 @@ pub type SubscriptiontopicEventtrigger {
 }
 
 pub fn subscriptiontopic_eventtrigger_new(
-  resource,
-  event,
+  resource resource: String,
+  event event: Codeableconcept,
 ) -> SubscriptiontopicEventtrigger {
   SubscriptiontopicEventtrigger(
     resource:,
@@ -26180,7 +26742,7 @@ pub type SubscriptiontopicCanfilterby {
 }
 
 pub fn subscriptiontopic_canfilterby_new(
-  filter_parameter,
+  filter_parameter filter_parameter: String,
 ) -> SubscriptiontopicCanfilterby {
   SubscriptiontopicCanfilterby(
     modifier: [],
@@ -26208,7 +26770,7 @@ pub type SubscriptiontopicNotificationshape {
 }
 
 pub fn subscriptiontopic_notificationshape_new(
-  resource,
+  resource resource: String,
 ) -> SubscriptiontopicNotificationshape {
   SubscriptiontopicNotificationshape(
     rev_include: [],
@@ -26243,7 +26805,10 @@ pub type Substance {
   )
 }
 
-pub fn substance_new(code, instance) -> Substance {
+pub fn substance_new(
+  code code: Codeablereference,
+  instance instance: Bool,
+) -> Substance {
   Substance(
     ingredient: [],
     quantity: None,
@@ -26282,7 +26847,9 @@ pub type SubstanceIngredientSubstance {
   SubstanceIngredientSubstanceReference(substance: Reference)
 }
 
-pub fn substance_ingredient_new(substance) -> SubstanceIngredient {
+pub fn substance_ingredient_new(
+  substance substance: SubstanceIngredientSubstance,
+) -> SubstanceIngredient {
   SubstanceIngredient(
     substance:,
     quantity: None,
@@ -26451,7 +27018,9 @@ pub type SubstancedefinitionPropertyValue {
   SubstancedefinitionPropertyValueAttachment(value: Attachment)
 }
 
-pub fn substancedefinition_property_new(type_) -> SubstancedefinitionProperty {
+pub fn substancedefinition_property_new(
+  type_ type_: Codeableconcept,
+) -> SubstancedefinitionProperty {
   SubstancedefinitionProperty(
     value: None,
     type_:,
@@ -26474,7 +27043,7 @@ pub type SubstancedefinitionMolecularweight {
 }
 
 pub fn substancedefinition_molecularweight_new(
-  amount,
+  amount amount: Quantity,
 ) -> SubstancedefinitionMolecularweight {
   SubstancedefinitionMolecularweight(
     amount:,
@@ -26591,7 +27160,9 @@ pub type SubstancedefinitionName {
   )
 }
 
-pub fn substancedefinition_name_new(name) -> SubstancedefinitionName {
+pub fn substancedefinition_name_new(
+  name name: String,
+) -> SubstancedefinitionName {
   SubstancedefinitionName(
     source: [],
     official: [],
@@ -26669,7 +27240,7 @@ pub type SubstancedefinitionRelationshipAmount {
 }
 
 pub fn substancedefinition_relationship_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> SubstancedefinitionRelationship {
   SubstancedefinitionRelationship(
     source: [],
@@ -27531,7 +28102,10 @@ pub type SupplyrequestOccurrence {
   SupplyrequestOccurrenceTiming(occurrence: Timing)
 }
 
-pub fn supplyrequest_new(quantity, item) -> Supplyrequest {
+pub fn supplyrequest_new(
+  quantity quantity: Quantity,
+  item item: Codeablereference,
+) -> Supplyrequest {
   Supplyrequest(
     deliver_to: None,
     deliver_from: None,
@@ -27636,7 +28210,10 @@ pub type Task {
   )
 }
 
-pub fn task_new(intent, status) -> Task {
+pub fn task_new(
+  intent intent: r5valuesets.Taskintent,
+  status status: r5valuesets.Taskstatus,
+) -> Task {
   Task(
     output: [],
     input: [],
@@ -27693,7 +28270,7 @@ pub type TaskPerformer {
   )
 }
 
-pub fn task_performer_new(actor) -> TaskPerformer {
+pub fn task_performer_new(actor actor: Reference) -> TaskPerformer {
   TaskPerformer(
     actor:,
     function: None,
@@ -27795,7 +28372,10 @@ pub type TaskInputValue {
   TaskInputValueMeta(value: Meta)
 }
 
-pub fn task_input_new(value, type_) -> TaskInput {
+pub fn task_input_new(
+  value value: TaskInputValue,
+  type_ type_: Codeableconcept,
+) -> TaskInput {
   TaskInput(value:, type_:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -27868,7 +28448,10 @@ pub type TaskOutputValue {
   TaskOutputValueMeta(value: Meta)
 }
 
-pub fn task_output_new(value, type_) -> TaskOutput {
+pub fn task_output_new(
+  value value: TaskOutputValue,
+  type_ type_: Codeableconcept,
+) -> TaskOutput {
   TaskOutput(value:, type_:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -27920,9 +28503,9 @@ pub type TerminologycapabilitiesVersionalgorithm {
 }
 
 pub fn terminologycapabilities_new(
-  kind,
-  date,
-  status,
+  kind kind: r5valuesets.Capabilitystatementkind,
+  date date: String,
+  status status: r5valuesets.Publicationstatus,
 ) -> Terminologycapabilities {
   Terminologycapabilities(
     closure: None,
@@ -27975,7 +28558,7 @@ pub type TerminologycapabilitiesSoftware {
 }
 
 pub fn terminologycapabilities_software_new(
-  name,
+  name name: String,
 ) -> TerminologycapabilitiesSoftware {
   TerminologycapabilitiesSoftware(
     version: None,
@@ -27998,7 +28581,7 @@ pub type TerminologycapabilitiesImplementation {
 }
 
 pub fn terminologycapabilities_implementation_new(
-  description,
+  description description: String,
 ) -> TerminologycapabilitiesImplementation {
   TerminologycapabilitiesImplementation(
     url: None,
@@ -28023,7 +28606,7 @@ pub type TerminologycapabilitiesCodesystem {
 }
 
 pub fn terminologycapabilities_codesystem_new(
-  content,
+  content content: r5valuesets.Codesystemcontentmode,
 ) -> TerminologycapabilitiesCodesystem {
   TerminologycapabilitiesCodesystem(
     subsumption: None,
@@ -28077,7 +28660,7 @@ pub type TerminologycapabilitiesCodesystemVersionFilter {
 }
 
 pub fn terminologycapabilities_codesystem_version_filter_new(
-  code,
+  code code: String,
 ) -> TerminologycapabilitiesCodesystemVersionFilter {
   TerminologycapabilitiesCodesystemVersionFilter(
     op: [],
@@ -28127,7 +28710,7 @@ pub type TerminologycapabilitiesExpansionParameter {
 }
 
 pub fn terminologycapabilities_expansion_parameter_new(
-  name,
+  name name: String,
 ) -> TerminologycapabilitiesExpansionParameter {
   TerminologycapabilitiesExpansionParameter(
     documentation: None,
@@ -28149,7 +28732,7 @@ pub type TerminologycapabilitiesValidatecode {
 }
 
 pub fn terminologycapabilities_validatecode_new(
-  translations,
+  translations translations: Bool,
 ) -> TerminologycapabilitiesValidatecode {
   TerminologycapabilitiesValidatecode(
     translations:,
@@ -28170,7 +28753,7 @@ pub type TerminologycapabilitiesTranslation {
 }
 
 pub fn terminologycapabilities_translation_new(
-  needs_map,
+  needs_map needs_map: Bool,
 ) -> TerminologycapabilitiesTranslation {
   TerminologycapabilitiesTranslation(
     needs_map:,
@@ -28242,7 +28825,7 @@ pub type TestplanVersionalgorithm {
   TestplanVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn testplan_new(status) -> Testplan {
+pub fn testplan_new(status status: r5valuesets.Publicationstatus) -> Testplan {
   Testplan(
     test_case: [],
     exit_criteria: None,
@@ -28415,7 +28998,9 @@ pub type TestplanTestcaseTestdataSource {
   TestplanTestcaseTestdataSourceReference(source: Reference)
 }
 
-pub fn testplan_testcase_testdata_new(type_) -> TestplanTestcaseTestdata {
+pub fn testplan_testcase_testdata_new(
+  type_ type_: Coding,
+) -> TestplanTestcaseTestdata {
   TestplanTestcaseTestdata(
     source: None,
     content: None,
@@ -28475,7 +29060,11 @@ pub type Testreport {
   )
 }
 
-pub fn testreport_new(result, test_script, status) -> Testreport {
+pub fn testreport_new(
+  result result: r5valuesets.Reportresultcodes,
+  test_script test_script: String,
+  status status: r5valuesets.Reportstatuscodes,
+) -> Testreport {
   Testreport(
     teardown: None,
     test_: [],
@@ -28512,7 +29101,10 @@ pub type TestreportParticipant {
   )
 }
 
-pub fn testreport_participant_new(uri, type_) -> TestreportParticipant {
+pub fn testreport_participant_new(
+  uri uri: String,
+  type_ type_: r5valuesets.Reportparticipanttype,
+) -> TestreportParticipant {
   TestreportParticipant(
     display: None,
     uri:,
@@ -28571,7 +29163,7 @@ pub type TestreportSetupActionOperation {
 }
 
 pub fn testreport_setup_action_operation_new(
-  result,
+  result result: r5valuesets.Reportactionresultcodes,
 ) -> TestreportSetupActionOperation {
   TestreportSetupActionOperation(
     detail: None,
@@ -28596,7 +29188,9 @@ pub type TestreportSetupActionAssert {
   )
 }
 
-pub fn testreport_setup_action_assert_new(result) -> TestreportSetupActionAssert {
+pub fn testreport_setup_action_assert_new(
+  result result: r5valuesets.Reportactionresultcodes,
+) -> TestreportSetupActionAssert {
   TestreportSetupActionAssert(
     requirement: [],
     detail: None,
@@ -28706,7 +29300,9 @@ pub type TestreportTeardownAction {
   )
 }
 
-pub fn testreport_teardown_action_new(operation) -> TestreportTeardownAction {
+pub fn testreport_teardown_action_new(
+  operation operation: Nil,
+) -> TestreportTeardownAction {
   TestreportTeardownAction(
     operation:,
     modifier_extension: [],
@@ -28762,7 +29358,10 @@ pub type TestscriptVersionalgorithm {
   TestscriptVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn testscript_new(status, name) -> Testscript {
+pub fn testscript_new(
+  status status: r5valuesets.Publicationstatus,
+  name name: String,
+) -> Testscript {
   Testscript(
     teardown: None,
     test_: [],
@@ -28814,7 +29413,10 @@ pub type TestscriptOrigin {
   )
 }
 
-pub fn testscript_origin_new(profile, index) -> TestscriptOrigin {
+pub fn testscript_origin_new(
+  profile profile: Coding,
+  index index: Int,
+) -> TestscriptOrigin {
   TestscriptOrigin(
     url: None,
     profile:,
@@ -28837,7 +29439,10 @@ pub type TestscriptDestination {
   )
 }
 
-pub fn testscript_destination_new(profile, index) -> TestscriptDestination {
+pub fn testscript_destination_new(
+  profile profile: Coding,
+  index index: Int,
+) -> TestscriptDestination {
   TestscriptDestination(
     url: None,
     profile:,
@@ -28880,7 +29485,7 @@ pub type TestscriptMetadataLink {
   )
 }
 
-pub fn testscript_metadata_link_new(url) -> TestscriptMetadataLink {
+pub fn testscript_metadata_link_new(url url: String) -> TestscriptMetadataLink {
   TestscriptMetadataLink(
     description: None,
     url:,
@@ -28907,9 +29512,9 @@ pub type TestscriptMetadataCapability {
 }
 
 pub fn testscript_metadata_capability_new(
-  capabilities,
-  validated,
-  required,
+  capabilities capabilities: String,
+  validated validated: Bool,
+  required required: Bool,
 ) -> TestscriptMetadataCapability {
   TestscriptMetadataCapability(
     capabilities:,
@@ -28937,7 +29542,7 @@ pub type TestscriptScope {
   )
 }
 
-pub fn testscript_scope_new(artifact) -> TestscriptScope {
+pub fn testscript_scope_new(artifact artifact: String) -> TestscriptScope {
   TestscriptScope(
     phase: None,
     conformance: None,
@@ -28960,7 +29565,10 @@ pub type TestscriptFixture {
   )
 }
 
-pub fn testscript_fixture_new(autodelete, autocreate) -> TestscriptFixture {
+pub fn testscript_fixture_new(
+  autodelete autodelete: Bool,
+  autocreate autocreate: Bool,
+) -> TestscriptFixture {
   TestscriptFixture(
     resource: None,
     autodelete:,
@@ -28988,7 +29596,7 @@ pub type TestscriptVariable {
   )
 }
 
-pub fn testscript_variable_new(name) -> TestscriptVariable {
+pub fn testscript_variable_new(name name: String) -> TestscriptVariable {
   TestscriptVariable(
     source_id: None,
     path: None,
@@ -29066,7 +29674,7 @@ pub type TestscriptSetupActionOperation {
 }
 
 pub fn testscript_setup_action_operation_new(
-  encode_request_url,
+  encode_request_url encode_request_url: Bool,
 ) -> TestscriptSetupActionOperation {
   TestscriptSetupActionOperation(
     url: None,
@@ -29104,8 +29712,8 @@ pub type TestscriptSetupActionOperationRequestheader {
 }
 
 pub fn testscript_setup_action_operation_requestheader_new(
-  value,
-  field,
+  value value: String,
+  field field: String,
 ) -> TestscriptSetupActionOperationRequestheader {
   TestscriptSetupActionOperationRequestheader(
     value:,
@@ -29151,8 +29759,8 @@ pub type TestscriptSetupActionAssert {
 }
 
 pub fn testscript_setup_action_assert_new(
-  warning_only,
-  stop_test_on_fail,
+  warning_only warning_only: Bool,
+  stop_test_on_fail stop_test_on_fail: Bool,
 ) -> TestscriptSetupActionAssert {
   TestscriptSetupActionAssert(
     requirement: [],
@@ -29284,7 +29892,9 @@ pub type TestscriptTeardownAction {
   )
 }
 
-pub fn testscript_teardown_action_new(operation) -> TestscriptTeardownAction {
+pub fn testscript_teardown_action_new(
+  operation operation: Nil,
+) -> TestscriptTeardownAction {
   TestscriptTeardownAction(
     operation:,
     modifier_extension: [],
@@ -29339,7 +29949,11 @@ pub type Transport {
   )
 }
 
-pub fn transport_new(current_location, requested_location, intent) -> Transport {
+pub fn transport_new(
+  current_location current_location: Reference,
+  requested_location requested_location: Reference,
+  intent intent: r5valuesets.Transportintent,
+) -> Transport {
   Transport(
     history: None,
     reason: None,
@@ -29476,7 +30090,10 @@ pub type TransportInputValue {
   TransportInputValueMeta(value: Meta)
 }
 
-pub fn transport_input_new(value, type_) -> TransportInput {
+pub fn transport_input_new(
+  value value: TransportInputValue,
+  type_ type_: Codeableconcept,
+) -> TransportInput {
   TransportInput(
     value:,
     type_:,
@@ -29555,7 +30172,10 @@ pub type TransportOutputValue {
   TransportOutputValueMeta(value: Meta)
 }
 
-pub fn transport_output_new(value, type_) -> TransportOutput {
+pub fn transport_output_new(
+  value value: TransportOutputValue,
+  type_ type_: Codeableconcept,
+) -> TransportOutput {
   TransportOutput(
     value:,
     type_:,
@@ -29615,7 +30235,7 @@ pub type ValuesetVersionalgorithm {
   ValuesetVersionalgorithmCoding(version_algorithm: Coding)
 }
 
-pub fn valueset_new(status) -> Valueset {
+pub fn valueset_new(status status: r5valuesets.Publicationstatus) -> Valueset {
   Valueset(
     scope: None,
     expansion: None,
@@ -29727,7 +30347,7 @@ pub type ValuesetComposeIncludeConcept {
 }
 
 pub fn valueset_compose_include_concept_new(
-  code,
+  code code: String,
 ) -> ValuesetComposeIncludeConcept {
   ValuesetComposeIncludeConcept(
     designation: [],
@@ -29753,7 +30373,7 @@ pub type ValuesetComposeIncludeConceptDesignation {
 }
 
 pub fn valueset_compose_include_concept_designation_new(
-  value,
+  value value: String,
 ) -> ValuesetComposeIncludeConceptDesignation {
   ValuesetComposeIncludeConceptDesignation(
     value:,
@@ -29779,9 +30399,9 @@ pub type ValuesetComposeIncludeFilter {
 }
 
 pub fn valueset_compose_include_filter_new(
-  value,
-  op,
-  property,
+  value value: String,
+  op op: r5valuesets.Filteroperator,
+  property property: String,
 ) -> ValuesetComposeIncludeFilter {
   ValuesetComposeIncludeFilter(
     value:,
@@ -29810,7 +30430,7 @@ pub type ValuesetExpansion {
   )
 }
 
-pub fn valueset_expansion_new(timestamp) -> ValuesetExpansion {
+pub fn valueset_expansion_new(timestamp timestamp: String) -> ValuesetExpansion {
   ValuesetExpansion(
     contains: [],
     property: [],
@@ -29848,7 +30468,9 @@ pub type ValuesetExpansionParameterValue {
   ValuesetExpansionParameterValueDatetime(value: String)
 }
 
-pub fn valueset_expansion_parameter_new(name) -> ValuesetExpansionParameter {
+pub fn valueset_expansion_parameter_new(
+  name name: String,
+) -> ValuesetExpansionParameter {
   ValuesetExpansionParameter(
     value: None,
     name:,
@@ -29869,7 +30491,9 @@ pub type ValuesetExpansionProperty {
   )
 }
 
-pub fn valueset_expansion_property_new(code) -> ValuesetExpansionProperty {
+pub fn valueset_expansion_property_new(
+  code code: String,
+) -> ValuesetExpansionProperty {
   ValuesetExpansionProperty(
     uri: None,
     code:,
@@ -29938,8 +30562,8 @@ pub type ValuesetExpansionContainsPropertyValue {
 }
 
 pub fn valueset_expansion_contains_property_new(
-  value,
-  code,
+  value value: ValuesetExpansionContainsPropertyValue,
+  code code: String,
 ) -> ValuesetExpansionContainsProperty {
   ValuesetExpansionContainsProperty(
     sub_property: [],
@@ -29974,8 +30598,8 @@ pub type ValuesetExpansionContainsPropertySubpropertyValue {
 }
 
 pub fn valueset_expansion_contains_property_subproperty_new(
-  value,
-  code,
+  value value: ValuesetExpansionContainsPropertySubpropertyValue,
+  code code: String,
 ) -> ValuesetExpansionContainsPropertySubproperty {
   ValuesetExpansionContainsPropertySubproperty(
     value:,
@@ -30035,7 +30659,9 @@ pub type Verificationresult {
   )
 }
 
-pub fn verificationresult_new(status) -> Verificationresult {
+pub fn verificationresult_new(
+  status status: r5valuesets.Verificationresultstatus,
+) -> Verificationresult {
   Verificationresult(
     validator: [],
     attestation: None,
@@ -30139,7 +30765,7 @@ pub type VerificationresultValidator {
 }
 
 pub fn verificationresult_validator_new(
-  organization,
+  organization organization: Reference,
 ) -> VerificationresultValidator {
   VerificationresultValidator(
     attestation_signature: None,
@@ -30174,11 +30800,11 @@ pub type Visionprescription {
 }
 
 pub fn visionprescription_new(
-  prescriber,
-  date_written,
-  patient,
-  created,
-  status,
+  prescriber prescriber: Reference,
+  date_written date_written: String,
+  patient patient: Reference,
+  created created: String,
+  status status: r5valuesets.Fmstatus,
 ) -> Visionprescription {
   Visionprescription(
     lens_specification: [],
@@ -30224,8 +30850,8 @@ pub type VisionprescriptionLensspecification {
 }
 
 pub fn visionprescription_lensspecification_new(
-  eye,
-  product,
+  eye eye: r5valuesets.Visioneyecodes,
+  product product: Codeableconcept,
 ) -> VisionprescriptionLensspecification {
   VisionprescriptionLensspecification(
     note: [],
@@ -30260,8 +30886,8 @@ pub type VisionprescriptionLensspecificationPrism {
 }
 
 pub fn visionprescription_lensspecification_prism_new(
-  base,
-  amount,
+  base base: r5valuesets.Visionbasecodes,
+  amount amount: Float,
 ) -> VisionprescriptionLensspecificationPrism {
   VisionprescriptionLensspecificationPrism(
     base:,

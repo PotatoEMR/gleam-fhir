@@ -515,7 +515,19 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                   _ ->
                     case elt.min {
                       0 -> #("", elt_snake <> ": None,")
-                      1 -> #(elt_snake <> ",", elt_snake <> ":,")
+                      1 -> {
+                        let arg =
+                          string.concat([
+                            elt_snake,
+                            " ",
+                            elt_snake,
+                            ": ",
+                            field_type,
+                            ",",
+                          ])
+                        let field = elt_snake <> ":,"
+                        #(arg, field)
+                      }
                       _ -> panic as "cardinality panic 2"
                     }
                 }

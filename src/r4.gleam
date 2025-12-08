@@ -90,7 +90,7 @@ pub type AnnotationAuthor {
   AnnotationAuthorString(author: String)
 }
 
-pub fn annotation_new(text) -> Annotation {
+pub fn annotation_new(text text: String) -> Annotation {
   Annotation(text:, time: None, author: None, extension: [], id: None)
 }
 
@@ -214,7 +214,10 @@ pub type Contributor {
   )
 }
 
-pub fn contributor_new(name, type_) -> Contributor {
+pub fn contributor_new(
+  name name: String,
+  type_ type_: r4valuesets.Contributortype,
+) -> Contributor {
   Contributor(contact: [], name:, type_:, extension: [], id: None)
 }
 
@@ -265,7 +268,7 @@ pub type DatarequirementSubject {
   DatarequirementSubjectReference(subject: Reference)
 }
 
-pub fn datarequirement_new(type_) -> Datarequirement {
+pub fn datarequirement_new(type_ type_: r4valuesets.Alltypes) -> Datarequirement {
   Datarequirement(
     sort: [],
     limit: None,
@@ -614,7 +617,7 @@ pub type ElementdefinitionMaxvalue {
   ElementdefinitionMaxvalueQuantity(max_value: Quantity)
 }
 
-pub fn elementdefinition_new(path) -> Elementdefinition {
+pub fn elementdefinition_new(path path: String) -> Elementdefinition {
   Elementdefinition(
     mapping: [],
     binding: None,
@@ -669,7 +672,7 @@ pub type Expression {
   )
 }
 
-pub fn expression_new(language) -> Expression {
+pub fn expression_new(language language: String) -> Expression {
   Expression(
     reference: None,
     expression: None,
@@ -745,7 +748,7 @@ pub type ExtensionValue {
   ExtensionValueMeta(value: Meta)
 }
 
-pub fn extension_new(url) -> Extension {
+pub fn extension_new(url url: String) -> Extension {
   Extension(value: None, url:, extension: [], id: None)
 }
 
@@ -819,7 +822,11 @@ pub type Marketingstatus {
   )
 }
 
-pub fn marketingstatus_new(date_range, status, country) -> Marketingstatus {
+pub fn marketingstatus_new(
+  date_range date_range: Period,
+  status status: Codeableconcept,
+  country country: Codeableconcept,
+) -> Marketingstatus {
   Marketingstatus(
     restore_date: None,
     date_range:,
@@ -883,7 +890,10 @@ pub type Narrative {
   )
 }
 
-pub fn narrative_new(div, status) -> Narrative {
+pub fn narrative_new(
+  div div: String,
+  status status: r4valuesets.Narrativestatus,
+) -> Narrative {
   Narrative(div:, status:, extension: [], id: None)
 }
 
@@ -902,7 +912,10 @@ pub type Parameterdefinition {
   )
 }
 
-pub fn parameterdefinition_new(type_, use_) -> Parameterdefinition {
+pub fn parameterdefinition_new(
+  type_ type_: r4valuesets.Alltypes,
+  use_ use_: r4valuesets.Operationparameteruse,
+) -> Parameterdefinition {
   Parameterdefinition(
     profile: None,
     type_:,
@@ -1013,7 +1026,10 @@ pub type Productshelflife {
   )
 }
 
-pub fn productshelflife_new(period, type_) -> Productshelflife {
+pub fn productshelflife_new(
+  period period: Quantity,
+  type_ type_: Codeableconcept,
+) -> Productshelflife {
   Productshelflife(
     special_precautions_for_storage: [],
     period:,
@@ -1116,7 +1132,9 @@ pub type Relatedartifact {
   )
 }
 
-pub fn relatedartifact_new(type_) -> Relatedartifact {
+pub fn relatedartifact_new(
+  type_ type_: r4valuesets.Relatedartifacttype,
+) -> Relatedartifact {
   Relatedartifact(
     resource: None,
     document: None,
@@ -1145,7 +1163,11 @@ pub type Sampleddata {
   )
 }
 
-pub fn sampleddata_new(dimensions, period, origin) -> Sampleddata {
+pub fn sampleddata_new(
+  dimensions dimensions: Int,
+  period period: Float,
+  origin origin: Quantity,
+) -> Sampleddata {
   Sampleddata(
     data: None,
     dimensions:,
@@ -1174,7 +1196,7 @@ pub type Signature {
   )
 }
 
-pub fn signature_new(who, when) -> Signature {
+pub fn signature_new(who who: Reference, when when: String) -> Signature {
   Signature(
     data: None,
     sig_format: None,
@@ -1264,7 +1286,9 @@ pub type TriggerdefinitionTiming {
   TriggerdefinitionTimingDatetime(timing: String)
 }
 
-pub fn triggerdefinition_new(type_) -> Triggerdefinition {
+pub fn triggerdefinition_new(
+  type_ type_: r4valuesets.Triggertype,
+) -> Triggerdefinition {
   Triggerdefinition(
     condition: None,
     data: [],
@@ -1294,7 +1318,10 @@ pub type UsagecontextValue {
   UsagecontextValueReference(value: Reference)
 }
 
-pub fn usagecontext_new(value, code) -> Usagecontext {
+pub fn usagecontext_new(
+  value value: UsagecontextValue,
+  code code: Coding,
+) -> Usagecontext {
   Usagecontext(value:, code:, extension: [], id: None)
 }
 
@@ -1385,7 +1412,7 @@ pub type Account {
   )
 }
 
-pub fn account_new(status) -> Account {
+pub fn account_new(status status: r4valuesets.Accountstatus) -> Account {
   Account(
     part_of: None,
     guarantor: [],
@@ -1420,7 +1447,7 @@ pub type AccountCoverage {
   )
 }
 
-pub fn account_coverage_new(coverage) -> AccountCoverage {
+pub fn account_coverage_new(coverage coverage: Reference) -> AccountCoverage {
   AccountCoverage(
     priority: None,
     coverage:,
@@ -1442,7 +1469,7 @@ pub type AccountGuarantor {
   )
 }
 
-pub fn account_guarantor_new(party) -> AccountGuarantor {
+pub fn account_guarantor_new(party party: Reference) -> AccountGuarantor {
   AccountGuarantor(
     period: None,
     on_hold: None,
@@ -1535,7 +1562,9 @@ pub type ActivitydefinitionProduct {
   ActivitydefinitionProductCodeableconcept(product: Codeableconcept)
 }
 
-pub fn activitydefinition_new(status) -> Activitydefinition {
+pub fn activitydefinition_new(
+  status status: r4valuesets.Publicationstatus,
+) -> Activitydefinition {
   Activitydefinition(
     dynamic_value: [],
     transform: None,
@@ -1606,7 +1635,7 @@ pub type ActivitydefinitionParticipant {
 }
 
 pub fn activitydefinition_participant_new(
-  type_,
+  type_ type_: r4valuesets.Actionparticipanttype,
 ) -> ActivitydefinitionParticipant {
   ActivitydefinitionParticipant(
     role: None,
@@ -1629,8 +1658,8 @@ pub type ActivitydefinitionDynamicvalue {
 }
 
 pub fn activitydefinition_dynamicvalue_new(
-  expression,
-  path,
+  expression expression: Expression,
+  path path: String,
 ) -> ActivitydefinitionDynamicvalue {
   ActivitydefinitionDynamicvalue(
     expression:,
@@ -1675,7 +1704,10 @@ pub type Adverseevent {
   )
 }
 
-pub fn adverseevent_new(subject, actuality) -> Adverseevent {
+pub fn adverseevent_new(
+  subject subject: Reference,
+  actuality actuality: r4valuesets.Adverseeventactuality,
+) -> Adverseevent {
   Adverseevent(
     study: [],
     reference_document: [],
@@ -1719,7 +1751,9 @@ pub type AdverseeventSuspectentity {
   )
 }
 
-pub fn adverseevent_suspectentity_new(instance) -> AdverseeventSuspectentity {
+pub fn adverseevent_suspectentity_new(
+  instance instance: Reference,
+) -> AdverseeventSuspectentity {
   AdverseeventSuspectentity(
     causality: [],
     instance:,
@@ -1793,7 +1827,7 @@ pub type AllergyintoleranceOnset {
   AllergyintoleranceOnsetString(onset: String)
 }
 
-pub fn allergyintolerance_new(patient) -> Allergyintolerance {
+pub fn allergyintolerance_new(patient patient: Reference) -> Allergyintolerance {
   Allergyintolerance(
     reaction: [],
     note: [],
@@ -1889,7 +1923,9 @@ pub type Appointment {
   )
 }
 
-pub fn appointment_new(status) -> Appointment {
+pub fn appointment_new(
+  status status: r4valuesets.Appointmentstatus,
+) -> Appointment {
   Appointment(
     requested_period: [],
     participant: [],
@@ -1938,7 +1974,9 @@ pub type AppointmentParticipant {
   )
 }
 
-pub fn appointment_participant_new(status) -> AppointmentParticipant {
+pub fn appointment_participant_new(
+  status status: r4valuesets.Participationstatus,
+) -> AppointmentParticipant {
   AppointmentParticipant(
     period: None,
     status:,
@@ -1974,8 +2012,8 @@ pub type Appointmentresponse {
 }
 
 pub fn appointmentresponse_new(
-  participant_status,
-  appointment,
+  participant_status participant_status: r4valuesets.Participationstatus,
+  appointment appointment: Reference,
 ) -> Appointmentresponse {
   Appointmentresponse(
     comment: None,
@@ -2022,7 +2060,11 @@ pub type Auditevent {
   )
 }
 
-pub fn auditevent_new(source, recorded, type_) -> Auditevent {
+pub fn auditevent_new(
+  source source: AuditeventSource,
+  recorded recorded: String,
+  type_ type_: Coding,
+) -> Auditevent {
   Auditevent(
     entity: [],
     source:,
@@ -2066,7 +2108,7 @@ pub type AuditeventAgent {
   )
 }
 
-pub fn auditevent_agent_new(requestor) -> AuditeventAgent {
+pub fn auditevent_agent_new(requestor requestor: Bool) -> AuditeventAgent {
   AuditeventAgent(
     purpose_of_use: [],
     network: None,
@@ -2118,7 +2160,7 @@ pub type AuditeventSource {
   )
 }
 
-pub fn auditevent_source_new(observer) -> AuditeventSource {
+pub fn auditevent_source_new(observer observer: Reference) -> AuditeventSource {
   AuditeventSource(
     type_: [],
     observer:,
@@ -2181,7 +2223,10 @@ pub type AuditeventEntityDetailValue {
   AuditeventEntityDetailValueBase64binary(value: String)
 }
 
-pub fn auditevent_entity_detail_new(value, type_) -> AuditeventEntityDetail {
+pub fn auditevent_entity_detail_new(
+  value value: AuditeventEntityDetailValue,
+  type_ type_: String,
+) -> AuditeventEntityDetail {
   AuditeventEntityDetail(
     value:,
     type_:,
@@ -2210,7 +2255,7 @@ pub type Basic {
   )
 }
 
-pub fn basic_new(code) -> Basic {
+pub fn basic_new(code code: Codeableconcept) -> Basic {
   Basic(
     author: None,
     created: None,
@@ -2241,7 +2286,7 @@ pub type Binary {
   )
 }
 
-pub fn binary_new(content_type) -> Binary {
+pub fn binary_new(content_type content_type: String) -> Binary {
   Binary(
     data: None,
     security_context: None,
@@ -2436,7 +2481,7 @@ pub type Bodystructure {
   )
 }
 
-pub fn bodystructure_new(patient) -> Bodystructure {
+pub fn bodystructure_new(patient patient: Reference) -> Bodystructure {
   Bodystructure(
     patient:,
     image: [],
@@ -2474,7 +2519,7 @@ pub type Bundle {
   )
 }
 
-pub fn bundle_new(type_) -> Bundle {
+pub fn bundle_new(type_ type_: r4valuesets.Bundletype) -> Bundle {
   Bundle(
     signature: None,
     entry: [],
@@ -2501,7 +2546,7 @@ pub type BundleLink {
   )
 }
 
-pub fn bundle_link_new(url, relation) -> BundleLink {
+pub fn bundle_link_new(url url: String, relation relation: String) -> BundleLink {
   BundleLink(url:, relation:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -2570,7 +2615,10 @@ pub type BundleEntryRequest {
   )
 }
 
-pub fn bundle_entry_request_new(url, method) -> BundleEntryRequest {
+pub fn bundle_entry_request_new(
+  url url: String,
+  method method: r4valuesets.Httpverb,
+) -> BundleEntryRequest {
   BundleEntryRequest(
     if_none_exist: None,
     if_match: None,
@@ -2598,7 +2646,7 @@ pub type BundleEntryResponse {
   )
 }
 
-pub fn bundle_entry_response_new(status) -> BundleEntryResponse {
+pub fn bundle_entry_response_new(status status: String) -> BundleEntryResponse {
   BundleEntryResponse(
     outcome: None,
     last_modified: None,
@@ -2652,10 +2700,10 @@ pub type Capabilitystatement {
 }
 
 pub fn capabilitystatement_new(
-  fhir_version,
-  kind,
-  date,
-  status,
+  fhir_version fhir_version: r4valuesets.Fhirversion,
+  kind kind: r4valuesets.Capabilitystatementkind,
+  date date: String,
+  status status: r4valuesets.Publicationstatus,
 ) -> Capabilitystatement {
   Capabilitystatement(
     document: [],
@@ -2707,7 +2755,9 @@ pub type CapabilitystatementSoftware {
   )
 }
 
-pub fn capabilitystatement_software_new(name) -> CapabilitystatementSoftware {
+pub fn capabilitystatement_software_new(
+  name name: String,
+) -> CapabilitystatementSoftware {
   CapabilitystatementSoftware(
     release_date: None,
     version: None,
@@ -2731,7 +2781,7 @@ pub type CapabilitystatementImplementation {
 }
 
 pub fn capabilitystatement_implementation_new(
-  description,
+  description description: String,
 ) -> CapabilitystatementImplementation {
   CapabilitystatementImplementation(
     custodian: None,
@@ -2760,7 +2810,9 @@ pub type CapabilitystatementRest {
   )
 }
 
-pub fn capabilitystatement_rest_new(mode) -> CapabilitystatementRest {
+pub fn capabilitystatement_rest_new(
+  mode mode: r4valuesets.Restfulcapabilitymode,
+) -> CapabilitystatementRest {
   CapabilitystatementRest(
     compartment: [],
     operation: [],
@@ -2826,7 +2878,7 @@ pub type CapabilitystatementRestResource {
 }
 
 pub fn capabilitystatement_rest_resource_new(
-  type_,
+  type_ type_: r4valuesets.Resourcetypes,
 ) -> CapabilitystatementRestResource {
   CapabilitystatementRestResource(
     operation: [],
@@ -2864,7 +2916,7 @@ pub type CapabilitystatementRestResourceInteraction {
 }
 
 pub fn capabilitystatement_rest_resource_interaction_new(
-  code,
+  code code: r4valuesets.Typerestfulinteraction,
 ) -> CapabilitystatementRestResourceInteraction {
   CapabilitystatementRestResourceInteraction(
     documentation: None,
@@ -2889,8 +2941,8 @@ pub type CapabilitystatementRestResourceSearchparam {
 }
 
 pub fn capabilitystatement_rest_resource_searchparam_new(
-  type_,
-  name,
+  type_ type_: r4valuesets.Searchparamtype,
+  name name: String,
 ) -> CapabilitystatementRestResourceSearchparam {
   CapabilitystatementRestResourceSearchparam(
     documentation: None,
@@ -2916,8 +2968,8 @@ pub type CapabilitystatementRestResourceOperation {
 }
 
 pub fn capabilitystatement_rest_resource_operation_new(
-  definition,
-  name,
+  definition definition: String,
+  name name: String,
 ) -> CapabilitystatementRestResourceOperation {
   CapabilitystatementRestResourceOperation(
     documentation: None,
@@ -2941,7 +2993,7 @@ pub type CapabilitystatementRestInteraction {
 }
 
 pub fn capabilitystatement_rest_interaction_new(
-  code,
+  code code: r4valuesets.Systemrestfulinteraction,
 ) -> CapabilitystatementRestInteraction {
   CapabilitystatementRestInteraction(
     documentation: None,
@@ -2989,8 +3041,8 @@ pub type CapabilitystatementMessagingEndpoint {
 }
 
 pub fn capabilitystatement_messaging_endpoint_new(
-  address,
-  protocol,
+  address address: String,
+  protocol protocol: Coding,
 ) -> CapabilitystatementMessagingEndpoint {
   CapabilitystatementMessagingEndpoint(
     address:,
@@ -3013,8 +3065,8 @@ pub type CapabilitystatementMessagingSupportedmessage {
 }
 
 pub fn capabilitystatement_messaging_supportedmessage_new(
-  definition,
-  mode,
+  definition definition: String,
+  mode mode: r4valuesets.Eventcapabilitymode,
 ) -> CapabilitystatementMessagingSupportedmessage {
   CapabilitystatementMessagingSupportedmessage(
     definition:,
@@ -3038,8 +3090,8 @@ pub type CapabilitystatementDocument {
 }
 
 pub fn capabilitystatement_document_new(
-  profile,
-  mode,
+  profile profile: String,
+  mode mode: r4valuesets.Documentmode,
 ) -> CapabilitystatementDocument {
   CapabilitystatementDocument(
     profile:,
@@ -3088,7 +3140,11 @@ pub type Careplan {
   )
 }
 
-pub fn careplan_new(subject, intent, status) -> Careplan {
+pub fn careplan_new(
+  subject subject: Reference,
+  intent intent: r4valuesets.Careplanintent,
+  status status: r4valuesets.Requeststatus,
+) -> Careplan {
   Careplan(
     note: [],
     activity: [],
@@ -3190,7 +3246,9 @@ pub type CareplanActivityDetailProduct {
   CareplanActivityDetailProductReference(product: Reference)
 }
 
-pub fn careplan_activity_detail_new(status) -> CareplanActivityDetail {
+pub fn careplan_activity_detail_new(
+  status status: r4valuesets.Careplanactivitystatus,
+) -> CareplanActivityDetail {
   CareplanActivityDetail(
     description: None,
     quantity: None,
@@ -3320,7 +3378,10 @@ pub type Catalogentry {
   )
 }
 
-pub fn catalogentry_new(referenced_item, orderable) -> Catalogentry {
+pub fn catalogentry_new(
+  referenced_item referenced_item: Reference,
+  orderable orderable: Bool,
+) -> Catalogentry {
   Catalogentry(
     related_entry: [],
     additional_classification: [],
@@ -3358,8 +3419,8 @@ pub type CatalogentryRelatedentry {
 }
 
 pub fn catalogentry_relatedentry_new(
-  item,
-  relationtype,
+  item item: Reference,
+  relationtype relationtype: r4valuesets.Relationtype,
 ) -> CatalogentryRelatedentry {
   CatalogentryRelatedentry(
     item:,
@@ -3423,7 +3484,11 @@ pub type ChargeitemProduct {
   ChargeitemProductCodeableconcept(product: Codeableconcept)
 }
 
-pub fn chargeitem_new(subject, code, status) -> Chargeitem {
+pub fn chargeitem_new(
+  subject subject: Reference,
+  code code: Codeableconcept,
+  status status: r4valuesets.Chargeitemstatus,
+) -> Chargeitem {
   Chargeitem(
     supporting_information: [],
     note: [],
@@ -3473,7 +3538,7 @@ pub type ChargeitemPerformer {
   )
 }
 
-pub fn chargeitem_performer_new(actor) -> ChargeitemPerformer {
+pub fn chargeitem_performer_new(actor actor: Reference) -> ChargeitemPerformer {
   ChargeitemPerformer(
     actor:,
     function: None,
@@ -3520,7 +3585,10 @@ pub type Chargeitemdefinition {
   )
 }
 
-pub fn chargeitemdefinition_new(status, url) -> Chargeitemdefinition {
+pub fn chargeitemdefinition_new(
+  status status: r4valuesets.Publicationstatus,
+  url url: String,
+) -> Chargeitemdefinition {
   Chargeitemdefinition(
     property_group: [],
     applicability: [],
@@ -3614,7 +3682,7 @@ pub type ChargeitemdefinitionPropertygroupPricecomponent {
 }
 
 pub fn chargeitemdefinition_propertygroup_pricecomponent_new(
-  type_,
+  type_ type_: r4valuesets.Invoicepricecomponenttype,
 ) -> ChargeitemdefinitionPropertygroupPricecomponent {
   ChargeitemdefinitionPropertygroupPricecomponent(
     amount: None,
@@ -3669,13 +3737,13 @@ pub type Claim {
 }
 
 pub fn claim_new(
-  priority,
-  provider,
-  created,
-  patient,
-  use_,
-  type_,
-  status,
+  priority priority: Codeableconcept,
+  provider provider: Reference,
+  created created: String,
+  patient patient: Reference,
+  use_ use_: r4valuesets.Claimuse,
+  type_ type_: Codeableconcept,
+  status status: r4valuesets.Fmstatus,
 ) -> Claim {
   Claim(
     total: None,
@@ -3750,7 +3818,7 @@ pub type ClaimPayee {
   )
 }
 
-pub fn claim_payee_new(type_) -> ClaimPayee {
+pub fn claim_payee_new(type_ type_: Codeableconcept) -> ClaimPayee {
   ClaimPayee(
     party: None,
     type_:,
@@ -3774,7 +3842,10 @@ pub type ClaimCareteam {
   )
 }
 
-pub fn claim_careteam_new(provider, sequence) -> ClaimCareteam {
+pub fn claim_careteam_new(
+  provider provider: Reference,
+  sequence sequence: Int,
+) -> ClaimCareteam {
   ClaimCareteam(
     qualification: None,
     role: None,
@@ -3817,7 +3888,10 @@ pub type ClaimSupportinginfoValue {
   ClaimSupportinginfoValueReference(value: Reference)
 }
 
-pub fn claim_supportinginfo_new(category, sequence) -> ClaimSupportinginfo {
+pub fn claim_supportinginfo_new(
+  category category: Codeableconcept,
+  sequence sequence: Int,
+) -> ClaimSupportinginfo {
   ClaimSupportinginfo(
     reason: None,
     value: None,
@@ -3851,7 +3925,10 @@ pub type ClaimDiagnosisDiagnosis {
   ClaimDiagnosisDiagnosisReference(diagnosis: Reference)
 }
 
-pub fn claim_diagnosis_new(diagnosis, sequence) -> ClaimDiagnosis {
+pub fn claim_diagnosis_new(
+  diagnosis diagnosis: ClaimDiagnosisDiagnosis,
+  sequence sequence: Int,
+) -> ClaimDiagnosis {
   ClaimDiagnosis(
     package_code: None,
     on_admission: None,
@@ -3884,7 +3961,10 @@ pub type ClaimProcedureProcedure {
   ClaimProcedureProcedureReference(procedure: Reference)
 }
 
-pub fn claim_procedure_new(procedure, sequence) -> ClaimProcedure {
+pub fn claim_procedure_new(
+  procedure procedure: ClaimProcedureProcedure,
+  sequence sequence: Int,
+) -> ClaimProcedure {
   ClaimProcedure(
     udi: [],
     procedure:,
@@ -3913,7 +3993,11 @@ pub type ClaimInsurance {
   )
 }
 
-pub fn claim_insurance_new(coverage, focal, sequence) -> ClaimInsurance {
+pub fn claim_insurance_new(
+  coverage coverage: Reference,
+  focal focal: Bool,
+  sequence sequence: Int,
+) -> ClaimInsurance {
   ClaimInsurance(
     claim_response: None,
     pre_auth_ref: [],
@@ -3946,7 +4030,7 @@ pub type ClaimAccidentLocation {
   ClaimAccidentLocationReference(location: Reference)
 }
 
-pub fn claim_accident_new(date) -> ClaimAccident {
+pub fn claim_accident_new(date date: String) -> ClaimAccident {
   ClaimAccident(
     location: None,
     type_: None,
@@ -4000,7 +4084,10 @@ pub type ClaimItemLocation {
   ClaimItemLocationReference(location: Reference)
 }
 
-pub fn claim_item_new(product_or_service, sequence) -> ClaimItem {
+pub fn claim_item_new(
+  product_or_service product_or_service: Codeableconcept,
+  sequence sequence: Int,
+) -> ClaimItem {
   ClaimItem(
     detail: [],
     encounter: [],
@@ -4050,7 +4137,10 @@ pub type ClaimItemDetail {
   )
 }
 
-pub fn claim_item_detail_new(product_or_service, sequence) -> ClaimItemDetail {
+pub fn claim_item_detail_new(
+  product_or_service product_or_service: Codeableconcept,
+  sequence sequence: Int,
+) -> ClaimItemDetail {
   ClaimItemDetail(
     sub_detail: [],
     udi: [],
@@ -4091,8 +4181,8 @@ pub type ClaimItemDetailSubdetail {
 }
 
 pub fn claim_item_detail_subdetail_new(
-  product_or_service,
-  sequence,
+  product_or_service product_or_service: Codeableconcept,
+  sequence sequence: Int,
 ) -> ClaimItemDetailSubdetail {
   ClaimItemDetailSubdetail(
     udi: [],
@@ -4154,13 +4244,13 @@ pub type Claimresponse {
 }
 
 pub fn claimresponse_new(
-  outcome,
-  insurer,
-  created,
-  patient,
-  use_,
-  type_,
-  status,
+  outcome outcome: r4valuesets.Remittanceoutcome,
+  insurer insurer: Reference,
+  created created: String,
+  patient patient: Reference,
+  use_ use_: r4valuesets.Claimuse,
+  type_ type_: Codeableconcept,
+  status status: r4valuesets.Fmstatus,
 ) -> Claimresponse {
   Claimresponse(
     error: [],
@@ -4214,7 +4304,9 @@ pub type ClaimresponseItem {
   )
 }
 
-pub fn claimresponse_item_new(item_sequence) -> ClaimresponseItem {
+pub fn claimresponse_item_new(
+  item_sequence item_sequence: Int,
+) -> ClaimresponseItem {
   ClaimresponseItem(
     detail: [],
     adjudication: [],
@@ -4240,7 +4332,7 @@ pub type ClaimresponseItemAdjudication {
 }
 
 pub fn claimresponse_item_adjudication_new(
-  category,
+  category category: Codeableconcept,
 ) -> ClaimresponseItemAdjudication {
   ClaimresponseItemAdjudication(
     value: None,
@@ -4266,7 +4358,9 @@ pub type ClaimresponseItemDetail {
   )
 }
 
-pub fn claimresponse_item_detail_new(detail_sequence) -> ClaimresponseItemDetail {
+pub fn claimresponse_item_detail_new(
+  detail_sequence detail_sequence: Int,
+) -> ClaimresponseItemDetail {
   ClaimresponseItemDetail(
     sub_detail: [],
     adjudication: [],
@@ -4291,7 +4385,7 @@ pub type ClaimresponseItemDetailSubdetail {
 }
 
 pub fn claimresponse_item_detail_subdetail_new(
-  sub_detail_sequence,
+  sub_detail_sequence sub_detail_sequence: Int,
 ) -> ClaimresponseItemDetailSubdetail {
   ClaimresponseItemDetailSubdetail(
     adjudication: [],
@@ -4343,7 +4437,9 @@ pub type ClaimresponseAdditemLocation {
   ClaimresponseAdditemLocationReference(location: Reference)
 }
 
-pub fn claimresponse_additem_new(product_or_service) -> ClaimresponseAdditem {
+pub fn claimresponse_additem_new(
+  product_or_service product_or_service: Codeableconcept,
+) -> ClaimresponseAdditem {
   ClaimresponseAdditem(
     detail: [],
     adjudication: [],
@@ -4388,7 +4484,7 @@ pub type ClaimresponseAdditemDetail {
 }
 
 pub fn claimresponse_additem_detail_new(
-  product_or_service,
+  product_or_service product_or_service: Codeableconcept,
 ) -> ClaimresponseAdditemDetail {
   ClaimresponseAdditemDetail(
     sub_detail: [],
@@ -4424,7 +4520,7 @@ pub type ClaimresponseAdditemDetailSubdetail {
 }
 
 pub fn claimresponse_additem_detail_subdetail_new(
-  product_or_service,
+  product_or_service product_or_service: Codeableconcept,
 ) -> ClaimresponseAdditemDetailSubdetail {
   ClaimresponseAdditemDetailSubdetail(
     adjudication: [],
@@ -4452,7 +4548,10 @@ pub type ClaimresponseTotal {
   )
 }
 
-pub fn claimresponse_total_new(amount, category) -> ClaimresponseTotal {
+pub fn claimresponse_total_new(
+  amount amount: Money,
+  category category: Codeableconcept,
+) -> ClaimresponseTotal {
   ClaimresponseTotal(
     amount:,
     category:,
@@ -4477,7 +4576,10 @@ pub type ClaimresponsePayment {
   )
 }
 
-pub fn claimresponse_payment_new(amount, type_) -> ClaimresponsePayment {
+pub fn claimresponse_payment_new(
+  amount amount: Money,
+  type_ type_: Codeableconcept,
+) -> ClaimresponsePayment {
   ClaimresponsePayment(
     identifier: None,
     amount:,
@@ -4504,7 +4606,9 @@ pub type ClaimresponseProcessnote {
   )
 }
 
-pub fn claimresponse_processnote_new(text) -> ClaimresponseProcessnote {
+pub fn claimresponse_processnote_new(
+  text text: String,
+) -> ClaimresponseProcessnote {
   ClaimresponseProcessnote(
     language: None,
     text:,
@@ -4531,9 +4635,9 @@ pub type ClaimresponseInsurance {
 }
 
 pub fn claimresponse_insurance_new(
-  coverage,
-  focal,
-  sequence,
+  coverage coverage: Reference,
+  focal focal: Bool,
+  sequence sequence: Int,
 ) -> ClaimresponseInsurance {
   ClaimresponseInsurance(
     claim_response: None,
@@ -4560,7 +4664,7 @@ pub type ClaimresponseError {
   )
 }
 
-pub fn claimresponse_error_new(code) -> ClaimresponseError {
+pub fn claimresponse_error_new(code code: Codeableconcept) -> ClaimresponseError {
   ClaimresponseError(
     code:,
     sub_detail_sequence: None,
@@ -4612,7 +4716,10 @@ pub type ClinicalimpressionEffective {
   ClinicalimpressionEffectivePeriod(effective: Period)
 }
 
-pub fn clinicalimpression_new(subject, status) -> Clinicalimpression {
+pub fn clinicalimpression_new(
+  subject subject: Reference,
+  status status: r4valuesets.Clinicalimpressionstatus,
+) -> Clinicalimpression {
   Clinicalimpression(
     note: [],
     supporting_info: [],
@@ -4657,7 +4764,7 @@ pub type ClinicalimpressionInvestigation {
 }
 
 pub fn clinicalimpression_investigation_new(
-  code,
+  code code: Codeableconcept,
 ) -> ClinicalimpressionInvestigation {
   ClinicalimpressionInvestigation(
     item: [],
@@ -4731,7 +4838,10 @@ pub type Codesystem {
   )
 }
 
-pub fn codesystem_new(content, status) -> Codesystem {
+pub fn codesystem_new(
+  content content: r4valuesets.Codesystemcontentmode,
+  status status: r4valuesets.Publicationstatus,
+) -> Codesystem {
   Codesystem(
     concept: [],
     property: [],
@@ -4783,7 +4893,10 @@ pub type CodesystemFilter {
   )
 }
 
-pub fn codesystem_filter_new(value, code) -> CodesystemFilter {
+pub fn codesystem_filter_new(
+  value value: String,
+  code code: String,
+) -> CodesystemFilter {
   CodesystemFilter(
     value:,
     operator: [],
@@ -4808,7 +4921,10 @@ pub type CodesystemProperty {
   )
 }
 
-pub fn codesystem_property_new(type_, code) -> CodesystemProperty {
+pub fn codesystem_property_new(
+  type_ type_: r4valuesets.Conceptpropertytype,
+  code code: String,
+) -> CodesystemProperty {
   CodesystemProperty(
     type_:,
     description: None,
@@ -4835,7 +4951,7 @@ pub type CodesystemConcept {
   )
 }
 
-pub fn codesystem_concept_new(code) -> CodesystemConcept {
+pub fn codesystem_concept_new(code code: String) -> CodesystemConcept {
   CodesystemConcept(
     concept: [],
     property: [],
@@ -4861,7 +4977,9 @@ pub type CodesystemConceptDesignation {
   )
 }
 
-pub fn codesystem_concept_designation_new(value) -> CodesystemConceptDesignation {
+pub fn codesystem_concept_designation_new(
+  value value: String,
+) -> CodesystemConceptDesignation {
   CodesystemConceptDesignation(
     value:,
     use_: None,
@@ -4894,7 +5012,10 @@ pub type CodesystemConceptPropertyValue {
   CodesystemConceptPropertyValueDecimal(value: Float)
 }
 
-pub fn codesystem_concept_property_new(value, code) -> CodesystemConceptProperty {
+pub fn codesystem_concept_property_new(
+  value value: CodesystemConceptPropertyValue,
+  code code: String,
+) -> CodesystemConceptProperty {
   CodesystemConceptProperty(
     value:,
     code:,
@@ -4941,7 +5062,9 @@ pub type Communication {
   )
 }
 
-pub fn communication_new(status) -> Communication {
+pub fn communication_new(
+  status status: r4valuesets.Eventstatus,
+) -> Communication {
   Communication(
     note: [],
     payload: [],
@@ -4994,7 +5117,9 @@ pub type CommunicationPayloadContent {
   CommunicationPayloadContentReference(content: Reference)
 }
 
-pub fn communication_payload_new(content) -> CommunicationPayload {
+pub fn communication_payload_new(
+  content content: CommunicationPayloadContent,
+) -> CommunicationPayload {
   CommunicationPayload(
     content:,
     modifier_extension: [],
@@ -5045,7 +5170,9 @@ pub type CommunicationrequestOccurrence {
   CommunicationrequestOccurrencePeriod(occurrence: Period)
 }
 
-pub fn communicationrequest_new(status) -> Communicationrequest {
+pub fn communicationrequest_new(
+  status status: r4valuesets.Requeststatus,
+) -> Communicationrequest {
   Communicationrequest(
     note: [],
     reason_reference: [],
@@ -5097,7 +5224,9 @@ pub type CommunicationrequestPayloadContent {
   CommunicationrequestPayloadContentReference(content: Reference)
 }
 
-pub fn communicationrequest_payload_new(content) -> CommunicationrequestPayload {
+pub fn communicationrequest_payload_new(
+  content content: CommunicationrequestPayloadContent,
+) -> CommunicationrequestPayload {
   CommunicationrequestPayload(
     content:,
     modifier_extension: [],
@@ -5135,11 +5264,11 @@ pub type Compartmentdefinition {
 }
 
 pub fn compartmentdefinition_new(
-  search,
-  code,
-  status,
-  name,
-  url,
+  search search: Bool,
+  code code: r4valuesets.Compartmenttype,
+  status status: r4valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
 ) -> Compartmentdefinition {
   Compartmentdefinition(
     resource: [],
@@ -5179,7 +5308,9 @@ pub type CompartmentdefinitionResource {
   )
 }
 
-pub fn compartmentdefinition_resource_new(code) -> CompartmentdefinitionResource {
+pub fn compartmentdefinition_resource_new(
+  code code: r4valuesets.Resourcetypes,
+) -> CompartmentdefinitionResource {
   CompartmentdefinitionResource(
     documentation: None,
     param: [],
@@ -5219,7 +5350,12 @@ pub type Composition {
   )
 }
 
-pub fn composition_new(title, date, type_, status) -> Composition {
+pub fn composition_new(
+  title title: String,
+  date date: String,
+  type_ type_: Codeableconcept,
+  status status: r4valuesets.Compositionstatus,
+) -> Composition {
   Composition(
     section: [],
     event: [],
@@ -5259,7 +5395,9 @@ pub type CompositionAttester {
   )
 }
 
-pub fn composition_attester_new(mode) -> CompositionAttester {
+pub fn composition_attester_new(
+  mode mode: r4valuesets.Compositionattestationmode,
+) -> CompositionAttester {
   CompositionAttester(
     party: None,
     time: None,
@@ -5287,7 +5425,10 @@ pub type CompositionRelatestoTarget {
   CompositionRelatestoTargetReference(target: Reference)
 }
 
-pub fn composition_relatesto_new(target, code) -> CompositionRelatesto {
+pub fn composition_relatesto_new(
+  target target: CompositionRelatestoTarget,
+  code code: r4valuesets.Documentrelationshiptype,
+) -> CompositionRelatesto {
   CompositionRelatesto(
     target:,
     code:,
@@ -5401,7 +5542,9 @@ pub type ConceptmapTarget {
   ConceptmapTargetCanonical(target: String)
 }
 
-pub fn conceptmap_new(status) -> Conceptmap {
+pub fn conceptmap_new(
+  status status: r4valuesets.Publicationstatus,
+) -> Conceptmap {
   Conceptmap(
     group: [],
     target: None,
@@ -5500,7 +5643,7 @@ pub type ConceptmapGroupElementTarget {
 }
 
 pub fn conceptmap_group_element_target_new(
-  equivalence,
+  equivalence equivalence: r4valuesets.Conceptmapequivalence,
 ) -> ConceptmapGroupElementTarget {
   ConceptmapGroupElementTarget(
     product: [],
@@ -5529,8 +5672,8 @@ pub type ConceptmapGroupElementTargetDependson {
 }
 
 pub fn conceptmap_group_element_target_dependson_new(
-  value,
-  property,
+  value value: String,
+  property property: String,
 ) -> ConceptmapGroupElementTargetDependson {
   ConceptmapGroupElementTargetDependson(
     display: None,
@@ -5556,7 +5699,9 @@ pub type ConceptmapGroupUnmapped {
   )
 }
 
-pub fn conceptmap_group_unmapped_new(mode) -> ConceptmapGroupUnmapped {
+pub fn conceptmap_group_unmapped_new(
+  mode mode: r4valuesets.Conceptmapunmappedmode,
+) -> ConceptmapGroupUnmapped {
   ConceptmapGroupUnmapped(
     url: None,
     display: None,
@@ -5617,7 +5762,7 @@ pub type ConditionAbatement {
   ConditionAbatementString(abatement: String)
 }
 
-pub fn condition_new(subject) -> Condition {
+pub fn condition_new(subject subject: Reference) -> Condition {
   Condition(
     note: [],
     evidence: [],
@@ -5724,7 +5869,10 @@ pub type ConsentSource {
   ConsentSourceReference(source: Reference)
 }
 
-pub fn consent_new(scope, status) -> Consent {
+pub fn consent_new(
+  scope scope: Codeableconcept,
+  status status: r4valuesets.Consentstatecodes,
+) -> Consent {
   Consent(
     provision: None,
     verification: [],
@@ -5783,7 +5931,7 @@ pub type ConsentVerification {
   )
 }
 
-pub fn consent_verification_new(verified) -> ConsentVerification {
+pub fn consent_verification_new(verified verified: Bool) -> ConsentVerification {
   ConsentVerification(
     verification_date: None,
     verified_with: None,
@@ -5844,7 +5992,10 @@ pub type ConsentProvisionActor {
   )
 }
 
-pub fn consent_provision_actor_new(reference, role) -> ConsentProvisionActor {
+pub fn consent_provision_actor_new(
+  reference reference: Reference,
+  role role: Codeableconcept,
+) -> ConsentProvisionActor {
   ConsentProvisionActor(
     reference:,
     role:,
@@ -5865,7 +6016,10 @@ pub type ConsentProvisionData {
   )
 }
 
-pub fn consent_provision_data_new(reference, meaning) -> ConsentProvisionData {
+pub fn consent_provision_data_new(
+  reference reference: Reference,
+  meaning meaning: r4valuesets.Consentdatameaning,
+) -> ConsentProvisionData {
   ConsentProvisionData(
     reference:,
     meaning:,
@@ -5996,8 +6150,8 @@ pub type ContractContentdefinition {
 }
 
 pub fn contract_contentdefinition_new(
-  publication_status,
-  type_,
+  publication_status publication_status: r4valuesets.Contractpublicationstatus,
+  type_ type_: Codeableconcept,
 ) -> ContractContentdefinition {
   ContractContentdefinition(
     copyright: None,
@@ -6039,7 +6193,7 @@ pub type ContractTermTopic {
   ContractTermTopicReference(topic: Reference)
 }
 
-pub fn contract_term_new(offer) -> ContractTerm {
+pub fn contract_term_new(offer offer: ContractTermOffer) -> ContractTerm {
   ContractTerm(
     group: [],
     action: [],
@@ -6073,7 +6227,7 @@ pub type ContractTermSecuritylabel {
 }
 
 pub fn contract_term_securitylabel_new(
-  classification,
+  classification classification: Coding,
 ) -> ContractTermSecuritylabel {
   ContractTermSecuritylabel(
     control: [],
@@ -6134,7 +6288,9 @@ pub type ContractTermOfferParty {
   )
 }
 
-pub fn contract_term_offer_party_new(role) -> ContractTermOfferParty {
+pub fn contract_term_offer_party_new(
+  role role: Codeableconcept,
+) -> ContractTermOfferParty {
   ContractTermOfferParty(
     role:,
     reference: [],
@@ -6170,7 +6326,9 @@ pub type ContractTermOfferAnswerValue {
   ContractTermOfferAnswerValueReference(value: Reference)
 }
 
-pub fn contract_term_offer_answer_new(value) -> ContractTermOfferAnswer {
+pub fn contract_term_offer_answer_new(
+  value value: ContractTermOfferAnswerValue,
+) -> ContractTermOfferAnswer {
   ContractTermOfferAnswer(
     value:,
     modifier_extension: [],
@@ -6337,7 +6495,11 @@ pub type ContractTermActionOccurrence {
   ContractTermActionOccurrenceTiming(occurrence: Timing)
 }
 
-pub fn contract_term_action_new(status, intent, type_) -> ContractTermAction {
+pub fn contract_term_action_new(
+  status status: Codeableconcept,
+  intent intent: Codeableconcept,
+  type_ type_: Codeableconcept,
+) -> ContractTermAction {
   ContractTermAction(
     security_label_number: [],
     note: [],
@@ -6399,7 +6561,10 @@ pub type ContractSigner {
   )
 }
 
-pub fn contract_signer_new(party, type_) -> ContractSigner {
+pub fn contract_signer_new(
+  party party: Reference,
+  type_ type_: Coding,
+) -> ContractSigner {
   ContractSigner(
     signature: [],
     party:,
@@ -6426,7 +6591,9 @@ pub type ContractFriendlyContent {
   ContractFriendlyContentReference(content: Reference)
 }
 
-pub fn contract_friendly_new(content) -> ContractFriendly {
+pub fn contract_friendly_new(
+  content content: ContractFriendlyContent,
+) -> ContractFriendly {
   ContractFriendly(content:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -6446,7 +6613,9 @@ pub type ContractLegalContent {
   ContractLegalContentReference(content: Reference)
 }
 
-pub fn contract_legal_new(content) -> ContractLegal {
+pub fn contract_legal_new(
+  content content: ContractLegalContent,
+) -> ContractLegal {
   ContractLegal(content:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -6466,7 +6635,7 @@ pub type ContractRuleContent {
   ContractRuleContentReference(content: Reference)
 }
 
-pub fn contract_rule_new(content) -> ContractRule {
+pub fn contract_rule_new(content content: ContractRuleContent) -> ContractRule {
   ContractRule(content:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -6501,7 +6670,10 @@ pub type Coverage {
   )
 }
 
-pub fn coverage_new(beneficiary, status) -> Coverage {
+pub fn coverage_new(
+  beneficiary beneficiary: Reference,
+  status status: r4valuesets.Fmstatus,
+) -> Coverage {
   Coverage(
     contract: [],
     subrogation: None,
@@ -6543,7 +6715,10 @@ pub type CoverageClass {
   )
 }
 
-pub fn coverage_class_new(value, type_) -> CoverageClass {
+pub fn coverage_class_new(
+  value value: String,
+  type_ type_: Codeableconcept,
+) -> CoverageClass {
   CoverageClass(
     name: None,
     value:,
@@ -6572,7 +6747,9 @@ pub type CoverageCosttobeneficiaryValue {
   CoverageCosttobeneficiaryValueMoney(value: Money)
 }
 
-pub fn coverage_costtobeneficiary_new(value) -> CoverageCosttobeneficiary {
+pub fn coverage_costtobeneficiary_new(
+  value value: CoverageCosttobeneficiaryValue,
+) -> CoverageCosttobeneficiary {
   CoverageCosttobeneficiary(
     exception: [],
     value:,
@@ -6595,7 +6772,7 @@ pub type CoverageCosttobeneficiaryException {
 }
 
 pub fn coverage_costtobeneficiary_exception_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> CoverageCosttobeneficiaryException {
   CoverageCosttobeneficiaryException(
     period: None,
@@ -6641,10 +6818,10 @@ pub type CoverageeligibilityrequestServiced {
 }
 
 pub fn coverageeligibilityrequest_new(
-  insurer,
-  created,
-  patient,
-  status,
+  insurer insurer: Reference,
+  created created: String,
+  patient patient: Reference,
+  status status: r4valuesets.Fmstatus,
 ) -> Coverageeligibilityrequest {
   Coverageeligibilityrequest(
     item: [],
@@ -6685,8 +6862,8 @@ pub type CoverageeligibilityrequestSupportinginfo {
 }
 
 pub fn coverageeligibilityrequest_supportinginfo_new(
-  information,
-  sequence,
+  information information: Reference,
+  sequence sequence: Int,
 ) -> CoverageeligibilityrequestSupportinginfo {
   CoverageeligibilityrequestSupportinginfo(
     applies_to_all: None,
@@ -6711,7 +6888,7 @@ pub type CoverageeligibilityrequestInsurance {
 }
 
 pub fn coverageeligibilityrequest_insurance_new(
-  coverage,
+  coverage coverage: Reference,
 ) -> CoverageeligibilityrequestInsurance {
   CoverageeligibilityrequestInsurance(
     business_arrangement: None,
@@ -6825,12 +7002,12 @@ pub type CoverageeligibilityresponseServiced {
 }
 
 pub fn coverageeligibilityresponse_new(
-  insurer,
-  outcome,
-  request,
-  created,
-  patient,
-  status,
+  insurer insurer: Reference,
+  outcome outcome: r4valuesets.Remittanceoutcome,
+  request request: Reference,
+  created created: String,
+  patient patient: Reference,
+  status status: r4valuesets.Fmstatus,
 ) -> Coverageeligibilityresponse {
   Coverageeligibilityresponse(
     error: [],
@@ -6873,7 +7050,7 @@ pub type CoverageeligibilityresponseInsurance {
 }
 
 pub fn coverageeligibilityresponse_insurance_new(
-  coverage,
+  coverage coverage: Reference,
 ) -> CoverageeligibilityresponseInsurance {
   CoverageeligibilityresponseInsurance(
     item: [],
@@ -6960,7 +7137,7 @@ pub type CoverageeligibilityresponseInsuranceItemBenefitUsed {
 }
 
 pub fn coverageeligibilityresponse_insurance_item_benefit_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> CoverageeligibilityresponseInsuranceItemBenefit {
   CoverageeligibilityresponseInsuranceItemBenefit(
     used: None,
@@ -6983,7 +7160,7 @@ pub type CoverageeligibilityresponseError {
 }
 
 pub fn coverageeligibilityresponse_error_new(
-  code,
+  code code: Codeableconcept,
 ) -> CoverageeligibilityresponseError {
   CoverageeligibilityresponseError(
     code:,
@@ -7025,7 +7202,9 @@ pub type DetectedissueIdentified {
   DetectedissueIdentifiedPeriod(identified: Period)
 }
 
-pub fn detectedissue_new(status) -> Detectedissue {
+pub fn detectedissue_new(
+  status status: r4valuesets.Observationstatus,
+) -> Detectedissue {
   Detectedissue(
     mitigation: [],
     reference: None,
@@ -7083,7 +7262,9 @@ pub type DetectedissueMitigation {
   )
 }
 
-pub fn detectedissue_mitigation_new(action) -> DetectedissueMitigation {
+pub fn detectedissue_mitigation_new(
+  action action: Codeableconcept,
+) -> DetectedissueMitigation {
   DetectedissueMitigation(
     author: None,
     date: None,
@@ -7213,7 +7394,10 @@ pub type DeviceDevicename {
   )
 }
 
-pub fn device_devicename_new(type_, name) -> DeviceDevicename {
+pub fn device_devicename_new(
+  type_ type_: r4valuesets.Devicenametype,
+  name name: String,
+) -> DeviceDevicename {
   DeviceDevicename(
     type_:,
     name:,
@@ -7234,7 +7418,9 @@ pub type DeviceSpecialization {
   )
 }
 
-pub fn device_specialization_new(system_type) -> DeviceSpecialization {
+pub fn device_specialization_new(
+  system_type system_type: Codeableconcept,
+) -> DeviceSpecialization {
   DeviceSpecialization(
     version: None,
     system_type:,
@@ -7256,7 +7442,7 @@ pub type DeviceVersion {
   )
 }
 
-pub fn device_version_new(value) -> DeviceVersion {
+pub fn device_version_new(value value: String) -> DeviceVersion {
   DeviceVersion(
     value:,
     component: None,
@@ -7279,7 +7465,7 @@ pub type DeviceProperty {
   )
 }
 
-pub fn device_property_new(type_) -> DeviceProperty {
+pub fn device_property_new(type_ type_: Codeableconcept) -> DeviceProperty {
   DeviceProperty(
     value_code: [],
     value_quantity: [],
@@ -7380,9 +7566,9 @@ pub type DevicedefinitionUdideviceidentifier {
 }
 
 pub fn devicedefinition_udideviceidentifier_new(
-  jurisdiction,
-  issuer,
-  device_identifier,
+  jurisdiction jurisdiction: String,
+  issuer issuer: String,
+  device_identifier device_identifier: String,
 ) -> DevicedefinitionUdideviceidentifier {
   DevicedefinitionUdideviceidentifier(
     jurisdiction:,
@@ -7406,8 +7592,8 @@ pub type DevicedefinitionDevicename {
 }
 
 pub fn devicedefinition_devicename_new(
-  type_,
-  name,
+  type_ type_: r4valuesets.Devicenametype,
+  name name: String,
 ) -> DevicedefinitionDevicename {
   DevicedefinitionDevicename(
     type_:,
@@ -7430,7 +7616,7 @@ pub type DevicedefinitionSpecialization {
 }
 
 pub fn devicedefinition_specialization_new(
-  system_type,
+  system_type system_type: String,
 ) -> DevicedefinitionSpecialization {
   DevicedefinitionSpecialization(
     version: None,
@@ -7452,7 +7638,9 @@ pub type DevicedefinitionCapability {
   )
 }
 
-pub fn devicedefinition_capability_new(type_) -> DevicedefinitionCapability {
+pub fn devicedefinition_capability_new(
+  type_ type_: Codeableconcept,
+) -> DevicedefinitionCapability {
   DevicedefinitionCapability(
     description: [],
     type_:,
@@ -7474,7 +7662,9 @@ pub type DevicedefinitionProperty {
   )
 }
 
-pub fn devicedefinition_property_new(type_) -> DevicedefinitionProperty {
+pub fn devicedefinition_property_new(
+  type_ type_: Codeableconcept,
+) -> DevicedefinitionProperty {
   DevicedefinitionProperty(
     value_code: [],
     value_quantity: [],
@@ -7497,7 +7687,9 @@ pub type DevicedefinitionMaterial {
   )
 }
 
-pub fn devicedefinition_material_new(substance) -> DevicedefinitionMaterial {
+pub fn devicedefinition_material_new(
+  substance substance: Codeableconcept,
+) -> DevicedefinitionMaterial {
   DevicedefinitionMaterial(
     allergenic_indicator: None,
     alternate: None,
@@ -7532,7 +7724,10 @@ pub type Devicemetric {
   )
 }
 
-pub fn devicemetric_new(category, type_) -> Devicemetric {
+pub fn devicemetric_new(
+  category category: r4valuesets.Metriccategory,
+  type_ type_: Codeableconcept,
+) -> Devicemetric {
   Devicemetric(
     calibration: [],
     measurement_period: None,
@@ -7629,7 +7824,11 @@ pub type DevicerequestOccurrence {
   DevicerequestOccurrenceTiming(occurrence: Timing)
 }
 
-pub fn devicerequest_new(subject, code, intent) -> Devicerequest {
+pub fn devicerequest_new(
+  subject subject: Reference,
+  code code: DevicerequestCode,
+  intent intent: r4valuesets.Requestintent,
+) -> Devicerequest {
   Devicerequest(
     relevant_history: [],
     note: [],
@@ -7729,7 +7928,11 @@ pub type DeviceusestatementTiming {
   DeviceusestatementTimingDatetime(timing: String)
 }
 
-pub fn deviceusestatement_new(device, subject, status) -> Deviceusestatement {
+pub fn deviceusestatement_new(
+  device device: Reference,
+  subject subject: Reference,
+  status status: r4valuesets.Devicestatementstatus,
+) -> Deviceusestatement {
   Deviceusestatement(
     note: [],
     body_site: None,
@@ -7793,7 +7996,10 @@ pub type DiagnosticreportEffective {
   DiagnosticreportEffectivePeriod(effective: Period)
 }
 
-pub fn diagnosticreport_new(code, status) -> Diagnosticreport {
+pub fn diagnosticreport_new(
+  code code: Codeableconcept,
+  status status: r4valuesets.Diagnosticreportstatus,
+) -> Diagnosticreport {
   Diagnosticreport(
     presented_form: [],
     conclusion_code: [],
@@ -7835,7 +8041,7 @@ pub type DiagnosticreportMedia {
   )
 }
 
-pub fn diagnosticreport_media_new(link) -> DiagnosticreportMedia {
+pub fn diagnosticreport_media_new(link link: Reference) -> DiagnosticreportMedia {
   DiagnosticreportMedia(
     link:,
     comment: None,
@@ -7871,7 +8077,9 @@ pub type Documentmanifest {
   )
 }
 
-pub fn documentmanifest_new(status) -> Documentmanifest {
+pub fn documentmanifest_new(
+  status status: r4valuesets.Documentreferencestatus,
+) -> Documentmanifest {
   Documentmanifest(
     related: [],
     content: [],
@@ -7947,7 +8155,9 @@ pub type Documentreference {
   )
 }
 
-pub fn documentreference_new(status) -> Documentreference {
+pub fn documentreference_new(
+  status status: r4valuesets.Documentreferencestatus,
+) -> Documentreference {
   Documentreference(
     context: None,
     content: [],
@@ -7988,8 +8198,8 @@ pub type DocumentreferenceRelatesto {
 }
 
 pub fn documentreference_relatesto_new(
-  target,
-  code,
+  target target: Reference,
+  code code: r4valuesets.Documentrelationshiptype,
 ) -> DocumentreferenceRelatesto {
   DocumentreferenceRelatesto(
     target:,
@@ -8011,7 +8221,9 @@ pub type DocumentreferenceContent {
   )
 }
 
-pub fn documentreference_content_new(attachment) -> DocumentreferenceContent {
+pub fn documentreference_content_new(
+  attachment attachment: Attachment,
+) -> DocumentreferenceContent {
   DocumentreferenceContent(
     format: None,
     attachment:,
@@ -8127,11 +8339,11 @@ pub type Effectevidencesynthesis {
 }
 
 pub fn effectevidencesynthesis_new(
-  outcome,
-  exposure_alternative,
-  exposure,
-  population,
-  status,
+  outcome outcome: Reference,
+  exposure_alternative exposure_alternative: Reference,
+  exposure exposure: Reference,
+  population population: Reference,
+  status status: r4valuesets.Publicationstatus,
 ) -> Effectevidencesynthesis {
   Effectevidencesynthesis(
     certainty: [],
@@ -8215,7 +8427,7 @@ pub type EffectevidencesynthesisResultsbyexposure {
 }
 
 pub fn effectevidencesynthesis_resultsbyexposure_new(
-  risk_evidence_synthesis,
+  risk_evidence_synthesis risk_evidence_synthesis: Reference,
 ) -> EffectevidencesynthesisResultsbyexposure {
   EffectevidencesynthesisResultsbyexposure(
     risk_evidence_synthesis:,
@@ -8369,7 +8581,10 @@ pub type Encounter {
   )
 }
 
-pub fn encounter_new(class, status) -> Encounter {
+pub fn encounter_new(
+  class class: Coding,
+  status status: r4valuesets.Encounterstatus,
+) -> Encounter {
   Encounter(
     part_of: None,
     service_provider: None,
@@ -8416,7 +8631,10 @@ pub type EncounterStatushistory {
   )
 }
 
-pub fn encounter_statushistory_new(period, status) -> EncounterStatushistory {
+pub fn encounter_statushistory_new(
+  period period: Period,
+  status status: r4valuesets.Encounterstatus,
+) -> EncounterStatushistory {
   EncounterStatushistory(
     period:,
     status:,
@@ -8437,7 +8655,10 @@ pub type EncounterClasshistory {
   )
 }
 
-pub fn encounter_classhistory_new(period, class) -> EncounterClasshistory {
+pub fn encounter_classhistory_new(
+  period period: Period,
+  class class: Coding,
+) -> EncounterClasshistory {
   EncounterClasshistory(
     period:,
     class:,
@@ -8482,7 +8703,9 @@ pub type EncounterDiagnosis {
   )
 }
 
-pub fn encounter_diagnosis_new(condition) -> EncounterDiagnosis {
+pub fn encounter_diagnosis_new(
+  condition condition: Reference,
+) -> EncounterDiagnosis {
   EncounterDiagnosis(
     rank: None,
     use_: None,
@@ -8541,7 +8764,7 @@ pub type EncounterLocation {
   )
 }
 
-pub fn encounter_location_new(location) -> EncounterLocation {
+pub fn encounter_location_new(location location: Reference) -> EncounterLocation {
   EncounterLocation(
     period: None,
     physical_type: None,
@@ -8578,7 +8801,11 @@ pub type Endpoint {
   )
 }
 
-pub fn endpoint_new(address, connection_type, status) -> Endpoint {
+pub fn endpoint_new(
+  address address: String,
+  connection_type connection_type: Coding,
+  status status: r4valuesets.Endpointstatus,
+) -> Endpoint {
   Endpoint(
     header: [],
     address:,
@@ -8712,7 +8939,10 @@ pub type Episodeofcare {
   )
 }
 
-pub fn episodeofcare_new(patient, status) -> Episodeofcare {
+pub fn episodeofcare_new(
+  patient patient: Reference,
+  status status: r4valuesets.Episodeofcarestatus,
+) -> Episodeofcare {
   Episodeofcare(
     account: [],
     team: [],
@@ -8749,8 +8979,8 @@ pub type EpisodeofcareStatushistory {
 }
 
 pub fn episodeofcare_statushistory_new(
-  period,
-  status,
+  period period: Period,
+  status status: r4valuesets.Episodeofcarestatus,
 ) -> EpisodeofcareStatushistory {
   EpisodeofcareStatushistory(
     period:,
@@ -8773,7 +9003,9 @@ pub type EpisodeofcareDiagnosis {
   )
 }
 
-pub fn episodeofcare_diagnosis_new(condition) -> EpisodeofcareDiagnosis {
+pub fn episodeofcare_diagnosis_new(
+  condition condition: Reference,
+) -> EpisodeofcareDiagnosis {
   EpisodeofcareDiagnosis(
     rank: None,
     role: None,
@@ -8832,7 +9064,9 @@ pub type EventdefinitionSubject {
   EventdefinitionSubjectReference(subject: Reference)
 }
 
-pub fn eventdefinition_new(status) -> Eventdefinition {
+pub fn eventdefinition_new(
+  status status: r4valuesets.Publicationstatus,
+) -> Eventdefinition {
   Eventdefinition(
     trigger: [],
     related_artifact: [],
@@ -8915,7 +9149,10 @@ pub type Evidence {
   )
 }
 
-pub fn evidence_new(exposure_background, status) -> Evidence {
+pub fn evidence_new(
+  exposure_background exposure_background: Reference,
+  status status: r4valuesets.Publicationstatus,
+) -> Evidence {
   Evidence(
     outcome: [],
     exposure_variant: [],
@@ -8997,7 +9234,9 @@ pub type Evidencevariable {
   )
 }
 
-pub fn evidencevariable_new(status) -> Evidencevariable {
+pub fn evidencevariable_new(
+  status status: r4valuesets.Publicationstatus,
+) -> Evidencevariable {
   Evidencevariable(
     characteristic: [],
     type_: None,
@@ -9088,7 +9327,7 @@ pub type EvidencevariableCharacteristicParticipanteffective {
 }
 
 pub fn evidencevariable_characteristic_new(
-  definition,
+  definition definition: EvidencevariableCharacteristicDefinition,
 ) -> EvidencevariableCharacteristic {
   EvidencevariableCharacteristic(
     group_measure: None,
@@ -9135,7 +9374,9 @@ pub type Examplescenario {
   )
 }
 
-pub fn examplescenario_new(status) -> Examplescenario {
+pub fn examplescenario_new(
+  status status: r4valuesets.Publicationstatus,
+) -> Examplescenario {
   Examplescenario(
     workflow: [],
     process: [],
@@ -9178,7 +9419,10 @@ pub type ExamplescenarioActor {
   )
 }
 
-pub fn examplescenario_actor_new(type_, actor_id) -> ExamplescenarioActor {
+pub fn examplescenario_actor_new(
+  type_ type_: r4valuesets.Examplescenarioactortype,
+  actor_id actor_id: String,
+) -> ExamplescenarioActor {
   ExamplescenarioActor(
     description: None,
     name: None,
@@ -9206,8 +9450,8 @@ pub type ExamplescenarioInstance {
 }
 
 pub fn examplescenario_instance_new(
-  resource_type,
-  resource_id,
+  resource_type resource_type: r4valuesets.Resourcetypes,
+  resource_id resource_id: String,
 ) -> ExamplescenarioInstance {
   ExamplescenarioInstance(
     contained_instance: [],
@@ -9234,8 +9478,8 @@ pub type ExamplescenarioInstanceVersion {
 }
 
 pub fn examplescenario_instance_version_new(
-  description,
-  version_id,
+  description description: String,
+  version_id version_id: String,
 ) -> ExamplescenarioInstanceVersion {
   ExamplescenarioInstanceVersion(
     description:,
@@ -9258,7 +9502,7 @@ pub type ExamplescenarioInstanceContainedinstance {
 }
 
 pub fn examplescenario_instance_containedinstance_new(
-  resource_id,
+  resource_id resource_id: String,
 ) -> ExamplescenarioInstanceContainedinstance {
   ExamplescenarioInstanceContainedinstance(
     version_id: None,
@@ -9283,7 +9527,9 @@ pub type ExamplescenarioProcess {
   )
 }
 
-pub fn examplescenario_process_new(title) -> ExamplescenarioProcess {
+pub fn examplescenario_process_new(
+  title title: String,
+) -> ExamplescenarioProcess {
   ExamplescenarioProcess(
     step: [],
     post_conditions: None,
@@ -9341,7 +9587,7 @@ pub type ExamplescenarioProcessStepOperation {
 }
 
 pub fn examplescenario_process_step_operation_new(
-  number,
+  number number: String,
 ) -> ExamplescenarioProcessStepOperation {
   ExamplescenarioProcessStepOperation(
     response: None,
@@ -9373,7 +9619,7 @@ pub type ExamplescenarioProcessStepAlternative {
 }
 
 pub fn examplescenario_process_step_alternative_new(
-  title,
+  title title: String,
 ) -> ExamplescenarioProcessStepAlternative {
   ExamplescenarioProcessStepAlternative(
     step: [],
@@ -9443,14 +9689,14 @@ pub type Explanationofbenefit {
 }
 
 pub fn explanationofbenefit_new(
-  outcome,
-  provider,
-  insurer,
-  created,
-  patient,
-  use_,
-  type_,
-  status,
+  outcome outcome: r4valuesets.Remittanceoutcome,
+  provider provider: Reference,
+  insurer insurer: Reference,
+  created created: String,
+  patient patient: Reference,
+  use_ use_: r4valuesets.Claimuse,
+  type_ type_: Codeableconcept,
+  status status: r4valuesets.Explanationofbenefitstatus,
 ) -> Explanationofbenefit {
   Explanationofbenefit(
     benefit_balance: [],
@@ -9566,8 +9812,8 @@ pub type ExplanationofbenefitCareteam {
 }
 
 pub fn explanationofbenefit_careteam_new(
-  provider,
-  sequence,
+  provider provider: Reference,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitCareteam {
   ExplanationofbenefitCareteam(
     qualification: None,
@@ -9612,8 +9858,8 @@ pub type ExplanationofbenefitSupportinginfoValue {
 }
 
 pub fn explanationofbenefit_supportinginfo_new(
-  category,
-  sequence,
+  category category: Codeableconcept,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitSupportinginfo {
   ExplanationofbenefitSupportinginfo(
     reason: None,
@@ -9651,8 +9897,8 @@ pub type ExplanationofbenefitDiagnosisDiagnosis {
 }
 
 pub fn explanationofbenefit_diagnosis_new(
-  diagnosis,
-  sequence,
+  diagnosis diagnosis: ExplanationofbenefitDiagnosisDiagnosis,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitDiagnosis {
   ExplanationofbenefitDiagnosis(
     package_code: None,
@@ -9689,8 +9935,8 @@ pub type ExplanationofbenefitProcedureProcedure {
 }
 
 pub fn explanationofbenefit_procedure_new(
-  procedure,
-  sequence,
+  procedure procedure: ExplanationofbenefitProcedureProcedure,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitProcedure {
   ExplanationofbenefitProcedure(
     udi: [],
@@ -9717,8 +9963,8 @@ pub type ExplanationofbenefitInsurance {
 }
 
 pub fn explanationofbenefit_insurance_new(
-  coverage,
-  focal,
+  coverage coverage: Reference,
+  focal focal: Bool,
 ) -> ExplanationofbenefitInsurance {
   ExplanationofbenefitInsurance(
     pre_auth_ref: [],
@@ -9805,8 +10051,8 @@ pub type ExplanationofbenefitItemLocation {
 }
 
 pub fn explanationofbenefit_item_new(
-  product_or_service,
-  sequence,
+  product_or_service product_or_service: Codeableconcept,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitItem {
   ExplanationofbenefitItem(
     detail: [],
@@ -9852,7 +10098,7 @@ pub type ExplanationofbenefitItemAdjudication {
 }
 
 pub fn explanationofbenefit_item_adjudication_new(
-  category,
+  category category: Codeableconcept,
 ) -> ExplanationofbenefitItemAdjudication {
   ExplanationofbenefitItemAdjudication(
     value: None,
@@ -9889,8 +10135,8 @@ pub type ExplanationofbenefitItemDetail {
 }
 
 pub fn explanationofbenefit_item_detail_new(
-  product_or_service,
-  sequence,
+  product_or_service product_or_service: Codeableconcept,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitItemDetail {
   ExplanationofbenefitItemDetail(
     sub_detail: [],
@@ -9936,8 +10182,8 @@ pub type ExplanationofbenefitItemDetailSubdetail {
 }
 
 pub fn explanationofbenefit_item_detail_subdetail_new(
-  product_or_service,
-  sequence,
+  product_or_service product_or_service: Codeableconcept,
+  sequence sequence: Int,
 ) -> ExplanationofbenefitItemDetailSubdetail {
   ExplanationofbenefitItemDetailSubdetail(
     adjudication: [],
@@ -10000,7 +10246,7 @@ pub type ExplanationofbenefitAdditemLocation {
 }
 
 pub fn explanationofbenefit_additem_new(
-  product_or_service,
+  product_or_service product_or_service: Codeableconcept,
 ) -> ExplanationofbenefitAdditem {
   ExplanationofbenefitAdditem(
     detail: [],
@@ -10046,7 +10292,7 @@ pub type ExplanationofbenefitAdditemDetail {
 }
 
 pub fn explanationofbenefit_additem_detail_new(
-  product_or_service,
+  product_or_service product_or_service: Codeableconcept,
 ) -> ExplanationofbenefitAdditemDetail {
   ExplanationofbenefitAdditemDetail(
     sub_detail: [],
@@ -10082,7 +10328,7 @@ pub type ExplanationofbenefitAdditemDetailSubdetail {
 }
 
 pub fn explanationofbenefit_additem_detail_subdetail_new(
-  product_or_service,
+  product_or_service product_or_service: Codeableconcept,
 ) -> ExplanationofbenefitAdditemDetailSubdetail {
   ExplanationofbenefitAdditemDetailSubdetail(
     adjudication: [],
@@ -10111,8 +10357,8 @@ pub type ExplanationofbenefitTotal {
 }
 
 pub fn explanationofbenefit_total_new(
-  amount,
-  category,
+  amount amount: Money,
+  category category: Codeableconcept,
 ) -> ExplanationofbenefitTotal {
   ExplanationofbenefitTotal(
     amount:,
@@ -10195,7 +10441,7 @@ pub type ExplanationofbenefitBenefitbalance {
 }
 
 pub fn explanationofbenefit_benefitbalance_new(
-  category,
+  category category: Codeableconcept,
 ) -> ExplanationofbenefitBenefitbalance {
   ExplanationofbenefitBenefitbalance(
     financial: [],
@@ -10238,7 +10484,7 @@ pub type ExplanationofbenefitBenefitbalanceFinancialUsed {
 }
 
 pub fn explanationofbenefit_benefitbalance_financial_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> ExplanationofbenefitBenefitbalanceFinancial {
   ExplanationofbenefitBenefitbalanceFinancial(
     used: None,
@@ -10306,9 +10552,9 @@ pub type FamilymemberhistoryDeceased {
 }
 
 pub fn familymemberhistory_new(
-  relationship,
-  patient,
-  status,
+  relationship relationship: Codeableconcept,
+  patient patient: Reference,
+  status status: r4valuesets.Historystatus,
 ) -> Familymemberhistory {
   Familymemberhistory(
     condition: [],
@@ -10362,7 +10608,9 @@ pub type FamilymemberhistoryConditionOnset {
   FamilymemberhistoryConditionOnsetString(onset: String)
 }
 
-pub fn familymemberhistory_condition_new(code) -> FamilymemberhistoryCondition {
+pub fn familymemberhistory_condition_new(
+  code code: Codeableconcept,
+) -> FamilymemberhistoryCondition {
   FamilymemberhistoryCondition(
     note: [],
     onset: None,
@@ -10397,7 +10645,11 @@ pub type Flag {
   )
 }
 
-pub fn flag_new(subject, code, status) -> Flag {
+pub fn flag_new(
+  subject subject: Reference,
+  code code: Codeableconcept,
+  status status: r4valuesets.Flagstatus,
+) -> Flag {
   Flag(
     author: None,
     encounter: None,
@@ -10454,7 +10706,11 @@ pub type GoalStart {
   GoalStartCodeableconcept(start: Codeableconcept)
 }
 
-pub fn goal_new(subject, description, lifecycle_status) -> Goal {
+pub fn goal_new(
+  subject subject: Reference,
+  description description: Codeableconcept,
+  lifecycle_status lifecycle_status: r4valuesets.Goalstatus,
+) -> Goal {
   Goal(
     outcome_reference: [],
     outcome_code: [],
@@ -10552,7 +10808,11 @@ pub type Graphdefinition {
   )
 }
 
-pub fn graphdefinition_new(start, status, name) -> Graphdefinition {
+pub fn graphdefinition_new(
+  start start: r4valuesets.Resourcetypes,
+  status status: r4valuesets.Publicationstatus,
+  name name: String,
+) -> Graphdefinition {
   Graphdefinition(
     link: [],
     profile: None,
@@ -10623,7 +10883,9 @@ pub type GraphdefinitionLinkTarget {
   )
 }
 
-pub fn graphdefinition_link_target_new(type_) -> GraphdefinitionLinkTarget {
+pub fn graphdefinition_link_target_new(
+  type_ type_: r4valuesets.Resourcetypes,
+) -> GraphdefinitionLinkTarget {
   GraphdefinitionLinkTarget(
     link: [],
     compartment: [],
@@ -10651,9 +10913,9 @@ pub type GraphdefinitionLinkTargetCompartment {
 }
 
 pub fn graphdefinition_link_target_compartment_new(
-  rule,
-  code,
-  use_,
+  rule rule: r4valuesets.Graphcompartmentrule,
+  code code: r4valuesets.Compartmenttype,
+  use_ use_: r4valuesets.Graphcompartmentuse,
 ) -> GraphdefinitionLinkTargetCompartment {
   GraphdefinitionLinkTargetCompartment(
     description: None,
@@ -10691,7 +10953,10 @@ pub type Group {
   )
 }
 
-pub fn group_new(actual, type_) -> Group {
+pub fn group_new(
+  actual actual: Bool,
+  type_ type_: r4valuesets.Grouptype,
+) -> Group {
   Group(
     member: [],
     characteristic: [],
@@ -10736,7 +11001,11 @@ pub type GroupCharacteristicValue {
   GroupCharacteristicValueReference(value: Reference)
 }
 
-pub fn group_characteristic_new(exclude, value, code) -> GroupCharacteristic {
+pub fn group_characteristic_new(
+  exclude exclude: Bool,
+  value value: GroupCharacteristicValue,
+  code code: Codeableconcept,
+) -> GroupCharacteristic {
   GroupCharacteristic(
     period: None,
     exclude:,
@@ -10760,7 +11029,7 @@ pub type GroupMember {
   )
 }
 
-pub fn group_member_new(entity) -> GroupMember {
+pub fn group_member_new(entity entity: Reference) -> GroupMember {
   GroupMember(
     inactive: None,
     period: None,
@@ -10807,7 +11076,10 @@ pub type GuidanceresponseModule {
   GuidanceresponseModuleCodeableconcept(module: Codeableconcept)
 }
 
-pub fn guidanceresponse_new(status, module) -> Guidanceresponse {
+pub fn guidanceresponse_new(
+  status status: r4valuesets.Guidanceresponsestatus,
+  module module: GuidanceresponseModule,
+) -> Guidanceresponse {
   Guidanceresponse(
     data_requirement: [],
     result: None,
@@ -10968,7 +11240,7 @@ pub type HealthcareserviceNotavailable {
 }
 
 pub fn healthcareservice_notavailable_new(
-  description,
+  description description: String,
 ) -> HealthcareserviceNotavailable {
   HealthcareserviceNotavailable(
     during: None,
@@ -11013,7 +11285,10 @@ pub type Imagingstudy {
   )
 }
 
-pub fn imagingstudy_new(subject, status) -> Imagingstudy {
+pub fn imagingstudy_new(
+  subject subject: Reference,
+  status status: r4valuesets.Imagingstudystatus,
+) -> Imagingstudy {
   Imagingstudy(
     series: [],
     description: None,
@@ -11067,7 +11342,10 @@ pub type ImagingstudySeries {
   )
 }
 
-pub fn imagingstudy_series_new(modality, uid) -> ImagingstudySeries {
+pub fn imagingstudy_series_new(
+  modality modality: Coding,
+  uid uid: String,
+) -> ImagingstudySeries {
   ImagingstudySeries(
     instance: [],
     performer: [],
@@ -11098,7 +11376,9 @@ pub type ImagingstudySeriesPerformer {
   )
 }
 
-pub fn imagingstudy_series_performer_new(actor) -> ImagingstudySeriesPerformer {
+pub fn imagingstudy_series_performer_new(
+  actor actor: Reference,
+) -> ImagingstudySeriesPerformer {
   ImagingstudySeriesPerformer(
     actor:,
     function: None,
@@ -11122,8 +11402,8 @@ pub type ImagingstudySeriesInstance {
 }
 
 pub fn imagingstudy_series_instance_new(
-  sop_class,
-  uid,
+  sop_class sop_class: Coding,
+  uid uid: String,
 ) -> ImagingstudySeriesInstance {
   ImagingstudySeriesInstance(
     title: None,
@@ -11185,10 +11465,10 @@ pub type ImmunizationOccurrence {
 }
 
 pub fn immunization_new(
-  occurrence,
-  patient,
-  vaccine_code,
-  status,
+  occurrence occurrence: ImmunizationOccurrence,
+  patient patient: Reference,
+  vaccine_code vaccine_code: Codeableconcept,
+  status status: r4valuesets.Immunizationstatus,
 ) -> Immunization {
   Immunization(
     protocol_applied: [],
@@ -11241,7 +11521,9 @@ pub type ImmunizationPerformer {
   )
 }
 
-pub fn immunization_performer_new(actor) -> ImmunizationPerformer {
+pub fn immunization_performer_new(
+  actor actor: Reference,
+) -> ImmunizationPerformer {
   ImmunizationPerformer(
     actor:,
     function: None,
@@ -11326,7 +11608,7 @@ pub type ImmunizationProtocolappliedSeriesdoses {
 }
 
 pub fn immunization_protocolapplied_new(
-  dose_number,
+  dose_number dose_number: ImmunizationProtocolappliedDosenumber,
 ) -> ImmunizationProtocolapplied {
   ImmunizationProtocolapplied(
     series_doses: None,
@@ -11380,11 +11662,11 @@ pub type ImmunizationevaluationSeriesdoses {
 }
 
 pub fn immunizationevaluation_new(
-  dose_status,
-  immunization_event,
-  target_disease,
-  patient,
-  status,
+  dose_status dose_status: Codeableconcept,
+  immunization_event immunization_event: Reference,
+  target_disease target_disease: Codeableconcept,
+  patient patient: Reference,
+  status status: r4valuesets.Immunizationevaluationstatus,
 ) -> Immunizationevaluation {
   Immunizationevaluation(
     series_doses: None,
@@ -11431,8 +11713,8 @@ pub type Immunizationrecommendation {
 }
 
 pub fn immunizationrecommendation_new(
-  date,
-  patient,
+  date date: String,
+  patient patient: Reference,
 ) -> Immunizationrecommendation {
   Immunizationrecommendation(
     recommendation: [],
@@ -11491,7 +11773,7 @@ pub type ImmunizationrecommendationRecommendationSeriesdoses {
 }
 
 pub fn immunizationrecommendation_recommendation_new(
-  forecast_status,
+  forecast_status forecast_status: Codeableconcept,
 ) -> ImmunizationrecommendationRecommendation {
   ImmunizationrecommendationRecommendation(
     supporting_patient_information: [],
@@ -11524,8 +11806,8 @@ pub type ImmunizationrecommendationRecommendationDatecriterion {
 }
 
 pub fn immunizationrecommendation_recommendation_datecriterion_new(
-  value,
-  code,
+  value value: String,
+  code code: Codeableconcept,
 ) -> ImmunizationrecommendationRecommendationDatecriterion {
   ImmunizationrecommendationRecommendationDatecriterion(
     value:,
@@ -11571,10 +11853,10 @@ pub type Implementationguide {
 }
 
 pub fn implementationguide_new(
-  package_id,
-  status,
-  name,
-  url,
+  package_id package_id: String,
+  status status: r4valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
 ) -> Implementationguide {
   Implementationguide(
     manifest: None,
@@ -11620,7 +11902,9 @@ pub type ImplementationguideDependson {
   )
 }
 
-pub fn implementationguide_dependson_new(uri) -> ImplementationguideDependson {
+pub fn implementationguide_dependson_new(
+  uri uri: String,
+) -> ImplementationguideDependson {
   ImplementationguideDependson(
     version: None,
     package_id: None,
@@ -11643,8 +11927,8 @@ pub type ImplementationguideGlobal {
 }
 
 pub fn implementationguide_global_new(
-  profile,
-  type_,
+  profile profile: String,
+  type_ type_: r4valuesets.Resourcetypes,
 ) -> ImplementationguideGlobal {
   ImplementationguideGlobal(
     profile:,
@@ -11694,7 +11978,7 @@ pub type ImplementationguideDefinitionGrouping {
 }
 
 pub fn implementationguide_definition_grouping_new(
-  name,
+  name name: String,
 ) -> ImplementationguideDefinitionGrouping {
   ImplementationguideDefinitionGrouping(
     description: None,
@@ -11727,7 +12011,7 @@ pub type ImplementationguideDefinitionResourceExample {
 }
 
 pub fn implementationguide_definition_resource_new(
-  reference,
+  reference reference: Reference,
 ) -> ImplementationguideDefinitionResource {
   ImplementationguideDefinitionResource(
     grouping_id: None,
@@ -11762,9 +12046,9 @@ pub type ImplementationguideDefinitionPageName {
 }
 
 pub fn implementationguide_definition_page_new(
-  generation,
-  title,
-  name,
+  generation generation: r4valuesets.Guidepagegeneration,
+  title title: String,
+  name name: ImplementationguideDefinitionPageName,
 ) -> ImplementationguideDefinitionPage {
   ImplementationguideDefinitionPage(
     page: [],
@@ -11789,8 +12073,8 @@ pub type ImplementationguideDefinitionParameter {
 }
 
 pub fn implementationguide_definition_parameter_new(
-  value,
-  code,
+  value value: String,
+  code code: r4valuesets.Guideparametercode,
 ) -> ImplementationguideDefinitionParameter {
   ImplementationguideDefinitionParameter(
     value:,
@@ -11814,8 +12098,8 @@ pub type ImplementationguideDefinitionTemplate {
 }
 
 pub fn implementationguide_definition_template_new(
-  source,
-  code,
+  source source: String,
+  code code: String,
 ) -> ImplementationguideDefinitionTemplate {
   ImplementationguideDefinitionTemplate(
     scope: None,
@@ -11873,7 +12157,7 @@ pub type ImplementationguideManifestResourceExample {
 }
 
 pub fn implementationguide_manifest_resource_new(
-  reference,
+  reference reference: Reference,
 ) -> ImplementationguideManifestResource {
   ImplementationguideManifestResource(
     relative_path: None,
@@ -11898,7 +12182,7 @@ pub type ImplementationguideManifestPage {
 }
 
 pub fn implementationguide_manifest_page_new(
-  name,
+  name name: String,
 ) -> ImplementationguideManifestPage {
   ImplementationguideManifestPage(
     anchor: [],
@@ -12002,7 +12286,9 @@ pub type InsuranceplanCoverage {
   )
 }
 
-pub fn insuranceplan_coverage_new(type_) -> InsuranceplanCoverage {
+pub fn insuranceplan_coverage_new(
+  type_ type_: Codeableconcept,
+) -> InsuranceplanCoverage {
   InsuranceplanCoverage(
     benefit: [],
     network: [],
@@ -12025,7 +12311,9 @@ pub type InsuranceplanCoverageBenefit {
   )
 }
 
-pub fn insuranceplan_coverage_benefit_new(type_) -> InsuranceplanCoverageBenefit {
+pub fn insuranceplan_coverage_benefit_new(
+  type_ type_: Codeableconcept,
+) -> InsuranceplanCoverageBenefit {
   InsuranceplanCoverageBenefit(
     limit: [],
     requirement: None,
@@ -12123,7 +12411,7 @@ pub type InsuranceplanPlanSpecificcost {
 }
 
 pub fn insuranceplan_plan_specificcost_new(
-  category,
+  category category: Codeableconcept,
 ) -> InsuranceplanPlanSpecificcost {
   InsuranceplanPlanSpecificcost(
     benefit: [],
@@ -12146,7 +12434,7 @@ pub type InsuranceplanPlanSpecificcostBenefit {
 }
 
 pub fn insuranceplan_plan_specificcost_benefit_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> InsuranceplanPlanSpecificcostBenefit {
   InsuranceplanPlanSpecificcostBenefit(
     cost: [],
@@ -12171,7 +12459,7 @@ pub type InsuranceplanPlanSpecificcostBenefitCost {
 }
 
 pub fn insuranceplan_plan_specificcost_benefit_cost_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> InsuranceplanPlanSpecificcostBenefitCost {
   InsuranceplanPlanSpecificcostBenefitCost(
     value: None,
@@ -12214,7 +12502,7 @@ pub type Invoice {
   )
 }
 
-pub fn invoice_new(status) -> Invoice {
+pub fn invoice_new(status status: r4valuesets.Invoicestatus) -> Invoice {
   Invoice(
     note: [],
     payment_terms: None,
@@ -12254,7 +12542,7 @@ pub type InvoiceParticipant {
   )
 }
 
-pub fn invoice_participant_new(actor) -> InvoiceParticipant {
+pub fn invoice_participant_new(actor actor: Reference) -> InvoiceParticipant {
   InvoiceParticipant(
     actor:,
     role: None,
@@ -12282,7 +12570,9 @@ pub type InvoiceLineitemChargeitem {
   InvoiceLineitemChargeitemCodeableconcept(charge_item: Codeableconcept)
 }
 
-pub fn invoice_lineitem_new(charge_item) -> InvoiceLineitem {
+pub fn invoice_lineitem_new(
+  charge_item charge_item: InvoiceLineitemChargeitem,
+) -> InvoiceLineitem {
   InvoiceLineitem(
     price_component: [],
     charge_item:,
@@ -12307,7 +12597,7 @@ pub type InvoiceLineitemPricecomponent {
 }
 
 pub fn invoice_lineitem_pricecomponent_new(
-  type_,
+  type_ type_: r4valuesets.Invoicepricecomponenttype,
 ) -> InvoiceLineitemPricecomponent {
   InvoiceLineitemPricecomponent(
     amount: None,
@@ -12371,7 +12661,10 @@ pub type LibrarySubject {
   LibrarySubjectReference(subject: Reference)
 }
 
-pub fn library_new(type_, status) -> Library {
+pub fn library_new(
+  type_ type_: Codeableconcept,
+  status status: r4valuesets.Publicationstatus,
+) -> Library {
   Library(
     content: [],
     data_requirement: [],
@@ -12459,7 +12752,10 @@ pub type LinkageItem {
   )
 }
 
-pub fn linkage_item_new(resource, type_) -> LinkageItem {
+pub fn linkage_item_new(
+  resource resource: Reference,
+  type_ type_: r4valuesets.Linkagetype,
+) -> LinkageItem {
   LinkageItem(
     resource:,
     type_:,
@@ -12496,7 +12792,10 @@ pub type FhirList {
   )
 }
 
-pub fn fhir_list_new(mode, status) -> FhirList {
+pub fn fhir_list_new(
+  mode mode: r4valuesets.Listmode,
+  status status: r4valuesets.Liststatus,
+) -> FhirList {
   FhirList(
     empty_reason: None,
     entry: [],
@@ -12535,7 +12834,7 @@ pub type ListEntry {
   )
 }
 
-pub fn list_entry_new(item) -> ListEntry {
+pub fn list_entry_new(item item: Reference) -> ListEntry {
   ListEntry(
     item:,
     date: None,
@@ -12620,7 +12919,10 @@ pub type LocationPosition {
   )
 }
 
-pub fn location_position_new(latitude, longitude) -> LocationPosition {
+pub fn location_position_new(
+  latitude latitude: Float,
+  longitude longitude: Float,
+) -> LocationPosition {
   LocationPosition(
     altitude: None,
     latitude:,
@@ -12717,7 +13019,7 @@ pub type MeasureSubject {
   MeasureSubjectReference(subject: Reference)
 }
 
-pub fn measure_new(status) -> Measure {
+pub fn measure_new(status status: r4valuesets.Publicationstatus) -> Measure {
   Measure(
     supplemental_data: [],
     group: [],
@@ -12808,7 +13110,9 @@ pub type MeasureGroupPopulation {
   )
 }
 
-pub fn measure_group_population_new(criteria) -> MeasureGroupPopulation {
+pub fn measure_group_population_new(
+  criteria criteria: Expression,
+) -> MeasureGroupPopulation {
   MeasureGroupPopulation(
     criteria:,
     description: None,
@@ -12857,7 +13161,7 @@ pub type MeasureGroupStratifierComponent {
 }
 
 pub fn measure_group_stratifier_component_new(
-  criteria,
+  criteria criteria: Expression,
 ) -> MeasureGroupStratifierComponent {
   MeasureGroupStratifierComponent(
     criteria:,
@@ -12882,7 +13186,9 @@ pub type MeasureSupplementaldata {
   )
 }
 
-pub fn measure_supplementaldata_new(criteria) -> MeasureSupplementaldata {
+pub fn measure_supplementaldata_new(
+  criteria criteria: Expression,
+) -> MeasureSupplementaldata {
   MeasureSupplementaldata(
     criteria:,
     description: None,
@@ -12919,7 +13225,12 @@ pub type Measurereport {
   )
 }
 
-pub fn measurereport_new(period, measure, type_, status) -> Measurereport {
+pub fn measurereport_new(
+  period period: Period,
+  measure measure: String,
+  type_ type_: r4valuesets.Measurereporttype,
+  status status: r4valuesets.Measurereportstatus,
+) -> Measurereport {
   Measurereport(
     evaluated_resource: [],
     group: [],
@@ -13049,8 +13360,8 @@ pub type MeasurereportGroupStratifierStratumComponent {
 }
 
 pub fn measurereport_group_stratifier_stratum_component_new(
-  value,
-  code,
+  value value: Codeableconcept,
+  code code: Codeableconcept,
 ) -> MeasurereportGroupStratifierStratumComponent {
   MeasurereportGroupStratifierStratumComponent(
     value:,
@@ -13126,7 +13437,10 @@ pub type MediaCreated {
   MediaCreatedPeriod(created: Period)
 }
 
-pub fn media_new(content, status) -> Media {
+pub fn media_new(
+  content content: Attachment,
+  status status: r4valuesets.Eventstatus,
+) -> Media {
   Media(
     note: [],
     content:,
@@ -13222,7 +13536,9 @@ pub type MedicationIngredientItem {
   MedicationIngredientItemReference(item: Reference)
 }
 
-pub fn medication_ingredient_new(item) -> MedicationIngredient {
+pub fn medication_ingredient_new(
+  item item: MedicationIngredientItem,
+) -> MedicationIngredient {
   MedicationIngredient(
     strength: None,
     is_active: None,
@@ -13300,10 +13616,10 @@ pub type MedicationadministrationEffective {
 }
 
 pub fn medicationadministration_new(
-  effective,
-  subject,
-  medication,
-  status,
+  effective effective: MedicationadministrationEffective,
+  subject subject: Reference,
+  medication medication: MedicationadministrationMedication,
+  status status: r4valuesets.Medicationadminstatus,
 ) -> Medicationadministration {
   Medicationadministration(
     event_history: [],
@@ -13348,7 +13664,7 @@ pub type MedicationadministrationPerformer {
 }
 
 pub fn medicationadministration_performer_new(
-  actor,
+  actor actor: Reference,
 ) -> MedicationadministrationPerformer {
   MedicationadministrationPerformer(
     actor:,
@@ -13444,7 +13760,10 @@ pub type MedicationdispenseMedication {
   MedicationdispenseMedicationReference(medication: Reference)
 }
 
-pub fn medicationdispense_new(medication, status) -> Medicationdispense {
+pub fn medicationdispense_new(
+  medication medication: MedicationdispenseMedication,
+  status status: r4valuesets.Medicationdispensestatus,
+) -> Medicationdispense {
   Medicationdispense(
     event_history: [],
     detected_issue: [],
@@ -13492,7 +13811,9 @@ pub type MedicationdispensePerformer {
   )
 }
 
-pub fn medicationdispense_performer_new(actor) -> MedicationdispensePerformer {
+pub fn medicationdispense_performer_new(
+  actor actor: Reference,
+) -> MedicationdispensePerformer {
   MedicationdispensePerformer(
     actor:,
     function: None,
@@ -13516,7 +13837,7 @@ pub type MedicationdispenseSubstitution {
 }
 
 pub fn medicationdispense_substitution_new(
-  was_substituted,
+  was_substituted was_substituted: Bool,
 ) -> MedicationdispenseSubstitution {
   MedicationdispenseSubstitution(
     responsible_party: [],
@@ -13614,7 +13935,7 @@ pub type MedicationknowledgeRelatedmedicationknowledge {
 }
 
 pub fn medicationknowledge_relatedmedicationknowledge_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> MedicationknowledgeRelatedmedicationknowledge {
   MedicationknowledgeRelatedmedicationknowledge(
     reference: [],
@@ -13664,7 +13985,9 @@ pub type MedicationknowledgeIngredientItem {
   MedicationknowledgeIngredientItemReference(item: Reference)
 }
 
-pub fn medicationknowledge_ingredient_new(item) -> MedicationknowledgeIngredient {
+pub fn medicationknowledge_ingredient_new(
+  item item: MedicationknowledgeIngredientItem,
+) -> MedicationknowledgeIngredient {
   MedicationknowledgeIngredient(
     strength: None,
     is_active: None,
@@ -13687,7 +14010,10 @@ pub type MedicationknowledgeCost {
   )
 }
 
-pub fn medicationknowledge_cost_new(cost, type_) -> MedicationknowledgeCost {
+pub fn medicationknowledge_cost_new(
+  cost cost: Money,
+  type_ type_: Codeableconcept,
+) -> MedicationknowledgeCost {
   MedicationknowledgeCost(
     cost:,
     source: None,
@@ -13766,7 +14092,7 @@ pub type MedicationknowledgeAdministrationguidelinesDosage {
 }
 
 pub fn medicationknowledge_administrationguidelines_dosage_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> MedicationknowledgeAdministrationguidelinesDosage {
   MedicationknowledgeAdministrationguidelinesDosage(
     dosage: [],
@@ -13799,7 +14125,7 @@ pub type MedicationknowledgeAdministrationguidelinesPatientcharacteristicsCharac
 }
 
 pub fn medicationknowledge_administrationguidelines_patientcharacteristics_new(
-  characteristic,
+  characteristic characteristic: MedicationknowledgeAdministrationguidelinesPatientcharacteristicsCharacteristic,
 ) -> MedicationknowledgeAdministrationguidelinesPatientcharacteristics {
   MedicationknowledgeAdministrationguidelinesPatientcharacteristics(
     value: [],
@@ -13822,7 +14148,7 @@ pub type MedicationknowledgeMedicineclassification {
 }
 
 pub fn medicationknowledge_medicineclassification_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> MedicationknowledgeMedicineclassification {
   MedicationknowledgeMedicineclassification(
     classification: [],
@@ -13899,7 +14225,7 @@ pub type MedicationknowledgeRegulatory {
 }
 
 pub fn medicationknowledge_regulatory_new(
-  regulatory_authority,
+  regulatory_authority regulatory_authority: Reference,
 ) -> MedicationknowledgeRegulatory {
   MedicationknowledgeRegulatory(
     max_dispense: None,
@@ -13924,8 +14250,8 @@ pub type MedicationknowledgeRegulatorySubstitution {
 }
 
 pub fn medicationknowledge_regulatory_substitution_new(
-  allowed,
-  type_,
+  allowed allowed: Bool,
+  type_ type_: Codeableconcept,
 ) -> MedicationknowledgeRegulatorySubstitution {
   MedicationknowledgeRegulatorySubstitution(
     allowed:,
@@ -13947,7 +14273,7 @@ pub type MedicationknowledgeRegulatorySchedule {
 }
 
 pub fn medicationknowledge_regulatory_schedule_new(
-  schedule,
+  schedule schedule: Codeableconcept,
 ) -> MedicationknowledgeRegulatorySchedule {
   MedicationknowledgeRegulatorySchedule(
     schedule:,
@@ -13969,7 +14295,7 @@ pub type MedicationknowledgeRegulatoryMaxdispense {
 }
 
 pub fn medicationknowledge_regulatory_maxdispense_new(
-  quantity,
+  quantity quantity: Quantity,
 ) -> MedicationknowledgeRegulatoryMaxdispense {
   MedicationknowledgeRegulatoryMaxdispense(
     period: None,
@@ -14062,10 +14388,10 @@ pub type MedicationrequestMedication {
 }
 
 pub fn medicationrequest_new(
-  subject,
-  medication,
-  intent,
-  status,
+  subject subject: Reference,
+  medication medication: MedicationrequestMedication,
+  intent intent: r4valuesets.Medicationrequestintent,
+  status status: r4valuesets.Medicationrequeststatus,
 ) -> Medicationrequest {
   Medicationrequest(
     event_history: [],
@@ -14181,7 +14507,7 @@ pub type MedicationrequestSubstitutionAllowed {
 }
 
 pub fn medicationrequest_substitution_new(
-  allowed,
+  allowed allowed: MedicationrequestSubstitutionAllowed,
 ) -> MedicationrequestSubstitution {
   MedicationrequestSubstitution(
     reason: None,
@@ -14236,9 +14562,9 @@ pub type MedicationstatementEffective {
 }
 
 pub fn medicationstatement_new(
-  subject,
-  medication,
-  status,
+  subject subject: Reference,
+  medication medication: MedicationstatementMedication,
+  status status: r4valuesets.Medicationstatementstatus,
 ) -> Medicationstatement {
   Medicationstatement(
     dosage: [],
@@ -14350,7 +14676,9 @@ pub type MedicinalproductName {
   )
 }
 
-pub fn medicinalproduct_name_new(product_name) -> MedicinalproductName {
+pub fn medicinalproduct_name_new(
+  product_name product_name: String,
+) -> MedicinalproductName {
   MedicinalproductName(
     country_language: [],
     name_part: [],
@@ -14373,8 +14701,8 @@ pub type MedicinalproductNameNamepart {
 }
 
 pub fn medicinalproduct_name_namepart_new(
-  type_,
-  part,
+  type_ type_: Coding,
+  part part: String,
 ) -> MedicinalproductNameNamepart {
   MedicinalproductNameNamepart(
     type_:,
@@ -14398,8 +14726,8 @@ pub type MedicinalproductNameCountrylanguage {
 }
 
 pub fn medicinalproduct_name_countrylanguage_new(
-  language,
-  country,
+  language language: Codeableconcept,
+  country country: Codeableconcept,
 ) -> MedicinalproductNameCountrylanguage {
   MedicinalproductNameCountrylanguage(
     language:,
@@ -14587,7 +14915,7 @@ pub type MedicinalproductauthorizationProcedureDate {
 }
 
 pub fn medicinalproductauthorization_procedure_new(
-  type_,
+  type_ type_: Codeableconcept,
 ) -> MedicinalproductauthorizationProcedure {
   MedicinalproductauthorizationProcedure(
     application: [],
@@ -14663,8 +14991,8 @@ pub type MedicinalproductcontraindicationOthertherapyMedication {
 }
 
 pub fn medicinalproductcontraindication_othertherapy_new(
-  medication,
-  therapy_relationship_type,
+  medication medication: MedicinalproductcontraindicationOthertherapyMedication,
+  therapy_relationship_type therapy_relationship_type: Codeableconcept,
 ) -> MedicinalproductcontraindicationOthertherapy {
   MedicinalproductcontraindicationOthertherapy(
     medication:,
@@ -14742,8 +15070,8 @@ pub type MedicinalproductindicationOthertherapyMedication {
 }
 
 pub fn medicinalproductindication_othertherapy_new(
-  medication,
-  therapy_relationship_type,
+  medication medication: MedicinalproductindicationOthertherapyMedication,
+  therapy_relationship_type therapy_relationship_type: Codeableconcept,
 ) -> MedicinalproductindicationOthertherapy {
   MedicinalproductindicationOthertherapy(
     medication:,
@@ -14774,7 +15102,9 @@ pub type Medicinalproductingredient {
   )
 }
 
-pub fn medicinalproductingredient_new(role) -> Medicinalproductingredient {
+pub fn medicinalproductingredient_new(
+  role role: Codeableconcept,
+) -> Medicinalproductingredient {
   Medicinalproductingredient(
     substance: None,
     specified_substance: [],
@@ -14807,8 +15137,8 @@ pub type MedicinalproductingredientSpecifiedsubstance {
 }
 
 pub fn medicinalproductingredient_specifiedsubstance_new(
-  group,
-  code,
+  group group: Codeableconcept,
+  code code: Codeableconcept,
 ) -> MedicinalproductingredientSpecifiedsubstance {
   MedicinalproductingredientSpecifiedsubstance(
     strength: [],
@@ -14840,7 +15170,7 @@ pub type MedicinalproductingredientSpecifiedsubstanceStrength {
 }
 
 pub fn medicinalproductingredient_specifiedsubstance_strength_new(
-  presentation,
+  presentation presentation: Ratio,
 ) -> MedicinalproductingredientSpecifiedsubstanceStrength {
   MedicinalproductingredientSpecifiedsubstanceStrength(
     reference_strength: [],
@@ -14871,7 +15201,7 @@ pub type MedicinalproductingredientSpecifiedsubstanceStrengthReferencestrength {
 }
 
 pub fn medicinalproductingredient_specifiedsubstance_strength_referencestrength_new(
-  strength,
+  strength strength: Ratio,
 ) -> MedicinalproductingredientSpecifiedsubstanceStrengthReferencestrength {
   MedicinalproductingredientSpecifiedsubstanceStrengthReferencestrength(
     country: [],
@@ -14897,7 +15227,7 @@ pub type MedicinalproductingredientSubstance {
 }
 
 pub fn medicinalproductingredient_substance_new(
-  code,
+  code code: Codeableconcept,
 ) -> MedicinalproductingredientSubstance {
   MedicinalproductingredientSubstance(
     strength: [],
@@ -14968,7 +15298,7 @@ pub type MedicinalproductinteractionInteractantItem {
 }
 
 pub fn medicinalproductinteraction_interactant_new(
-  item,
+  item item: MedicinalproductinteractionInteractantItem,
 ) -> MedicinalproductinteractionInteractant {
   MedicinalproductinteractionInteractant(
     item:,
@@ -15000,8 +15330,8 @@ pub type Medicinalproductmanufactured {
 }
 
 pub fn medicinalproductmanufactured_new(
-  quantity,
-  manufactured_dose_form,
+  quantity quantity: Quantity,
+  manufactured_dose_form manufactured_dose_form: Codeableconcept,
 ) -> Medicinalproductmanufactured {
   Medicinalproductmanufactured(
     other_characteristics: [],
@@ -15079,7 +15409,7 @@ pub type MedicinalproductpackagedBatchidentifier {
 }
 
 pub fn medicinalproductpackaged_batchidentifier_new(
-  outer_packaging,
+  outer_packaging outer_packaging: Identifier,
 ) -> MedicinalproductpackagedBatchidentifier {
   MedicinalproductpackagedBatchidentifier(
     immediate_packaging: None,
@@ -15112,8 +15442,8 @@ pub type MedicinalproductpackagedPackageitem {
 }
 
 pub fn medicinalproductpackaged_packageitem_new(
-  quantity,
-  type_,
+  quantity quantity: Quantity,
+  type_ type_: Codeableconcept,
 ) -> MedicinalproductpackagedPackageitem {
   MedicinalproductpackagedPackageitem(
     manufacturer: [],
@@ -15158,7 +15488,7 @@ pub type Medicinalproductpharmaceutical {
 }
 
 pub fn medicinalproductpharmaceutical_new(
-  administrable_dose_form,
+  administrable_dose_form administrable_dose_form: Codeableconcept,
 ) -> Medicinalproductpharmaceutical {
   Medicinalproductpharmaceutical(
     route_of_administration: [],
@@ -15191,7 +15521,7 @@ pub type MedicinalproductpharmaceuticalCharacteristics {
 }
 
 pub fn medicinalproductpharmaceutical_characteristics_new(
-  code,
+  code code: Codeableconcept,
 ) -> MedicinalproductpharmaceuticalCharacteristics {
   MedicinalproductpharmaceuticalCharacteristics(
     status: None,
@@ -15221,7 +15551,7 @@ pub type MedicinalproductpharmaceuticalRouteofadministration {
 }
 
 pub fn medicinalproductpharmaceutical_routeofadministration_new(
-  code,
+  code code: Codeableconcept,
 ) -> MedicinalproductpharmaceuticalRouteofadministration {
   MedicinalproductpharmaceuticalRouteofadministration(
     target_species: [],
@@ -15251,7 +15581,7 @@ pub type MedicinalproductpharmaceuticalRouteofadministrationTargetspecies {
 }
 
 pub fn medicinalproductpharmaceutical_routeofadministration_targetspecies_new(
-  code,
+  code code: Codeableconcept,
 ) -> MedicinalproductpharmaceuticalRouteofadministrationTargetspecies {
   MedicinalproductpharmaceuticalRouteofadministrationTargetspecies(
     withdrawal_period: [],
@@ -15275,8 +15605,8 @@ pub type MedicinalproductpharmaceuticalRouteofadministrationTargetspeciesWithdra
 }
 
 pub fn medicinalproductpharmaceutical_routeofadministration_targetspecies_withdrawalperiod_new(
-  value,
-  tissue,
+  value value: Quantity,
+  tissue tissue: Codeableconcept,
 ) -> MedicinalproductpharmaceuticalRouteofadministrationTargetspeciesWithdrawalperiod {
   MedicinalproductpharmaceuticalRouteofadministrationTargetspeciesWithdrawalperiod(
     supporting_information: None,
@@ -15369,7 +15699,11 @@ pub type MessagedefinitionEvent {
   MessagedefinitionEventUri(event: String)
 }
 
-pub fn messagedefinition_new(event, date, status) -> Messagedefinition {
+pub fn messagedefinition_new(
+  event event: MessagedefinitionEvent,
+  date date: String,
+  status status: r4valuesets.Publicationstatus,
+) -> Messagedefinition {
   Messagedefinition(
     graph: [],
     allowed_response: [],
@@ -15419,7 +15753,10 @@ pub type MessagedefinitionFocus {
   )
 }
 
-pub fn messagedefinition_focus_new(min, code) -> MessagedefinitionFocus {
+pub fn messagedefinition_focus_new(
+  min min: Int,
+  code code: r4valuesets.Resourcetypes,
+) -> MessagedefinitionFocus {
   MessagedefinitionFocus(
     max: None,
     min:,
@@ -15443,7 +15780,7 @@ pub type MessagedefinitionAllowedresponse {
 }
 
 pub fn messagedefinition_allowedresponse_new(
-  message,
+  message message: String,
 ) -> MessagedefinitionAllowedresponse {
   MessagedefinitionAllowedresponse(
     situation: None,
@@ -15485,7 +15822,10 @@ pub type MessageheaderEvent {
   MessageheaderEventUri(event: String)
 }
 
-pub fn messageheader_new(source, event) -> Messageheader {
+pub fn messageheader_new(
+  source source: MessageheaderSource,
+  event event: MessageheaderEvent,
+) -> Messageheader {
   Messageheader(
     definition: None,
     focus: [],
@@ -15522,7 +15862,9 @@ pub type MessageheaderDestination {
   )
 }
 
-pub fn messageheader_destination_new(endpoint) -> MessageheaderDestination {
+pub fn messageheader_destination_new(
+  endpoint endpoint: String,
+) -> MessageheaderDestination {
   MessageheaderDestination(
     receiver: None,
     endpoint:,
@@ -15548,7 +15890,9 @@ pub type MessageheaderSource {
   )
 }
 
-pub fn messageheader_source_new(endpoint) -> MessageheaderSource {
+pub fn messageheader_source_new(
+  endpoint endpoint: String,
+) -> MessageheaderSource {
   MessageheaderSource(
     endpoint:,
     contact: None,
@@ -15573,7 +15917,10 @@ pub type MessageheaderResponse {
   )
 }
 
-pub fn messageheader_response_new(code, identifier) -> MessageheaderResponse {
+pub fn messageheader_response_new(
+  code code: r4valuesets.Responsecode,
+  identifier identifier: String,
+) -> MessageheaderResponse {
   MessageheaderResponse(
     details: None,
     code:,
@@ -15614,7 +15961,9 @@ pub type Molecularsequence {
   )
 }
 
-pub fn molecularsequence_new(coordinate_system) -> Molecularsequence {
+pub fn molecularsequence_new(
+  coordinate_system coordinate_system: Int,
+) -> Molecularsequence {
   Molecularsequence(
     structure_variant: [],
     pointer: [],
@@ -15731,7 +16080,9 @@ pub type MolecularsequenceQuality {
   )
 }
 
-pub fn molecularsequence_quality_new(type_) -> MolecularsequenceQuality {
+pub fn molecularsequence_quality_new(
+  type_ type_: r4valuesets.Qualitytype,
+) -> MolecularsequenceQuality {
   MolecularsequenceQuality(
     roc: None,
     f_score: None,
@@ -15800,7 +16151,9 @@ pub type MolecularsequenceRepository {
   )
 }
 
-pub fn molecularsequence_repository_new(type_) -> MolecularsequenceRepository {
+pub fn molecularsequence_repository_new(
+  type_ type_: r4valuesets.Repositorytype,
+) -> MolecularsequenceRepository {
   MolecularsequenceRepository(
     readset_id: None,
     variantset_id: None,
@@ -15910,7 +16263,12 @@ pub type Namingsystem {
   )
 }
 
-pub fn namingsystem_new(date, kind, status, name) -> Namingsystem {
+pub fn namingsystem_new(
+  date date: String,
+  kind kind: r4valuesets.Namingsystemtype,
+  status status: r4valuesets.Publicationstatus,
+  name name: String,
+) -> Namingsystem {
   Namingsystem(
     unique_id: [],
     usage: None,
@@ -15950,7 +16308,10 @@ pub type NamingsystemUniqueid {
   )
 }
 
-pub fn namingsystem_uniqueid_new(value, type_) -> NamingsystemUniqueid {
+pub fn namingsystem_uniqueid_new(
+  value value: String,
+  type_ type_: r4valuesets.Namingsystemidentifiertype,
+) -> NamingsystemUniqueid {
   NamingsystemUniqueid(
     period: None,
     comment: None,
@@ -15994,7 +16355,12 @@ pub type Nutritionorder {
   )
 }
 
-pub fn nutritionorder_new(date_time, patient, intent, status) -> Nutritionorder {
+pub fn nutritionorder_new(
+  date_time date_time: String,
+  patient patient: Reference,
+  intent intent: r4valuesets.Requestintent,
+  status status: r4valuesets.Requeststatus,
+) -> Nutritionorder {
   Nutritionorder(
     note: [],
     enteral_formula: None,
@@ -16247,7 +16613,10 @@ pub type ObservationValue {
   ObservationValuePeriod(value: Period)
 }
 
-pub fn observation_new(code, status) -> Observation {
+pub fn observation_new(
+  code code: Codeableconcept,
+  status status: r4valuesets.Observationstatus,
+) -> Observation {
   Observation(
     component: [],
     derived_from: [],
@@ -16342,7 +16711,9 @@ pub type ObservationComponentValue {
   ObservationComponentValuePeriod(value: Period)
 }
 
-pub fn observation_component_new(code) -> ObservationComponent {
+pub fn observation_component_new(
+  code code: Codeableconcept,
+) -> ObservationComponent {
   ObservationComponent(
     reference_range: [],
     interpretation: [],
@@ -16382,7 +16753,9 @@ pub type Observationdefinition {
   )
 }
 
-pub fn observationdefinition_new(code) -> Observationdefinition {
+pub fn observationdefinition_new(
+  code code: Codeableconcept,
+) -> Observationdefinition {
   Observationdefinition(
     critical_coded_value_set: None,
     abnormal_coded_value_set: None,
@@ -16507,13 +16880,13 @@ pub type Operationdefinition {
 }
 
 pub fn operationdefinition_new(
-  instance,
-  type_,
-  system,
-  code,
-  kind,
-  status,
-  name,
+  instance instance: Bool,
+  type_ type_: Bool,
+  system system: Bool,
+  code code: String,
+  kind kind: r4valuesets.Operationkind,
+  status status: r4valuesets.Publicationstatus,
+  name name: String,
 ) -> Operationdefinition {
   Operationdefinition(
     overload: [],
@@ -16574,10 +16947,10 @@ pub type OperationdefinitionParameter {
 }
 
 pub fn operationdefinition_parameter_new(
-  max,
-  min,
-  use_,
-  name,
+  max max: String,
+  min min: Int,
+  use_ use_: r4valuesets.Operationparameteruse,
+  name name: String,
 ) -> OperationdefinitionParameter {
   OperationdefinitionParameter(
     part: [],
@@ -16609,8 +16982,8 @@ pub type OperationdefinitionParameterBinding {
 }
 
 pub fn operationdefinition_parameter_binding_new(
-  value_set,
-  strength,
+  value_set value_set: String,
+  strength strength: r4valuesets.Bindingstrength,
 ) -> OperationdefinitionParameterBinding {
   OperationdefinitionParameterBinding(
     value_set:,
@@ -16633,7 +17006,7 @@ pub type OperationdefinitionParameterReferencedfrom {
 }
 
 pub fn operationdefinition_parameter_referencedfrom_new(
-  source,
+  source source: String,
 ) -> OperationdefinitionParameterReferencedfrom {
   OperationdefinitionParameterReferencedfrom(
     source_id: None,
@@ -16709,7 +17082,10 @@ pub type OperationoutcomeIssue {
   )
 }
 
-pub fn operationoutcome_issue_new(code, severity) -> OperationoutcomeIssue {
+pub fn operationoutcome_issue_new(
+  code code: r4valuesets.Issuetype,
+  severity severity: r4valuesets.Issueseverity,
+) -> OperationoutcomeIssue {
   OperationoutcomeIssue(
     expression: [],
     location: [],
@@ -16934,7 +17310,7 @@ pub type ParametersParameterValue {
   ParametersParameterValueMeta(value: Meta)
 }
 
-pub fn parameters_parameter_new(name) -> ParametersParameter {
+pub fn parameters_parameter_new(name name: String) -> ParametersParameter {
   ParametersParameter(
     part: [],
     resource: None,
@@ -17059,7 +17435,9 @@ pub type PatientCommunication {
   )
 }
 
-pub fn patient_communication_new(language) -> PatientCommunication {
+pub fn patient_communication_new(
+  language language: Codeableconcept,
+) -> PatientCommunication {
   PatientCommunication(
     preferred: None,
     language:,
@@ -17080,7 +17458,10 @@ pub type PatientLink {
   )
 }
 
-pub fn patient_link_new(type_, other) -> PatientLink {
+pub fn patient_link_new(
+  type_ type_: r4valuesets.Linktype,
+  other other: Reference,
+) -> PatientLink {
   PatientLink(type_:, other:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -17111,11 +17492,11 @@ pub type Paymentnotice {
 }
 
 pub fn paymentnotice_new(
-  amount,
-  recipient,
-  payment,
-  created,
-  status,
+  amount amount: Money,
+  recipient recipient: Reference,
+  payment payment: Reference,
+  created created: String,
+  status status: r4valuesets.Fmstatus,
 ) -> Paymentnotice {
   Paymentnotice(
     payment_status: None,
@@ -17171,10 +17552,10 @@ pub type Paymentreconciliation {
 }
 
 pub fn paymentreconciliation_new(
-  payment_amount,
-  payment_date,
-  created,
-  status,
+  payment_amount payment_amount: Money,
+  payment_date payment_date: String,
+  created created: String,
+  status status: r4valuesets.Fmstatus,
 ) -> Paymentreconciliation {
   Paymentreconciliation(
     process_note: [],
@@ -17222,7 +17603,9 @@ pub type PaymentreconciliationDetail {
   )
 }
 
-pub fn paymentreconciliation_detail_new(type_) -> PaymentreconciliationDetail {
+pub fn paymentreconciliation_detail_new(
+  type_ type_: Codeableconcept,
+) -> PaymentreconciliationDetail {
   PaymentreconciliationDetail(
     amount: None,
     payee: None,
@@ -17319,7 +17702,7 @@ pub type PersonLink {
   )
 }
 
-pub fn person_link_new(target) -> PersonLink {
+pub fn person_link_new(target target: Reference) -> PersonLink {
   PersonLink(
     assurance: None,
     target:,
@@ -17380,7 +17763,9 @@ pub type PlandefinitionSubject {
   PlandefinitionSubjectReference(subject: Reference)
 }
 
-pub fn plandefinition_new(status) -> Plandefinition {
+pub fn plandefinition_new(
+  status status: r4valuesets.Publicationstatus,
+) -> Plandefinition {
   Plandefinition(
     action: [],
     goal: [],
@@ -17440,7 +17825,9 @@ pub type PlandefinitionGoal {
   )
 }
 
-pub fn plandefinition_goal_new(description) -> PlandefinitionGoal {
+pub fn plandefinition_goal_new(
+  description description: Codeableconcept,
+) -> PlandefinitionGoal {
   PlandefinitionGoal(
     target: [],
     documentation: [],
@@ -17590,7 +17977,7 @@ pub type PlandefinitionActionCondition {
 }
 
 pub fn plandefinition_action_condition_new(
-  kind,
+  kind kind: r4valuesets.Actionconditionkind,
 ) -> PlandefinitionActionCondition {
   PlandefinitionActionCondition(
     expression: None,
@@ -17620,8 +18007,8 @@ pub type PlandefinitionActionRelatedactionOffset {
 }
 
 pub fn plandefinition_action_relatedaction_new(
-  relationship,
-  action_id,
+  relationship relationship: r4valuesets.Actionrelationshiptype,
+  action_id action_id: String,
 ) -> PlandefinitionActionRelatedaction {
   PlandefinitionActionRelatedaction(
     offset: None,
@@ -17645,7 +18032,7 @@ pub type PlandefinitionActionParticipant {
 }
 
 pub fn plandefinition_action_participant_new(
-  type_,
+  type_ type_: r4valuesets.Actionparticipanttype,
 ) -> PlandefinitionActionParticipant {
   PlandefinitionActionParticipant(
     role: None,
@@ -17737,7 +18124,9 @@ pub type PractitionerQualification {
   )
 }
 
-pub fn practitioner_qualification_new(code) -> PractitionerQualification {
+pub fn practitioner_qualification_new(
+  code code: Codeableconcept,
+) -> PractitionerQualification {
   PractitionerQualification(
     issuer: None,
     period: None,
@@ -17841,7 +18230,7 @@ pub type PractitionerroleNotavailable {
 }
 
 pub fn practitionerrole_notavailable_new(
-  description,
+  description description: String,
 ) -> PractitionerroleNotavailable {
   PractitionerroleNotavailable(
     during: None,
@@ -17903,7 +18292,10 @@ pub type ProcedurePerformed {
   ProcedurePerformedRange(performed: Range)
 }
 
-pub fn procedure_new(subject, status) -> Procedure {
+pub fn procedure_new(
+  subject subject: Reference,
+  status status: r4valuesets.Eventstatus,
+) -> Procedure {
   Procedure(
     used_code: [],
     used_reference: [],
@@ -17956,7 +18348,7 @@ pub type ProcedurePerformer {
   )
 }
 
-pub fn procedure_performer_new(actor) -> ProcedurePerformer {
+pub fn procedure_performer_new(actor actor: Reference) -> ProcedurePerformer {
   ProcedurePerformer(
     on_behalf_of: None,
     actor:,
@@ -17978,7 +18370,9 @@ pub type ProcedureFocaldevice {
   )
 }
 
-pub fn procedure_focaldevice_new(manipulated) -> ProcedureFocaldevice {
+pub fn procedure_focaldevice_new(
+  manipulated manipulated: Reference,
+) -> ProcedureFocaldevice {
   ProcedureFocaldevice(
     manipulated:,
     action: None,
@@ -18018,7 +18412,7 @@ pub type ProvenanceOccurred {
   ProvenanceOccurredDatetime(occurred: String)
 }
 
-pub fn provenance_new(recorded) -> Provenance {
+pub fn provenance_new(recorded recorded: String) -> Provenance {
   Provenance(
     signature: [],
     entity: [],
@@ -18054,7 +18448,7 @@ pub type ProvenanceAgent {
   )
 }
 
-pub fn provenance_agent_new(who) -> ProvenanceAgent {
+pub fn provenance_agent_new(who who: Reference) -> ProvenanceAgent {
   ProvenanceAgent(
     on_behalf_of: None,
     who:,
@@ -18078,7 +18472,10 @@ pub type ProvenanceEntity {
   )
 }
 
-pub fn provenance_entity_new(what, role) -> ProvenanceEntity {
+pub fn provenance_entity_new(
+  what what: Reference,
+  role role: r4valuesets.Provenanceentityrole,
+) -> ProvenanceEntity {
   ProvenanceEntity(
     agent: [],
     what:,
@@ -18125,7 +18522,9 @@ pub type Questionnaire {
   )
 }
 
-pub fn questionnaire_new(status) -> Questionnaire {
+pub fn questionnaire_new(
+  status status: r4valuesets.Publicationstatus,
+) -> Questionnaire {
   Questionnaire(
     item: [],
     code: [],
@@ -18185,7 +18584,10 @@ pub type QuestionnaireItem {
   )
 }
 
-pub fn questionnaire_item_new(type_, link_id) -> QuestionnaireItem {
+pub fn questionnaire_item_new(
+  type_ type_: r4valuesets.Itemtype,
+  link_id link_id: String,
+) -> QuestionnaireItem {
   QuestionnaireItem(
     item: [],
     initial: [],
@@ -18236,9 +18638,9 @@ pub type QuestionnaireItemEnablewhenAnswer {
 }
 
 pub fn questionnaire_item_enablewhen_new(
-  answer,
-  operator,
-  question,
+  answer answer: QuestionnaireItemEnablewhenAnswer,
+  operator operator: r4valuesets.Questionnaireenableoperator,
+  question question: String,
 ) -> QuestionnaireItemEnablewhen {
   QuestionnaireItemEnablewhen(
     answer:,
@@ -18272,7 +18674,7 @@ pub type QuestionnaireItemAnsweroptionValue {
 }
 
 pub fn questionnaire_item_answeroption_new(
-  value,
+  value value: QuestionnaireItemAnsweroptionValue,
 ) -> QuestionnaireItemAnsweroption {
   QuestionnaireItemAnsweroption(
     initial_selected: None,
@@ -18309,7 +18711,9 @@ pub type QuestionnaireItemInitialValue {
   QuestionnaireItemInitialValueReference(value: Reference)
 }
 
-pub fn questionnaire_item_initial_new(value) -> QuestionnaireItemInitial {
+pub fn questionnaire_item_initial_new(
+  value value: QuestionnaireItemInitialValue,
+) -> QuestionnaireItemInitial {
   QuestionnaireItemInitial(
     value:,
     modifier_extension: [],
@@ -18343,7 +18747,9 @@ pub type Questionnaireresponse {
   )
 }
 
-pub fn questionnaireresponse_new(status) -> Questionnaireresponse {
+pub fn questionnaireresponse_new(
+  status status: r4valuesets.Questionnaireanswersstatus,
+) -> Questionnaireresponse {
   Questionnaireresponse(
     item: [],
     source: None,
@@ -18381,7 +18787,9 @@ pub type QuestionnaireresponseItem {
   )
 }
 
-pub fn questionnaireresponse_item_new(link_id) -> QuestionnaireresponseItem {
+pub fn questionnaireresponse_item_new(
+  link_id link_id: String,
+) -> QuestionnaireresponseItem {
   QuestionnaireresponseItem(
     item: [],
     answer: [],
@@ -18457,7 +18865,7 @@ pub type Relatedperson {
   )
 }
 
-pub fn relatedperson_new(patient) -> Relatedperson {
+pub fn relatedperson_new(patient patient: Reference) -> Relatedperson {
   Relatedperson(
     communication: [],
     period: None,
@@ -18493,7 +18901,9 @@ pub type RelatedpersonCommunication {
   )
 }
 
-pub fn relatedperson_communication_new(language) -> RelatedpersonCommunication {
+pub fn relatedperson_communication_new(
+  language language: Codeableconcept,
+) -> RelatedpersonCommunication {
   RelatedpersonCommunication(
     preferred: None,
     language:,
@@ -18535,7 +18945,10 @@ pub type Requestgroup {
   )
 }
 
-pub fn requestgroup_new(intent, status) -> Requestgroup {
+pub fn requestgroup_new(
+  intent intent: r4valuesets.Requestintent,
+  status status: r4valuesets.Requeststatus,
+) -> Requestgroup {
   Requestgroup(
     action: [],
     note: [],
@@ -18642,7 +19055,9 @@ pub type RequestgroupActionCondition {
   )
 }
 
-pub fn requestgroup_action_condition_new(kind) -> RequestgroupActionCondition {
+pub fn requestgroup_action_condition_new(
+  kind kind: r4valuesets.Actionconditionkind,
+) -> RequestgroupActionCondition {
   RequestgroupActionCondition(
     expression: None,
     kind:,
@@ -18671,8 +19086,8 @@ pub type RequestgroupActionRelatedactionOffset {
 }
 
 pub fn requestgroup_action_relatedaction_new(
-  relationship,
-  action_id,
+  relationship relationship: r4valuesets.Actionrelationshiptype,
+  action_id action_id: String,
 ) -> RequestgroupActionRelatedaction {
   RequestgroupActionRelatedaction(
     offset: None,
@@ -18738,7 +19153,10 @@ pub type ResearchdefinitionSubject {
   ResearchdefinitionSubjectReference(subject: Reference)
 }
 
-pub fn researchdefinition_new(population, status) -> Researchdefinition {
+pub fn researchdefinition_new(
+  population population: Reference,
+  status status: r4valuesets.Publicationstatus,
+) -> Researchdefinition {
   Researchdefinition(
     outcome: None,
     exposure_alternative: None,
@@ -18838,7 +19256,10 @@ pub type ResearchelementdefinitionSubject {
   ResearchelementdefinitionSubjectReference(subject: Reference)
 }
 
-pub fn researchelementdefinition_new(type_, status) -> Researchelementdefinition {
+pub fn researchelementdefinition_new(
+  type_ type_: r4valuesets.Researchelementtype,
+  status status: r4valuesets.Publicationstatus,
+) -> Researchelementdefinition {
   Researchelementdefinition(
     characteristic: [],
     variable_type: None,
@@ -18956,7 +19377,7 @@ pub type ResearchelementdefinitionCharacteristicParticipanteffective {
 }
 
 pub fn researchelementdefinition_characteristic_new(
-  definition,
+  definition definition: ResearchelementdefinitionCharacteristicDefinition,
 ) -> ResearchelementdefinitionCharacteristic {
   ResearchelementdefinitionCharacteristic(
     participant_effective_group_measure: None,
@@ -19015,7 +19436,9 @@ pub type Researchstudy {
   )
 }
 
-pub fn researchstudy_new(status) -> Researchstudy {
+pub fn researchstudy_new(
+  status status: r4valuesets.Researchstudystatus,
+) -> Researchstudy {
   Researchstudy(
     objective: [],
     arm: [],
@@ -19064,7 +19487,7 @@ pub type ResearchstudyArm {
   )
 }
 
-pub fn researchstudy_arm_new(name) -> ResearchstudyArm {
+pub fn researchstudy_arm_new(name name: String) -> ResearchstudyArm {
   ResearchstudyArm(
     description: None,
     type_: None,
@@ -19118,7 +19541,11 @@ pub type Researchsubject {
   )
 }
 
-pub fn researchsubject_new(individual, study, status) -> Researchsubject {
+pub fn researchsubject_new(
+  individual individual: Reference,
+  study study: Reference,
+  status status: r4valuesets.Researchsubjectstatus,
+) -> Researchsubject {
   Researchsubject(
     consent: None,
     actual_arm: None,
@@ -19176,7 +19603,10 @@ pub type RiskassessmentOccurrence {
   RiskassessmentOccurrencePeriod(occurrence: Period)
 }
 
-pub fn riskassessment_new(subject, status) -> Riskassessment {
+pub fn riskassessment_new(
+  subject subject: Reference,
+  status status: r4valuesets.Observationstatus,
+) -> Riskassessment {
   Riskassessment(
     note: [],
     mitigation: None,
@@ -19293,9 +19723,9 @@ pub type Riskevidencesynthesis {
 }
 
 pub fn riskevidencesynthesis_new(
-  outcome,
-  population,
-  status,
+  outcome outcome: Reference,
+  population population: Reference,
+  status status: r4valuesets.Publicationstatus,
 ) -> Riskevidencesynthesis {
   Riskevidencesynthesis(
     certainty: [],
@@ -19551,12 +19981,12 @@ pub type Searchparameter {
 }
 
 pub fn searchparameter_new(
-  type_,
-  code,
-  description,
-  status,
-  name,
-  url,
+  type_ type_: r4valuesets.Searchparamtype,
+  code code: String,
+  description description: String,
+  status status: r4valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
 ) -> Searchparameter {
   Searchparameter(
     component: [],
@@ -19608,8 +20038,8 @@ pub type SearchparameterComponent {
 }
 
 pub fn searchparameter_component_new(
-  expression,
-  definition,
+  expression expression: String,
+  definition definition: String,
 ) -> SearchparameterComponent {
   SearchparameterComponent(
     expression:,
@@ -19687,7 +20117,11 @@ pub type ServicerequestAsneeded {
   ServicerequestAsneededCodeableconcept(as_needed: Codeableconcept)
 }
 
-pub fn servicerequest_new(subject, intent, status) -> Servicerequest {
+pub fn servicerequest_new(
+  subject subject: Reference,
+  intent intent: r4valuesets.Requestintent,
+  status status: r4valuesets.Requeststatus,
+) -> Servicerequest {
   Servicerequest(
     relevant_history: [],
     patient_instruction: None,
@@ -19758,7 +20192,12 @@ pub type Slot {
   )
 }
 
-pub fn slot_new(end, start, status, schedule) -> Slot {
+pub fn slot_new(
+  end end: String,
+  start start: String,
+  status status: r4valuesets.Slotstatus,
+  schedule schedule: Reference,
+) -> Slot {
   Slot(
     comment: None,
     overbooked: None,
@@ -20003,7 +20442,7 @@ pub type SpecimendefinitionTypetested {
 }
 
 pub fn specimendefinition_typetested_new(
-  preference,
+  preference preference: r4valuesets.Specimencontainedpreference,
 ) -> SpecimendefinitionTypetested {
   SpecimendefinitionTypetested(
     handling: [],
@@ -20084,7 +20523,7 @@ pub type SpecimendefinitionTypetestedContainerAdditiveAdditive {
 }
 
 pub fn specimendefinition_typetested_container_additive_new(
-  additive,
+  additive additive: SpecimendefinitionTypetestedContainerAdditiveAdditive,
 ) -> SpecimendefinitionTypetestedContainerAdditive {
   SpecimendefinitionTypetestedContainerAdditive(
     additive:,
@@ -20161,12 +20600,12 @@ pub type Structuredefinition {
 }
 
 pub fn structuredefinition_new(
-  type_,
-  abstract,
-  kind,
-  status,
-  name,
-  url,
+  type_ type_: String,
+  abstract abstract: Bool,
+  kind kind: r4valuesets.Structuredefinitionkind,
+  status status: r4valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
 ) -> Structuredefinition {
   Structuredefinition(
     differential: None,
@@ -20220,7 +20659,9 @@ pub type StructuredefinitionMapping {
   )
 }
 
-pub fn structuredefinition_mapping_new(identity) -> StructuredefinitionMapping {
+pub fn structuredefinition_mapping_new(
+  identity identity: String,
+) -> StructuredefinitionMapping {
   StructuredefinitionMapping(
     comment: None,
     name: None,
@@ -20244,8 +20685,8 @@ pub type StructuredefinitionContext {
 }
 
 pub fn structuredefinition_context_new(
-  expression,
-  type_,
+  expression expression: String,
+  type_ type_: r4valuesets.Extensioncontexttype,
 ) -> StructuredefinitionContext {
   StructuredefinitionContext(
     expression:,
@@ -20326,7 +20767,11 @@ pub type Structuremap {
   )
 }
 
-pub fn structuremap_new(status, name, url) -> Structuremap {
+pub fn structuremap_new(
+  status status: r4valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
+) -> Structuremap {
   Structuremap(
     group: [],
     import_: [],
@@ -20370,7 +20815,10 @@ pub type StructuremapStructure {
   )
 }
 
-pub fn structuremap_structure_new(mode, url) -> StructuremapStructure {
+pub fn structuremap_structure_new(
+  mode mode: r4valuesets.Mapmodelmode,
+  url url: String,
+) -> StructuremapStructure {
   StructuremapStructure(
     documentation: None,
     alias: None,
@@ -20397,7 +20845,10 @@ pub type StructuremapGroup {
   )
 }
 
-pub fn structuremap_group_new(type_mode, name) -> StructuremapGroup {
+pub fn structuremap_group_new(
+  type_mode type_mode: r4valuesets.Mapgrouptypemode,
+  name name: String,
+) -> StructuremapGroup {
   StructuremapGroup(
     rule: [],
     input: [],
@@ -20424,7 +20875,10 @@ pub type StructuremapGroupInput {
   )
 }
 
-pub fn structuremap_group_input_new(mode, name) -> StructuremapGroupInput {
+pub fn structuremap_group_input_new(
+  mode mode: r4valuesets.Mapinputmode,
+  name name: String,
+) -> StructuremapGroupInput {
   StructuremapGroupInput(
     documentation: None,
     mode:,
@@ -20451,7 +20905,7 @@ pub type StructuremapGroupRule {
   )
 }
 
-pub fn structuremap_group_rule_new(name) -> StructuremapGroupRule {
+pub fn structuremap_group_rule_new(name name: String) -> StructuremapGroupRule {
   StructuremapGroupRule(
     documentation: None,
     dependent: [],
@@ -20556,7 +21010,7 @@ pub type StructuremapGroupRuleSourceDefaultvalue {
 }
 
 pub fn structuremap_group_rule_source_new(
-  context,
+  context context: String,
 ) -> StructuremapGroupRuleSource {
   StructuremapGroupRuleSource(
     log_message: None,
@@ -20629,7 +21083,7 @@ pub type StructuremapGroupRuleTargetParameterValue {
 }
 
 pub fn structuremap_group_rule_target_parameter_new(
-  value,
+  value value: StructuremapGroupRuleTargetParameterValue,
 ) -> StructuremapGroupRuleTargetParameter {
   StructuremapGroupRuleTargetParameter(
     value:,
@@ -20651,7 +21105,7 @@ pub type StructuremapGroupRuleDependent {
 }
 
 pub fn structuremap_group_rule_dependent_new(
-  name,
+  name name: String,
 ) -> StructuremapGroupRuleDependent {
   StructuremapGroupRuleDependent(
     variable: [],
@@ -20683,7 +21137,12 @@ pub type Subscription {
   )
 }
 
-pub fn subscription_new(channel, criteria, reason, status) -> Subscription {
+pub fn subscription_new(
+  channel channel: SubscriptionChannel,
+  criteria criteria: String,
+  reason reason: String,
+  status status: r4valuesets.Subscriptionstatus,
+) -> Subscription {
   Subscription(
     channel:,
     error: None,
@@ -20716,7 +21175,9 @@ pub type SubscriptionChannel {
   )
 }
 
-pub fn subscription_channel_new(type_) -> SubscriptionChannel {
+pub fn subscription_channel_new(
+  type_ type_: r4valuesets.Subscriptionchanneltype,
+) -> SubscriptionChannel {
   SubscriptionChannel(
     header: [],
     payload: None,
@@ -20749,7 +21210,7 @@ pub type Substance {
   )
 }
 
-pub fn substance_new(code) -> Substance {
+pub fn substance_new(code code: Codeableconcept) -> Substance {
   Substance(
     ingredient: [],
     instance: [],
@@ -20809,7 +21270,9 @@ pub type SubstanceIngredientSubstance {
   SubstanceIngredientSubstanceReference(substance: Reference)
 }
 
-pub fn substance_ingredient_new(substance) -> SubstanceIngredient {
+pub fn substance_ingredient_new(
+  substance substance: SubstanceIngredientSubstance,
+) -> SubstanceIngredient {
   SubstanceIngredient(
     substance:,
     quantity: None,
@@ -21839,7 +22302,9 @@ pub type SubstancespecificationName {
   )
 }
 
-pub fn substancespecification_name_new(name) -> SubstancespecificationName {
+pub fn substancespecification_name_new(
+  name name: String,
+) -> SubstancespecificationName {
   SubstancespecificationName(
     source: [],
     official: [],
@@ -22053,7 +22518,10 @@ pub type SupplyrequestOccurrence {
   SupplyrequestOccurrenceTiming(occurrence: Timing)
 }
 
-pub fn supplyrequest_new(quantity, item) -> Supplyrequest {
+pub fn supplyrequest_new(
+  quantity quantity: Quantity,
+  item item: SupplyrequestItem,
+) -> Supplyrequest {
   Supplyrequest(
     deliver_to: None,
     deliver_from: None,
@@ -22155,7 +22623,10 @@ pub type Task {
   )
 }
 
-pub fn task_new(intent, status) -> Task {
+pub fn task_new(
+  intent intent: r4valuesets.Taskintent,
+  status status: r4valuesets.Taskstatus,
+) -> Task {
   Task(
     output: [],
     input: [],
@@ -22287,7 +22758,10 @@ pub type TaskInputValue {
   TaskInputValueMeta(value: Meta)
 }
 
-pub fn task_input_new(value, type_) -> TaskInput {
+pub fn task_input_new(
+  value value: TaskInputValue,
+  type_ type_: Codeableconcept,
+) -> TaskInput {
   TaskInput(value:, type_:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -22356,7 +22830,10 @@ pub type TaskOutputValue {
   TaskOutputValueMeta(value: Meta)
 }
 
-pub fn task_output_new(value, type_) -> TaskOutput {
+pub fn task_output_new(
+  value value: TaskOutputValue,
+  type_ type_: Codeableconcept,
+) -> TaskOutput {
   TaskOutput(value:, type_:, modifier_extension: [], extension: [], id: None)
 }
 
@@ -22399,9 +22876,9 @@ pub type Terminologycapabilities {
 }
 
 pub fn terminologycapabilities_new(
-  kind,
-  date,
-  status,
+  kind kind: r4valuesets.Capabilitystatementkind,
+  date date: String,
+  status status: r4valuesets.Publicationstatus,
 ) -> Terminologycapabilities {
   Terminologycapabilities(
     closure: None,
@@ -22451,7 +22928,7 @@ pub type TerminologycapabilitiesSoftware {
 }
 
 pub fn terminologycapabilities_software_new(
-  name,
+  name name: String,
 ) -> TerminologycapabilitiesSoftware {
   TerminologycapabilitiesSoftware(
     version: None,
@@ -22474,7 +22951,7 @@ pub type TerminologycapabilitiesImplementation {
 }
 
 pub fn terminologycapabilities_implementation_new(
-  description,
+  description description: String,
 ) -> TerminologycapabilitiesImplementation {
   TerminologycapabilitiesImplementation(
     url: None,
@@ -22549,7 +23026,7 @@ pub type TerminologycapabilitiesCodesystemVersionFilter {
 }
 
 pub fn terminologycapabilities_codesystem_version_filter_new(
-  code,
+  code code: String,
 ) -> TerminologycapabilitiesCodesystemVersionFilter {
   TerminologycapabilitiesCodesystemVersionFilter(
     op: [],
@@ -22599,7 +23076,7 @@ pub type TerminologycapabilitiesExpansionParameter {
 }
 
 pub fn terminologycapabilities_expansion_parameter_new(
-  name,
+  name name: String,
 ) -> TerminologycapabilitiesExpansionParameter {
   TerminologycapabilitiesExpansionParameter(
     documentation: None,
@@ -22621,7 +23098,7 @@ pub type TerminologycapabilitiesValidatecode {
 }
 
 pub fn terminologycapabilities_validatecode_new(
-  translations,
+  translations translations: Bool,
 ) -> TerminologycapabilitiesValidatecode {
   TerminologycapabilitiesValidatecode(
     translations:,
@@ -22642,7 +23119,7 @@ pub type TerminologycapabilitiesTranslation {
 }
 
 pub fn terminologycapabilities_translation_new(
-  needs_map,
+  needs_map needs_map: Bool,
 ) -> TerminologycapabilitiesTranslation {
   TerminologycapabilitiesTranslation(
     needs_map:,
@@ -22697,7 +23174,11 @@ pub type Testreport {
   )
 }
 
-pub fn testreport_new(result, test_script, status) -> Testreport {
+pub fn testreport_new(
+  result result: r4valuesets.Reportresultcodes,
+  test_script test_script: Reference,
+  status status: r4valuesets.Reportstatuscodes,
+) -> Testreport {
   Testreport(
     teardown: None,
     test_: [],
@@ -22734,7 +23215,10 @@ pub type TestreportParticipant {
   )
 }
 
-pub fn testreport_participant_new(uri, type_) -> TestreportParticipant {
+pub fn testreport_participant_new(
+  uri uri: String,
+  type_ type_: r4valuesets.Reportparticipanttype,
+) -> TestreportParticipant {
   TestreportParticipant(
     display: None,
     uri:,
@@ -22793,7 +23277,7 @@ pub type TestreportSetupActionOperation {
 }
 
 pub fn testreport_setup_action_operation_new(
-  result,
+  result result: r4valuesets.Reportactionresultcodes,
 ) -> TestreportSetupActionOperation {
   TestreportSetupActionOperation(
     detail: None,
@@ -22817,7 +23301,9 @@ pub type TestreportSetupActionAssert {
   )
 }
 
-pub fn testreport_setup_action_assert_new(result) -> TestreportSetupActionAssert {
+pub fn testreport_setup_action_assert_new(
+  result result: r4valuesets.Reportactionresultcodes,
+) -> TestreportSetupActionAssert {
   TestreportSetupActionAssert(
     detail: None,
     message: None,
@@ -22901,7 +23387,9 @@ pub type TestreportTeardownAction {
   )
 }
 
-pub fn testreport_teardown_action_new(operation) -> TestreportTeardownAction {
+pub fn testreport_teardown_action_new(
+  operation operation: Nil,
+) -> TestreportTeardownAction {
   TestreportTeardownAction(
     operation:,
     modifier_extension: [],
@@ -22948,7 +23436,11 @@ pub type Testscript {
   )
 }
 
-pub fn testscript_new(status, name, url) -> Testscript {
+pub fn testscript_new(
+  status status: r4valuesets.Publicationstatus,
+  name name: String,
+  url url: String,
+) -> Testscript {
   Testscript(
     teardown: None,
     test_: [],
@@ -22996,7 +23488,10 @@ pub type TestscriptOrigin {
   )
 }
 
-pub fn testscript_origin_new(profile, index) -> TestscriptOrigin {
+pub fn testscript_origin_new(
+  profile profile: Coding,
+  index index: Int,
+) -> TestscriptOrigin {
   TestscriptOrigin(
     profile:,
     index:,
@@ -23017,7 +23512,10 @@ pub type TestscriptDestination {
   )
 }
 
-pub fn testscript_destination_new(profile, index) -> TestscriptDestination {
+pub fn testscript_destination_new(
+  profile profile: Coding,
+  index index: Int,
+) -> TestscriptDestination {
   TestscriptDestination(
     profile:,
     index:,
@@ -23059,7 +23557,7 @@ pub type TestscriptMetadataLink {
   )
 }
 
-pub fn testscript_metadata_link_new(url) -> TestscriptMetadataLink {
+pub fn testscript_metadata_link_new(url url: String) -> TestscriptMetadataLink {
   TestscriptMetadataLink(
     description: None,
     url:,
@@ -23086,9 +23584,9 @@ pub type TestscriptMetadataCapability {
 }
 
 pub fn testscript_metadata_capability_new(
-  capabilities,
-  validated,
-  required,
+  capabilities capabilities: String,
+  validated validated: Bool,
+  required required: Bool,
 ) -> TestscriptMetadataCapability {
   TestscriptMetadataCapability(
     capabilities:,
@@ -23116,7 +23614,10 @@ pub type TestscriptFixture {
   )
 }
 
-pub fn testscript_fixture_new(autodelete, autocreate) -> TestscriptFixture {
+pub fn testscript_fixture_new(
+  autodelete autodelete: Bool,
+  autocreate autocreate: Bool,
+) -> TestscriptFixture {
   TestscriptFixture(
     resource: None,
     autodelete:,
@@ -23144,7 +23645,7 @@ pub type TestscriptVariable {
   )
 }
 
-pub fn testscript_variable_new(name) -> TestscriptVariable {
+pub fn testscript_variable_new(name name: String) -> TestscriptVariable {
   TestscriptVariable(
     source_id: None,
     path: None,
@@ -23222,7 +23723,7 @@ pub type TestscriptSetupActionOperation {
 }
 
 pub fn testscript_setup_action_operation_new(
-  encode_request_url,
+  encode_request_url encode_request_url: Bool,
 ) -> TestscriptSetupActionOperation {
   TestscriptSetupActionOperation(
     url: None,
@@ -23260,8 +23761,8 @@ pub type TestscriptSetupActionOperationRequestheader {
 }
 
 pub fn testscript_setup_action_operation_requestheader_new(
-  value,
-  field,
+  value value: String,
+  field field: String,
 ) -> TestscriptSetupActionOperationRequestheader {
   TestscriptSetupActionOperationRequestheader(
     value:,
@@ -23304,7 +23805,7 @@ pub type TestscriptSetupActionAssert {
 }
 
 pub fn testscript_setup_action_assert_new(
-  warning_only,
+  warning_only warning_only: Bool,
 ) -> TestscriptSetupActionAssert {
   TestscriptSetupActionAssert(
     warning_only:,
@@ -23408,7 +23909,9 @@ pub type TestscriptTeardownAction {
   )
 }
 
-pub fn testscript_teardown_action_new(operation) -> TestscriptTeardownAction {
+pub fn testscript_teardown_action_new(
+  operation operation: Nil,
+) -> TestscriptTeardownAction {
   TestscriptTeardownAction(
     operation:,
     modifier_extension: [],
@@ -23449,7 +23952,7 @@ pub type Valueset {
   )
 }
 
-pub fn valueset_new(status) -> Valueset {
+pub fn valueset_new(status status: r4valuesets.Publicationstatus) -> Valueset {
   Valueset(
     expansion: None,
     compose: None,
@@ -23545,7 +24048,7 @@ pub type ValuesetComposeIncludeConcept {
 }
 
 pub fn valueset_compose_include_concept_new(
-  code,
+  code code: String,
 ) -> ValuesetComposeIncludeConcept {
   ValuesetComposeIncludeConcept(
     designation: [],
@@ -23570,7 +24073,7 @@ pub type ValuesetComposeIncludeConceptDesignation {
 }
 
 pub fn valueset_compose_include_concept_designation_new(
-  value,
+  value value: String,
 ) -> ValuesetComposeIncludeConceptDesignation {
   ValuesetComposeIncludeConceptDesignation(
     value:,
@@ -23595,9 +24098,9 @@ pub type ValuesetComposeIncludeFilter {
 }
 
 pub fn valueset_compose_include_filter_new(
-  value,
-  op,
-  property,
+  value value: String,
+  op op: r4valuesets.Filteroperator,
+  property property: String,
 ) -> ValuesetComposeIncludeFilter {
   ValuesetComposeIncludeFilter(
     value:,
@@ -23624,7 +24127,7 @@ pub type ValuesetExpansion {
   )
 }
 
-pub fn valueset_expansion_new(timestamp) -> ValuesetExpansion {
+pub fn valueset_expansion_new(timestamp timestamp: String) -> ValuesetExpansion {
   ValuesetExpansion(
     contains: [],
     parameter: [],
@@ -23660,7 +24163,9 @@ pub type ValuesetExpansionParameterValue {
   ValuesetExpansionParameterValueDatetime(value: String)
 }
 
-pub fn valueset_expansion_parameter_new(name) -> ValuesetExpansionParameter {
+pub fn valueset_expansion_parameter_new(
+  name name: String,
+) -> ValuesetExpansionParameter {
   ValuesetExpansionParameter(
     value: None,
     name:,
@@ -23731,7 +24236,9 @@ pub type Verificationresult {
   )
 }
 
-pub fn verificationresult_new(status) -> Verificationresult {
+pub fn verificationresult_new(
+  status status: r4valuesets.Verificationresultstatus,
+) -> Verificationresult {
   Verificationresult(
     validator: [],
     attestation: None,
@@ -23835,7 +24342,7 @@ pub type VerificationresultValidator {
 }
 
 pub fn verificationresult_validator_new(
-  organization,
+  organization organization: Reference,
 ) -> VerificationresultValidator {
   VerificationresultValidator(
     attestation_signature: None,
@@ -23870,11 +24377,11 @@ pub type Visionprescription {
 }
 
 pub fn visionprescription_new(
-  prescriber,
-  date_written,
-  patient,
-  created,
-  status,
+  prescriber prescriber: Reference,
+  date_written date_written: String,
+  patient patient: Reference,
+  created created: String,
+  status status: r4valuesets.Fmstatus,
 ) -> Visionprescription {
   Visionprescription(
     lens_specification: [],
@@ -23920,8 +24427,8 @@ pub type VisionprescriptionLensspecification {
 }
 
 pub fn visionprescription_lensspecification_new(
-  eye,
-  product,
+  eye eye: r4valuesets.Visioneyecodes,
+  product product: Codeableconcept,
 ) -> VisionprescriptionLensspecification {
   VisionprescriptionLensspecification(
     note: [],
@@ -23956,8 +24463,8 @@ pub type VisionprescriptionLensspecificationPrism {
 }
 
 pub fn visionprescription_lensspecification_prism_new(
-  base,
-  amount,
+  base base: r4valuesets.Visionbasecodes,
+  amount amount: Float,
 ) -> VisionprescriptionLensspecificationPrism {
   VisionprescriptionLensspecificationPrism(
     base:,
