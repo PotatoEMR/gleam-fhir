@@ -296,7 +296,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
       fhir_version,
       " types\n////https://hl7.org/fhir/",
       fhir_version,
-      "\nimport gleam/option.{type Option, None}\nimport ",
+      "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None}\nimport ",
       fhir_version,
       "valuesets\n",
       file_to_types(
@@ -331,9 +331,9 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
   let entries =
     list.filter(bundle.entry, fn(e) {
       case e.resource.kind, e.resource.name {
-        // debug: uncomment to try just allergyintolerance
         // _, "AllergyIntolerance" -> True
         // _, _ -> False
+        // debug: uncomment to try just allergyintolerance
         _, "Base" -> False
         _, "BackboneElement" -> False
         Some("complex-type"), _ -> True
@@ -425,6 +425,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
             True -> "FhirList"
             False -> camel_type
           }
+          let snake_type = to_snake_case(camel_type)
           let assert Ok(fields) = dict.get(type_fields, new_type)
           let fields = case entry.resource.name {
             "SimpleQuantity" ->
@@ -432,111 +433,240 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
             //simplequantity has no comparator
             _ -> fields
           }
-          //make type fields, its [x] types, type_new() args and fields
-          let #(field_list, choicetypes, newfunc_args, newfunc_fields) =
+          // this tuple is important - all the stuff you generate for each field
+          // should probably be a custom type
+          // also choice fields do one more fold within this, on their type possibilities
+          // make field type, its [x] types, type_new() args and fields, to_json args/always+optional, decoder
+          let #(
+            field_list,
+            choicetypes,
+            newfunc_args,
+            newfunc_fields,
+            encoder_args,
+            encoder_json_always,
+            encoder_json_options,
+            decoder_use,
+            decoder_success,
+          ) =
             list.fold(
-              from: #("", list.new(), "", ""),
+              from: #("", list.new(), "", "", "", "", "", "", ""),
               over: fields,
               with: fn(acc, elt: Element) {
-                let fields_acc = acc.0
-                let choicetypes_acc = acc.1
-                let newfunc_args_acc = acc.2
-                let newfunc_fields_acc = acc.3
-                let allparts = string.split(elt.path, ".")
-                let assert Ok(elt_last_part) =
-                  list.reverse(allparts) |> list.first
-                //for choice types, which will have a custom type
-                let elt_last_part = string.replace(elt_last_part, "[x]", "")
-                let elt_last_part = case elt_last_part {
-                  //field names cant be reserved gleam words
-                  "type" -> "type_"
-                  "use" -> "use_"
-                  "case" -> "case_"
-                  "const" -> "const_"
-                  "import" -> "import_"
-                  "test" -> "test_"
-                  "assert" -> "assert_"
-                  _ -> elt_last_part
-                }
-                let field_name_new =
-                  camel_type <> string.capitalise(elt_last_part)
-                let field_type = case elt.type_ {
-                  [one_type] ->
-                    string_to_type(one_type.code, allparts, fhir_version, elt)
-                  [] -> "Nil"
-                  _ -> field_name_new
-                }
-                let elt_snake = to_snake_case(elt_last_part)
-                let this_type_fields =
-                  string.concat([
-                    elt_snake,
-                    ": ",
-                    cardinality(field_type, elt.min, elt.max),
-                    ",\n",
-                    fields_acc,
-                  ])
-                let choicetypes_acc = case elt.type_ {
-                  [] -> choicetypes_acc
-                  [_] -> choicetypes_acc
-                  _ -> [
-                    string.concat([
-                      "\n",
-                      new_doc_link,
-                      "\npub type ",
-                      field_name_new,
-                      "{",
-                      list.fold(over: elt.type_, from: "", with: fn(acc, typ) {
-                        string.concat([
-                          acc,
-                          "\n",
-                          field_name_new,
-                          string.capitalise(typ.code),
-                          "(",
-                          elt_snake,
-                          ": ",
-                          string_to_type(
-                            typ.code,
-                            [
-                              "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
-                            ],
-                            fhir_version,
-                            elt,
-                          ),
-                          ")",
-                        ])
-                      }),
-                      "}",
-                    ]),
-                    ..choicetypes_acc
-                  ]
-                }
-                let #(newfunc_arg, newfunc_field) = case elt.max {
-                  "*" -> #("", elt_snake <> ": [],")
-                  _ ->
-                    case elt.min {
-                      0 -> #("", elt_snake <> ": None,")
-                      1 -> {
-                        let arg =
-                          string.concat([
-                            elt_snake,
-                            " ",
-                            elt_snake,
-                            ": ",
-                            field_type,
-                            ",",
-                          ])
-                        let field = elt_snake <> ":,"
-                        #(arg, field)
-                      }
-                      _ -> panic as "cardinality panic 2"
+                case elt.type_ {
+                  [] -> acc
+                  //link type, which idk how to handle, and for now will skip entirely
+                  _ -> {
+                    let fields_acc = acc.0
+                    let choicetypes_acc = acc.1
+                    let newfunc_args_acc = acc.2
+                    let newfunc_fields_acc = acc.3
+                    let encoder_args_acc = acc.4
+                    let encoder_always_acc = acc.5
+                    let encoder_optional_acc = acc.6
+                    let decoder_use_acc = acc.7
+                    let decoder_success_acc = acc.8
+                    //yeah this should be custom type right
+                    let allparts = string.split(elt.path, ".")
+                    let assert Ok(elt_last_part) =
+                      list.reverse(allparts) |> list.first
+                    //for choice types, which will have a custom type
+                    let elt_last_part = string.replace(elt_last_part, "[x]", "")
+                    let elt_last_part = case elt_last_part {
+                      //field names cant be reserved gleam words
+                      "type" -> "type_"
+                      "use" -> "use_"
+                      "case" -> "case_"
+                      "const" -> "const_"
+                      "import" -> "import_"
+                      "test" -> "test_"
+                      "assert" -> "assert_"
+                      _ -> elt_last_part
                     }
+                    let field_name_new =
+                      camel_type <> string.capitalise(elt_last_part)
+                    let field_type = case elt.type_ {
+                      [one_type] ->
+                        string_to_type(
+                          one_type.code,
+                          allparts,
+                          fhir_version,
+                          elt,
+                        )
+                      [] -> panic as "skipping link types..."
+                      _ -> field_name_new
+                    }
+                    let elt_snake = to_snake_case(elt_last_part)
+                    let this_type_fields =
+                      string.concat([
+                        elt_snake,
+                        ": ",
+                        cardinality(field_type, elt.min, elt.max),
+                        ",\n",
+                        fields_acc,
+                      ])
+                    let choicetypes_acc = case elt.type_ {
+                      [] -> choicetypes_acc
+                      [_] -> choicetypes_acc
+                      _ -> [
+                        string.concat([
+                          "\n",
+                          new_doc_link,
+                          "\npub type ",
+                          field_name_new,
+                          "{",
+                          list.fold(
+                            over: elt.type_,
+                            from: "",
+                            with: fn(acc, typ) {
+                              string.concat([
+                                acc,
+                                //add all fields of this choice type
+                                "\n",
+                                field_name_new,
+                                string.capitalise(typ.code),
+                                "(",
+                                elt_snake,
+                                ": ",
+                                string_to_type(
+                                  typ.code,
+                                  [
+                                    "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
+                                  ],
+                                  fhir_version,
+                                  elt,
+                                ),
+                                ")",
+                              ])
+                            },
+                          ),
+                          "}",
+                          "\npub fn ",
+                          snake_type,
+                          "_",
+                          elt_last_part |> string.lowercase(),
+                          "_to_json(elt: ",
+                          field_name_new,
+                          ") -> Json {case elt{",
+                          list.fold(
+                            over: elt.type_,
+                            from: "",
+                            with: fn(acc, typ) {
+                              //add all cases of choice type to type_to_json()
+                              string.concat([
+                                acc,
+                                field_name_new,
+                                string.capitalise(typ.code),
+                                "(v) -> ",
+                                "{todo}\n",
+                              ])
+                            },
+                          ),
+                          "}}",
+                        ]),
+                        ..choicetypes_acc
+                        //add to all choice types
+                      ]
+                    }
+                    let #(newfunc_arg, newfunc_field) = case elt.max {
+                      "*" -> #("", elt_snake <> ": [],")
+                      _ ->
+                        case elt.min {
+                          0 -> #("", elt_snake <> ": None,")
+                          1 -> {
+                            let arg =
+                              string.concat([
+                                elt_snake,
+                                " ",
+                                elt_snake,
+                                ": ",
+                                field_type,
+                                ",",
+                              ])
+                            let field = elt_snake <> ":,"
+                            #(arg, field)
+                          }
+                          _ -> panic as "cardinality panic 2"
+                        }
+                    }
+                    let encoder_args_acc = encoder_args_acc <> elt_snake <> ":,"
+                    let field_type_encoder = case elt.type_ {
+                      [one_type] ->
+                        string_to_encoder_type(
+                          one_type.code,
+                          allparts,
+                          fhir_version,
+                          elt,
+                        )
+                      [] -> panic as "skipping link types..."
+                      _ -> snake_type <> "_" <> elt_last_part |> string.lowercase() <> "_to_json"
+                    }
+                    let #(encoder_optional_acc, encoder_always_acc) = case
+                      elt.min,
+                      elt.max
+                    {
+                      _, "*" -> #(encoder_optional_acc, encoder_always_acc)
+                      0, "1" -> #(encoder_optional_acc, encoder_always_acc)
+                      1, "1" -> {
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part
+                          <> "\", "
+                          <> field_type_encoder
+                          <> "("
+                          <> elt_snake
+                          <> ")"
+                          <> "),"
+                        #(encoder_optional_acc, always)
+                      }
+                      _, _ -> panic as "card panic 192"
+                    }
+                    let field_type_decoder = case elt.type_ {
+                      [one_type] ->
+                        string_to_decoder_type(
+                          one_type.code,
+                          allparts,
+                          fhir_version,
+                          elt,
+                        )
+                      [] -> panic as "skipping link types..."
+                      _ -> "todo as \"choice type decoder\""
+                    }
+                    let field_type_decoder = case elt.max {
+                      "*" -> "decode.list(" <> field_type_decoder <> ")"
+                      _ ->
+                        case elt.min {
+                          0 -> "decode.optional(" <> field_type_decoder <> ")"
+                          1 -> field_type_decoder
+                          _ -> panic as "cardinality panic 3"
+                        }
+                    }
+                    let decoder_use_acc =
+                      string.concat([
+                        decoder_use_acc,
+                        "use ",
+                        elt_snake,
+                        " <- decode.field(\"",
+                        elt_last_part,
+                        "\",",
+                        field_type_decoder,
+                        ")\n",
+                      ])
+                    let decoder_success_acc =
+                      decoder_success_acc <> elt_snake <> ":,"
+                    #(
+                      this_type_fields,
+                      choicetypes_acc,
+                      newfunc_args_acc <> newfunc_arg,
+                      newfunc_fields_acc <> newfunc_field,
+                      encoder_args_acc,
+                      encoder_always_acc,
+                      encoder_optional_acc,
+                      decoder_use_acc,
+                      decoder_success_acc,
+                    )
+                  }
                 }
-                #(
-                  this_type_fields,
-                  choicetypes_acc,
-                  newfunc_args_acc <> newfunc_arg,
-                  newfunc_fields_acc <> newfunc_field,
-                )
               },
             )
           //now have #(field_list, choicetypes, newfunc_args, newfunc_fields) tuple should prolly be custom type or something
@@ -552,7 +682,6 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
               field_list,
               ")\n}",
             ])
-          let snake_type = to_snake_case(camel_type)
           let type_new_newfunc =
             string.concat([
               "pub fn ",
@@ -574,6 +703,19 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
               type_choicetypes,
               type_new_newfunc,
               old_type_acc,
+              gen_res_encoder(
+                camel_type,
+                snake_type,
+                encoder_args,
+                encoder_json_always,
+                encoder_json_options,
+              ),
+              gen_res_decoder(
+                camel_type,
+                snake_type,
+                decoder_use,
+                decoder_success,
+              ),
             ],
             "\n",
           )
@@ -665,6 +807,192 @@ fn string_to_type(
   }
 }
 
+// this makes the decode.string or decode.int or allergy_intolerance_reaction_decoder() or whatever
+// could maybe be combined with very similar previous func
+fn string_to_decoder_type(
+  fhir_type: String,
+  allparts: List(String),
+  fhir_version: String,
+  elt: Element,
+) -> String {
+  case fhir_type {
+    "BackboneElement" ->
+      allparts
+      |> list.map(string.capitalise)
+      |> string.concat()
+      |> to_snake_case()
+      <> "_decoder()"
+    "base64Binary" -> "decode.string"
+    "boolean" -> "decode.bool"
+    "canonical" -> "decode.string"
+    "code" -> {
+      let s = allparts |> string.concat()
+      case s {
+        "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding" ->
+          "String"
+        //not a code idk should we even generate this?
+        _ -> {
+          case elt.binding {
+            Some(x) ->
+              case x.strength {
+                "required" -> {
+                  case x.value_set {
+                    Some(vs) -> {
+                      case string.split(vs, "|") {
+                        //get rid of |version in http://some.valueset|4.0.1
+                        [_] -> panic as "huh idk 3"
+                        [url, ..] ->
+                          case
+                            string.contains(url, "v3-Confidentiality")
+                            || string.contains(url, "mimetypes")
+                            || string.contains(url, "currencies")
+                            || string.contains(url, "all-languages")
+                            || string.contains(url, "ucum-units")
+                          {
+                            True -> "decode.string"
+                            //idk whats going on here, probably i dont understand valueset composition
+                            False ->
+                              fhir_version
+                              <> "valuesets."
+                              <> Some(url)
+                              |> concept_name_from_url()
+                              |> to_snake_case
+                              <> "_decoder()"
+                          }
+                        [] -> panic as "huh idk"
+                      }
+                    }
+                    _ -> panic as "huh idk 2"
+                  }
+                }
+                _ -> "decode.string"
+                //mostly just elt.languages doesnt have "required" code binding
+              }
+            None -> "decode.string"
+            //these codes dont have required binding?
+          }
+        }
+      }
+    }
+    "date" -> "decode.string"
+    "dateTime" -> "decode.string"
+    "decimal" -> "decode.float"
+    "id" -> "decode.string"
+    "instant" -> "decode.string"
+    "integer" -> "decode.int"
+    "integer64" -> "decode.int"
+    "markdown" -> "decode.string"
+    "oid" -> "decode.string"
+    "positiveInt" -> "decode.int"
+    "string" -> "decode.string"
+    "time" -> "decode.string"
+    "unsignedInt" -> "decode.int"
+    "uri" -> "decode.string"
+    "url" -> "decode.string"
+    "uuid" -> "decode.string"
+    "xhtml" -> "decode.string"
+    "http://hl7.org/fhirpath/System.String" -> "decode.string"
+    _ -> {
+      fhir_type
+      |> string.lowercase()
+      <> "_decoder()"
+    }
+    //decoder for backbone element eg visionprescription_lensspecification_decoder()
+  }
+}
+
+fn string_to_encoder_type(
+  fhir_type: String,
+  allparts: List(String),
+  fhir_version: String,
+  elt: Element,
+) -> String {
+  let ft = case fhir_type {
+    "BackboneElement" ->
+      allparts
+      |> list.map(string.capitalise)
+      |> string.concat()
+      |> to_snake_case()
+      <> "_to_json"
+    "base64Binary" -> "json.string"
+    "boolean" -> "json.bool"
+    "canonical" -> "json.string"
+    "code" -> {
+      let s = allparts |> string.concat()
+      case s {
+        "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding" ->
+          "String"
+        //not a code idk should we even generate this?
+        _ -> {
+          case elt.binding {
+            Some(x) ->
+              case x.strength {
+                "required" -> {
+                  case x.value_set {
+                    Some(vs) -> {
+                      case string.split(vs, "|") {
+                        //get rid of |version in http://some.valueset|4.0.1
+                        [_] -> panic as "huh idk 3"
+                        [url, ..] ->
+                          case
+                            string.contains(url, "v3-Confidentiality")
+                            || string.contains(url, "mimetypes")
+                            || string.contains(url, "currencies")
+                            || string.contains(url, "all-languages")
+                            || string.contains(url, "ucum-units")
+                          {
+                            True -> "json.string"
+                            //idk whats going on here, probably i dont understand valueset composition
+                            False ->
+                              fhir_version
+                              <> "valuesets."
+                              <> Some(url)
+                              |> concept_name_from_url()
+                              |> to_snake_case
+                              <> "_to_json"
+                          }
+                        [] -> panic as "huh idk"
+                      }
+                    }
+                    _ -> panic as "huh idk 2"
+                  }
+                }
+                _ -> "json.string"
+                //mostly just elt.languages doesnt have "required" code binding
+              }
+            None -> "json.string"
+            //these codes dont have required binding?
+          }
+        }
+      }
+    }
+    "date" -> "json.string"
+    "dateTime" -> "json.string"
+    "decimal" -> "json.float"
+    "id" -> "json.string"
+    "instant" -> "json.string"
+    "integer" -> "json.int"
+    "integer64" -> "json.int"
+    "markdown" -> "json.string"
+    "oid" -> "json.string"
+    "positiveInt" -> "json.int"
+    "string" -> "json.string"
+    "time" -> "json.string"
+    "unsignedInt" -> "json.int"
+    "uri" -> "json.string"
+    "url" -> "json.string"
+    "uuid" -> "json.string"
+    "xhtml" -> "json.string"
+    "http://hl7.org/fhirpath/System.String" -> "json.string"
+    _ -> {
+      fhir_type
+      |> string.lowercase()
+      <> "_to_json"
+    }
+    //encoder for backbone element eg visionprescription_lensspecification_encoder()
+  }
+}
+
 // replace capital HelloThere with lowercase hello_there
 // but if the previous character was a capital it will not add an underscore
 fn to_snake_case(input: String) -> String {
@@ -694,6 +1022,43 @@ fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
     1, "1" -> fieldtype
     _, _ -> panic as "cardinality panic"
   }
+}
+
+//probably redundant to have both this and valueset encoder/decoder oh well
+fn gen_res_encoder(
+  rescamel: String,
+  reslower: String,
+  fields_list: String,
+  fields_json_always: String,
+  fields_json_options: String,
+) -> String {
+  let template =
+    "pub fn RESNAMELOWER_to_json(RESNAMELOWER: RESNAMECAMEL) -> Json {
+    let RESNAMECAMEL(" <> fields_list <> ") = RESNAMELOWER
+    let fields = [" <> fields_json_always <> "]
+    json.object(fields)}
+  "
+  template
+  |> string.replace("RESNAMELOWER", reslower)
+  |> string.replace("RESNAMECAMEL", rescamel)
+}
+
+fn gen_res_decoder(
+  rescamel: String,
+  reslower: String,
+  use_list: String,
+  success_list: String,
+) {
+  let template =
+    "pub fn RESNAMELOWER_decoder() -> Decoder(RESNAMECAMEL) {"
+    <> use_list
+    <> "decode.success(RESNAMECAMEL("
+    <> success_list
+    <> "))}"
+  template
+  |> string.replace("RESNAMELOWER", reslower)
+  |> string.replace("RESNAMECAMEL", rescamel)
+  ""
 }
 
 //region valuesets
