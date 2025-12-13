@@ -296,7 +296,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
       fhir_version,
       " types\n////https://hl7.org/fhir/",
       fhir_version,
-      "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None}\nimport ",
+      "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport ",
       fhir_version,
       "valuesets\n",
       file_to_types(
@@ -557,7 +557,13 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                                 field_name_new,
                                 string.capitalise(typ.code),
                                 "(v) -> ",
-                                "{todo}\n",
+                                string_to_encoder_type(
+                                  typ.code,
+                                  allparts,
+                                  fhir_version,
+                                  elt,
+                                ),
+                                "(v)\n",
                               ])
                             },
                           ),
@@ -588,6 +594,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           _ -> panic as "cardinality panic 2"
                         }
                     }
+                    //all the fields for encoder to convert to json
                     let encoder_args_acc = encoder_args_acc <> elt_snake <> ":,"
                     let field_type_encoder = case elt.type_ {
                       [one_type] ->
@@ -598,14 +605,50 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           elt,
                         )
                       [] -> panic as "skipping link types..."
-                      _ -> snake_type <> "_" <> elt_last_part |> string.lowercase() <> "_to_json"
+                      _ ->
+                        snake_type
+                        <> "_"
+                        <> elt_last_part |> string.lowercase()
+                        <> "_to_json"
                     }
+                    // can't just put all encode json args in one big acc in array
+                    // because optional ones need case to add to array or not
+                    // also putting lists as optional_acc so in empty list cast it omits instead of field: []
+                    // hence two separate accs
                     let #(encoder_optional_acc, encoder_always_acc) = case
                       elt.min,
                       elt.max
                     {
-                      _, "*" -> #(encoder_optional_acc, encoder_always_acc)
-                      0, "1" -> #(encoder_optional_acc, encoder_always_acc)
+                      //list case to json, put array in first fields []
+                      _, "*" -> {
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part
+                          <> "\", json.array("
+                          <> elt_snake
+                          <> ","
+                          <> field_type_encoder
+                          <> ")),"
+                        #(encoder_optional_acc, always)
+                      }
+                      //optional case to json, in Some case add to fields []
+                      0, "1" -> {
+                        let opts =
+                          encoder_optional_acc
+                          <> "\nlet fields = case "
+                          <> elt_snake
+                          <> " {
+                          Some(v) -> [#(\""
+                          <> elt_last_part
+                          <> "\", "
+                          <> field_type_encoder
+                          <> "(v)), ..fields]
+                          None -> fields
+                        }"
+                        #(opts, encoder_always_acc)
+                      }
+                      //mandatory case to json, put in first fields []
                       1, "1" -> {
                         let always =
                           encoder_always_acc
@@ -1035,8 +1078,7 @@ fn gen_res_encoder(
   let template =
     "pub fn RESNAMELOWER_to_json(RESNAMELOWER: RESNAMECAMEL) -> Json {
     let RESNAMECAMEL(" <> fields_list <> ") = RESNAMELOWER
-    let fields = [" <> fields_json_always <> "]
-    json.object(fields)}
+    let fields = [" <> fields_json_always <> "]" <> fields_json_options <> "\njson.object(fields)}
   "
   template
   |> string.replace("RESNAMELOWER", reslower)
