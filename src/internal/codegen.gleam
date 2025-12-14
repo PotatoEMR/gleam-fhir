@@ -307,6 +307,11 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
         spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
         fv: fhir_version,
       ),
+      "
+      //std lib decode.optional supports myfield: null but what if myfield is omitted from json entirely?
+      fn none_if_omitted(d: decode.Decoder(a)) -> decode.Decoder(Option(a)) {
+        decode.one_of(d |> decode.map(Some), [decode.success(None)])
+      }",
     ])
   let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: all_types)
   io.println("generated " <> gen_gleamfile)
@@ -470,8 +475,11 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                     let assert Ok(elt_last_part) =
                       list.reverse(allparts) |> list.first
                     //for choice types, which will have a custom type
-                    let elt_last_part = string.replace(elt_last_part, "[x]", "")
-                    let elt_last_part = case elt_last_part {
+                    let elt_last_part_withgleamtype =
+                      string.replace(elt_last_part, "[x]", "")
+                    // withgleamtype still hasnt escaped the gleam types (use, case, etc) but it's expected in json fields
+                    // so "\"" <> elt_last_part_withgleamtype <> "\"" should always be actual string for json
+                    let elt_last_part = case elt_last_part_withgleamtype {
                       //field names cant be reserved gleam words
                       "type" -> "type_"
                       "use" -> "use_"
@@ -480,7 +488,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                       "import" -> "import_"
                       "test" -> "test_"
                       "assert" -> "assert_"
-                      _ -> elt_last_part
+                      _ -> elt_last_part_withgleamtype
                     }
                     let field_name_new =
                       camel_type <> string.capitalise(elt_last_part)
@@ -540,6 +548,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                             },
                           ),
                           "}",
+                          //each choice type needs its own to_json and decoder
                           "\npub fn ",
                           snake_type,
                           "_",
@@ -568,6 +577,59 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                             },
                           ),
                           "}}",
+                          //now the decoder
+                          "\npub fn ",
+                          snake_type,
+                          "_",
+                          elt_last_part |> string.lowercase(),
+                          "_decoder() -> Decoder(",
+                          field_name_new,
+                          "){",
+                          // each choice field here needs to decode from not just type but prefixType
+                          // dateTime -> onsetDateTime or age -> onsetAge etc
+                          // idk will do later!
+                          {
+                            // need to split types into first and rest for decoder because idk
+                            // gleam decode.one_of needs it that way...
+                            // to get an error msg from first or something but it is not a joyful api
+                            let assert [fst_type_, ..rest_type_] = elt.type_
+                            let decode_one_of_first =
+                              gen_choice_field_decoder(
+                                fst_type_.code,
+                                allparts,
+                                fhir_version,
+                                elt,
+                                field_name_new
+                                  <> string.capitalise(fst_type_.code),
+                                elt_last_part_withgleamtype,
+                              )
+                            let decode_one_of_rest =
+                              list.fold(
+                                over: rest_type_,
+                                from: "",
+                                with: fn(acc, typ) {
+                                  //add all cases of choice type to type_to_json()
+                                  string.concat([
+                                    acc,
+                                    gen_choice_field_decoder(
+                                      typ.code,
+                                      allparts,
+                                      fhir_version,
+                                      elt,
+                                      field_name_new
+                                        <> string.capitalise(typ.code),
+                                      elt_last_part_withgleamtype,
+                                    ),
+                                  ])
+                                },
+                              )
+                            "decode.one_of("
+                            <> decode_one_of_first
+                            <> "["
+                            <> decode_one_of_rest
+                            <> "])"
+                          },
+                          "}",
                         ]),
                         ..choicetypes_acc
                         //add to all choice types
@@ -621,16 +683,21 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                     {
                       //list case to json, put array in first fields []
                       _, "*" -> {
-                        let always =
-                          encoder_always_acc
-                          <> "#(\""
-                          <> elt_last_part
+                        let opts =
+                          encoder_optional_acc
+                          <> "\nlet fields = case "
+                          <> elt_snake
+                          <> " {
+                        [] -> fields
+                        _ -> [#(\""
+                          <> elt_last_part_withgleamtype
                           <> "\", json.array("
                           <> elt_snake
                           <> ","
                           <> field_type_encoder
-                          <> ")),"
-                        #(encoder_optional_acc, always)
+                          <> ")), ..fields]
+                      }"
+                        #(opts, encoder_always_acc)
                       }
                       //optional case to json, in Some case add to fields []
                       0, "1" -> {
@@ -640,7 +707,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           <> elt_snake
                           <> " {
                           Some(v) -> [#(\""
-                          <> elt_last_part
+                          <> elt_last_part_withgleamtype
                           <> "\", "
                           <> field_type_encoder
                           <> "(v)), ..fields]
@@ -653,7 +720,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                         let always =
                           encoder_always_acc
                           <> "#(\""
-                          <> elt_last_part
+                          <> elt_last_part_withgleamtype
                           <> "\", "
                           <> field_type_encoder
                           <> "("
@@ -673,14 +740,38 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           elt,
                         )
                       [] -> panic as "skipping link types..."
-                      _ -> "todo as \"choice type decoder\""
+                      _ ->
+                        string.concat([
+                          snake_type,
+                          "_",
+                          elt_last_part |> string.lowercase(),
+                          "_decoder()",
+                        ])
                     }
+                    echo field_type_decoder
                     let field_type_decoder = case elt.max {
-                      "*" -> "decode.list(" <> field_type_decoder <> ")"
+                      "*" ->
+                        "decode.optional_field(\""
+                        <> elt_last_part_withgleamtype
+                        <> "\", [], decode.list("
+                        <> field_type_decoder
+                        <> "))"
                       _ ->
                         case elt.min {
-                          0 -> "decode.optional(" <> field_type_decoder <> ")"
-                          1 -> field_type_decoder
+                          0 -> {
+                            "decode.optional_field(\""
+                            <> elt_last_part_withgleamtype
+                            <> "\", None, decode.optional("
+                            <> field_type_decoder
+                            <> "))"
+                          }
+                          1 -> {
+                            "decode.field(\""
+                            <> elt_last_part_withgleamtype
+                            <> "\","
+                            <> field_type_decoder
+                            <> ")"
+                          }
                           _ -> panic as "cardinality panic 3"
                         }
                     }
@@ -689,11 +780,9 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                         decoder_use_acc,
                         "use ",
                         elt_snake,
-                        " <- decode.field(\"",
-                        elt_last_part,
-                        "\",",
+                        " <- ",
                         field_type_decoder,
-                        ")\n",
+                        "\n",
                       ])
                     let decoder_success_acc =
                       decoder_success_acc <> elt_snake <> ":,"
@@ -950,7 +1039,7 @@ fn string_to_encoder_type(
   fhir_version: String,
   elt: Element,
 ) -> String {
-  let ft = case fhir_type {
+  case fhir_type {
     "BackboneElement" ->
       allparts
       |> list.map(string.capitalise)
@@ -1036,6 +1125,28 @@ fn string_to_encoder_type(
   }
 }
 
+fn gen_choice_field_decoder(
+  type_code,
+  allparts,
+  fhir_version,
+  elt,
+  choice_option_caps,
+  choicetype_last_part,
+) -> String {
+  let assert [fst, ..rest] = type_code |> string.to_graphemes
+  let choicetype_parse_label =
+    choicetype_last_part <> string.uppercase(fst) <> string.concat(rest)
+  let type_decoder =
+    string_to_decoder_type(type_code, allparts, fhir_version, elt)
+  "decode.field(\""
+  <> choicetype_parse_label
+  <> "\", "
+  <> type_decoder
+  <> ", decode.success) |> decode.map("
+  <> choice_option_caps
+  <> "),"
+}
+
 // replace capital HelloThere with lowercase hello_there
 // but if the previous character was a capital it will not add an underscore
 fn to_snake_case(input: String) -> String {
@@ -1100,7 +1211,6 @@ fn gen_res_decoder(
   template
   |> string.replace("RESNAMELOWER", reslower)
   |> string.replace("RESNAMECAMEL", rescamel)
-  ""
 }
 
 //region valuesets
