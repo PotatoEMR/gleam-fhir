@@ -677,12 +677,14 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                     // because optional ones need case to add to array or not
                     // also putting lists as optional_acc so in empty list cast it omits instead of field: []
                     // hence two separate accs
+                    let elt_is_choice_type = elt.path |> string.ends_with("[x]")
                     let #(encoder_optional_acc, encoder_always_acc) = case
                       elt.min,
-                      elt.max
+                      elt.max,
+                      elt_is_choice_type
                     {
-                      //list case to json, put array in first fields []
-                      _, "*" -> {
+                      _, "*", False -> {
+                        //list case to json, in non empty [] case add to first fields list
                         let opts =
                           encoder_optional_acc
                           <> "\nlet fields = case "
@@ -699,8 +701,8 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                       }"
                         #(opts, encoder_always_acc)
                       }
-                      //optional case to json, in Some case add to fields []
-                      0, "1" -> {
+                      0, "1", False -> {
+                        //optional case to json, in Some case add to fields list
                         let opts =
                           encoder_optional_acc
                           <> "\nlet fields = case "
@@ -715,8 +717,8 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                         }"
                         #(opts, encoder_always_acc)
                       }
-                      //mandatory case to json, put in first fields []
-                      1, "1" -> {
+                      1, "1", False -> {
+                        //mandatory case to json, put in first fields list
                         let always =
                           encoder_always_acc
                           <> "#(\""
@@ -729,7 +731,12 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           <> "),"
                         #(encoder_optional_acc, always)
                       }
-                      _, _ -> panic as "card panic 192"
+                      _, _, False -> panic as "card panic 192"
+                      _, "*", True -> panic as "choice type array"
+                      _, _, True -> {
+                        echo elt.min
+                        #(encoder_optional_acc, encoder_always_acc)
+                      }
                     }
                     let field_type_decoder = case elt.type_ {
                       [one_type] ->
@@ -748,7 +755,6 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           "_decoder()",
                         ])
                     }
-                    echo field_type_decoder
                     let field_type_decoder = case elt.max {
                       "*" ->
                         "decode.optional_field(\""
