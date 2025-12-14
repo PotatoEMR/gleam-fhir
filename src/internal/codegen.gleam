@@ -22,10 +22,12 @@ const zip_file_names = [
 
 const fhir_url = "https://www.hl7.org/fhir"
 
-const gen_into_dir = "src"
+fn const_gen_into_dir() {
+  "src" |> filepath.join("fhir")
+}
 
 fn const_download_dir() {
-  filepath.join(gen_into_dir, "internal") |> filepath.join("downloads")
+  "src" |> filepath.join("internal") |> filepath.join("downloads")
 }
 
 pub fn main() {
@@ -61,6 +63,12 @@ pub fn main() {
       Ok(Nil)
     }
   }
+  case simplifile.delete(const_gen_into_dir()) {
+    Ok(_) -> Nil
+    Error(simplifile.Enoent) -> Nil
+    Error(_) -> panic as "could not remove fhir dir"
+  }
+  let assert Ok(_) = simplifile.create_directory_all(const_gen_into_dir())
 
   use fhir_version <- list.map(check_versions)
 
@@ -257,6 +265,7 @@ fn binding_decoder() -> decode.Decoder(Binding) {
 }
 
 fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
+  let gen_into_dir = const_gen_into_dir()
   let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
 
   let _ = case download_files {
@@ -283,20 +292,13 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
     filepath.join(gen_into_dir, fhir_version) <> "valuesets.gleam"
   let gen_clientfile =
     filepath.join(gen_into_dir, fhir_version) <> "client.gleam"
-  list.map([gen_gleamfile, gen_vsfile, gen_clientfile], fn(generated_gleamfile) {
-    case simplifile.delete(generated_gleamfile) {
-      Ok(_) -> Nil
-      Error(simplifile.Enoent) -> Nil
-      Error(_) -> panic as "could not remove fhir dir"
-    }
-  })
   let all_types =
     string.concat([
       "////FHIR ",
       fhir_version,
       " types\n////https://hl7.org/fhir/",
       fhir_version,
-      "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport ",
+      "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport fhir/",
       fhir_version,
       "valuesets\n",
       file_to_types(
@@ -354,7 +356,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
     //we want to write types in order of parsing backbone elements, but map order random
     //put elts into name of current struct, eg AllergyIntolerance, AllergyIntoleranceReaction...
     let type_order = [entry.resource.name]
-    let fields_and_order = #(starting_res_fields, type_order)
+    let f_o = #(starting_res_fields, type_order)
 
     elt_str_acc
     <> "\n"
@@ -362,47 +364,43 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
       None -> ""
       Some(snapshot) -> {
         let fields_and_order =
-          list.fold(
-            over: snapshot.element,
-            from: fields_and_order,
-            with: fn(f_o, elt) {
-              let res_fields = f_o.0
-              let order = f_o.1
-              let pp = string.split(elt.path, ".")
-              let field_path = string.join(pp, "_")
-              //there must be a better way to drop last item?
-              let pp_minus_last =
-                pp |> list.reverse |> list.drop(1) |> list.reverse
-              let field_path_minus_last = string.join(pp_minus_last, "_")
+          list.fold(over: snapshot.element, from: f_o, with: fn(f_o, elt) {
+            let res_fields = f_o.0
+            let order = f_o.1
+            let pp = string.split(elt.path, ".")
+            let field_path = string.join(pp, "_")
+            //there must be a better way to drop last item?
+            let pp_minus_last =
+              pp |> list.reverse |> list.drop(1) |> list.reverse
+            let field_path_minus_last = string.join(pp_minus_last, "_")
 
-              //idk why but they just make these quantity
-              let field_path_minus_last = case entry.resource.name {
-                "SimpleQuantity" -> "Simple" <> field_path_minus_last
-                "MoneyQuantity" -> "Money" <> field_path_minus_last
-                _ -> field_path_minus_last
-              }
+            //idk why but they just make these quantity
+            let field_path_minus_last = case entry.resource.name {
+              "SimpleQuantity" -> "Simple" <> field_path_minus_last
+              "MoneyQuantity" -> "Money" <> field_path_minus_last
+              _ -> field_path_minus_last
+            }
 
-              let appended_field = case
-                dict.get(res_fields, field_path_minus_last)
-              {
-                Ok(field_list) -> [elt, ..field_list]
-                Error(_) -> [elt]
-              }
-              let res_fields =
-                dict.insert(res_fields, field_path_minus_last, appended_field)
+            let appended_field = case
+              dict.get(res_fields, field_path_minus_last)
+            {
+              Ok(field_list) -> [elt, ..field_list]
+              Error(_) -> [elt]
+            }
+            let res_fields =
+              dict.insert(res_fields, field_path_minus_last, appended_field)
 
-              let order = case elt.type_ {
-                [first, ..] -> {
-                  case first.code {
-                    "BackboneElement" -> [field_path, ..order]
-                    _ -> order
-                  }
+            let order = case elt.type_ {
+              [first, ..] -> {
+                case first.code {
+                  "BackboneElement" -> [field_path, ..order]
+                  _ -> order
                 }
-                [] -> order
               }
-              #(res_fields, order)
-            },
-          )
+              [] -> order
+            }
+            #(res_fields, order)
+          })
 
         let type_fields = fields_and_order.0
         let type_order = fields_and_order.1
@@ -680,10 +678,9 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                     let elt_is_choice_type = elt.path |> string.ends_with("[x]")
                     let #(encoder_optional_acc, encoder_always_acc) = case
                       elt.min,
-                      elt.max,
-                      elt_is_choice_type
+                      elt.max
                     {
-                      _, "*", False -> {
+                      _, "*" -> {
                         //list case to json, in non empty [] case add to first fields list
                         let opts =
                           encoder_optional_acc
@@ -698,10 +695,10 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           <> ","
                           <> field_type_encoder
                           <> ")), ..fields]
-                      }"
+                          }"
                         #(opts, encoder_always_acc)
                       }
-                      0, "1", False -> {
+                      0, "1" -> {
                         //optional case to json, in Some case add to fields list
                         let opts =
                           encoder_optional_acc
@@ -717,7 +714,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                         }"
                         #(opts, encoder_always_acc)
                       }
-                      1, "1", False -> {
+                      1, "1" -> {
                         //mandatory case to json, put in first fields list
                         let always =
                           encoder_always_acc
@@ -731,56 +728,66 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           <> "),"
                         #(encoder_optional_acc, always)
                       }
-                      _, _, False -> panic as "card panic 192"
-                      _, "*", True -> panic as "choice type array"
-                      _, _, True -> {
-                        echo elt.min
-                        #(encoder_optional_acc, encoder_always_acc)
-                      }
+                      _, _ -> panic as "cardinality panic 72"
                     }
                     let field_type_decoder = case elt.type_ {
-                      [one_type] ->
-                        string_to_decoder_type(
-                          one_type.code,
-                          allparts,
-                          fhir_version,
-                          elt,
-                        )
-                      [] -> panic as "skipping link types..."
-                      _ ->
-                        string.concat([
-                          snake_type,
-                          "_",
-                          elt_last_part |> string.lowercase(),
-                          "_decoder()",
-                        ])
-                    }
-                    let field_type_decoder = case elt.max {
-                      "*" ->
-                        "decode.optional_field(\""
-                        <> elt_last_part_withgleamtype
-                        <> "\", [], decode.list("
-                        <> field_type_decoder
-                        <> "))"
-                      _ ->
-                        case elt.min {
-                          0 -> {
+                      [one_type] -> {
+                        let decoder_itself =
+                          string_to_decoder_type(
+                            one_type.code,
+                            allparts,
+                            fhir_version,
+                            elt,
+                          )
+                        case elt.max {
+                          "*" ->
                             "decode.optional_field(\""
                             <> elt_last_part_withgleamtype
-                            <> "\", None, decode.optional("
-                            <> field_type_decoder
+                            <> "\", [], decode.list("
+                            <> decoder_itself
                             <> "))"
-                          }
-                          1 -> {
-                            "decode.field(\""
-                            <> elt_last_part_withgleamtype
-                            <> "\","
-                            <> field_type_decoder
-                            <> ")"
-                          }
-                          _ -> panic as "cardinality panic 3"
+                          _ ->
+                            case elt.min {
+                              0 -> {
+                                "decode.optional_field(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\", None, decode.optional("
+                                <> decoder_itself
+                                <> "))"
+                              }
+                              1 -> {
+                                "decode.field(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\","
+                                <> decoder_itself
+                                <> ")"
+                              }
+                              _ -> panic as "cardinality panic 3"
+                            }
                         }
+                      }
+                      [] -> panic as "skipping link types..."
+                      _ -> {
+                        let choicetype_decoder_itself =
+                          string.concat([
+                            snake_type,
+                            "_",
+                            elt_last_part |> string.lowercase(),
+                            "_decoder()",
+                          ])
+                        case elt.min {
+                          //for choice type case, custom decoder already knows field names, but we need decode.then and omit if empty
+                          1 ->
+                            "decode.then(" <> choicetype_decoder_itself <> ")"
+                          0 ->
+                            "decode.then(none_if_omitted("
+                            <> choicetype_decoder_itself
+                            <> "))"
+                          _ -> panic as "card panic 37"
+                        }
+                      }
                     }
+
                     let decoder_use_acc =
                       string.concat([
                         decoder_use_acc,

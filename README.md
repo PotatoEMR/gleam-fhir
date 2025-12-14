@@ -26,4 +26,8 @@ gleam run -m internal/codegen r4 r4B r5 download
 rm -r .\src\r4\; gleam run -m internal/codegen r4; gleam format
 ```
 
-how to support link type eg Provenance.entity.agent links to 0..* Provenance.agent
+link type (how to support link type eg Provenance.entity.agent links to 0..* Provenance.agent)
+valueset composition (idk)
+time (scared)
+decimal (idk)
+opaque constructors (hard to implement/use? value?)
