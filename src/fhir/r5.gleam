@@ -6,39 +6,6 @@ import gleam/dynamic/decode.{type Decoder}
 import gleam/json.{type Json}
 import gleam/option.{type Option, None, Some}
 
-///http://hl7.org/fhir/r5/StructureDefinition/Element#resource
-pub type Element {
-  Element(id: Option(String), extension: List(Extension))
-}
-
-pub fn element_new() -> Element {
-  Element(extension: [], id: None)
-}
-
-pub fn element_to_json(element: Element) -> Json {
-  let Element(extension:, id:) = element
-  let fields = []
-  let fields = case extension {
-    [] -> fields
-    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
-  }
-  let fields = case id {
-    Some(v) -> [#("id", json.string(v)), ..fields]
-    None -> fields
-  }
-  json.object(fields)
-}
-
-pub fn element_decoder() -> Decoder(Element) {
-  use extension <- decode.optional_field(
-    "extension",
-    [],
-    decode.list(extension_decoder()),
-  )
-  use id <- decode.optional_field("id", None, decode.optional(decode.string))
-  decode.success(Element(extension:, id:))
-}
-
 ///http://hl7.org/fhir/r5/StructureDefinition/Address#resource
 pub type Address {
   Address(
@@ -598,8 +565,8 @@ pub type Availability {
   Availability(
     id: Option(String),
     extension: List(Extension),
-    available_time: List(Element),
-    not_available_time: List(Element),
+    available_time: List(AvailabilityAvailabletime),
+    not_available_time: List(AvailabilityNotavailabletime),
   )
 }
 
@@ -612,6 +579,181 @@ pub fn availability_new() -> Availability {
   )
 }
 
+///http://hl7.org/fhir/r5/StructureDefinition/Availability#resource
+pub type AvailabilityAvailabletime {
+  AvailabilityAvailabletime(
+    id: Option(String),
+    extension: List(Extension),
+    days_of_week: List(r5valuesets.Daysofweek),
+    all_day: Option(Bool),
+    available_start_time: Option(String),
+    available_end_time: Option(String),
+  )
+}
+
+pub fn availability_availabletime_new() -> AvailabilityAvailabletime {
+  AvailabilityAvailabletime(
+    available_end_time: None,
+    available_start_time: None,
+    all_day: None,
+    days_of_week: [],
+    extension: [],
+    id: None,
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/Availability#resource
+pub type AvailabilityNotavailabletime {
+  AvailabilityNotavailabletime(
+    id: Option(String),
+    extension: List(Extension),
+    description: Option(String),
+    during: Option(Period),
+  )
+}
+
+pub fn availability_notavailabletime_new() -> AvailabilityNotavailabletime {
+  AvailabilityNotavailabletime(
+    during: None,
+    description: None,
+    extension: [],
+    id: None,
+  )
+}
+
+pub fn availability_notavailabletime_to_json(
+  availability_notavailabletime: AvailabilityNotavailabletime,
+) -> Json {
+  let AvailabilityNotavailabletime(during:, description:, extension:, id:) =
+    availability_notavailabletime
+  let fields = []
+  let fields = case during {
+    Some(v) -> [#("during", period_to_json(v)), ..fields]
+    None -> fields
+  }
+  let fields = case description {
+    Some(v) -> [#("description", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn availability_notavailabletime_decoder() -> Decoder(
+  AvailabilityNotavailabletime,
+) {
+  use during <- decode.optional_field(
+    "during",
+    None,
+    decode.optional(period_decoder()),
+  )
+  use description <- decode.optional_field(
+    "description",
+    None,
+    decode.optional(decode.string),
+  )
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(AvailabilityNotavailabletime(
+    during:,
+    description:,
+    extension:,
+    id:,
+  ))
+}
+
+pub fn availability_availabletime_to_json(
+  availability_availabletime: AvailabilityAvailabletime,
+) -> Json {
+  let AvailabilityAvailabletime(
+    available_end_time:,
+    available_start_time:,
+    all_day:,
+    days_of_week:,
+    extension:,
+    id:,
+  ) = availability_availabletime
+  let fields = []
+  let fields = case available_end_time {
+    Some(v) -> [#("availableEndTime", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case available_start_time {
+    Some(v) -> [#("availableStartTime", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case all_day {
+    Some(v) -> [#("allDay", json.bool(v)), ..fields]
+    None -> fields
+  }
+  let fields = case days_of_week {
+    [] -> fields
+    _ -> [
+      #("daysOfWeek", json.array(days_of_week, r5valuesets.daysofweek_to_json)),
+      ..fields
+    ]
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn availability_availabletime_decoder() -> Decoder(
+  AvailabilityAvailabletime,
+) {
+  use available_end_time <- decode.optional_field(
+    "availableEndTime",
+    None,
+    decode.optional(decode.string),
+  )
+  use available_start_time <- decode.optional_field(
+    "availableStartTime",
+    None,
+    decode.optional(decode.string),
+  )
+  use all_day <- decode.optional_field(
+    "allDay",
+    None,
+    decode.optional(decode.bool),
+  )
+  use days_of_week <- decode.optional_field(
+    "daysOfWeek",
+    [],
+    decode.list(r5valuesets.daysofweek_decoder()),
+  )
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(AvailabilityAvailabletime(
+    available_end_time:,
+    available_start_time:,
+    all_day:,
+    days_of_week:,
+    extension:,
+    id:,
+  ))
+}
+
 pub fn availability_to_json(availability: Availability) -> Json {
   let Availability(not_available_time:, available_time:, extension:, id:) =
     availability
@@ -619,14 +761,20 @@ pub fn availability_to_json(availability: Availability) -> Json {
   let fields = case not_available_time {
     [] -> fields
     _ -> [
-      #("notAvailableTime", json.array(not_available_time, element_to_json)),
+      #(
+        "notAvailableTime",
+        json.array(not_available_time, availability_notavailabletime_to_json),
+      ),
       ..fields
     ]
   }
   let fields = case available_time {
     [] -> fields
     _ -> [
-      #("availableTime", json.array(available_time, element_to_json)),
+      #(
+        "availableTime",
+        json.array(available_time, availability_availabletime_to_json),
+      ),
       ..fields
     ]
   }
@@ -645,12 +793,12 @@ pub fn availability_decoder() -> Decoder(Availability) {
   use not_available_time <- decode.optional_field(
     "notAvailableTime",
     [],
-    decode.list(element_decoder()),
+    decode.list(availability_notavailabletime_decoder()),
   )
   use available_time <- decode.optional_field(
     "availableTime",
     [],
-    decode.list(element_decoder()),
+    decode.list(availability_availabletime_decoder()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -1266,11 +1414,11 @@ pub type Datarequirement {
     profile: List(String),
     subject: Option(DatarequirementSubject),
     must_support: List(String),
-    code_filter: List(Element),
-    date_filter: List(Element),
-    value_filter: List(Element),
+    code_filter: List(DatarequirementCodefilter),
+    date_filter: List(DatarequirementDatefilter),
+    value_filter: List(DatarequirementValuefilter),
     limit: Option(Int),
-    sort: List(Element),
+    sort: List(DatarequirementSort),
   )
 }
 
@@ -1320,6 +1468,408 @@ pub fn datarequirement_new(
   )
 }
 
+///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+pub type DatarequirementCodefilter {
+  DatarequirementCodefilter(
+    id: Option(String),
+    extension: List(Extension),
+    path: Option(String),
+    search_param: Option(String),
+    value_set: Option(String),
+    code: List(Coding),
+  )
+}
+
+pub fn datarequirement_codefilter_new() -> DatarequirementCodefilter {
+  DatarequirementCodefilter(
+    code: [],
+    value_set: None,
+    search_param: None,
+    path: None,
+    extension: [],
+    id: None,
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+pub type DatarequirementDatefilter {
+  DatarequirementDatefilter(
+    id: Option(String),
+    extension: List(Extension),
+    path: Option(String),
+    search_param: Option(String),
+    value: Option(DatarequirementDatefilterValue),
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+pub type DatarequirementDatefilterValue {
+  DatarequirementDatefilterValueDatetime(value: String)
+  DatarequirementDatefilterValuePeriod(value: Period)
+  DatarequirementDatefilterValueDuration(value: Duration)
+}
+
+pub fn datarequirement_datefilter_value_to_json(
+  elt: DatarequirementDatefilterValue,
+) -> Json {
+  case elt {
+    DatarequirementDatefilterValueDatetime(v) -> json.string(v)
+    DatarequirementDatefilterValuePeriod(v) -> period_to_json(v)
+    DatarequirementDatefilterValueDuration(v) -> duration_to_json(v)
+  }
+}
+
+pub fn datarequirement_datefilter_value_decoder() -> Decoder(
+  DatarequirementDatefilterValue,
+) {
+  decode.one_of(
+    decode.field("valueDateTime", decode.string, decode.success)
+      |> decode.map(DatarequirementDatefilterValueDatetime),
+    [
+      decode.field("valuePeriod", period_decoder(), decode.success)
+        |> decode.map(DatarequirementDatefilterValuePeriod),
+      decode.field("valueDuration", duration_decoder(), decode.success)
+        |> decode.map(DatarequirementDatefilterValueDuration),
+    ],
+  )
+}
+
+pub fn datarequirement_datefilter_new() -> DatarequirementDatefilter {
+  DatarequirementDatefilter(
+    value: None,
+    search_param: None,
+    path: None,
+    extension: [],
+    id: None,
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+pub type DatarequirementValuefilter {
+  DatarequirementValuefilter(
+    id: Option(String),
+    extension: List(Extension),
+    path: Option(String),
+    search_param: Option(String),
+    comparator: Option(r5valuesets.Valuefiltercomparator),
+    value: Option(DatarequirementValuefilterValue),
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+pub type DatarequirementValuefilterValue {
+  DatarequirementValuefilterValueDatetime(value: String)
+  DatarequirementValuefilterValuePeriod(value: Period)
+  DatarequirementValuefilterValueDuration(value: Duration)
+}
+
+pub fn datarequirement_valuefilter_value_to_json(
+  elt: DatarequirementValuefilterValue,
+) -> Json {
+  case elt {
+    DatarequirementValuefilterValueDatetime(v) -> json.string(v)
+    DatarequirementValuefilterValuePeriod(v) -> period_to_json(v)
+    DatarequirementValuefilterValueDuration(v) -> duration_to_json(v)
+  }
+}
+
+pub fn datarequirement_valuefilter_value_decoder() -> Decoder(
+  DatarequirementValuefilterValue,
+) {
+  decode.one_of(
+    decode.field("valueDateTime", decode.string, decode.success)
+      |> decode.map(DatarequirementValuefilterValueDatetime),
+    [
+      decode.field("valuePeriod", period_decoder(), decode.success)
+        |> decode.map(DatarequirementValuefilterValuePeriod),
+      decode.field("valueDuration", duration_decoder(), decode.success)
+        |> decode.map(DatarequirementValuefilterValueDuration),
+    ],
+  )
+}
+
+pub fn datarequirement_valuefilter_new() -> DatarequirementValuefilter {
+  DatarequirementValuefilter(
+    value: None,
+    comparator: None,
+    search_param: None,
+    path: None,
+    extension: [],
+    id: None,
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+pub type DatarequirementSort {
+  DatarequirementSort(
+    id: Option(String),
+    extension: List(Extension),
+    path: String,
+    direction: r5valuesets.Sortdirection,
+  )
+}
+
+pub fn datarequirement_sort_new(
+  direction direction: r5valuesets.Sortdirection,
+  path path: String,
+) -> DatarequirementSort {
+  DatarequirementSort(direction:, path:, extension: [], id: None)
+}
+
+pub fn datarequirement_sort_to_json(
+  datarequirement_sort: DatarequirementSort,
+) -> Json {
+  let DatarequirementSort(direction:, path:, extension:, id:) =
+    datarequirement_sort
+  let fields = [
+    #("direction", r5valuesets.sortdirection_to_json(direction)),
+    #("path", json.string(path)),
+  ]
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn datarequirement_sort_decoder() -> Decoder(DatarequirementSort) {
+  use direction <- decode.field(
+    "direction",
+    r5valuesets.sortdirection_decoder(),
+  )
+  use path <- decode.field("path", decode.string)
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(DatarequirementSort(direction:, path:, extension:, id:))
+}
+
+pub fn datarequirement_valuefilter_to_json(
+  datarequirement_valuefilter: DatarequirementValuefilter,
+) -> Json {
+  let DatarequirementValuefilter(
+    value:,
+    comparator:,
+    search_param:,
+    path:,
+    extension:,
+    id:,
+  ) = datarequirement_valuefilter
+  let fields = []
+  let fields = case value {
+    Some(v) -> [
+      #("value", datarequirement_valuefilter_value_to_json(v)),
+      ..fields
+    ]
+    None -> fields
+  }
+  let fields = case comparator {
+    Some(v) -> [
+      #("comparator", r5valuesets.valuefiltercomparator_to_json(v)),
+      ..fields
+    ]
+    None -> fields
+  }
+  let fields = case search_param {
+    Some(v) -> [#("searchParam", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case path {
+    Some(v) -> [#("path", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn datarequirement_valuefilter_decoder() -> Decoder(
+  DatarequirementValuefilter,
+) {
+  use value <- decode.then(
+    none_if_omitted(datarequirement_valuefilter_value_decoder()),
+  )
+  use comparator <- decode.optional_field(
+    "comparator",
+    None,
+    decode.optional(r5valuesets.valuefiltercomparator_decoder()),
+  )
+  use search_param <- decode.optional_field(
+    "searchParam",
+    None,
+    decode.optional(decode.string),
+  )
+  use path <- decode.optional_field(
+    "path",
+    None,
+    decode.optional(decode.string),
+  )
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(DatarequirementValuefilter(
+    value:,
+    comparator:,
+    search_param:,
+    path:,
+    extension:,
+    id:,
+  ))
+}
+
+pub fn datarequirement_datefilter_to_json(
+  datarequirement_datefilter: DatarequirementDatefilter,
+) -> Json {
+  let DatarequirementDatefilter(value:, search_param:, path:, extension:, id:) =
+    datarequirement_datefilter
+  let fields = []
+  let fields = case value {
+    Some(v) -> [
+      #("value", datarequirement_datefilter_value_to_json(v)),
+      ..fields
+    ]
+    None -> fields
+  }
+  let fields = case search_param {
+    Some(v) -> [#("searchParam", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case path {
+    Some(v) -> [#("path", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn datarequirement_datefilter_decoder() -> Decoder(
+  DatarequirementDatefilter,
+) {
+  use value <- decode.then(
+    none_if_omitted(datarequirement_datefilter_value_decoder()),
+  )
+  use search_param <- decode.optional_field(
+    "searchParam",
+    None,
+    decode.optional(decode.string),
+  )
+  use path <- decode.optional_field(
+    "path",
+    None,
+    decode.optional(decode.string),
+  )
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(DatarequirementDatefilter(
+    value:,
+    search_param:,
+    path:,
+    extension:,
+    id:,
+  ))
+}
+
+pub fn datarequirement_codefilter_to_json(
+  datarequirement_codefilter: DatarequirementCodefilter,
+) -> Json {
+  let DatarequirementCodefilter(
+    code:,
+    value_set:,
+    search_param:,
+    path:,
+    extension:,
+    id:,
+  ) = datarequirement_codefilter
+  let fields = []
+  let fields = case code {
+    [] -> fields
+    _ -> [#("code", json.array(code, coding_to_json)), ..fields]
+  }
+  let fields = case value_set {
+    Some(v) -> [#("valueSet", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case search_param {
+    Some(v) -> [#("searchParam", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case path {
+    Some(v) -> [#("path", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn datarequirement_codefilter_decoder() -> Decoder(
+  DatarequirementCodefilter,
+) {
+  use code <- decode.optional_field("code", [], decode.list(coding_decoder()))
+  use value_set <- decode.optional_field(
+    "valueSet",
+    None,
+    decode.optional(decode.string),
+  )
+  use search_param <- decode.optional_field(
+    "searchParam",
+    None,
+    decode.optional(decode.string),
+  )
+  use path <- decode.optional_field(
+    "path",
+    None,
+    decode.optional(decode.string),
+  )
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(DatarequirementCodefilter(
+    code:,
+    value_set:,
+    search_param:,
+    path:,
+    extension:,
+    id:,
+  ))
+}
+
 pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
   let Datarequirement(
     sort:,
@@ -1339,7 +1889,7 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
   ]
   let fields = case sort {
     [] -> fields
-    _ -> [#("sort", json.array(sort, element_to_json)), ..fields]
+    _ -> [#("sort", json.array(sort, datarequirement_sort_to_json)), ..fields]
   }
   let fields = case limit {
     Some(v) -> [#("limit", json.int(v)), ..fields]
@@ -1347,15 +1897,33 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
   }
   let fields = case value_filter {
     [] -> fields
-    _ -> [#("valueFilter", json.array(value_filter, element_to_json)), ..fields]
+    _ -> [
+      #(
+        "valueFilter",
+        json.array(value_filter, datarequirement_valuefilter_to_json),
+      ),
+      ..fields
+    ]
   }
   let fields = case date_filter {
     [] -> fields
-    _ -> [#("dateFilter", json.array(date_filter, element_to_json)), ..fields]
+    _ -> [
+      #(
+        "dateFilter",
+        json.array(date_filter, datarequirement_datefilter_to_json),
+      ),
+      ..fields
+    ]
   }
   let fields = case code_filter {
     [] -> fields
-    _ -> [#("codeFilter", json.array(code_filter, element_to_json)), ..fields]
+    _ -> [
+      #(
+        "codeFilter",
+        json.array(code_filter, datarequirement_codefilter_to_json),
+      ),
+      ..fields
+    ]
   }
   let fields = case must_support {
     [] -> fields
@@ -1381,22 +1949,26 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
 }
 
 pub fn datarequirement_decoder() -> Decoder(Datarequirement) {
-  use sort <- decode.optional_field("sort", [], decode.list(element_decoder()))
+  use sort <- decode.optional_field(
+    "sort",
+    [],
+    decode.list(datarequirement_sort_decoder()),
+  )
   use limit <- decode.optional_field("limit", None, decode.optional(decode.int))
   use value_filter <- decode.optional_field(
     "valueFilter",
     [],
-    decode.list(element_decoder()),
+    decode.list(datarequirement_valuefilter_decoder()),
   )
   use date_filter <- decode.optional_field(
     "dateFilter",
     [],
-    decode.list(element_decoder()),
+    decode.list(datarequirement_datefilter_decoder()),
   )
   use code_filter <- decode.optional_field(
     "codeFilter",
     [],
-    decode.list(element_decoder()),
+    decode.list(datarequirement_codefilter_decoder()),
   )
   use must_support <- decode.optional_field(
     "mustSupport",
@@ -1586,7 +2158,7 @@ pub type Dosage {
     site: Option(Codeableconcept),
     route: Option(Codeableconcept),
     method: Option(Codeableconcept),
-    dose_and_rate: List(Element),
+    dose_and_rate: List(DosageDoseandrate),
     max_dose_per_period: List(Ratio),
     max_dose_per_administration: Option(Quantity),
     max_dose_per_lifetime: Option(Quantity),
@@ -1613,6 +2185,123 @@ pub fn dosage_new() -> Dosage {
     extension: [],
     id: None,
   )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource
+pub type DosageDoseandrate {
+  DosageDoseandrate(
+    id: Option(String),
+    extension: List(Extension),
+    type_: Option(Codeableconcept),
+    dose: Option(DosageDoseandrateDose),
+    rate: Option(DosageDoseandrateRate),
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource
+pub type DosageDoseandrateDose {
+  DosageDoseandrateDoseRange(dose: Range)
+  DosageDoseandrateDoseQuantity(dose: Quantity)
+}
+
+pub fn dosage_doseandrate_dose_to_json(elt: DosageDoseandrateDose) -> Json {
+  case elt {
+    DosageDoseandrateDoseRange(v) -> range_to_json(v)
+    DosageDoseandrateDoseQuantity(v) -> quantity_to_json(v)
+  }
+}
+
+pub fn dosage_doseandrate_dose_decoder() -> Decoder(DosageDoseandrateDose) {
+  decode.one_of(
+    decode.field("doseRange", range_decoder(), decode.success)
+      |> decode.map(DosageDoseandrateDoseRange),
+    [
+      decode.field("doseQuantity", quantity_decoder(), decode.success)
+      |> decode.map(DosageDoseandrateDoseQuantity),
+    ],
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource
+pub type DosageDoseandrateRate {
+  DosageDoseandrateRateRatio(rate: Ratio)
+  DosageDoseandrateRateRange(rate: Range)
+  DosageDoseandrateRateQuantity(rate: Quantity)
+}
+
+pub fn dosage_doseandrate_rate_to_json(elt: DosageDoseandrateRate) -> Json {
+  case elt {
+    DosageDoseandrateRateRatio(v) -> ratio_to_json(v)
+    DosageDoseandrateRateRange(v) -> range_to_json(v)
+    DosageDoseandrateRateQuantity(v) -> quantity_to_json(v)
+  }
+}
+
+pub fn dosage_doseandrate_rate_decoder() -> Decoder(DosageDoseandrateRate) {
+  decode.one_of(
+    decode.field("rateRatio", ratio_decoder(), decode.success)
+      |> decode.map(DosageDoseandrateRateRatio),
+    [
+      decode.field("rateRange", range_decoder(), decode.success)
+        |> decode.map(DosageDoseandrateRateRange),
+      decode.field("rateQuantity", quantity_decoder(), decode.success)
+        |> decode.map(DosageDoseandrateRateQuantity),
+    ],
+  )
+}
+
+pub fn dosage_doseandrate_new() -> DosageDoseandrate {
+  DosageDoseandrate(
+    rate: None,
+    dose: None,
+    type_: None,
+    extension: [],
+    id: None,
+  )
+}
+
+pub fn dosage_doseandrate_to_json(dosage_doseandrate: DosageDoseandrate) -> Json {
+  let DosageDoseandrate(rate:, dose:, type_:, extension:, id:) =
+    dosage_doseandrate
+  let fields = []
+  let fields = case rate {
+    Some(v) -> [#("rate", dosage_doseandrate_rate_to_json(v)), ..fields]
+    None -> fields
+  }
+  let fields = case dose {
+    Some(v) -> [#("dose", dosage_doseandrate_dose_to_json(v)), ..fields]
+    None -> fields
+  }
+  let fields = case type_ {
+    Some(v) -> [#("type", codeableconcept_to_json(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn dosage_doseandrate_decoder() -> Decoder(DosageDoseandrate) {
+  use rate <- decode.then(none_if_omitted(dosage_doseandrate_rate_decoder()))
+  use dose <- decode.then(none_if_omitted(dosage_doseandrate_dose_decoder()))
+  use type_ <- decode.optional_field(
+    "type",
+    None,
+    decode.optional(codeableconcept_decoder()),
+  )
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(DosageDoseandrate(rate:, dose:, type_:, extension:, id:))
 }
 
 pub fn dosage_to_json(dosage: Dosage) -> Json {
@@ -1654,7 +2343,7 @@ pub fn dosage_to_json(dosage: Dosage) -> Json {
   let fields = case dose_and_rate {
     [] -> fields
     _ -> [
-      #("doseAndRate", json.array(dose_and_rate, element_to_json)),
+      #("doseAndRate", json.array(dose_and_rate, dosage_doseandrate_to_json)),
       ..fields
     ]
   }
@@ -1744,7 +2433,7 @@ pub fn dosage_decoder() -> Decoder(Dosage) {
   use dose_and_rate <- decode.optional_field(
     "doseAndRate",
     [],
-    decode.list(element_decoder()),
+    decode.list(dosage_doseandrate_decoder()),
   )
   use method <- decode.optional_field(
     "method",
@@ -1946,7 +2635,7 @@ pub type Elementdefinition {
     slice_is_constraining: Option(Bool),
     label: Option(String),
     code: List(Coding),
-    slicing: Option(Element),
+    slicing: Option(ElementdefinitionSlicing),
     short: Option(String),
     definition: Option(String),
     comment: Option(String),
@@ -1954,28 +2643,28 @@ pub type Elementdefinition {
     alias: List(String),
     min: Option(Int),
     max: Option(String),
-    base: Option(Element),
+    base: Option(ElementdefinitionBase),
     content_reference: Option(String),
-    type_: List(Element),
+    type_: List(ElementdefinitionType),
     default_value: Option(ElementdefinitionDefaultvalue),
     meaning_when_missing: Option(String),
     order_meaning: Option(String),
     fixed: Option(ElementdefinitionFixed),
     pattern: Option(ElementdefinitionPattern),
-    example: List(Element),
+    example: List(ElementdefinitionExample),
     min_value: Option(ElementdefinitionMinvalue),
     max_value: Option(ElementdefinitionMaxvalue),
     max_length: Option(Int),
     condition: List(String),
-    constraint: List(Element),
+    constraint: List(ElementdefinitionConstraint),
     must_have_value: Option(Bool),
     value_alternatives: List(String),
     must_support: Option(Bool),
     is_modifier: Option(Bool),
     is_modifier_reason: Option(String),
     is_summary: Option(Bool),
-    binding: Option(Element),
-    mapping: List(Element),
+    binding: Option(ElementdefinitionBinding),
+    mapping: List(ElementdefinitionMapping),
   )
 }
 
@@ -3006,6 +3695,1096 @@ pub fn elementdefinition_new(path path: String) -> Elementdefinition {
   )
 }
 
+///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+pub type ElementdefinitionSlicing {
+  ElementdefinitionSlicing(
+    id: Option(String),
+    extension: List(Extension),
+    discriminator: List(ElementdefinitionSlicingDiscriminator),
+    description: Option(String),
+    ordered: Option(Bool),
+    rules: r5valuesets.Resourceslicingrules,
+  )
+}
+
+pub fn elementdefinition_slicing_new(
+  rules rules: r5valuesets.Resourceslicingrules,
+) -> ElementdefinitionSlicing {
+  ElementdefinitionSlicing(
+    rules:,
+    ordered: None,
+    description: None,
+    discriminator: [],
+    extension: [],
+    id: None,
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+pub type ElementdefinitionSlicingDiscriminator {
+  ElementdefinitionSlicingDiscriminator(
+    id: Option(String),
+    extension: List(Extension),
+    type_: r5valuesets.Discriminatortype,
+    path: String,
+  )
+}
+
+pub fn elementdefinition_slicing_discriminator_new(
+  path path: String,
+  type_ type_: r5valuesets.Discriminatortype,
+) -> ElementdefinitionSlicingDiscriminator {
+  ElementdefinitionSlicingDiscriminator(path:, type_:, extension: [], id: None)
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+pub type ElementdefinitionBase {
+  ElementdefinitionBase(
+    id: Option(String),
+    extension: List(Extension),
+    path: String,
+    min: Int,
+    max: String,
+  )
+}
+
+pub fn elementdefinition_base_new(
+  max max: String,
+  min min: Int,
+  path path: String,
+) -> ElementdefinitionBase {
+  ElementdefinitionBase(max:, min:, path:, extension: [], id: None)
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+pub type ElementdefinitionType {
+  ElementdefinitionType(
+    id: Option(String),
+    extension: List(Extension),
+    code: String,
+    profile: List(String),
+    target_profile: List(String),
+    aggregation: List(r5valuesets.Resourceaggregationmode),
+    versioning: Option(r5valuesets.Referenceversionrules),
+  )
+}
+
+pub fn elementdefinition_type_new(code code: String) -> ElementdefinitionType {
+  ElementdefinitionType(
+    versioning: None,
+    aggregation: [],
+    target_profile: [],
+    profile: [],
+    code:,
+    extension: [],
+    id: None,
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+pub type ElementdefinitionExample {
+  ElementdefinitionExample(
+    id: Option(String),
+    extension: List(Extension),
+    label: String,
+    value: ElementdefinitionExampleValue,
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+pub type ElementdefinitionExampleValue {
+  ElementdefinitionExampleValueBase64binary(value: String)
+  ElementdefinitionExampleValueBoolean(value: Bool)
+  ElementdefinitionExampleValueCanonical(value: String)
+  ElementdefinitionExampleValueCode(value: String)
+  ElementdefinitionExampleValueDate(value: String)
+  ElementdefinitionExampleValueDatetime(value: String)
+  ElementdefinitionExampleValueDecimal(value: Float)
+  ElementdefinitionExampleValueId(value: String)
+  ElementdefinitionExampleValueInstant(value: String)
+  ElementdefinitionExampleValueInteger(value: Int)
+  ElementdefinitionExampleValueInteger64(value: Int)
+  ElementdefinitionExampleValueMarkdown(value: String)
+  ElementdefinitionExampleValueOid(value: String)
+  ElementdefinitionExampleValuePositiveint(value: Int)
+  ElementdefinitionExampleValueString(value: String)
+  ElementdefinitionExampleValueTime(value: String)
+  ElementdefinitionExampleValueUnsignedint(value: Int)
+  ElementdefinitionExampleValueUri(value: String)
+  ElementdefinitionExampleValueUrl(value: String)
+  ElementdefinitionExampleValueUuid(value: String)
+  ElementdefinitionExampleValueAddress(value: Address)
+  ElementdefinitionExampleValueAge(value: Age)
+  ElementdefinitionExampleValueAnnotation(value: Annotation)
+  ElementdefinitionExampleValueAttachment(value: Attachment)
+  ElementdefinitionExampleValueCodeableconcept(value: Codeableconcept)
+  ElementdefinitionExampleValueCodeablereference(value: Codeablereference)
+  ElementdefinitionExampleValueCoding(value: Coding)
+  ElementdefinitionExampleValueContactpoint(value: Contactpoint)
+  ElementdefinitionExampleValueCount(value: Count)
+  ElementdefinitionExampleValueDistance(value: Distance)
+  ElementdefinitionExampleValueDuration(value: Duration)
+  ElementdefinitionExampleValueHumanname(value: Humanname)
+  ElementdefinitionExampleValueIdentifier(value: Identifier)
+  ElementdefinitionExampleValueMoney(value: Money)
+  ElementdefinitionExampleValuePeriod(value: Period)
+  ElementdefinitionExampleValueQuantity(value: Quantity)
+  ElementdefinitionExampleValueRange(value: Range)
+  ElementdefinitionExampleValueRatio(value: Ratio)
+  ElementdefinitionExampleValueRatiorange(value: Ratiorange)
+  ElementdefinitionExampleValueReference(value: Reference)
+  ElementdefinitionExampleValueSampleddata(value: Sampleddata)
+  ElementdefinitionExampleValueSignature(value: Signature)
+  ElementdefinitionExampleValueTiming(value: Timing)
+  ElementdefinitionExampleValueContactdetail(value: Contactdetail)
+  ElementdefinitionExampleValueDatarequirement(value: Datarequirement)
+  ElementdefinitionExampleValueExpression(value: Expression)
+  ElementdefinitionExampleValueParameterdefinition(value: Parameterdefinition)
+  ElementdefinitionExampleValueRelatedartifact(value: Relatedartifact)
+  ElementdefinitionExampleValueTriggerdefinition(value: Triggerdefinition)
+  ElementdefinitionExampleValueUsagecontext(value: Usagecontext)
+  ElementdefinitionExampleValueAvailability(value: Availability)
+  ElementdefinitionExampleValueExtendedcontactdetail(
+    value: Extendedcontactdetail,
+  )
+  ElementdefinitionExampleValueDosage(value: Dosage)
+  ElementdefinitionExampleValueMeta(value: Meta)
+}
+
+pub fn elementdefinition_example_value_to_json(
+  elt: ElementdefinitionExampleValue,
+) -> Json {
+  case elt {
+    ElementdefinitionExampleValueBase64binary(v) -> json.string(v)
+    ElementdefinitionExampleValueBoolean(v) -> json.bool(v)
+    ElementdefinitionExampleValueCanonical(v) -> json.string(v)
+    ElementdefinitionExampleValueCode(v) -> json.string(v)
+    ElementdefinitionExampleValueDate(v) -> json.string(v)
+    ElementdefinitionExampleValueDatetime(v) -> json.string(v)
+    ElementdefinitionExampleValueDecimal(v) -> json.float(v)
+    ElementdefinitionExampleValueId(v) -> json.string(v)
+    ElementdefinitionExampleValueInstant(v) -> json.string(v)
+    ElementdefinitionExampleValueInteger(v) -> json.int(v)
+    ElementdefinitionExampleValueInteger64(v) -> json.int(v)
+    ElementdefinitionExampleValueMarkdown(v) -> json.string(v)
+    ElementdefinitionExampleValueOid(v) -> json.string(v)
+    ElementdefinitionExampleValuePositiveint(v) -> json.int(v)
+    ElementdefinitionExampleValueString(v) -> json.string(v)
+    ElementdefinitionExampleValueTime(v) -> json.string(v)
+    ElementdefinitionExampleValueUnsignedint(v) -> json.int(v)
+    ElementdefinitionExampleValueUri(v) -> json.string(v)
+    ElementdefinitionExampleValueUrl(v) -> json.string(v)
+    ElementdefinitionExampleValueUuid(v) -> json.string(v)
+    ElementdefinitionExampleValueAddress(v) -> address_to_json(v)
+    ElementdefinitionExampleValueAge(v) -> age_to_json(v)
+    ElementdefinitionExampleValueAnnotation(v) -> annotation_to_json(v)
+    ElementdefinitionExampleValueAttachment(v) -> attachment_to_json(v)
+    ElementdefinitionExampleValueCodeableconcept(v) ->
+      codeableconcept_to_json(v)
+    ElementdefinitionExampleValueCodeablereference(v) ->
+      codeablereference_to_json(v)
+    ElementdefinitionExampleValueCoding(v) -> coding_to_json(v)
+    ElementdefinitionExampleValueContactpoint(v) -> contactpoint_to_json(v)
+    ElementdefinitionExampleValueCount(v) -> count_to_json(v)
+    ElementdefinitionExampleValueDistance(v) -> distance_to_json(v)
+    ElementdefinitionExampleValueDuration(v) -> duration_to_json(v)
+    ElementdefinitionExampleValueHumanname(v) -> humanname_to_json(v)
+    ElementdefinitionExampleValueIdentifier(v) -> identifier_to_json(v)
+    ElementdefinitionExampleValueMoney(v) -> money_to_json(v)
+    ElementdefinitionExampleValuePeriod(v) -> period_to_json(v)
+    ElementdefinitionExampleValueQuantity(v) -> quantity_to_json(v)
+    ElementdefinitionExampleValueRange(v) -> range_to_json(v)
+    ElementdefinitionExampleValueRatio(v) -> ratio_to_json(v)
+    ElementdefinitionExampleValueRatiorange(v) -> ratiorange_to_json(v)
+    ElementdefinitionExampleValueReference(v) -> reference_to_json(v)
+    ElementdefinitionExampleValueSampleddata(v) -> sampleddata_to_json(v)
+    ElementdefinitionExampleValueSignature(v) -> signature_to_json(v)
+    ElementdefinitionExampleValueTiming(v) -> timing_to_json(v)
+    ElementdefinitionExampleValueContactdetail(v) -> contactdetail_to_json(v)
+    ElementdefinitionExampleValueDatarequirement(v) ->
+      datarequirement_to_json(v)
+    ElementdefinitionExampleValueExpression(v) -> expression_to_json(v)
+    ElementdefinitionExampleValueParameterdefinition(v) ->
+      parameterdefinition_to_json(v)
+    ElementdefinitionExampleValueRelatedartifact(v) ->
+      relatedartifact_to_json(v)
+    ElementdefinitionExampleValueTriggerdefinition(v) ->
+      triggerdefinition_to_json(v)
+    ElementdefinitionExampleValueUsagecontext(v) -> usagecontext_to_json(v)
+    ElementdefinitionExampleValueAvailability(v) -> availability_to_json(v)
+    ElementdefinitionExampleValueExtendedcontactdetail(v) ->
+      extendedcontactdetail_to_json(v)
+    ElementdefinitionExampleValueDosage(v) -> dosage_to_json(v)
+    ElementdefinitionExampleValueMeta(v) -> meta_to_json(v)
+  }
+}
+
+pub fn elementdefinition_example_value_decoder() -> Decoder(
+  ElementdefinitionExampleValue,
+) {
+  decode.one_of(
+    decode.field("valueBase64Binary", decode.string, decode.success)
+      |> decode.map(ElementdefinitionExampleValueBase64binary),
+    [
+      decode.field("valueBoolean", decode.bool, decode.success)
+        |> decode.map(ElementdefinitionExampleValueBoolean),
+      decode.field("valueCanonical", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueCanonical),
+      decode.field("valueCode", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueCode),
+      decode.field("valueDate", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueDate),
+      decode.field("valueDateTime", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueDatetime),
+      decode.field("valueDecimal", decode.float, decode.success)
+        |> decode.map(ElementdefinitionExampleValueDecimal),
+      decode.field("valueId", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueId),
+      decode.field("valueInstant", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueInstant),
+      decode.field("valueInteger", decode.int, decode.success)
+        |> decode.map(ElementdefinitionExampleValueInteger),
+      decode.field("valueInteger64", decode.int, decode.success)
+        |> decode.map(ElementdefinitionExampleValueInteger64),
+      decode.field("valueMarkdown", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueMarkdown),
+      decode.field("valueOid", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueOid),
+      decode.field("valuePositiveInt", decode.int, decode.success)
+        |> decode.map(ElementdefinitionExampleValuePositiveint),
+      decode.field("valueString", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueString),
+      decode.field("valueTime", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueTime),
+      decode.field("valueUnsignedInt", decode.int, decode.success)
+        |> decode.map(ElementdefinitionExampleValueUnsignedint),
+      decode.field("valueUri", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueUri),
+      decode.field("valueUrl", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueUrl),
+      decode.field("valueUuid", decode.string, decode.success)
+        |> decode.map(ElementdefinitionExampleValueUuid),
+      decode.field("valueAddress", address_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueAddress),
+      decode.field("valueAge", age_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueAge),
+      decode.field("valueAnnotation", annotation_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueAnnotation),
+      decode.field("valueAttachment", attachment_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueAttachment),
+      decode.field(
+        "valueCodeableConcept",
+        codeableconcept_decoder(),
+        decode.success,
+      )
+        |> decode.map(ElementdefinitionExampleValueCodeableconcept),
+      decode.field(
+        "valueCodeableReference",
+        codeablereference_decoder(),
+        decode.success,
+      )
+        |> decode.map(ElementdefinitionExampleValueCodeablereference),
+      decode.field("valueCoding", coding_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueCoding),
+      decode.field("valueContactPoint", contactpoint_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueContactpoint),
+      decode.field("valueCount", count_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueCount),
+      decode.field("valueDistance", distance_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueDistance),
+      decode.field("valueDuration", duration_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueDuration),
+      decode.field("valueHumanName", humanname_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueHumanname),
+      decode.field("valueIdentifier", identifier_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueIdentifier),
+      decode.field("valueMoney", money_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueMoney),
+      decode.field("valuePeriod", period_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValuePeriod),
+      decode.field("valueQuantity", quantity_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueQuantity),
+      decode.field("valueRange", range_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueRange),
+      decode.field("valueRatio", ratio_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueRatio),
+      decode.field("valueRatioRange", ratiorange_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueRatiorange),
+      decode.field("valueReference", reference_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueReference),
+      decode.field("valueSampledData", sampleddata_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueSampleddata),
+      decode.field("valueSignature", signature_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueSignature),
+      decode.field("valueTiming", timing_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueTiming),
+      decode.field(
+        "valueContactDetail",
+        contactdetail_decoder(),
+        decode.success,
+      )
+        |> decode.map(ElementdefinitionExampleValueContactdetail),
+      decode.field(
+        "valueDataRequirement",
+        datarequirement_decoder(),
+        decode.success,
+      )
+        |> decode.map(ElementdefinitionExampleValueDatarequirement),
+      decode.field("valueExpression", expression_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueExpression),
+      decode.field(
+        "valueParameterDefinition",
+        parameterdefinition_decoder(),
+        decode.success,
+      )
+        |> decode.map(ElementdefinitionExampleValueParameterdefinition),
+      decode.field(
+        "valueRelatedArtifact",
+        relatedartifact_decoder(),
+        decode.success,
+      )
+        |> decode.map(ElementdefinitionExampleValueRelatedartifact),
+      decode.field(
+        "valueTriggerDefinition",
+        triggerdefinition_decoder(),
+        decode.success,
+      )
+        |> decode.map(ElementdefinitionExampleValueTriggerdefinition),
+      decode.field("valueUsageContext", usagecontext_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueUsagecontext),
+      decode.field("valueAvailability", availability_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueAvailability),
+      decode.field(
+        "valueExtendedContactDetail",
+        extendedcontactdetail_decoder(),
+        decode.success,
+      )
+        |> decode.map(ElementdefinitionExampleValueExtendedcontactdetail),
+      decode.field("valueDosage", dosage_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueDosage),
+      decode.field("valueMeta", meta_decoder(), decode.success)
+        |> decode.map(ElementdefinitionExampleValueMeta),
+    ],
+  )
+}
+
+pub fn elementdefinition_example_new(
+  value value: ElementdefinitionExampleValue,
+  label label: String,
+) -> ElementdefinitionExample {
+  ElementdefinitionExample(value:, label:, extension: [], id: None)
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+pub type ElementdefinitionConstraint {
+  ElementdefinitionConstraint(
+    id: Option(String),
+    extension: List(Extension),
+    key: String,
+    requirements: Option(String),
+    severity: r5valuesets.Constraintseverity,
+    suppress: Option(Bool),
+    human: String,
+    expression: Option(String),
+    source: Option(String),
+  )
+}
+
+pub fn elementdefinition_constraint_new(
+  human human: String,
+  severity severity: r5valuesets.Constraintseverity,
+  key key: String,
+) -> ElementdefinitionConstraint {
+  ElementdefinitionConstraint(
+    source: None,
+    expression: None,
+    human:,
+    suppress: None,
+    severity:,
+    requirements: None,
+    key:,
+    extension: [],
+    id: None,
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+pub type ElementdefinitionBinding {
+  ElementdefinitionBinding(
+    id: Option(String),
+    extension: List(Extension),
+    strength: r5valuesets.Bindingstrength,
+    description: Option(String),
+    value_set: Option(String),
+    additional: List(ElementdefinitionBindingAdditional),
+  )
+}
+
+pub fn elementdefinition_binding_new(
+  strength strength: r5valuesets.Bindingstrength,
+) -> ElementdefinitionBinding {
+  ElementdefinitionBinding(
+    additional: [],
+    value_set: None,
+    description: None,
+    strength:,
+    extension: [],
+    id: None,
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+pub type ElementdefinitionBindingAdditional {
+  ElementdefinitionBindingAdditional(
+    id: Option(String),
+    extension: List(Extension),
+    purpose: r5valuesets.Additionalbindingpurpose,
+    value_set: String,
+    documentation: Option(String),
+    short_doco: Option(String),
+    usage: List(Usagecontext),
+    any: Option(Bool),
+  )
+}
+
+pub fn elementdefinition_binding_additional_new(
+  value_set value_set: String,
+  purpose purpose: r5valuesets.Additionalbindingpurpose,
+) -> ElementdefinitionBindingAdditional {
+  ElementdefinitionBindingAdditional(
+    any: None,
+    usage: [],
+    short_doco: None,
+    documentation: None,
+    value_set:,
+    purpose:,
+    extension: [],
+    id: None,
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+pub type ElementdefinitionMapping {
+  ElementdefinitionMapping(
+    id: Option(String),
+    extension: List(Extension),
+    identity: String,
+    language: Option(String),
+    map: String,
+    comment: Option(String),
+  )
+}
+
+pub fn elementdefinition_mapping_new(
+  map map: String,
+  identity identity: String,
+) -> ElementdefinitionMapping {
+  ElementdefinitionMapping(
+    comment: None,
+    map:,
+    language: None,
+    identity:,
+    extension: [],
+    id: None,
+  )
+}
+
+pub fn elementdefinition_mapping_to_json(
+  elementdefinition_mapping: ElementdefinitionMapping,
+) -> Json {
+  let ElementdefinitionMapping(
+    comment:,
+    map:,
+    language:,
+    identity:,
+    extension:,
+    id:,
+  ) = elementdefinition_mapping
+  let fields = [
+    #("map", json.string(map)),
+    #("identity", json.string(identity)),
+  ]
+  let fields = case comment {
+    Some(v) -> [#("comment", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case language {
+    Some(v) -> [#("language", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn elementdefinition_mapping_decoder() -> Decoder(ElementdefinitionMapping) {
+  use comment <- decode.optional_field(
+    "comment",
+    None,
+    decode.optional(decode.string),
+  )
+  use map <- decode.field("map", decode.string)
+  use language <- decode.optional_field(
+    "language",
+    None,
+    decode.optional(decode.string),
+  )
+  use identity <- decode.field("identity", decode.string)
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(ElementdefinitionMapping(
+    comment:,
+    map:,
+    language:,
+    identity:,
+    extension:,
+    id:,
+  ))
+}
+
+pub fn elementdefinition_binding_additional_to_json(
+  elementdefinition_binding_additional: ElementdefinitionBindingAdditional,
+) -> Json {
+  let ElementdefinitionBindingAdditional(
+    any:,
+    usage:,
+    short_doco:,
+    documentation:,
+    value_set:,
+    purpose:,
+    extension:,
+    id:,
+  ) = elementdefinition_binding_additional
+  let fields = [
+    #("valueSet", json.string(value_set)),
+    #("purpose", r5valuesets.additionalbindingpurpose_to_json(purpose)),
+  ]
+  let fields = case any {
+    Some(v) -> [#("any", json.bool(v)), ..fields]
+    None -> fields
+  }
+  let fields = case usage {
+    [] -> fields
+    _ -> [#("usage", json.array(usage, usagecontext_to_json)), ..fields]
+  }
+  let fields = case short_doco {
+    Some(v) -> [#("shortDoco", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case documentation {
+    Some(v) -> [#("documentation", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn elementdefinition_binding_additional_decoder() -> Decoder(
+  ElementdefinitionBindingAdditional,
+) {
+  use any <- decode.optional_field("any", None, decode.optional(decode.bool))
+  use usage <- decode.optional_field(
+    "usage",
+    [],
+    decode.list(usagecontext_decoder()),
+  )
+  use short_doco <- decode.optional_field(
+    "shortDoco",
+    None,
+    decode.optional(decode.string),
+  )
+  use documentation <- decode.optional_field(
+    "documentation",
+    None,
+    decode.optional(decode.string),
+  )
+  use value_set <- decode.field("valueSet", decode.string)
+  use purpose <- decode.field(
+    "purpose",
+    r5valuesets.additionalbindingpurpose_decoder(),
+  )
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(ElementdefinitionBindingAdditional(
+    any:,
+    usage:,
+    short_doco:,
+    documentation:,
+    value_set:,
+    purpose:,
+    extension:,
+    id:,
+  ))
+}
+
+pub fn elementdefinition_binding_to_json(
+  elementdefinition_binding: ElementdefinitionBinding,
+) -> Json {
+  let ElementdefinitionBinding(
+    additional:,
+    value_set:,
+    description:,
+    strength:,
+    extension:,
+    id:,
+  ) = elementdefinition_binding
+  let fields = [
+    #("strength", r5valuesets.bindingstrength_to_json(strength)),
+  ]
+  let fields = case additional {
+    [] -> fields
+    _ -> [
+      #(
+        "additional",
+        json.array(additional, elementdefinition_binding_additional_to_json),
+      ),
+      ..fields
+    ]
+  }
+  let fields = case value_set {
+    Some(v) -> [#("valueSet", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case description {
+    Some(v) -> [#("description", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn elementdefinition_binding_decoder() -> Decoder(ElementdefinitionBinding) {
+  use additional <- decode.optional_field(
+    "additional",
+    [],
+    decode.list(elementdefinition_binding_additional_decoder()),
+  )
+  use value_set <- decode.optional_field(
+    "valueSet",
+    None,
+    decode.optional(decode.string),
+  )
+  use description <- decode.optional_field(
+    "description",
+    None,
+    decode.optional(decode.string),
+  )
+  use strength <- decode.field(
+    "strength",
+    r5valuesets.bindingstrength_decoder(),
+  )
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(ElementdefinitionBinding(
+    additional:,
+    value_set:,
+    description:,
+    strength:,
+    extension:,
+    id:,
+  ))
+}
+
+pub fn elementdefinition_constraint_to_json(
+  elementdefinition_constraint: ElementdefinitionConstraint,
+) -> Json {
+  let ElementdefinitionConstraint(
+    source:,
+    expression:,
+    human:,
+    suppress:,
+    severity:,
+    requirements:,
+    key:,
+    extension:,
+    id:,
+  ) = elementdefinition_constraint
+  let fields = [
+    #("human", json.string(human)),
+    #("severity", r5valuesets.constraintseverity_to_json(severity)),
+    #("key", json.string(key)),
+  ]
+  let fields = case source {
+    Some(v) -> [#("source", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case expression {
+    Some(v) -> [#("expression", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case suppress {
+    Some(v) -> [#("suppress", json.bool(v)), ..fields]
+    None -> fields
+  }
+  let fields = case requirements {
+    Some(v) -> [#("requirements", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn elementdefinition_constraint_decoder() -> Decoder(
+  ElementdefinitionConstraint,
+) {
+  use source <- decode.optional_field(
+    "source",
+    None,
+    decode.optional(decode.string),
+  )
+  use expression <- decode.optional_field(
+    "expression",
+    None,
+    decode.optional(decode.string),
+  )
+  use human <- decode.field("human", decode.string)
+  use suppress <- decode.optional_field(
+    "suppress",
+    None,
+    decode.optional(decode.bool),
+  )
+  use severity <- decode.field(
+    "severity",
+    r5valuesets.constraintseverity_decoder(),
+  )
+  use requirements <- decode.optional_field(
+    "requirements",
+    None,
+    decode.optional(decode.string),
+  )
+  use key <- decode.field("key", decode.string)
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(ElementdefinitionConstraint(
+    source:,
+    expression:,
+    human:,
+    suppress:,
+    severity:,
+    requirements:,
+    key:,
+    extension:,
+    id:,
+  ))
+}
+
+pub fn elementdefinition_example_to_json(
+  elementdefinition_example: ElementdefinitionExample,
+) -> Json {
+  let ElementdefinitionExample(value:, label:, extension:, id:) =
+    elementdefinition_example
+  let fields = [
+    #("value", elementdefinition_example_value_to_json(value)),
+    #("label", json.string(label)),
+  ]
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn elementdefinition_example_decoder() -> Decoder(ElementdefinitionExample) {
+  use value <- decode.then(elementdefinition_example_value_decoder())
+  use label <- decode.field("label", decode.string)
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(ElementdefinitionExample(value:, label:, extension:, id:))
+}
+
+pub fn elementdefinition_type_to_json(
+  elementdefinition_type: ElementdefinitionType,
+) -> Json {
+  let ElementdefinitionType(
+    versioning:,
+    aggregation:,
+    target_profile:,
+    profile:,
+    code:,
+    extension:,
+    id:,
+  ) = elementdefinition_type
+  let fields = [
+    #("code", json.string(code)),
+  ]
+  let fields = case versioning {
+    Some(v) -> [
+      #("versioning", r5valuesets.referenceversionrules_to_json(v)),
+      ..fields
+    ]
+    None -> fields
+  }
+  let fields = case aggregation {
+    [] -> fields
+    _ -> [
+      #(
+        "aggregation",
+        json.array(aggregation, r5valuesets.resourceaggregationmode_to_json),
+      ),
+      ..fields
+    ]
+  }
+  let fields = case target_profile {
+    [] -> fields
+    _ -> [#("targetProfile", json.array(target_profile, json.string)), ..fields]
+  }
+  let fields = case profile {
+    [] -> fields
+    _ -> [#("profile", json.array(profile, json.string)), ..fields]
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn elementdefinition_type_decoder() -> Decoder(ElementdefinitionType) {
+  use versioning <- decode.optional_field(
+    "versioning",
+    None,
+    decode.optional(r5valuesets.referenceversionrules_decoder()),
+  )
+  use aggregation <- decode.optional_field(
+    "aggregation",
+    [],
+    decode.list(r5valuesets.resourceaggregationmode_decoder()),
+  )
+  use target_profile <- decode.optional_field(
+    "targetProfile",
+    [],
+    decode.list(decode.string),
+  )
+  use profile <- decode.optional_field(
+    "profile",
+    [],
+    decode.list(decode.string),
+  )
+  use code <- decode.field("code", decode.string)
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(ElementdefinitionType(
+    versioning:,
+    aggregation:,
+    target_profile:,
+    profile:,
+    code:,
+    extension:,
+    id:,
+  ))
+}
+
+pub fn elementdefinition_base_to_json(
+  elementdefinition_base: ElementdefinitionBase,
+) -> Json {
+  let ElementdefinitionBase(max:, min:, path:, extension:, id:) =
+    elementdefinition_base
+  let fields = [
+    #("max", json.string(max)),
+    #("min", json.int(min)),
+    #("path", json.string(path)),
+  ]
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn elementdefinition_base_decoder() -> Decoder(ElementdefinitionBase) {
+  use max <- decode.field("max", decode.string)
+  use min <- decode.field("min", decode.int)
+  use path <- decode.field("path", decode.string)
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(ElementdefinitionBase(max:, min:, path:, extension:, id:))
+}
+
+pub fn elementdefinition_slicing_discriminator_to_json(
+  elementdefinition_slicing_discriminator: ElementdefinitionSlicingDiscriminator,
+) -> Json {
+  let ElementdefinitionSlicingDiscriminator(path:, type_:, extension:, id:) =
+    elementdefinition_slicing_discriminator
+  let fields = [
+    #("path", json.string(path)),
+    #("type", r5valuesets.discriminatortype_to_json(type_)),
+  ]
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn elementdefinition_slicing_discriminator_decoder() -> Decoder(
+  ElementdefinitionSlicingDiscriminator,
+) {
+  use path <- decode.field("path", decode.string)
+  use type_ <- decode.field("type", r5valuesets.discriminatortype_decoder())
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(ElementdefinitionSlicingDiscriminator(
+    path:,
+    type_:,
+    extension:,
+    id:,
+  ))
+}
+
+pub fn elementdefinition_slicing_to_json(
+  elementdefinition_slicing: ElementdefinitionSlicing,
+) -> Json {
+  let ElementdefinitionSlicing(
+    rules:,
+    ordered:,
+    description:,
+    discriminator:,
+    extension:,
+    id:,
+  ) = elementdefinition_slicing
+  let fields = [
+    #("rules", r5valuesets.resourceslicingrules_to_json(rules)),
+  ]
+  let fields = case ordered {
+    Some(v) -> [#("ordered", json.bool(v)), ..fields]
+    None -> fields
+  }
+  let fields = case description {
+    Some(v) -> [#("description", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case discriminator {
+    [] -> fields
+    _ -> [
+      #(
+        "discriminator",
+        json.array(
+          discriminator,
+          elementdefinition_slicing_discriminator_to_json,
+        ),
+      ),
+      ..fields
+    ]
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn elementdefinition_slicing_decoder() -> Decoder(ElementdefinitionSlicing) {
+  use rules <- decode.field("rules", r5valuesets.resourceslicingrules_decoder())
+  use ordered <- decode.optional_field(
+    "ordered",
+    None,
+    decode.optional(decode.bool),
+  )
+  use description <- decode.optional_field(
+    "description",
+    None,
+    decode.optional(decode.string),
+  )
+  use discriminator <- decode.optional_field(
+    "discriminator",
+    [],
+    decode.list(elementdefinition_slicing_discriminator_decoder()),
+  )
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(ElementdefinitionSlicing(
+    rules:,
+    ordered:,
+    description:,
+    discriminator:,
+    extension:,
+    id:,
+  ))
+}
+
 pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
   let Elementdefinition(
     mapping:,
@@ -3053,10 +4832,13 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
   ]
   let fields = case mapping {
     [] -> fields
-    _ -> [#("mapping", json.array(mapping, element_to_json)), ..fields]
+    _ -> [
+      #("mapping", json.array(mapping, elementdefinition_mapping_to_json)),
+      ..fields
+    ]
   }
   let fields = case binding {
-    Some(v) -> [#("binding", element_to_json(v)), ..fields]
+    Some(v) -> [#("binding", elementdefinition_binding_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case is_summary {
@@ -3088,7 +4870,13 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
   }
   let fields = case constraint {
     [] -> fields
-    _ -> [#("constraint", json.array(constraint, element_to_json)), ..fields]
+    _ -> [
+      #(
+        "constraint",
+        json.array(constraint, elementdefinition_constraint_to_json),
+      ),
+      ..fields
+    ]
   }
   let fields = case condition {
     [] -> fields
@@ -3108,7 +4896,10 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
   }
   let fields = case example {
     [] -> fields
-    _ -> [#("example", json.array(example, element_to_json)), ..fields]
+    _ -> [
+      #("example", json.array(example, elementdefinition_example_to_json)),
+      ..fields
+    ]
   }
   let fields = case pattern {
     Some(v) -> [#("pattern", elementdefinition_pattern_to_json(v)), ..fields]
@@ -3135,14 +4926,17 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
   }
   let fields = case type_ {
     [] -> fields
-    _ -> [#("type", json.array(type_, element_to_json)), ..fields]
+    _ -> [
+      #("type", json.array(type_, elementdefinition_type_to_json)),
+      ..fields
+    ]
   }
   let fields = case content_reference {
     Some(v) -> [#("contentReference", json.string(v)), ..fields]
     None -> fields
   }
   let fields = case base {
-    Some(v) -> [#("base", element_to_json(v)), ..fields]
+    Some(v) -> [#("base", elementdefinition_base_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case max {
@@ -3174,7 +4968,7 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
     None -> fields
   }
   let fields = case slicing {
-    Some(v) -> [#("slicing", element_to_json(v)), ..fields]
+    Some(v) -> [#("slicing", elementdefinition_slicing_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case code {
@@ -3225,12 +5019,12 @@ pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
   use mapping <- decode.optional_field(
     "mapping",
     [],
-    decode.list(element_decoder()),
+    decode.list(elementdefinition_mapping_decoder()),
   )
   use binding <- decode.optional_field(
     "binding",
     None,
-    decode.optional(element_decoder()),
+    decode.optional(elementdefinition_binding_decoder()),
   )
   use is_summary <- decode.optional_field(
     "isSummary",
@@ -3265,7 +5059,7 @@ pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
   use constraint <- decode.optional_field(
     "constraint",
     [],
-    decode.list(element_decoder()),
+    decode.list(elementdefinition_constraint_decoder()),
   )
   use condition <- decode.optional_field(
     "condition",
@@ -3286,7 +5080,7 @@ pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
   use example <- decode.optional_field(
     "example",
     [],
-    decode.list(element_decoder()),
+    decode.list(elementdefinition_example_decoder()),
   )
   use pattern <- decode.then(
     none_if_omitted(elementdefinition_pattern_decoder()),
@@ -3305,7 +5099,11 @@ pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
   use default_value <- decode.then(
     none_if_omitted(elementdefinition_defaultvalue_decoder()),
   )
-  use type_ <- decode.optional_field("type", [], decode.list(element_decoder()))
+  use type_ <- decode.optional_field(
+    "type",
+    [],
+    decode.list(elementdefinition_type_decoder()),
+  )
   use content_reference <- decode.optional_field(
     "contentReference",
     None,
@@ -3314,7 +5112,7 @@ pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
   use base <- decode.optional_field(
     "base",
     None,
-    decode.optional(element_decoder()),
+    decode.optional(elementdefinition_base_decoder()),
   )
   use max <- decode.optional_field("max", None, decode.optional(decode.string))
   use min <- decode.optional_field("min", None, decode.optional(decode.int))
@@ -3342,7 +5140,7 @@ pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
   use slicing <- decode.optional_field(
     "slicing",
     None,
-    decode.optional(element_decoder()),
+    decode.optional(elementdefinition_slicing_decoder()),
   )
   use code <- decode.optional_field("code", [], decode.list(coding_decoder()))
   use label <- decode.optional_field(
@@ -5834,7 +7632,7 @@ pub type Timing {
     extension: List(Extension),
     modifier_extension: List(Extension),
     event: List(String),
-    repeat: Option(Element),
+    repeat: Option(TimingRepeat),
     code: Option(Codeableconcept),
   )
 }
@@ -5850,6 +7648,272 @@ pub fn timing_new() -> Timing {
   )
 }
 
+///http://hl7.org/fhir/r5/StructureDefinition/Timing#resource
+pub type TimingRepeat {
+  TimingRepeat(
+    id: Option(String),
+    extension: List(Extension),
+    bounds: Option(TimingRepeatBounds),
+    count: Option(Int),
+    count_max: Option(Int),
+    duration: Option(Float),
+    duration_max: Option(Float),
+    duration_unit: Option(r5valuesets.Unitsoftime),
+    frequency: Option(Int),
+    frequency_max: Option(Int),
+    period: Option(Float),
+    period_max: Option(Float),
+    period_unit: Option(r5valuesets.Unitsoftime),
+    day_of_week: List(r5valuesets.Daysofweek),
+    time_of_day: List(String),
+    when: List(r5valuesets.Eventtiming),
+    offset: Option(Int),
+  )
+}
+
+///http://hl7.org/fhir/r5/StructureDefinition/Timing#resource
+pub type TimingRepeatBounds {
+  TimingRepeatBoundsDuration(bounds: Duration)
+  TimingRepeatBoundsRange(bounds: Range)
+  TimingRepeatBoundsPeriod(bounds: Period)
+}
+
+pub fn timing_repeat_bounds_to_json(elt: TimingRepeatBounds) -> Json {
+  case elt {
+    TimingRepeatBoundsDuration(v) -> duration_to_json(v)
+    TimingRepeatBoundsRange(v) -> range_to_json(v)
+    TimingRepeatBoundsPeriod(v) -> period_to_json(v)
+  }
+}
+
+pub fn timing_repeat_bounds_decoder() -> Decoder(TimingRepeatBounds) {
+  decode.one_of(
+    decode.field("boundsDuration", duration_decoder(), decode.success)
+      |> decode.map(TimingRepeatBoundsDuration),
+    [
+      decode.field("boundsRange", range_decoder(), decode.success)
+        |> decode.map(TimingRepeatBoundsRange),
+      decode.field("boundsPeriod", period_decoder(), decode.success)
+        |> decode.map(TimingRepeatBoundsPeriod),
+    ],
+  )
+}
+
+pub fn timing_repeat_new() -> TimingRepeat {
+  TimingRepeat(
+    offset: None,
+    when: [],
+    time_of_day: [],
+    day_of_week: [],
+    period_unit: None,
+    period_max: None,
+    period: None,
+    frequency_max: None,
+    frequency: None,
+    duration_unit: None,
+    duration_max: None,
+    duration: None,
+    count_max: None,
+    count: None,
+    bounds: None,
+    extension: [],
+    id: None,
+  )
+}
+
+pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
+  let TimingRepeat(
+    offset:,
+    when:,
+    time_of_day:,
+    day_of_week:,
+    period_unit:,
+    period_max:,
+    period:,
+    frequency_max:,
+    frequency:,
+    duration_unit:,
+    duration_max:,
+    duration:,
+    count_max:,
+    count:,
+    bounds:,
+    extension:,
+    id:,
+  ) = timing_repeat
+  let fields = []
+  let fields = case offset {
+    Some(v) -> [#("offset", json.int(v)), ..fields]
+    None -> fields
+  }
+  let fields = case when {
+    [] -> fields
+    _ -> [
+      #("when", json.array(when, r5valuesets.eventtiming_to_json)),
+      ..fields
+    ]
+  }
+  let fields = case time_of_day {
+    [] -> fields
+    _ -> [#("timeOfDay", json.array(time_of_day, json.string)), ..fields]
+  }
+  let fields = case day_of_week {
+    [] -> fields
+    _ -> [
+      #("dayOfWeek", json.array(day_of_week, r5valuesets.daysofweek_to_json)),
+      ..fields
+    ]
+  }
+  let fields = case period_unit {
+    Some(v) -> [#("periodUnit", r5valuesets.unitsoftime_to_json(v)), ..fields]
+    None -> fields
+  }
+  let fields = case period_max {
+    Some(v) -> [#("periodMax", json.float(v)), ..fields]
+    None -> fields
+  }
+  let fields = case period {
+    Some(v) -> [#("period", json.float(v)), ..fields]
+    None -> fields
+  }
+  let fields = case frequency_max {
+    Some(v) -> [#("frequencyMax", json.int(v)), ..fields]
+    None -> fields
+  }
+  let fields = case frequency {
+    Some(v) -> [#("frequency", json.int(v)), ..fields]
+    None -> fields
+  }
+  let fields = case duration_unit {
+    Some(v) -> [#("durationUnit", r5valuesets.unitsoftime_to_json(v)), ..fields]
+    None -> fields
+  }
+  let fields = case duration_max {
+    Some(v) -> [#("durationMax", json.float(v)), ..fields]
+    None -> fields
+  }
+  let fields = case duration {
+    Some(v) -> [#("duration", json.float(v)), ..fields]
+    None -> fields
+  }
+  let fields = case count_max {
+    Some(v) -> [#("countMax", json.int(v)), ..fields]
+    None -> fields
+  }
+  let fields = case count {
+    Some(v) -> [#("count", json.int(v)), ..fields]
+    None -> fields
+  }
+  let fields = case bounds {
+    Some(v) -> [#("bounds", timing_repeat_bounds_to_json(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
+  use offset <- decode.optional_field(
+    "offset",
+    None,
+    decode.optional(decode.int),
+  )
+  use when <- decode.optional_field(
+    "when",
+    [],
+    decode.list(r5valuesets.eventtiming_decoder()),
+  )
+  use time_of_day <- decode.optional_field(
+    "timeOfDay",
+    [],
+    decode.list(decode.string),
+  )
+  use day_of_week <- decode.optional_field(
+    "dayOfWeek",
+    [],
+    decode.list(r5valuesets.daysofweek_decoder()),
+  )
+  use period_unit <- decode.optional_field(
+    "periodUnit",
+    None,
+    decode.optional(r5valuesets.unitsoftime_decoder()),
+  )
+  use period_max <- decode.optional_field(
+    "periodMax",
+    None,
+    decode.optional(decode.float),
+  )
+  use period <- decode.optional_field(
+    "period",
+    None,
+    decode.optional(decode.float),
+  )
+  use frequency_max <- decode.optional_field(
+    "frequencyMax",
+    None,
+    decode.optional(decode.int),
+  )
+  use frequency <- decode.optional_field(
+    "frequency",
+    None,
+    decode.optional(decode.int),
+  )
+  use duration_unit <- decode.optional_field(
+    "durationUnit",
+    None,
+    decode.optional(r5valuesets.unitsoftime_decoder()),
+  )
+  use duration_max <- decode.optional_field(
+    "durationMax",
+    None,
+    decode.optional(decode.float),
+  )
+  use duration <- decode.optional_field(
+    "duration",
+    None,
+    decode.optional(decode.float),
+  )
+  use count_max <- decode.optional_field(
+    "countMax",
+    None,
+    decode.optional(decode.int),
+  )
+  use count <- decode.optional_field("count", None, decode.optional(decode.int))
+  use bounds <- decode.then(none_if_omitted(timing_repeat_bounds_decoder()))
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(TimingRepeat(
+    offset:,
+    when:,
+    time_of_day:,
+    day_of_week:,
+    period_unit:,
+    period_max:,
+    period:,
+    frequency_max:,
+    frequency:,
+    duration_unit:,
+    duration_max:,
+    duration:,
+    count_max:,
+    count:,
+    bounds:,
+    extension:,
+    id:,
+  ))
+}
+
 pub fn timing_to_json(timing: Timing) -> Json {
   let Timing(code:, repeat:, event:, modifier_extension:, extension:, id:) =
     timing
@@ -5859,7 +7923,7 @@ pub fn timing_to_json(timing: Timing) -> Json {
     None -> fields
   }
   let fields = case repeat {
-    Some(v) -> [#("repeat", element_to_json(v)), ..fields]
+    Some(v) -> [#("repeat", timing_repeat_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case event {
@@ -5893,7 +7957,7 @@ pub fn timing_decoder() -> Decoder(Timing) {
   use repeat <- decode.optional_field(
     "repeat",
     None,
-    decode.optional(element_decoder()),
+    decode.optional(timing_repeat_decoder()),
   )
   use event <- decode.optional_field("event", [], decode.list(decode.string))
   use modifier_extension <- decode.optional_field(

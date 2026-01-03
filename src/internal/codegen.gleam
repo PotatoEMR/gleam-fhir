@@ -343,6 +343,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
         // debug: uncomment to try just allergyintolerance
         _, "Base" -> False
         _, "BackboneElement" -> False
+        _, "Element" -> False
         Some("complex-type"), _ -> True
         Some("resource"), _ -> True
         _, _ -> False
@@ -394,6 +395,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
               [first, ..] -> {
                 case first.code {
                   "BackboneElement" -> [field_path, ..order]
+                  "Element" -> [field_path, ..order]
                   _ -> order
                 }
               }
@@ -675,7 +677,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                     // because optional ones need case to add to array or not
                     // also putting lists as optional_acc so in empty list cast it omits instead of field: []
                     // hence two separate accs
-                    let elt_is_choice_type = elt.path |> string.ends_with("[x]")
+                    //let elt_is_choice_type = elt.path |> string.ends_with("[x]")
                     let #(encoder_optional_acc, encoder_always_acc) = case
                       elt.min,
                       elt.max
@@ -879,6 +881,7 @@ fn string_to_type(
   case fhir_type {
     "BackboneElement" ->
       allparts |> list.map(string.capitalise) |> string.concat()
+    "Element" -> allparts |> list.map(string.capitalise) |> string.concat()
     "base64Binary" -> "String"
     "boolean" -> "Bool"
     "canonical" -> "String"
@@ -962,6 +965,12 @@ fn string_to_decoder_type(
 ) -> String {
   case fhir_type {
     "BackboneElement" ->
+      allparts
+      |> list.map(string.capitalise)
+      |> string.concat()
+      |> to_snake_case()
+      <> "_decoder()"
+    "Element" ->
       allparts
       |> list.map(string.capitalise)
       |> string.concat()
@@ -1054,6 +1063,12 @@ fn string_to_encoder_type(
 ) -> String {
   case fhir_type {
     "BackboneElement" ->
+      allparts
+      |> list.map(string.capitalise)
+      |> string.concat()
+      |> to_snake_case()
+      <> "_to_json"
+    "Element" ->
       allparts
       |> list.map(string.capitalise)
       |> string.concat()
