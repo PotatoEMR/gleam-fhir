@@ -702,18 +702,43 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                       }
                       0, "1" -> {
                         //optional case to json, in Some case add to fields list
+                        let choicetype_suffixes = case elt.type_ {
+                          //normal type encoder (not choice type)
+                          [_] -> ""
+                          // choice type encoder requires onsetAge onsetString onsetPeriod whatever to be suffix in json
+                          [_, _, ..] ->
+                            string.concat([
+                              " <> case v {",
+                              list.fold(
+                                from: "",
+                                over: elt.type_,
+                                with: fn(suffixes_acc, ct) {
+                                  suffixes_acc
+                                  <> field_name_new
+                                  <> string.capitalise(ct.code)
+                                  <> "(_) -> \""
+                                  <> string.capitalise(ct.code)
+                                  <> "\"\n"
+                                },
+                              ),
+                              "}",
+                            ])
+                          [] -> panic as "enocder no type panic"
+                        }
                         let opts =
                           encoder_optional_acc
                           <> "\nlet fields = case "
                           <> elt_snake
                           <> " {
-                          Some(v) -> [#(\""
+                        Some(v) -> [#(\""
                           <> elt_last_part_withgleamtype
-                          <> "\", "
+                          <> "\""
+                          <> choicetype_suffixes
+                          <> ", "
                           <> field_type_encoder
                           <> "(v)), ..fields]
-                          None -> fields
-                        }"
+                        None -> fields
+                      }"
                         #(opts, encoder_always_acc)
                       }
                       1, "1" -> {

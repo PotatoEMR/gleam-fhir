@@ -331,7 +331,17 @@ pub fn annotation_to_json(annotation: Annotation) -> Json {
     None -> fields
   }
   let fields = case author {
-    Some(v) -> [#("author", annotation_author_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "author"
+          <> case v {
+          AnnotationAuthorReference(_) -> "Reference"
+          AnnotationAuthorString(_) -> "String"
+        },
+        annotation_author_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case extension {
@@ -1183,7 +1193,15 @@ pub fn datarequirement_datefilter_to_json(
   let fields = []
   let fields = case value {
     Some(v) -> [
-      #("value", datarequirement_datefilter_value_to_json(v)),
+      #(
+        "value"
+          <> case v {
+          DatarequirementDatefilterValueDatetime(_) -> "Datetime"
+          DatarequirementDatefilterValuePeriod(_) -> "Period"
+          DatarequirementDatefilterValueDuration(_) -> "Duration"
+        },
+        datarequirement_datefilter_value_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -1361,7 +1379,17 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
     _ -> [#("mustSupport", json.array(must_support, json.string)), ..fields]
   }
   let fields = case subject {
-    Some(v) -> [#("subject", datarequirement_subject_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "subject"
+          <> case v {
+          DatarequirementSubjectCodeableconcept(_) -> "Codeableconcept"
+          DatarequirementSubjectReference(_) -> "Reference"
+        },
+        datarequirement_subject_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case profile {
@@ -1683,11 +1711,32 @@ pub fn dosage_doseandrate_to_json(dosage_doseandrate: DosageDoseandrate) -> Json
     dosage_doseandrate
   let fields = []
   let fields = case rate {
-    Some(v) -> [#("rate", dosage_doseandrate_rate_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "rate"
+          <> case v {
+          DosageDoseandrateRateRatio(_) -> "Ratio"
+          DosageDoseandrateRateRange(_) -> "Range"
+          DosageDoseandrateRateQuantity(_) -> "Quantity"
+        },
+        dosage_doseandrate_rate_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case dose {
-    Some(v) -> [#("dose", dosage_doseandrate_dose_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "dose"
+          <> case v {
+          DosageDoseandrateDoseRange(_) -> "Range"
+          DosageDoseandrateDoseQuantity(_) -> "Quantity"
+        },
+        dosage_doseandrate_dose_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case type_ {
@@ -1774,7 +1823,17 @@ pub fn dosage_to_json(dosage: Dosage) -> Json {
     None -> fields
   }
   let fields = case as_needed {
-    Some(v) -> [#("asNeeded", dosage_asneeded_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "asNeeded"
+          <> case v {
+          DosageAsneededBoolean(_) -> "Boolean"
+          DosageAsneededCodeableconcept(_) -> "Codeableconcept"
+        },
+        dosage_asneeded_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case timing {
@@ -4008,11 +4067,45 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
     None -> fields
   }
   let fields = case max_value {
-    Some(v) -> [#("maxValue", elementdefinition_maxvalue_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "maxValue"
+          <> case v {
+          ElementdefinitionMaxvalueDate(_) -> "Date"
+          ElementdefinitionMaxvalueDatetime(_) -> "Datetime"
+          ElementdefinitionMaxvalueInstant(_) -> "Instant"
+          ElementdefinitionMaxvalueTime(_) -> "Time"
+          ElementdefinitionMaxvalueDecimal(_) -> "Decimal"
+          ElementdefinitionMaxvalueInteger(_) -> "Integer"
+          ElementdefinitionMaxvaluePositiveint(_) -> "Positiveint"
+          ElementdefinitionMaxvalueUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionMaxvalueQuantity(_) -> "Quantity"
+        },
+        elementdefinition_maxvalue_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case min_value {
-    Some(v) -> [#("minValue", elementdefinition_minvalue_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "minValue"
+          <> case v {
+          ElementdefinitionMinvalueDate(_) -> "Date"
+          ElementdefinitionMinvalueDatetime(_) -> "Datetime"
+          ElementdefinitionMinvalueInstant(_) -> "Instant"
+          ElementdefinitionMinvalueTime(_) -> "Time"
+          ElementdefinitionMinvalueDecimal(_) -> "Decimal"
+          ElementdefinitionMinvalueInteger(_) -> "Integer"
+          ElementdefinitionMinvaluePositiveint(_) -> "Positiveint"
+          ElementdefinitionMinvalueUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionMinvalueQuantity(_) -> "Quantity"
+        },
+        elementdefinition_minvalue_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case example {
@@ -4023,11 +4116,128 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
     ]
   }
   let fields = case pattern {
-    Some(v) -> [#("pattern", elementdefinition_pattern_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "pattern"
+          <> case v {
+          ElementdefinitionPatternBase64binary(_) -> "Base64binary"
+          ElementdefinitionPatternBoolean(_) -> "Boolean"
+          ElementdefinitionPatternCanonical(_) -> "Canonical"
+          ElementdefinitionPatternCode(_) -> "Code"
+          ElementdefinitionPatternDate(_) -> "Date"
+          ElementdefinitionPatternDatetime(_) -> "Datetime"
+          ElementdefinitionPatternDecimal(_) -> "Decimal"
+          ElementdefinitionPatternId(_) -> "Id"
+          ElementdefinitionPatternInstant(_) -> "Instant"
+          ElementdefinitionPatternInteger(_) -> "Integer"
+          ElementdefinitionPatternMarkdown(_) -> "Markdown"
+          ElementdefinitionPatternOid(_) -> "Oid"
+          ElementdefinitionPatternPositiveint(_) -> "Positiveint"
+          ElementdefinitionPatternString(_) -> "String"
+          ElementdefinitionPatternTime(_) -> "Time"
+          ElementdefinitionPatternUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionPatternUri(_) -> "Uri"
+          ElementdefinitionPatternUrl(_) -> "Url"
+          ElementdefinitionPatternUuid(_) -> "Uuid"
+          ElementdefinitionPatternAddress(_) -> "Address"
+          ElementdefinitionPatternAge(_) -> "Age"
+          ElementdefinitionPatternAnnotation(_) -> "Annotation"
+          ElementdefinitionPatternAttachment(_) -> "Attachment"
+          ElementdefinitionPatternCodeableconcept(_) -> "Codeableconcept"
+          ElementdefinitionPatternCoding(_) -> "Coding"
+          ElementdefinitionPatternContactpoint(_) -> "Contactpoint"
+          ElementdefinitionPatternCount(_) -> "Count"
+          ElementdefinitionPatternDistance(_) -> "Distance"
+          ElementdefinitionPatternDuration(_) -> "Duration"
+          ElementdefinitionPatternHumanname(_) -> "Humanname"
+          ElementdefinitionPatternIdentifier(_) -> "Identifier"
+          ElementdefinitionPatternMoney(_) -> "Money"
+          ElementdefinitionPatternPeriod(_) -> "Period"
+          ElementdefinitionPatternQuantity(_) -> "Quantity"
+          ElementdefinitionPatternRange(_) -> "Range"
+          ElementdefinitionPatternRatio(_) -> "Ratio"
+          ElementdefinitionPatternReference(_) -> "Reference"
+          ElementdefinitionPatternSampleddata(_) -> "Sampleddata"
+          ElementdefinitionPatternSignature(_) -> "Signature"
+          ElementdefinitionPatternTiming(_) -> "Timing"
+          ElementdefinitionPatternContactdetail(_) -> "Contactdetail"
+          ElementdefinitionPatternContributor(_) -> "Contributor"
+          ElementdefinitionPatternDatarequirement(_) -> "Datarequirement"
+          ElementdefinitionPatternExpression(_) -> "Expression"
+          ElementdefinitionPatternParameterdefinition(_) ->
+            "Parameterdefinition"
+          ElementdefinitionPatternRelatedartifact(_) -> "Relatedartifact"
+          ElementdefinitionPatternTriggerdefinition(_) -> "Triggerdefinition"
+          ElementdefinitionPatternUsagecontext(_) -> "Usagecontext"
+          ElementdefinitionPatternDosage(_) -> "Dosage"
+          ElementdefinitionPatternMeta(_) -> "Meta"
+        },
+        elementdefinition_pattern_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case fixed {
-    Some(v) -> [#("fixed", elementdefinition_fixed_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "fixed"
+          <> case v {
+          ElementdefinitionFixedBase64binary(_) -> "Base64binary"
+          ElementdefinitionFixedBoolean(_) -> "Boolean"
+          ElementdefinitionFixedCanonical(_) -> "Canonical"
+          ElementdefinitionFixedCode(_) -> "Code"
+          ElementdefinitionFixedDate(_) -> "Date"
+          ElementdefinitionFixedDatetime(_) -> "Datetime"
+          ElementdefinitionFixedDecimal(_) -> "Decimal"
+          ElementdefinitionFixedId(_) -> "Id"
+          ElementdefinitionFixedInstant(_) -> "Instant"
+          ElementdefinitionFixedInteger(_) -> "Integer"
+          ElementdefinitionFixedMarkdown(_) -> "Markdown"
+          ElementdefinitionFixedOid(_) -> "Oid"
+          ElementdefinitionFixedPositiveint(_) -> "Positiveint"
+          ElementdefinitionFixedString(_) -> "String"
+          ElementdefinitionFixedTime(_) -> "Time"
+          ElementdefinitionFixedUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionFixedUri(_) -> "Uri"
+          ElementdefinitionFixedUrl(_) -> "Url"
+          ElementdefinitionFixedUuid(_) -> "Uuid"
+          ElementdefinitionFixedAddress(_) -> "Address"
+          ElementdefinitionFixedAge(_) -> "Age"
+          ElementdefinitionFixedAnnotation(_) -> "Annotation"
+          ElementdefinitionFixedAttachment(_) -> "Attachment"
+          ElementdefinitionFixedCodeableconcept(_) -> "Codeableconcept"
+          ElementdefinitionFixedCoding(_) -> "Coding"
+          ElementdefinitionFixedContactpoint(_) -> "Contactpoint"
+          ElementdefinitionFixedCount(_) -> "Count"
+          ElementdefinitionFixedDistance(_) -> "Distance"
+          ElementdefinitionFixedDuration(_) -> "Duration"
+          ElementdefinitionFixedHumanname(_) -> "Humanname"
+          ElementdefinitionFixedIdentifier(_) -> "Identifier"
+          ElementdefinitionFixedMoney(_) -> "Money"
+          ElementdefinitionFixedPeriod(_) -> "Period"
+          ElementdefinitionFixedQuantity(_) -> "Quantity"
+          ElementdefinitionFixedRange(_) -> "Range"
+          ElementdefinitionFixedRatio(_) -> "Ratio"
+          ElementdefinitionFixedReference(_) -> "Reference"
+          ElementdefinitionFixedSampleddata(_) -> "Sampleddata"
+          ElementdefinitionFixedSignature(_) -> "Signature"
+          ElementdefinitionFixedTiming(_) -> "Timing"
+          ElementdefinitionFixedContactdetail(_) -> "Contactdetail"
+          ElementdefinitionFixedContributor(_) -> "Contributor"
+          ElementdefinitionFixedDatarequirement(_) -> "Datarequirement"
+          ElementdefinitionFixedExpression(_) -> "Expression"
+          ElementdefinitionFixedParameterdefinition(_) -> "Parameterdefinition"
+          ElementdefinitionFixedRelatedartifact(_) -> "Relatedartifact"
+          ElementdefinitionFixedTriggerdefinition(_) -> "Triggerdefinition"
+          ElementdefinitionFixedUsagecontext(_) -> "Usagecontext"
+          ElementdefinitionFixedDosage(_) -> "Dosage"
+          ElementdefinitionFixedMeta(_) -> "Meta"
+        },
+        elementdefinition_fixed_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case order_meaning {
@@ -4040,7 +4250,64 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
   }
   let fields = case default_value {
     Some(v) -> [
-      #("defaultValue", elementdefinition_defaultvalue_to_json(v)),
+      #(
+        "defaultValue"
+          <> case v {
+          ElementdefinitionDefaultvalueBase64binary(_) -> "Base64binary"
+          ElementdefinitionDefaultvalueBoolean(_) -> "Boolean"
+          ElementdefinitionDefaultvalueCanonical(_) -> "Canonical"
+          ElementdefinitionDefaultvalueCode(_) -> "Code"
+          ElementdefinitionDefaultvalueDate(_) -> "Date"
+          ElementdefinitionDefaultvalueDatetime(_) -> "Datetime"
+          ElementdefinitionDefaultvalueDecimal(_) -> "Decimal"
+          ElementdefinitionDefaultvalueId(_) -> "Id"
+          ElementdefinitionDefaultvalueInstant(_) -> "Instant"
+          ElementdefinitionDefaultvalueInteger(_) -> "Integer"
+          ElementdefinitionDefaultvalueMarkdown(_) -> "Markdown"
+          ElementdefinitionDefaultvalueOid(_) -> "Oid"
+          ElementdefinitionDefaultvaluePositiveint(_) -> "Positiveint"
+          ElementdefinitionDefaultvalueString(_) -> "String"
+          ElementdefinitionDefaultvalueTime(_) -> "Time"
+          ElementdefinitionDefaultvalueUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionDefaultvalueUri(_) -> "Uri"
+          ElementdefinitionDefaultvalueUrl(_) -> "Url"
+          ElementdefinitionDefaultvalueUuid(_) -> "Uuid"
+          ElementdefinitionDefaultvalueAddress(_) -> "Address"
+          ElementdefinitionDefaultvalueAge(_) -> "Age"
+          ElementdefinitionDefaultvalueAnnotation(_) -> "Annotation"
+          ElementdefinitionDefaultvalueAttachment(_) -> "Attachment"
+          ElementdefinitionDefaultvalueCodeableconcept(_) -> "Codeableconcept"
+          ElementdefinitionDefaultvalueCoding(_) -> "Coding"
+          ElementdefinitionDefaultvalueContactpoint(_) -> "Contactpoint"
+          ElementdefinitionDefaultvalueCount(_) -> "Count"
+          ElementdefinitionDefaultvalueDistance(_) -> "Distance"
+          ElementdefinitionDefaultvalueDuration(_) -> "Duration"
+          ElementdefinitionDefaultvalueHumanname(_) -> "Humanname"
+          ElementdefinitionDefaultvalueIdentifier(_) -> "Identifier"
+          ElementdefinitionDefaultvalueMoney(_) -> "Money"
+          ElementdefinitionDefaultvaluePeriod(_) -> "Period"
+          ElementdefinitionDefaultvalueQuantity(_) -> "Quantity"
+          ElementdefinitionDefaultvalueRange(_) -> "Range"
+          ElementdefinitionDefaultvalueRatio(_) -> "Ratio"
+          ElementdefinitionDefaultvalueReference(_) -> "Reference"
+          ElementdefinitionDefaultvalueSampleddata(_) -> "Sampleddata"
+          ElementdefinitionDefaultvalueSignature(_) -> "Signature"
+          ElementdefinitionDefaultvalueTiming(_) -> "Timing"
+          ElementdefinitionDefaultvalueContactdetail(_) -> "Contactdetail"
+          ElementdefinitionDefaultvalueContributor(_) -> "Contributor"
+          ElementdefinitionDefaultvalueDatarequirement(_) -> "Datarequirement"
+          ElementdefinitionDefaultvalueExpression(_) -> "Expression"
+          ElementdefinitionDefaultvalueParameterdefinition(_) ->
+            "Parameterdefinition"
+          ElementdefinitionDefaultvalueRelatedartifact(_) -> "Relatedartifact"
+          ElementdefinitionDefaultvalueTriggerdefinition(_) ->
+            "Triggerdefinition"
+          ElementdefinitionDefaultvalueUsagecontext(_) -> "Usagecontext"
+          ElementdefinitionDefaultvalueDosage(_) -> "Dosage"
+          ElementdefinitionDefaultvalueMeta(_) -> "Meta"
+        },
+        elementdefinition_defaultvalue_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -4691,7 +4958,65 @@ pub fn extension_to_json(extension: Extension) -> Json {
     #("url", json.string(url)),
   ]
   let fields = case value {
-    Some(v) -> [#("value", extension_value_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "value"
+          <> case v {
+          ExtensionValueBase64binary(_) -> "Base64binary"
+          ExtensionValueBoolean(_) -> "Boolean"
+          ExtensionValueCanonical(_) -> "Canonical"
+          ExtensionValueCode(_) -> "Code"
+          ExtensionValueDate(_) -> "Date"
+          ExtensionValueDatetime(_) -> "Datetime"
+          ExtensionValueDecimal(_) -> "Decimal"
+          ExtensionValueId(_) -> "Id"
+          ExtensionValueInstant(_) -> "Instant"
+          ExtensionValueInteger(_) -> "Integer"
+          ExtensionValueMarkdown(_) -> "Markdown"
+          ExtensionValueOid(_) -> "Oid"
+          ExtensionValuePositiveint(_) -> "Positiveint"
+          ExtensionValueString(_) -> "String"
+          ExtensionValueTime(_) -> "Time"
+          ExtensionValueUnsignedint(_) -> "Unsignedint"
+          ExtensionValueUri(_) -> "Uri"
+          ExtensionValueUrl(_) -> "Url"
+          ExtensionValueUuid(_) -> "Uuid"
+          ExtensionValueAddress(_) -> "Address"
+          ExtensionValueAge(_) -> "Age"
+          ExtensionValueAnnotation(_) -> "Annotation"
+          ExtensionValueAttachment(_) -> "Attachment"
+          ExtensionValueCodeableconcept(_) -> "Codeableconcept"
+          ExtensionValueCoding(_) -> "Coding"
+          ExtensionValueContactpoint(_) -> "Contactpoint"
+          ExtensionValueCount(_) -> "Count"
+          ExtensionValueDistance(_) -> "Distance"
+          ExtensionValueDuration(_) -> "Duration"
+          ExtensionValueHumanname(_) -> "Humanname"
+          ExtensionValueIdentifier(_) -> "Identifier"
+          ExtensionValueMoney(_) -> "Money"
+          ExtensionValuePeriod(_) -> "Period"
+          ExtensionValueQuantity(_) -> "Quantity"
+          ExtensionValueRange(_) -> "Range"
+          ExtensionValueRatio(_) -> "Ratio"
+          ExtensionValueReference(_) -> "Reference"
+          ExtensionValueSampleddata(_) -> "Sampleddata"
+          ExtensionValueSignature(_) -> "Signature"
+          ExtensionValueTiming(_) -> "Timing"
+          ExtensionValueContactdetail(_) -> "Contactdetail"
+          ExtensionValueContributor(_) -> "Contributor"
+          ExtensionValueDatarequirement(_) -> "Datarequirement"
+          ExtensionValueExpression(_) -> "Expression"
+          ExtensionValueParameterdefinition(_) -> "Parameterdefinition"
+          ExtensionValueRelatedartifact(_) -> "Relatedartifact"
+          ExtensionValueTriggerdefinition(_) -> "Triggerdefinition"
+          ExtensionValueUsagecontext(_) -> "Usagecontext"
+          ExtensionValueDosage(_) -> "Dosage"
+          ExtensionValueMeta(_) -> "Meta"
+        },
+        extension_value_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case extension {
@@ -5547,7 +5872,17 @@ pub fn population_to_json(population: Population) -> Json {
     None -> fields
   }
   let fields = case age {
-    Some(v) -> [#("age", population_age_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "age"
+          <> case v {
+          PopulationAgeRange(_) -> "Range"
+          PopulationAgeCodeableconcept(_) -> "Codeableconcept"
+        },
+        population_age_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case modifier_extension {
@@ -6745,7 +7080,18 @@ pub fn substanceamount_to_json(substanceamount: Substanceamount) -> Json {
     None -> fields
   }
   let fields = case amount {
-    Some(v) -> [#("amount", substanceamount_amount_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "amount"
+          <> case v {
+          SubstanceamountAmountQuantity(_) -> "Quantity"
+          SubstanceamountAmountRange(_) -> "Range"
+          SubstanceamountAmountString(_) -> "String"
+        },
+        substanceamount_amount_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case modifier_extension {
@@ -6985,7 +7331,18 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
     None -> fields
   }
   let fields = case bounds {
-    Some(v) -> [#("bounds", timing_repeat_bounds_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "bounds"
+          <> case v {
+          TimingRepeatBoundsDuration(_) -> "Duration"
+          TimingRepeatBoundsRange(_) -> "Range"
+          TimingRepeatBoundsPeriod(_) -> "Period"
+        },
+        timing_repeat_bounds_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case extension {
@@ -7242,7 +7599,19 @@ pub fn triggerdefinition_to_json(triggerdefinition: Triggerdefinition) -> Json {
     _ -> [#("data", json.array(data, datarequirement_to_json)), ..fields]
   }
   let fields = case timing {
-    Some(v) -> [#("timing", triggerdefinition_timing_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "timing"
+          <> case v {
+          TriggerdefinitionTimingTiming(_) -> "Timing"
+          TriggerdefinitionTimingReference(_) -> "Reference"
+          TriggerdefinitionTimingDate(_) -> "Date"
+          TriggerdefinitionTimingDatetime(_) -> "Datetime"
+        },
+        triggerdefinition_timing_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case name {
@@ -8582,7 +8951,17 @@ pub fn activitydefinition_to_json(
     None -> fields
   }
   let fields = case product {
-    Some(v) -> [#("product", activitydefinition_product_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "product"
+          <> case v {
+          ActivitydefinitionProductReference(_) -> "Reference"
+          ActivitydefinitionProductCodeableconcept(_) -> "Codeableconcept"
+        },
+        activitydefinition_product_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case participant {
@@ -8600,7 +8979,21 @@ pub fn activitydefinition_to_json(
     None -> fields
   }
   let fields = case timing {
-    Some(v) -> [#("timing", activitydefinition_timing_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "timing"
+          <> case v {
+          ActivitydefinitionTimingTiming(_) -> "Timing"
+          ActivitydefinitionTimingDatetime(_) -> "Datetime"
+          ActivitydefinitionTimingAge(_) -> "Age"
+          ActivitydefinitionTimingPeriod(_) -> "Period"
+          ActivitydefinitionTimingRange(_) -> "Range"
+          ActivitydefinitionTimingDuration(_) -> "Duration"
+        },
+        activitydefinition_timing_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case do_not_perform {
@@ -8719,7 +9112,17 @@ pub fn activitydefinition_to_json(
     None -> fields
   }
   let fields = case subject {
-    Some(v) -> [#("subject", activitydefinition_subject_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "subject"
+          <> case v {
+          ActivitydefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          ActivitydefinitionSubjectReference(_) -> "Reference"
+        },
+        activitydefinition_subject_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case experimental {
@@ -10032,7 +10435,20 @@ pub fn allergyintolerance_to_json(
     None -> fields
   }
   let fields = case onset {
-    Some(v) -> [#("onset", allergyintolerance_onset_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "onset"
+          <> case v {
+          AllergyintoleranceOnsetDatetime(_) -> "Datetime"
+          AllergyintoleranceOnsetAge(_) -> "Age"
+          AllergyintoleranceOnsetPeriod(_) -> "Period"
+          AllergyintoleranceOnsetRange(_) -> "Range"
+          AllergyintoleranceOnsetString(_) -> "String"
+        },
+        allergyintolerance_onset_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case encounter {
@@ -12598,7 +13014,14 @@ pub fn biologicallyderivedproduct_manipulation_to_json(
   let fields = []
   let fields = case time {
     Some(v) -> [
-      #("time", biologicallyderivedproduct_manipulation_time_to_json(v)),
+      #(
+        "time"
+          <> case v {
+          BiologicallyderivedproductManipulationTimeDatetime(_) -> "Datetime"
+          BiologicallyderivedproductManipulationTimePeriod(_) -> "Period"
+        },
+        biologicallyderivedproduct_manipulation_time_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -12671,7 +13094,14 @@ pub fn biologicallyderivedproduct_processing_to_json(
   let fields = []
   let fields = case time {
     Some(v) -> [
-      #("time", biologicallyderivedproduct_processing_time_to_json(v)),
+      #(
+        "time"
+          <> case v {
+          BiologicallyderivedproductProcessingTimeDatetime(_) -> "Datetime"
+          BiologicallyderivedproductProcessingTimePeriod(_) -> "Period"
+        },
+        biologicallyderivedproduct_processing_time_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -12763,7 +13193,14 @@ pub fn biologicallyderivedproduct_collection_to_json(
   let fields = []
   let fields = case collected {
     Some(v) -> [
-      #("collected", biologicallyderivedproduct_collection_collected_to_json(v)),
+      #(
+        "collected"
+          <> case v {
+          BiologicallyderivedproductCollectionCollectedDatetime(_) -> "Datetime"
+          BiologicallyderivedproductCollectionCollectedPeriod(_) -> "Period"
+        },
+        biologicallyderivedproduct_collection_collected_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -16264,7 +16701,14 @@ pub fn careplan_activity_detail_to_json(
   }
   let fields = case product {
     Some(v) -> [
-      #("product", careplan_activity_detail_product_to_json(v)),
+      #(
+        "product"
+          <> case v {
+          CareplanActivityDetailProductCodeableconcept(_) -> "Codeableconcept"
+          CareplanActivityDetailProductReference(_) -> "Reference"
+        },
+        careplan_activity_detail_product_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -16279,7 +16723,15 @@ pub fn careplan_activity_detail_to_json(
   }
   let fields = case scheduled {
     Some(v) -> [
-      #("scheduled", careplan_activity_detail_scheduled_to_json(v)),
+      #(
+        "scheduled"
+          <> case v {
+          CareplanActivityDetailScheduledTiming(_) -> "Timing"
+          CareplanActivityDetailScheduledPeriod(_) -> "Period"
+          CareplanActivityDetailScheduledString(_) -> "String"
+        },
+        careplan_activity_detail_scheduled_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -18038,7 +18490,17 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
     _ -> [#("account", json.array(account, reference_to_json)), ..fields]
   }
   let fields = case product {
-    Some(v) -> [#("product", chargeitem_product_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "product"
+          <> case v {
+          ChargeitemProductReference(_) -> "Reference"
+          ChargeitemProductCodeableconcept(_) -> "Codeableconcept"
+        },
+        chargeitem_product_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case service {
@@ -18100,7 +18562,18 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
     ]
   }
   let fields = case occurrence {
-    Some(v) -> [#("occurrence", chargeitem_occurrence_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "occurrence"
+          <> case v {
+          ChargeitemOccurrenceDatetime(_) -> "Datetime"
+          ChargeitemOccurrencePeriod(_) -> "Period"
+          ChargeitemOccurrenceTiming(_) -> "Timing"
+        },
+        chargeitem_occurrence_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case context {
@@ -20156,11 +20629,32 @@ pub fn claim_item_to_json(claim_item: ClaimItem) -> Json {
     None -> fields
   }
   let fields = case location {
-    Some(v) -> [#("location", claim_item_location_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "location"
+          <> case v {
+          ClaimItemLocationCodeableconcept(_) -> "Codeableconcept"
+          ClaimItemLocationAddress(_) -> "Address"
+          ClaimItemLocationReference(_) -> "Reference"
+        },
+        claim_item_location_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case serviced {
-    Some(v) -> [#("serviced", claim_item_serviced_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "serviced"
+          <> case v {
+          ClaimItemServicedDate(_) -> "Date"
+          ClaimItemServicedPeriod(_) -> "Period"
+        },
+        claim_item_serviced_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case program_code {
@@ -20372,7 +20866,17 @@ pub fn claim_accident_to_json(claim_accident: ClaimAccident) -> Json {
     #("date", json.string(date)),
   ]
   let fields = case location {
-    Some(v) -> [#("location", claim_accident_location_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "location"
+          <> case v {
+          ClaimAccidentLocationAddress(_) -> "Address"
+          ClaimAccidentLocationReference(_) -> "Reference"
+        },
+        claim_accident_location_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case type_ {
@@ -20720,11 +21224,34 @@ pub fn claim_supportinginfo_to_json(
     None -> fields
   }
   let fields = case value {
-    Some(v) -> [#("value", claim_supportinginfo_value_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "value"
+          <> case v {
+          ClaimSupportinginfoValueBoolean(_) -> "Boolean"
+          ClaimSupportinginfoValueString(_) -> "String"
+          ClaimSupportinginfoValueQuantity(_) -> "Quantity"
+          ClaimSupportinginfoValueAttachment(_) -> "Attachment"
+          ClaimSupportinginfoValueReference(_) -> "Reference"
+        },
+        claim_supportinginfo_value_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case timing {
-    Some(v) -> [#("timing", claim_supportinginfo_timing_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "timing"
+          <> case v {
+          ClaimSupportinginfoTimingDate(_) -> "Date"
+          ClaimSupportinginfoTimingPeriod(_) -> "Period"
+        },
+        claim_supportinginfo_timing_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case code {
@@ -22624,14 +23151,29 @@ pub fn claimresponse_additem_to_json(
   }
   let fields = case location {
     Some(v) -> [
-      #("location", claimresponse_additem_location_to_json(v)),
+      #(
+        "location"
+          <> case v {
+          ClaimresponseAdditemLocationCodeableconcept(_) -> "Codeableconcept"
+          ClaimresponseAdditemLocationAddress(_) -> "Address"
+          ClaimresponseAdditemLocationReference(_) -> "Reference"
+        },
+        claimresponse_additem_location_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
   }
   let fields = case serviced {
     Some(v) -> [
-      #("serviced", claimresponse_additem_serviced_to_json(v)),
+      #(
+        "serviced"
+          <> case v {
+          ClaimresponseAdditemServicedDate(_) -> "Date"
+          ClaimresponseAdditemServicedPeriod(_) -> "Period"
+        },
+        claimresponse_additem_serviced_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -23881,7 +24423,14 @@ pub fn clinicalimpression_to_json(
   }
   let fields = case effective {
     Some(v) -> [
-      #("effective", clinicalimpression_effective_to_json(v)),
+      #(
+        "effective"
+          <> case v {
+          ClinicalimpressionEffectiveDatetime(_) -> "Datetime"
+          ClinicalimpressionEffectivePeriod(_) -> "Period"
+        },
+        clinicalimpression_effective_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -25961,7 +26510,14 @@ pub fn communicationrequest_to_json(
   }
   let fields = case occurrence {
     Some(v) -> [
-      #("occurrence", communicationrequest_occurrence_to_json(v)),
+      #(
+        "occurrence"
+          <> case v {
+          CommunicationrequestOccurrenceDatetime(_) -> "Datetime"
+          CommunicationrequestOccurrencePeriod(_) -> "Period"
+        },
+        communicationrequest_occurrence_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -28170,11 +28726,31 @@ pub fn conceptmap_to_json(conceptmap: Conceptmap) -> Json {
     _ -> [#("group", json.array(group, conceptmap_group_to_json)), ..fields]
   }
   let fields = case target {
-    Some(v) -> [#("target", conceptmap_target_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "target"
+          <> case v {
+          ConceptmapTargetUri(_) -> "Uri"
+          ConceptmapTargetCanonical(_) -> "Canonical"
+        },
+        conceptmap_target_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case source {
-    Some(v) -> [#("source", conceptmap_source_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "source"
+          <> case v {
+          ConceptmapSourceUri(_) -> "Uri"
+          ConceptmapSourceCanonical(_) -> "Canonical"
+        },
+        conceptmap_source_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case copyright {
@@ -28792,11 +29368,37 @@ pub fn condition_to_json(condition: Condition) -> Json {
     None -> fields
   }
   let fields = case abatement {
-    Some(v) -> [#("abatement", condition_abatement_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "abatement"
+          <> case v {
+          ConditionAbatementDatetime(_) -> "Datetime"
+          ConditionAbatementAge(_) -> "Age"
+          ConditionAbatementPeriod(_) -> "Period"
+          ConditionAbatementRange(_) -> "Range"
+          ConditionAbatementString(_) -> "String"
+        },
+        condition_abatement_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case onset {
-    Some(v) -> [#("onset", condition_onset_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "onset"
+          <> case v {
+          ConditionOnsetDatetime(_) -> "Datetime"
+          ConditionOnsetAge(_) -> "Age"
+          ConditionOnsetPeriod(_) -> "Period"
+          ConditionOnsetRange(_) -> "Range"
+          ConditionOnsetString(_) -> "String"
+        },
+        condition_onset_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case encounter {
@@ -29673,7 +30275,17 @@ pub fn consent_to_json(consent: Consent) -> Json {
     _ -> [#("policy", json.array(policy, consent_policy_to_json)), ..fields]
   }
   let fields = case source {
-    Some(v) -> [#("source", consent_source_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "source"
+          <> case v {
+          ConsentSourceAttachment(_) -> "Attachment"
+          ConsentSourceReference(_) -> "Reference"
+        },
+        consent_source_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case organization {
@@ -31054,7 +31666,15 @@ pub fn contract_term_action_to_json(
   }
   let fields = case occurrence {
     Some(v) -> [
-      #("occurrence", contract_term_action_occurrence_to_json(v)),
+      #(
+        "occurrence"
+          <> case v {
+          ContractTermActionOccurrenceDatetime(_) -> "Datetime"
+          ContractTermActionOccurrencePeriod(_) -> "Period"
+          ContractTermActionOccurrenceTiming(_) -> "Timing"
+        },
+        contract_term_action_occurrence_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -31306,7 +31926,15 @@ pub fn contract_term_asset_valueditem_to_json(
   }
   let fields = case entity {
     Some(v) -> [
-      #("entity", contract_term_asset_valueditem_entity_to_json(v)),
+      #(
+        "entity"
+          <> case v {
+          ContractTermAssetValueditemEntityCodeableconcept(_) ->
+            "Codeableconcept"
+          ContractTermAssetValueditemEntityReference(_) -> "Reference"
+        },
+        contract_term_asset_valueditem_entity_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -32132,7 +32760,17 @@ pub fn contract_term_to_json(contract_term: ContractTerm) -> Json {
     None -> fields
   }
   let fields = case topic {
-    Some(v) -> [#("topic", contract_term_topic_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "topic"
+          <> case v {
+          ContractTermTopicCodeableconcept(_) -> "Codeableconcept"
+          ContractTermTopicReference(_) -> "Reference"
+        },
+        contract_term_topic_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case applies {
@@ -32396,7 +33034,14 @@ pub fn contract_to_json(contract: Contract) -> Json {
   let fields = []
   let fields = case legally_binding {
     Some(v) -> [
-      #("legallyBinding", contract_legallybinding_to_json(v)),
+      #(
+        "legallyBinding"
+          <> case v {
+          ContractLegallybindingAttachment(_) -> "Attachment"
+          ContractLegallybindingReference(_) -> "Reference"
+        },
+        contract_legallybinding_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -32454,7 +33099,17 @@ pub fn contract_to_json(contract: Contract) -> Json {
     None -> fields
   }
   let fields = case topic {
-    Some(v) -> [#("topic", contract_topic_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "topic"
+          <> case v {
+          ContractTopicCodeableconcept(_) -> "Codeableconcept"
+          ContractTopicReference(_) -> "Reference"
+        },
+        contract_topic_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case scope {
@@ -33704,7 +34359,13 @@ pub fn coverageeligibilityrequest_item_diagnosis_to_json(
   let fields = case diagnosis {
     Some(v) -> [
       #(
-        "diagnosis",
+        "diagnosis"
+          <> case v {
+          CoverageeligibilityrequestItemDiagnosisDiagnosisCodeableconcept(_) ->
+            "Codeableconcept"
+          CoverageeligibilityrequestItemDiagnosisDiagnosisReference(_) ->
+            "Reference"
+        },
         coverageeligibilityrequest_item_diagnosis_diagnosis_to_json(v),
       ),
       ..fields
@@ -34149,7 +34810,14 @@ pub fn coverageeligibilityrequest_to_json(
   }
   let fields = case serviced {
     Some(v) -> [
-      #("serviced", coverageeligibilityrequest_serviced_to_json(v)),
+      #(
+        "serviced"
+          <> case v {
+          CoverageeligibilityrequestServicedDate(_) -> "Date"
+          CoverageeligibilityrequestServicedPeriod(_) -> "Period"
+        },
+        coverageeligibilityrequest_serviced_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -34687,7 +35355,14 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_to_json(
   let fields = case used {
     Some(v) -> [
       #(
-        "used",
+        "used"
+          <> case v {
+          CoverageeligibilityresponseInsuranceItemBenefitUsedUnsignedint(_) ->
+            "Unsignedint"
+          CoverageeligibilityresponseInsuranceItemBenefitUsedString(_) ->
+            "String"
+          CoverageeligibilityresponseInsuranceItemBenefitUsedMoney(_) -> "Money"
+        },
         coverageeligibilityresponse_insurance_item_benefit_used_to_json(v),
       ),
       ..fields
@@ -34697,7 +35372,15 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_to_json(
   let fields = case allowed {
     Some(v) -> [
       #(
-        "allowed",
+        "allowed"
+          <> case v {
+          CoverageeligibilityresponseInsuranceItemBenefitAllowedUnsignedint(_) ->
+            "Unsignedint"
+          CoverageeligibilityresponseInsuranceItemBenefitAllowedString(_) ->
+            "String"
+          CoverageeligibilityresponseInsuranceItemBenefitAllowedMoney(_) ->
+            "Money"
+        },
         coverageeligibilityresponse_insurance_item_benefit_allowed_to_json(v),
       ),
       ..fields
@@ -35140,7 +35823,14 @@ pub fn coverageeligibilityresponse_to_json(
   }
   let fields = case serviced {
     Some(v) -> [
-      #("serviced", coverageeligibilityresponse_serviced_to_json(v)),
+      #(
+        "serviced"
+          <> case v {
+          CoverageeligibilityresponseServicedDate(_) -> "Date"
+          CoverageeligibilityresponseServicedPeriod(_) -> "Period"
+        },
+        coverageeligibilityresponse_serviced_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -35636,7 +36326,17 @@ pub fn detectedissue_to_json(detectedissue: Detectedissue) -> Json {
     None -> fields
   }
   let fields = case identified {
-    Some(v) -> [#("identified", detectedissue_identified_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "identified"
+          <> case v {
+          DetectedissueIdentifiedDatetime(_) -> "Datetime"
+          DetectedissueIdentifiedPeriod(_) -> "Period"
+        },
+        detectedissue_identified_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case patient {
@@ -37574,7 +38274,14 @@ pub fn devicedefinition_to_json(devicedefinition: Devicedefinition) -> Json {
   }
   let fields = case manufacturer {
     Some(v) -> [
-      #("manufacturer", devicedefinition_manufacturer_to_json(v)),
+      #(
+        "manufacturer"
+          <> case v {
+          DevicedefinitionManufacturerString(_) -> "String"
+          DevicedefinitionManufacturerReference(_) -> "Reference"
+        },
+        devicedefinition_manufacturer_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -38380,7 +39087,19 @@ pub fn devicerequest_parameter_to_json(
   ) = devicerequest_parameter
   let fields = []
   let fields = case value {
-    Some(v) -> [#("value", devicerequest_parameter_value_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "value"
+          <> case v {
+          DevicerequestParameterValueCodeableconcept(_) -> "Codeableconcept"
+          DevicerequestParameterValueQuantity(_) -> "Quantity"
+          DevicerequestParameterValueRange(_) -> "Range"
+          DevicerequestParameterValueBoolean(_) -> "Boolean"
+        },
+        devicerequest_parameter_value_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case code {
@@ -38527,7 +39246,18 @@ pub fn devicerequest_to_json(devicerequest: Devicerequest) -> Json {
     None -> fields
   }
   let fields = case occurrence {
-    Some(v) -> [#("occurrence", devicerequest_occurrence_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "occurrence"
+          <> case v {
+          DevicerequestOccurrenceDatetime(_) -> "Datetime"
+          DevicerequestOccurrencePeriod(_) -> "Period"
+          DevicerequestOccurrenceTiming(_) -> "Timing"
+        },
+        devicerequest_occurrence_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case encounter {
@@ -38949,7 +39679,18 @@ pub fn deviceusestatement_to_json(
     None -> fields
   }
   let fields = case timing {
-    Some(v) -> [#("timing", deviceusestatement_timing_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "timing"
+          <> case v {
+          DeviceusestatementTimingTiming(_) -> "Timing"
+          DeviceusestatementTimingPeriod(_) -> "Period"
+          DeviceusestatementTimingDatetime(_) -> "Datetime"
+        },
+        deviceusestatement_timing_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case derived_from {
@@ -39390,7 +40131,17 @@ pub fn diagnosticreport_to_json(diagnosticreport: Diagnosticreport) -> Json {
     None -> fields
   }
   let fields = case effective {
-    Some(v) -> [#("effective", diagnosticreport_effective_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "effective"
+          <> case v {
+          DiagnosticreportEffectiveDatetime(_) -> "Datetime"
+          DiagnosticreportEffectivePeriod(_) -> "Period"
+        },
+        diagnosticreport_effective_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case encounter {
@@ -44582,7 +45333,17 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
     None -> fields
   }
   let fields = case subject {
-    Some(v) -> [#("subject", eventdefinition_subject_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "subject"
+          <> case v {
+          EventdefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          EventdefinitionSubjectReference(_) -> "Reference"
+        },
+        eventdefinition_subject_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case experimental {
@@ -45631,7 +46392,17 @@ pub fn evidencevariable_characteristic_to_json(
   let fields = case participant_effective {
     Some(v) -> [
       #(
-        "participantEffective",
+        "participantEffective"
+          <> case v {
+          EvidencevariableCharacteristicParticipanteffectiveDatetime(_) ->
+            "Datetime"
+          EvidencevariableCharacteristicParticipanteffectivePeriod(_) ->
+            "Period"
+          EvidencevariableCharacteristicParticipanteffectiveDuration(_) ->
+            "Duration"
+          EvidencevariableCharacteristicParticipanteffectiveTiming(_) ->
+            "Timing"
+        },
         evidencevariable_characteristic_participanteffective_to_json(v),
       ),
       ..fields
@@ -48565,7 +49336,15 @@ pub fn explanationofbenefit_benefitbalance_financial_to_json(
   ]
   let fields = case used {
     Some(v) -> [
-      #("used", explanationofbenefit_benefitbalance_financial_used_to_json(v)),
+      #(
+        "used"
+          <> case v {
+          ExplanationofbenefitBenefitbalanceFinancialUsedUnsignedint(_) ->
+            "Unsignedint"
+          ExplanationofbenefitBenefitbalanceFinancialUsedMoney(_) -> "Money"
+        },
+        explanationofbenefit_benefitbalance_financial_used_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -48573,7 +49352,14 @@ pub fn explanationofbenefit_benefitbalance_financial_to_json(
   let fields = case allowed {
     Some(v) -> [
       #(
-        "allowed",
+        "allowed"
+          <> case v {
+          ExplanationofbenefitBenefitbalanceFinancialAllowedUnsignedint(_) ->
+            "Unsignedint"
+          ExplanationofbenefitBenefitbalanceFinancialAllowedString(_) ->
+            "String"
+          ExplanationofbenefitBenefitbalanceFinancialAllowedMoney(_) -> "Money"
+        },
         explanationofbenefit_benefitbalance_financial_allowed_to_json(v),
       ),
       ..fields
@@ -49373,14 +50159,30 @@ pub fn explanationofbenefit_additem_to_json(
   }
   let fields = case location {
     Some(v) -> [
-      #("location", explanationofbenefit_additem_location_to_json(v)),
+      #(
+        "location"
+          <> case v {
+          ExplanationofbenefitAdditemLocationCodeableconcept(_) ->
+            "Codeableconcept"
+          ExplanationofbenefitAdditemLocationAddress(_) -> "Address"
+          ExplanationofbenefitAdditemLocationReference(_) -> "Reference"
+        },
+        explanationofbenefit_additem_location_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
   }
   let fields = case serviced {
     Some(v) -> [
-      #("serviced", explanationofbenefit_additem_serviced_to_json(v)),
+      #(
+        "serviced"
+          <> case v {
+          ExplanationofbenefitAdditemServicedDate(_) -> "Date"
+          ExplanationofbenefitAdditemServicedPeriod(_) -> "Period"
+        },
+        explanationofbenefit_additem_serviced_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -50094,14 +50896,30 @@ pub fn explanationofbenefit_item_to_json(
   }
   let fields = case location {
     Some(v) -> [
-      #("location", explanationofbenefit_item_location_to_json(v)),
+      #(
+        "location"
+          <> case v {
+          ExplanationofbenefitItemLocationCodeableconcept(_) ->
+            "Codeableconcept"
+          ExplanationofbenefitItemLocationAddress(_) -> "Address"
+          ExplanationofbenefitItemLocationReference(_) -> "Reference"
+        },
+        explanationofbenefit_item_location_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
   }
   let fields = case serviced {
     Some(v) -> [
-      #("serviced", explanationofbenefit_item_serviced_to_json(v)),
+      #(
+        "serviced"
+          <> case v {
+          ExplanationofbenefitItemServicedDate(_) -> "Date"
+          ExplanationofbenefitItemServicedPeriod(_) -> "Period"
+        },
+        explanationofbenefit_item_serviced_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -50332,7 +51150,14 @@ pub fn explanationofbenefit_accident_to_json(
   let fields = []
   let fields = case location {
     Some(v) -> [
-      #("location", explanationofbenefit_accident_location_to_json(v)),
+      #(
+        "location"
+          <> case v {
+          ExplanationofbenefitAccidentLocationAddress(_) -> "Address"
+          ExplanationofbenefitAccidentLocationReference(_) -> "Reference"
+        },
+        explanationofbenefit_accident_location_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -50672,14 +51497,31 @@ pub fn explanationofbenefit_supportinginfo_to_json(
   }
   let fields = case value {
     Some(v) -> [
-      #("value", explanationofbenefit_supportinginfo_value_to_json(v)),
+      #(
+        "value"
+          <> case v {
+          ExplanationofbenefitSupportinginfoValueBoolean(_) -> "Boolean"
+          ExplanationofbenefitSupportinginfoValueString(_) -> "String"
+          ExplanationofbenefitSupportinginfoValueQuantity(_) -> "Quantity"
+          ExplanationofbenefitSupportinginfoValueAttachment(_) -> "Attachment"
+          ExplanationofbenefitSupportinginfoValueReference(_) -> "Reference"
+        },
+        explanationofbenefit_supportinginfo_value_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
   }
   let fields = case timing {
     Some(v) -> [
-      #("timing", explanationofbenefit_supportinginfo_timing_to_json(v)),
+      #(
+        "timing"
+          <> case v {
+          ExplanationofbenefitSupportinginfoTimingDate(_) -> "Date"
+          ExplanationofbenefitSupportinginfoTimingPeriod(_) -> "Period"
+        },
+        explanationofbenefit_supportinginfo_timing_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -51819,7 +52661,16 @@ pub fn familymemberhistory_condition_to_json(
   }
   let fields = case onset {
     Some(v) -> [
-      #("onset", familymemberhistory_condition_onset_to_json(v)),
+      #(
+        "onset"
+          <> case v {
+          FamilymemberhistoryConditionOnsetAge(_) -> "Age"
+          FamilymemberhistoryConditionOnsetRange(_) -> "Range"
+          FamilymemberhistoryConditionOnsetPeriod(_) -> "Period"
+          FamilymemberhistoryConditionOnsetString(_) -> "String"
+        },
+        familymemberhistory_condition_onset_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -51961,7 +52812,17 @@ pub fn familymemberhistory_to_json(
   }
   let fields = case deceased {
     Some(v) -> [
-      #("deceased", familymemberhistory_deceased_to_json(v)),
+      #(
+        "deceased"
+          <> case v {
+          FamilymemberhistoryDeceasedBoolean(_) -> "Boolean"
+          FamilymemberhistoryDeceasedAge(_) -> "Age"
+          FamilymemberhistoryDeceasedRange(_) -> "Range"
+          FamilymemberhistoryDeceasedDate(_) -> "Date"
+          FamilymemberhistoryDeceasedString(_) -> "String"
+        },
+        familymemberhistory_deceased_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -51971,11 +52832,33 @@ pub fn familymemberhistory_to_json(
     None -> fields
   }
   let fields = case age {
-    Some(v) -> [#("age", familymemberhistory_age_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "age"
+          <> case v {
+          FamilymemberhistoryAgeAge(_) -> "Age"
+          FamilymemberhistoryAgeRange(_) -> "Range"
+          FamilymemberhistoryAgeString(_) -> "String"
+        },
+        familymemberhistory_age_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case born {
-    Some(v) -> [#("born", familymemberhistory_born_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "born"
+          <> case v {
+          FamilymemberhistoryBornPeriod(_) -> "Period"
+          FamilymemberhistoryBornDate(_) -> "Date"
+          FamilymemberhistoryBornString(_) -> "String"
+        },
+        familymemberhistory_born_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case sex {
@@ -52596,11 +53479,36 @@ pub fn goal_target_to_json(goal_target: GoalTarget) -> Json {
     goal_target
   let fields = []
   let fields = case due {
-    Some(v) -> [#("due", goal_target_due_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "due"
+          <> case v {
+          GoalTargetDueDate(_) -> "Date"
+          GoalTargetDueDuration(_) -> "Duration"
+        },
+        goal_target_due_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case detail {
-    Some(v) -> [#("detail", goal_target_detail_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "detail"
+          <> case v {
+          GoalTargetDetailQuantity(_) -> "Quantity"
+          GoalTargetDetailRange(_) -> "Range"
+          GoalTargetDetailCodeableconcept(_) -> "Codeableconcept"
+          GoalTargetDetailString(_) -> "String"
+          GoalTargetDetailBoolean(_) -> "Boolean"
+          GoalTargetDetailInteger(_) -> "Integer"
+          GoalTargetDetailRatio(_) -> "Ratio"
+        },
+        goal_target_detail_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case measure {
@@ -52725,7 +53633,17 @@ pub fn goal_to_json(goal: Goal) -> Json {
     _ -> [#("target", json.array(target, goal_target_to_json)), ..fields]
   }
   let fields = case start {
-    Some(v) -> [#("start", goal_start_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "start"
+          <> case v {
+          GoalStartDate(_) -> "Date"
+          GoalStartCodeableconcept(_) -> "Codeableconcept"
+        },
+        goal_start_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case priority {
@@ -56309,7 +57227,14 @@ pub fn immunization_protocolapplied_to_json(
   ]
   let fields = case series_doses {
     Some(v) -> [
-      #("seriesDoses", immunization_protocolapplied_seriesdoses_to_json(v)),
+      #(
+        "seriesDoses"
+          <> case v {
+          ImmunizationProtocolappliedSeriesdosesPositiveint(_) -> "Positiveint"
+          ImmunizationProtocolappliedSeriesdosesString(_) -> "String"
+        },
+        immunization_protocolapplied_seriesdoses_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -57188,14 +58113,28 @@ pub fn immunizationevaluation_to_json(
   ]
   let fields = case series_doses {
     Some(v) -> [
-      #("seriesDoses", immunizationevaluation_seriesdoses_to_json(v)),
+      #(
+        "seriesDoses"
+          <> case v {
+          ImmunizationevaluationSeriesdosesPositiveint(_) -> "Positiveint"
+          ImmunizationevaluationSeriesdosesString(_) -> "String"
+        },
+        immunizationevaluation_seriesdoses_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
   }
   let fields = case dose_number {
     Some(v) -> [
-      #("doseNumber", immunizationevaluation_dosenumber_to_json(v)),
+      #(
+        "doseNumber"
+          <> case v {
+          ImmunizationevaluationDosenumberPositiveint(_) -> "Positiveint"
+          ImmunizationevaluationDosenumberString(_) -> "String"
+        },
+        immunizationevaluation_dosenumber_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -57657,7 +58596,13 @@ pub fn immunizationrecommendation_recommendation_to_json(
   let fields = case series_doses {
     Some(v) -> [
       #(
-        "seriesDoses",
+        "seriesDoses"
+          <> case v {
+          ImmunizationrecommendationRecommendationSeriesdosesPositiveint(_) ->
+            "Positiveint"
+          ImmunizationrecommendationRecommendationSeriesdosesString(_) ->
+            "String"
+        },
         immunizationrecommendation_recommendation_seriesdoses_to_json(v),
       ),
       ..fields
@@ -57667,7 +58612,13 @@ pub fn immunizationrecommendation_recommendation_to_json(
   let fields = case dose_number {
     Some(v) -> [
       #(
-        "doseNumber",
+        "doseNumber"
+          <> case v {
+          ImmunizationrecommendationRecommendationDosenumberPositiveint(_) ->
+            "Positiveint"
+          ImmunizationrecommendationRecommendationDosenumberString(_) ->
+            "String"
+        },
         immunizationrecommendation_recommendation_dosenumber_to_json(v),
       ),
       ..fields
@@ -58520,7 +59471,14 @@ pub fn implementationguide_manifest_resource_to_json(
   }
   let fields = case example {
     Some(v) -> [
-      #("example", implementationguide_manifest_resource_example_to_json(v)),
+      #(
+        "example"
+          <> case v {
+          ImplementationguideManifestResourceExampleBoolean(_) -> "Boolean"
+          ImplementationguideManifestResourceExampleCanonical(_) -> "Canonical"
+        },
+        implementationguide_manifest_resource_example_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -58892,7 +59850,15 @@ pub fn implementationguide_definition_resource_to_json(
   }
   let fields = case example {
     Some(v) -> [
-      #("example", implementationguide_definition_resource_example_to_json(v)),
+      #(
+        "example"
+          <> case v {
+          ImplementationguideDefinitionResourceExampleBoolean(_) -> "Boolean"
+          ImplementationguideDefinitionResourceExampleCanonical(_) ->
+            "Canonical"
+        },
+        implementationguide_definition_resource_example_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -61851,7 +62817,17 @@ pub fn library_to_json(library: Library) -> Json {
     None -> fields
   }
   let fields = case subject {
-    Some(v) -> [#("subject", library_subject_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "subject"
+          <> case v {
+          LibrarySubjectCodeableconcept(_) -> "Codeableconcept"
+          LibrarySubjectReference(_) -> "Reference"
+        },
+        library_subject_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case experimental {
@@ -64213,7 +65189,17 @@ pub fn measure_to_json(measure: Measure) -> Json {
     None -> fields
   }
   let fields = case subject {
-    Some(v) -> [#("subject", measure_subject_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "subject"
+          <> case v {
+          MeasureSubjectCodeableconcept(_) -> "Codeableconcept"
+          MeasureSubjectReference(_) -> "Reference"
+        },
+        measure_subject_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case experimental {
@@ -65641,7 +66627,17 @@ pub fn media_to_json(media: Media) -> Json {
     None -> fields
   }
   let fields = case created {
-    Some(v) -> [#("created", media_created_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "created"
+          <> case v {
+          MediaCreatedDatetime(_) -> "Datetime"
+          MediaCreatedPeriod(_) -> "Period"
+        },
+        media_created_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case encounter {
@@ -66553,7 +67549,14 @@ pub fn medicationadministration_dosage_to_json(
   let fields = []
   let fields = case rate {
     Some(v) -> [
-      #("rate", medicationadministration_dosage_rate_to_json(v)),
+      #(
+        "rate"
+          <> case v {
+          MedicationadministrationDosageRateRatio(_) -> "Ratio"
+          MedicationadministrationDosageRateQuantity(_) -> "Quantity"
+        },
+        medicationadministration_dosage_rate_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -67523,7 +68526,14 @@ pub fn medicationdispense_to_json(
   }
   let fields = case status_reason {
     Some(v) -> [
-      #("statusReason", medicationdispense_statusreason_to_json(v)),
+      #(
+        "statusReason"
+          <> case v {
+          MedicationdispenseStatusreasonCodeableconcept(_) -> "Codeableconcept"
+          MedicationdispenseStatusreasonReference(_) -> "Reference"
+        },
+        medicationdispense_statusreason_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -68746,7 +69756,18 @@ pub fn medicationknowledge_drugcharacteristic_to_json(
   let fields = []
   let fields = case value {
     Some(v) -> [
-      #("value", medicationknowledge_drugcharacteristic_value_to_json(v)),
+      #(
+        "value"
+          <> case v {
+          MedicationknowledgeDrugcharacteristicValueCodeableconcept(_) ->
+            "Codeableconcept"
+          MedicationknowledgeDrugcharacteristicValueString(_) -> "String"
+          MedicationknowledgeDrugcharacteristicValueQuantity(_) -> "Quantity"
+          MedicationknowledgeDrugcharacteristicValueBase64binary(_) ->
+            "Base64binary"
+        },
+        medicationknowledge_drugcharacteristic_value_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -69102,7 +70123,14 @@ pub fn medicationknowledge_administrationguidelines_to_json(
   let fields = case indication {
     Some(v) -> [
       #(
-        "indication",
+        "indication"
+          <> case v {
+          MedicationknowledgeAdministrationguidelinesIndicationCodeableconcept(
+            _,
+          ) -> "Codeableconcept"
+          MedicationknowledgeAdministrationguidelinesIndicationReference(_) ->
+            "Reference"
+        },
         medicationknowledge_administrationguidelines_indication_to_json(v),
       ),
       ..fields
@@ -70659,7 +71687,17 @@ pub fn medicationrequest_to_json(medicationrequest: Medicationrequest) -> Json {
     None -> fields
   }
   let fields = case reported {
-    Some(v) -> [#("reported", medicationrequest_reported_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "reported"
+          <> case v {
+          MedicationrequestReportedBoolean(_) -> "Boolean"
+          MedicationrequestReportedReference(_) -> "Reference"
+        },
+        medicationrequest_reported_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case do_not_perform {
@@ -71152,7 +72190,14 @@ pub fn medicationstatement_to_json(
   }
   let fields = case effective {
     Some(v) -> [
-      #("effective", medicationstatement_effective_to_json(v)),
+      #(
+        "effective"
+          <> case v {
+          MedicationstatementEffectiveDatetime(_) -> "Datetime"
+          MedicationstatementEffectivePeriod(_) -> "Period"
+        },
+        medicationstatement_effective_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -71632,7 +72677,16 @@ pub fn medicinalproduct_specialdesignation_to_json(
   }
   let fields = case indication {
     Some(v) -> [
-      #("indication", medicinalproduct_specialdesignation_indication_to_json(v)),
+      #(
+        "indication"
+          <> case v {
+          MedicinalproductSpecialdesignationIndicationCodeableconcept(_) ->
+            "Codeableconcept"
+          MedicinalproductSpecialdesignationIndicationReference(_) ->
+            "Reference"
+        },
+        medicinalproduct_specialdesignation_indication_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -72603,7 +73657,14 @@ pub fn medicinalproductauthorization_procedure_to_json(
   ]
   let fields = case date {
     Some(v) -> [
-      #("date", medicinalproductauthorization_procedure_date_to_json(v)),
+      #(
+        "date"
+          <> case v {
+          MedicinalproductauthorizationProcedureDatePeriod(_) -> "Period"
+          MedicinalproductauthorizationProcedureDateDatetime(_) -> "Datetime"
+        },
+        medicinalproductauthorization_procedure_date_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -80004,7 +81065,15 @@ pub fn nutritionorder_enteralformula_administration_to_json(
   let fields = []
   let fields = case rate {
     Some(v) -> [
-      #("rate", nutritionorder_enteralformula_administration_rate_to_json(v)),
+      #(
+        "rate"
+          <> case v {
+          NutritionorderEnteralformulaAdministrationRateQuantity(_) ->
+            "Quantity"
+          NutritionorderEnteralformulaAdministrationRateRatio(_) -> "Ratio"
+        },
+        nutritionorder_enteralformula_administration_rate_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -81216,7 +82285,26 @@ pub fn observation_component_to_json(
     None -> fields
   }
   let fields = case value {
-    Some(v) -> [#("value", observation_component_value_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "value"
+          <> case v {
+          ObservationComponentValueQuantity(_) -> "Quantity"
+          ObservationComponentValueCodeableconcept(_) -> "Codeableconcept"
+          ObservationComponentValueString(_) -> "String"
+          ObservationComponentValueBoolean(_) -> "Boolean"
+          ObservationComponentValueInteger(_) -> "Integer"
+          ObservationComponentValueRange(_) -> "Range"
+          ObservationComponentValueRatio(_) -> "Ratio"
+          ObservationComponentValueSampleddata(_) -> "Sampleddata"
+          ObservationComponentValueTime(_) -> "Time"
+          ObservationComponentValueDatetime(_) -> "Datetime"
+          ObservationComponentValuePeriod(_) -> "Period"
+        },
+        observation_component_value_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case modifier_extension {
@@ -81490,7 +82578,26 @@ pub fn observation_to_json(observation: Observation) -> Json {
     None -> fields
   }
   let fields = case value {
-    Some(v) -> [#("value", observation_value_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "value"
+          <> case v {
+          ObservationValueQuantity(_) -> "Quantity"
+          ObservationValueCodeableconcept(_) -> "Codeableconcept"
+          ObservationValueString(_) -> "String"
+          ObservationValueBoolean(_) -> "Boolean"
+          ObservationValueInteger(_) -> "Integer"
+          ObservationValueRange(_) -> "Range"
+          ObservationValueRatio(_) -> "Ratio"
+          ObservationValueSampleddata(_) -> "Sampleddata"
+          ObservationValueTime(_) -> "Time"
+          ObservationValueDatetime(_) -> "Datetime"
+          ObservationValuePeriod(_) -> "Period"
+        },
+        observation_value_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case performer {
@@ -81502,7 +82609,19 @@ pub fn observation_to_json(observation: Observation) -> Json {
     None -> fields
   }
   let fields = case effective {
-    Some(v) -> [#("effective", observation_effective_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "effective"
+          <> case v {
+          ObservationEffectiveDatetime(_) -> "Datetime"
+          ObservationEffectivePeriod(_) -> "Period"
+          ObservationEffectiveTiming(_) -> "Timing"
+          ObservationEffectiveInstant(_) -> "Instant"
+        },
+        observation_effective_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case encounter {
@@ -84490,7 +85609,66 @@ pub fn parameters_parameter_to_json(
     None -> fields
   }
   let fields = case value {
-    Some(v) -> [#("value", parameters_parameter_value_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "value"
+          <> case v {
+          ParametersParameterValueBase64binary(_) -> "Base64binary"
+          ParametersParameterValueBoolean(_) -> "Boolean"
+          ParametersParameterValueCanonical(_) -> "Canonical"
+          ParametersParameterValueCode(_) -> "Code"
+          ParametersParameterValueDate(_) -> "Date"
+          ParametersParameterValueDatetime(_) -> "Datetime"
+          ParametersParameterValueDecimal(_) -> "Decimal"
+          ParametersParameterValueId(_) -> "Id"
+          ParametersParameterValueInstant(_) -> "Instant"
+          ParametersParameterValueInteger(_) -> "Integer"
+          ParametersParameterValueMarkdown(_) -> "Markdown"
+          ParametersParameterValueOid(_) -> "Oid"
+          ParametersParameterValuePositiveint(_) -> "Positiveint"
+          ParametersParameterValueString(_) -> "String"
+          ParametersParameterValueTime(_) -> "Time"
+          ParametersParameterValueUnsignedint(_) -> "Unsignedint"
+          ParametersParameterValueUri(_) -> "Uri"
+          ParametersParameterValueUrl(_) -> "Url"
+          ParametersParameterValueUuid(_) -> "Uuid"
+          ParametersParameterValueAddress(_) -> "Address"
+          ParametersParameterValueAge(_) -> "Age"
+          ParametersParameterValueAnnotation(_) -> "Annotation"
+          ParametersParameterValueAttachment(_) -> "Attachment"
+          ParametersParameterValueCodeableconcept(_) -> "Codeableconcept"
+          ParametersParameterValueCoding(_) -> "Coding"
+          ParametersParameterValueContactpoint(_) -> "Contactpoint"
+          ParametersParameterValueCount(_) -> "Count"
+          ParametersParameterValueDistance(_) -> "Distance"
+          ParametersParameterValueDuration(_) -> "Duration"
+          ParametersParameterValueHumanname(_) -> "Humanname"
+          ParametersParameterValueIdentifier(_) -> "Identifier"
+          ParametersParameterValueMoney(_) -> "Money"
+          ParametersParameterValuePeriod(_) -> "Period"
+          ParametersParameterValueQuantity(_) -> "Quantity"
+          ParametersParameterValueRange(_) -> "Range"
+          ParametersParameterValueRatio(_) -> "Ratio"
+          ParametersParameterValueReference(_) -> "Reference"
+          ParametersParameterValueSampleddata(_) -> "Sampleddata"
+          ParametersParameterValueSignature(_) -> "Signature"
+          ParametersParameterValueTiming(_) -> "Timing"
+          ParametersParameterValueContactdetail(_) -> "Contactdetail"
+          ParametersParameterValueContributor(_) -> "Contributor"
+          ParametersParameterValueDatarequirement(_) -> "Datarequirement"
+          ParametersParameterValueExpression(_) -> "Expression"
+          ParametersParameterValueParameterdefinition(_) ->
+            "Parameterdefinition"
+          ParametersParameterValueRelatedartifact(_) -> "Relatedartifact"
+          ParametersParameterValueTriggerdefinition(_) -> "Triggerdefinition"
+          ParametersParameterValueUsagecontext(_) -> "Usagecontext"
+          ParametersParameterValueDosage(_) -> "Dosage"
+          ParametersParameterValueMeta(_) -> "Meta"
+        },
+        parameters_parameter_value_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case modifier_extension {
@@ -85078,7 +86256,17 @@ pub fn patient_to_json(patient: Patient) -> Json {
     _ -> [#("photo", json.array(photo, attachment_to_json)), ..fields]
   }
   let fields = case multiple_birth {
-    Some(v) -> [#("multipleBirth", patient_multiplebirth_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "multipleBirth"
+          <> case v {
+          PatientMultiplebirthBoolean(_) -> "Boolean"
+          PatientMultiplebirthInteger(_) -> "Integer"
+        },
+        patient_multiplebirth_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case marital_status {
@@ -85090,7 +86278,17 @@ pub fn patient_to_json(patient: Patient) -> Json {
     _ -> [#("address", json.array(address, address_to_json)), ..fields]
   }
   let fields = case deceased {
-    Some(v) -> [#("deceased", patient_deceased_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "deceased"
+          <> case v {
+          PatientDeceasedBoolean(_) -> "Boolean"
+          PatientDeceasedDatetime(_) -> "Datetime"
+        },
+        patient_deceased_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case birth_date {
@@ -87141,7 +88339,14 @@ pub fn plandefinition_action_relatedaction_to_json(
   ]
   let fields = case offset {
     Some(v) -> [
-      #("offset", plandefinition_action_relatedaction_offset_to_json(v)),
+      #(
+        "offset"
+          <> case v {
+          PlandefinitionActionRelatedactionOffsetDuration(_) -> "Duration"
+          PlandefinitionActionRelatedactionOffsetRange(_) -> "Range"
+        },
+        plandefinition_action_relatedaction_offset_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -87311,7 +88516,14 @@ pub fn plandefinition_action_to_json(
   }
   let fields = case definition {
     Some(v) -> [
-      #("definition", plandefinition_action_definition_to_json(v)),
+      #(
+        "definition"
+          <> case v {
+          PlandefinitionActionDefinitionCanonical(_) -> "Canonical"
+          PlandefinitionActionDefinitionUri(_) -> "Uri"
+        },
+        plandefinition_action_definition_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -87366,7 +88578,21 @@ pub fn plandefinition_action_to_json(
     ]
   }
   let fields = case timing {
-    Some(v) -> [#("timing", plandefinition_action_timing_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "timing"
+          <> case v {
+          PlandefinitionActionTimingDatetime(_) -> "Datetime"
+          PlandefinitionActionTimingAge(_) -> "Age"
+          PlandefinitionActionTimingPeriod(_) -> "Period"
+          PlandefinitionActionTimingDuration(_) -> "Duration"
+          PlandefinitionActionTimingRange(_) -> "Range"
+          PlandefinitionActionTimingTiming(_) -> "Timing"
+        },
+        plandefinition_action_timing_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case related_action {
@@ -87406,7 +88632,14 @@ pub fn plandefinition_action_to_json(
   }
   let fields = case subject {
     Some(v) -> [
-      #("subject", plandefinition_action_subject_to_json(v)),
+      #(
+        "subject"
+          <> case v {
+          PlandefinitionActionSubjectCodeableconcept(_) -> "Codeableconcept"
+          PlandefinitionActionSubjectReference(_) -> "Reference"
+        },
+        plandefinition_action_subject_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -87651,7 +88884,15 @@ pub fn plandefinition_goal_target_to_json(
   }
   let fields = case detail {
     Some(v) -> [
-      #("detail", plandefinition_goal_target_detail_to_json(v)),
+      #(
+        "detail"
+          <> case v {
+          PlandefinitionGoalTargetDetailQuantity(_) -> "Quantity"
+          PlandefinitionGoalTargetDetailRange(_) -> "Range"
+          PlandefinitionGoalTargetDetailCodeableconcept(_) -> "Codeableconcept"
+        },
+        plandefinition_goal_target_detail_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -87984,7 +89225,17 @@ pub fn plandefinition_to_json(plandefinition: Plandefinition) -> Json {
     None -> fields
   }
   let fields = case subject {
-    Some(v) -> [#("subject", plandefinition_subject_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "subject"
+          <> case v {
+          PlandefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          PlandefinitionSubjectReference(_) -> "Reference"
+        },
+        plandefinition_subject_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case experimental {
@@ -89638,7 +90889,20 @@ pub fn procedure_to_json(procedure: Procedure) -> Json {
     None -> fields
   }
   let fields = case performed {
-    Some(v) -> [#("performed", procedure_performed_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "performed"
+          <> case v {
+          ProcedurePerformedDatetime(_) -> "Datetime"
+          ProcedurePerformedPeriod(_) -> "Period"
+          ProcedurePerformedString(_) -> "String"
+          ProcedurePerformedAge(_) -> "Age"
+          ProcedurePerformedRange(_) -> "Range"
+        },
+        procedure_performed_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case encounter {
@@ -90232,7 +91496,17 @@ pub fn provenance_to_json(provenance: Provenance) -> Json {
     _ -> [#("policy", json.array(policy, json.string)), ..fields]
   }
   let fields = case occurred {
-    Some(v) -> [#("occurred", provenance_occurred_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "occurred"
+          <> case v {
+          ProvenanceOccurredPeriod(_) -> "Period"
+          ProvenanceOccurredDatetime(_) -> "Datetime"
+        },
+        provenance_occurred_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case target {
@@ -91641,7 +92915,24 @@ pub fn questionnaireresponse_item_answer_to_json(
   let fields = []
   let fields = case value {
     Some(v) -> [
-      #("value", questionnaireresponse_item_answer_value_to_json(v)),
+      #(
+        "value"
+          <> case v {
+          QuestionnaireresponseItemAnswerValueBoolean(_) -> "Boolean"
+          QuestionnaireresponseItemAnswerValueDecimal(_) -> "Decimal"
+          QuestionnaireresponseItemAnswerValueInteger(_) -> "Integer"
+          QuestionnaireresponseItemAnswerValueDate(_) -> "Date"
+          QuestionnaireresponseItemAnswerValueDatetime(_) -> "Datetime"
+          QuestionnaireresponseItemAnswerValueTime(_) -> "Time"
+          QuestionnaireresponseItemAnswerValueString(_) -> "String"
+          QuestionnaireresponseItemAnswerValueUri(_) -> "Uri"
+          QuestionnaireresponseItemAnswerValueAttachment(_) -> "Attachment"
+          QuestionnaireresponseItemAnswerValueCoding(_) -> "Coding"
+          QuestionnaireresponseItemAnswerValueQuantity(_) -> "Quantity"
+          QuestionnaireresponseItemAnswerValueReference(_) -> "Reference"
+        },
+        questionnaireresponse_item_answer_value_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -92628,7 +93919,14 @@ pub fn requestgroup_action_relatedaction_to_json(
   ]
   let fields = case offset {
     Some(v) -> [
-      #("offset", requestgroup_action_relatedaction_offset_to_json(v)),
+      #(
+        "offset"
+          <> case v {
+          RequestgroupActionRelatedactionOffsetDuration(_) -> "Duration"
+          RequestgroupActionRelatedactionOffsetRange(_) -> "Range"
+        },
+        requestgroup_action_relatedaction_offset_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -92825,7 +94123,21 @@ pub fn requestgroup_action_to_json(
     ]
   }
   let fields = case timing {
-    Some(v) -> [#("timing", requestgroup_action_timing_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "timing"
+          <> case v {
+          RequestgroupActionTimingDatetime(_) -> "Datetime"
+          RequestgroupActionTimingAge(_) -> "Age"
+          RequestgroupActionTimingPeriod(_) -> "Period"
+          RequestgroupActionTimingDuration(_) -> "Duration"
+          RequestgroupActionTimingRange(_) -> "Range"
+          RequestgroupActionTimingTiming(_) -> "Timing"
+        },
+        requestgroup_action_timing_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case related_action {
@@ -93610,7 +94922,17 @@ pub fn researchdefinition_to_json(
     None -> fields
   }
   let fields = case subject {
-    Some(v) -> [#("subject", researchdefinition_subject_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "subject"
+          <> case v {
+          ResearchdefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          ResearchdefinitionSubjectReference(_) -> "Reference"
+        },
+        researchdefinition_subject_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case experimental {
@@ -94327,7 +95649,17 @@ pub fn researchelementdefinition_characteristic_to_json(
   let fields = case participant_effective {
     Some(v) -> [
       #(
-        "participantEffective",
+        "participantEffective"
+          <> case v {
+          ResearchelementdefinitionCharacteristicParticipanteffectiveDatetime(_) ->
+            "Datetime"
+          ResearchelementdefinitionCharacteristicParticipanteffectivePeriod(_) ->
+            "Period"
+          ResearchelementdefinitionCharacteristicParticipanteffectiveDuration(_) ->
+            "Duration"
+          ResearchelementdefinitionCharacteristicParticipanteffectiveTiming(_) ->
+            "Timing"
+        },
         researchelementdefinition_characteristic_participanteffective_to_json(v),
       ),
       ..fields
@@ -94352,7 +95684,17 @@ pub fn researchelementdefinition_characteristic_to_json(
   let fields = case study_effective {
     Some(v) -> [
       #(
-        "studyEffective",
+        "studyEffective"
+          <> case v {
+          ResearchelementdefinitionCharacteristicStudyeffectiveDatetime(_) ->
+            "Datetime"
+          ResearchelementdefinitionCharacteristicStudyeffectivePeriod(_) ->
+            "Period"
+          ResearchelementdefinitionCharacteristicStudyeffectiveDuration(_) ->
+            "Duration"
+          ResearchelementdefinitionCharacteristicStudyeffectiveTiming(_) ->
+            "Timing"
+        },
         researchelementdefinition_characteristic_studyeffective_to_json(v),
       ),
       ..fields
@@ -94651,7 +95993,15 @@ pub fn researchelementdefinition_to_json(
   }
   let fields = case subject {
     Some(v) -> [
-      #("subject", researchelementdefinition_subject_to_json(v)),
+      #(
+        "subject"
+          <> case v {
+          ResearchelementdefinitionSubjectCodeableconcept(_) ->
+            "Codeableconcept"
+          ResearchelementdefinitionSubjectReference(_) -> "Reference"
+        },
+        researchelementdefinition_subject_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -96007,7 +97357,17 @@ pub fn riskassessment_prediction_to_json(
     None -> fields
   }
   let fields = case when {
-    Some(v) -> [#("when", riskassessment_prediction_when_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "when"
+          <> case v {
+          RiskassessmentPredictionWhenPeriod(_) -> "Period"
+          RiskassessmentPredictionWhenRange(_) -> "Range"
+        },
+        riskassessment_prediction_when_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case relative_risk {
@@ -96020,7 +97380,14 @@ pub fn riskassessment_prediction_to_json(
   }
   let fields = case probability {
     Some(v) -> [
-      #("probability", riskassessment_prediction_probability_to_json(v)),
+      #(
+        "probability"
+          <> case v {
+          RiskassessmentPredictionProbabilityDecimal(_) -> "Decimal"
+          RiskassessmentPredictionProbabilityRange(_) -> "Range"
+        },
+        riskassessment_prediction_probability_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -96172,7 +97539,17 @@ pub fn riskassessment_to_json(riskassessment: Riskassessment) -> Json {
     None -> fields
   }
   let fields = case occurrence {
-    Some(v) -> [#("occurrence", riskassessment_occurrence_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "occurrence"
+          <> case v {
+          RiskassessmentOccurrenceDatetime(_) -> "Datetime"
+          RiskassessmentOccurrencePeriod(_) -> "Period"
+        },
+        riskassessment_occurrence_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case encounter {
@@ -98599,11 +99976,32 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
     None -> fields
   }
   let fields = case as_needed {
-    Some(v) -> [#("asNeeded", servicerequest_asneeded_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "asNeeded"
+          <> case v {
+          ServicerequestAsneededBoolean(_) -> "Boolean"
+          ServicerequestAsneededCodeableconcept(_) -> "Codeableconcept"
+        },
+        servicerequest_asneeded_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case occurrence {
-    Some(v) -> [#("occurrence", servicerequest_occurrence_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "occurrence"
+          <> case v {
+          ServicerequestOccurrenceDatetime(_) -> "Datetime"
+          ServicerequestOccurrencePeriod(_) -> "Period"
+          ServicerequestOccurrenceTiming(_) -> "Timing"
+        },
+        servicerequest_occurrence_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case encounter {
@@ -98611,7 +100009,18 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
     None -> fields
   }
   let fields = case quantity {
-    Some(v) -> [#("quantity", servicerequest_quantity_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "quantity"
+          <> case v {
+          ServicerequestQuantityQuantity(_) -> "Quantity"
+          ServicerequestQuantityRatio(_) -> "Ratio"
+          ServicerequestQuantityRange(_) -> "Range"
+        },
+        servicerequest_quantity_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case order_detail {
@@ -99470,7 +100879,17 @@ pub fn specimen_container_to_json(specimen_container: SpecimenContainer) -> Json
   ) = specimen_container
   let fields = []
   let fields = case additive {
-    Some(v) -> [#("additive", specimen_container_additive_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "additive"
+          <> case v {
+          SpecimenContainerAdditiveCodeableconcept(_) -> "Codeableconcept"
+          SpecimenContainerAdditiveReference(_) -> "Reference"
+        },
+        specimen_container_additive_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case specimen_quantity {
@@ -99578,7 +100997,17 @@ pub fn specimen_processing_to_json(
   ) = specimen_processing
   let fields = []
   let fields = case time {
-    Some(v) -> [#("time", specimen_processing_time_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "time"
+          <> case v {
+          SpecimenProcessingTimeDatetime(_) -> "Datetime"
+          SpecimenProcessingTimePeriod(_) -> "Period"
+        },
+        specimen_processing_time_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case additive {
@@ -99668,7 +101097,14 @@ pub fn specimen_collection_to_json(
   let fields = []
   let fields = case fasting_status {
     Some(v) -> [
-      #("fastingStatus", specimen_collection_fastingstatus_to_json(v)),
+      #(
+        "fastingStatus"
+          <> case v {
+          SpecimenCollectionFastingstatusCodeableconcept(_) -> "Codeableconcept"
+          SpecimenCollectionFastingstatusDuration(_) -> "Duration"
+        },
+        specimen_collection_fastingstatus_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -99691,7 +101127,14 @@ pub fn specimen_collection_to_json(
   }
   let fields = case collected {
     Some(v) -> [
-      #("collected", specimen_collection_collected_to_json(v)),
+      #(
+        "collected"
+          <> case v {
+          SpecimenCollectionCollectedDatetime(_) -> "Datetime"
+          SpecimenCollectionCollectedPeriod(_) -> "Period"
+        },
+        specimen_collection_collected_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -100444,7 +101887,13 @@ pub fn specimendefinition_typetested_container_to_json(
   let fields = case minimum_volume {
     Some(v) -> [
       #(
-        "minimumVolume",
+        "minimumVolume"
+          <> case v {
+          SpecimendefinitionTypetestedContainerMinimumvolumeQuantity(_) ->
+            "Quantity"
+          SpecimendefinitionTypetestedContainerMinimumvolumeString(_) ->
+            "String"
+        },
         specimendefinition_typetested_container_minimumvolume_to_json(v),
       ),
       ..fields
@@ -102681,7 +104130,71 @@ pub fn structuremap_group_rule_source_to_json(
   }
   let fields = case default_value {
     Some(v) -> [
-      #("defaultValue", structuremap_group_rule_source_defaultvalue_to_json(v)),
+      #(
+        "defaultValue"
+          <> case v {
+          StructuremapGroupRuleSourceDefaultvalueBase64binary(_) ->
+            "Base64binary"
+          StructuremapGroupRuleSourceDefaultvalueBoolean(_) -> "Boolean"
+          StructuremapGroupRuleSourceDefaultvalueCanonical(_) -> "Canonical"
+          StructuremapGroupRuleSourceDefaultvalueCode(_) -> "Code"
+          StructuremapGroupRuleSourceDefaultvalueDate(_) -> "Date"
+          StructuremapGroupRuleSourceDefaultvalueDatetime(_) -> "Datetime"
+          StructuremapGroupRuleSourceDefaultvalueDecimal(_) -> "Decimal"
+          StructuremapGroupRuleSourceDefaultvalueId(_) -> "Id"
+          StructuremapGroupRuleSourceDefaultvalueInstant(_) -> "Instant"
+          StructuremapGroupRuleSourceDefaultvalueInteger(_) -> "Integer"
+          StructuremapGroupRuleSourceDefaultvalueMarkdown(_) -> "Markdown"
+          StructuremapGroupRuleSourceDefaultvalueOid(_) -> "Oid"
+          StructuremapGroupRuleSourceDefaultvaluePositiveint(_) -> "Positiveint"
+          StructuremapGroupRuleSourceDefaultvalueString(_) -> "String"
+          StructuremapGroupRuleSourceDefaultvalueTime(_) -> "Time"
+          StructuremapGroupRuleSourceDefaultvalueUnsignedint(_) -> "Unsignedint"
+          StructuremapGroupRuleSourceDefaultvalueUri(_) -> "Uri"
+          StructuremapGroupRuleSourceDefaultvalueUrl(_) -> "Url"
+          StructuremapGroupRuleSourceDefaultvalueUuid(_) -> "Uuid"
+          StructuremapGroupRuleSourceDefaultvalueAddress(_) -> "Address"
+          StructuremapGroupRuleSourceDefaultvalueAge(_) -> "Age"
+          StructuremapGroupRuleSourceDefaultvalueAnnotation(_) -> "Annotation"
+          StructuremapGroupRuleSourceDefaultvalueAttachment(_) -> "Attachment"
+          StructuremapGroupRuleSourceDefaultvalueCodeableconcept(_) ->
+            "Codeableconcept"
+          StructuremapGroupRuleSourceDefaultvalueCoding(_) -> "Coding"
+          StructuremapGroupRuleSourceDefaultvalueContactpoint(_) ->
+            "Contactpoint"
+          StructuremapGroupRuleSourceDefaultvalueCount(_) -> "Count"
+          StructuremapGroupRuleSourceDefaultvalueDistance(_) -> "Distance"
+          StructuremapGroupRuleSourceDefaultvalueDuration(_) -> "Duration"
+          StructuremapGroupRuleSourceDefaultvalueHumanname(_) -> "Humanname"
+          StructuremapGroupRuleSourceDefaultvalueIdentifier(_) -> "Identifier"
+          StructuremapGroupRuleSourceDefaultvalueMoney(_) -> "Money"
+          StructuremapGroupRuleSourceDefaultvaluePeriod(_) -> "Period"
+          StructuremapGroupRuleSourceDefaultvalueQuantity(_) -> "Quantity"
+          StructuremapGroupRuleSourceDefaultvalueRange(_) -> "Range"
+          StructuremapGroupRuleSourceDefaultvalueRatio(_) -> "Ratio"
+          StructuremapGroupRuleSourceDefaultvalueReference(_) -> "Reference"
+          StructuremapGroupRuleSourceDefaultvalueSampleddata(_) -> "Sampleddata"
+          StructuremapGroupRuleSourceDefaultvalueSignature(_) -> "Signature"
+          StructuremapGroupRuleSourceDefaultvalueTiming(_) -> "Timing"
+          StructuremapGroupRuleSourceDefaultvalueContactdetail(_) ->
+            "Contactdetail"
+          StructuremapGroupRuleSourceDefaultvalueContributor(_) -> "Contributor"
+          StructuremapGroupRuleSourceDefaultvalueDatarequirement(_) ->
+            "Datarequirement"
+          StructuremapGroupRuleSourceDefaultvalueExpression(_) -> "Expression"
+          StructuremapGroupRuleSourceDefaultvalueParameterdefinition(_) ->
+            "Parameterdefinition"
+          StructuremapGroupRuleSourceDefaultvalueRelatedartifact(_) ->
+            "Relatedartifact"
+          StructuremapGroupRuleSourceDefaultvalueTriggerdefinition(_) ->
+            "Triggerdefinition"
+          StructuremapGroupRuleSourceDefaultvalueUsagecontext(_) ->
+            "Usagecontext"
+          StructuremapGroupRuleSourceDefaultvalueDosage(_) -> "Dosage"
+          StructuremapGroupRuleSourceDefaultvalueMeta(_) -> "Meta"
+        },
+        structuremap_group_rule_source_defaultvalue_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -106233,7 +107746,15 @@ pub fn substancereferenceinformation_target_to_json(
   }
   let fields = case amount {
     Some(v) -> [
-      #("amount", substancereferenceinformation_target_amount_to_json(v)),
+      #(
+        "amount"
+          <> case v {
+          SubstancereferenceinformationTargetAmountQuantity(_) -> "Quantity"
+          SubstancereferenceinformationTargetAmountRange(_) -> "Range"
+          SubstancereferenceinformationTargetAmountString(_) -> "String"
+        },
+        substancereferenceinformation_target_amount_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -108369,7 +109890,16 @@ pub fn substancespecification_relationship_to_json(
   }
   let fields = case amount {
     Some(v) -> [
-      #("amount", substancespecification_relationship_amount_to_json(v)),
+      #(
+        "amount"
+          <> case v {
+          SubstancespecificationRelationshipAmountQuantity(_) -> "Quantity"
+          SubstancespecificationRelationshipAmountRange(_) -> "Range"
+          SubstancespecificationRelationshipAmountRatio(_) -> "Ratio"
+          SubstancespecificationRelationshipAmountString(_) -> "String"
+        },
+        substancespecification_relationship_amount_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -108384,7 +109914,15 @@ pub fn substancespecification_relationship_to_json(
   }
   let fields = case substance {
     Some(v) -> [
-      #("substance", substancespecification_relationship_substance_to_json(v)),
+      #(
+        "substance"
+          <> case v {
+          SubstancespecificationRelationshipSubstanceReference(_) -> "Reference"
+          SubstancespecificationRelationshipSubstanceCodeableconcept(_) ->
+            "Codeableconcept"
+        },
+        substancespecification_relationship_substance_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -109232,7 +110770,14 @@ pub fn substancespecification_property_to_json(
   let fields = []
   let fields = case amount {
     Some(v) -> [
-      #("amount", substancespecification_property_amount_to_json(v)),
+      #(
+        "amount"
+          <> case v {
+          SubstancespecificationPropertyAmountQuantity(_) -> "Quantity"
+          SubstancespecificationPropertyAmountString(_) -> "String"
+        },
+        substancespecification_property_amount_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -109240,7 +110785,13 @@ pub fn substancespecification_property_to_json(
   let fields = case defining_substance {
     Some(v) -> [
       #(
-        "definingSubstance",
+        "definingSubstance"
+          <> case v {
+          SubstancespecificationPropertyDefiningsubstanceReference(_) ->
+            "Reference"
+          SubstancespecificationPropertyDefiningsubstanceCodeableconcept(_) ->
+            "Codeableconcept"
+        },
         substancespecification_property_definingsubstance_to_json(v),
       ),
       ..fields
@@ -109342,7 +110893,14 @@ pub fn substancespecification_moiety_to_json(
   let fields = []
   let fields = case amount {
     Some(v) -> [
-      #("amount", substancespecification_moiety_amount_to_json(v)),
+      #(
+        "amount"
+          <> case v {
+          SubstancespecificationMoietyAmountQuantity(_) -> "Quantity"
+          SubstancespecificationMoietyAmountString(_) -> "String"
+        },
+        substancespecification_moiety_amount_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -109917,7 +111475,14 @@ pub fn supplydelivery_supplieditem_to_json(
   let fields = []
   let fields = case item {
     Some(v) -> [
-      #("item", supplydelivery_supplieditem_item_to_json(v)),
+      #(
+        "item"
+          <> case v {
+          SupplydeliverySupplieditemItemCodeableconcept(_) -> "Codeableconcept"
+          SupplydeliverySupplieditemItemReference(_) -> "Reference"
+        },
+        supplydelivery_supplieditem_item_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -110011,7 +111576,18 @@ pub fn supplydelivery_to_json(supplydelivery: Supplydelivery) -> Json {
     None -> fields
   }
   let fields = case occurrence {
-    Some(v) -> [#("occurrence", supplydelivery_occurrence_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "occurrence"
+          <> case v {
+          SupplydeliveryOccurrenceDatetime(_) -> "Datetime"
+          SupplydeliveryOccurrencePeriod(_) -> "Period"
+          SupplydeliveryOccurrenceTiming(_) -> "Timing"
+        },
+        supplydelivery_occurrence_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case supplied_item {
@@ -110388,7 +111964,19 @@ pub fn supplyrequest_parameter_to_json(
   ) = supplyrequest_parameter
   let fields = []
   let fields = case value {
-    Some(v) -> [#("value", supplyrequest_parameter_value_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "value"
+          <> case v {
+          SupplyrequestParameterValueCodeableconcept(_) -> "Codeableconcept"
+          SupplyrequestParameterValueQuantity(_) -> "Quantity"
+          SupplyrequestParameterValueRange(_) -> "Range"
+          SupplyrequestParameterValueBoolean(_) -> "Boolean"
+        },
+        supplyrequest_parameter_value_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case code {
@@ -110507,7 +112095,18 @@ pub fn supplyrequest_to_json(supplyrequest: Supplyrequest) -> Json {
     None -> fields
   }
   let fields = case occurrence {
-    Some(v) -> [#("occurrence", supplyrequest_occurrence_to_json(v)), ..fields]
+    Some(v) -> [
+      #(
+        "occurrence"
+          <> case v {
+          SupplyrequestOccurrenceDatetime(_) -> "Datetime"
+          SupplyrequestOccurrencePeriod(_) -> "Period"
+          SupplyrequestOccurrenceTiming(_) -> "Timing"
+        },
+        supplyrequest_occurrence_to_json(v),
+      ),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case parameter {
@@ -117127,7 +118726,19 @@ pub fn valueset_expansion_parameter_to_json(
   ]
   let fields = case value {
     Some(v) -> [
-      #("value", valueset_expansion_parameter_value_to_json(v)),
+      #(
+        "value"
+          <> case v {
+          ValuesetExpansionParameterValueString(_) -> "String"
+          ValuesetExpansionParameterValueBoolean(_) -> "Boolean"
+          ValuesetExpansionParameterValueInteger(_) -> "Integer"
+          ValuesetExpansionParameterValueDecimal(_) -> "Decimal"
+          ValuesetExpansionParameterValueUri(_) -> "Uri"
+          ValuesetExpansionParameterValueCode(_) -> "Code"
+          ValuesetExpansionParameterValueDatetime(_) -> "Datetime"
+        },
+        valueset_expansion_parameter_value_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
