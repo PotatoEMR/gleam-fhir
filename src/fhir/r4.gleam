@@ -105,6 +105,7 @@ pub fn address_to_json(address: Address) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Address")), ..fields]
   json.object(fields)
 }
 
@@ -236,6 +237,7 @@ pub fn age_to_json(age: Age) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Age")), ..fields]
   json.object(fields)
 }
 
@@ -352,6 +354,7 @@ pub fn annotation_to_json(annotation: Annotation) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Annotation")), ..fields]
   json.object(fields)
 }
 
@@ -457,6 +460,7 @@ pub fn attachment_to_json(attachment: Attachment) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Attachment")), ..fields]
   json.object(fields)
 }
 
@@ -546,6 +550,7 @@ pub fn codeableconcept_to_json(codeableconcept: Codeableconcept) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Codeableconcept")), ..fields]
   json.object(fields)
 }
 
@@ -633,6 +638,7 @@ pub fn coding_to_json(coding: Coding) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Coding")), ..fields]
   json.object(fields)
 }
 
@@ -712,6 +718,7 @@ pub fn contactdetail_to_json(contactdetail: Contactdetail) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Contactdetail")), ..fields]
   json.object(fields)
 }
 
@@ -795,6 +802,7 @@ pub fn contactpoint_to_json(contactpoint: Contactpoint) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Contactpoint")), ..fields]
   json.object(fields)
 }
 
@@ -873,6 +881,7 @@ pub fn contributor_to_json(contributor: Contributor) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Contributor")), ..fields]
   json.object(fields)
 }
 
@@ -952,6 +961,7 @@ pub fn count_to_json(count: Count) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Count")), ..fields]
   json.object(fields)
 }
 
@@ -1167,6 +1177,7 @@ pub fn datarequirement_sort_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("DatarequirementSort")), ..fields]
   json.object(fields)
 }
 
@@ -1222,6 +1233,10 @@ pub fn datarequirement_datefilter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DatarequirementDatefilter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -1292,6 +1307,10 @@ pub fn datarequirement_codefilter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DatarequirementCodefilter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -1404,6 +1423,7 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Datarequirement")), ..fields]
   json.object(fields)
 }
 
@@ -1516,6 +1536,7 @@ pub fn distance_to_json(distance: Distance) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Distance")), ..fields]
   json.object(fields)
 }
 
@@ -1751,6 +1772,7 @@ pub fn dosage_doseandrate_to_json(dosage_doseandrate: DosageDoseandrate) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("DosageDoseandrate")), ..fields]
   json.object(fields)
 }
 
@@ -1877,6 +1899,7 @@ pub fn dosage_to_json(dosage: Dosage) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Dosage")), ..fields]
   json.object(fields)
 }
 
@@ -2033,6 +2056,7 @@ pub fn duration_to_json(duration: Duration) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Duration")), ..fields]
   json.object(fields)
 }
 
@@ -3516,6 +3540,10 @@ pub fn elementdefinition_mapping_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ElementdefinitionMapping")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -3577,6 +3605,10 @@ pub fn elementdefinition_binding_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ElementdefinitionBinding")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -3653,6 +3685,10 @@ pub fn elementdefinition_constraint_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ElementdefinitionConstraint")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -3721,6 +3757,10 @@ pub fn elementdefinition_example_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ElementdefinitionExample")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -3784,6 +3824,10 @@ pub fn elementdefinition_type_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ElementdefinitionType")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -3844,6 +3888,10 @@ pub fn elementdefinition_base_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ElementdefinitionBase")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -3877,6 +3925,10 @@ pub fn elementdefinition_slicing_discriminator_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ElementdefinitionSlicingDiscriminator")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -3942,6 +3994,10 @@ pub fn elementdefinition_slicing_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ElementdefinitionSlicing")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -4400,6 +4456,7 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Elementdefinition")), ..fields]
   json.object(fields)
 }
 
@@ -4656,6 +4713,7 @@ pub fn expression_to_json(expression: Expression) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Expression")), ..fields]
   json.object(fields)
 }
 
@@ -5027,6 +5085,7 @@ pub fn extension_to_json(extension: Extension) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Extension")), ..fields]
   json.object(fields)
 }
 
@@ -5120,6 +5179,7 @@ pub fn humanname_to_json(humanname: Humanname) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Humanname")), ..fields]
   json.object(fields)
 }
 
@@ -5237,6 +5297,7 @@ pub fn identifier_to_json(identifier: Identifier) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Identifier")), ..fields]
   json.object(fields)
 }
 
@@ -5359,6 +5420,7 @@ pub fn marketingstatus_to_json(marketingstatus: Marketingstatus) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Marketingstatus")), ..fields]
   json.object(fields)
 }
 
@@ -5470,6 +5532,7 @@ pub fn meta_to_json(meta: Meta) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Meta")), ..fields]
   json.object(fields)
 }
 
@@ -5551,6 +5614,7 @@ pub fn money_to_json(money: Money) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Money")), ..fields]
   json.object(fields)
 }
 
@@ -5605,6 +5669,7 @@ pub fn narrative_to_json(narrative: Narrative) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Narrative")), ..fields]
   json.object(fields)
 }
 
@@ -5698,6 +5763,7 @@ pub fn parameterdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Parameterdefinition")), ..fields]
   json.object(fields)
 }
 
@@ -5773,6 +5839,7 @@ pub fn period_to_json(period: Period) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Period")), ..fields]
   json.object(fields)
 }
 
@@ -5900,6 +5967,7 @@ pub fn population_to_json(population: Population) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Population")), ..fields]
   json.object(fields)
 }
 
@@ -6060,6 +6128,7 @@ pub fn prodcharacteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Prodcharacteristic")), ..fields]
   json.object(fields)
 }
 
@@ -6215,6 +6284,7 @@ pub fn productshelflife_to_json(productshelflife: Productshelflife) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Productshelflife")), ..fields]
   json.object(fields)
 }
 
@@ -6313,6 +6383,7 @@ pub fn quantity_to_json(quantity: Quantity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Quantity")), ..fields]
   json.object(fields)
 }
 
@@ -6392,6 +6463,7 @@ pub fn range_to_json(range: Range) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Range")), ..fields]
   json.object(fields)
 }
 
@@ -6448,6 +6520,7 @@ pub fn ratio_to_json(ratio: Ratio) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Ratio")), ..fields]
   json.object(fields)
 }
 
@@ -6522,6 +6595,7 @@ pub fn reference_to_json(reference: Reference) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Reference")), ..fields]
   json.object(fields)
 }
 
@@ -6640,6 +6714,7 @@ pub fn relatedartifact_to_json(relatedartifact: Relatedartifact) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Relatedartifact")), ..fields]
   json.object(fields)
 }
 
@@ -6764,6 +6839,7 @@ pub fn sampleddata_to_json(sampleddata: Sampleddata) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Sampleddata")), ..fields]
   json.object(fields)
 }
 
@@ -6883,6 +6959,7 @@ pub fn signature_to_json(signature: Signature) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Signature")), ..fields]
   json.object(fields)
 }
 
@@ -7023,6 +7100,10 @@ pub fn substanceamount_referencerange_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstanceamountReferencerange")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -7109,6 +7190,7 @@ pub fn substanceamount_to_json(substanceamount: Substanceamount) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Substanceamount")), ..fields]
   json.object(fields)
 }
 
@@ -7353,6 +7435,7 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TimingRepeat")), ..fields]
   json.object(fields)
 }
 
@@ -7482,6 +7565,7 @@ pub fn timing_to_json(timing: Timing) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Timing")), ..fields]
   json.object(fields)
 }
 
@@ -7626,6 +7710,7 @@ pub fn triggerdefinition_to_json(triggerdefinition: Triggerdefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Triggerdefinition")), ..fields]
   json.object(fields)
 }
 
@@ -7731,6 +7816,7 @@ pub fn usagecontext_to_json(usagecontext: Usagecontext) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Usagecontext")), ..fields]
   json.object(fields)
 }
 
@@ -7806,6 +7892,7 @@ pub fn moneyquantity_to_json(moneyquantity: Moneyquantity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Moneyquantity")), ..fields]
   json.object(fields)
 }
 
@@ -7903,6 +7990,7 @@ pub fn simplequantity_to_json(simplequantity: Simplequantity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Simplequantity")), ..fields]
   json.object(fields)
 }
 
@@ -7934,62 +8022,6 @@ pub fn simplequantity_decoder() -> Decoder(Simplequantity) {
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Simplequantity(code:, system:, unit:, value:, extension:, id:))
-}
-
-///http://hl7.org/fhir/r4/StructureDefinition/Resource#resource
-pub type Resource {
-  Resource(
-    id: Option(String),
-    meta: Option(Meta),
-    implicit_rules: Option(String),
-    language: Option(String),
-  )
-}
-
-pub fn resource_new() -> Resource {
-  Resource(language: None, implicit_rules: None, meta: None, id: None)
-}
-
-pub fn resource_to_json(resource: Resource) -> Json {
-  let Resource(language:, implicit_rules:, meta:, id:) = resource
-  let fields = []
-  let fields = case language {
-    Some(v) -> [#("language", json.string(v)), ..fields]
-    None -> fields
-  }
-  let fields = case implicit_rules {
-    Some(v) -> [#("implicitRules", json.string(v)), ..fields]
-    None -> fields
-  }
-  let fields = case meta {
-    Some(v) -> [#("meta", meta_to_json(v)), ..fields]
-    None -> fields
-  }
-  let fields = case id {
-    Some(v) -> [#("id", json.string(v)), ..fields]
-    None -> fields
-  }
-  json.object(fields)
-}
-
-pub fn resource_decoder() -> Decoder(Resource) {
-  use language <- decode.optional_field(
-    "language",
-    None,
-    decode.optional(decode.string),
-  )
-  use implicit_rules <- decode.optional_field(
-    "implicitRules",
-    None,
-    decode.optional(decode.string),
-  )
-  use meta <- decode.optional_field(
-    "meta",
-    None,
-    decode.optional(meta_decoder()),
-  )
-  use id <- decode.optional_field("id", None, decode.optional(decode.string))
-  decode.success(Resource(language:, implicit_rules:, meta:, id:))
 }
 
 ///http://hl7.org/fhir/r4/StructureDefinition/Account#resource
@@ -8120,6 +8152,7 @@ pub fn account_guarantor_to_json(account_guarantor: AccountGuarantor) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("AccountGuarantor")), ..fields]
   json.object(fields)
 }
 
@@ -8186,6 +8219,7 @@ pub fn account_coverage_to_json(account_coverage: AccountCoverage) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("AccountCoverage")), ..fields]
   json.object(fields)
 }
 
@@ -8322,6 +8356,7 @@ pub fn account_to_json(account: Account) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Account")), ..fields]
   json.object(fields)
 }
 
@@ -8737,6 +8772,10 @@ pub fn activitydefinition_dynamicvalue_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ActivitydefinitionDynamicvalue")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -8797,6 +8836,10 @@ pub fn activitydefinition_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ActivitydefinitionParticipant")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -9188,6 +9231,7 @@ pub fn activitydefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Activitydefinition")), ..fields]
   json.object(fields)
 }
 
@@ -9664,6 +9708,10 @@ pub fn adverseevent_suspectentity_causality_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("AdverseeventSuspectentityCausality")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -9750,6 +9798,10 @@ pub fn adverseevent_suspectentity_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("AdverseeventSuspectentity")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -9951,6 +10003,7 @@ pub fn adverseevent_to_json(adverseevent: Adverseevent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Adverseevent")), ..fields]
   json.object(fields)
 }
 
@@ -10309,6 +10362,10 @@ pub fn allergyintolerance_reaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("AllergyintoleranceReaction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -10530,6 +10587,7 @@ pub fn allergyintolerance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Allergyintolerance")), ..fields]
   json.object(fields)
 }
 
@@ -10822,6 +10880,10 @@ pub fn appointment_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("AppointmentParticipant")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -11058,6 +11120,7 @@ pub fn appointment_to_json(appointment: Appointment) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Appointment")), ..fields]
   json.object(fields)
 }
 
@@ -11373,6 +11436,7 @@ pub fn appointmentresponse_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Appointmentresponse")), ..fields]
   json.object(fields)
 }
 
@@ -11716,6 +11780,10 @@ pub fn auditevent_entity_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("AuditeventEntityDetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -11815,6 +11883,7 @@ pub fn auditevent_entity_to_json(auditevent_entity: AuditeventEntity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("AuditeventEntity")), ..fields]
   json.object(fields)
 }
 
@@ -11926,6 +11995,7 @@ pub fn auditevent_source_to_json(auditevent_source: AuditeventSource) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("AuditeventSource")), ..fields]
   json.object(fields)
 }
 
@@ -11992,6 +12062,10 @@ pub fn auditevent_agent_network_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("AuditeventAgentNetwork")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -12104,6 +12178,7 @@ pub fn auditevent_agent_to_json(auditevent_agent: AuditeventAgent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("AuditeventAgent")), ..fields]
   json.object(fields)
 }
 
@@ -12284,6 +12359,7 @@ pub fn auditevent_to_json(auditevent: Auditevent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Auditevent")), ..fields]
   json.object(fields)
 }
 
@@ -12497,6 +12573,7 @@ pub fn basic_to_json(basic: Basic) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Basic")), ..fields]
   json.object(fields)
 }
 
@@ -12637,6 +12714,7 @@ pub fn binary_to_json(binary: Binary) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Binary")), ..fields]
   json.object(fields)
 }
 
@@ -12953,6 +13031,10 @@ pub fn biologicallyderivedproduct_storage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("BiologicallyderivedproductStorage")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -13045,6 +13127,10 @@ pub fn biologicallyderivedproduct_manipulation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("BiologicallyderivedproductManipulation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -13133,6 +13219,10 @@ pub fn biologicallyderivedproduct_processing_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("BiologicallyderivedproductProcessing")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -13228,6 +13318,10 @@ pub fn biologicallyderivedproduct_collection_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("BiologicallyderivedproductCollection")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -13393,6 +13487,10 @@ pub fn biologicallyderivedproduct_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Biologicallyderivedproduct")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -13647,6 +13745,7 @@ pub fn bodystructure_to_json(bodystructure: Bodystructure) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Bodystructure")), ..fields]
   json.object(fields)
 }
 
@@ -13945,6 +14044,7 @@ pub fn bundle_entry_response_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("BundleEntryResponse")), ..fields]
   json.object(fields)
 }
 
@@ -14042,6 +14142,7 @@ pub fn bundle_entry_request_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("BundleEntryRequest")), ..fields]
   json.object(fields)
 }
 
@@ -14121,6 +14222,7 @@ pub fn bundle_entry_search_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("BundleEntrySearch")), ..fields]
   json.object(fields)
 }
 
@@ -14202,6 +14304,7 @@ pub fn bundle_entry_to_json(bundle_entry: BundleEntry) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("BundleEntry")), ..fields]
   json.object(fields)
 }
 
@@ -14276,6 +14379,7 @@ pub fn bundle_link_to_json(bundle_link: BundleLink) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("BundleLink")), ..fields]
   json.object(fields)
 }
 
@@ -14359,6 +14463,7 @@ pub fn bundle_to_json(bundle: Bundle) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Bundle")), ..fields]
   json.object(fields)
 }
 
@@ -14895,6 +15000,10 @@ pub fn capabilitystatement_document_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementDocument")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -14958,6 +15067,13 @@ pub fn capabilitystatement_messaging_supportedmessage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("CapabilitystatementMessagingSupportedmessage"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -15015,6 +15131,10 @@ pub fn capabilitystatement_messaging_endpoint_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementMessagingEndpoint")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -15102,6 +15222,10 @@ pub fn capabilitystatement_messaging_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementMessaging")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -15182,6 +15306,10 @@ pub fn capabilitystatement_rest_interaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementRestInteraction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -15251,6 +15379,10 @@ pub fn capabilitystatement_rest_resource_operation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementRestResourceOperation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -15324,6 +15456,10 @@ pub fn capabilitystatement_rest_resource_searchparam_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementRestResourceSearchparam")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -15396,6 +15532,10 @@ pub fn capabilitystatement_rest_resource_interaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementRestResourceInteraction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -15586,6 +15726,10 @@ pub fn capabilitystatement_rest_resource_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementRestResource")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -15747,6 +15891,10 @@ pub fn capabilitystatement_rest_security_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementRestSecurity")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -15852,6 +16000,10 @@ pub fn capabilitystatement_rest_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementRest")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -15943,6 +16095,10 @@ pub fn capabilitystatement_implementation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementImplementation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -16014,6 +16170,10 @@ pub fn capabilitystatement_software_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CapabilitystatementSoftware")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -16247,6 +16407,7 @@ pub fn capabilitystatement_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Capabilitystatement")), ..fields]
   json.object(fields)
 }
 
@@ -16805,6 +16966,10 @@ pub fn careplan_activity_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CareplanActivityDetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -16980,6 +17145,7 @@ pub fn careplan_activity_to_json(careplan_activity: CareplanActivity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("CareplanActivity")), ..fields]
   json.object(fields)
 }
 
@@ -17207,6 +17373,7 @@ pub fn careplan_to_json(careplan: Careplan) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Careplan")), ..fields]
   json.object(fields)
 }
 
@@ -17507,6 +17674,7 @@ pub fn careteam_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("CareteamParticipant")), ..fields]
   json.object(fields)
 }
 
@@ -17683,6 +17851,7 @@ pub fn careteam_to_json(careteam: Careteam) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Careteam")), ..fields]
   json.object(fields)
 }
 
@@ -17922,6 +18091,10 @@ pub fn catalogentry_relatedentry_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CatalogentryRelatedentry")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -18085,6 +18258,7 @@ pub fn catalogentry_to_json(catalogentry: Catalogentry) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Catalogentry")), ..fields]
   json.object(fields)
 }
 
@@ -18399,6 +18573,7 @@ pub fn chargeitem_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ChargeitemPerformer")), ..fields]
   json.object(fields)
 }
 
@@ -18634,6 +18809,7 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Chargeitem")), ..fields]
   json.object(fields)
 }
 
@@ -19011,6 +19187,13 @@ pub fn chargeitemdefinition_propertygroup_pricecomponent_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("ChargeitemdefinitionPropertygroupPricecomponent"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -19096,6 +19279,10 @@ pub fn chargeitemdefinition_propertygroup_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ChargeitemdefinitionPropertygroup")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -19165,6 +19352,10 @@ pub fn chargeitemdefinition_applicability_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ChargeitemdefinitionApplicability")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -19387,6 +19578,10 @@ pub fn chargeitemdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Chargeitemdefinition")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -20306,6 +20501,10 @@ pub fn claim_item_detail_subdetail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClaimItemDetailSubdetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -20476,6 +20675,7 @@ pub fn claim_item_detail_to_json(claim_item_detail: ClaimItemDetail) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimItemDetail")), ..fields]
   json.object(fields)
 }
 
@@ -20722,6 +20922,7 @@ pub fn claim_item_to_json(claim_item: ClaimItem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimItem")), ..fields]
   json.object(fields)
 }
 
@@ -20898,6 +21099,7 @@ pub fn claim_accident_to_json(claim_accident: ClaimAccident) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimAccident")), ..fields]
   json.object(fields)
 }
 
@@ -20981,6 +21183,7 @@ pub fn claim_insurance_to_json(claim_insurance: ClaimInsurance) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimInsurance")), ..fields]
   json.object(fields)
 }
 
@@ -21075,6 +21278,7 @@ pub fn claim_procedure_to_json(claim_procedure: ClaimProcedure) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimProcedure")), ..fields]
   json.object(fields)
 }
 
@@ -21157,6 +21361,7 @@ pub fn claim_diagnosis_to_json(claim_diagnosis: ClaimDiagnosis) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimDiagnosis")), ..fields]
   json.object(fields)
 }
 
@@ -21273,6 +21478,7 @@ pub fn claim_supportinginfo_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimSupportinginfo")), ..fields]
   json.object(fields)
 }
 
@@ -21361,6 +21567,7 @@ pub fn claim_careteam_to_json(claim_careteam: ClaimCareteam) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimCareteam")), ..fields]
   json.object(fields)
 }
 
@@ -21430,6 +21637,7 @@ pub fn claim_payee_to_json(claim_payee: ClaimPayee) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimPayee")), ..fields]
   json.object(fields)
 }
 
@@ -21497,6 +21705,7 @@ pub fn claim_related_to_json(claim_related: ClaimRelated) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimRelated")), ..fields]
   json.object(fields)
 }
 
@@ -21717,6 +21926,7 @@ pub fn claim_to_json(claim: Claim) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Claim")), ..fields]
   json.object(fields)
 }
 
@@ -22458,6 +22668,7 @@ pub fn claimresponse_error_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimresponseError")), ..fields]
   json.object(fields)
 }
 
@@ -22541,6 +22752,10 @@ pub fn claimresponse_insurance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClaimresponseInsurance")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -22623,6 +22838,10 @@ pub fn claimresponse_processnote_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClaimresponseProcessnote")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -22714,6 +22933,10 @@ pub fn claimresponse_payment_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClaimresponsePayment")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -22793,6 +23016,7 @@ pub fn claimresponse_total_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimresponseTotal")), ..fields]
   json.object(fields)
 }
 
@@ -22879,6 +23103,10 @@ pub fn claimresponse_additem_detail_subdetail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClaimresponseAdditemDetailSubdetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -23015,6 +23243,10 @@ pub fn claimresponse_additem_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClaimresponseAdditemDetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -23226,6 +23458,10 @@ pub fn claimresponse_additem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClaimresponseAdditem")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -23377,6 +23613,10 @@ pub fn claimresponse_item_detail_subdetail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClaimresponseItemDetailSubdetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -23452,6 +23692,10 @@ pub fn claimresponse_item_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClaimresponseItemDetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -23530,6 +23774,10 @@ pub fn claimresponse_item_adjudication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClaimresponseItemAdjudication")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -23623,6 +23871,7 @@ pub fn claimresponse_item_to_json(claimresponse_item: ClaimresponseItem) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ClaimresponseItem")), ..fields]
   json.object(fields)
 }
 
@@ -23840,6 +24089,7 @@ pub fn claimresponse_to_json(claimresponse: Claimresponse) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Claimresponse")), ..fields]
   json.object(fields)
 }
 
@@ -24206,6 +24456,10 @@ pub fn clinicalimpression_finding_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClinicalimpressionFinding")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -24280,6 +24534,10 @@ pub fn clinicalimpression_investigation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ClinicalimpressionInvestigation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -24490,6 +24748,7 @@ pub fn clinicalimpression_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Clinicalimpression")), ..fields]
   json.object(fields)
 }
 
@@ -24946,6 +25205,10 @@ pub fn codesystem_concept_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CodesystemConceptProperty")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -25011,6 +25274,10 @@ pub fn codesystem_concept_designation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CodesystemConceptDesignation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -25103,6 +25370,7 @@ pub fn codesystem_concept_to_json(codesystem_concept: CodesystemConcept) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("CodesystemConcept")), ..fields]
   json.object(fields)
 }
 
@@ -25190,6 +25458,7 @@ pub fn codesystem_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("CodesystemProperty")), ..fields]
   json.object(fields)
 }
 
@@ -25264,6 +25533,7 @@ pub fn codesystem_filter_to_json(codesystem_filter: CodesystemFilter) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("CodesystemFilter")), ..fields]
   json.object(fields)
 }
 
@@ -25489,6 +25759,7 @@ pub fn codesystem_to_json(codesystem: Codesystem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Codesystem")), ..fields]
   json.object(fields)
 }
 
@@ -25835,6 +26106,10 @@ pub fn communication_payload_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CommunicationPayload")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -26043,6 +26318,7 @@ pub fn communication_to_json(communication: Communication) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Communication")), ..fields]
   json.object(fields)
 }
 
@@ -26410,6 +26686,10 @@ pub fn communicationrequest_payload_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CommunicationrequestPayload")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -26615,6 +26895,10 @@ pub fn communicationrequest_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Communicationrequest")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -26916,6 +27200,10 @@ pub fn compartmentdefinition_resource_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CompartmentdefinitionResource")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -27064,6 +27352,10 @@ pub fn compartmentdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Compartmentdefinition")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -27446,6 +27738,7 @@ pub fn composition_section_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("CompositionSection")), ..fields]
   json.object(fields)
 }
 
@@ -27559,6 +27852,7 @@ pub fn composition_event_to_json(composition_event: CompositionEvent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("CompositionEvent")), ..fields]
   json.object(fields)
 }
 
@@ -27623,6 +27917,10 @@ pub fn composition_relatesto_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CompositionRelatesto")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -27689,6 +27987,7 @@ pub fn composition_attester_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("CompositionAttester")), ..fields]
   json.object(fields)
 }
 
@@ -27851,6 +28150,7 @@ pub fn composition_to_json(composition: Composition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Composition")), ..fields]
   json.object(fields)
 }
 
@@ -28268,6 +28568,10 @@ pub fn conceptmap_group_unmapped_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ConceptmapGroupUnmapped")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -28345,6 +28649,10 @@ pub fn conceptmap_group_element_target_dependson_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ConceptmapGroupElementTargetDependson")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -28441,6 +28749,10 @@ pub fn conceptmap_group_element_target_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ConceptmapGroupElementTarget")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -28536,6 +28848,10 @@ pub fn conceptmap_group_element_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ConceptmapGroupElement")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -28631,6 +28947,7 @@ pub fn conceptmap_group_to_json(conceptmap_group: ConceptmapGroup) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ConceptmapGroup")), ..fields]
   json.object(fields)
 }
 
@@ -28850,6 +29167,7 @@ pub fn conceptmap_to_json(conceptmap: Conceptmap) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Conceptmap")), ..fields]
   json.object(fields)
 }
 
@@ -29198,6 +29516,7 @@ pub fn condition_evidence_to_json(condition_evidence: ConditionEvidence) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ConditionEvidence")), ..fields]
   json.object(fields)
 }
 
@@ -29269,6 +29588,7 @@ pub fn condition_stage_to_json(condition_stage: ConditionStage) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ConditionStage")), ..fields]
   json.object(fields)
 }
 
@@ -29474,6 +29794,7 @@ pub fn condition_to_json(condition: Condition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Condition")), ..fields]
   json.object(fields)
 }
 
@@ -29854,6 +30175,10 @@ pub fn consent_provision_data_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ConsentProvisionData")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -29912,6 +30237,10 @@ pub fn consent_provision_actor_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ConsentProvisionActor")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -30019,6 +30348,7 @@ pub fn consent_provision_to_json(consent_provision: ConsentProvision) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ConsentProvision")), ..fields]
   json.object(fields)
 }
 
@@ -30134,6 +30464,7 @@ pub fn consent_verification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ConsentVerification")), ..fields]
   json.object(fields)
 }
 
@@ -30197,6 +30528,7 @@ pub fn consent_policy_to_json(consent_policy: ConsentPolicy) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ConsentPolicy")), ..fields]
   json.object(fields)
 }
 
@@ -30353,6 +30685,7 @@ pub fn consent_to_json(consent: Consent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Consent")), ..fields]
   json.object(fields)
 }
 
@@ -31326,6 +31659,7 @@ pub fn contract_rule_to_json(contract_rule: ContractRule) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ContractRule")), ..fields]
   json.object(fields)
 }
 
@@ -31366,6 +31700,7 @@ pub fn contract_legal_to_json(contract_legal: ContractLegal) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ContractLegal")), ..fields]
   json.object(fields)
 }
 
@@ -31406,6 +31741,7 @@ pub fn contract_friendly_to_json(contract_friendly: ContractFriendly) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ContractFriendly")), ..fields]
   json.object(fields)
 }
 
@@ -31462,6 +31798,7 @@ pub fn contract_signer_to_json(contract_signer: ContractSigner) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ContractSigner")), ..fields]
   json.object(fields)
 }
 
@@ -31528,6 +31865,10 @@ pub fn contract_term_action_subject_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ContractTermActionSubject")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -31720,6 +32061,7 @@ pub fn contract_term_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ContractTermAction")), ..fields]
   json.object(fields)
 }
 
@@ -31954,6 +32296,10 @@ pub fn contract_term_asset_valueditem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ContractTermAssetValueditem")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -32095,6 +32441,10 @@ pub fn contract_term_asset_context_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ContractTermAssetContext")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -32249,6 +32599,7 @@ pub fn contract_term_asset_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ContractTermAsset")), ..fields]
   json.object(fields)
 }
 
@@ -32374,6 +32725,10 @@ pub fn contract_term_offer_answer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ContractTermOfferAnswer")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -32430,6 +32785,10 @@ pub fn contract_term_offer_party_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ContractTermOfferParty")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -32546,6 +32905,7 @@ pub fn contract_term_offer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ContractTermOffer")), ..fields]
   json.object(fields)
 }
 
@@ -32666,6 +33026,10 @@ pub fn contract_term_securitylabel_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ContractTermSecuritylabel")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -32800,6 +33164,7 @@ pub fn contract_term_to_json(contract_term: ContractTerm) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ContractTerm")), ..fields]
   json.object(fields)
 }
 
@@ -32932,6 +33297,10 @@ pub fn contract_contentdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ContractContentdefinition")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -33231,6 +33600,7 @@ pub fn contract_to_json(contract: Contract) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Contract")), ..fields]
   json.object(fields)
 }
 
@@ -33665,6 +34035,10 @@ pub fn coverage_costtobeneficiary_exception_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CoverageCosttobeneficiaryException")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -33740,6 +34114,10 @@ pub fn coverage_costtobeneficiary_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CoverageCosttobeneficiary")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -33804,6 +34182,7 @@ pub fn coverage_class_to_json(coverage_class: CoverageClass) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("CoverageClass")), ..fields]
   json.object(fields)
 }
 
@@ -33969,6 +34348,7 @@ pub fn coverage_to_json(coverage: Coverage) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Coverage")), ..fields]
   json.object(fields)
 }
 
@@ -34387,6 +34767,10 @@ pub fn coverageeligibilityrequest_item_diagnosis_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CoverageeligibilityrequestItemDiagnosis")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -34506,6 +34890,10 @@ pub fn coverageeligibilityrequest_item_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CoverageeligibilityrequestItem")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -34627,6 +35015,10 @@ pub fn coverageeligibilityrequest_insurance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CoverageeligibilityrequestInsurance")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -34699,6 +35091,10 @@ pub fn coverageeligibilityrequest_supportinginfo_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CoverageeligibilityrequestSupportinginfo")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -34875,6 +35271,10 @@ pub fn coverageeligibilityrequest_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Coverageeligibilityrequest")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -35312,6 +35712,10 @@ pub fn coverageeligibilityresponse_error_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CoverageeligibilityresponseError")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -35402,6 +35806,13 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("CoverageeligibilityresponseInsuranceItemBenefit"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -35552,6 +35963,10 @@ pub fn coverageeligibilityresponse_insurance_item_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CoverageeligibilityresponseInsuranceItem")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -35708,6 +36123,10 @@ pub fn coverageeligibilityresponse_insurance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("CoverageeligibilityresponseInsurance")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -35884,6 +36303,10 @@ pub fn coverageeligibilityresponse_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Coverageeligibilityresponse")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -36165,6 +36588,10 @@ pub fn detectedissue_mitigation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DetectedissueMitigation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -36235,6 +36662,10 @@ pub fn detectedissue_evidence_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DetectedissueEvidence")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -36393,6 +36824,7 @@ pub fn detectedissue_to_json(detectedissue: Detectedissue) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Detectedissue")), ..fields]
   json.object(fields)
 }
 
@@ -36753,6 +37185,7 @@ pub fn device_property_to_json(device_property: DeviceProperty) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("DeviceProperty")), ..fields]
   json.object(fields)
 }
 
@@ -36824,6 +37257,7 @@ pub fn device_version_to_json(device_version: DeviceVersion) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("DeviceVersion")), ..fields]
   json.object(fields)
 }
 
@@ -36892,6 +37326,10 @@ pub fn device_specialization_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DeviceSpecialization")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -36944,6 +37382,7 @@ pub fn device_devicename_to_json(device_devicename: DeviceDevicename) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("DeviceDevicename")), ..fields]
   json.object(fields)
 }
 
@@ -37022,6 +37461,7 @@ pub fn device_udicarrier_to_json(device_udicarrier: DeviceUdicarrier) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("DeviceUdicarrier")), ..fields]
   json.object(fields)
 }
 
@@ -37275,6 +37715,7 @@ pub fn device_to_json(device: Device) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Device")), ..fields]
   json.object(fields)
 }
 
@@ -37762,6 +38203,10 @@ pub fn devicedefinition_material_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DevicedefinitionMaterial")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -37841,6 +38286,10 @@ pub fn devicedefinition_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DevicedefinitionProperty")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -37912,6 +38361,10 @@ pub fn devicedefinition_capability_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DevicedefinitionCapability")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -37976,6 +38429,10 @@ pub fn devicedefinition_specialization_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DevicedefinitionSpecialization")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -38037,6 +38494,10 @@ pub fn devicedefinition_devicename_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DevicedefinitionDevicename")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -38096,6 +38557,10 @@ pub fn devicedefinition_udideviceidentifier_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DevicedefinitionUdideviceidentifier")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -38338,6 +38803,7 @@ pub fn devicedefinition_to_json(devicedefinition: Devicedefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Devicedefinition")), ..fields]
   json.object(fields)
 }
 
@@ -38634,6 +39100,10 @@ pub fn devicemetric_calibration_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DevicemetricCalibration")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -38775,6 +39245,7 @@ pub fn devicemetric_to_json(devicemetric: Devicemetric) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Devicemetric")), ..fields]
   json.object(fields)
 }
 
@@ -39121,6 +39592,10 @@ pub fn devicerequest_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DevicerequestParameter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -39350,6 +39825,7 @@ pub fn devicerequest_to_json(devicerequest: Devicerequest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Devicerequest")), ..fields]
   json.object(fields)
 }
 
@@ -39743,6 +40219,7 @@ pub fn deviceusestatement_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Deviceusestatement")), ..fields]
   json.object(fields)
 }
 
@@ -40009,6 +40486,10 @@ pub fn diagnosticreport_media_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DiagnosticreportMedia")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -40202,6 +40683,7 @@ pub fn diagnosticreport_to_json(diagnosticreport: Diagnosticreport) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Diagnosticreport")), ..fields]
   json.object(fields)
 }
 
@@ -40463,6 +40945,10 @@ pub fn documentmanifest_related_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DocumentmanifestRelated")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -40605,6 +41091,7 @@ pub fn documentmanifest_to_json(documentmanifest: Documentmanifest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Documentmanifest")), ..fields]
   json.object(fields)
 }
 
@@ -40926,6 +41413,10 @@ pub fn documentreference_context_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DocumentreferenceContext")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -41022,6 +41513,10 @@ pub fn documentreference_content_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DocumentreferenceContent")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -41081,6 +41576,10 @@ pub fn documentreference_relatesto_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("DocumentreferenceRelatesto")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -41255,6 +41754,7 @@ pub fn documentreference_to_json(documentreference: Documentreference) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Documentreference")), ..fields]
   json.object(fields)
 }
 
@@ -41476,6 +41976,7 @@ pub fn domainresource_to_json(domainresource: Domainresource) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Domainresource")), ..fields]
   json.object(fields)
 }
 
@@ -41820,6 +42321,13 @@ pub fn effectevidencesynthesis_certainty_certaintysubcomponent_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("EffectevidencesynthesisCertaintyCertaintysubcomponent"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -41910,6 +42418,10 @@ pub fn effectevidencesynthesis_certainty_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EffectevidencesynthesisCertainty")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -41998,6 +42510,13 @@ pub fn effectevidencesynthesis_effectestimate_precisionestimate_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("EffectevidencesynthesisEffectestimatePrecisionestimate"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -42101,6 +42620,10 @@ pub fn effectevidencesynthesis_effectestimate_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EffectevidencesynthesisEffectestimate")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -42208,6 +42731,10 @@ pub fn effectevidencesynthesis_resultsbyexposure_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EffectevidencesynthesisResultsbyexposure")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -42294,6 +42821,10 @@ pub fn effectevidencesynthesis_samplesize_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EffectevidencesynthesisSamplesize")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -42575,6 +43106,10 @@ pub fn effectevidencesynthesis_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Effectevidencesynthesis")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -43079,6 +43614,7 @@ pub fn encounter_location_to_json(encounter_location: EncounterLocation) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("EncounterLocation")), ..fields]
   json.object(fields)
 }
 
@@ -43205,6 +43741,10 @@ pub fn encounter_hospitalization_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EncounterHospitalization")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -43318,6 +43858,7 @@ pub fn encounter_diagnosis_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("EncounterDiagnosis")), ..fields]
   json.object(fields)
 }
 
@@ -43389,6 +43930,10 @@ pub fn encounter_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EncounterParticipant")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -43458,6 +44003,10 @@ pub fn encounter_classhistory_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EncounterClasshistory")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -43513,6 +44062,10 @@ pub fn encounter_statushistory_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EncounterStatushistory")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -43732,6 +44285,7 @@ pub fn encounter_to_json(encounter: Encounter) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Encounter")), ..fields]
   json.object(fields)
 }
 
@@ -44067,6 +44621,7 @@ pub fn endpoint_to_json(endpoint: Endpoint) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Endpoint")), ..fields]
   json.object(fields)
 }
 
@@ -44292,6 +44847,7 @@ pub fn enrollmentrequest_to_json(enrollmentrequest: Enrollmentrequest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Enrollmentrequest")), ..fields]
   json.object(fields)
 }
 
@@ -44521,6 +45077,7 @@ pub fn enrollmentresponse_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Enrollmentresponse")), ..fields]
   json.object(fields)
 }
 
@@ -44761,6 +45318,10 @@ pub fn episodeofcare_diagnosis_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EpisodeofcareDiagnosis")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -44822,6 +45383,10 @@ pub fn episodeofcare_statushistory_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EpisodeofcareStatushistory")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -44967,6 +45532,7 @@ pub fn episodeofcare_to_json(episodeofcare: Episodeofcare) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Episodeofcare")), ..fields]
   json.object(fields)
 }
 
@@ -45409,6 +45975,7 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Eventdefinition")), ..fields]
   json.object(fields)
 }
 
@@ -45900,6 +46467,7 @@ pub fn evidence_to_json(evidence: Evidence) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Evidence")), ..fields]
   json.object(fields)
 }
 
@@ -46439,6 +47007,10 @@ pub fn evidencevariable_characteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("EvidencevariableCharacteristic")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -46701,6 +47273,7 @@ pub fn evidencevariable_to_json(evidencevariable: Evidencevariable) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Evidencevariable")), ..fields]
   json.object(fields)
 }
 
@@ -47219,6 +47792,10 @@ pub fn examplescenario_process_step_alternative_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExamplescenarioProcessStepAlternative")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -47313,6 +47890,10 @@ pub fn examplescenario_process_step_operation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExamplescenarioProcessStepOperation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -47432,6 +48013,10 @@ pub fn examplescenario_process_step_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExamplescenarioProcessStep")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -47524,6 +48109,10 @@ pub fn examplescenario_process_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExamplescenarioProcess")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -47604,6 +48193,10 @@ pub fn examplescenario_instance_containedinstance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExamplescenarioInstanceContainedinstance")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -47665,6 +48258,10 @@ pub fn examplescenario_instance_version_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExamplescenarioInstanceVersion")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -47757,6 +48354,10 @@ pub fn examplescenario_instance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExamplescenarioInstance")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -47849,6 +48450,10 @@ pub fn examplescenario_actor_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExamplescenarioActor")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -48035,6 +48640,7 @@ pub fn examplescenario_to_json(examplescenario: Examplescenario) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Examplescenario")), ..fields]
   json.object(fields)
 }
 
@@ -49381,6 +49987,13 @@ pub fn explanationofbenefit_benefitbalance_financial_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("ExplanationofbenefitBenefitbalanceFinancial"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -49490,6 +50103,10 @@ pub fn explanationofbenefit_benefitbalance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitBenefitbalance")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -49602,6 +50219,10 @@ pub fn explanationofbenefit_processnote_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitProcessnote")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -49704,6 +50325,10 @@ pub fn explanationofbenefit_payment_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitPayment")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -49793,6 +50418,10 @@ pub fn explanationofbenefit_total_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitTotal")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -49881,6 +50510,10 @@ pub fn explanationofbenefit_additem_detail_subdetail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitAdditemDetailSubdetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -50020,6 +50653,10 @@ pub fn explanationofbenefit_additem_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitAdditemDetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -50235,6 +50872,10 @@ pub fn explanationofbenefit_additem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitAdditem")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -50441,6 +51082,10 @@ pub fn explanationofbenefit_item_detail_subdetail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitItemDetailSubdetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -50627,6 +51272,10 @@ pub fn explanationofbenefit_item_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitItemDetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -50762,6 +51411,10 @@ pub fn explanationofbenefit_item_adjudication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitItemAdjudication")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -50989,6 +51642,10 @@ pub fn explanationofbenefit_item_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitItem")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -51185,6 +51842,10 @@ pub fn explanationofbenefit_accident_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitAccident")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -51259,6 +51920,10 @@ pub fn explanationofbenefit_insurance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitInsurance")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -51337,6 +52002,10 @@ pub fn explanationofbenefit_procedure_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitProcedure")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -51425,6 +52094,10 @@ pub fn explanationofbenefit_diagnosis_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitDiagnosis")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -51545,6 +52218,10 @@ pub fn explanationofbenefit_supportinginfo_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitSupportinginfo")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -51637,6 +52314,10 @@ pub fn explanationofbenefit_careteam_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitCareteam")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -51717,6 +52398,10 @@ pub fn explanationofbenefit_payee_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitPayee")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -51792,6 +52477,10 @@ pub fn explanationofbenefit_related_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ExplanationofbenefitRelated")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -52133,6 +52822,10 @@ pub fn explanationofbenefit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Explanationofbenefit")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -52698,6 +53391,10 @@ pub fn familymemberhistory_condition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("FamilymemberhistoryCondition")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -52933,6 +53630,7 @@ pub fn familymemberhistory_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Familymemberhistory")), ..fields]
   json.object(fields)
 }
 
@@ -53200,6 +53898,7 @@ pub fn flag_to_json(flag: Flag) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Flag")), ..fields]
   json.object(fields)
 }
 
@@ -53530,6 +54229,7 @@ pub fn goal_target_to_json(goal_target: GoalTarget) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("GoalTarget")), ..fields]
   json.object(fields)
 }
 
@@ -53700,6 +54400,7 @@ pub fn goal_to_json(goal: Goal) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Goal")), ..fields]
   json.object(fields)
 }
 
@@ -54024,6 +54725,10 @@ pub fn graphdefinition_link_target_compartment_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("GraphdefinitionLinkTargetCompartment")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -54114,6 +54819,10 @@ pub fn graphdefinition_link_target_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("GraphdefinitionLinkTarget")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -54215,6 +54924,7 @@ pub fn graphdefinition_link_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("GraphdefinitionLink")), ..fields]
   json.object(fields)
 }
 
@@ -54385,6 +55095,7 @@ pub fn graphdefinition_to_json(graphdefinition: Graphdefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Graphdefinition")), ..fields]
   json.object(fields)
 }
 
@@ -54688,6 +55399,7 @@ pub fn group_member_to_json(group_member: GroupMember) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("GroupMember")), ..fields]
   json.object(fields)
 }
 
@@ -54760,6 +55472,7 @@ pub fn group_characteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("GroupCharacteristic")), ..fields]
   json.object(fields)
 }
 
@@ -54892,6 +55605,7 @@ pub fn group_to_json(group: Group) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Group")), ..fields]
   json.object(fields)
 }
 
@@ -55220,6 +55934,7 @@ pub fn guidanceresponse_to_json(guidanceresponse: Guidanceresponse) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Guidanceresponse")), ..fields]
   json.object(fields)
 }
 
@@ -55533,6 +56248,10 @@ pub fn healthcareservice_notavailable_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("HealthcareserviceNotavailable")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -55612,6 +56331,10 @@ pub fn healthcareservice_availabletime_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("HealthcareserviceAvailabletime")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -55694,6 +56417,10 @@ pub fn healthcareservice_eligibility_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("HealthcareserviceEligibility")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -55939,6 +56666,7 @@ pub fn healthcareservice_to_json(healthcareservice: Healthcareservice) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Healthcareservice")), ..fields]
   json.object(fields)
 }
 
@@ -56339,6 +57067,10 @@ pub fn imagingstudy_series_instance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImagingstudySeriesInstance")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -56411,6 +57143,10 @@ pub fn imagingstudy_series_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImagingstudySeriesPerformer")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -56531,6 +57267,7 @@ pub fn imagingstudy_series_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ImagingstudySeries")), ..fields]
   json.object(fields)
 }
 
@@ -56774,6 +57511,7 @@ pub fn imagingstudy_to_json(imagingstudy: Imagingstudy) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Imagingstudy")), ..fields]
   json.object(fields)
 }
 
@@ -57269,6 +58007,10 @@ pub fn immunization_protocolapplied_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImmunizationProtocolapplied")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -57358,6 +58100,10 @@ pub fn immunization_reaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImmunizationReaction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -57442,6 +58188,10 @@ pub fn immunization_education_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImmunizationEducation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -57520,6 +58270,10 @@ pub fn immunization_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImmunizationPerformer")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -57759,6 +58513,7 @@ pub fn immunization_to_json(immunization: Immunization) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Immunization")), ..fields]
   json.object(fields)
 }
 
@@ -58204,6 +58959,10 @@ pub fn immunizationevaluation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Immunizationevaluation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -58522,6 +59281,13 @@ pub fn immunizationrecommendation_recommendation_datecriterion_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("ImmunizationrecommendationRecommendationDatecriterion"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -58689,6 +59455,10 @@ pub fn immunizationrecommendation_recommendation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImmunizationrecommendationRecommendation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -58864,6 +59634,10 @@ pub fn immunizationrecommendation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Immunizationrecommendation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -59417,6 +60191,10 @@ pub fn implementationguide_manifest_page_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideManifestPage")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -59498,6 +60276,10 @@ pub fn implementationguide_manifest_resource_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideManifestResource")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -59592,6 +60374,10 @@ pub fn implementationguide_manifest_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideManifest")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -59672,6 +60458,10 @@ pub fn implementationguide_definition_template_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideDefinitionTemplate")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -59735,6 +60525,10 @@ pub fn implementationguide_definition_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideDefinitionParameter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -59794,6 +60588,10 @@ pub fn implementationguide_definition_page_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideDefinitionPage")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -59896,6 +60694,10 @@ pub fn implementationguide_definition_resource_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideDefinitionResource")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -59982,6 +60784,10 @@ pub fn implementationguide_definition_grouping_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideDefinitionGrouping")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -60090,6 +60896,10 @@ pub fn implementationguide_definition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideDefinition")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -60173,6 +60983,10 @@ pub fn implementationguide_global_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideGlobal")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -60238,6 +61052,10 @@ pub fn implementationguide_dependson_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ImplementationguideDependson")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -60441,6 +61259,7 @@ pub fn implementationguide_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Implementationguide")), ..fields]
   json.object(fields)
 }
 
@@ -60920,6 +61739,10 @@ pub fn insuranceplan_plan_specificcost_benefit_cost_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("InsuranceplanPlanSpecificcostBenefitCost")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -61002,6 +61825,10 @@ pub fn insuranceplan_plan_specificcost_benefit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("InsuranceplanPlanSpecificcostBenefit")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -61072,6 +61899,10 @@ pub fn insuranceplan_plan_specificcost_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("InsuranceplanPlanSpecificcost")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -61148,6 +61979,10 @@ pub fn insuranceplan_plan_generalcost_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("InsuranceplanPlanGeneralcost")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -61263,6 +62098,7 @@ pub fn insuranceplan_plan_to_json(insuranceplan_plan: InsuranceplanPlan) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("InsuranceplanPlan")), ..fields]
   json.object(fields)
 }
 
@@ -61355,6 +62191,10 @@ pub fn insuranceplan_coverage_benefit_limit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("InsuranceplanCoverageBenefitLimit")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -61434,6 +62274,10 @@ pub fn insuranceplan_coverage_benefit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("InsuranceplanCoverageBenefit")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -61512,6 +62356,10 @@ pub fn insuranceplan_coverage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("InsuranceplanCoverage")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -61592,6 +62440,10 @@ pub fn insuranceplan_contact_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("InsuranceplanContact")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -61764,6 +62616,7 @@ pub fn insuranceplan_to_json(insuranceplan: Insuranceplan) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Insuranceplan")), ..fields]
   json.object(fields)
 }
 
@@ -62100,6 +62953,10 @@ pub fn invoice_lineitem_pricecomponent_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("InvoiceLineitemPricecomponent")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -62188,6 +63045,7 @@ pub fn invoice_lineitem_to_json(invoice_lineitem: InvoiceLineitem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("InvoiceLineitem")), ..fields]
   json.object(fields)
 }
 
@@ -62251,6 +63109,7 @@ pub fn invoice_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("InvoiceParticipant")), ..fields]
   json.object(fields)
 }
 
@@ -62407,6 +63266,7 @@ pub fn invoice_to_json(invoice: Invoice) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Invoice")), ..fields]
   json.object(fields)
 }
 
@@ -62893,6 +63753,7 @@ pub fn library_to_json(library: Library) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Library")), ..fields]
   json.object(fields)
 }
 
@@ -63194,6 +64055,7 @@ pub fn linkage_item_to_json(linkage_item: LinkageItem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("LinkageItem")), ..fields]
   json.object(fields)
 }
 
@@ -63282,6 +64144,7 @@ pub fn linkage_to_json(linkage: Linkage) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Linkage")), ..fields]
   json.object(fields)
 }
 
@@ -63353,8 +64216,8 @@ pub fn linkage_decoder() -> Decoder(Linkage) {
 }
 
 ///http://hl7.org/fhir/r4/StructureDefinition/List#resource
-pub type FhirList {
-  FhirList(
+pub type Listfhir {
+  Listfhir(
     id: Option(String),
     meta: Option(Meta),
     implicit_rules: Option(String),
@@ -63379,11 +64242,11 @@ pub type FhirList {
   )
 }
 
-pub fn fhir_list_new(
+pub fn listfhir_new(
   mode mode: r4valuesets.Listmode,
   status status: r4valuesets.Liststatus,
-) -> FhirList {
-  FhirList(
+) -> Listfhir {
+  Listfhir(
     empty_reason: None,
     entry: [],
     note: [],
@@ -63473,6 +64336,7 @@ pub fn list_entry_to_json(list_entry: ListEntry) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ListEntry")), ..fields]
   json.object(fields)
 }
 
@@ -63515,8 +64379,8 @@ pub fn list_entry_decoder() -> Decoder(ListEntry) {
   ))
 }
 
-pub fn fhir_list_to_json(fhir_list: FhirList) -> Json {
-  let FhirList(
+pub fn listfhir_to_json(listfhir: Listfhir) -> Json {
+  let Listfhir(
     empty_reason:,
     entry:,
     note:,
@@ -63538,7 +64402,7 @@ pub fn fhir_list_to_json(fhir_list: FhirList) -> Json {
     implicit_rules:,
     meta:,
     id:,
-  ) = fhir_list
+  ) = listfhir
   let fields = [
     #("mode", r4valuesets.listmode_to_json(mode)),
     #("status", r4valuesets.liststatus_to_json(status)),
@@ -63622,10 +64486,11 @@ pub fn fhir_list_to_json(fhir_list: FhirList) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Listfhir")), ..fields]
   json.object(fields)
 }
 
-pub fn fhir_list_decoder() -> Decoder(FhirList) {
+pub fn listfhir_decoder() -> Decoder(Listfhir) {
   use empty_reason <- decode.optional_field(
     "emptyReason",
     None,
@@ -63719,7 +64584,7 @@ pub fn fhir_list_decoder() -> Decoder(FhirList) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
-  decode.success(FhirList(
+  decode.success(Listfhir(
     empty_reason:,
     entry:,
     note:,
@@ -63903,6 +64768,10 @@ pub fn location_hoursofoperation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("LocationHoursofoperation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -63981,6 +64850,7 @@ pub fn location_position_to_json(location_position: LocationPosition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("LocationPosition")), ..fields]
   json.object(fields)
 }
 
@@ -64151,6 +65021,7 @@ pub fn location_to_json(location: Location) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Location")), ..fields]
   json.object(fields)
 }
 
@@ -64607,6 +65478,10 @@ pub fn measure_supplementaldata_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MeasureSupplementaldata")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -64686,6 +65561,10 @@ pub fn measure_group_stratifier_component_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MeasureGroupStratifierComponent")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -64774,6 +65653,10 @@ pub fn measure_group_stratifier_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MeasureGroupStratifier")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -64857,6 +65740,10 @@ pub fn measure_group_population_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MeasureGroupPopulation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -64941,6 +65828,7 @@ pub fn measure_group_to_json(measure_group: MeasureGroup) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("MeasureGroup")), ..fields]
   json.object(fields)
 }
 
@@ -65265,6 +66153,7 @@ pub fn measure_to_json(measure: Measure) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Measure")), ..fields]
   json.object(fields)
 }
 
@@ -65785,6 +66674,13 @@ pub fn measurereport_group_stratifier_stratum_population_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MeasurereportGroupStratifierStratumPopulation"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -65852,6 +66748,13 @@ pub fn measurereport_group_stratifier_stratum_component_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MeasurereportGroupStratifierStratumComponent"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -65942,6 +66845,10 @@ pub fn measurereport_group_stratifier_stratum_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MeasurereportGroupStratifierStratum")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -66030,6 +66937,10 @@ pub fn measurereport_group_stratifier_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MeasurereportGroupStratifier")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -66105,6 +67016,10 @@ pub fn measurereport_group_population_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MeasurereportGroupPopulation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -66199,6 +67114,7 @@ pub fn measurereport_group_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("MeasurereportGroup")), ..fields]
   json.object(fields)
 }
 
@@ -66339,6 +67255,7 @@ pub fn measurereport_to_json(measurereport: Measurereport) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Measurereport")), ..fields]
   json.object(fields)
 }
 
@@ -66707,6 +67624,7 @@ pub fn media_to_json(media: Media) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Media")), ..fields]
   json.object(fields)
 }
 
@@ -67024,6 +67942,7 @@ pub fn medication_batch_to_json(medication_batch: MedicationBatch) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("MedicationBatch")), ..fields]
   json.object(fields)
 }
 
@@ -67095,6 +68014,10 @@ pub fn medication_ingredient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationIngredient")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -67221,6 +68144,7 @@ pub fn medication_to_json(medication: Medication) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Medication")), ..fields]
   json.object(fields)
 }
 
@@ -67596,6 +68520,10 @@ pub fn medicationadministration_dosage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationadministrationDosage")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -67686,6 +68614,10 @@ pub fn medicationadministration_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationadministrationPerformer")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -67878,6 +68810,10 @@ pub fn medicationadministration_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Medicationadministration")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -68269,6 +69205,10 @@ pub fn medicationdispense_substitution_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationdispenseSubstitution")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -68345,6 +69285,10 @@ pub fn medicationdispense_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationdispensePerformer")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -68581,6 +69525,7 @@ pub fn medicationdispense_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Medicationdispense")), ..fields]
   json.object(fields)
 }
 
@@ -69420,6 +70365,10 @@ pub fn medicationknowledge_kinetics_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeKinetics")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -69494,6 +70443,10 @@ pub fn medicationknowledge_regulatory_maxdispense_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeRegulatoryMaxdispense")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -69553,6 +70506,10 @@ pub fn medicationknowledge_regulatory_schedule_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeRegulatorySchedule")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -69608,6 +70565,10 @@ pub fn medicationknowledge_regulatory_substitution_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeRegulatorySubstitution")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -69696,6 +70657,10 @@ pub fn medicationknowledge_regulatory_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeRegulatory")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -69791,6 +70756,10 @@ pub fn medicationknowledge_drugcharacteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeDrugcharacteristic")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -69859,6 +70828,10 @@ pub fn medicationknowledge_packaging_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgePackaging")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -69930,6 +70903,10 @@ pub fn medicationknowledge_medicineclassification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeMedicineclassification")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -69999,6 +70976,15 @@ pub fn medicationknowledge_administrationguidelines_patientcharacteristics_to_js
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string(
+        "MedicationknowledgeAdministrationguidelinesPatientcharacteristics",
+      ),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -70063,6 +71049,13 @@ pub fn medicationknowledge_administrationguidelines_dosage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicationknowledgeAdministrationguidelinesDosage"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -70165,6 +71158,13 @@ pub fn medicationknowledge_administrationguidelines_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicationknowledgeAdministrationguidelines"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -70243,6 +71243,10 @@ pub fn medicationknowledge_monitoringprogram_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeMonitoringprogram")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -70313,6 +71317,10 @@ pub fn medicationknowledge_cost_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeCost")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -70382,6 +71390,10 @@ pub fn medicationknowledge_ingredient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeIngredient")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -70454,6 +71466,10 @@ pub fn medicationknowledge_monograph_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationknowledgeMonograph")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -70522,6 +71538,13 @@ pub fn medicationknowledge_relatedmedicationknowledge_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicationknowledgeRelatedmedicationknowledge"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -70803,6 +71826,7 @@ pub fn medicationknowledge_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Medicationknowledge")), ..fields]
   json.object(fields)
 }
 
@@ -71283,6 +72307,10 @@ pub fn medicationrequest_substitution_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationrequestSubstitution")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -71349,6 +72377,13 @@ pub fn medicationrequest_dispenserequest_initialfill_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicationrequestDispenserequestInitialfill"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -71447,6 +72482,10 @@ pub fn medicationrequest_dispenserequest_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicationrequestDispenserequest")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -71758,6 +72797,7 @@ pub fn medicationrequest_to_json(medicationrequest: Medicationrequest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Medicationrequest")), ..fields]
   json.object(fields)
 }
 
@@ -72264,6 +73304,7 @@ pub fn medicationstatement_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Medicationstatement")), ..fields]
   json.object(fields)
 }
 
@@ -72718,6 +73759,10 @@ pub fn medicinalproduct_specialdesignation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicinalproductSpecialdesignation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -72845,6 +73890,13 @@ pub fn medicinalproduct_manufacturingbusinessoperation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicinalproductManufacturingbusinessoperation"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -72939,6 +73991,10 @@ pub fn medicinalproduct_name_countrylanguage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicinalproductNameCountrylanguage")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -73002,6 +74058,10 @@ pub fn medicinalproduct_name_namepart_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicinalproductNameNamepart")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -73082,6 +74142,10 @@ pub fn medicinalproduct_name_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicinalproductName")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -73328,6 +74392,7 @@ pub fn medicinalproduct_to_json(medicinalproduct: Medicinalproduct) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Medicinalproduct")), ..fields]
   json.object(fields)
 }
 
@@ -73688,6 +74753,10 @@ pub fn medicinalproductauthorization_procedure_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicinalproductauthorizationProcedure")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -73776,6 +74845,13 @@ pub fn medicinalproductauthorization_jurisdictionalauthorization_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicinalproductauthorizationJurisdictionalauthorization"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -73974,6 +75050,10 @@ pub fn medicinalproductauthorization_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Medicinalproductauthorization")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -74270,6 +75350,13 @@ pub fn medicinalproductcontraindication_othertherapy_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicinalproductcontraindicationOthertherapy"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -74405,6 +75492,10 @@ pub fn medicinalproductcontraindication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Medicinalproductcontraindication")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -74645,6 +75736,10 @@ pub fn medicinalproductindication_othertherapy_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicinalproductindicationOthertherapy")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -74790,6 +75885,10 @@ pub fn medicinalproductindication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Medicinalproductindication")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -75079,6 +76178,10 @@ pub fn medicinalproductingredient_substance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicinalproductingredientSubstance")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -75152,6 +76255,15 @@ pub fn medicinalproductingredient_specifiedsubstance_strength_referencestrength_
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string(
+        "MedicinalproductingredientSpecifiedsubstanceStrengthReferencestrength",
+      ),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -75270,6 +76382,13 @@ pub fn medicinalproductingredient_specifiedsubstance_strength_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicinalproductingredientSpecifiedsubstanceStrength"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -75382,6 +76501,13 @@ pub fn medicinalproductingredient_specifiedsubstance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicinalproductingredientSpecifiedsubstance"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -75516,6 +76642,10 @@ pub fn medicinalproductingredient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Medicinalproductingredient")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -75727,6 +76857,10 @@ pub fn medicinalproductinteraction_interactant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicinalproductinteractionInteractant")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -75845,6 +76979,10 @@ pub fn medicinalproductinteraction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Medicinalproductinteraction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -76076,6 +77214,10 @@ pub fn medicinalproductmanufactured_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Medicinalproductmanufactured")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -76381,6 +77523,10 @@ pub fn medicinalproductpackaged_packageitem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicinalproductpackagedPackageitem")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -76495,6 +77641,10 @@ pub fn medicinalproductpackaged_batchidentifier_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MedicinalproductpackagedBatchidentifier")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -76645,6 +77795,10 @@ pub fn medicinalproductpackaged_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Medicinalproductpackaged")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -76940,6 +78094,15 @@ pub fn medicinalproductpharmaceutical_routeofadministration_targetspecies_withdr
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string(
+        "MedicinalproductpharmaceuticalRouteofadministrationTargetspeciesWithdrawalperiod",
+      ),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -77017,6 +78180,15 @@ pub fn medicinalproductpharmaceutical_routeofadministration_targetspecies_to_jso
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string(
+        "MedicinalproductpharmaceuticalRouteofadministrationTargetspecies",
+      ),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -77119,6 +78291,13 @@ pub fn medicinalproductpharmaceutical_routeofadministration_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicinalproductpharmaceuticalRouteofadministration"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -77215,6 +78394,13 @@ pub fn medicinalproductpharmaceutical_characteristics_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("MedicinalproductpharmaceuticalCharacteristics"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -77347,6 +78533,10 @@ pub fn medicinalproductpharmaceutical_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Medicinalproductpharmaceutical")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -77559,6 +78749,10 @@ pub fn medicinalproductundesirableeffect_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Medicinalproductundesirableeffect")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -77829,6 +79023,10 @@ pub fn messagedefinition_allowedresponse_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MessagedefinitionAllowedresponse")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -77900,6 +79098,10 @@ pub fn messagedefinition_focus_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MessagedefinitionFocus")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -78114,6 +79316,7 @@ pub fn messagedefinition_to_json(messagedefinition: Messagedefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Messagedefinition")), ..fields]
   json.object(fields)
 }
 
@@ -78478,6 +79681,10 @@ pub fn messageheader_response_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MessageheaderResponse")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -78557,6 +79764,7 @@ pub fn messageheader_source_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("MessageheaderSource")), ..fields]
   json.object(fields)
 }
 
@@ -78647,6 +79855,10 @@ pub fn messageheader_destination_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MessageheaderDestination")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -78792,6 +80004,7 @@ pub fn messageheader_to_json(messageheader: Messageheader) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Messageheader")), ..fields]
   json.object(fields)
 }
 
@@ -79241,6 +80454,10 @@ pub fn molecularsequence_structurevariant_inner_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MolecularsequenceStructurevariantInner")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -79303,6 +80520,10 @@ pub fn molecularsequence_structurevariant_outer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MolecularsequenceStructurevariantOuter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -79386,6 +80607,10 @@ pub fn molecularsequence_structurevariant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MolecularsequenceStructurevariant")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -79492,6 +80717,10 @@ pub fn molecularsequence_repository_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MolecularsequenceRepository")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -79603,6 +80832,10 @@ pub fn molecularsequence_quality_roc_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MolecularsequenceQualityRoc")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -79750,6 +80983,10 @@ pub fn molecularsequence_quality_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MolecularsequenceQuality")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -79904,6 +81141,10 @@ pub fn molecularsequence_variant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MolecularsequenceVariant")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -80026,6 +81267,10 @@ pub fn molecularsequence_referenceseq_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("MolecularsequenceReferenceseq")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -80253,6 +81498,7 @@ pub fn molecularsequence_to_json(molecularsequence: Molecularsequence) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Molecularsequence")), ..fields]
   json.object(fields)
 }
 
@@ -80529,6 +81775,10 @@ pub fn namingsystem_uniqueid_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("NamingsystemUniqueid")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -80686,6 +81936,7 @@ pub fn namingsystem_to_json(namingsystem: Namingsystem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Namingsystem")), ..fields]
   json.object(fields)
 }
 
@@ -81101,6 +82352,10 @@ pub fn nutritionorder_enteralformula_administration_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("NutritionorderEnteralformulaAdministration")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -81222,6 +82477,10 @@ pub fn nutritionorder_enteralformula_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("NutritionorderEnteralformula")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -81349,6 +82608,10 @@ pub fn nutritionorder_supplement_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("NutritionorderSupplement")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -81435,6 +82698,10 @@ pub fn nutritionorder_oraldiet_texture_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("NutritionorderOraldietTexture")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -81505,6 +82772,10 @@ pub fn nutritionorder_oraldiet_nutrient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("NutritionorderOraldietNutrient")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -81610,6 +82881,10 @@ pub fn nutritionorder_oraldiet_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("NutritionorderOraldiet")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -81822,6 +83097,7 @@ pub fn nutritionorder_to_json(nutritionorder: Nutritionorder) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Nutritionorder")), ..fields]
   json.object(fields)
 }
 
@@ -82322,6 +83598,10 @@ pub fn observation_component_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ObservationComponent")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -82419,6 +83699,10 @@ pub fn observation_referencerange_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ObservationReferencerange")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -82690,6 +83974,7 @@ pub fn observation_to_json(observation: Observation) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Observation")), ..fields]
   json.object(fields)
 }
 
@@ -83056,6 +84341,10 @@ pub fn observationdefinition_qualifiedinterval_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ObservationdefinitionQualifiedinterval")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -83172,6 +84461,10 @@ pub fn observationdefinition_quantitativedetails_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ObservationdefinitionQuantitativedetails")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -83356,6 +84649,10 @@ pub fn observationdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Observationdefinition")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -83713,6 +85010,10 @@ pub fn operationdefinition_overload_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("OperationdefinitionOverload")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -83781,6 +85082,10 @@ pub fn operationdefinition_parameter_referencedfrom_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("OperationdefinitionParameterReferencedfrom")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -83842,6 +85147,10 @@ pub fn operationdefinition_parameter_binding_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("OperationdefinitionParameterBinding")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -83951,6 +85260,10 @@ pub fn operationdefinition_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("OperationdefinitionParameter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -84196,6 +85509,7 @@ pub fn operationdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Operationdefinition")), ..fields]
   json.object(fields)
 }
 
@@ -84482,6 +85796,10 @@ pub fn operationoutcome_issue_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("OperationoutcomeIssue")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -84587,6 +85905,7 @@ pub fn operationoutcome_to_json(operationoutcome: Operationoutcome) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Operationoutcome")), ..fields]
   json.object(fields)
 }
 
@@ -84761,6 +86080,7 @@ pub fn organization_contact_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("OrganizationContact")), ..fields]
   json.object(fields)
 }
 
@@ -84907,6 +86227,7 @@ pub fn organization_to_json(organization: Organization) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Organization")), ..fields]
   json.object(fields)
 }
 
@@ -85181,6 +86502,10 @@ pub fn organizationaffiliation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Organizationaffiliation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -85686,6 +87011,7 @@ pub fn parameters_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ParametersParameter")), ..fields]
   json.object(fields)
 }
 
@@ -85747,6 +87073,7 @@ pub fn parameters_to_json(parameters: Parameters) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Parameters")), ..fields]
   json.object(fields)
 }
 
@@ -85976,6 +87303,7 @@ pub fn patient_link_to_json(patient_link: PatientLink) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("PatientLink")), ..fields]
   json.object(fields)
 }
 
@@ -86034,6 +87362,10 @@ pub fn patient_communication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PatientCommunication")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -86127,6 +87459,7 @@ pub fn patient_contact_to_json(patient_contact: PatientContact) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("PatientContact")), ..fields]
   json.object(fields)
 }
 
@@ -86353,6 +87686,7 @@ pub fn patient_to_json(patient: Patient) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Patient")), ..fields]
   json.object(fields)
 }
 
@@ -86645,6 +87979,7 @@ pub fn paymentnotice_to_json(paymentnotice: Paymentnotice) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Paymentnotice")), ..fields]
   json.object(fields)
 }
 
@@ -86905,6 +88240,10 @@ pub fn paymentreconciliation_processnote_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PaymentreconciliationProcessnote")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -87013,6 +88352,10 @@ pub fn paymentreconciliation_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PaymentreconciliationDetail")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -87218,6 +88561,10 @@ pub fn paymentreconciliation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Paymentreconciliation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -87440,6 +88787,7 @@ pub fn person_link_to_json(person_link: PersonLink) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("PersonLink")), ..fields]
   json.object(fields)
 }
 
@@ -87570,6 +88918,7 @@ pub fn person_to_json(person: Person) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Person")), ..fields]
   json.object(fields)
 }
 
@@ -88222,6 +89571,10 @@ pub fn plandefinition_action_dynamicvalue_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PlandefinitionActionDynamicvalue")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -88290,6 +89643,10 @@ pub fn plandefinition_action_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PlandefinitionActionParticipant")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -88366,6 +89723,10 @@ pub fn plandefinition_action_relatedaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PlandefinitionActionRelatedaction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -88433,6 +89794,10 @@ pub fn plandefinition_action_condition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PlandefinitionActionCondition")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -88698,6 +90063,10 @@ pub fn plandefinition_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PlandefinitionAction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -88916,6 +90285,10 @@ pub fn plandefinition_goal_target_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PlandefinitionGoalTarget")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -89020,6 +90393,7 @@ pub fn plandefinition_goal_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("PlandefinitionGoal")), ..fields]
   json.object(fields)
 }
 
@@ -89305,6 +90679,7 @@ pub fn plandefinition_to_json(plandefinition: Plandefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Plandefinition")), ..fields]
   json.object(fields)
 }
 
@@ -89647,6 +91022,10 @@ pub fn practitioner_qualification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PractitionerQualification")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -89800,6 +91179,7 @@ pub fn practitioner_to_json(practitioner: Practitioner) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Practitioner")), ..fields]
   json.object(fields)
 }
 
@@ -90047,6 +91427,10 @@ pub fn practitionerrole_notavailable_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PractitionerroleNotavailable")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -90126,6 +91510,10 @@ pub fn practitionerrole_availabletime_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("PractitionerroleAvailabletime")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -90309,6 +91697,7 @@ pub fn practitionerrole_to_json(practitionerrole: Practitionerrole) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Practitionerrole")), ..fields]
   json.object(fields)
 }
 
@@ -90645,6 +92034,10 @@ pub fn procedure_focaldevice_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ProcedureFocaldevice")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -90712,6 +92105,7 @@ pub fn procedure_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ProcedurePerformer")), ..fields]
   json.object(fields)
 }
 
@@ -90985,6 +92379,7 @@ pub fn procedure_to_json(procedure: Procedure) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Procedure")), ..fields]
   json.object(fields)
 }
 
@@ -91335,6 +92730,7 @@ pub fn provenance_entity_to_json(provenance_entity: ProvenanceEntity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ProvenanceEntity")), ..fields]
   json.object(fields)
 }
 
@@ -91401,6 +92797,7 @@ pub fn provenance_agent_to_json(provenance_agent: ProvenanceAgent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ProvenanceAgent")), ..fields]
   json.object(fields)
 }
 
@@ -91548,6 +92945,7 @@ pub fn provenance_to_json(provenance: Provenance) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Provenance")), ..fields]
   json.object(fields)
 }
 
@@ -92037,6 +93435,10 @@ pub fn questionnaire_item_initial_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("QuestionnaireItemInitial")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -92093,6 +93495,10 @@ pub fn questionnaire_item_answeroption_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("QuestionnaireItemAnsweroption")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -92156,6 +93562,10 @@ pub fn questionnaire_item_enablewhen_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("QuestionnaireItemEnablewhen")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -92299,6 +93709,7 @@ pub fn questionnaire_item_to_json(questionnaire_item: QuestionnaireItem) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("QuestionnaireItem")), ..fields]
   json.object(fields)
 }
 
@@ -92566,6 +93977,7 @@ pub fn questionnaire_to_json(questionnaire: Questionnaire) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Questionnaire")), ..fields]
   json.object(fields)
 }
 
@@ -92952,6 +94364,10 @@ pub fn questionnaireresponse_item_answer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("QuestionnaireresponseItemAnswer")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -93025,6 +94441,10 @@ pub fn questionnaireresponse_item_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("QuestionnaireresponseItem")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -93174,6 +94594,10 @@ pub fn questionnaireresponse_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Questionnaireresponse")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -93397,6 +94821,10 @@ pub fn relatedperson_communication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("RelatedpersonCommunication")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -93546,6 +94974,7 @@ pub fn relatedperson_to_json(relatedperson: Relatedperson) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Relatedperson")), ..fields]
   json.object(fields)
 }
 
@@ -93946,6 +95375,10 @@ pub fn requestgroup_action_relatedaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("RequestgroupActionRelatedaction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -94013,6 +95446,10 @@ pub fn requestgroup_action_condition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("RequestgroupActionCondition")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -94206,6 +95643,7 @@ pub fn requestgroup_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("RequestgroupAction")), ..fields]
   json.object(fields)
 }
 
@@ -94484,6 +95922,7 @@ pub fn requestgroup_to_json(requestgroup: Requestgroup) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Requestgroup")), ..fields]
   json.object(fields)
 }
 
@@ -95002,6 +96441,7 @@ pub fn researchdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Researchdefinition")), ..fields]
   json.object(fields)
 }
 
@@ -95735,6 +97175,10 @@ pub fn researchelementdefinition_characteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ResearchelementdefinitionCharacteristic")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -96073,6 +97517,10 @@ pub fn researchelementdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Researchelementdefinition")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -96464,6 +97912,10 @@ pub fn researchstudy_objective_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ResearchstudyObjective")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -96533,6 +97985,7 @@ pub fn researchstudy_arm_to_json(researchstudy_arm: ResearchstudyArm) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ResearchstudyArm")), ..fields]
   json.object(fields)
 }
 
@@ -96752,6 +98205,7 @@ pub fn researchstudy_to_json(researchstudy: Researchstudy) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Researchstudy")), ..fields]
   json.object(fields)
 }
 
@@ -97073,6 +98527,7 @@ pub fn researchsubject_to_json(researchsubject: Researchsubject) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Researchsubject")), ..fields]
   json.object(fields)
 }
 
@@ -97411,6 +98866,10 @@ pub fn riskassessment_prediction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("RiskassessmentPrediction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -97611,6 +99070,7 @@ pub fn riskassessment_to_json(riskassessment: Riskassessment) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Riskassessment")), ..fields]
   json.object(fields)
 }
 
@@ -98014,6 +99474,13 @@ pub fn riskevidencesynthesis_certainty_certaintysubcomponent_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("RiskevidencesynthesisCertaintyCertaintysubcomponent"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -98104,6 +99571,10 @@ pub fn riskevidencesynthesis_certainty_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("RiskevidencesynthesisCertainty")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -98190,6 +99661,13 @@ pub fn riskevidencesynthesis_riskestimate_precisionestimate_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("RiskevidencesynthesisRiskestimatePrecisionestimate"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -98298,6 +99776,10 @@ pub fn riskevidencesynthesis_riskestimate_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("RiskevidencesynthesisRiskestimate")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -98403,6 +99885,10 @@ pub fn riskevidencesynthesis_samplesize_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("RiskevidencesynthesisSamplesize")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -98665,6 +100151,10 @@ pub fn riskevidencesynthesis_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Riskevidencesynthesis")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -99029,6 +100519,7 @@ pub fn schedule_to_json(schedule: Schedule) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Schedule")), ..fields]
   json.object(fields)
 }
 
@@ -99268,6 +100759,10 @@ pub fn searchparameter_component_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SearchparameterComponent")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -99484,6 +100979,7 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Searchparameter")), ..fields]
   json.object(fields)
 }
 
@@ -100117,6 +101613,7 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Servicerequest")), ..fields]
   json.object(fields)
 }
 
@@ -100506,6 +102003,7 @@ pub fn slot_to_json(slot: Slot) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Slot")), ..fields]
   json.object(fields)
 }
 
@@ -100927,6 +102425,7 @@ pub fn specimen_container_to_json(specimen_container: SpecimenContainer) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("SpecimenContainer")), ..fields]
   json.object(fields)
 }
 
@@ -101037,6 +102536,7 @@ pub fn specimen_processing_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("SpecimenProcessing")), ..fields]
   json.object(fields)
 }
 
@@ -101158,6 +102658,7 @@ pub fn specimen_collection_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("SpecimenCollection")), ..fields]
   json.object(fields)
 }
 
@@ -101339,6 +102840,7 @@ pub fn specimen_to_json(specimen: Specimen) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Specimen")), ..fields]
   json.object(fields)
 }
 
@@ -101742,6 +103244,10 @@ pub fn specimendefinition_typetested_handling_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SpecimendefinitionTypetestedHandling")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -101822,6 +103328,13 @@ pub fn specimendefinition_typetested_container_additive_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("SpecimendefinitionTypetestedContainerAdditive"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -101935,6 +103448,10 @@ pub fn specimendefinition_typetested_container_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SpecimendefinitionTypetestedContainer")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -102084,6 +103601,10 @@ pub fn specimendefinition_typetested_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SpecimendefinitionTypetested")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -102249,6 +103770,7 @@ pub fn specimendefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Specimendefinition")), ..fields]
   json.object(fields)
 }
 
@@ -102546,6 +104068,10 @@ pub fn structuredefinition_differential_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuredefinitionDifferential")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -102608,6 +104134,10 @@ pub fn structuredefinition_snapshot_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuredefinitionSnapshot")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -102667,6 +104197,10 @@ pub fn structuredefinition_context_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuredefinitionContext")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -102737,6 +104271,10 @@ pub fn structuredefinition_mapping_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuredefinitionMapping")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -102968,6 +104506,7 @@ pub fn structuredefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Structuredefinition")), ..fields]
   json.object(fields)
 }
 
@@ -103841,6 +105380,10 @@ pub fn structuremap_group_rule_dependent_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuremapGroupRuleDependent")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -103900,6 +105443,10 @@ pub fn structuremap_group_rule_target_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuremapGroupRuleTargetParameter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -104007,6 +105554,10 @@ pub fn structuremap_group_rule_target_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuremapGroupRuleTarget")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -104226,6 +105777,10 @@ pub fn structuremap_group_rule_source_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuremapGroupRuleSource")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -104361,6 +105916,10 @@ pub fn structuremap_group_rule_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuremapGroupRule")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -104448,6 +106007,10 @@ pub fn structuremap_group_input_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuremapGroupInput")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -104539,6 +106102,7 @@ pub fn structuremap_group_to_json(structuremap_group: StructuremapGroup) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("StructuremapGroup")), ..fields]
   json.object(fields)
 }
 
@@ -104631,6 +106195,10 @@ pub fn structuremap_structure_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("StructuremapStructure")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -104807,6 +106375,7 @@ pub fn structuremap_to_json(structuremap: Structuremap) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Structuremap")), ..fields]
   json.object(fields)
 }
 
@@ -105066,6 +106635,7 @@ pub fn subscription_channel_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("SubscriptionChannel")), ..fields]
   json.object(fields)
 }
 
@@ -105178,6 +106748,7 @@ pub fn subscription_to_json(subscription: Subscription) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Subscription")), ..fields]
   json.object(fields)
 }
 
@@ -105403,6 +106974,7 @@ pub fn substance_ingredient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("SubstanceIngredient")), ..fields]
   json.object(fields)
 }
 
@@ -105470,6 +107042,7 @@ pub fn substance_instance_to_json(substance_instance: SubstanceInstance) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("SubstanceInstance")), ..fields]
   json.object(fields)
 }
 
@@ -105599,6 +107172,7 @@ pub fn substance_to_json(substance: Substance) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Substance")), ..fields]
   json.object(fields)
 }
 
@@ -105846,6 +107420,10 @@ pub fn substancenucleicacid_subunit_sugar_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancenucleicacidSubunitSugar")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -105932,6 +107510,10 @@ pub fn substancenucleicacid_subunit_linkage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancenucleicacidSubunitLinkage")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -106053,6 +107635,10 @@ pub fn substancenucleicacid_subunit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancenucleicacidSubunit")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -106202,6 +107788,10 @@ pub fn substancenucleicacid_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Substancenucleicacid")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -106508,6 +108098,13 @@ pub fn substancepolymer_repeat_repeatunit_structuralrepresentation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("SubstancepolymerRepeatRepeatunitStructuralrepresentation"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -106584,6 +108181,13 @@ pub fn substancepolymer_repeat_repeatunit_degreeofpolymerisation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("SubstancepolymerRepeatRepeatunitDegreeofpolymerisation"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -106690,6 +108294,10 @@ pub fn substancepolymer_repeat_repeatunit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancepolymerRepeatRepeatunit")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -106798,6 +108406,10 @@ pub fn substancepolymer_repeat_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancepolymerRepeat")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -106888,6 +108500,10 @@ pub fn substancepolymer_monomerset_startingmaterial_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancepolymerMonomersetStartingmaterial")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -106979,6 +108595,10 @@ pub fn substancepolymer_monomerset_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancepolymerMonomerset")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -107107,6 +108727,7 @@ pub fn substancepolymer_to_json(substancepolymer: Substancepolymer) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Substancepolymer")), ..fields]
   json.object(fields)
 }
 
@@ -107327,6 +108948,10 @@ pub fn substanceprotein_subunit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstanceproteinSubunit")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -107470,6 +109095,7 @@ pub fn substanceprotein_to_json(substanceprotein: Substanceprotein) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Substanceprotein")), ..fields]
   json.object(fields)
 }
 
@@ -107794,6 +109420,10 @@ pub fn substancereferenceinformation_target_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancereferenceinformationTarget")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -107908,6 +109538,13 @@ pub fn substancereferenceinformation_classification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("SubstancereferenceinformationClassification"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -107995,6 +109632,10 @@ pub fn substancereferenceinformation_geneelement_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancereferenceinformationGeneelement")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -108076,6 +109717,10 @@ pub fn substancereferenceinformation_gene_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancereferenceinformationGene")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -108219,6 +109864,10 @@ pub fn substancereferenceinformation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Substancereferenceinformation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -108538,6 +110187,10 @@ pub fn substancesourcematerial_partdescription_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancesourcematerialPartdescription")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -108618,6 +110271,13 @@ pub fn substancesourcematerial_organism_organismgeneral_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("SubstancesourcematerialOrganismOrganismgeneral"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -108715,6 +110375,10 @@ pub fn substancesourcematerial_organism_hybrid_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancesourcematerialOrganismHybrid")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -108803,6 +110467,10 @@ pub fn substancesourcematerial_organism_author_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancesourcematerialOrganismAuthor")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -108918,6 +110586,10 @@ pub fn substancesourcematerial_organism_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancesourcematerialOrganism")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -109024,6 +110696,10 @@ pub fn substancesourcematerial_fractiondescription_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancesourcematerialFractiondescription")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -109213,6 +110889,10 @@ pub fn substancesourcematerial_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Substancesourcematerial")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -109942,6 +111622,10 @@ pub fn substancespecification_relationship_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancespecificationRelationship")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -110043,6 +111727,10 @@ pub fn substancespecification_name_official_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancespecificationNameOfficial")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -110164,6 +111852,10 @@ pub fn substancespecification_name_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancespecificationName")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -110287,6 +111979,10 @@ pub fn substancespecification_code_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancespecificationCode")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -110380,6 +112076,13 @@ pub fn substancespecification_structure_representation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("SubstancespecificationStructureRepresentation"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -110461,6 +112164,13 @@ pub fn substancespecification_structure_isotope_molecularweight_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("SubstancespecificationStructureIsotopeMolecularweight"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -110558,6 +112268,10 @@ pub fn substancespecification_structure_isotope_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancespecificationStructureIsotope")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -110688,6 +112402,10 @@ pub fn substancespecification_structure_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancespecificationStructure")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -110825,6 +112543,10 @@ pub fn substancespecification_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancespecificationProperty")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -110944,6 +112666,10 @@ pub fn substancespecification_moiety_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SubstancespecificationMoiety")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -111171,6 +112897,10 @@ pub fn substancespecification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Substancespecification")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -111506,6 +113236,10 @@ pub fn supplydelivery_supplieditem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SupplydeliverySupplieditem")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -111659,6 +113393,7 @@ pub fn supplydelivery_to_json(supplydelivery: Supplydelivery) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Supplydelivery")), ..fields]
   json.object(fields)
 }
 
@@ -111998,6 +113733,10 @@ pub fn supplyrequest_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("SupplyrequestParameter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -112170,6 +113909,7 @@ pub fn supplyrequest_to_json(supplyrequest: Supplyrequest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Supplyrequest")), ..fields]
   json.object(fields)
 }
 
@@ -112955,6 +114695,7 @@ pub fn task_output_to_json(task_output: TaskOutput) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TaskOutput")), ..fields]
   json.object(fields)
 }
 
@@ -113003,6 +114744,7 @@ pub fn task_input_to_json(task_input: TaskInput) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TaskInput")), ..fields]
   json.object(fields)
 }
 
@@ -113060,6 +114802,7 @@ pub fn task_restriction_to_json(task_restriction: TaskRestriction) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TaskRestriction")), ..fields]
   json.object(fields)
 }
 
@@ -113303,6 +115046,7 @@ pub fn task_to_json(task: Task) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Task")), ..fields]
   json.object(fields)
 }
 
@@ -113873,6 +115617,10 @@ pub fn terminologycapabilities_closure_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TerminologycapabilitiesClosure")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -113930,6 +115678,10 @@ pub fn terminologycapabilities_translation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TerminologycapabilitiesTranslation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -113983,6 +115735,10 @@ pub fn terminologycapabilities_validatecode_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TerminologycapabilitiesValidatecode")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -114041,6 +115797,10 @@ pub fn terminologycapabilities_expansion_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TerminologycapabilitiesExpansionParameter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -114131,6 +115891,10 @@ pub fn terminologycapabilities_expansion_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TerminologycapabilitiesExpansion")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -114217,6 +115981,13 @@ pub fn terminologycapabilities_codesystem_version_filter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("TerminologycapabilitiesCodesystemVersionFilter"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -114308,6 +116079,10 @@ pub fn terminologycapabilities_codesystem_version_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TerminologycapabilitiesCodesystemVersion")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -114413,6 +116188,10 @@ pub fn terminologycapabilities_codesystem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TerminologycapabilitiesCodesystem")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -114483,6 +116262,10 @@ pub fn terminologycapabilities_implementation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TerminologycapabilitiesImplementation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -114543,6 +116326,10 @@ pub fn terminologycapabilities_software_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TerminologycapabilitiesSoftware")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -114769,6 +116556,10 @@ pub fn terminologycapabilities_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("Terminologycapabilities")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -115207,6 +116998,10 @@ pub fn testreport_teardown_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestreportTeardownAction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -115253,6 +117048,7 @@ pub fn testreport_teardown_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TestreportTeardown")), ..fields]
   json.object(fields)
 }
 
@@ -115302,6 +117098,10 @@ pub fn testreport_test_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestreportTestAction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -115360,6 +117160,7 @@ pub fn testreport_test_to_json(testreport_test: TestreportTest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TestreportTest")), ..fields]
   json.object(fields)
 }
 
@@ -115437,6 +117238,10 @@ pub fn testreport_setup_action_assert_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestreportSetupActionAssert")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -115515,6 +117320,10 @@ pub fn testreport_setup_action_operation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestreportSetupActionOperation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -115596,6 +117405,10 @@ pub fn testreport_setup_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestreportSetupAction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -115656,6 +117469,7 @@ pub fn testreport_setup_to_json(testreport_setup: TestreportSetup) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TestreportSetup")), ..fields]
   json.object(fields)
 }
 
@@ -115713,6 +117527,10 @@ pub fn testreport_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestreportParticipant")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -115847,6 +117665,7 @@ pub fn testreport_to_json(testreport: Testreport) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Testreport")), ..fields]
   json.object(fields)
 }
 
@@ -116486,6 +118305,10 @@ pub fn testscript_teardown_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestscriptTeardownAction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -116532,6 +118355,7 @@ pub fn testscript_teardown_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TestscriptTeardown")), ..fields]
   json.object(fields)
 }
 
@@ -116581,6 +118405,10 @@ pub fn testscript_test_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestscriptTestAction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -116639,6 +118467,7 @@ pub fn testscript_test_to_json(testscript_test: TestscriptTest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TestscriptTest")), ..fields]
   json.object(fields)
 }
 
@@ -116823,6 +118652,10 @@ pub fn testscript_setup_action_assert_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestscriptSetupActionAssert")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -117004,6 +118837,13 @@ pub fn testscript_setup_action_operation_requestheader_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #(
+      "resourceType",
+      json.string("TestscriptSetupActionOperationRequestheader"),
+    ),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -117148,6 +118988,10 @@ pub fn testscript_setup_action_operation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestscriptSetupActionOperation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -117306,6 +119150,10 @@ pub fn testscript_setup_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestscriptSetupAction")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -117366,6 +119214,7 @@ pub fn testscript_setup_to_json(testscript_setup: TestscriptSetup) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TestscriptSetup")), ..fields]
   json.object(fields)
 }
 
@@ -117451,6 +119300,7 @@ pub fn testscript_variable_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TestscriptVariable")), ..fields]
   json.object(fields)
 }
 
@@ -117549,6 +119399,7 @@ pub fn testscript_fixture_to_json(testscript_fixture: TestscriptFixture) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TestscriptFixture")), ..fields]
   json.object(fields)
 }
 
@@ -117632,6 +119483,10 @@ pub fn testscript_metadata_capability_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestscriptMetadataCapability")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -117710,6 +119565,10 @@ pub fn testscript_metadata_link_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestscriptMetadataLink")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -117783,6 +119642,7 @@ pub fn testscript_metadata_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TestscriptMetadata")), ..fields]
   json.object(fields)
 }
 
@@ -117846,6 +119706,10 @@ pub fn testscript_destination_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("TestscriptDestination")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -117894,6 +119758,7 @@ pub fn testscript_origin_to_json(testscript_origin: TestscriptOrigin) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("TestscriptOrigin")), ..fields]
   json.object(fields)
 }
 
@@ -118094,6 +119959,7 @@ pub fn testscript_to_json(testscript: Testscript) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Testscript")), ..fields]
   json.object(fields)
 }
 
@@ -118651,6 +120517,10 @@ pub fn valueset_expansion_contains_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ValuesetExpansionContains")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -118758,6 +120628,10 @@ pub fn valueset_expansion_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ValuesetExpansionParameter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -118847,6 +120721,7 @@ pub fn valueset_expansion_to_json(valueset_expansion: ValuesetExpansion) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ValuesetExpansion")), ..fields]
   json.object(fields)
 }
 
@@ -118928,6 +120803,10 @@ pub fn valueset_compose_include_filter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ValuesetComposeIncludeFilter")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -118995,6 +120874,10 @@ pub fn valueset_compose_include_concept_designation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ValuesetComposeIncludeConceptDesignation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -119079,6 +120962,10 @@ pub fn valueset_compose_include_concept_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ValuesetComposeIncludeConcept")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -119175,6 +121062,10 @@ pub fn valueset_compose_include_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("ValuesetComposeInclude")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -119267,6 +121158,7 @@ pub fn valueset_compose_to_json(valueset_compose: ValuesetCompose) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("ValuesetCompose")), ..fields]
   json.object(fields)
 }
 
@@ -119448,6 +121340,7 @@ pub fn valueset_to_json(valueset: Valueset) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Valueset")), ..fields]
   json.object(fields)
 }
 
@@ -119783,6 +121676,10 @@ pub fn verificationresult_validator_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("VerificationresultValidator")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -119885,6 +121782,10 @@ pub fn verificationresult_attestation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("VerificationresultAttestation")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -120028,6 +121929,10 @@ pub fn verificationresult_primarysource_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("VerificationresultPrimarysource")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -120235,6 +122140,7 @@ pub fn verificationresult_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Verificationresult")), ..fields]
   json.object(fields)
 }
 
@@ -120520,6 +122426,10 @@ pub fn visionprescription_lensspecification_prism_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("VisionprescriptionLensspecificationPrism")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -120643,6 +122553,10 @@ pub fn visionprescription_lensspecification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [
+    #("resourceType", json.string("VisionprescriptionLensspecification")),
+    ..fields
+  ]
   json.object(fields)
 }
 
@@ -120819,6 +122733,7 @@ pub fn visionprescription_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
+  let fields = [#("resourceType", json.string("Visionprescription")), ..fields]
   json.object(fields)
 }
 
@@ -120897,6 +122812,594 @@ pub fn visionprescription_decoder() -> Decoder(Visionprescription) {
     meta:,
     id:,
   ))
+}
+
+pub type Resource {
+  ResourceAccount(Account)
+  ResourceActivitydefinition(Activitydefinition)
+  ResourceAdverseevent(Adverseevent)
+  ResourceAllergyintolerance(Allergyintolerance)
+  ResourceAppointment(Appointment)
+  ResourceAppointmentresponse(Appointmentresponse)
+  ResourceAuditevent(Auditevent)
+  ResourceBasic(Basic)
+  ResourceBinary(Binary)
+  ResourceBiologicallyderivedproduct(Biologicallyderivedproduct)
+  ResourceBodystructure(Bodystructure)
+  ResourceBundle(Bundle)
+  ResourceCapabilitystatement(Capabilitystatement)
+  ResourceCareplan(Careplan)
+  ResourceCareteam(Careteam)
+  ResourceCatalogentry(Catalogentry)
+  ResourceChargeitem(Chargeitem)
+  ResourceChargeitemdefinition(Chargeitemdefinition)
+  ResourceClaim(Claim)
+  ResourceClaimresponse(Claimresponse)
+  ResourceClinicalimpression(Clinicalimpression)
+  ResourceCodesystem(Codesystem)
+  ResourceCommunication(Communication)
+  ResourceCommunicationrequest(Communicationrequest)
+  ResourceCompartmentdefinition(Compartmentdefinition)
+  ResourceComposition(Composition)
+  ResourceConceptmap(Conceptmap)
+  ResourceCondition(Condition)
+  ResourceConsent(Consent)
+  ResourceContract(Contract)
+  ResourceCoverage(Coverage)
+  ResourceCoverageeligibilityrequest(Coverageeligibilityrequest)
+  ResourceCoverageeligibilityresponse(Coverageeligibilityresponse)
+  ResourceDetectedissue(Detectedissue)
+  ResourceDevice(Device)
+  ResourceDevicedefinition(Devicedefinition)
+  ResourceDevicemetric(Devicemetric)
+  ResourceDevicerequest(Devicerequest)
+  ResourceDeviceusestatement(Deviceusestatement)
+  ResourceDiagnosticreport(Diagnosticreport)
+  ResourceDocumentmanifest(Documentmanifest)
+  ResourceDocumentreference(Documentreference)
+  ResourceDomainresource(Domainresource)
+  ResourceEffectevidencesynthesis(Effectevidencesynthesis)
+  ResourceEncounter(Encounter)
+  ResourceEndpoint(Endpoint)
+  ResourceEnrollmentrequest(Enrollmentrequest)
+  ResourceEnrollmentresponse(Enrollmentresponse)
+  ResourceEpisodeofcare(Episodeofcare)
+  ResourceEventdefinition(Eventdefinition)
+  ResourceEvidence(Evidence)
+  ResourceEvidencevariable(Evidencevariable)
+  ResourceExamplescenario(Examplescenario)
+  ResourceExplanationofbenefit(Explanationofbenefit)
+  ResourceFamilymemberhistory(Familymemberhistory)
+  ResourceFlag(Flag)
+  ResourceGoal(Goal)
+  ResourceGraphdefinition(Graphdefinition)
+  ResourceGroup(Group)
+  ResourceGuidanceresponse(Guidanceresponse)
+  ResourceHealthcareservice(Healthcareservice)
+  ResourceImagingstudy(Imagingstudy)
+  ResourceImmunization(Immunization)
+  ResourceImmunizationevaluation(Immunizationevaluation)
+  ResourceImmunizationrecommendation(Immunizationrecommendation)
+  ResourceImplementationguide(Implementationguide)
+  ResourceInsuranceplan(Insuranceplan)
+  ResourceInvoice(Invoice)
+  ResourceLibrary(Library)
+  ResourceLinkage(Linkage)
+  ResourceListfhir(Listfhir)
+  ResourceLocation(Location)
+  ResourceMeasure(Measure)
+  ResourceMeasurereport(Measurereport)
+  ResourceMedia(Media)
+  ResourceMedication(Medication)
+  ResourceMedicationadministration(Medicationadministration)
+  ResourceMedicationdispense(Medicationdispense)
+  ResourceMedicationknowledge(Medicationknowledge)
+  ResourceMedicationrequest(Medicationrequest)
+  ResourceMedicationstatement(Medicationstatement)
+  ResourceMedicinalproduct(Medicinalproduct)
+  ResourceMedicinalproductauthorization(Medicinalproductauthorization)
+  ResourceMedicinalproductcontraindication(Medicinalproductcontraindication)
+  ResourceMedicinalproductindication(Medicinalproductindication)
+  ResourceMedicinalproductingredient(Medicinalproductingredient)
+  ResourceMedicinalproductinteraction(Medicinalproductinteraction)
+  ResourceMedicinalproductmanufactured(Medicinalproductmanufactured)
+  ResourceMedicinalproductpackaged(Medicinalproductpackaged)
+  ResourceMedicinalproductpharmaceutical(Medicinalproductpharmaceutical)
+  ResourceMedicinalproductundesirableeffect(Medicinalproductundesirableeffect)
+  ResourceMessagedefinition(Messagedefinition)
+  ResourceMessageheader(Messageheader)
+  ResourceMolecularsequence(Molecularsequence)
+  ResourceNamingsystem(Namingsystem)
+  ResourceNutritionorder(Nutritionorder)
+  ResourceObservation(Observation)
+  ResourceObservationdefinition(Observationdefinition)
+  ResourceOperationdefinition(Operationdefinition)
+  ResourceOperationoutcome(Operationoutcome)
+  ResourceOrganization(Organization)
+  ResourceOrganizationaffiliation(Organizationaffiliation)
+  ResourceParameters(Parameters)
+  ResourcePatient(Patient)
+  ResourcePaymentnotice(Paymentnotice)
+  ResourcePaymentreconciliation(Paymentreconciliation)
+  ResourcePerson(Person)
+  ResourcePlandefinition(Plandefinition)
+  ResourcePractitioner(Practitioner)
+  ResourcePractitionerrole(Practitionerrole)
+  ResourceProcedure(Procedure)
+  ResourceProvenance(Provenance)
+  ResourceQuestionnaire(Questionnaire)
+  ResourceQuestionnaireresponse(Questionnaireresponse)
+  ResourceRelatedperson(Relatedperson)
+  ResourceRequestgroup(Requestgroup)
+  ResourceResearchdefinition(Researchdefinition)
+  ResourceResearchelementdefinition(Researchelementdefinition)
+  ResourceResearchstudy(Researchstudy)
+  ResourceResearchsubject(Researchsubject)
+  ResourceRiskassessment(Riskassessment)
+  ResourceRiskevidencesynthesis(Riskevidencesynthesis)
+  ResourceSchedule(Schedule)
+  ResourceSearchparameter(Searchparameter)
+  ResourceServicerequest(Servicerequest)
+  ResourceSlot(Slot)
+  ResourceSpecimen(Specimen)
+  ResourceSpecimendefinition(Specimendefinition)
+  ResourceStructuredefinition(Structuredefinition)
+  ResourceStructuremap(Structuremap)
+  ResourceSubscription(Subscription)
+  ResourceSubstance(Substance)
+  ResourceSubstancenucleicacid(Substancenucleicacid)
+  ResourceSubstancepolymer(Substancepolymer)
+  ResourceSubstanceprotein(Substanceprotein)
+  ResourceSubstancereferenceinformation(Substancereferenceinformation)
+  ResourceSubstancesourcematerial(Substancesourcematerial)
+  ResourceSubstancespecification(Substancespecification)
+  ResourceSupplydelivery(Supplydelivery)
+  ResourceSupplyrequest(Supplyrequest)
+  ResourceTask(Task)
+  ResourceTerminologycapabilities(Terminologycapabilities)
+  ResourceTestreport(Testreport)
+  ResourceTestscript(Testscript)
+  ResourceValueset(Valueset)
+  ResourceVerificationresult(Verificationresult)
+  ResourceVisionprescription(Visionprescription)
+}
+
+pub fn resource_to_json(res: Resource) {
+  case res {
+    ResourceAccount(r) -> account_to_json(r)
+    ResourceActivitydefinition(r) -> activitydefinition_to_json(r)
+    ResourceAdverseevent(r) -> adverseevent_to_json(r)
+    ResourceAllergyintolerance(r) -> allergyintolerance_to_json(r)
+    ResourceAppointment(r) -> appointment_to_json(r)
+    ResourceAppointmentresponse(r) -> appointmentresponse_to_json(r)
+    ResourceAuditevent(r) -> auditevent_to_json(r)
+    ResourceBasic(r) -> basic_to_json(r)
+    ResourceBinary(r) -> binary_to_json(r)
+    ResourceBiologicallyderivedproduct(r) ->
+      biologicallyderivedproduct_to_json(r)
+    ResourceBodystructure(r) -> bodystructure_to_json(r)
+    ResourceBundle(r) -> bundle_to_json(r)
+    ResourceCapabilitystatement(r) -> capabilitystatement_to_json(r)
+    ResourceCareplan(r) -> careplan_to_json(r)
+    ResourceCareteam(r) -> careteam_to_json(r)
+    ResourceCatalogentry(r) -> catalogentry_to_json(r)
+    ResourceChargeitem(r) -> chargeitem_to_json(r)
+    ResourceChargeitemdefinition(r) -> chargeitemdefinition_to_json(r)
+    ResourceClaim(r) -> claim_to_json(r)
+    ResourceClaimresponse(r) -> claimresponse_to_json(r)
+    ResourceClinicalimpression(r) -> clinicalimpression_to_json(r)
+    ResourceCodesystem(r) -> codesystem_to_json(r)
+    ResourceCommunication(r) -> communication_to_json(r)
+    ResourceCommunicationrequest(r) -> communicationrequest_to_json(r)
+    ResourceCompartmentdefinition(r) -> compartmentdefinition_to_json(r)
+    ResourceComposition(r) -> composition_to_json(r)
+    ResourceConceptmap(r) -> conceptmap_to_json(r)
+    ResourceCondition(r) -> condition_to_json(r)
+    ResourceConsent(r) -> consent_to_json(r)
+    ResourceContract(r) -> contract_to_json(r)
+    ResourceCoverage(r) -> coverage_to_json(r)
+    ResourceCoverageeligibilityrequest(r) ->
+      coverageeligibilityrequest_to_json(r)
+    ResourceCoverageeligibilityresponse(r) ->
+      coverageeligibilityresponse_to_json(r)
+    ResourceDetectedissue(r) -> detectedissue_to_json(r)
+    ResourceDevice(r) -> device_to_json(r)
+    ResourceDevicedefinition(r) -> devicedefinition_to_json(r)
+    ResourceDevicemetric(r) -> devicemetric_to_json(r)
+    ResourceDevicerequest(r) -> devicerequest_to_json(r)
+    ResourceDeviceusestatement(r) -> deviceusestatement_to_json(r)
+    ResourceDiagnosticreport(r) -> diagnosticreport_to_json(r)
+    ResourceDocumentmanifest(r) -> documentmanifest_to_json(r)
+    ResourceDocumentreference(r) -> documentreference_to_json(r)
+    ResourceDomainresource(r) -> domainresource_to_json(r)
+    ResourceEffectevidencesynthesis(r) -> effectevidencesynthesis_to_json(r)
+    ResourceEncounter(r) -> encounter_to_json(r)
+    ResourceEndpoint(r) -> endpoint_to_json(r)
+    ResourceEnrollmentrequest(r) -> enrollmentrequest_to_json(r)
+    ResourceEnrollmentresponse(r) -> enrollmentresponse_to_json(r)
+    ResourceEpisodeofcare(r) -> episodeofcare_to_json(r)
+    ResourceEventdefinition(r) -> eventdefinition_to_json(r)
+    ResourceEvidence(r) -> evidence_to_json(r)
+    ResourceEvidencevariable(r) -> evidencevariable_to_json(r)
+    ResourceExamplescenario(r) -> examplescenario_to_json(r)
+    ResourceExplanationofbenefit(r) -> explanationofbenefit_to_json(r)
+    ResourceFamilymemberhistory(r) -> familymemberhistory_to_json(r)
+    ResourceFlag(r) -> flag_to_json(r)
+    ResourceGoal(r) -> goal_to_json(r)
+    ResourceGraphdefinition(r) -> graphdefinition_to_json(r)
+    ResourceGroup(r) -> group_to_json(r)
+    ResourceGuidanceresponse(r) -> guidanceresponse_to_json(r)
+    ResourceHealthcareservice(r) -> healthcareservice_to_json(r)
+    ResourceImagingstudy(r) -> imagingstudy_to_json(r)
+    ResourceImmunization(r) -> immunization_to_json(r)
+    ResourceImmunizationevaluation(r) -> immunizationevaluation_to_json(r)
+    ResourceImmunizationrecommendation(r) ->
+      immunizationrecommendation_to_json(r)
+    ResourceImplementationguide(r) -> implementationguide_to_json(r)
+    ResourceInsuranceplan(r) -> insuranceplan_to_json(r)
+    ResourceInvoice(r) -> invoice_to_json(r)
+    ResourceLibrary(r) -> library_to_json(r)
+    ResourceLinkage(r) -> linkage_to_json(r)
+    ResourceListfhir(r) -> listfhir_to_json(r)
+    ResourceLocation(r) -> location_to_json(r)
+    ResourceMeasure(r) -> measure_to_json(r)
+    ResourceMeasurereport(r) -> measurereport_to_json(r)
+    ResourceMedia(r) -> media_to_json(r)
+    ResourceMedication(r) -> medication_to_json(r)
+    ResourceMedicationadministration(r) -> medicationadministration_to_json(r)
+    ResourceMedicationdispense(r) -> medicationdispense_to_json(r)
+    ResourceMedicationknowledge(r) -> medicationknowledge_to_json(r)
+    ResourceMedicationrequest(r) -> medicationrequest_to_json(r)
+    ResourceMedicationstatement(r) -> medicationstatement_to_json(r)
+    ResourceMedicinalproduct(r) -> medicinalproduct_to_json(r)
+    ResourceMedicinalproductauthorization(r) ->
+      medicinalproductauthorization_to_json(r)
+    ResourceMedicinalproductcontraindication(r) ->
+      medicinalproductcontraindication_to_json(r)
+    ResourceMedicinalproductindication(r) ->
+      medicinalproductindication_to_json(r)
+    ResourceMedicinalproductingredient(r) ->
+      medicinalproductingredient_to_json(r)
+    ResourceMedicinalproductinteraction(r) ->
+      medicinalproductinteraction_to_json(r)
+    ResourceMedicinalproductmanufactured(r) ->
+      medicinalproductmanufactured_to_json(r)
+    ResourceMedicinalproductpackaged(r) -> medicinalproductpackaged_to_json(r)
+    ResourceMedicinalproductpharmaceutical(r) ->
+      medicinalproductpharmaceutical_to_json(r)
+    ResourceMedicinalproductundesirableeffect(r) ->
+      medicinalproductundesirableeffect_to_json(r)
+    ResourceMessagedefinition(r) -> messagedefinition_to_json(r)
+    ResourceMessageheader(r) -> messageheader_to_json(r)
+    ResourceMolecularsequence(r) -> molecularsequence_to_json(r)
+    ResourceNamingsystem(r) -> namingsystem_to_json(r)
+    ResourceNutritionorder(r) -> nutritionorder_to_json(r)
+    ResourceObservation(r) -> observation_to_json(r)
+    ResourceObservationdefinition(r) -> observationdefinition_to_json(r)
+    ResourceOperationdefinition(r) -> operationdefinition_to_json(r)
+    ResourceOperationoutcome(r) -> operationoutcome_to_json(r)
+    ResourceOrganization(r) -> organization_to_json(r)
+    ResourceOrganizationaffiliation(r) -> organizationaffiliation_to_json(r)
+    ResourceParameters(r) -> parameters_to_json(r)
+    ResourcePatient(r) -> patient_to_json(r)
+    ResourcePaymentnotice(r) -> paymentnotice_to_json(r)
+    ResourcePaymentreconciliation(r) -> paymentreconciliation_to_json(r)
+    ResourcePerson(r) -> person_to_json(r)
+    ResourcePlandefinition(r) -> plandefinition_to_json(r)
+    ResourcePractitioner(r) -> practitioner_to_json(r)
+    ResourcePractitionerrole(r) -> practitionerrole_to_json(r)
+    ResourceProcedure(r) -> procedure_to_json(r)
+    ResourceProvenance(r) -> provenance_to_json(r)
+    ResourceQuestionnaire(r) -> questionnaire_to_json(r)
+    ResourceQuestionnaireresponse(r) -> questionnaireresponse_to_json(r)
+    ResourceRelatedperson(r) -> relatedperson_to_json(r)
+    ResourceRequestgroup(r) -> requestgroup_to_json(r)
+    ResourceResearchdefinition(r) -> researchdefinition_to_json(r)
+    ResourceResearchelementdefinition(r) -> researchelementdefinition_to_json(r)
+    ResourceResearchstudy(r) -> researchstudy_to_json(r)
+    ResourceResearchsubject(r) -> researchsubject_to_json(r)
+    ResourceRiskassessment(r) -> riskassessment_to_json(r)
+    ResourceRiskevidencesynthesis(r) -> riskevidencesynthesis_to_json(r)
+    ResourceSchedule(r) -> schedule_to_json(r)
+    ResourceSearchparameter(r) -> searchparameter_to_json(r)
+    ResourceServicerequest(r) -> servicerequest_to_json(r)
+    ResourceSlot(r) -> slot_to_json(r)
+    ResourceSpecimen(r) -> specimen_to_json(r)
+    ResourceSpecimendefinition(r) -> specimendefinition_to_json(r)
+    ResourceStructuredefinition(r) -> structuredefinition_to_json(r)
+    ResourceStructuremap(r) -> structuremap_to_json(r)
+    ResourceSubscription(r) -> subscription_to_json(r)
+    ResourceSubstance(r) -> substance_to_json(r)
+    ResourceSubstancenucleicacid(r) -> substancenucleicacid_to_json(r)
+    ResourceSubstancepolymer(r) -> substancepolymer_to_json(r)
+    ResourceSubstanceprotein(r) -> substanceprotein_to_json(r)
+    ResourceSubstancereferenceinformation(r) ->
+      substancereferenceinformation_to_json(r)
+    ResourceSubstancesourcematerial(r) -> substancesourcematerial_to_json(r)
+    ResourceSubstancespecification(r) -> substancespecification_to_json(r)
+    ResourceSupplydelivery(r) -> supplydelivery_to_json(r)
+    ResourceSupplyrequest(r) -> supplyrequest_to_json(r)
+    ResourceTask(r) -> task_to_json(r)
+    ResourceTerminologycapabilities(r) -> terminologycapabilities_to_json(r)
+    ResourceTestreport(r) -> testreport_to_json(r)
+    ResourceTestscript(r) -> testscript_to_json(r)
+    ResourceValueset(r) -> valueset_to_json(r)
+    ResourceVerificationresult(r) -> verificationresult_to_json(r)
+    ResourceVisionprescription(r) -> visionprescription_to_json(r)
+  }
+}
+
+pub fn resource_decoder() -> Decoder(Resource) {
+  use tag <- decode.field("resourceType", decode.string)
+  case tag {
+    "Account" -> account_decoder() |> decode.map(ResourceAccount)
+    "Activitydefinition" ->
+      activitydefinition_decoder() |> decode.map(ResourceActivitydefinition)
+    "Adverseevent" -> adverseevent_decoder() |> decode.map(ResourceAdverseevent)
+    "Allergyintolerance" ->
+      allergyintolerance_decoder() |> decode.map(ResourceAllergyintolerance)
+    "Appointment" -> appointment_decoder() |> decode.map(ResourceAppointment)
+    "Appointmentresponse" ->
+      appointmentresponse_decoder() |> decode.map(ResourceAppointmentresponse)
+    "Auditevent" -> auditevent_decoder() |> decode.map(ResourceAuditevent)
+    "Basic" -> basic_decoder() |> decode.map(ResourceBasic)
+    "Binary" -> binary_decoder() |> decode.map(ResourceBinary)
+    "Biologicallyderivedproduct" ->
+      biologicallyderivedproduct_decoder()
+      |> decode.map(ResourceBiologicallyderivedproduct)
+    "Bodystructure" ->
+      bodystructure_decoder() |> decode.map(ResourceBodystructure)
+    "Bundle" -> bundle_decoder() |> decode.map(ResourceBundle)
+    "Capabilitystatement" ->
+      capabilitystatement_decoder() |> decode.map(ResourceCapabilitystatement)
+    "Careplan" -> careplan_decoder() |> decode.map(ResourceCareplan)
+    "Careteam" -> careteam_decoder() |> decode.map(ResourceCareteam)
+    "Catalogentry" -> catalogentry_decoder() |> decode.map(ResourceCatalogentry)
+    "Chargeitem" -> chargeitem_decoder() |> decode.map(ResourceChargeitem)
+    "Chargeitemdefinition" ->
+      chargeitemdefinition_decoder() |> decode.map(ResourceChargeitemdefinition)
+    "Claim" -> claim_decoder() |> decode.map(ResourceClaim)
+    "Claimresponse" ->
+      claimresponse_decoder() |> decode.map(ResourceClaimresponse)
+    "Clinicalimpression" ->
+      clinicalimpression_decoder() |> decode.map(ResourceClinicalimpression)
+    "Codesystem" -> codesystem_decoder() |> decode.map(ResourceCodesystem)
+    "Communication" ->
+      communication_decoder() |> decode.map(ResourceCommunication)
+    "Communicationrequest" ->
+      communicationrequest_decoder() |> decode.map(ResourceCommunicationrequest)
+    "Compartmentdefinition" ->
+      compartmentdefinition_decoder()
+      |> decode.map(ResourceCompartmentdefinition)
+    "Composition" -> composition_decoder() |> decode.map(ResourceComposition)
+    "Conceptmap" -> conceptmap_decoder() |> decode.map(ResourceConceptmap)
+    "Condition" -> condition_decoder() |> decode.map(ResourceCondition)
+    "Consent" -> consent_decoder() |> decode.map(ResourceConsent)
+    "Contract" -> contract_decoder() |> decode.map(ResourceContract)
+    "Coverage" -> coverage_decoder() |> decode.map(ResourceCoverage)
+    "Coverageeligibilityrequest" ->
+      coverageeligibilityrequest_decoder()
+      |> decode.map(ResourceCoverageeligibilityrequest)
+    "Coverageeligibilityresponse" ->
+      coverageeligibilityresponse_decoder()
+      |> decode.map(ResourceCoverageeligibilityresponse)
+    "Detectedissue" ->
+      detectedissue_decoder() |> decode.map(ResourceDetectedissue)
+    "Device" -> device_decoder() |> decode.map(ResourceDevice)
+    "Devicedefinition" ->
+      devicedefinition_decoder() |> decode.map(ResourceDevicedefinition)
+    "Devicemetric" -> devicemetric_decoder() |> decode.map(ResourceDevicemetric)
+    "Devicerequest" ->
+      devicerequest_decoder() |> decode.map(ResourceDevicerequest)
+    "Deviceusestatement" ->
+      deviceusestatement_decoder() |> decode.map(ResourceDeviceusestatement)
+    "Diagnosticreport" ->
+      diagnosticreport_decoder() |> decode.map(ResourceDiagnosticreport)
+    "Documentmanifest" ->
+      documentmanifest_decoder() |> decode.map(ResourceDocumentmanifest)
+    "Documentreference" ->
+      documentreference_decoder() |> decode.map(ResourceDocumentreference)
+    "Domainresource" ->
+      domainresource_decoder() |> decode.map(ResourceDomainresource)
+    "Effectevidencesynthesis" ->
+      effectevidencesynthesis_decoder()
+      |> decode.map(ResourceEffectevidencesynthesis)
+    "Encounter" -> encounter_decoder() |> decode.map(ResourceEncounter)
+    "Endpoint" -> endpoint_decoder() |> decode.map(ResourceEndpoint)
+    "Enrollmentrequest" ->
+      enrollmentrequest_decoder() |> decode.map(ResourceEnrollmentrequest)
+    "Enrollmentresponse" ->
+      enrollmentresponse_decoder() |> decode.map(ResourceEnrollmentresponse)
+    "Episodeofcare" ->
+      episodeofcare_decoder() |> decode.map(ResourceEpisodeofcare)
+    "Eventdefinition" ->
+      eventdefinition_decoder() |> decode.map(ResourceEventdefinition)
+    "Evidence" -> evidence_decoder() |> decode.map(ResourceEvidence)
+    "Evidencevariable" ->
+      evidencevariable_decoder() |> decode.map(ResourceEvidencevariable)
+    "Examplescenario" ->
+      examplescenario_decoder() |> decode.map(ResourceExamplescenario)
+    "Explanationofbenefit" ->
+      explanationofbenefit_decoder() |> decode.map(ResourceExplanationofbenefit)
+    "Familymemberhistory" ->
+      familymemberhistory_decoder() |> decode.map(ResourceFamilymemberhistory)
+    "Flag" -> flag_decoder() |> decode.map(ResourceFlag)
+    "Goal" -> goal_decoder() |> decode.map(ResourceGoal)
+    "Graphdefinition" ->
+      graphdefinition_decoder() |> decode.map(ResourceGraphdefinition)
+    "Group" -> group_decoder() |> decode.map(ResourceGroup)
+    "Guidanceresponse" ->
+      guidanceresponse_decoder() |> decode.map(ResourceGuidanceresponse)
+    "Healthcareservice" ->
+      healthcareservice_decoder() |> decode.map(ResourceHealthcareservice)
+    "Imagingstudy" -> imagingstudy_decoder() |> decode.map(ResourceImagingstudy)
+    "Immunization" -> immunization_decoder() |> decode.map(ResourceImmunization)
+    "Immunizationevaluation" ->
+      immunizationevaluation_decoder()
+      |> decode.map(ResourceImmunizationevaluation)
+    "Immunizationrecommendation" ->
+      immunizationrecommendation_decoder()
+      |> decode.map(ResourceImmunizationrecommendation)
+    "Implementationguide" ->
+      implementationguide_decoder() |> decode.map(ResourceImplementationguide)
+    "Insuranceplan" ->
+      insuranceplan_decoder() |> decode.map(ResourceInsuranceplan)
+    "Invoice" -> invoice_decoder() |> decode.map(ResourceInvoice)
+    "Library" -> library_decoder() |> decode.map(ResourceLibrary)
+    "Linkage" -> linkage_decoder() |> decode.map(ResourceLinkage)
+    "Listfhir" -> listfhir_decoder() |> decode.map(ResourceListfhir)
+    "Location" -> location_decoder() |> decode.map(ResourceLocation)
+    "Measure" -> measure_decoder() |> decode.map(ResourceMeasure)
+    "Measurereport" ->
+      measurereport_decoder() |> decode.map(ResourceMeasurereport)
+    "Media" -> media_decoder() |> decode.map(ResourceMedia)
+    "Medication" -> medication_decoder() |> decode.map(ResourceMedication)
+    "Medicationadministration" ->
+      medicationadministration_decoder()
+      |> decode.map(ResourceMedicationadministration)
+    "Medicationdispense" ->
+      medicationdispense_decoder() |> decode.map(ResourceMedicationdispense)
+    "Medicationknowledge" ->
+      medicationknowledge_decoder() |> decode.map(ResourceMedicationknowledge)
+    "Medicationrequest" ->
+      medicationrequest_decoder() |> decode.map(ResourceMedicationrequest)
+    "Medicationstatement" ->
+      medicationstatement_decoder() |> decode.map(ResourceMedicationstatement)
+    "Medicinalproduct" ->
+      medicinalproduct_decoder() |> decode.map(ResourceMedicinalproduct)
+    "Medicinalproductauthorization" ->
+      medicinalproductauthorization_decoder()
+      |> decode.map(ResourceMedicinalproductauthorization)
+    "Medicinalproductcontraindication" ->
+      medicinalproductcontraindication_decoder()
+      |> decode.map(ResourceMedicinalproductcontraindication)
+    "Medicinalproductindication" ->
+      medicinalproductindication_decoder()
+      |> decode.map(ResourceMedicinalproductindication)
+    "Medicinalproductingredient" ->
+      medicinalproductingredient_decoder()
+      |> decode.map(ResourceMedicinalproductingredient)
+    "Medicinalproductinteraction" ->
+      medicinalproductinteraction_decoder()
+      |> decode.map(ResourceMedicinalproductinteraction)
+    "Medicinalproductmanufactured" ->
+      medicinalproductmanufactured_decoder()
+      |> decode.map(ResourceMedicinalproductmanufactured)
+    "Medicinalproductpackaged" ->
+      medicinalproductpackaged_decoder()
+      |> decode.map(ResourceMedicinalproductpackaged)
+    "Medicinalproductpharmaceutical" ->
+      medicinalproductpharmaceutical_decoder()
+      |> decode.map(ResourceMedicinalproductpharmaceutical)
+    "Medicinalproductundesirableeffect" ->
+      medicinalproductundesirableeffect_decoder()
+      |> decode.map(ResourceMedicinalproductundesirableeffect)
+    "Messagedefinition" ->
+      messagedefinition_decoder() |> decode.map(ResourceMessagedefinition)
+    "Messageheader" ->
+      messageheader_decoder() |> decode.map(ResourceMessageheader)
+    "Molecularsequence" ->
+      molecularsequence_decoder() |> decode.map(ResourceMolecularsequence)
+    "Namingsystem" -> namingsystem_decoder() |> decode.map(ResourceNamingsystem)
+    "Nutritionorder" ->
+      nutritionorder_decoder() |> decode.map(ResourceNutritionorder)
+    "Observation" -> observation_decoder() |> decode.map(ResourceObservation)
+    "Observationdefinition" ->
+      observationdefinition_decoder()
+      |> decode.map(ResourceObservationdefinition)
+    "Operationdefinition" ->
+      operationdefinition_decoder() |> decode.map(ResourceOperationdefinition)
+    "Operationoutcome" ->
+      operationoutcome_decoder() |> decode.map(ResourceOperationoutcome)
+    "Organization" -> organization_decoder() |> decode.map(ResourceOrganization)
+    "Organizationaffiliation" ->
+      organizationaffiliation_decoder()
+      |> decode.map(ResourceOrganizationaffiliation)
+    "Parameters" -> parameters_decoder() |> decode.map(ResourceParameters)
+    "Patient" -> patient_decoder() |> decode.map(ResourcePatient)
+    "Paymentnotice" ->
+      paymentnotice_decoder() |> decode.map(ResourcePaymentnotice)
+    "Paymentreconciliation" ->
+      paymentreconciliation_decoder()
+      |> decode.map(ResourcePaymentreconciliation)
+    "Person" -> person_decoder() |> decode.map(ResourcePerson)
+    "Plandefinition" ->
+      plandefinition_decoder() |> decode.map(ResourcePlandefinition)
+    "Practitioner" -> practitioner_decoder() |> decode.map(ResourcePractitioner)
+    "Practitionerrole" ->
+      practitionerrole_decoder() |> decode.map(ResourcePractitionerrole)
+    "Procedure" -> procedure_decoder() |> decode.map(ResourceProcedure)
+    "Provenance" -> provenance_decoder() |> decode.map(ResourceProvenance)
+    "Questionnaire" ->
+      questionnaire_decoder() |> decode.map(ResourceQuestionnaire)
+    "Questionnaireresponse" ->
+      questionnaireresponse_decoder()
+      |> decode.map(ResourceQuestionnaireresponse)
+    "Relatedperson" ->
+      relatedperson_decoder() |> decode.map(ResourceRelatedperson)
+    "Requestgroup" -> requestgroup_decoder() |> decode.map(ResourceRequestgroup)
+    "Researchdefinition" ->
+      researchdefinition_decoder() |> decode.map(ResourceResearchdefinition)
+    "Researchelementdefinition" ->
+      researchelementdefinition_decoder()
+      |> decode.map(ResourceResearchelementdefinition)
+    "Researchstudy" ->
+      researchstudy_decoder() |> decode.map(ResourceResearchstudy)
+    "Researchsubject" ->
+      researchsubject_decoder() |> decode.map(ResourceResearchsubject)
+    "Riskassessment" ->
+      riskassessment_decoder() |> decode.map(ResourceRiskassessment)
+    "Riskevidencesynthesis" ->
+      riskevidencesynthesis_decoder()
+      |> decode.map(ResourceRiskevidencesynthesis)
+    "Schedule" -> schedule_decoder() |> decode.map(ResourceSchedule)
+    "Searchparameter" ->
+      searchparameter_decoder() |> decode.map(ResourceSearchparameter)
+    "Servicerequest" ->
+      servicerequest_decoder() |> decode.map(ResourceServicerequest)
+    "Slot" -> slot_decoder() |> decode.map(ResourceSlot)
+    "Specimen" -> specimen_decoder() |> decode.map(ResourceSpecimen)
+    "Specimendefinition" ->
+      specimendefinition_decoder() |> decode.map(ResourceSpecimendefinition)
+    "Structuredefinition" ->
+      structuredefinition_decoder() |> decode.map(ResourceStructuredefinition)
+    "Structuremap" -> structuremap_decoder() |> decode.map(ResourceStructuremap)
+    "Subscription" -> subscription_decoder() |> decode.map(ResourceSubscription)
+    "Substance" -> substance_decoder() |> decode.map(ResourceSubstance)
+    "Substancenucleicacid" ->
+      substancenucleicacid_decoder() |> decode.map(ResourceSubstancenucleicacid)
+    "Substancepolymer" ->
+      substancepolymer_decoder() |> decode.map(ResourceSubstancepolymer)
+    "Substanceprotein" ->
+      substanceprotein_decoder() |> decode.map(ResourceSubstanceprotein)
+    "Substancereferenceinformation" ->
+      substancereferenceinformation_decoder()
+      |> decode.map(ResourceSubstancereferenceinformation)
+    "Substancesourcematerial" ->
+      substancesourcematerial_decoder()
+      |> decode.map(ResourceSubstancesourcematerial)
+    "Substancespecification" ->
+      substancespecification_decoder()
+      |> decode.map(ResourceSubstancespecification)
+    "Supplydelivery" ->
+      supplydelivery_decoder() |> decode.map(ResourceSupplydelivery)
+    "Supplyrequest" ->
+      supplyrequest_decoder() |> decode.map(ResourceSupplyrequest)
+    "Task" -> task_decoder() |> decode.map(ResourceTask)
+    "Terminologycapabilities" ->
+      terminologycapabilities_decoder()
+      |> decode.map(ResourceTerminologycapabilities)
+    "Testreport" -> testreport_decoder() |> decode.map(ResourceTestreport)
+    "Testscript" -> testscript_decoder() |> decode.map(ResourceTestscript)
+    "Valueset" -> valueset_decoder() |> decode.map(ResourceValueset)
+    "Verificationresult" ->
+      verificationresult_decoder() |> decode.map(ResourceVerificationresult)
+    "Visionprescription" ->
+      visionprescription_decoder() |> decode.map(ResourceVisionprescription)
+
+    _ ->
+      decode.failure(ResourceCareteam(careteam_new()), expected: "resourceType")
+  }
 }
 
 //std lib decode.optional supports myfield: null but what if myfield is omitted from json entirely?

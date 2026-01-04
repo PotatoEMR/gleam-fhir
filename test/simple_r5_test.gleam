@@ -59,7 +59,6 @@ pub fn fhirversion_allergy_test() {
     myallergy |> fhirversion.allergyintolerance_to_json() |> json.to_string()
   let assert Ok(parsed_allergy) =
     json |> json.parse(fhirversion.allergyintolerance_decoder())
-  echo parsed_allergy
   assert parsed_allergy.id == myallergy.id
   let assert Some(fhirversion.AllergyintoleranceOnsetAge(onset)) =
     parsed_allergy.onset
