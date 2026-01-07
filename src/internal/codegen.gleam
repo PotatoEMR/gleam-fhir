@@ -298,7 +298,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
       fhir_version,
       " types\n////https://hl7.org/fhir/",
       fhir_version,
-      "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport fhir/",
+      "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport gleam/bool\nimport fhir/",
       fhir_version,
       "valuesets\n",
       file_to_types(
@@ -453,9 +453,10 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                 encoder_json_options,
                 decoder_use,
                 decoder_success,
+                decoder_always_failure_fordr,
               ) =
                 list.fold(
-                  from: #("", list.new(), "", "", "", "", "", "", ""),
+                  from: #("", list.new(), "", "", "", "", "", "", "", ""),
                   over: fields,
                   with: fn(acc, elt: Element) {
                     case elt.type_ {
@@ -472,6 +473,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                         let encoder_optional_acc = acc.6
                         let decoder_use_acc = acc.7
                         let decoder_success_acc = acc.8
+                        let decoder_always_failure_acc = acc.9
                         //yeah this should be custom type right
                         let allparts = string.split(elt.path, ".")
                         let assert Ok(elt_last_part) =
@@ -681,10 +683,11 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                         // also putting lists as optional_acc so in empty list cast it omits instead of field: []
                         // hence two separate accs
                         //let elt_is_choice_type = elt.path |> string.ends_with("[x]")
-                        let #(encoder_optional_acc, encoder_always_acc) = case
-                          elt.min,
-                          elt.max
-                        {
+                        let #(
+                          encoder_optional_acc,
+                          encoder_always_acc,
+                          decoder_always_failure_acc,
+                        ) = case elt.min, elt.max {
                           _, "*" -> {
                             //list case to json, in non empty [] case add to first fields list
                             let opts =
@@ -701,7 +704,11 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                               <> field_type_encoder
                               <> ")), ..fields]
                           }"
-                            #(opts, encoder_always_acc)
+                            #(
+                              opts,
+                              encoder_always_acc,
+                              decoder_always_failure_acc,
+                            )
                           }
                           0, "1" -> {
                             //optional case to json, in Some case add to fields list
@@ -742,7 +749,11 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                               <> "(v)), ..fields]
                         None -> fields
                       }"
-                            #(opts, encoder_always_acc)
+                            #(
+                              opts,
+                              encoder_always_acc,
+                              decoder_always_failure_acc,
+                            )
                           }
                           1, "1" -> {
                             //mandatory case to json, put in first fields list
@@ -756,7 +767,13 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                               <> elt_snake
                               <> ")"
                               <> "),"
-                            #(encoder_optional_acc, always)
+                            let decoder_always_failure =
+                              decoder_always_failure_acc <> elt_snake <> ":, "
+                            #(
+                              encoder_optional_acc,
+                              always,
+                              decoder_always_failure,
+                            )
                           }
                           _, _ -> panic as "cardinality panic 72"
                         }
@@ -841,6 +858,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           encoder_optional_acc,
                           decoder_use_acc,
                           decoder_success_acc,
+                          decoder_always_failure_acc,
                         )
                       }
                     }
@@ -873,6 +891,11 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                   ")\n}",
                 ])
               let type_choicetypes = string.join(choicetypes, "\n")
+              let is_domainresource = case entry.resource.kind {
+                Some("complex-type") -> False
+                Some("resource") -> entry.resource.name == new_type
+                _ -> panic as "????"
+              }
               string.join(
                 [
                   new_doc_link,
@@ -886,12 +909,15 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                     encoder_args,
                     encoder_json_always,
                     encoder_json_options,
+                    is_domainresource,
                   ),
                   gen_res_decoder(
                     camel_type,
                     snake_type,
                     decoder_use,
                     decoder_success,
+                    is_domainresource,
+                    decoder_always_failure_fordr,
                   ),
                 ],
                 "\n",
@@ -1317,11 +1343,17 @@ fn gen_res_encoder(
   fields_list: String,
   fields_json_always: String,
   fields_json_options: String,
+  is_domainresource: Bool,
 ) -> String {
+  let resource_type = case is_domainresource {
+    True ->
+      "\n  let fields = [#(\"resourceType\", json.string(\"RESNAMECAMEL\")), ..fields]"
+    False -> ""
+  }
   let template =
     "pub fn RESNAMELOWER_to_json(RESNAMELOWER: RESNAMECAMEL) -> Json {
     let RESNAMECAMEL(" <> fields_list <> ") = RESNAMELOWER
-    let fields = [" <> fields_json_always <> "]" <> fields_json_options <> "\n" <> "  let fields = [#(\"resourceType\", json.string(\"RESNAMECAMEL\")), ..fields]\njson.object(fields)}
+    let fields = [" <> fields_json_always <> "]" <> fields_json_options <> resource_type <> "\njson.object(fields)}
   "
   template
   |> string.replace("RESNAMELOWER", reslower)
@@ -1333,10 +1365,20 @@ fn gen_res_decoder(
   reslower: String,
   use_list: String,
   success_list: String,
+  is_domainresource: Bool,
+  decoder_always_failure_fordr: String,
 ) {
+  let resource_type = case is_domainresource {
+    True -> "\n    use rt <- decode.field(\"resourceType\", decode.string)
+      use <- bool.guard(rt != \"RESNAMECAMEL\", decode.failure(RESNAMELOWER_new(" <> decoder_always_failure_fordr <> "), \"resourceType\"))"
+    False -> ""
+  }
   let template =
     "pub fn RESNAMELOWER_decoder() -> Decoder(RESNAMECAMEL) {"
     <> use_list
+    // maybe resource_type should go at beginning so if resourceType not found it doesnt run anything else?
+    // but then would have to come up with dummy values for resource required fields, including valuesets
+    <> resource_type
     <> "decode.success(RESNAMECAMEL("
     <> success_list
     <> "))}"

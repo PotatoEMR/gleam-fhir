@@ -2,6 +2,7 @@
 ////https://hl7.org/fhir/r4b
 
 import fhir/r4bvaluesets
+import gleam/bool
 import gleam/dynamic/decode.{type Decoder}
 import gleam/json.{type Json}
 import gleam/option.{type Option, None, Some}
@@ -105,7 +106,6 @@ pub fn address_to_json(address: Address) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Address")), ..fields]
   json.object(fields)
 }
 
@@ -237,7 +237,6 @@ pub fn age_to_json(age: Age) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Age")), ..fields]
   json.object(fields)
 }
 
@@ -354,7 +353,6 @@ pub fn annotation_to_json(annotation: Annotation) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Annotation")), ..fields]
   json.object(fields)
 }
 
@@ -460,7 +458,6 @@ pub fn attachment_to_json(attachment: Attachment) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Attachment")), ..fields]
   json.object(fields)
 }
 
@@ -550,7 +547,6 @@ pub fn codeableconcept_to_json(codeableconcept: Codeableconcept) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Codeableconcept")), ..fields]
   json.object(fields)
 }
 
@@ -608,7 +604,6 @@ pub fn codeablereference_to_json(codeablereference: Codeablereference) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Codeablereference")), ..fields]
   json.object(fields)
 }
 
@@ -696,7 +691,6 @@ pub fn coding_to_json(coding: Coding) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Coding")), ..fields]
   json.object(fields)
 }
 
@@ -776,7 +770,6 @@ pub fn contactdetail_to_json(contactdetail: Contactdetail) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Contactdetail")), ..fields]
   json.object(fields)
 }
 
@@ -860,7 +853,6 @@ pub fn contactpoint_to_json(contactpoint: Contactpoint) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Contactpoint")), ..fields]
   json.object(fields)
 }
 
@@ -939,7 +931,6 @@ pub fn contributor_to_json(contributor: Contributor) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Contributor")), ..fields]
   json.object(fields)
 }
 
@@ -1019,7 +1010,6 @@ pub fn count_to_json(count: Count) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Count")), ..fields]
   json.object(fields)
 }
 
@@ -1237,7 +1227,6 @@ pub fn datarequirement_sort_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("DatarequirementSort")), ..fields]
   json.object(fields)
 }
 
@@ -1293,10 +1282,6 @@ pub fn datarequirement_datefilter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DatarequirementDatefilter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -1367,10 +1352,6 @@ pub fn datarequirement_codefilter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DatarequirementCodefilter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -1483,7 +1464,6 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Datarequirement")), ..fields]
   json.object(fields)
 }
 
@@ -1596,7 +1576,6 @@ pub fn distance_to_json(distance: Distance) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Distance")), ..fields]
   json.object(fields)
 }
 
@@ -1832,7 +1811,6 @@ pub fn dosage_doseandrate_to_json(dosage_doseandrate: DosageDoseandrate) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("DosageDoseandrate")), ..fields]
   json.object(fields)
 }
 
@@ -1959,7 +1937,6 @@ pub fn dosage_to_json(dosage: Dosage) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Dosage")), ..fields]
   json.object(fields)
 }
 
@@ -2116,7 +2093,6 @@ pub fn duration_to_json(duration: Duration) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Duration")), ..fields]
   json.object(fields)
 }
 
@@ -3640,10 +3616,6 @@ pub fn elementdefinition_mapping_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ElementdefinitionMapping")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -3705,10 +3677,6 @@ pub fn elementdefinition_binding_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ElementdefinitionBinding")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -3785,10 +3753,6 @@ pub fn elementdefinition_constraint_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ElementdefinitionConstraint")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -3857,10 +3821,6 @@ pub fn elementdefinition_example_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ElementdefinitionExample")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -3924,10 +3884,6 @@ pub fn elementdefinition_type_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ElementdefinitionType")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -3988,10 +3944,6 @@ pub fn elementdefinition_base_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ElementdefinitionBase")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -4025,10 +3977,6 @@ pub fn elementdefinition_slicing_discriminator_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ElementdefinitionSlicingDiscriminator")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -4094,10 +4042,6 @@ pub fn elementdefinition_slicing_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ElementdefinitionSlicing")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -4563,7 +4507,6 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Elementdefinition")), ..fields]
   json.object(fields)
 }
 
@@ -4820,7 +4763,6 @@ pub fn expression_to_json(expression: Expression) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Expression")), ..fields]
   json.object(fields)
 }
 
@@ -5201,7 +5143,6 @@ pub fn extension_to_json(extension: Extension) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Extension")), ..fields]
   json.object(fields)
 }
 
@@ -5295,7 +5236,6 @@ pub fn humanname_to_json(humanname: Humanname) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Humanname")), ..fields]
   json.object(fields)
 }
 
@@ -5413,7 +5353,6 @@ pub fn identifier_to_json(identifier: Identifier) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Identifier")), ..fields]
   json.object(fields)
 }
 
@@ -5538,7 +5477,6 @@ pub fn marketingstatus_to_json(marketingstatus: Marketingstatus) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Marketingstatus")), ..fields]
   json.object(fields)
 }
 
@@ -5658,7 +5596,6 @@ pub fn meta_to_json(meta: Meta) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Meta")), ..fields]
   json.object(fields)
 }
 
@@ -5740,7 +5677,6 @@ pub fn money_to_json(money: Money) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Money")), ..fields]
   json.object(fields)
 }
 
@@ -5795,7 +5731,6 @@ pub fn narrative_to_json(narrative: Narrative) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Narrative")), ..fields]
   json.object(fields)
 }
 
@@ -5889,7 +5824,6 @@ pub fn parameterdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Parameterdefinition")), ..fields]
   json.object(fields)
 }
 
@@ -5965,7 +5899,6 @@ pub fn period_to_json(period: Period) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Period")), ..fields]
   json.object(fields)
 }
 
@@ -6093,7 +6026,6 @@ pub fn population_to_json(population: Population) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Population")), ..fields]
   json.object(fields)
 }
 
@@ -6254,7 +6186,6 @@ pub fn prodcharacteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Prodcharacteristic")), ..fields]
   json.object(fields)
 }
 
@@ -6410,7 +6341,6 @@ pub fn productshelflife_to_json(productshelflife: Productshelflife) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Productshelflife")), ..fields]
   json.object(fields)
 }
 
@@ -6509,7 +6439,6 @@ pub fn quantity_to_json(quantity: Quantity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Quantity")), ..fields]
   json.object(fields)
 }
 
@@ -6589,7 +6518,6 @@ pub fn range_to_json(range: Range) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Range")), ..fields]
   json.object(fields)
 }
 
@@ -6646,7 +6574,6 @@ pub fn ratio_to_json(ratio: Ratio) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Ratio")), ..fields]
   json.object(fields)
 }
 
@@ -6715,7 +6642,6 @@ pub fn ratiorange_to_json(ratiorange: Ratiorange) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Ratiorange")), ..fields]
   json.object(fields)
 }
 
@@ -6801,7 +6727,6 @@ pub fn reference_to_json(reference: Reference) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Reference")), ..fields]
   json.object(fields)
 }
 
@@ -6920,7 +6845,6 @@ pub fn relatedartifact_to_json(relatedartifact: Relatedartifact) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Relatedartifact")), ..fields]
   json.object(fields)
 }
 
@@ -7045,7 +6969,6 @@ pub fn sampleddata_to_json(sampleddata: Sampleddata) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Sampleddata")), ..fields]
   json.object(fields)
 }
 
@@ -7165,7 +7088,6 @@ pub fn signature_to_json(signature: Signature) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Signature")), ..fields]
   json.object(fields)
 }
 
@@ -7417,7 +7339,6 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TimingRepeat")), ..fields]
   json.object(fields)
 }
 
@@ -7547,7 +7468,6 @@ pub fn timing_to_json(timing: Timing) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Timing")), ..fields]
   json.object(fields)
 }
 
@@ -7692,7 +7612,6 @@ pub fn triggerdefinition_to_json(triggerdefinition: Triggerdefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Triggerdefinition")), ..fields]
   json.object(fields)
 }
 
@@ -7798,7 +7717,6 @@ pub fn usagecontext_to_json(usagecontext: Usagecontext) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Usagecontext")), ..fields]
   json.object(fields)
 }
 
@@ -7874,7 +7792,6 @@ pub fn moneyquantity_to_json(moneyquantity: Moneyquantity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Moneyquantity")), ..fields]
   json.object(fields)
 }
 
@@ -7972,7 +7889,6 @@ pub fn simplequantity_to_json(simplequantity: Simplequantity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Simplequantity")), ..fields]
   json.object(fields)
 }
 
@@ -8134,7 +8050,6 @@ pub fn account_guarantor_to_json(account_guarantor: AccountGuarantor) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("AccountGuarantor")), ..fields]
   json.object(fields)
 }
 
@@ -8201,7 +8116,6 @@ pub fn account_coverage_to_json(account_coverage: AccountCoverage) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("AccountCoverage")), ..fields]
   json.object(fields)
 }
 
@@ -8430,6 +8344,12 @@ pub fn account_decoder() -> Decoder(Account) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Account",
+    decode.failure(account_new(status:), "resourceType"),
+  )
   decode.success(Account(
     part_of:,
     guarantor:,
@@ -8758,10 +8678,6 @@ pub fn activitydefinition_dynamicvalue_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ActivitydefinitionDynamicvalue")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -8822,10 +8738,6 @@ pub fn activitydefinition_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ActivitydefinitionParticipant")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -9481,6 +9393,12 @@ pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Activitydefinition",
+    decode.failure(activitydefinition_new(status:), "resourceType"),
+  )
   decode.success(Activitydefinition(
     dynamic_value:,
     transform:,
@@ -9785,15 +9703,6 @@ pub fn administrableproductdefinition_routeofadministration_targetspecies_withdr
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string(
-        "AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdrawalperiod",
-      ),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -9871,15 +9780,6 @@ pub fn administrableproductdefinition_routeofadministration_targetspecies_to_jso
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string(
-        "AdministrableproductdefinitionRouteofadministrationTargetspecies",
-      ),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -9982,13 +9882,6 @@ pub fn administrableproductdefinition_routeofadministration_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("AdministrableproductdefinitionRouteofadministration"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -10105,10 +9998,6 @@ pub fn administrableproductdefinition_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("AdministrableproductdefinitionProperty")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -10358,6 +10247,12 @@ pub fn administrableproductdefinition_decoder() -> Decoder(
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Administrableproductdefinition",
+    decode.failure(administrableproductdefinition_new(status:), "resourceType"),
+  )
   decode.success(Administrableproductdefinition(
     route_of_administration:,
     property:,
@@ -10542,10 +10437,6 @@ pub fn adverseevent_suspectentity_causality_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("AdverseeventSuspectentityCausality")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -10632,10 +10523,6 @@ pub fn adverseevent_suspectentity_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("AdverseeventSuspectentity")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -10973,6 +10860,12 @@ pub fn adverseevent_decoder() -> Decoder(Adverseevent) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Adverseevent",
+    decode.failure(adverseevent_new(subject:, actuality:), "resourceType"),
+  )
   decode.success(Adverseevent(
     study:,
     reference_document:,
@@ -11196,10 +11089,6 @@ pub fn allergyintolerance_reaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("AllergyintoleranceReaction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -11534,6 +11423,12 @@ pub fn allergyintolerance_decoder() -> Decoder(Allergyintolerance) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Allergyintolerance",
+    decode.failure(allergyintolerance_new(patient:), "resourceType"),
+  )
   decode.success(Allergyintolerance(
     reaction:,
     note:,
@@ -11714,10 +11609,6 @@ pub fn appointment_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("AppointmentParticipant")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -12097,6 +11988,12 @@ pub fn appointment_decoder() -> Decoder(Appointment) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Appointment",
+    decode.failure(appointment_new(status:), "resourceType"),
+  )
   decode.success(Appointment(
     requested_period:,
     participant:,
@@ -12342,6 +12239,15 @@ pub fn appointmentresponse_decoder() -> Decoder(Appointmentresponse) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Appointmentresponse",
+    decode.failure(
+      appointmentresponse_new(participant_status:, appointment:),
+      "resourceType",
+    ),
+  )
   decode.success(Appointmentresponse(
     comment:,
     participant_status:,
@@ -12614,10 +12520,6 @@ pub fn auditevent_entity_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("AuditeventEntityDetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -12717,7 +12619,6 @@ pub fn auditevent_entity_to_json(auditevent_entity: AuditeventEntity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("AuditeventEntity")), ..fields]
   json.object(fields)
 }
 
@@ -12829,7 +12730,6 @@ pub fn auditevent_source_to_json(auditevent_source: AuditeventSource) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("AuditeventSource")), ..fields]
   json.object(fields)
 }
 
@@ -12896,10 +12796,6 @@ pub fn auditevent_agent_network_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("AuditeventAgentNetwork")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -13012,7 +12908,6 @@ pub fn auditevent_agent_to_json(auditevent_agent: AuditeventAgent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("AuditeventAgent")), ..fields]
   json.object(fields)
 }
 
@@ -13277,6 +13172,12 @@ pub fn auditevent_decoder() -> Decoder(Auditevent) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Auditevent",
+    decode.failure(auditevent_new(source:, recorded:, type_:), "resourceType"),
+  )
   decode.success(Auditevent(
     entity:,
     source:,
@@ -13469,6 +13370,12 @@ pub fn basic_decoder() -> Decoder(Basic) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Basic",
+    decode.failure(basic_new(code:), "resourceType"),
+  )
   decode.success(Basic(
     author:,
     created:,
@@ -13580,6 +13487,12 @@ pub fn binary_decoder() -> Decoder(Binary) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Binary",
+    decode.failure(binary_new(content_type:), "resourceType"),
+  )
   decode.success(Binary(
     data:,
     security_context:,
@@ -13865,10 +13778,6 @@ pub fn biologicallyderivedproduct_storage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("BiologicallyderivedproductStorage")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -13961,10 +13870,6 @@ pub fn biologicallyderivedproduct_manipulation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("BiologicallyderivedproductManipulation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -14053,10 +13958,6 @@ pub fn biologicallyderivedproduct_processing_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("BiologicallyderivedproductProcessing")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -14152,10 +14053,6 @@ pub fn biologicallyderivedproduct_collection_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("BiologicallyderivedproductCollection")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -14422,6 +14319,12 @@ pub fn biologicallyderivedproduct_decoder() -> Decoder(
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Biologicallyderivedproduct",
+    decode.failure(biologicallyderivedproduct_new(), "resourceType"),
+  )
   decode.success(Biologicallyderivedproduct(
     storage:,
     manipulation:,
@@ -14656,6 +14559,12 @@ pub fn bodystructure_decoder() -> Decoder(Bodystructure) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Bodystructure",
+    decode.failure(bodystructure_new(patient:), "resourceType"),
+  )
   decode.success(Bodystructure(
     patient:,
     image:,
@@ -14878,7 +14787,6 @@ pub fn bundle_entry_response_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("BundleEntryResponse")), ..fields]
   json.object(fields)
 }
 
@@ -14976,7 +14884,6 @@ pub fn bundle_entry_request_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("BundleEntryRequest")), ..fields]
   json.object(fields)
 }
 
@@ -15056,7 +14963,6 @@ pub fn bundle_entry_search_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("BundleEntrySearch")), ..fields]
   json.object(fields)
 }
 
@@ -15138,7 +15044,6 @@ pub fn bundle_entry_to_json(bundle_entry: BundleEntry) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("BundleEntry")), ..fields]
   json.object(fields)
 }
 
@@ -15213,7 +15118,6 @@ pub fn bundle_link_to_json(bundle_link: BundleLink) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("BundleLink")), ..fields]
   json.object(fields)
 }
 
@@ -15345,6 +15249,12 @@ pub fn bundle_decoder() -> Decoder(Bundle) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Bundle",
+    decode.failure(bundle_new(type_:), "resourceType"),
+  )
   decode.success(Bundle(
     signature:,
     entry:,
@@ -15834,10 +15744,6 @@ pub fn capabilitystatement_document_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementDocument")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -15901,13 +15807,6 @@ pub fn capabilitystatement_messaging_supportedmessage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("CapabilitystatementMessagingSupportedmessage"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -15965,10 +15864,6 @@ pub fn capabilitystatement_messaging_endpoint_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementMessagingEndpoint")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -16056,10 +15951,6 @@ pub fn capabilitystatement_messaging_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementMessaging")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -16140,10 +16031,6 @@ pub fn capabilitystatement_rest_interaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementRestInteraction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -16213,10 +16100,6 @@ pub fn capabilitystatement_rest_resource_operation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementRestResourceOperation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -16290,10 +16173,6 @@ pub fn capabilitystatement_rest_resource_searchparam_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementRestResourceSearchparam")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -16366,10 +16245,6 @@ pub fn capabilitystatement_rest_resource_interaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementRestResourceInteraction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -16563,10 +16438,6 @@ pub fn capabilitystatement_rest_resource_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementRestResource")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -16728,10 +16599,6 @@ pub fn capabilitystatement_rest_security_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementRestSecurity")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -16837,10 +16704,6 @@ pub fn capabilitystatement_rest_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementRest")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -16932,10 +16795,6 @@ pub fn capabilitystatement_implementation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementImplementation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -17007,10 +16866,6 @@ pub fn capabilitystatement_software_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CapabilitystatementSoftware")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -17397,6 +17252,15 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Capabilitystatement",
+    decode.failure(
+      capabilitystatement_new(fhir_version:, kind:, date:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Capabilitystatement(
     document:,
     messaging:,
@@ -17803,10 +17667,6 @@ pub fn careplan_activity_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CareplanActivityDetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -17982,7 +17842,6 @@ pub fn careplan_activity_to_json(careplan_activity: CareplanActivity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CareplanActivity")), ..fields]
   json.object(fields)
 }
 
@@ -18354,6 +18213,12 @@ pub fn careplan_decoder() -> Decoder(Careplan) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Careplan",
+    decode.failure(careplan_new(subject:, intent:, status:), "resourceType"),
+  )
   decode.success(Careplan(
     note:,
     activity:,
@@ -18511,7 +18376,6 @@ pub fn careteam_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CareteamParticipant")), ..fields]
   json.object(fields)
 }
 
@@ -18794,6 +18658,12 @@ pub fn careteam_decoder() -> Decoder(Careteam) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Careteam",
+    decode.failure(careteam_new(), "resourceType"),
+  )
   decode.success(Careteam(
     note:,
     telecom:,
@@ -18928,10 +18798,6 @@ pub fn catalogentry_relatedentry_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CatalogentryRelatedentry")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -19196,6 +19062,15 @@ pub fn catalogentry_decoder() -> Decoder(Catalogentry) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Catalogentry",
+    decode.failure(
+      catalogentry_new(referenced_item:, orderable:),
+      "resourceType",
+    ),
+  )
   decode.success(Catalogentry(
     related_entry:,
     additional_classification:,
@@ -19413,7 +19288,6 @@ pub fn chargeitem_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ChargeitemPerformer")), ..fields]
   json.object(fields)
 }
 
@@ -19802,6 +19676,12 @@ pub fn chargeitem_decoder() -> Decoder(Chargeitem) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Chargeitem",
+    decode.failure(chargeitem_new(subject:, code:, status:), "resourceType"),
+  )
   decode.success(Chargeitem(
     supporting_information:,
     note:,
@@ -20027,13 +19907,6 @@ pub fn chargeitemdefinition_propertygroup_pricecomponent_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("ChargeitemdefinitionPropertygroupPricecomponent"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -20119,10 +19992,6 @@ pub fn chargeitemdefinition_propertygroup_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ChargeitemdefinitionPropertygroup")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -20192,10 +20061,6 @@ pub fn chargeitemdefinition_applicability_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ChargeitemdefinitionApplicability")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -20565,6 +20430,12 @@ pub fn chargeitemdefinition_decoder() -> Decoder(Chargeitemdefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Chargeitemdefinition",
+    decode.failure(chargeitemdefinition_new(status:, url:), "resourceType"),
+  )
   decode.success(Chargeitemdefinition(
     property_group:,
     applicability:,
@@ -21422,13 +21293,6 @@ pub fn citation_citedartifact_contributorship_summary_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("CitationCitedartifactContributorshipSummary"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -21505,15 +21369,6 @@ pub fn citation_citedartifact_contributorship_entry_contributioninstance_to_json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string(
-        "CitationCitedartifactContributorshipEntryContributioninstance",
-      ),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -21585,13 +21440,6 @@ pub fn citation_citedartifact_contributorship_entry_affiliationinfo_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("CitationCitedartifactContributorshipEntryAffiliationinfo"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -21742,10 +21590,6 @@ pub fn citation_citedartifact_contributorship_entry_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactContributorshipEntry")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -21900,10 +21744,6 @@ pub fn citation_citedartifact_contributorship_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactContributorship")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -21995,13 +21835,6 @@ pub fn citation_citedartifact_classification_whoclassified_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("CitationCitedartifactClassificationWhoclassified"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -22104,10 +21937,6 @@ pub fn citation_citedartifact_classification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactClassification")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -22186,10 +22015,6 @@ pub fn citation_citedartifact_weblocation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactWeblocation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -22276,15 +22101,6 @@ pub fn citation_citedartifact_publicationform_periodicrelease_dateofpublication_
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string(
-        "CitationCitedartifactPublicationformPeriodicreleaseDateofpublication",
-      ),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -22395,13 +22211,6 @@ pub fn citation_citedartifact_publicationform_periodicrelease_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("CitationCitedartifactPublicationformPeriodicrelease"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -22501,13 +22310,6 @@ pub fn citation_citedartifact_publicationform_publishedin_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("CitationCitedartifactPublicationformPublishedin"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -22656,10 +22458,6 @@ pub fn citation_citedartifact_publicationform_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactPublicationform")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -22794,10 +22592,6 @@ pub fn citation_citedartifact_relatesto_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactRelatesto")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -22874,10 +22668,6 @@ pub fn citation_citedartifact_part_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactPart")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -22962,10 +22752,6 @@ pub fn citation_citedartifact_abstract_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactAbstract")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -23047,10 +22833,6 @@ pub fn citation_citedartifact_title_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactTitle")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -23123,10 +22905,6 @@ pub fn citation_citedartifact_statusdate_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactStatusdate")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -23193,10 +22971,6 @@ pub fn citation_citedartifact_version_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifactVersion")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -23385,10 +23159,6 @@ pub fn citation_citedartifact_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationCitedartifact")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -23539,7 +23309,6 @@ pub fn citation_relatesto_to_json(citation_relatesto: CitationRelatesto) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CitationRelatesto")), ..fields]
   json.object(fields)
 }
 
@@ -23609,7 +23378,6 @@ pub fn citation_statusdate_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CitationStatusdate")), ..fields]
   json.object(fields)
 }
 
@@ -23679,10 +23447,6 @@ pub fn citation_classification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CitationClassification")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -23742,7 +23506,6 @@ pub fn citation_summary_to_json(citation_summary: CitationSummary) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CitationSummary")), ..fields]
   json.object(fields)
 }
 
@@ -24162,6 +23925,12 @@ pub fn citation_decoder() -> Decoder(Citation) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Citation",
+    decode.failure(citation_new(status:), "resourceType"),
+  )
   decode.success(Citation(
     cited_artifact:,
     relates_to:,
@@ -24944,10 +24713,6 @@ pub fn claim_item_detail_subdetail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClaimItemDetailSubdetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -25118,7 +24883,6 @@ pub fn claim_item_detail_to_json(claim_item_detail: ClaimItemDetail) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimItemDetail")), ..fields]
   json.object(fields)
 }
 
@@ -25365,7 +25129,6 @@ pub fn claim_item_to_json(claim_item: ClaimItem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimItem")), ..fields]
   json.object(fields)
 }
 
@@ -25542,7 +25305,6 @@ pub fn claim_accident_to_json(claim_accident: ClaimAccident) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimAccident")), ..fields]
   json.object(fields)
 }
 
@@ -25626,7 +25388,6 @@ pub fn claim_insurance_to_json(claim_insurance: ClaimInsurance) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimInsurance")), ..fields]
   json.object(fields)
 }
 
@@ -25721,7 +25482,6 @@ pub fn claim_procedure_to_json(claim_procedure: ClaimProcedure) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimProcedure")), ..fields]
   json.object(fields)
 }
 
@@ -25804,7 +25564,6 @@ pub fn claim_diagnosis_to_json(claim_diagnosis: ClaimDiagnosis) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimDiagnosis")), ..fields]
   json.object(fields)
 }
 
@@ -25921,7 +25680,6 @@ pub fn claim_supportinginfo_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimSupportinginfo")), ..fields]
   json.object(fields)
 }
 
@@ -26010,7 +25768,6 @@ pub fn claim_careteam_to_json(claim_careteam: ClaimCareteam) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimCareteam")), ..fields]
   json.object(fields)
 }
 
@@ -26080,7 +25837,6 @@ pub fn claim_payee_to_json(claim_payee: ClaimPayee) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimPayee")), ..fields]
   json.object(fields)
 }
 
@@ -26148,7 +25904,6 @@ pub fn claim_related_to_json(claim_related: ClaimRelated) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimRelated")), ..fields]
   json.object(fields)
 }
 
@@ -26517,6 +26272,23 @@ pub fn claim_decoder() -> Decoder(Claim) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Claim",
+    decode.failure(
+      claim_new(
+        priority:,
+        provider:,
+        created:,
+        patient:,
+        use_:,
+        type_:,
+        status:,
+      ),
+      "resourceType",
+    ),
+  )
   decode.success(Claim(
     total:,
     item:,
@@ -27111,7 +26883,6 @@ pub fn claimresponse_error_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimresponseError")), ..fields]
   json.object(fields)
 }
 
@@ -27195,10 +26966,6 @@ pub fn claimresponse_insurance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClaimresponseInsurance")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -27281,10 +27048,6 @@ pub fn claimresponse_processnote_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClaimresponseProcessnote")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -27376,10 +27139,6 @@ pub fn claimresponse_payment_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClaimresponsePayment")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -27459,7 +27218,6 @@ pub fn claimresponse_total_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimresponseTotal")), ..fields]
   json.object(fields)
 }
 
@@ -27546,10 +27304,6 @@ pub fn claimresponse_additem_detail_subdetail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClaimresponseAdditemDetailSubdetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -27686,10 +27440,6 @@ pub fn claimresponse_additem_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClaimresponseAdditemDetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -27901,10 +27651,6 @@ pub fn claimresponse_additem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClaimresponseAdditem")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -28056,10 +27802,6 @@ pub fn claimresponse_item_detail_subdetail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClaimresponseItemDetailSubdetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -28135,10 +27877,6 @@ pub fn claimresponse_item_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClaimresponseItemDetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -28217,10 +27955,6 @@ pub fn claimresponse_item_adjudication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClaimresponseItemAdjudication")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -28314,7 +28048,6 @@ pub fn claimresponse_item_to_json(claimresponse_item: ClaimresponseItem) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ClaimresponseItem")), ..fields]
   json.object(fields)
 }
 
@@ -28678,6 +28411,23 @@ pub fn claimresponse_decoder() -> Decoder(Claimresponse) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Claimresponse",
+    decode.failure(
+      claimresponse_new(
+        outcome:,
+        insurer:,
+        created:,
+        patient:,
+        use_:,
+        type_:,
+        status:,
+      ),
+      "resourceType",
+    ),
+  )
   decode.success(Claimresponse(
     error:,
     insurance:,
@@ -28899,10 +28649,6 @@ pub fn clinicalimpression_finding_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClinicalimpressionFinding")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -28977,10 +28723,6 @@ pub fn clinicalimpression_investigation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClinicalimpressionInvestigation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -29325,6 +29067,12 @@ pub fn clinicalimpression_decoder() -> Decoder(Clinicalimpression) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Clinicalimpression",
+    decode.failure(clinicalimpression_new(subject:, status:), "resourceType"),
+  )
   decode.success(Clinicalimpression(
     note:,
     supporting_info:,
@@ -29680,10 +29428,6 @@ pub fn clinicalusedefinition_warning_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClinicalusedefinitionWarning")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -29765,10 +29509,6 @@ pub fn clinicalusedefinition_undesirableeffect_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClinicalusedefinitionUndesirableeffect")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -29838,13 +29578,6 @@ pub fn clinicalusedefinition_interaction_interactant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("ClinicalusedefinitionInteractionInteractant"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -29934,10 +29667,6 @@ pub fn clinicalusedefinition_interaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClinicalusedefinitionInteraction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -30065,10 +29794,6 @@ pub fn clinicalusedefinition_indication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClinicalusedefinitionIndication")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -30156,13 +29881,6 @@ pub fn clinicalusedefinition_contraindication_othertherapy_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("ClinicalusedefinitionContraindicationOthertherapy"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -30258,10 +29976,6 @@ pub fn clinicalusedefinition_contraindication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ClinicalusedefinitionContraindication")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -30534,6 +30248,12 @@ pub fn clinicalusedefinition_decoder() -> Decoder(Clinicalusedefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Clinicalusedefinition",
+    decode.failure(clinicalusedefinition_new(type_:), "resourceType"),
+  )
   decode.success(Clinicalusedefinition(
     warning:,
     undesirable_effect:,
@@ -30848,10 +30568,6 @@ pub fn codesystem_concept_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CodesystemConceptProperty")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -30917,10 +30633,6 @@ pub fn codesystem_concept_designation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CodesystemConceptDesignation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -31013,7 +30725,6 @@ pub fn codesystem_concept_to_json(codesystem_concept: CodesystemConcept) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CodesystemConcept")), ..fields]
   json.object(fields)
 }
 
@@ -31101,7 +30812,6 @@ pub fn codesystem_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CodesystemProperty")), ..fields]
   json.object(fields)
 }
 
@@ -31176,7 +30886,6 @@ pub fn codesystem_filter_to_json(codesystem_filter: CodesystemFilter) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CodesystemFilter")), ..fields]
   json.object(fields)
 }
 
@@ -31560,6 +31269,12 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Codesystem",
+    decode.failure(codesystem_new(content:, status:), "resourceType"),
+  )
   decode.success(Codesystem(
     concept:,
     property:,
@@ -31749,10 +31464,6 @@ pub fn communication_payload_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CommunicationPayload")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -32116,6 +31827,12 @@ pub fn communication_decoder() -> Decoder(Communication) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Communication",
+    decode.failure(communication_new(status:), "resourceType"),
+  )
   decode.success(Communication(
     note:,
     payload:,
@@ -32332,10 +32049,6 @@ pub fn communicationrequest_payload_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CommunicationrequestPayload")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -32692,6 +32405,12 @@ pub fn communicationrequest_decoder() -> Decoder(Communicationrequest) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Communicationrequest",
+    decode.failure(communicationrequest_new(status:), "resourceType"),
+  )
   decode.success(Communicationrequest(
     note:,
     reason_reference:,
@@ -32849,10 +32568,6 @@ pub fn compartmentdefinition_resource_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CompartmentdefinitionResource")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -33095,6 +32810,15 @@ pub fn compartmentdefinition_decoder() -> Decoder(Compartmentdefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Compartmentdefinition",
+    decode.failure(
+      compartmentdefinition_new(search:, code:, status:, name:, url:),
+      "resourceType",
+    ),
+  )
   decode.success(Compartmentdefinition(
     resource:,
     search:,
@@ -33387,7 +33111,6 @@ pub fn composition_section_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CompositionSection")), ..fields]
   json.object(fields)
 }
 
@@ -33501,7 +33224,6 @@ pub fn composition_event_to_json(composition_event: CompositionEvent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CompositionEvent")), ..fields]
   json.object(fields)
 }
 
@@ -33566,10 +33288,6 @@ pub fn composition_relatesto_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CompositionRelatesto")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -33636,7 +33354,6 @@ pub fn composition_attester_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CompositionAttester")), ..fields]
   json.object(fields)
 }
 
@@ -33899,6 +33616,15 @@ pub fn composition_decoder() -> Decoder(Composition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Composition",
+    decode.failure(
+      composition_new(title:, date:, type_:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Composition(
     section:,
     event:,
@@ -34217,10 +33943,6 @@ pub fn conceptmap_group_unmapped_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ConceptmapGroupUnmapped")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -34301,10 +34023,6 @@ pub fn conceptmap_group_element_target_dependson_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ConceptmapGroupElementTargetDependson")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -34401,10 +34119,6 @@ pub fn conceptmap_group_element_target_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ConceptmapGroupElementTarget")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -34500,10 +34214,6 @@ pub fn conceptmap_group_element_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ConceptmapGroupElement")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -34599,7 +34309,6 @@ pub fn conceptmap_group_to_json(conceptmap_group: ConceptmapGroup) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ConceptmapGroup")), ..fields]
   json.object(fields)
 }
 
@@ -34934,6 +34643,12 @@ pub fn conceptmap_decoder() -> Decoder(Conceptmap) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Conceptmap",
+    decode.failure(conceptmap_new(status:), "resourceType"),
+  )
   decode.success(Conceptmap(
     group:,
     target:,
@@ -35168,7 +34883,6 @@ pub fn condition_evidence_to_json(condition_evidence: ConditionEvidence) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ConditionEvidence")), ..fields]
   json.object(fields)
 }
 
@@ -35240,7 +34954,6 @@ pub fn condition_stage_to_json(condition_stage: ConditionStage) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ConditionStage")), ..fields]
   json.object(fields)
 }
 
@@ -35560,6 +35273,12 @@ pub fn condition_decoder() -> Decoder(Condition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Condition",
+    decode.failure(condition_new(subject:), "resourceType"),
+  )
   decode.success(Condition(
     note:,
     evidence:,
@@ -35827,10 +35546,6 @@ pub fn consent_provision_data_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ConsentProvisionData")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -35889,10 +35604,6 @@ pub fn consent_provision_actor_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ConsentProvisionActor")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -36000,7 +35711,6 @@ pub fn consent_provision_to_json(consent_provision: ConsentProvision) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ConsentProvision")), ..fields]
   json.object(fields)
 }
 
@@ -36116,7 +35826,6 @@ pub fn consent_verification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ConsentVerification")), ..fields]
   json.object(fields)
 }
 
@@ -36180,7 +35889,6 @@ pub fn consent_policy_to_json(consent_policy: ConsentPolicy) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ConsentPolicy")), ..fields]
   json.object(fields)
 }
 
@@ -36431,6 +36139,12 @@ pub fn consent_decoder() -> Decoder(Consent) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Consent",
+    decode.failure(consent_new(scope:, status:), "resourceType"),
+  )
   decode.success(Consent(
     provision:,
     verification:,
@@ -37311,7 +37025,6 @@ pub fn contract_rule_to_json(contract_rule: ContractRule) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ContractRule")), ..fields]
   json.object(fields)
 }
 
@@ -37352,7 +37065,6 @@ pub fn contract_legal_to_json(contract_legal: ContractLegal) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ContractLegal")), ..fields]
   json.object(fields)
 }
 
@@ -37393,7 +37105,6 @@ pub fn contract_friendly_to_json(contract_friendly: ContractFriendly) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ContractFriendly")), ..fields]
   json.object(fields)
 }
 
@@ -37450,7 +37161,6 @@ pub fn contract_signer_to_json(contract_signer: ContractSigner) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ContractSigner")), ..fields]
   json.object(fields)
 }
 
@@ -37517,10 +37227,6 @@ pub fn contract_term_action_subject_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ContractTermActionSubject")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -37713,7 +37419,6 @@ pub fn contract_term_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ContractTermAction")), ..fields]
   json.object(fields)
 }
 
@@ -37948,10 +37653,6 @@ pub fn contract_term_asset_valueditem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ContractTermAssetValueditem")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -38093,10 +37794,6 @@ pub fn contract_term_asset_context_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ContractTermAssetContext")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -38251,7 +37948,6 @@ pub fn contract_term_asset_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ContractTermAsset")), ..fields]
   json.object(fields)
 }
 
@@ -38377,10 +38073,6 @@ pub fn contract_term_offer_answer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ContractTermOfferAnswer")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -38437,10 +38129,6 @@ pub fn contract_term_offer_party_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ContractTermOfferParty")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -38557,7 +38245,6 @@ pub fn contract_term_offer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ContractTermOffer")), ..fields]
   json.object(fields)
 }
 
@@ -38678,10 +38365,6 @@ pub fn contract_term_securitylabel_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ContractTermSecuritylabel")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -38816,7 +38499,6 @@ pub fn contract_term_to_json(contract_term: ContractTerm) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ContractTerm")), ..fields]
   json.object(fields)
 }
 
@@ -38949,10 +38631,6 @@ pub fn contract_contentdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ContractContentdefinition")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -39444,6 +39122,12 @@ pub fn contract_decoder() -> Decoder(Contract) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Contract",
+    decode.failure(contract_new(), "resourceType"),
+  )
   decode.success(Contract(
     legally_binding:,
     rule:,
@@ -39687,10 +39371,6 @@ pub fn coverage_costtobeneficiary_exception_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CoverageCosttobeneficiaryException")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -39766,10 +39446,6 @@ pub fn coverage_costtobeneficiary_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CoverageCosttobeneficiary")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -39834,7 +39510,6 @@ pub fn coverage_class_to_json(coverage_class: CoverageClass) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("CoverageClass")), ..fields]
   json.object(fields)
 }
 
@@ -40114,6 +39789,12 @@ pub fn coverage_decoder() -> Decoder(Coverage) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Coverage",
+    decode.failure(coverage_new(beneficiary:, status:), "resourceType"),
+  )
   decode.success(Coverage(
     contract:,
     subrogation:,
@@ -40419,10 +40100,6 @@ pub fn coverageeligibilityrequest_item_diagnosis_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CoverageeligibilityrequestItemDiagnosis")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -40542,10 +40219,6 @@ pub fn coverageeligibilityrequest_item_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CoverageeligibilityrequestItem")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -40667,10 +40340,6 @@ pub fn coverageeligibilityrequest_insurance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CoverageeligibilityrequestInsurance")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -40743,10 +40412,6 @@ pub fn coverageeligibilityrequest_supportinginfo_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CoverageeligibilityrequestSupportinginfo")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -41021,6 +40686,15 @@ pub fn coverageeligibilityrequest_decoder() -> Decoder(
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Coverageeligibilityrequest",
+    decode.failure(
+      coverageeligibilityrequest_new(insurer:, created:, patient:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Coverageeligibilityrequest(
     item:,
     insurance:,
@@ -41364,10 +41038,6 @@ pub fn coverageeligibilityresponse_error_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CoverageeligibilityresponseError")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -41458,13 +41128,6 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("CoverageeligibilityresponseInsuranceItemBenefit"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -41615,10 +41278,6 @@ pub fn coverageeligibilityresponse_insurance_item_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CoverageeligibilityresponseInsuranceItem")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -41775,10 +41434,6 @@ pub fn coverageeligibilityresponse_insurance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("CoverageeligibilityresponseInsurance")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -42053,6 +41708,22 @@ pub fn coverageeligibilityresponse_decoder() -> Decoder(
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Coverageeligibilityresponse",
+    decode.failure(
+      coverageeligibilityresponse_new(
+        insurer:,
+        outcome:,
+        request:,
+        created:,
+        patient:,
+        status:,
+      ),
+      "resourceType",
+    ),
+  )
   decode.success(Coverageeligibilityresponse(
     error:,
     form:,
@@ -42240,10 +41911,6 @@ pub fn detectedissue_mitigation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DetectedissueMitigation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -42314,10 +41981,6 @@ pub fn detectedissue_evidence_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DetectedissueEvidence")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -42571,6 +42234,12 @@ pub fn detectedissue_decoder() -> Decoder(Detectedissue) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Detectedissue",
+    decode.failure(detectedissue_new(status:), "resourceType"),
+  )
   decode.success(Detectedissue(
     mitigation:,
     reference:,
@@ -42837,7 +42506,6 @@ pub fn device_property_to_json(device_property: DeviceProperty) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("DeviceProperty")), ..fields]
   json.object(fields)
 }
 
@@ -42909,7 +42577,6 @@ pub fn device_version_to_json(device_version: DeviceVersion) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("DeviceVersion")), ..fields]
   json.object(fields)
 }
 
@@ -42978,10 +42645,6 @@ pub fn device_specialization_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DeviceSpecialization")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -43034,7 +42697,6 @@ pub fn device_devicename_to_json(device_devicename: DeviceDevicename) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("DeviceDevicename")), ..fields]
   json.object(fields)
 }
 
@@ -43113,7 +42775,6 @@ pub fn device_udicarrier_to_json(device_udicarrier: DeviceUdicarrier) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("DeviceUdicarrier")), ..fields]
   json.object(fields)
 }
 
@@ -43534,6 +43195,12 @@ pub fn device_decoder() -> Decoder(Device) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Device",
+    decode.failure(device_new(), "resourceType"),
+  )
   decode.success(Device(
     parent:,
     safety:,
@@ -43855,10 +43522,6 @@ pub fn devicedefinition_material_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DevicedefinitionMaterial")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -43938,10 +43601,6 @@ pub fn devicedefinition_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DevicedefinitionProperty")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -44013,10 +43672,6 @@ pub fn devicedefinition_capability_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DevicedefinitionCapability")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -44081,10 +43736,6 @@ pub fn devicedefinition_specialization_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DevicedefinitionSpecialization")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -44146,10 +43797,6 @@ pub fn devicedefinition_devicename_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DevicedefinitionDevicename")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -44209,10 +43856,6 @@ pub fn devicedefinition_udideviceidentifier_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DevicedefinitionUdideviceidentifier")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -44600,6 +44243,12 @@ pub fn devicedefinition_decoder() -> Decoder(Devicedefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Devicedefinition",
+    decode.failure(devicedefinition_new(), "resourceType"),
+  )
   decode.success(Devicedefinition(
     material:,
     parent_device:,
@@ -44752,10 +44401,6 @@ pub fn devicemetric_calibration_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DevicemetricCalibration")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -44983,6 +44628,12 @@ pub fn devicemetric_decoder() -> Decoder(Devicemetric) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Devicemetric",
+    decode.failure(devicemetric_new(category:, type_:), "resourceType"),
+  )
   decode.success(Devicemetric(
     calibration:,
     measurement_period:,
@@ -45247,10 +44898,6 @@ pub fn devicerequest_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DevicerequestParameter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -45630,6 +45277,12 @@ pub fn devicerequest_decoder() -> Decoder(Devicerequest) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Devicerequest",
+    decode.failure(devicerequest_new(subject:, code:, intent:), "resourceType"),
+  )
   decode.success(Devicerequest(
     relevant_history:,
     note:,
@@ -45972,6 +45625,15 @@ pub fn deviceusestatement_decoder() -> Decoder(Deviceusestatement) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Deviceusestatement",
+    decode.failure(
+      deviceusestatement_new(device:, subject:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Deviceusestatement(
     note:,
     body_site:,
@@ -46144,10 +45806,6 @@ pub fn diagnosticreport_media_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DiagnosticreportMedia")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -46465,6 +46123,12 @@ pub fn diagnosticreport_decoder() -> Decoder(Diagnosticreport) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Diagnosticreport",
+    decode.failure(diagnosticreport_new(code:, status:), "resourceType"),
+  )
   decode.success(Diagnosticreport(
     presented_form:,
     conclusion_code:,
@@ -46603,10 +46267,6 @@ pub fn documentmanifest_related_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DocumentmanifestRelated")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -46849,6 +46509,12 @@ pub fn documentmanifest_decoder() -> Decoder(Documentmanifest) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Documentmanifest",
+    decode.failure(documentmanifest_new(status:), "resourceType"),
+  )
   decode.success(Documentmanifest(
     related:,
     content:,
@@ -47071,10 +46737,6 @@ pub fn documentreference_context_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DocumentreferenceContext")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -47171,10 +46833,6 @@ pub fn documentreference_content_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DocumentreferenceContent")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -47234,10 +46892,6 @@ pub fn documentreference_relatesto_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("DocumentreferenceRelatesto")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -47532,6 +47186,12 @@ pub fn documentreference_decoder() -> Decoder(Documentreference) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Documentreference",
+    decode.failure(documentreference_new(status:), "resourceType"),
+  )
   decode.success(Documentreference(
     context:,
     content:,
@@ -47675,6 +47335,12 @@ pub fn domainresource_decoder() -> Decoder(Domainresource) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Domainresource",
+    decode.failure(domainresource_new(), "resourceType"),
+  )
   decode.success(Domainresource(
     modifier_extension:,
     extension:,
@@ -47962,7 +47628,6 @@ pub fn encounter_location_to_json(encounter_location: EncounterLocation) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("EncounterLocation")), ..fields]
   json.object(fields)
 }
 
@@ -48089,10 +47754,6 @@ pub fn encounter_hospitalization_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EncounterHospitalization")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -48206,7 +47867,6 @@ pub fn encounter_diagnosis_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("EncounterDiagnosis")), ..fields]
   json.object(fields)
 }
 
@@ -48278,10 +47938,6 @@ pub fn encounter_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EncounterParticipant")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -48351,10 +48007,6 @@ pub fn encounter_classhistory_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EncounterClasshistory")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -48410,10 +48062,6 @@ pub fn encounter_statushistory_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EncounterStatushistory")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -48781,6 +48429,12 @@ pub fn encounter_decoder() -> Decoder(Encounter) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Encounter",
+    decode.failure(encounter_new(class:, status:), "resourceType"),
+  )
   decode.success(Encounter(
     part_of:,
     service_provider:,
@@ -49049,6 +48703,15 @@ pub fn endpoint_decoder() -> Decoder(Endpoint) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Endpoint",
+    decode.failure(
+      endpoint_new(address:, connection_type:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Endpoint(
     header:,
     address:,
@@ -49271,6 +48934,12 @@ pub fn enrollmentrequest_decoder() -> Decoder(Enrollmentrequest) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Enrollmentrequest",
+    decode.failure(enrollmentrequest_new(), "resourceType"),
+  )
   decode.success(Enrollmentrequest(
     coverage:,
     candidate:,
@@ -49506,6 +49175,12 @@ pub fn enrollmentresponse_decoder() -> Decoder(Enrollmentresponse) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Enrollmentresponse",
+    decode.failure(enrollmentresponse_new(), "resourceType"),
+  )
   decode.success(Enrollmentresponse(
     request_provider:,
     organization:,
@@ -49666,10 +49341,6 @@ pub fn episodeofcare_diagnosis_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EpisodeofcareDiagnosis")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -49731,10 +49402,6 @@ pub fn episodeofcare_statushistory_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EpisodeofcareStatushistory")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -49976,6 +49643,12 @@ pub fn episodeofcare_decoder() -> Decoder(Episodeofcare) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Episodeofcare",
+    decode.failure(episodeofcare_new(patient:, status:), "resourceType"),
+  )
   decode.success(Episodeofcare(
     account:,
     team:,
@@ -50492,6 +50165,12 @@ pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Eventdefinition",
+    decode.failure(eventdefinition_new(status:), "resourceType"),
+  )
   decode.success(Eventdefinition(
     trigger:,
     related_artifact:,
@@ -50885,7 +50564,6 @@ pub fn evidence_certainty_to_json(evidence_certainty: EvidenceCertainty) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("EvidenceCertainty")), ..fields]
   json.object(fields)
 }
 
@@ -50994,13 +50672,6 @@ pub fn evidence_statistic_modelcharacteristic_variable_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("EvidenceStatisticModelcharacteristicVariable"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -51100,10 +50771,6 @@ pub fn evidence_statistic_modelcharacteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EvidenceStatisticModelcharacteristic")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -51196,10 +50863,6 @@ pub fn evidence_statistic_attributeestimate_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EvidenceStatisticAttributeestimate")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -51309,10 +50972,6 @@ pub fn evidence_statistic_samplesize_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EvidenceStatisticSamplesize")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -51460,7 +51119,6 @@ pub fn evidence_statistic_to_json(evidence_statistic: EvidenceStatistic) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("EvidenceStatistic")), ..fields]
   json.object(fields)
 }
 
@@ -51595,10 +51253,6 @@ pub fn evidence_variabledefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EvidenceVariabledefinition")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -52010,6 +51664,12 @@ pub fn evidence_decoder() -> Decoder(Evidence) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Evidence",
+    decode.failure(evidence_new(status:), "resourceType"),
+  )
   decode.success(Evidence(
     certainty:,
     statistic:,
@@ -52415,10 +52075,6 @@ pub fn evidencereport_section_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EvidencereportSection")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -52536,10 +52192,6 @@ pub fn evidencereport_relatesto_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EvidencereportRelatesto")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -52605,10 +52257,6 @@ pub fn evidencereport_subject_characteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EvidencereportSubjectCharacteristic")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -52694,10 +52342,6 @@ pub fn evidencereport_subject_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EvidencereportSubject")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -53007,6 +52651,12 @@ pub fn evidencereport_decoder() -> Decoder(Evidencereport) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Evidencereport",
+    decode.failure(evidencereport_new(subject:, status:), "resourceType"),
+  )
   decode.success(Evidencereport(
     section:,
     relates_to:,
@@ -53319,10 +52969,6 @@ pub fn evidencevariable_category_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EvidencevariableCategory")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -53399,13 +53045,6 @@ pub fn evidencevariable_characteristic_timefromstart_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("EvidencevariableCharacteristicTimefromstart"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -53523,10 +53162,6 @@ pub fn evidencevariable_characteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("EvidencevariableCharacteristic")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -53936,6 +53571,12 @@ pub fn evidencevariable_decoder() -> Decoder(Evidencevariable) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Evidencevariable",
+    decode.failure(evidencevariable_new(status:), "resourceType"),
+  )
   decode.success(Evidencevariable(
     category:,
     handling:,
@@ -54284,10 +53925,6 @@ pub fn examplescenario_process_step_alternative_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExamplescenarioProcessStepAlternative")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -54382,10 +54019,6 @@ pub fn examplescenario_process_step_operation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExamplescenarioProcessStepOperation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -54505,10 +54138,6 @@ pub fn examplescenario_process_step_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExamplescenarioProcessStep")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -54601,10 +54230,6 @@ pub fn examplescenario_process_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExamplescenarioProcess")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -54685,10 +54310,6 @@ pub fn examplescenario_instance_containedinstance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExamplescenarioInstanceContainedinstance")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -54750,10 +54371,6 @@ pub fn examplescenario_instance_version_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExamplescenarioInstanceVersion")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -54846,10 +54463,6 @@ pub fn examplescenario_instance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExamplescenarioInstance")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -54942,10 +54555,6 @@ pub fn examplescenario_actor_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExamplescenarioActor")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -55250,6 +54859,12 @@ pub fn examplescenario_decoder() -> Decoder(Examplescenario) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Examplescenario",
+    decode.failure(examplescenario_new(status:), "resourceType"),
+  )
   decode.success(Examplescenario(
     workflow:,
     process:,
@@ -56479,13 +56094,6 @@ pub fn explanationofbenefit_benefitbalance_financial_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("ExplanationofbenefitBenefitbalanceFinancial"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -56595,10 +56203,6 @@ pub fn explanationofbenefit_benefitbalance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitBenefitbalance")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -56711,10 +56315,6 @@ pub fn explanationofbenefit_processnote_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitProcessnote")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -56817,10 +56417,6 @@ pub fn explanationofbenefit_payment_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitPayment")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -56910,10 +56506,6 @@ pub fn explanationofbenefit_total_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitTotal")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -57002,10 +56594,6 @@ pub fn explanationofbenefit_additem_detail_subdetail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitAdditemDetailSubdetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -57145,10 +56733,6 @@ pub fn explanationofbenefit_additem_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitAdditemDetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -57364,10 +56948,6 @@ pub fn explanationofbenefit_additem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitAdditem")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -57574,10 +57154,6 @@ pub fn explanationofbenefit_item_detail_subdetail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitItemDetailSubdetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -57764,10 +57340,6 @@ pub fn explanationofbenefit_item_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitItemDetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -57903,10 +57475,6 @@ pub fn explanationofbenefit_item_adjudication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitItemAdjudication")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -58134,10 +57702,6 @@ pub fn explanationofbenefit_item_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitItem")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -58334,10 +57898,6 @@ pub fn explanationofbenefit_accident_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitAccident")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -58412,10 +57972,6 @@ pub fn explanationofbenefit_insurance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitInsurance")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -58494,10 +58050,6 @@ pub fn explanationofbenefit_procedure_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitProcedure")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -58586,10 +58138,6 @@ pub fn explanationofbenefit_diagnosis_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitDiagnosis")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -58710,10 +58258,6 @@ pub fn explanationofbenefit_supportinginfo_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitSupportinginfo")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -58806,10 +58350,6 @@ pub fn explanationofbenefit_careteam_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitCareteam")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -58890,10 +58430,6 @@ pub fn explanationofbenefit_payee_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitPayee")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -58969,10 +58505,6 @@ pub fn explanationofbenefit_related_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ExplanationofbenefitRelated")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -59542,6 +59074,24 @@ pub fn explanationofbenefit_decoder() -> Decoder(Explanationofbenefit) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Explanationofbenefit",
+    decode.failure(
+      explanationofbenefit_new(
+        outcome:,
+        provider:,
+        insurer:,
+        created:,
+        patient:,
+        use_:,
+        type_:,
+        status:,
+      ),
+      "resourceType",
+    ),
+  )
   decode.success(Explanationofbenefit(
     benefit_balance:,
     benefit_period:,
@@ -59883,10 +59433,6 @@ pub fn familymemberhistory_condition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("FamilymemberhistoryCondition")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -60231,6 +59777,15 @@ pub fn familymemberhistory_decoder() -> Decoder(Familymemberhistory) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Familymemberhistory",
+    decode.failure(
+      familymemberhistory_new(relationship:, patient:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Familymemberhistory(
     condition:,
     note:,
@@ -60459,6 +60014,12 @@ pub fn flag_decoder() -> Decoder(Flag) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Flag",
+    decode.failure(flag_new(subject:, code:, status:), "resourceType"),
+  )
   decode.success(Flag(
     author:,
     encounter:,
@@ -60721,7 +60282,6 @@ pub fn goal_target_to_json(goal_target: GoalTarget) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("GoalTarget")), ..fields]
   json.object(fields)
 }
 
@@ -61000,6 +60560,15 @@ pub fn goal_decoder() -> Decoder(Goal) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Goal",
+    decode.failure(
+      goal_new(subject:, description:, lifecycle_status:),
+      "resourceType",
+    ),
+  )
   decode.success(Goal(
     outcome_reference:,
     outcome_code:,
@@ -61217,10 +60786,6 @@ pub fn graphdefinition_link_target_compartment_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("GraphdefinitionLinkTargetCompartment")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -61311,10 +60876,6 @@ pub fn graphdefinition_link_target_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("GraphdefinitionLinkTarget")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -61416,7 +60977,6 @@ pub fn graphdefinition_link_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("GraphdefinitionLink")), ..fields]
   json.object(fields)
 }
 
@@ -61687,6 +61247,12 @@ pub fn graphdefinition_decoder() -> Decoder(Graphdefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Graphdefinition",
+    decode.failure(graphdefinition_new(start:, status:, name:), "resourceType"),
+  )
   decode.success(Graphdefinition(
     link:,
     profile:,
@@ -61891,7 +61457,6 @@ pub fn group_member_to_json(group_member: GroupMember) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("GroupMember")), ..fields]
   json.object(fields)
 }
 
@@ -61964,7 +61529,6 @@ pub fn group_characteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("GroupCharacteristic")), ..fields]
   json.object(fields)
 }
 
@@ -62180,6 +61744,12 @@ pub fn group_decoder() -> Decoder(Group) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Group",
+    decode.failure(group_new(actual:, type_:), "resourceType"),
+  )
   decode.success(Group(
     member:,
     characteristic:,
@@ -62537,6 +62107,12 @@ pub fn guidanceresponse_decoder() -> Decoder(Guidanceresponse) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Guidanceresponse",
+    decode.failure(guidanceresponse_new(status:, module:), "resourceType"),
+  )
   decode.success(Guidanceresponse(
     data_requirement:,
     result:,
@@ -62740,10 +62316,6 @@ pub fn healthcareservice_notavailable_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("HealthcareserviceNotavailable")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -62823,10 +62395,6 @@ pub fn healthcareservice_availabletime_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("HealthcareserviceAvailabletime")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -62909,10 +62477,6 @@ pub fn healthcareservice_eligibility_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("HealthcareserviceEligibility")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -63319,6 +62883,12 @@ pub fn healthcareservice_decoder() -> Decoder(Healthcareservice) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Healthcareservice",
+    decode.failure(healthcareservice_new(), "resourceType"),
+  )
   decode.success(Healthcareservice(
     endpoint:,
     availability_exceptions:,
@@ -63559,10 +63129,6 @@ pub fn imagingstudy_series_instance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImagingstudySeriesInstance")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -63635,10 +63201,6 @@ pub fn imagingstudy_series_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImagingstudySeriesPerformer")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -63759,7 +63321,6 @@ pub fn imagingstudy_series_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ImagingstudySeries")), ..fields]
   json.object(fields)
 }
 
@@ -64139,6 +63700,12 @@ pub fn imagingstudy_decoder() -> Decoder(Imagingstudy) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Imagingstudy",
+    decode.failure(imagingstudy_new(subject:, status:), "resourceType"),
+  )
   decode.success(Imagingstudy(
     series:,
     description:,
@@ -64502,10 +64069,6 @@ pub fn immunization_protocolapplied_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImmunizationProtocolapplied")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -64595,10 +64158,6 @@ pub fn immunization_reaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImmunizationReaction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -64683,10 +64242,6 @@ pub fn immunization_education_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImmunizationEducation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -64765,10 +64320,6 @@ pub fn immunization_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImmunizationPerformer")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -65176,6 +64727,15 @@ pub fn immunization_decoder() -> Decoder(Immunization) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Immunization",
+    decode.failure(
+      immunization_new(occurrence:, patient:, vaccine_code:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Immunization(
     protocol_applied:,
     reaction:,
@@ -65548,6 +65108,21 @@ pub fn immunizationevaluation_decoder() -> Decoder(Immunizationevaluation) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Immunizationevaluation",
+    decode.failure(
+      immunizationevaluation_new(
+        dose_status:,
+        immunization_event:,
+        target_disease:,
+        patient:,
+        status:,
+      ),
+      "resourceType",
+    ),
+  )
   decode.success(Immunizationevaluation(
     series_doses:,
     dose_number:,
@@ -65779,13 +65354,6 @@ pub fn immunizationrecommendation_recommendation_datecriterion_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("ImmunizationrecommendationRecommendationDatecriterion"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -65953,10 +65521,6 @@ pub fn immunizationrecommendation_recommendation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImmunizationrecommendationRecommendation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -66195,6 +65759,15 @@ pub fn immunizationrecommendation_decoder() -> Decoder(
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Immunizationrecommendation",
+    decode.failure(
+      immunizationrecommendation_new(date:, patient:),
+      "resourceType",
+    ),
+  )
   decode.success(Immunizationrecommendation(
     recommendation:,
     authority:,
@@ -66689,10 +66262,6 @@ pub fn implementationguide_manifest_page_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideManifestPage")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -66774,10 +66343,6 @@ pub fn implementationguide_manifest_resource_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideManifestResource")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -66872,10 +66437,6 @@ pub fn implementationguide_manifest_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideManifest")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -66956,10 +66517,6 @@ pub fn implementationguide_definition_template_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideDefinitionTemplate")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -67023,10 +66580,6 @@ pub fn implementationguide_definition_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideDefinitionParameter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -67086,10 +66639,6 @@ pub fn implementationguide_definition_page_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideDefinitionPage")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -67192,10 +66741,6 @@ pub fn implementationguide_definition_resource_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideDefinitionResource")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -67282,10 +66827,6 @@ pub fn implementationguide_definition_grouping_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideDefinitionGrouping")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -67394,10 +66935,6 @@ pub fn implementationguide_definition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideDefinition")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -67481,10 +67018,6 @@ pub fn implementationguide_global_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideGlobal")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -67550,10 +67083,6 @@ pub fn implementationguide_dependson_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ImplementationguideDependson")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -67882,6 +67411,15 @@ pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Implementationguide",
+    decode.failure(
+      implementationguide_new(package_id:, status:, name:, url:),
+      "resourceType",
+    ),
+  )
   decode.success(Implementationguide(
     manifest:,
     definition:,
@@ -68210,13 +67748,6 @@ pub fn ingredient_substance_strength_referencestrength_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("IngredientSubstanceStrengthReferencestrength"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -68351,10 +67882,6 @@ pub fn ingredient_substance_strength_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("IngredientSubstanceStrength")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -68452,7 +67979,6 @@ pub fn ingredient_substance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("IngredientSubstance")), ..fields]
   json.object(fields)
 }
 
@@ -68518,10 +68044,6 @@ pub fn ingredient_manufacturer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("IngredientManufacturer")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -68705,6 +68227,12 @@ pub fn ingredient_decoder() -> Decoder(Ingredient) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Ingredient",
+    decode.failure(ingredient_new(substance:, role:, status:), "resourceType"),
+  )
   decode.success(Ingredient(
     substance:,
     manufacturer:,
@@ -69048,10 +68576,6 @@ pub fn insuranceplan_plan_specificcost_benefit_cost_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("InsuranceplanPlanSpecificcostBenefitCost")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -69134,10 +68658,6 @@ pub fn insuranceplan_plan_specificcost_benefit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("InsuranceplanPlanSpecificcostBenefit")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -69208,10 +68728,6 @@ pub fn insuranceplan_plan_specificcost_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("InsuranceplanPlanSpecificcost")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -69288,10 +68804,6 @@ pub fn insuranceplan_plan_generalcost_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("InsuranceplanPlanGeneralcost")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -69407,7 +68919,6 @@ pub fn insuranceplan_plan_to_json(insuranceplan_plan: InsuranceplanPlan) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("InsuranceplanPlan")), ..fields]
   json.object(fields)
 }
 
@@ -69500,10 +69011,6 @@ pub fn insuranceplan_coverage_benefit_limit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("InsuranceplanCoverageBenefitLimit")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -69583,10 +69090,6 @@ pub fn insuranceplan_coverage_benefit_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("InsuranceplanCoverageBenefit")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -69665,10 +69168,6 @@ pub fn insuranceplan_coverage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("InsuranceplanCoverage")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -69749,10 +69248,6 @@ pub fn insuranceplan_contact_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("InsuranceplanContact")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -70035,6 +69530,12 @@ pub fn insuranceplan_decoder() -> Decoder(Insuranceplan) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Insuranceplan",
+    decode.failure(insuranceplan_new(), "resourceType"),
+  )
   decode.success(Insuranceplan(
     plan:,
     coverage:,
@@ -70265,10 +69766,6 @@ pub fn invoice_lineitem_pricecomponent_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("InvoiceLineitemPricecomponent")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -70357,7 +69854,6 @@ pub fn invoice_lineitem_to_json(invoice_lineitem: InvoiceLineitem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("InvoiceLineitem")), ..fields]
   json.object(fields)
 }
 
@@ -70421,7 +69917,6 @@ pub fn invoice_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("InvoiceParticipant")), ..fields]
   json.object(fields)
 }
 
@@ -70690,6 +70185,12 @@ pub fn invoice_decoder() -> Decoder(Invoice) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Invoice",
+    decode.failure(invoice_new(status:), "resourceType"),
+  )
   decode.success(Invoice(
     note:,
     payment_terms:,
@@ -71245,6 +70746,12 @@ pub fn library_decoder() -> Decoder(Library) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Library",
+    decode.failure(library_new(type_:, status:), "resourceType"),
+  )
   decode.success(Library(
     content:,
     data_requirement:,
@@ -71367,7 +70874,6 @@ pub fn linkage_item_to_json(linkage_item: LinkageItem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("LinkageItem")), ..fields]
   json.object(fields)
 }
 
@@ -71512,6 +71018,12 @@ pub fn linkage_decoder() -> Decoder(Linkage) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Linkage",
+    decode.failure(linkage_new(), "resourceType"),
+  )
   decode.success(Linkage(
     item:,
     author:,
@@ -71648,7 +71160,6 @@ pub fn list_entry_to_json(list_entry: ListEntry) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ListEntry")), ..fields]
   json.object(fields)
 }
 
@@ -71896,6 +71407,12 @@ pub fn listfhir_decoder() -> Decoder(Listfhir) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Listfhir",
+    decode.failure(listfhir_new(mode:, status:), "resourceType"),
+  )
   decode.success(Listfhir(
     empty_reason:,
     entry:,
@@ -72080,10 +71597,6 @@ pub fn location_hoursofoperation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("LocationHoursofoperation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -72162,7 +71675,6 @@ pub fn location_position_to_json(location_position: LocationPosition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("LocationPosition")), ..fields]
   json.object(fields)
 }
 
@@ -72455,6 +71967,12 @@ pub fn location_decoder() -> Decoder(Location) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Location",
+    decode.failure(location_new(), "resourceType"),
+  )
   decode.success(Location(
     endpoint:,
     availability_exceptions:,
@@ -72643,10 +72161,6 @@ pub fn manufactureditemdefinition_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ManufactureditemdefinitionProperty")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -72844,6 +72358,15 @@ pub fn manufactureditemdefinition_decoder() -> Decoder(
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Manufactureditemdefinition",
+    decode.failure(
+      manufactureditemdefinition_new(manufactured_dose_form:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Manufactureditemdefinition(
     property:,
     ingredient:,
@@ -73169,10 +72692,6 @@ pub fn measure_supplementaldata_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MeasureSupplementaldata")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -73252,10 +72771,6 @@ pub fn measure_group_stratifier_component_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MeasureGroupStratifierComponent")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -73344,10 +72859,6 @@ pub fn measure_group_stratifier_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MeasureGroupStratifier")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -73431,10 +72942,6 @@ pub fn measure_group_population_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MeasureGroupPopulation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -73519,7 +73026,6 @@ pub fn measure_group_to_json(measure_group: MeasureGroup) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("MeasureGroup")), ..fields]
   json.object(fields)
 }
 
@@ -74078,6 +73584,12 @@ pub fn measure_decoder() -> Decoder(Measure) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Measure",
+    decode.failure(measure_new(status:), "resourceType"),
+  )
   decode.success(Measure(
     supplemental_data:,
     group:,
@@ -74365,13 +73877,6 @@ pub fn measurereport_group_stratifier_stratum_population_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("MeasurereportGroupStratifierStratumPopulation"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -74439,13 +73944,6 @@ pub fn measurereport_group_stratifier_stratum_component_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("MeasurereportGroupStratifierStratumComponent"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -74536,10 +74034,6 @@ pub fn measurereport_group_stratifier_stratum_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MeasurereportGroupStratifierStratum")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -74628,10 +74122,6 @@ pub fn measurereport_group_stratifier_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MeasurereportGroupStratifier")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -74707,10 +74197,6 @@ pub fn measurereport_group_population_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MeasurereportGroupPopulation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -74805,7 +74291,6 @@ pub fn measurereport_group_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("MeasurereportGroup")), ..fields]
   json.object(fields)
 }
 
@@ -75029,6 +74514,15 @@ pub fn measurereport_decoder() -> Decoder(Measurereport) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Measurereport",
+    decode.failure(
+      measurereport_new(period:, measure:, type_:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Measurereport(
     evaluated_resource:,
     group:,
@@ -75450,6 +74944,12 @@ pub fn media_decoder() -> Decoder(Media) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Media",
+    decode.failure(media_new(content:, status:), "resourceType"),
+  )
   decode.success(Media(
     note:,
     content:,
@@ -75633,7 +75133,6 @@ pub fn medication_batch_to_json(medication_batch: MedicationBatch) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("MedicationBatch")), ..fields]
   json.object(fields)
 }
 
@@ -75705,10 +75204,6 @@ pub fn medication_ingredient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationIngredient")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -75916,6 +75411,12 @@ pub fn medication_decoder() -> Decoder(Medication) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Medication",
+    decode.failure(medication_new(), "resourceType"),
+  )
   decode.success(Medication(
     batch:,
     ingredient:,
@@ -76211,10 +75712,6 @@ pub fn medicationadministration_dosage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationadministrationDosage")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -76305,10 +75802,6 @@ pub fn medicationadministration_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationadministrationPerformer")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -76627,6 +76120,15 @@ pub fn medicationadministration_decoder() -> Decoder(Medicationadministration) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Medicationadministration",
+    decode.failure(
+      medicationadministration_new(effective:, subject:, medication:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Medicationadministration(
     event_history:,
     dosage:,
@@ -76896,10 +76398,6 @@ pub fn medicationdispense_substitution_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationdispenseSubstitution")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -76976,10 +76474,6 @@ pub fn medicationdispense_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationdispensePerformer")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -77370,6 +76864,12 @@ pub fn medicationdispense_decoder() -> Decoder(Medicationdispense) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Medicationdispense",
+    decode.failure(medicationdispense_new(medication:, status:), "resourceType"),
+  )
   decode.success(Medicationdispense(
     event_history:,
     detected_issue:,
@@ -78056,10 +77556,6 @@ pub fn medicationknowledge_kinetics_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeKinetics")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78134,10 +77630,6 @@ pub fn medicationknowledge_regulatory_maxdispense_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeRegulatoryMaxdispense")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78197,10 +77689,6 @@ pub fn medicationknowledge_regulatory_schedule_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeRegulatorySchedule")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78256,10 +77744,6 @@ pub fn medicationknowledge_regulatory_substitution_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeRegulatorySubstitution")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78348,10 +77832,6 @@ pub fn medicationknowledge_regulatory_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeRegulatory")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78447,10 +77927,6 @@ pub fn medicationknowledge_drugcharacteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeDrugcharacteristic")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78519,10 +77995,6 @@ pub fn medicationknowledge_packaging_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgePackaging")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78594,10 +78066,6 @@ pub fn medicationknowledge_medicineclassification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeMedicineclassification")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78667,15 +78135,6 @@ pub fn medicationknowledge_administrationguidelines_patientcharacteristics_to_js
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string(
-        "MedicationknowledgeAdministrationguidelinesPatientcharacteristics",
-      ),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78740,13 +78199,6 @@ pub fn medicationknowledge_administrationguidelines_dosage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("MedicationknowledgeAdministrationguidelinesDosage"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78849,13 +78301,6 @@ pub fn medicationknowledge_administrationguidelines_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("MedicationknowledgeAdministrationguidelines"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -78934,10 +78379,6 @@ pub fn medicationknowledge_monitoringprogram_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeMonitoringprogram")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -79008,10 +78449,6 @@ pub fn medicationknowledge_cost_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeCost")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -79081,10 +78518,6 @@ pub fn medicationknowledge_ingredient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeIngredient")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -79157,10 +78590,6 @@ pub fn medicationknowledge_monograph_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationknowledgeMonograph")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -79229,13 +78658,6 @@ pub fn medicationknowledge_relatedmedicationknowledge_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("MedicationknowledgeRelatedmedicationknowledge"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -79668,6 +79090,12 @@ pub fn medicationknowledge_decoder() -> Decoder(Medicationknowledge) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Medicationknowledge",
+    decode.failure(medicationknowledge_new(), "resourceType"),
+  )
   decode.success(Medicationknowledge(
     kinetics:,
     regulatory:,
@@ -79998,10 +79426,6 @@ pub fn medicationrequest_substitution_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationrequestSubstitution")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -80068,13 +79492,6 @@ pub fn medicationrequest_dispenserequest_initialfill_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("MedicationrequestDispenserequestInitialfill"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -80173,10 +79590,6 @@ pub fn medicationrequest_dispenserequest_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicationrequestDispenserequest")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -80680,6 +80093,15 @@ pub fn medicationrequest_decoder() -> Decoder(Medicationrequest) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Medicationrequest",
+    decode.failure(
+      medicationrequest_new(subject:, medication:, intent:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Medicationrequest(
     event_history:,
     detected_issue:,
@@ -81113,6 +80535,15 @@ pub fn medicationstatement_decoder() -> Decoder(Medicationstatement) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Medicationstatement",
+    decode.failure(
+      medicationstatement_new(subject:, medication:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Medicationstatement(
     dosage:,
     note:,
@@ -81494,10 +80925,6 @@ pub fn medicinalproductdefinition_characteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicinalproductdefinitionCharacteristic")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -81578,10 +81005,6 @@ pub fn medicinalproductdefinition_operation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicinalproductdefinitionOperation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -81662,10 +81085,6 @@ pub fn medicinalproductdefinition_crossreference_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicinalproductdefinitionCrossreference")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -81732,13 +81151,6 @@ pub fn medicinalproductdefinition_name_countrylanguage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("MedicinalproductdefinitionNameCountrylanguage"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -81802,10 +81214,6 @@ pub fn medicinalproductdefinition_name_namepart_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicinalproductdefinitionNameNamepart")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -81891,10 +81299,6 @@ pub fn medicinalproductdefinition_name_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicinalproductdefinitionName")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -81971,10 +81375,6 @@ pub fn medicinalproductdefinition_contact_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MedicinalproductdefinitionContact")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -82453,6 +81853,12 @@ pub fn medicinalproductdefinition_decoder() -> Decoder(
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Medicinalproductdefinition",
+    decode.failure(medicinalproductdefinition_new(), "resourceType"),
+  )
   decode.success(Medicinalproductdefinition(
     characteristic:,
     operation:,
@@ -82679,10 +82085,6 @@ pub fn messagedefinition_allowedresponse_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MessagedefinitionAllowedresponse")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -82754,10 +82156,6 @@ pub fn messagedefinition_focus_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MessagedefinitionFocus")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -83112,6 +82510,15 @@ pub fn messagedefinition_decoder() -> Decoder(Messagedefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Messagedefinition",
+    decode.failure(
+      messagedefinition_new(event:, date:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Messagedefinition(
     graph:,
     allowed_response:,
@@ -83340,10 +82747,6 @@ pub fn messageheader_response_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MessageheaderResponse")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -83423,7 +82826,6 @@ pub fn messageheader_source_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("MessageheaderSource")), ..fields]
   json.object(fields)
 }
 
@@ -83514,10 +82916,6 @@ pub fn messageheader_destination_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MessageheaderDestination")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -83751,6 +83149,12 @@ pub fn messageheader_decoder() -> Decoder(Messageheader) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Messageheader",
+    decode.failure(messageheader_new(source:, event:), "resourceType"),
+  )
   decode.success(Messageheader(
     definition:,
     focus:,
@@ -84113,10 +83517,6 @@ pub fn molecularsequence_structurevariant_inner_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MolecularsequenceStructurevariantInner")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -84179,10 +83579,6 @@ pub fn molecularsequence_structurevariant_outer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MolecularsequenceStructurevariantOuter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -84266,10 +83662,6 @@ pub fn molecularsequence_structurevariant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MolecularsequenceStructurevariant")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -84376,10 +83768,6 @@ pub fn molecularsequence_repository_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MolecularsequenceRepository")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -84491,10 +83879,6 @@ pub fn molecularsequence_quality_roc_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MolecularsequenceQualityRoc")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -84642,10 +84026,6 @@ pub fn molecularsequence_quality_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MolecularsequenceQuality")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -84800,10 +84180,6 @@ pub fn molecularsequence_variant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MolecularsequenceVariant")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -84926,10 +84302,6 @@ pub fn molecularsequence_referenceseq_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("MolecularsequenceReferenceseq")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -85274,6 +84646,12 @@ pub fn molecularsequence_decoder() -> Decoder(Molecularsequence) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Molecularsequence",
+    decode.failure(molecularsequence_new(coordinate_system:), "resourceType"),
+  )
   decode.success(Molecularsequence(
     structure_variant:,
     pointer:,
@@ -85434,10 +84812,6 @@ pub fn namingsystem_uniqueid_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NamingsystemUniqueid")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -85685,6 +85059,15 @@ pub fn namingsystem_decoder() -> Decoder(Namingsystem) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Namingsystem",
+    decode.failure(
+      namingsystem_new(date:, kind:, status:, name:),
+      "resourceType",
+    ),
+  )
   decode.success(Namingsystem(
     unique_id:,
     usage:,
@@ -86011,10 +85394,6 @@ pub fn nutritionorder_enteralformula_administration_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NutritionorderEnteralformulaAdministration")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -86136,10 +85515,6 @@ pub fn nutritionorder_enteralformula_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NutritionorderEnteralformula")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -86267,10 +85642,6 @@ pub fn nutritionorder_supplement_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NutritionorderSupplement")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -86357,10 +85728,6 @@ pub fn nutritionorder_oraldiet_texture_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NutritionorderOraldietTexture")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -86431,10 +85798,6 @@ pub fn nutritionorder_oraldiet_nutrient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NutritionorderOraldietNutrient")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -86540,10 +85903,6 @@ pub fn nutritionorder_oraldiet_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NutritionorderOraldiet")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -86866,6 +86225,15 @@ pub fn nutritionorder_decoder() -> Decoder(Nutritionorder) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Nutritionorder",
+    decode.failure(
+      nutritionorder_new(date_time:, patient:, intent:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Nutritionorder(
     note:,
     enteral_formula:,
@@ -87140,10 +86508,6 @@ pub fn nutritionproduct_instance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NutritionproductInstance")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -87225,10 +86589,6 @@ pub fn nutritionproduct_productcharacteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NutritionproductProductcharacteristic")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -87291,10 +86651,6 @@ pub fn nutritionproduct_ingredient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NutritionproductIngredient")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -87361,10 +86717,6 @@ pub fn nutritionproduct_nutrient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("NutritionproductNutrient")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -87611,6 +86963,12 @@ pub fn nutritionproduct_decoder() -> Decoder(Nutritionproduct) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Nutritionproduct",
+    decode.failure(nutritionproduct_new(status:), "resourceType"),
+  )
   decode.success(Nutritionproduct(
     note:,
     instance:,
@@ -87995,10 +87353,6 @@ pub fn observation_component_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ObservationComponent")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -88096,10 +87450,6 @@ pub fn observation_referencerange_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ObservationReferencerange")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -88516,6 +87866,12 @@ pub fn observation_decoder() -> Decoder(Observation) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Observation",
+    decode.failure(observation_new(code:, status:), "resourceType"),
+  )
   decode.success(Observation(
     component:,
     derived_from:,
@@ -88738,10 +88094,6 @@ pub fn observationdefinition_qualifiedinterval_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ObservationdefinitionQualifiedinterval")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -88858,10 +88210,6 @@ pub fn observationdefinition_quantitativedetails_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ObservationdefinitionQuantitativedetails")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -89151,6 +88499,12 @@ pub fn observationdefinition_decoder() -> Decoder(Observationdefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Observationdefinition",
+    decode.failure(observationdefinition_new(code:), "resourceType"),
+  )
   decode.success(Observationdefinition(
     critical_coded_value_set:,
     abnormal_coded_value_set:,
@@ -89407,10 +88761,6 @@ pub fn operationdefinition_overload_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("OperationdefinitionOverload")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -89479,10 +88829,6 @@ pub fn operationdefinition_parameter_referencedfrom_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("OperationdefinitionParameterReferencedfrom")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -89544,10 +88890,6 @@ pub fn operationdefinition_parameter_binding_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("OperationdefinitionParameterBinding")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -89657,10 +88999,6 @@ pub fn operationdefinition_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("OperationdefinitionParameter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -90045,6 +89383,23 @@ pub fn operationdefinition_decoder() -> Decoder(Operationdefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Operationdefinition",
+    decode.failure(
+      operationdefinition_new(
+        instance:,
+        type_:,
+        system:,
+        code:,
+        kind:,
+        status:,
+        name:,
+      ),
+      "resourceType",
+    ),
+  )
   decode.success(Operationdefinition(
     overload:,
     parameter:,
@@ -90193,10 +89548,6 @@ pub fn operationoutcome_issue_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("OperationoutcomeIssue")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -90348,6 +89699,12 @@ pub fn operationoutcome_decoder() -> Decoder(Operationoutcome) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Operationoutcome",
+    decode.failure(operationoutcome_new(), "resourceType"),
+  )
   decode.success(Operationoutcome(
     issue:,
     modifier_extension:,
@@ -90477,7 +89834,6 @@ pub fn organization_contact_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("OrganizationContact")), ..fields]
   json.object(fields)
 }
 
@@ -90711,6 +90067,12 @@ pub fn organization_decoder() -> Decoder(Organization) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Organization",
+    decode.failure(organization_new(), "resourceType"),
+  )
   decode.success(Organization(
     endpoint:,
     contact:,
@@ -91003,6 +90365,12 @@ pub fn organizationaffiliation_decoder() -> Decoder(Organizationaffiliation) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Organizationaffiliation",
+    decode.failure(organizationaffiliation_new(), "resourceType"),
+  )
   decode.success(Organizationaffiliation(
     endpoint:,
     telecom:,
@@ -91326,13 +90694,6 @@ pub fn packagedproductdefinition_package_containeditem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("PackagedproductdefinitionPackageContaineditem"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -91412,10 +90773,6 @@ pub fn packagedproductdefinition_package_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PackagedproductdefinitionPackageProperty")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -91503,13 +90860,6 @@ pub fn packagedproductdefinition_package_shelflifestorage_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("PackagedproductdefinitionPackageShelflifestorage"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -91657,10 +91007,6 @@ pub fn packagedproductdefinition_package_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PackagedproductdefinitionPackage")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -91773,13 +91119,6 @@ pub fn packagedproductdefinition_legalstatusofsupply_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("PackagedproductdefinitionLegalstatusofsupply"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -92079,6 +91418,12 @@ pub fn packagedproductdefinition_decoder() -> Decoder(Packagedproductdefinition)
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Packagedproductdefinition",
+    decode.failure(packagedproductdefinition_new(), "resourceType"),
+  )
   decode.success(Packagedproductdefinition(
     package:,
     manufacturer:,
@@ -92486,7 +91831,6 @@ pub fn parameters_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ParametersParameter")), ..fields]
   json.object(fields)
 }
 
@@ -92574,6 +91918,12 @@ pub fn parameters_decoder() -> Decoder(Parameters) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Parameters",
+    decode.failure(parameters_new(), "resourceType"),
+  )
   decode.success(Parameters(parameter:, language:, implicit_rules:, meta:, id:))
 }
 
@@ -92778,7 +92128,6 @@ pub fn patient_link_to_json(patient_link: PatientLink) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("PatientLink")), ..fields]
   json.object(fields)
 }
 
@@ -92837,10 +92186,6 @@ pub fn patient_communication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PatientCommunication")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -92934,7 +92279,6 @@ pub fn patient_contact_to_json(patient_contact: PatientContact) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("PatientContact")), ..fields]
   json.object(fields)
 }
 
@@ -93276,6 +92620,12 @@ pub fn patient_decoder() -> Decoder(Patient) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Patient",
+    decode.failure(patient_new(), "resourceType"),
+  )
   decode.success(Patient(
     link:,
     managing_organization:,
@@ -93535,6 +92885,15 @@ pub fn paymentnotice_decoder() -> Decoder(Paymentnotice) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Paymentnotice",
+    decode.failure(
+      paymentnotice_new(amount:, recipient:, payment:, created:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Paymentnotice(
     payment_status:,
     amount:,
@@ -93715,10 +93074,6 @@ pub fn paymentreconciliation_processnote_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PaymentreconciliationProcessnote")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -93827,10 +93182,6 @@ pub fn paymentreconciliation_detail_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PaymentreconciliationDetail")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -94139,6 +93490,20 @@ pub fn paymentreconciliation_decoder() -> Decoder(Paymentreconciliation) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Paymentreconciliation",
+    decode.failure(
+      paymentreconciliation_new(
+        payment_amount:,
+        payment_date:,
+        created:,
+        status:,
+      ),
+      "resourceType",
+    ),
+  )
   decode.success(Paymentreconciliation(
     process_note:,
     form_code:,
@@ -94262,7 +93627,6 @@ pub fn person_link_to_json(person_link: PersonLink) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("PersonLink")), ..fields]
   json.object(fields)
 }
 
@@ -94484,6 +93848,12 @@ pub fn person_decoder() -> Decoder(Person) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Person",
+    decode.failure(person_new(), "resourceType"),
+  )
   decode.success(Person(
     link:,
     active:,
@@ -95054,10 +94424,6 @@ pub fn plandefinition_action_dynamicvalue_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PlandefinitionActionDynamicvalue")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -95126,10 +94492,6 @@ pub fn plandefinition_action_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PlandefinitionActionParticipant")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -95209,10 +94571,6 @@ pub fn plandefinition_action_relatedaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PlandefinitionActionRelatedaction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -95280,10 +94638,6 @@ pub fn plandefinition_action_condition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PlandefinitionActionCondition")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -95556,10 +94910,6 @@ pub fn plandefinition_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PlandefinitionAction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -95778,10 +95128,6 @@ pub fn plandefinition_goal_target_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PlandefinitionGoalTarget")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -95886,7 +95232,6 @@ pub fn plandefinition_goal_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("PlandefinitionGoal")), ..fields]
   json.object(fields)
 }
 
@@ -96357,6 +95702,12 @@ pub fn plandefinition_decoder() -> Decoder(Plandefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Plandefinition",
+    decode.failure(plandefinition_new(status:), "resourceType"),
+  )
   decode.success(Plandefinition(
     action:,
     goal:,
@@ -96516,10 +95867,6 @@ pub fn practitioner_qualification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PractitionerQualification")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -96764,6 +96111,12 @@ pub fn practitioner_decoder() -> Decoder(Practitioner) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Practitioner",
+    decode.failure(practitioner_new(), "resourceType"),
+  )
   decode.success(Practitioner(
     communication:,
     qualification:,
@@ -96921,10 +96274,6 @@ pub fn practitionerrole_notavailable_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PractitionerroleNotavailable")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -97004,10 +96353,6 @@ pub fn practitionerrole_availabletime_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("PractitionerroleAvailabletime")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -97302,6 +96647,12 @@ pub fn practitionerrole_decoder() -> Decoder(Practitionerrole) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Practitionerrole",
+    decode.failure(practitionerrole_new(), "resourceType"),
+  )
   decode.success(Practitionerrole(
     endpoint:,
     availability_exceptions:,
@@ -97528,10 +96879,6 @@ pub fn procedure_focaldevice_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ProcedureFocaldevice")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -97599,7 +96946,6 @@ pub fn procedure_performer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ProcedurePerformer")), ..fields]
   json.object(fields)
 }
 
@@ -98042,6 +97388,12 @@ pub fn procedure_decoder() -> Decoder(Procedure) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Procedure",
+    decode.failure(procedure_new(subject:, status:), "resourceType"),
+  )
   decode.success(Procedure(
     used_code:,
     used_reference:,
@@ -98224,7 +97576,6 @@ pub fn provenance_entity_to_json(provenance_entity: ProvenanceEntity) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ProvenanceEntity")), ..fields]
   json.object(fields)
 }
 
@@ -98291,7 +97642,6 @@ pub fn provenance_agent_to_json(provenance_agent: ProvenanceAgent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ProvenanceAgent")), ..fields]
   json.object(fields)
 }
 
@@ -98518,6 +97868,12 @@ pub fn provenance_decoder() -> Decoder(Provenance) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Provenance",
+    decode.failure(provenance_new(recorded:), "resourceType"),
+  )
   decode.success(Provenance(
     signature:,
     entity:,
@@ -98929,10 +98285,6 @@ pub fn questionnaire_item_initial_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("QuestionnaireItemInitial")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -98989,10 +98341,6 @@ pub fn questionnaire_item_answeroption_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("QuestionnaireItemAnsweroption")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -99056,10 +98404,6 @@ pub fn questionnaire_item_enablewhen_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("QuestionnaireItemEnablewhen")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -99203,7 +98547,6 @@ pub fn questionnaire_item_to_json(questionnaire_item: QuestionnaireItem) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("QuestionnaireItem")), ..fields]
   json.object(fields)
 }
 
@@ -99610,6 +98953,12 @@ pub fn questionnaire_decoder() -> Decoder(Questionnaire) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Questionnaire",
+    decode.failure(questionnaire_new(status:), "resourceType"),
+  )
   decode.success(Questionnaire(
     item:,
     code:,
@@ -99858,10 +99207,6 @@ pub fn questionnaireresponse_item_answer_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("QuestionnaireresponseItemAnswer")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -99935,10 +99280,6 @@ pub fn questionnaireresponse_item_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("QuestionnaireresponseItem")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -100186,6 +99527,12 @@ pub fn questionnaireresponse_decoder() -> Decoder(Questionnaireresponse) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Questionnaireresponse",
+    decode.failure(questionnaireresponse_new(status:), "resourceType"),
+  )
   decode.success(Questionnaireresponse(
     item:,
     source:,
@@ -100371,10 +99718,6 @@ pub fn regulatedauthorization_case_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("RegulatedauthorizationCase")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -100654,6 +99997,12 @@ pub fn regulatedauthorization_decoder() -> Decoder(Regulatedauthorization) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Regulatedauthorization",
+    decode.failure(regulatedauthorization_new(), "resourceType"),
+  )
   decode.success(Regulatedauthorization(
     case_:,
     regulator:,
@@ -100786,10 +100135,6 @@ pub fn relatedperson_communication_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("RelatedpersonCommunication")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -101036,6 +100381,12 @@ pub fn relatedperson_decoder() -> Decoder(Relatedperson) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Relatedperson",
+    decode.failure(relatedperson_new(patient:), "resourceType"),
+  )
   decode.success(Relatedperson(
     communication:,
     period:,
@@ -101340,10 +100691,6 @@ pub fn requestgroup_action_relatedaction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("RequestgroupActionRelatedaction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -101411,10 +100758,6 @@ pub fn requestgroup_action_condition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("RequestgroupActionCondition")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -101614,7 +100957,6 @@ pub fn requestgroup_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("RequestgroupAction")), ..fields]
   json.object(fields)
 }
 
@@ -102019,6 +101361,12 @@ pub fn requestgroup_decoder() -> Decoder(Requestgroup) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Requestgroup",
+    decode.failure(requestgroup_new(intent:, status:), "resourceType"),
+  )
   decode.success(Requestgroup(
     action:,
     note:,
@@ -102612,6 +101960,12 @@ pub fn researchdefinition_decoder() -> Decoder(Researchdefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Researchdefinition",
+    decode.failure(researchdefinition_new(population:, status:), "resourceType"),
+  )
   decode.success(Researchdefinition(
     outcome:,
     exposure_alternative:,
@@ -103152,10 +102506,6 @@ pub fn researchelementdefinition_characteristic_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ResearchelementdefinitionCharacteristic")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -103689,6 +103039,15 @@ pub fn researchelementdefinition_decoder() -> Decoder(Researchelementdefinition)
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Researchelementdefinition",
+    decode.failure(
+      researchelementdefinition_new(type_:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Researchelementdefinition(
     characteristic:,
     variable_type:,
@@ -103889,10 +103248,6 @@ pub fn researchstudy_objective_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ResearchstudyObjective")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -103962,7 +103317,6 @@ pub fn researchstudy_arm_to_json(researchstudy_arm: ResearchstudyArm) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ResearchstudyArm")), ..fields]
   json.object(fields)
 }
 
@@ -104342,6 +103696,12 @@ pub fn researchstudy_decoder() -> Decoder(Researchstudy) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Researchstudy",
+    decode.failure(researchstudy_new(status:), "resourceType"),
+  )
   decode.success(Researchstudy(
     objective:,
     arm:,
@@ -104576,6 +103936,15 @@ pub fn researchsubject_decoder() -> Decoder(Researchsubject) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Researchsubject",
+    decode.failure(
+      researchsubject_new(individual:, study:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Researchsubject(
     consent:,
     actual_arm:,
@@ -104843,10 +104212,6 @@ pub fn riskassessment_prediction_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("RiskassessmentPrediction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -105163,6 +104528,12 @@ pub fn riskassessment_decoder() -> Decoder(Riskassessment) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Riskassessment",
+    decode.failure(riskassessment_new(subject:, status:), "resourceType"),
+  )
   decode.success(Riskassessment(
     note:,
     mitigation:,
@@ -105415,6 +104786,12 @@ pub fn schedule_decoder() -> Decoder(Schedule) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Schedule",
+    decode.failure(schedule_new(), "resourceType"),
+  )
   decode.success(Schedule(
     comment:,
     planning_horizon:,
@@ -105574,10 +104951,6 @@ pub fn searchparameter_component_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SearchparameterComponent")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -105937,6 +105310,15 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Searchparameter",
+    decode.failure(
+      searchparameter_new(type_:, code:, description:, status:, name:, url:),
+      "resourceType",
+    ),
+  )
   decode.success(Searchparameter(
     component:,
     chain:,
@@ -106619,6 +106001,15 @@ pub fn servicerequest_decoder() -> Decoder(Servicerequest) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Servicerequest",
+    decode.failure(
+      servicerequest_new(subject:, intent:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Servicerequest(
     relevant_history:,
     patient_instruction:,
@@ -106901,6 +106292,12 @@ pub fn slot_decoder() -> Decoder(Slot) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Slot",
+    decode.failure(slot_new(end:, start:, status:, schedule:), "resourceType"),
+  )
   decode.success(Slot(
     comment:,
     overbooked:,
@@ -107243,7 +106640,6 @@ pub fn specimen_container_to_json(specimen_container: SpecimenContainer) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("SpecimenContainer")), ..fields]
   json.object(fields)
 }
 
@@ -107354,7 +106750,6 @@ pub fn specimen_processing_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("SpecimenProcessing")), ..fields]
   json.object(fields)
 }
 
@@ -107476,7 +106871,6 @@ pub fn specimen_collection_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("SpecimenCollection")), ..fields]
   json.object(fields)
 }
 
@@ -107764,6 +107158,12 @@ pub fn specimen_decoder() -> Decoder(Specimen) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Specimen",
+    decode.failure(specimen_new(), "resourceType"),
+  )
   decode.success(Specimen(
     note:,
     condition:,
@@ -108062,10 +107462,6 @@ pub fn specimendefinition_typetested_handling_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SpecimendefinitionTypetestedHandling")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -108146,13 +107542,6 @@ pub fn specimendefinition_typetested_container_additive_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("SpecimendefinitionTypetestedContainerAdditive"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -108266,10 +107655,6 @@ pub fn specimendefinition_typetested_container_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SpecimendefinitionTypetestedContainer")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -108422,10 +107807,6 @@ pub fn specimendefinition_typetested_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SpecimendefinitionTypetested")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -108662,6 +108043,12 @@ pub fn specimendefinition_decoder() -> Decoder(Specimendefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Specimendefinition",
+    decode.failure(specimendefinition_new(), "resourceType"),
+  )
   decode.success(Specimendefinition(
     type_tested:,
     collection:,
@@ -108889,10 +108276,6 @@ pub fn structuredefinition_differential_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuredefinitionDifferential")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -108955,10 +108338,6 @@ pub fn structuredefinition_snapshot_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuredefinitionSnapshot")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -109018,10 +108397,6 @@ pub fn structuredefinition_context_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuredefinitionContext")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -109092,10 +108467,6 @@ pub fn structuredefinition_mapping_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuredefinitionMapping")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -109482,6 +108853,15 @@ pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Structuredefinition",
+    decode.failure(
+      structuredefinition_new(type_:, abstract:, kind:, status:, name:, url:),
+      "resourceType",
+    ),
+  )
   decode.success(Structuredefinition(
     differential:,
     snapshot:,
@@ -110201,10 +109581,6 @@ pub fn structuremap_group_rule_dependent_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuremapGroupRuleDependent")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -110264,10 +109640,6 @@ pub fn structuremap_group_rule_target_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuremapGroupRuleTargetParameter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -110375,10 +109747,6 @@ pub fn structuremap_group_rule_target_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuremapGroupRuleTarget")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -110598,10 +109966,6 @@ pub fn structuremap_group_rule_source_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuremapGroupRuleSource")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -110737,10 +110101,6 @@ pub fn structuremap_group_rule_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuremapGroupRule")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -110828,10 +110188,6 @@ pub fn structuremap_group_input_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuremapGroupInput")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -110923,7 +110279,6 @@ pub fn structuremap_group_to_json(structuremap_group: StructuremapGroup) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("StructuremapGroup")), ..fields]
   json.object(fields)
 }
 
@@ -111016,10 +110371,6 @@ pub fn structuremap_structure_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("StructuremapStructure")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -111311,6 +110662,12 @@ pub fn structuremap_decoder() -> Decoder(Structuremap) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Structuremap",
+    decode.failure(structuremap_new(status:, name:, url:), "resourceType"),
+  )
   decode.success(Structuremap(
     group:,
     import_:,
@@ -111456,7 +110813,6 @@ pub fn subscription_channel_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("SubscriptionChannel")), ..fields]
   json.object(fields)
 }
 
@@ -111628,6 +110984,15 @@ pub fn subscription_decoder() -> Decoder(Subscription) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Subscription",
+    decode.failure(
+      subscription_new(channel:, criteria:, reason:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Subscription(
     channel:,
     error:,
@@ -111763,10 +111128,6 @@ pub fn subscriptionstatus_notificationevent_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubscriptionstatusNotificationevent")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -111973,6 +111334,15 @@ pub fn subscriptionstatus_decoder() -> Decoder(Subscriptionstatus) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Subscriptionstatus",
+    decode.failure(
+      subscriptionstatus_new(subscription:, type_:),
+      "resourceType",
+    ),
+  )
   decode.success(Subscriptionstatus(
     error:,
     topic:,
@@ -112239,10 +111609,6 @@ pub fn subscriptiontopic_notificationshape_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubscriptiontopicNotificationshape")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -112334,10 +111700,6 @@ pub fn subscriptiontopic_canfilterby_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubscriptiontopicCanfilterby")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -112422,10 +111784,6 @@ pub fn subscriptiontopic_eventtrigger_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubscriptiontopicEventtrigger")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -112515,13 +111873,6 @@ pub fn subscriptiontopic_resourcetrigger_querycriteria_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("SubscriptiontopicResourcetriggerQuerycriteria"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -112638,10 +111989,6 @@ pub fn subscriptiontopic_resourcetrigger_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubscriptiontopicResourcetrigger")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -113020,6 +112367,12 @@ pub fn subscriptiontopic_decoder() -> Decoder(Subscriptiontopic) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Subscriptiontopic",
+    decode.failure(subscriptiontopic_new(status:, url:), "resourceType"),
+  )
   decode.success(Subscriptiontopic(
     notification_shape:,
     can_filter_by:,
@@ -113205,7 +112558,6 @@ pub fn substance_ingredient_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("SubstanceIngredient")), ..fields]
   json.object(fields)
 }
 
@@ -113273,7 +112625,6 @@ pub fn substance_instance_to_json(substance_instance: SubstanceInstance) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("SubstanceInstance")), ..fields]
   json.object(fields)
 }
 
@@ -113475,6 +112826,12 @@ pub fn substance_decoder() -> Decoder(Substance) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Substance",
+    decode.failure(substance_new(code:), "resourceType"),
+  )
   decode.success(Substance(
     ingredient:,
     instance:,
@@ -114049,10 +113406,6 @@ pub fn substancedefinition_sourcematerial_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubstancedefinitionSourcematerial")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -114187,10 +113540,6 @@ pub fn substancedefinition_relationship_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubstancedefinitionRelationship")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -114290,10 +113639,6 @@ pub fn substancedefinition_name_official_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubstancedefinitionNameOfficial")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -114415,10 +113760,6 @@ pub fn substancedefinition_name_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubstancedefinitionName")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -114540,10 +113881,6 @@ pub fn substancedefinition_code_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubstancedefinitionCode")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -114640,10 +113977,6 @@ pub fn substancedefinition_structure_representation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubstancedefinitionStructureRepresentation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -114766,10 +114099,6 @@ pub fn substancedefinition_structure_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubstancedefinitionStructure")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -114873,10 +114202,6 @@ pub fn substancedefinition_molecularweight_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubstancedefinitionMolecularweight")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -114961,10 +114286,6 @@ pub fn substancedefinition_property_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubstancedefinitionProperty")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -115069,10 +114390,6 @@ pub fn substancedefinition_moiety_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SubstancedefinitionMoiety")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -115465,6 +114782,12 @@ pub fn substancedefinition_decoder() -> Decoder(Substancedefinition) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Substancedefinition",
+    decode.failure(substancedefinition_new(), "resourceType"),
+  )
   decode.success(Substancedefinition(
     source_material:,
     relationship:,
@@ -115671,10 +114994,6 @@ pub fn supplydelivery_supplieditem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SupplydeliverySupplieditem")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -115922,6 +115241,12 @@ pub fn supplydelivery_decoder() -> Decoder(Supplydelivery) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Supplydelivery",
+    decode.failure(supplydelivery_new(), "resourceType"),
+  )
   decode.success(Supplydelivery(
     receiver:,
     destination:,
@@ -116168,10 +115493,6 @@ pub fn supplyrequest_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("SupplyrequestParameter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -116453,6 +115774,12 @@ pub fn supplyrequest_decoder() -> Decoder(Supplyrequest) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Supplyrequest",
+    decode.failure(supplyrequest_new(quantity:, item:), "resourceType"),
+  )
   decode.success(Supplyrequest(
     deliver_to:,
     deliver_from:,
@@ -117133,7 +116460,6 @@ pub fn task_output_to_json(task_output: TaskOutput) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TaskOutput")), ..fields]
   json.object(fields)
 }
 
@@ -117182,7 +116508,6 @@ pub fn task_input_to_json(task_input: TaskInput) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TaskInput")), ..fields]
   json.object(fields)
 }
 
@@ -117240,7 +116565,6 @@ pub fn task_restriction_to_json(task_restriction: TaskRestriction) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TaskRestriction")), ..fields]
   json.object(fields)
 }
 
@@ -117675,6 +116999,12 @@ pub fn task_decoder() -> Decoder(Task) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Task",
+    decode.failure(task_new(intent:, status:), "resourceType"),
+  )
   decode.success(Task(
     output:,
     input:,
@@ -118058,10 +117388,6 @@ pub fn terminologycapabilities_closure_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TerminologycapabilitiesClosure")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -118119,10 +117445,6 @@ pub fn terminologycapabilities_translation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TerminologycapabilitiesTranslation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -118176,10 +117498,6 @@ pub fn terminologycapabilities_validatecode_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TerminologycapabilitiesValidatecode")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -118238,10 +117556,6 @@ pub fn terminologycapabilities_expansion_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TerminologycapabilitiesExpansionParameter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -118332,10 +117646,6 @@ pub fn terminologycapabilities_expansion_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TerminologycapabilitiesExpansion")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -118422,13 +117732,6 @@ pub fn terminologycapabilities_codesystem_version_filter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("TerminologycapabilitiesCodesystemVersionFilter"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -118520,10 +117823,6 @@ pub fn terminologycapabilities_codesystem_version_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TerminologycapabilitiesCodesystemVersion")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -118629,10 +117928,6 @@ pub fn terminologycapabilities_codesystem_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TerminologycapabilitiesCodesystem")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -118703,10 +117998,6 @@ pub fn terminologycapabilities_implementation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TerminologycapabilitiesImplementation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -118767,10 +118058,6 @@ pub fn terminologycapabilities_software_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TerminologycapabilitiesSoftware")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -119148,6 +118435,15 @@ pub fn terminologycapabilities_decoder() -> Decoder(Terminologycapabilities) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Terminologycapabilities",
+    decode.failure(
+      terminologycapabilities_new(kind:, date:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Terminologycapabilities(
     closure:,
     translation:,
@@ -119439,10 +118735,6 @@ pub fn testreport_teardown_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestreportTeardownAction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -119489,7 +118781,6 @@ pub fn testreport_teardown_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TestreportTeardown")), ..fields]
   json.object(fields)
 }
 
@@ -119539,10 +118830,6 @@ pub fn testreport_test_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestreportTestAction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -119601,7 +118888,6 @@ pub fn testreport_test_to_json(testreport_test: TestreportTest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TestreportTest")), ..fields]
   json.object(fields)
 }
 
@@ -119679,10 +118965,6 @@ pub fn testreport_setup_action_assert_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestreportSetupActionAssert")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -119761,10 +119043,6 @@ pub fn testreport_setup_action_operation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestreportSetupActionOperation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -119846,10 +119124,6 @@ pub fn testreport_setup_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestreportSetupAction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -119910,7 +119184,6 @@ pub fn testreport_setup_to_json(testreport_setup: TestreportSetup) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TestreportSetup")), ..fields]
   json.object(fields)
 }
 
@@ -119968,10 +119241,6 @@ pub fn testreport_participant_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestreportParticipant")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -120198,6 +119467,15 @@ pub fn testreport_decoder() -> Decoder(Testreport) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Testreport",
+    decode.failure(
+      testreport_new(result:, test_script:, status:),
+      "resourceType",
+    ),
+  )
   decode.success(Testreport(
     teardown:,
     test_:,
@@ -120749,10 +120027,6 @@ pub fn testscript_teardown_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestscriptTeardownAction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -120799,7 +120073,6 @@ pub fn testscript_teardown_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TestscriptTeardown")), ..fields]
   json.object(fields)
 }
 
@@ -120849,10 +120122,6 @@ pub fn testscript_test_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestscriptTestAction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -120911,7 +120180,6 @@ pub fn testscript_test_to_json(testscript_test: TestscriptTest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TestscriptTest")), ..fields]
   json.object(fields)
 }
 
@@ -121096,10 +120364,6 @@ pub fn testscript_setup_action_assert_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestscriptSetupActionAssert")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -121281,13 +120545,6 @@ pub fn testscript_setup_action_operation_requestheader_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #(
-      "resourceType",
-      json.string("TestscriptSetupActionOperationRequestheader"),
-    ),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -121432,10 +120689,6 @@ pub fn testscript_setup_action_operation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestscriptSetupActionOperation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -121594,10 +120847,6 @@ pub fn testscript_setup_action_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestscriptSetupAction")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -121658,7 +120907,6 @@ pub fn testscript_setup_to_json(testscript_setup: TestscriptSetup) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TestscriptSetup")), ..fields]
   json.object(fields)
 }
 
@@ -121744,7 +120992,6 @@ pub fn testscript_variable_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TestscriptVariable")), ..fields]
   json.object(fields)
 }
 
@@ -121843,7 +121090,6 @@ pub fn testscript_fixture_to_json(testscript_fixture: TestscriptFixture) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TestscriptFixture")), ..fields]
   json.object(fields)
 }
 
@@ -121927,10 +121173,6 @@ pub fn testscript_metadata_capability_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestscriptMetadataCapability")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -122009,10 +121251,6 @@ pub fn testscript_metadata_link_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestscriptMetadataLink")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -122086,7 +121324,6 @@ pub fn testscript_metadata_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TestscriptMetadata")), ..fields]
   json.object(fields)
 }
 
@@ -122150,10 +121387,6 @@ pub fn testscript_destination_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("TestscriptDestination")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -122202,7 +121435,6 @@ pub fn testscript_origin_to_json(testscript_origin: TestscriptOrigin) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("TestscriptOrigin")), ..fields]
   json.object(fields)
 }
 
@@ -122552,6 +121784,12 @@ pub fn testscript_decoder() -> Decoder(Testscript) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Testscript",
+    decode.failure(testscript_new(status:, name:, url:), "resourceType"),
+  )
   decode.success(Testscript(
     teardown:,
     test_:,
@@ -122961,10 +122199,6 @@ pub fn valueset_expansion_contains_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ValuesetExpansionContains")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -123072,10 +122306,6 @@ pub fn valueset_expansion_parameter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ValuesetExpansionParameter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -123165,7 +122395,6 @@ pub fn valueset_expansion_to_json(valueset_expansion: ValuesetExpansion) -> Json
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ValuesetExpansion")), ..fields]
   json.object(fields)
 }
 
@@ -123247,10 +122476,6 @@ pub fn valueset_compose_include_filter_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ValuesetComposeIncludeFilter")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -123318,10 +122543,6 @@ pub fn valueset_compose_include_concept_designation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ValuesetComposeIncludeConceptDesignation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -123406,10 +122627,6 @@ pub fn valueset_compose_include_concept_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ValuesetComposeIncludeConcept")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -123506,10 +122723,6 @@ pub fn valueset_compose_include_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("ValuesetComposeInclude")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -123602,7 +122815,6 @@ pub fn valueset_compose_to_json(valueset_compose: ValuesetCompose) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("ValuesetCompose")), ..fields]
   json.object(fields)
 }
 
@@ -123907,6 +123119,12 @@ pub fn valueset_decoder() -> Decoder(Valueset) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Valueset",
+    decode.failure(valueset_new(status:), "resourceType"),
+  )
   decode.success(Valueset(
     expansion:,
     compose:,
@@ -124120,10 +123338,6 @@ pub fn verificationresult_validator_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("VerificationresultValidator")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -124226,10 +123440,6 @@ pub fn verificationresult_attestation_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("VerificationresultAttestation")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -124373,10 +123583,6 @@ pub fn verificationresult_primarysource_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("VerificationresultPrimarysource")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -124694,6 +123900,12 @@ pub fn verificationresult_decoder() -> Decoder(Verificationresult) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Verificationresult",
+    decode.failure(verificationresult_new(status:), "resourceType"),
+  )
   decode.success(Verificationresult(
     validator:,
     attestation:,
@@ -124870,10 +124082,6 @@ pub fn visionprescription_lensspecification_prism_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("VisionprescriptionLensspecificationPrism")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -124997,10 +124205,6 @@ pub fn visionprescription_lensspecification_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [
-    #("resourceType", json.string("VisionprescriptionLensspecification")),
-    ..fields
-  ]
   json.object(fields)
 }
 
@@ -125238,6 +124442,21 @@ pub fn visionprescription_decoder() -> Decoder(Visionprescription) {
     decode.optional(meta_decoder()),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Visionprescription",
+    decode.failure(
+      visionprescription_new(
+        prescriber:,
+        date_written:,
+        patient:,
+        created:,
+        status:,
+      ),
+      "resourceType",
+    ),
+  )
   decode.success(Visionprescription(
     lens_specification:,
     prescriber:,
