@@ -5,7 +5,7 @@ import gleam/string
 import fhir/r4 as fhirversion
 import fhir/r4valuesets as fhirversionvaluesets
 
-pub fn fhirversion_allergy_test() {
+pub fn some_resource_test() {
   let myallergy =
     fhirversion.Allergyintolerance(
       ..fhirversion.allergyintolerance_new(patient: fhirversion.reference_new()),
@@ -71,4 +71,18 @@ pub fn fhirversion_allergy_test() {
   let bad_json =
     json |> string.replace("\"resourceType\":\"Allergyintolerance\",", "")
   let assert Error(_) = bad_json |> json.parse(fhirversion.resource_decoder())
+  let bad_json2 =
+    json
+    |> string.replace(
+      "\"resourceType\":\"Allergyintolerance\",",
+      "\"resourceType\":\"xdd\",",
+    )
+  let assert Error(_) = bad_json2 |> json.parse(fhirversion.resource_decoder())
+  let bad_json3 =
+    json
+    |> string.replace(
+      "\"resourceType\":\"Allergyintolerance\",",
+      "\"resourceType\":\"Immunization\",",
+    )
+  let assert Error(_) = bad_json3 |> json.parse(fhirversion.resource_decoder())
 }

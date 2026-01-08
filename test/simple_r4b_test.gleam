@@ -4,7 +4,7 @@ import gleam/option.{Some}
 import fhir/r4b as fhirversion
 import fhir/r4bvaluesets as fhirversionvaluesets
 
-pub fn fhirversion_allergy_test() {
+pub fn r4b_allergy_test() {
   let myallergy =
     fhirversion.Allergyintolerance(
       ..fhirversion.allergyintolerance_new(patient: fhirversion.reference_new()),
