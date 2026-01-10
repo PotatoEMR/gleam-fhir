@@ -1,6 +1,6 @@
 import argv
 import filepath
-import gleam/dict
+import gleam/dict.{type Dict}
 import gleam/dynamic/decode
 import gleam/http/request
 import gleam/httpc
@@ -12,12 +12,23 @@ import gleam/set
 import gleam/string
 import simplifile
 
+//dogfood r4 to parse valuesets
+import fhir/r4
+
 const check_versions = ["r4", "r4b", "r5"]
+
+const valuesets_json = "valuesets.json"
+
+const v2tables_json = "v2-tables.json"
+
+const v3codesystems_json = "v3-codesystems.json"
 
 const zip_file_names = [
   "profiles-resources.json",
   "profiles-types.json",
-  "valuesets.json",
+  valuesets_json,
+  v2tables_json,
+  v3codesystems_json,
 ]
 
 const fhir_url = "https://www.hl7.org/fhir"
@@ -311,40 +322,46 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
       fhir_version,
       " types\n////https://hl7.org/fhir/",
       fhir_version,
-      "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport gleam/bool\nimport fhir/",
+      "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport gleam/bool\nimport gleam/int\nimport fhir/",
       fhir_version,
       "valuesets\n",
       file_to_types(
         spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
         fv: fhir_version,
+        vsfile: gen_vsfile,
       ),
       file_to_types(
         spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
         fv: fhir_version,
+        vsfile: gen_vsfile,
       ),
       "
       //std lib decode.optional supports myfield: null but what if myfield is omitted from json entirely?
       fn none_if_omitted(d: decode.Decoder(a)) -> decode.Decoder(Option(a)) {
         decode.one_of(d |> decode.map(Some), [decode.success(None)])
-      }",
+      }
+
+      //std lib decode.float will NOT decode numbers without decimal point eg 4, only 4.0
+      fn decode_number() {
+        decode.one_of(decode.float, [decode.map(decode.int, int.to_float)])
+      }
+      ",
     ])
   let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: all_types)
   io.println("generated " <> gen_gleamfile)
 
-  //gen valuesets for resource fields with required code binding
-  let all_vs =
-    valueset_to_types(
-      resources: filepath.join(extract_dir_ver, "profiles-resources.json"),
-      valueset: filepath.join(extract_dir_ver, "valuesets.json"),
-      types: filepath.join(extract_dir_ver, "profiles-types.json"),
-    )
+  // gen valuesets for resource fields with required code binding
+  // which were written as list to file by gen_gleamfile (why this fn needs to know file as temp list)
+  let all_vs = valueset_to_types(extract_dir_ver, gen_vsfile)
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
-
-  Nil
 }
 
-fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String {
+fn file_to_types(
+  spec_file spec_file: String,
+  fv fhir_version: String,
+  vsfile gen_vsfile: String,
+) -> String {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
   let assert Ok(bundle) = json.parse(from: spec, using: bundle_decoder())
@@ -512,6 +529,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                           allparts,
                           fhir_version,
                           elt,
+                          gen_vsfile,
                         )
                       [] -> {
                         link_type_from(elt.content_reference) |> to_camel_case
@@ -557,6 +575,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                                   ],
                                   fhir_version,
                                   elt,
+                                  gen_vsfile,
                                 ),
                                 ")",
                               ])
@@ -791,7 +810,6 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                             <> "_decoder()"
                           _ -> panic as "compiler should see this cant happen"
                         }
-
                         case elt.max {
                           "*" ->
                             "decode.optional_field(\""
@@ -905,6 +923,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                   type_new_newfunc,
                   old_type_acc,
                   gen_res_encoder(
+                    entry.resource.name,
                     camel_type,
                     snake_type,
                     encoder_args,
@@ -913,6 +932,7 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
                     is_domainresource,
                   ),
                   gen_res_decoder(
+                    entry.resource.name,
                     camel_type,
                     snake_type,
                     decoder_use,
@@ -936,22 +956,24 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
         |> list.filter(fn(entry) { entry.resource.kind == Some("resource") })
         |> list.map(fn(entry) {
           let camel_type = entry.resource.name |> to_camel_case
-          case camel_type {
+          #(entry, case camel_type {
             "List" -> "Listfhir"
             _ -> camel_type
-          }
+          })
         })
 
       let resource_names =
         res_entries
-        |> list.map(fn(camel_type) {
+        |> list.map(fn(entry_and_camel_type) {
+          let camel_type = entry_and_camel_type.1
           "Resource" <> camel_type <> "(" <> camel_type <> ")\n"
         })
         |> string.concat
 
       let resource_encoders =
         res_entries
-        |> list.map(fn(camel_type) {
+        |> list.map(fn(entry_and_camel_type) {
+          let camel_type = entry_and_camel_type.1
           "Resource"
           <> camel_type
           <> "(r) -> "
@@ -962,9 +984,11 @@ fn file_to_types(spec_file spec_file: String, fv fhir_version: String) -> String
 
       let resource_decoders =
         res_entries
-        |> list.map(fn(camel_type) {
+        |> list.map(fn(entry_and_camel_type) {
+          let camel_type = entry_and_camel_type.1
+          let entry: Entry = entry_and_camel_type.0
           "\""
-          <> camel_type
+          <> entry.resource.name
           <> "\" -> "
           <> string.lowercase(camel_type)
           <> "_decoder()  |> decode.map(Resource"
@@ -1007,6 +1031,7 @@ fn string_to_type(
   allparts: List(String),
   fhir_version: String,
   elt: Element,
+  gen_vsfile: String,
 ) -> String {
   case fhir_type {
     "BackboneElement" ->
@@ -1028,25 +1053,27 @@ fn string_to_type(
                 "required" -> {
                   case x.value_set {
                     Some(vs) -> {
-                      case string.split(vs, "|") {
-                        //get rid of |version in http://some.valueset|4.0.1
-                        [_] -> panic as "huh idk 3"
-                        [url, ..] ->
-                          case
-                            string.contains(url, "v3-Confidentiality")
-                            || string.contains(url, "mimetypes")
-                            || string.contains(url, "currencies")
-                            || string.contains(url, "all-languages")
-                            || string.contains(url, "ucum-units")
-                          {
-                            True -> "String"
-                            //idk whats going on here, probably i dont understand valueset composition
-                            False ->
-                              fhir_version
-                              <> "valuesets."
-                              <> concept_name_from_url(Some(url))
-                          }
-                        [] -> panic as "huh idk"
+                      let assert [url, ..] = string.split(vs, "|")
+                        as "split vs version"
+                      //get rid of |version in http://some.valueset|4.0.1
+                      case
+                        string.contains(url, "v3-Confidentiality")
+                        || string.contains(url, "mimetypes")
+                        || string.contains(url, "currencies")
+                        || string.contains(url, "all-languages")
+                        || string.contains(url, "ucum-units")
+                      {
+                        True -> "String"
+                        //idk whats going on here, probably i dont understand valueset composition
+                        False -> {
+                          simplifile.append(
+                            to: gen_vsfile,
+                            contents: url <> "\n",
+                          )
+                          fhir_version
+                          <> "valuesets."
+                          <> concept_name_from_url(Some(url))
+                        }
                       }
                     }
                     _ -> panic as "huh idk 2"
@@ -1122,28 +1149,25 @@ fn string_to_decoder_type(
                 "required" -> {
                   case x.value_set {
                     Some(vs) -> {
-                      case string.split(vs, "|") {
-                        //get rid of |version in http://some.valueset|4.0.1
-                        [_] -> panic as "huh idk 3"
-                        [url, ..] ->
-                          case
-                            string.contains(url, "v3-Confidentiality")
-                            || string.contains(url, "mimetypes")
-                            || string.contains(url, "currencies")
-                            || string.contains(url, "all-languages")
-                            || string.contains(url, "ucum-units")
-                          {
-                            True -> "decode.string"
-                            //idk whats going on here, probably i dont understand valueset composition
-                            False ->
-                              fhir_version
-                              <> "valuesets."
-                              <> Some(url)
-                              |> concept_name_from_url()
-                              |> to_snake_case
-                              <> "_decoder()"
-                          }
-                        [] -> panic as "huh idk"
+                      let assert [url, ..] = string.split(vs, "|")
+                        as "split vs version"
+                      //get rid of |version in http://some.valueset|4.0.1
+                      case
+                        string.contains(url, "v3-Confidentiality")
+                        || string.contains(url, "mimetypes")
+                        || string.contains(url, "currencies")
+                        || string.contains(url, "all-languages")
+                        || string.contains(url, "ucum-units")
+                      {
+                        True -> "decode.string"
+                        //idk whats going on here, probably i dont understand valueset composition
+                        False ->
+                          fhir_version
+                          <> "valuesets."
+                          <> Some(url)
+                          |> concept_name_from_url()
+                          |> to_snake_case
+                          <> "_decoder()"
                       }
                     }
                     _ -> panic as "huh idk 2"
@@ -1160,7 +1184,7 @@ fn string_to_decoder_type(
     }
     "date" -> "decode.string"
     "dateTime" -> "decode.string"
-    "decimal" -> "decode.float"
+    "decimal" -> "decode_number()"
     "id" -> "decode.string"
     "instant" -> "decode.string"
     "integer" -> "decode.int"
@@ -1220,28 +1244,25 @@ fn string_to_encoder_type(
                 "required" -> {
                   case x.value_set {
                     Some(vs) -> {
-                      case string.split(vs, "|") {
-                        //get rid of |version in http://some.valueset|4.0.1
-                        [_] -> panic as "huh idk 3"
-                        [url, ..] ->
-                          case
-                            string.contains(url, "v3-Confidentiality")
-                            || string.contains(url, "mimetypes")
-                            || string.contains(url, "currencies")
-                            || string.contains(url, "all-languages")
-                            || string.contains(url, "ucum-units")
-                          {
-                            True -> "json.string"
-                            //idk whats going on here, probably i dont understand valueset composition
-                            False ->
-                              fhir_version
-                              <> "valuesets."
-                              <> Some(url)
-                              |> concept_name_from_url()
-                              |> to_snake_case
-                              <> "_to_json"
-                          }
-                        [] -> panic as "huh idk"
+                      let assert [url, ..] = string.split(vs, "|")
+                        as "split vs version"
+                      //get rid of |version in http://some.valueset|4.0.1
+                      case
+                        string.contains(url, "v3-Confidentiality")
+                        || string.contains(url, "mimetypes")
+                        || string.contains(url, "currencies")
+                        || string.contains(url, "all-languages")
+                        || string.contains(url, "ucum-units")
+                      {
+                        True -> "json.string"
+                        //idk whats going on here, probably i dont understand valueset composition
+                        False ->
+                          fhir_version
+                          <> "valuesets."
+                          <> Some(url)
+                          |> concept_name_from_url()
+                          |> to_snake_case
+                          <> "_to_json"
                       }
                     }
                     _ -> panic as "huh idk 2"
@@ -1347,6 +1368,7 @@ fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
 
 //probably redundant to have both this and valueset encoder/decoder oh well
 fn gen_res_encoder(
+  respascal: String,
   rescamel: String,
   reslower: String,
   fields_list: String,
@@ -1356,7 +1378,9 @@ fn gen_res_encoder(
 ) -> String {
   let resource_type = case is_domainresource {
     True ->
-      "\n  let fields = [#(\"resourceType\", json.string(\"RESNAMECAMEL\")), ..fields]"
+      "\n  let fields = [#(\"resourceType\", json.string(\""
+      <> respascal
+      <> "\")), ..fields]"
     False -> ""
   }
   let template =
@@ -1370,6 +1394,7 @@ fn gen_res_encoder(
 }
 
 fn gen_res_decoder(
+  respascal: String,
   rescamel: String,
   reslower: String,
   use_list: String,
@@ -1379,340 +1404,154 @@ fn gen_res_decoder(
 ) {
   let resource_type = case is_domainresource {
     True -> "\n    use rt <- decode.field(\"resourceType\", decode.string)
-      use <- bool.guard(rt != \"RESNAMECAMEL\", decode.failure(RESNAMELOWER_new(" <> decoder_always_failure_fordr <> "), \"resourceType\"))"
+      use <- bool.guard(rt != \"" <> respascal <> "\", decode.failure(RESNAMELOWER_new(" <> decoder_always_failure_fordr <> "), \"resourceType\"))"
     False -> ""
   }
-  let template =
-    "pub fn RESNAMELOWER_decoder() -> Decoder(RESNAMECAMEL) {"
-    <> use_list
-    // maybe resource_type should go at beginning so if resourceType not found it doesnt run anything else?
+  let template = "pub fn RESNAMELOWER_decoder() -> Decoder(RESNAMECAMEL) {
+     use <- decode.recursive\n" <> use_list // maybe resource_type should go at beginning so if resourceType not found it doesnt run anything else?
     // but then would have to come up with dummy values for resource required fields, including valuesets
-    <> resource_type
-    <> "decode.success(RESNAMECAMEL("
-    <> success_list
-    <> "))}"
+    <> resource_type <> "decode.success(RESNAMECAMEL(" <> success_list <> "))}"
   template
   |> string.replace("RESNAMELOWER", reslower)
   |> string.replace("RESNAMECAMEL", rescamel)
 }
 
-//region valuesets
+// region valuesets
+// note we already have a list of required bindings from resources, now need to fill codes in for those
 
-type CSBundle {
-  CSBundle(entry: List(CSEntry))
+fn concept_name_from_url(u) {
+  let assert Some(url) = u
+  let assert Ok(urlname) = url |> string.split("/") |> list.last()
+  urlname
+  |> string.replace(" ", "")
+  |> string.replace("-", "")
+  |> string.replace("_", "")
+  |> string.capitalise
 }
 
-fn cs_bundle_decoder() -> decode.Decoder(CSBundle) {
-  use entry <- decode.field("entry", decode.list(cs_entry_decoder()))
-  decode.success(CSBundle(entry:))
+type VsOrCs {
+  VocValueset(v: r4.Valueset)
+  VocCodesystem(c: r4.Codesystem)
 }
 
-type CSEntry {
-  CSEntry(resource: Codesystem)
-}
-
-fn cs_entry_decoder() -> decode.Decoder(CSEntry) {
-  use resource <- decode.field("resource", codesystem_decoder())
-  decode.success(CSEntry(resource:))
-}
-
-pub type Codesystem {
-  Codesystem(
-    value_set: Option(String),
-    name: Option(String),
-    url: Option(String),
-    concept: List(CodesystemConcept),
-  )
-}
-
-fn codesystem_decoder() -> decode.Decoder(Codesystem) {
-  use value_set <- decode.optional_field(
-    "valueSet",
-    None,
-    decode.optional(decode.string),
-  )
-  use name <- decode.optional_field(
-    "name",
-    None,
-    decode.optional(decode.string),
-  )
-
-  use url <- decode.optional_field("url", None, decode.optional(decode.string))
-
-  use concept <- decode.optional_field(
-    "concept",
-    [],
-    decode.list(codesystem_concept_decoder()),
-  )
-  decode.success(Codesystem(value_set:, name:, url:, concept:))
-}
-
-pub type CodesystemConcept {
-  CodesystemConcept(code: String, display: Option(String))
-}
-
-fn codesystem_concept_decoder() -> decode.Decoder(CodesystemConcept) {
-  use code <- decode.field("code", decode.string)
-  use display <- decode.optional_field(
-    "display",
-    None,
-    decode.optional(decode.string),
-  )
-  decode.success(CodesystemConcept(code:, display:))
-}
-
-//valuesets can include codesystems
-type VSBundle {
-  VSBundle(entry: List(VSEntry))
-}
-
-fn vs_bundle_decoder() -> decode.Decoder(VSBundle) {
-  use entry <- decode.field("entry", decode.list(vs_entry_decoder()))
-  decode.success(VSBundle(entry:))
-}
-
-type VSEntry {
-  VSEntry(resource: Valueset)
-}
-
-fn vs_entry_decoder() -> decode.Decoder(VSEntry) {
-  use resource <- decode.field("resource", valueset_decoder())
-  decode.success(VSEntry(resource:))
-}
-
-pub type Valueset {
-  Valueset(url: Option(String), compose: Option(ValuesetCompose))
-}
-
-fn valueset_decoder() -> decode.Decoder(Valueset) {
-  use url <- decode.field("url", decode.optional(decode.string))
-  use compose <- decode.optional_field(
-    "compose",
-    None,
-    decode.optional(valueset_compose_decoder()),
-  )
-  decode.success(Valueset(url:, compose:))
-}
-
-pub type ValuesetCompose {
-  ValuesetCompose(include: List(ValuesetComposeInclude))
-}
-
-fn valueset_compose_decoder() -> decode.Decoder(ValuesetCompose) {
-  use include <- decode.field(
-    "include",
-    decode.list(valueset_compose_include_decoder()),
-  )
-  decode.success(ValuesetCompose(include:))
-}
-
-pub type ValuesetComposeInclude {
-  ValuesetComposeInclude(
-    system: Option(String),
-    concept: List(ValuesetComposeIncludeConcept),
-    value_set: List(String),
-  )
-}
-
-fn valueset_compose_include_decoder() -> decode.Decoder(ValuesetComposeInclude) {
-  use system <- decode.optional_field(
-    "system",
-    None,
-    decode.optional(decode.string),
-  )
-  use concept <- decode.optional_field(
-    "concept",
-    [],
-    decode.list(valueset_compose_include_concept_decoder()),
-  )
-  use value_set <- decode.optional_field(
-    "valueSet",
-    [],
-    decode.list(decode.string),
-  )
-  decode.success(ValuesetComposeInclude(system:, concept:, value_set:))
-}
-
-pub type ValuesetComposeIncludeConcept {
-  ValuesetComposeIncludeConcept(code: String, display: Option(String))
-}
-
-fn valueset_compose_include_concept_decoder() -> decode.Decoder(
-  ValuesetComposeIncludeConcept,
-) {
-  use code <- decode.field("code", decode.string)
-  use display <- decode.optional_field(
-    "display",
-    None,
-    decode.optional(decode.string),
-  )
-  decode.success(ValuesetComposeIncludeConcept(code:, display:))
-}
-
-fn valueset_to_types(
-  valueset vs_file: String,
-  resources res_file: String,
-  types types_file: String,
-) {
-  // valueset bindings needed by codes, eg
-  // http://hl7.org/fhir/ValueSet/allergy-intolerance-criticality
-  // ^ concepts in codesystem -> valueset compose
-  // http://hl7.org/fhir/ValueSet/immunization-status
-  // ^ concepts directly in valueset
-  let need_codes =
-    set.union(get_needed_codes(res_file), get_needed_codes(types_file))
-  let assert Ok(vs_spec) = simplifile.read(vs_file)
-    as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
+fn valueset_to_types(extract_zips: String, vsfile: String) {
+  let assert Ok(f_json) =
+    simplifile.read(filepath.join(extract_zips, valuesets_json))
+    as "valuesets_json download"
+  //they make status required but don't provide it for an entry??
+  let f_json =
+    f_json
+    |> string.replace(
+      "\"name\" : \"CatalogType\",",
+      "\"name\" : \"CatalogType\", \"status\": \"unknown\"",
+    )
   let assert Ok(vs_bundle) =
-    json.parse(from: vs_spec, using: vs_bundle_decoder())
-  let assert Ok(cs_bundle) =
-    json.parse(from: vs_spec, using: cs_bundle_decoder())
-  let system_to_codesystem =
-    list.fold(over: cs_bundle.entry, from: dict.new(), with: insert_codesystem)
+    json.parse(from: f_json, using: r4.bundle_decoder())
+
+  let assert Ok(f_json) =
+    simplifile.read(filepath.join(extract_zips, v2tables_json))
+    as "v2tables_json download"
+  let assert Ok(tables_bundle) =
+    json.parse(from: f_json, using: r4.bundle_decoder())
+
+  let assert Ok(f_json) =
+    simplifile.read(filepath.join(extract_zips, v3codesystems_json))
+    as "v3codesystems_json download"
+  let assert Ok(codesystems_bundle) =
+    json.parse(from: f_json, using: r4.bundle_decoder())
+
+  let all_vs_or_cs: Dict(String, VsOrCs) =
+    list.fold(
+      from: dict.new(),
+      over: [vs_bundle, tables_bundle, codesystems_bundle],
+      with: fn(outer_acc, bndl) {
+        list.fold(from: outer_acc, over: bndl.entry, with: fn(inner_acc, entry) {
+          case entry.resource {
+            Some(r4.ResourceValueset(vs)) -> {
+              let assert Some(url) = vs.url
+              inner_acc |> dict.insert(url, VocValueset(vs))
+            }
+            Some(r4.ResourceCodesystem(cs)) -> {
+              let assert Some(url) = cs.url
+              inner_acc |> dict.insert(url, VocCodesystem(cs))
+            }
+            _ -> panic
+          }
+        })
+      },
+    )
+
+  let assert Ok(vs_list) = simplifile.read(vsfile)
+  let vs_url_set =
+    list.fold(
+      from: set.new(),
+      over: string.split(vs_list, "\n"),
+      with: fn(acc, vs) { acc |> set.insert(vs) },
+    )
+    |> set.delete("")
+
   let vs_imports =
-    "import gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\n"
-  list.fold(
-    from: vs_imports,
-    over: vs_bundle.entry,
-    with: fn(vs_acc, vs_entry: VSEntry) {
-      let vs_url = vs_entry.resource.url
-      let assert Some(valueset_url_str) = vs_url
-      case set.contains(need_codes, valueset_url_str) {
-        True -> {
-          //io.println("ok go for it " <> valueset_url_str)
-          let cname = concept_name_from_url(vs_entry.resource.url)
-          case cname {
-            //not trying to make valuesets out of these because they dont have items in the profiles-types json
-            "Currencies" -> vs_acc
-            "Mimetypes" -> vs_acc
-            //r5 problem only
-            "Alllanguages" -> vs_acc
-            "Ucumunits" -> vs_acc
-            _ -> {
-              let vs_concepts_list_finally =
-                get_vs_concepts(vs_entry.resource, system_to_codesystem)
-              string.concat([
-                vs_acc,
-                get_concepts_str(cname, vs_concepts_list_finally),
-                gen_valueset_encoder(cname, vs_concepts_list_finally),
-                gen_valueset_decoder(cname, vs_concepts_list_finally),
-              ])
-            }
-          }
-        }
-        False -> {
-          //io.println("not in need_codes " <> valueset_url_str)
-          vs_acc
-        }
-      }
-    },
-  )
-}
-
-fn insert_codesystem(
-  sys_to_codesys: dict.Dict(String, Codesystem),
-  cse: CSEntry,
-) {
-  let assert Some(url) = cse.resource.url
-  dict.insert(sys_to_codesys, url, cse.resource)
-}
-
-fn get_needed_codes(filename: String) {
-  let assert Ok(res) = simplifile.read(filename)
-    as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
-  let assert Ok(res_bundle) = json.parse(from: res, using: bundle_decoder())
-  // there must be a much nicer way to chain these
-  // will probably be a cool gleam realization moment
-  // terrible ugly for now though
-  res_bundle.entry
-  |> list.fold(set.new(), fn(acc1, e) {
-    e.resource.snapshot
-    |> option.map(fn(snapshot) {
-      snapshot.element
-      |> list.fold(acc1, fn(acc2, elt) {
-        case elt.type_ {
-          [one_type] if one_type.code == "code" -> {
-            case elt.binding {
-              Some(x) ->
-                case x.value_set {
-                  Some(vs) -> {
-                    case string.split(vs, "|") {
-                      //get rid of |version in http://some.valueset|4.0.1
-                      [url] -> set.insert(acc2, url)
-                      [url, ..] -> set.insert(acc2, url)
-                      [] -> acc2
-                    }
-                  }
-                  _ -> acc2
-                }
-              None -> acc2
-            }
-          }
-          _ -> acc2
-        }
-      })
-    })
-    |> option.unwrap(acc1)
+    "import gleam/dynamic/decode.{type Decoder}
+  import gleam/json.{type Json}\n"
+  set.fold(from: vs_imports, over: vs_url_set, with: fn(valuesets_acc, vs_url) {
+    let vsname = concept_name_from_url(Some(vs_url))
+    let vs_codes =
+      get_codes(vs_url, all_vs_or_cs)
+      |> list.unique
+    let vs_named_codes =
+      vs_codes
+      |> list.map(fn(code) { vsname <> string.capitalise(codetovarname(code)) })
+    string.concat([
+      "pub type ",
+      vsname,
+      "{",
+      string.join(vs_named_codes, "\n"),
+      "}",
+      gen_valueset_encoder(vsname, vs_codes),
+      gen_valueset_decoder(vsname, vs_codes),
+      valuesets_acc,
+    ])
   })
 }
 
-fn get_vs_concepts(vs_res: Valueset, codesystems: dict.Dict(String, Codesystem)) {
-  let assert Some(vs_compose) = vs_res.compose
-  let vs_incl: List(ValuesetComposeInclude) = vs_compose.include
-  // there are valuesets AND codesystems
-  // codesystems are the simple lists of codes but they dont have everything
-  // valuesets include code systems which is annoying at best
-  // this gets codes either from valuesets directly or by getting code from codesystem included in valueset
-  // TODO there can also be weird rules for including (is-a or filter)????? idk
-  vs_incl
-  |> list.map(fn(vci: ValuesetComposeInclude) {
-    case vci.concept {
-      [] -> {
-        case vci.system {
-          None -> []
-          Some(vci_sys) -> {
-            let cs = dict.get(codesystems, vci_sys)
-            case cs {
-              Error(_) -> []
-              Ok(concept_codesystem) -> {
-                list.map(concept_codesystem.concept, fn(cs_c) {
-                  ValuesetComposeIncludeConcept(
-                    code: cs_c.code,
-                    display: cs_c.display,
-                  )
-                })
-              }
-            }
+fn get_codes(url: String, all_vs_or_cs: Dict(String, VsOrCs)) {
+  case url {
+    "http://unitsofmeasure.org" -> []
+    _ ->
+      case all_vs_or_cs |> dict.get(url) {
+        Error(_) -> panic as url
+        Ok(VocValueset(vs)) -> {
+          case vs.compose {
+            None -> []
+            Some(vsc) -> valuesetcompose_get_codes(vsc, all_vs_or_cs)
           }
         }
+        Ok(VocCodesystem(cs)) -> codesystemconcepts_get_codes(cs.concept)
       }
-      _ -> vci.concept
+  }
+}
+
+fn valuesetcompose_get_codes(
+  vsc: r4.ValuesetCompose,
+  all_vs_or_cs: Dict(String, VsOrCs),
+) {
+  list.fold(from: [], over: vsc.include, with: fn(outer_acc, vsci) {
+    let outer_acc =
+      list.fold(from: outer_acc, over: vsci.concept, with: fn(inner_acc, vscic) {
+        [vscic.code, ..inner_acc]
+      })
+    case vsci.system {
+      None -> outer_acc
+      Some(vsci_system) ->
+        get_codes(vsci_system, all_vs_or_cs) |> list.append(outer_acc)
     }
   })
-  |> list.flatten
 }
 
-fn get_concepts_str(
-  cname: String,
-  vs_concept_list: List(ValuesetComposeIncludeConcept),
-) {
-  string.concat([
-    "\npub type ",
-    cname,
-    "{",
-    list.fold(
-      over: vs_concept_list,
-      from: "",
-      with: fn(acc: String, vs_concept_finally: ValuesetComposeIncludeConcept) {
-        acc
-        <> cname
-        <> codetovarname(vs_concept_finally.code)
-        |> string.capitalise()
-        <> "\n"
-      },
-    ),
-    "}\n",
-  ])
+fn codesystemconcepts_get_codes(codesystem_concepts: List(r4.CodesystemConcept)) {
+  list.fold(from: [], over: codesystem_concepts, with: fn(acc, csc) {
+    [csc.code, ..acc] |> list.append(codesystemconcepts_get_codes(csc.concept))
+  })
 }
 
 fn codetovarname(c: String) {
@@ -1730,78 +1569,58 @@ fn codetovarname(c: String) {
   ])
 }
 
-fn concept_name_from_url(u) {
-  let assert Some(url) = u
-  let assert Ok(urlname) = url |> string.split("/") |> list.last()
-  urlname
-  |> string.replace(" ", "")
-  |> string.replace("-", "")
-  |> string.replace("_", "")
-  |> string.capitalise
-}
-
 fn str_replace_many(s: String, badchars: List(#(String, String))) -> String {
   list.fold(from: s, over: badchars, with: fn(acc, bc) {
     string.replace(acc, bc.0, bc.1)
   })
 }
 
-fn gen_valueset_encoder(
-  cname: String,
-  vs_concept_list: List(ValuesetComposeIncludeConcept),
-) -> String {
-  let cname_lower = cname |> string.lowercase()
+fn gen_valueset_encoder(vsname: String, vs_codes: List(String)) -> String {
+  let vsname_lower = vsname |> string.lowercase()
   let template = "pub fn CNAMELOWER_to_json(CNAMELOWER: CNAMECAPITAL) -> Json {
     case CNAMELOWER {" <> list.fold(
       from: "",
-      over: vs_concept_list,
-      with: fn(acc: String, concept: ValuesetComposeIncludeConcept) {
+      over: vs_codes,
+      with: fn(acc: String, code: String) {
         acc
         <> "CODETYPE -> json.string(\"ACTUALCODE\")\n"
         |> string.replace(
           "CODETYPE",
-          cname
-            <> codetovarname(concept.code)
-          |> string.capitalise(),
+          vsname <> string.capitalise(codetovarname(code)),
         )
-        |> string.replace("ACTUALCODE", concept.code)
+        |> string.replace("ACTUALCODE", code)
       },
     ) <> "}
   }
   "
   template
-  |> string.replace("CNAMELOWER", cname_lower)
-  |> string.replace("CNAMECAPITAL", cname |> string.capitalise())
+  |> string.replace("CNAMELOWER", vsname_lower)
+  |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
 }
 
-fn gen_valueset_decoder(
-  cname: String,
-  vs_concept_list: List(ValuesetComposeIncludeConcept),
-) -> String {
-  let cname_lower = cname |> string.lowercase()
-  //let assert Ok(failure_code) = list.first(vs_res.concept)
-  let assert Ok(fail) = list.first(vs_concept_list)
+fn gen_valueset_decoder(vsname: String, vs_codes: List(String)) -> String {
+  let vsname_lower = vsname |> string.lowercase()
+  let assert Ok(fail_code) = list.first(vs_codes)
   let template = "pub fn CNAMELOWER_decoder() -> Decoder(CNAMECAPITAL) {
     use variant <- decode.then(decode.string)
     case variant {" <> list.fold(
       from: "",
-      over: vs_concept_list,
-      with: fn(acc: String, concept: ValuesetComposeIncludeConcept) {
+      over: vs_codes,
+      with: fn(acc: String, code: String) {
         acc
         <> "\"ACTUALCODE\" -> decode.success(CODETYPE)\n"
         |> string.replace(
           "CODETYPE",
-          cname
-            <> codetovarname(concept.code)
-          |> string.capitalise(),
+          vsname <> string.capitalise(codetovarname(code)),
         )
-        |> string.replace("ACTUALCODE", concept.code)
+        |> string.replace("ACTUALCODE", code)
       },
-    ) <> "_ -> decode.failure(" <> cname <> codetovarname(fail.code)
-    |> string.capitalise() <> ", \"CNAMECAPITAL\")}
+    ) <> "_ -> decode.failure(" <> vsname <> string.capitalise(codetovarname(
+      fail_code,
+    )) <> ", \"CNAMECAPITAL\")}
   }
   "
   template
-  |> string.replace("CNAMELOWER", cname_lower)
-  |> string.replace("CNAMECAPITAL", cname |> string.capitalise())
+  |> string.replace("CNAMELOWER", vsname_lower)
+  |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
 }
