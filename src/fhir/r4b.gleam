@@ -4,6 +4,7 @@
 import fhir/r4bvaluesets
 import gleam/bool
 import gleam/dynamic/decode.{type Decoder}
+import gleam/int
 import gleam/json.{type Json}
 import gleam/option.{type Option, None, Some}
 
@@ -110,6 +111,7 @@ pub fn address_to_json(address: Address) -> Json {
 }
 
 pub fn address_decoder() -> Decoder(Address) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -241,6 +243,7 @@ pub fn age_to_json(age: Age) -> Json {
 }
 
 pub fn age_decoder() -> Decoder(Age) {
+  use <- decode.recursive
   use code <- decode.optional_field(
     "code",
     None,
@@ -264,7 +267,7 @@ pub fn age_decoder() -> Decoder(Age) {
   use value <- decode.optional_field(
     "value",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -357,6 +360,7 @@ pub fn annotation_to_json(annotation: Annotation) -> Json {
 }
 
 pub fn annotation_decoder() -> Decoder(Annotation) {
+  use <- decode.recursive
   use text <- decode.field("text", decode.string)
   use time <- decode.optional_field(
     "time",
@@ -462,6 +466,7 @@ pub fn attachment_to_json(attachment: Attachment) -> Json {
 }
 
 pub fn attachment_decoder() -> Decoder(Attachment) {
+  use <- decode.recursive
   use creation <- decode.optional_field(
     "creation",
     None,
@@ -551,6 +556,7 @@ pub fn codeableconcept_to_json(codeableconcept: Codeableconcept) -> Json {
 }
 
 pub fn codeableconcept_decoder() -> Decoder(Codeableconcept) {
+  use <- decode.recursive
   use text <- decode.optional_field(
     "text",
     None,
@@ -608,6 +614,7 @@ pub fn codeablereference_to_json(codeablereference: Codeablereference) -> Json {
 }
 
 pub fn codeablereference_decoder() -> Decoder(Codeablereference) {
+  use <- decode.recursive
   use reference <- decode.optional_field(
     "reference",
     None,
@@ -695,6 +702,7 @@ pub fn coding_to_json(coding: Coding) -> Json {
 }
 
 pub fn coding_decoder() -> Decoder(Coding) {
+  use <- decode.recursive
   use user_selected <- decode.optional_field(
     "userSelected",
     None,
@@ -774,6 +782,7 @@ pub fn contactdetail_to_json(contactdetail: Contactdetail) -> Json {
 }
 
 pub fn contactdetail_decoder() -> Decoder(Contactdetail) {
+  use <- decode.recursive
   use telecom <- decode.optional_field(
     "telecom",
     [],
@@ -857,6 +866,7 @@ pub fn contactpoint_to_json(contactpoint: Contactpoint) -> Json {
 }
 
 pub fn contactpoint_decoder() -> Decoder(Contactpoint) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -935,6 +945,7 @@ pub fn contributor_to_json(contributor: Contributor) -> Json {
 }
 
 pub fn contributor_decoder() -> Decoder(Contributor) {
+  use <- decode.recursive
   use contact <- decode.optional_field(
     "contact",
     [],
@@ -1014,6 +1025,7 @@ pub fn count_to_json(count: Count) -> Json {
 }
 
 pub fn count_decoder() -> Decoder(Count) {
+  use <- decode.recursive
   use code <- decode.optional_field(
     "code",
     None,
@@ -1037,7 +1049,7 @@ pub fn count_decoder() -> Decoder(Count) {
   use value <- decode.optional_field(
     "value",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -1231,6 +1243,7 @@ pub fn datarequirement_sort_to_json(
 }
 
 pub fn datarequirement_sort_decoder() -> Decoder(DatarequirementSort) {
+  use <- decode.recursive
   use direction <- decode.field(
     "direction",
     r4bvaluesets.sortdirection_decoder(),
@@ -1256,7 +1269,7 @@ pub fn datarequirement_datefilter_to_json(
       #(
         "value"
           <> case v {
-          DatarequirementDatefilterValueDatetime(_) -> "Datetime"
+          DatarequirementDatefilterValueDatetime(_) -> "DateTime"
           DatarequirementDatefilterValuePeriod(_) -> "Period"
           DatarequirementDatefilterValueDuration(_) -> "Duration"
         },
@@ -1288,6 +1301,7 @@ pub fn datarequirement_datefilter_to_json(
 pub fn datarequirement_datefilter_decoder() -> Decoder(
   DatarequirementDatefilter,
 ) {
+  use <- decode.recursive
   use value <- decode.then(
     none_if_omitted(datarequirement_datefilter_value_decoder()),
   )
@@ -1358,6 +1372,7 @@ pub fn datarequirement_codefilter_to_json(
 pub fn datarequirement_codefilter_decoder() -> Decoder(
   DatarequirementCodefilter,
 ) {
+  use <- decode.recursive
   use code <- decode.optional_field("code", [], decode.list(coding_decoder()))
   use value_set <- decode.optional_field(
     "valueSet",
@@ -1443,7 +1458,7 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
       #(
         "subject"
           <> case v {
-          DatarequirementSubjectCodeableconcept(_) -> "Codeableconcept"
+          DatarequirementSubjectCodeableconcept(_) -> "CodeableConcept"
           DatarequirementSubjectReference(_) -> "Reference"
         },
         datarequirement_subject_to_json(v),
@@ -1468,6 +1483,7 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
 }
 
 pub fn datarequirement_decoder() -> Decoder(Datarequirement) {
+  use <- decode.recursive
   use sort <- decode.optional_field(
     "sort",
     [],
@@ -1580,6 +1596,7 @@ pub fn distance_to_json(distance: Distance) -> Json {
 }
 
 pub fn distance_decoder() -> Decoder(Distance) {
+  use <- decode.recursive
   use code <- decode.optional_field(
     "code",
     None,
@@ -1603,7 +1620,7 @@ pub fn distance_decoder() -> Decoder(Distance) {
   use value <- decode.optional_field(
     "value",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -1815,6 +1832,7 @@ pub fn dosage_doseandrate_to_json(dosage_doseandrate: DosageDoseandrate) -> Json
 }
 
 pub fn dosage_doseandrate_decoder() -> Decoder(DosageDoseandrate) {
+  use <- decode.recursive
   use rate <- decode.then(none_if_omitted(dosage_doseandrate_rate_decoder()))
   use dose <- decode.then(none_if_omitted(dosage_doseandrate_dose_decoder()))
   use type_ <- decode.optional_field(
@@ -1888,7 +1906,7 @@ pub fn dosage_to_json(dosage: Dosage) -> Json {
         "asNeeded"
           <> case v {
           DosageAsneededBoolean(_) -> "Boolean"
-          DosageAsneededCodeableconcept(_) -> "Codeableconcept"
+          DosageAsneededCodeableconcept(_) -> "CodeableConcept"
         },
         dosage_asneeded_to_json(v),
       ),
@@ -1941,6 +1959,7 @@ pub fn dosage_to_json(dosage: Dosage) -> Json {
 }
 
 pub fn dosage_decoder() -> Decoder(Dosage) {
+  use <- decode.recursive
   use max_dose_per_lifetime <- decode.optional_field(
     "maxDosePerLifetime",
     None,
@@ -2097,6 +2116,7 @@ pub fn duration_to_json(duration: Duration) -> Json {
 }
 
 pub fn duration_decoder() -> Decoder(Duration) {
+  use <- decode.recursive
   use code <- decode.optional_field(
     "code",
     None,
@@ -2120,7 +2140,7 @@ pub fn duration_decoder() -> Decoder(Duration) {
   use value <- decode.optional_field(
     "value",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -2324,7 +2344,7 @@ pub fn elementdefinition_defaultvalue_decoder() -> Decoder(
         |> decode.map(ElementdefinitionDefaultvalueDate),
       decode.field("defaultValueDateTime", decode.string, decode.success)
         |> decode.map(ElementdefinitionDefaultvalueDatetime),
-      decode.field("defaultValueDecimal", decode.float, decode.success)
+      decode.field("defaultValueDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionDefaultvalueDecimal),
       decode.field("defaultValueId", decode.string, decode.success)
         |> decode.map(ElementdefinitionDefaultvalueId),
@@ -2609,7 +2629,7 @@ pub fn elementdefinition_fixed_decoder() -> Decoder(ElementdefinitionFixed) {
         |> decode.map(ElementdefinitionFixedDate),
       decode.field("fixedDateTime", decode.string, decode.success)
         |> decode.map(ElementdefinitionFixedDatetime),
-      decode.field("fixedDecimal", decode.float, decode.success)
+      decode.field("fixedDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionFixedDecimal),
       decode.field("fixedId", decode.string, decode.success)
         |> decode.map(ElementdefinitionFixedId),
@@ -2858,7 +2878,7 @@ pub fn elementdefinition_pattern_decoder() -> Decoder(ElementdefinitionPattern) 
         |> decode.map(ElementdefinitionPatternDate),
       decode.field("patternDateTime", decode.string, decode.success)
         |> decode.map(ElementdefinitionPatternDatetime),
-      decode.field("patternDecimal", decode.float, decode.success)
+      decode.field("patternDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionPatternDecimal),
       decode.field("patternId", decode.string, decode.success)
         |> decode.map(ElementdefinitionPatternId),
@@ -3030,7 +3050,7 @@ pub fn elementdefinition_minvalue_decoder() -> Decoder(
         |> decode.map(ElementdefinitionMinvalueInstant),
       decode.field("minValueTime", decode.string, decode.success)
         |> decode.map(ElementdefinitionMinvalueTime),
-      decode.field("minValueDecimal", decode.float, decode.success)
+      decode.field("minValueDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionMinvalueDecimal),
       decode.field("minValueInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionMinvalueInteger),
@@ -3086,7 +3106,7 @@ pub fn elementdefinition_maxvalue_decoder() -> Decoder(
         |> decode.map(ElementdefinitionMaxvalueInstant),
       decode.field("maxValueTime", decode.string, decode.success)
         |> decode.map(ElementdefinitionMaxvalueTime),
-      decode.field("maxValueDecimal", decode.float, decode.success)
+      decode.field("maxValueDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionMaxvalueDecimal),
       decode.field("maxValueInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionMaxvalueInteger),
@@ -3374,7 +3394,7 @@ pub fn elementdefinition_example_value_decoder() -> Decoder(
         |> decode.map(ElementdefinitionExampleValueDate),
       decode.field("valueDateTime", decode.string, decode.success)
         |> decode.map(ElementdefinitionExampleValueDatetime),
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionExampleValueDecimal),
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(ElementdefinitionExampleValueId),
@@ -3620,6 +3640,7 @@ pub fn elementdefinition_mapping_to_json(
 }
 
 pub fn elementdefinition_mapping_decoder() -> Decoder(ElementdefinitionMapping) {
+  use <- decode.recursive
   use comment <- decode.optional_field(
     "comment",
     None,
@@ -3681,6 +3702,7 @@ pub fn elementdefinition_binding_to_json(
 }
 
 pub fn elementdefinition_binding_decoder() -> Decoder(ElementdefinitionBinding) {
+  use <- decode.recursive
   use value_set <- decode.optional_field(
     "valueSet",
     None,
@@ -3759,6 +3781,7 @@ pub fn elementdefinition_constraint_to_json(
 pub fn elementdefinition_constraint_decoder() -> Decoder(
   ElementdefinitionConstraint,
 ) {
+  use <- decode.recursive
   use source <- decode.optional_field(
     "source",
     None,
@@ -3825,6 +3848,7 @@ pub fn elementdefinition_example_to_json(
 }
 
 pub fn elementdefinition_example_decoder() -> Decoder(ElementdefinitionExample) {
+  use <- decode.recursive
   use value <- decode.then(elementdefinition_example_value_decoder())
   use label <- decode.field("label", decode.string)
   use extension <- decode.optional_field(
@@ -3888,6 +3912,7 @@ pub fn elementdefinition_type_to_json(
 }
 
 pub fn elementdefinition_type_decoder() -> Decoder(ElementdefinitionType) {
+  use <- decode.recursive
   use versioning <- decode.optional_field(
     "versioning",
     None,
@@ -3948,6 +3973,7 @@ pub fn elementdefinition_base_to_json(
 }
 
 pub fn elementdefinition_base_decoder() -> Decoder(ElementdefinitionBase) {
+  use <- decode.recursive
   use max <- decode.field("max", decode.string)
   use min <- decode.field("min", decode.int)
   use path <- decode.field("path", decode.string)
@@ -3983,6 +4009,7 @@ pub fn elementdefinition_slicing_discriminator_to_json(
 pub fn elementdefinition_slicing_discriminator_decoder() -> Decoder(
   ElementdefinitionSlicingDiscriminator,
 ) {
+  use <- decode.recursive
   use path <- decode.field("path", decode.string)
   use type_ <- decode.field("type", r4bvaluesets.discriminatortype_decoder())
   use extension <- decode.optional_field(
@@ -4046,6 +4073,7 @@ pub fn elementdefinition_slicing_to_json(
 }
 
 pub fn elementdefinition_slicing_decoder() -> Decoder(ElementdefinitionSlicing) {
+  use <- decode.recursive
   use rules <- decode.field(
     "rules",
     r4bvaluesets.resourceslicingrules_decoder(),
@@ -4175,13 +4203,13 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
         "maxValue"
           <> case v {
           ElementdefinitionMaxvalueDate(_) -> "Date"
-          ElementdefinitionMaxvalueDatetime(_) -> "Datetime"
+          ElementdefinitionMaxvalueDatetime(_) -> "DateTime"
           ElementdefinitionMaxvalueInstant(_) -> "Instant"
           ElementdefinitionMaxvalueTime(_) -> "Time"
           ElementdefinitionMaxvalueDecimal(_) -> "Decimal"
           ElementdefinitionMaxvalueInteger(_) -> "Integer"
-          ElementdefinitionMaxvaluePositiveint(_) -> "Positiveint"
-          ElementdefinitionMaxvalueUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionMaxvaluePositiveint(_) -> "PositiveInt"
+          ElementdefinitionMaxvalueUnsignedint(_) -> "UnsignedInt"
           ElementdefinitionMaxvalueQuantity(_) -> "Quantity"
         },
         elementdefinition_maxvalue_to_json(v),
@@ -4196,13 +4224,13 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
         "minValue"
           <> case v {
           ElementdefinitionMinvalueDate(_) -> "Date"
-          ElementdefinitionMinvalueDatetime(_) -> "Datetime"
+          ElementdefinitionMinvalueDatetime(_) -> "DateTime"
           ElementdefinitionMinvalueInstant(_) -> "Instant"
           ElementdefinitionMinvalueTime(_) -> "Time"
           ElementdefinitionMinvalueDecimal(_) -> "Decimal"
           ElementdefinitionMinvalueInteger(_) -> "Integer"
-          ElementdefinitionMinvaluePositiveint(_) -> "Positiveint"
-          ElementdefinitionMinvalueUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionMinvaluePositiveint(_) -> "PositiveInt"
+          ElementdefinitionMinvalueUnsignedint(_) -> "UnsignedInt"
           ElementdefinitionMinvalueQuantity(_) -> "Quantity"
         },
         elementdefinition_minvalue_to_json(v),
@@ -4223,22 +4251,22 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
       #(
         "pattern"
           <> case v {
-          ElementdefinitionPatternBase64binary(_) -> "Base64binary"
+          ElementdefinitionPatternBase64binary(_) -> "Base64Binary"
           ElementdefinitionPatternBoolean(_) -> "Boolean"
           ElementdefinitionPatternCanonical(_) -> "Canonical"
           ElementdefinitionPatternCode(_) -> "Code"
           ElementdefinitionPatternDate(_) -> "Date"
-          ElementdefinitionPatternDatetime(_) -> "Datetime"
+          ElementdefinitionPatternDatetime(_) -> "DateTime"
           ElementdefinitionPatternDecimal(_) -> "Decimal"
           ElementdefinitionPatternId(_) -> "Id"
           ElementdefinitionPatternInstant(_) -> "Instant"
           ElementdefinitionPatternInteger(_) -> "Integer"
           ElementdefinitionPatternMarkdown(_) -> "Markdown"
           ElementdefinitionPatternOid(_) -> "Oid"
-          ElementdefinitionPatternPositiveint(_) -> "Positiveint"
+          ElementdefinitionPatternPositiveint(_) -> "PositiveInt"
           ElementdefinitionPatternString(_) -> "String"
           ElementdefinitionPatternTime(_) -> "Time"
-          ElementdefinitionPatternUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionPatternUnsignedint(_) -> "UnsignedInt"
           ElementdefinitionPatternUri(_) -> "Uri"
           ElementdefinitionPatternUrl(_) -> "Url"
           ElementdefinitionPatternUuid(_) -> "Uuid"
@@ -4246,34 +4274,34 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
           ElementdefinitionPatternAge(_) -> "Age"
           ElementdefinitionPatternAnnotation(_) -> "Annotation"
           ElementdefinitionPatternAttachment(_) -> "Attachment"
-          ElementdefinitionPatternCodeableconcept(_) -> "Codeableconcept"
-          ElementdefinitionPatternCodeablereference(_) -> "Codeablereference"
+          ElementdefinitionPatternCodeableconcept(_) -> "CodeableConcept"
+          ElementdefinitionPatternCodeablereference(_) -> "CodeableReference"
           ElementdefinitionPatternCoding(_) -> "Coding"
-          ElementdefinitionPatternContactpoint(_) -> "Contactpoint"
+          ElementdefinitionPatternContactpoint(_) -> "ContactPoint"
           ElementdefinitionPatternCount(_) -> "Count"
           ElementdefinitionPatternDistance(_) -> "Distance"
           ElementdefinitionPatternDuration(_) -> "Duration"
-          ElementdefinitionPatternHumanname(_) -> "Humanname"
+          ElementdefinitionPatternHumanname(_) -> "HumanName"
           ElementdefinitionPatternIdentifier(_) -> "Identifier"
           ElementdefinitionPatternMoney(_) -> "Money"
           ElementdefinitionPatternPeriod(_) -> "Period"
           ElementdefinitionPatternQuantity(_) -> "Quantity"
           ElementdefinitionPatternRange(_) -> "Range"
           ElementdefinitionPatternRatio(_) -> "Ratio"
-          ElementdefinitionPatternRatiorange(_) -> "Ratiorange"
+          ElementdefinitionPatternRatiorange(_) -> "RatioRange"
           ElementdefinitionPatternReference(_) -> "Reference"
-          ElementdefinitionPatternSampleddata(_) -> "Sampleddata"
+          ElementdefinitionPatternSampleddata(_) -> "SampledData"
           ElementdefinitionPatternSignature(_) -> "Signature"
           ElementdefinitionPatternTiming(_) -> "Timing"
-          ElementdefinitionPatternContactdetail(_) -> "Contactdetail"
+          ElementdefinitionPatternContactdetail(_) -> "ContactDetail"
           ElementdefinitionPatternContributor(_) -> "Contributor"
-          ElementdefinitionPatternDatarequirement(_) -> "Datarequirement"
+          ElementdefinitionPatternDatarequirement(_) -> "DataRequirement"
           ElementdefinitionPatternExpression(_) -> "Expression"
           ElementdefinitionPatternParameterdefinition(_) ->
-            "Parameterdefinition"
-          ElementdefinitionPatternRelatedartifact(_) -> "Relatedartifact"
-          ElementdefinitionPatternTriggerdefinition(_) -> "Triggerdefinition"
-          ElementdefinitionPatternUsagecontext(_) -> "Usagecontext"
+            "ParameterDefinition"
+          ElementdefinitionPatternRelatedartifact(_) -> "RelatedArtifact"
+          ElementdefinitionPatternTriggerdefinition(_) -> "TriggerDefinition"
+          ElementdefinitionPatternUsagecontext(_) -> "UsageContext"
           ElementdefinitionPatternDosage(_) -> "Dosage"
         },
         elementdefinition_pattern_to_json(v),
@@ -4287,22 +4315,22 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
       #(
         "fixed"
           <> case v {
-          ElementdefinitionFixedBase64binary(_) -> "Base64binary"
+          ElementdefinitionFixedBase64binary(_) -> "Base64Binary"
           ElementdefinitionFixedBoolean(_) -> "Boolean"
           ElementdefinitionFixedCanonical(_) -> "Canonical"
           ElementdefinitionFixedCode(_) -> "Code"
           ElementdefinitionFixedDate(_) -> "Date"
-          ElementdefinitionFixedDatetime(_) -> "Datetime"
+          ElementdefinitionFixedDatetime(_) -> "DateTime"
           ElementdefinitionFixedDecimal(_) -> "Decimal"
           ElementdefinitionFixedId(_) -> "Id"
           ElementdefinitionFixedInstant(_) -> "Instant"
           ElementdefinitionFixedInteger(_) -> "Integer"
           ElementdefinitionFixedMarkdown(_) -> "Markdown"
           ElementdefinitionFixedOid(_) -> "Oid"
-          ElementdefinitionFixedPositiveint(_) -> "Positiveint"
+          ElementdefinitionFixedPositiveint(_) -> "PositiveInt"
           ElementdefinitionFixedString(_) -> "String"
           ElementdefinitionFixedTime(_) -> "Time"
-          ElementdefinitionFixedUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionFixedUnsignedint(_) -> "UnsignedInt"
           ElementdefinitionFixedUri(_) -> "Uri"
           ElementdefinitionFixedUrl(_) -> "Url"
           ElementdefinitionFixedUuid(_) -> "Uuid"
@@ -4310,33 +4338,33 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
           ElementdefinitionFixedAge(_) -> "Age"
           ElementdefinitionFixedAnnotation(_) -> "Annotation"
           ElementdefinitionFixedAttachment(_) -> "Attachment"
-          ElementdefinitionFixedCodeableconcept(_) -> "Codeableconcept"
-          ElementdefinitionFixedCodeablereference(_) -> "Codeablereference"
+          ElementdefinitionFixedCodeableconcept(_) -> "CodeableConcept"
+          ElementdefinitionFixedCodeablereference(_) -> "CodeableReference"
           ElementdefinitionFixedCoding(_) -> "Coding"
-          ElementdefinitionFixedContactpoint(_) -> "Contactpoint"
+          ElementdefinitionFixedContactpoint(_) -> "ContactPoint"
           ElementdefinitionFixedCount(_) -> "Count"
           ElementdefinitionFixedDistance(_) -> "Distance"
           ElementdefinitionFixedDuration(_) -> "Duration"
-          ElementdefinitionFixedHumanname(_) -> "Humanname"
+          ElementdefinitionFixedHumanname(_) -> "HumanName"
           ElementdefinitionFixedIdentifier(_) -> "Identifier"
           ElementdefinitionFixedMoney(_) -> "Money"
           ElementdefinitionFixedPeriod(_) -> "Period"
           ElementdefinitionFixedQuantity(_) -> "Quantity"
           ElementdefinitionFixedRange(_) -> "Range"
           ElementdefinitionFixedRatio(_) -> "Ratio"
-          ElementdefinitionFixedRatiorange(_) -> "Ratiorange"
+          ElementdefinitionFixedRatiorange(_) -> "RatioRange"
           ElementdefinitionFixedReference(_) -> "Reference"
-          ElementdefinitionFixedSampleddata(_) -> "Sampleddata"
+          ElementdefinitionFixedSampleddata(_) -> "SampledData"
           ElementdefinitionFixedSignature(_) -> "Signature"
           ElementdefinitionFixedTiming(_) -> "Timing"
-          ElementdefinitionFixedContactdetail(_) -> "Contactdetail"
+          ElementdefinitionFixedContactdetail(_) -> "ContactDetail"
           ElementdefinitionFixedContributor(_) -> "Contributor"
-          ElementdefinitionFixedDatarequirement(_) -> "Datarequirement"
+          ElementdefinitionFixedDatarequirement(_) -> "DataRequirement"
           ElementdefinitionFixedExpression(_) -> "Expression"
-          ElementdefinitionFixedParameterdefinition(_) -> "Parameterdefinition"
-          ElementdefinitionFixedRelatedartifact(_) -> "Relatedartifact"
-          ElementdefinitionFixedTriggerdefinition(_) -> "Triggerdefinition"
-          ElementdefinitionFixedUsagecontext(_) -> "Usagecontext"
+          ElementdefinitionFixedParameterdefinition(_) -> "ParameterDefinition"
+          ElementdefinitionFixedRelatedartifact(_) -> "RelatedArtifact"
+          ElementdefinitionFixedTriggerdefinition(_) -> "TriggerDefinition"
+          ElementdefinitionFixedUsagecontext(_) -> "UsageContext"
           ElementdefinitionFixedDosage(_) -> "Dosage"
         },
         elementdefinition_fixed_to_json(v),
@@ -4358,22 +4386,22 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
       #(
         "defaultValue"
           <> case v {
-          ElementdefinitionDefaultvalueBase64binary(_) -> "Base64binary"
+          ElementdefinitionDefaultvalueBase64binary(_) -> "Base64Binary"
           ElementdefinitionDefaultvalueBoolean(_) -> "Boolean"
           ElementdefinitionDefaultvalueCanonical(_) -> "Canonical"
           ElementdefinitionDefaultvalueCode(_) -> "Code"
           ElementdefinitionDefaultvalueDate(_) -> "Date"
-          ElementdefinitionDefaultvalueDatetime(_) -> "Datetime"
+          ElementdefinitionDefaultvalueDatetime(_) -> "DateTime"
           ElementdefinitionDefaultvalueDecimal(_) -> "Decimal"
           ElementdefinitionDefaultvalueId(_) -> "Id"
           ElementdefinitionDefaultvalueInstant(_) -> "Instant"
           ElementdefinitionDefaultvalueInteger(_) -> "Integer"
           ElementdefinitionDefaultvalueMarkdown(_) -> "Markdown"
           ElementdefinitionDefaultvalueOid(_) -> "Oid"
-          ElementdefinitionDefaultvaluePositiveint(_) -> "Positiveint"
+          ElementdefinitionDefaultvaluePositiveint(_) -> "PositiveInt"
           ElementdefinitionDefaultvalueString(_) -> "String"
           ElementdefinitionDefaultvalueTime(_) -> "Time"
-          ElementdefinitionDefaultvalueUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionDefaultvalueUnsignedint(_) -> "UnsignedInt"
           ElementdefinitionDefaultvalueUri(_) -> "Uri"
           ElementdefinitionDefaultvalueUrl(_) -> "Url"
           ElementdefinitionDefaultvalueUuid(_) -> "Uuid"
@@ -4381,36 +4409,36 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
           ElementdefinitionDefaultvalueAge(_) -> "Age"
           ElementdefinitionDefaultvalueAnnotation(_) -> "Annotation"
           ElementdefinitionDefaultvalueAttachment(_) -> "Attachment"
-          ElementdefinitionDefaultvalueCodeableconcept(_) -> "Codeableconcept"
+          ElementdefinitionDefaultvalueCodeableconcept(_) -> "CodeableConcept"
           ElementdefinitionDefaultvalueCodeablereference(_) ->
-            "Codeablereference"
+            "CodeableReference"
           ElementdefinitionDefaultvalueCoding(_) -> "Coding"
-          ElementdefinitionDefaultvalueContactpoint(_) -> "Contactpoint"
+          ElementdefinitionDefaultvalueContactpoint(_) -> "ContactPoint"
           ElementdefinitionDefaultvalueCount(_) -> "Count"
           ElementdefinitionDefaultvalueDistance(_) -> "Distance"
           ElementdefinitionDefaultvalueDuration(_) -> "Duration"
-          ElementdefinitionDefaultvalueHumanname(_) -> "Humanname"
+          ElementdefinitionDefaultvalueHumanname(_) -> "HumanName"
           ElementdefinitionDefaultvalueIdentifier(_) -> "Identifier"
           ElementdefinitionDefaultvalueMoney(_) -> "Money"
           ElementdefinitionDefaultvaluePeriod(_) -> "Period"
           ElementdefinitionDefaultvalueQuantity(_) -> "Quantity"
           ElementdefinitionDefaultvalueRange(_) -> "Range"
           ElementdefinitionDefaultvalueRatio(_) -> "Ratio"
-          ElementdefinitionDefaultvalueRatiorange(_) -> "Ratiorange"
+          ElementdefinitionDefaultvalueRatiorange(_) -> "RatioRange"
           ElementdefinitionDefaultvalueReference(_) -> "Reference"
-          ElementdefinitionDefaultvalueSampleddata(_) -> "Sampleddata"
+          ElementdefinitionDefaultvalueSampleddata(_) -> "SampledData"
           ElementdefinitionDefaultvalueSignature(_) -> "Signature"
           ElementdefinitionDefaultvalueTiming(_) -> "Timing"
-          ElementdefinitionDefaultvalueContactdetail(_) -> "Contactdetail"
+          ElementdefinitionDefaultvalueContactdetail(_) -> "ContactDetail"
           ElementdefinitionDefaultvalueContributor(_) -> "Contributor"
-          ElementdefinitionDefaultvalueDatarequirement(_) -> "Datarequirement"
+          ElementdefinitionDefaultvalueDatarequirement(_) -> "DataRequirement"
           ElementdefinitionDefaultvalueExpression(_) -> "Expression"
           ElementdefinitionDefaultvalueParameterdefinition(_) ->
-            "Parameterdefinition"
-          ElementdefinitionDefaultvalueRelatedartifact(_) -> "Relatedartifact"
+            "ParameterDefinition"
+          ElementdefinitionDefaultvalueRelatedartifact(_) -> "RelatedArtifact"
           ElementdefinitionDefaultvalueTriggerdefinition(_) ->
-            "Triggerdefinition"
-          ElementdefinitionDefaultvalueUsagecontext(_) -> "Usagecontext"
+            "TriggerDefinition"
+          ElementdefinitionDefaultvalueUsagecontext(_) -> "UsageContext"
           ElementdefinitionDefaultvalueDosage(_) -> "Dosage"
         },
         elementdefinition_defaultvalue_to_json(v),
@@ -4511,6 +4539,7 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
 }
 
 pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
+  use <- decode.recursive
   use mapping <- decode.optional_field(
     "mapping",
     [],
@@ -4767,6 +4796,7 @@ pub fn expression_to_json(expression: Expression) -> Json {
 }
 
 pub fn expression_decoder() -> Decoder(Expression) {
+  use <- decode.recursive
   use reference <- decode.optional_field(
     "reference",
     None,
@@ -4941,7 +4971,7 @@ pub fn extension_value_decoder() -> Decoder(ExtensionValue) {
         |> decode.map(ExtensionValueDate),
       decode.field("valueDateTime", decode.string, decode.success)
         |> decode.map(ExtensionValueDatetime),
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(ExtensionValueDecimal),
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(ExtensionValueId),
@@ -5077,22 +5107,22 @@ pub fn extension_to_json(extension: Extension) -> Json {
       #(
         "value"
           <> case v {
-          ExtensionValueBase64binary(_) -> "Base64binary"
+          ExtensionValueBase64binary(_) -> "Base64Binary"
           ExtensionValueBoolean(_) -> "Boolean"
           ExtensionValueCanonical(_) -> "Canonical"
           ExtensionValueCode(_) -> "Code"
           ExtensionValueDate(_) -> "Date"
-          ExtensionValueDatetime(_) -> "Datetime"
+          ExtensionValueDatetime(_) -> "DateTime"
           ExtensionValueDecimal(_) -> "Decimal"
           ExtensionValueId(_) -> "Id"
           ExtensionValueInstant(_) -> "Instant"
           ExtensionValueInteger(_) -> "Integer"
           ExtensionValueMarkdown(_) -> "Markdown"
           ExtensionValueOid(_) -> "Oid"
-          ExtensionValuePositiveint(_) -> "Positiveint"
+          ExtensionValuePositiveint(_) -> "PositiveInt"
           ExtensionValueString(_) -> "String"
           ExtensionValueTime(_) -> "Time"
-          ExtensionValueUnsignedint(_) -> "Unsignedint"
+          ExtensionValueUnsignedint(_) -> "UnsignedInt"
           ExtensionValueUri(_) -> "Uri"
           ExtensionValueUrl(_) -> "Url"
           ExtensionValueUuid(_) -> "Uuid"
@@ -5100,33 +5130,33 @@ pub fn extension_to_json(extension: Extension) -> Json {
           ExtensionValueAge(_) -> "Age"
           ExtensionValueAnnotation(_) -> "Annotation"
           ExtensionValueAttachment(_) -> "Attachment"
-          ExtensionValueCodeableconcept(_) -> "Codeableconcept"
-          ExtensionValueCodeablereference(_) -> "Codeablereference"
+          ExtensionValueCodeableconcept(_) -> "CodeableConcept"
+          ExtensionValueCodeablereference(_) -> "CodeableReference"
           ExtensionValueCoding(_) -> "Coding"
-          ExtensionValueContactpoint(_) -> "Contactpoint"
+          ExtensionValueContactpoint(_) -> "ContactPoint"
           ExtensionValueCount(_) -> "Count"
           ExtensionValueDistance(_) -> "Distance"
           ExtensionValueDuration(_) -> "Duration"
-          ExtensionValueHumanname(_) -> "Humanname"
+          ExtensionValueHumanname(_) -> "HumanName"
           ExtensionValueIdentifier(_) -> "Identifier"
           ExtensionValueMoney(_) -> "Money"
           ExtensionValuePeriod(_) -> "Period"
           ExtensionValueQuantity(_) -> "Quantity"
           ExtensionValueRange(_) -> "Range"
           ExtensionValueRatio(_) -> "Ratio"
-          ExtensionValueRatiorange(_) -> "Ratiorange"
+          ExtensionValueRatiorange(_) -> "RatioRange"
           ExtensionValueReference(_) -> "Reference"
-          ExtensionValueSampleddata(_) -> "Sampleddata"
+          ExtensionValueSampleddata(_) -> "SampledData"
           ExtensionValueSignature(_) -> "Signature"
           ExtensionValueTiming(_) -> "Timing"
-          ExtensionValueContactdetail(_) -> "Contactdetail"
+          ExtensionValueContactdetail(_) -> "ContactDetail"
           ExtensionValueContributor(_) -> "Contributor"
-          ExtensionValueDatarequirement(_) -> "Datarequirement"
+          ExtensionValueDatarequirement(_) -> "DataRequirement"
           ExtensionValueExpression(_) -> "Expression"
-          ExtensionValueParameterdefinition(_) -> "Parameterdefinition"
-          ExtensionValueRelatedartifact(_) -> "Relatedartifact"
-          ExtensionValueTriggerdefinition(_) -> "Triggerdefinition"
-          ExtensionValueUsagecontext(_) -> "Usagecontext"
+          ExtensionValueParameterdefinition(_) -> "ParameterDefinition"
+          ExtensionValueRelatedartifact(_) -> "RelatedArtifact"
+          ExtensionValueTriggerdefinition(_) -> "TriggerDefinition"
+          ExtensionValueUsagecontext(_) -> "UsageContext"
           ExtensionValueDosage(_) -> "Dosage"
         },
         extension_value_to_json(v),
@@ -5147,6 +5177,7 @@ pub fn extension_to_json(extension: Extension) -> Json {
 }
 
 pub fn extension_decoder() -> Decoder(Extension) {
+  use <- decode.recursive
   use value <- decode.then(none_if_omitted(extension_value_decoder()))
   use url <- decode.field("url", decode.string)
   use extension <- decode.optional_field(
@@ -5240,6 +5271,7 @@ pub fn humanname_to_json(humanname: Humanname) -> Json {
 }
 
 pub fn humanname_decoder() -> Decoder(Humanname) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -5357,6 +5389,7 @@ pub fn identifier_to_json(identifier: Identifier) -> Json {
 }
 
 pub fn identifier_decoder() -> Decoder(Identifier) {
+  use <- decode.recursive
   use assigner <- decode.optional_field(
     "assigner",
     None,
@@ -5481,6 +5514,7 @@ pub fn marketingstatus_to_json(marketingstatus: Marketingstatus) -> Json {
 }
 
 pub fn marketingstatus_decoder() -> Decoder(Marketingstatus) {
+  use <- decode.recursive
   use restore_date <- decode.optional_field(
     "restoreDate",
     None,
@@ -5600,6 +5634,7 @@ pub fn meta_to_json(meta: Meta) -> Json {
 }
 
 pub fn meta_decoder() -> Decoder(Meta) {
+  use <- decode.recursive
   use tag <- decode.optional_field("tag", [], decode.list(coding_decoder()))
   use security <- decode.optional_field(
     "security",
@@ -5681,6 +5716,7 @@ pub fn money_to_json(money: Money) -> Json {
 }
 
 pub fn money_decoder() -> Decoder(Money) {
+  use <- decode.recursive
   use currency <- decode.optional_field(
     "currency",
     None,
@@ -5689,7 +5725,7 @@ pub fn money_decoder() -> Decoder(Money) {
   use value <- decode.optional_field(
     "value",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -5735,6 +5771,7 @@ pub fn narrative_to_json(narrative: Narrative) -> Json {
 }
 
 pub fn narrative_decoder() -> Decoder(Narrative) {
+  use <- decode.recursive
   use div <- decode.field("div", decode.string)
   use status <- decode.field("status", r4bvaluesets.narrativestatus_decoder())
   use extension <- decode.optional_field(
@@ -5828,6 +5865,7 @@ pub fn parameterdefinition_to_json(
 }
 
 pub fn parameterdefinition_decoder() -> Decoder(Parameterdefinition) {
+  use <- decode.recursive
   use profile <- decode.optional_field(
     "profile",
     None,
@@ -5903,6 +5941,7 @@ pub fn period_to_json(period: Period) -> Json {
 }
 
 pub fn period_decoder() -> Decoder(Period) {
+  use <- decode.recursive
   use end <- decode.optional_field("end", None, decode.optional(decode.string))
   use start <- decode.optional_field(
     "start",
@@ -6003,7 +6042,7 @@ pub fn population_to_json(population: Population) -> Json {
         "age"
           <> case v {
           PopulationAgeRange(_) -> "Range"
-          PopulationAgeCodeableconcept(_) -> "Codeableconcept"
+          PopulationAgeCodeableconcept(_) -> "CodeableConcept"
         },
         population_age_to_json(v),
       ),
@@ -6030,6 +6069,7 @@ pub fn population_to_json(population: Population) -> Json {
 }
 
 pub fn population_decoder() -> Decoder(Population) {
+  use <- decode.recursive
   use physiological_condition <- decode.optional_field(
     "physiologicalCondition",
     None,
@@ -6190,6 +6230,7 @@ pub fn prodcharacteristic_to_json(
 }
 
 pub fn prodcharacteristic_decoder() -> Decoder(Prodcharacteristic) {
+  use <- decode.recursive
   use scoring <- decode.optional_field(
     "scoring",
     None,
@@ -6345,6 +6386,7 @@ pub fn productshelflife_to_json(productshelflife: Productshelflife) -> Json {
 }
 
 pub fn productshelflife_decoder() -> Decoder(Productshelflife) {
+  use <- decode.recursive
   use special_precautions_for_storage <- decode.optional_field(
     "specialPrecautionsForStorage",
     [],
@@ -6443,6 +6485,7 @@ pub fn quantity_to_json(quantity: Quantity) -> Json {
 }
 
 pub fn quantity_decoder() -> Decoder(Quantity) {
+  use <- decode.recursive
   use code <- decode.optional_field(
     "code",
     None,
@@ -6466,7 +6509,7 @@ pub fn quantity_decoder() -> Decoder(Quantity) {
   use value <- decode.optional_field(
     "value",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -6522,6 +6565,7 @@ pub fn range_to_json(range: Range) -> Json {
 }
 
 pub fn range_decoder() -> Decoder(Range) {
+  use <- decode.recursive
   use high <- decode.optional_field(
     "high",
     None,
@@ -6578,6 +6622,7 @@ pub fn ratio_to_json(ratio: Ratio) -> Json {
 }
 
 pub fn ratio_decoder() -> Decoder(Ratio) {
+  use <- decode.recursive
   use denominator <- decode.optional_field(
     "denominator",
     None,
@@ -6646,6 +6691,7 @@ pub fn ratiorange_to_json(ratiorange: Ratiorange) -> Json {
 }
 
 pub fn ratiorange_decoder() -> Decoder(Ratiorange) {
+  use <- decode.recursive
   use denominator <- decode.optional_field(
     "denominator",
     None,
@@ -6731,6 +6777,7 @@ pub fn reference_to_json(reference: Reference) -> Json {
 }
 
 pub fn reference_decoder() -> Decoder(Reference) {
+  use <- decode.recursive
   use display <- decode.optional_field(
     "display",
     None,
@@ -6849,6 +6896,7 @@ pub fn relatedartifact_to_json(relatedartifact: Relatedartifact) -> Json {
 }
 
 pub fn relatedartifact_decoder() -> Decoder(Relatedartifact) {
+  use <- decode.recursive
   use resource <- decode.optional_field(
     "resource",
     None,
@@ -6973,6 +7021,7 @@ pub fn sampleddata_to_json(sampleddata: Sampleddata) -> Json {
 }
 
 pub fn sampleddata_decoder() -> Decoder(Sampleddata) {
+  use <- decode.recursive
   use data <- decode.optional_field(
     "data",
     None,
@@ -6982,19 +7031,19 @@ pub fn sampleddata_decoder() -> Decoder(Sampleddata) {
   use upper_limit <- decode.optional_field(
     "upperLimit",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use lower_limit <- decode.optional_field(
     "lowerLimit",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
-  use period <- decode.field("period", decode.float)
+  use period <- decode.field("period", decode_number())
   use origin <- decode.field("origin", quantity_decoder())
   use extension <- decode.optional_field(
     "extension",
@@ -7092,6 +7141,7 @@ pub fn signature_to_json(signature: Signature) -> Json {
 }
 
 pub fn signature_decoder() -> Decoder(Signature) {
+  use <- decode.recursive
   use data <- decode.optional_field(
     "data",
     None,
@@ -7343,6 +7393,7 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
 }
 
 pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
+  use <- decode.recursive
   use offset <- decode.optional_field(
     "offset",
     None,
@@ -7371,12 +7422,12 @@ pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
   use period_max <- decode.optional_field(
     "periodMax",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use period <- decode.optional_field(
     "period",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use frequency_max <- decode.optional_field(
     "frequencyMax",
@@ -7396,12 +7447,12 @@ pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
   use duration_max <- decode.optional_field(
     "durationMax",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use duration <- decode.optional_field(
     "duration",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use count_max <- decode.optional_field(
     "countMax",
@@ -7472,6 +7523,7 @@ pub fn timing_to_json(timing: Timing) -> Json {
 }
 
 pub fn timing_decoder() -> Decoder(Timing) {
+  use <- decode.recursive
   use code <- decode.optional_field(
     "code",
     None,
@@ -7592,7 +7644,7 @@ pub fn triggerdefinition_to_json(triggerdefinition: Triggerdefinition) -> Json {
           TriggerdefinitionTimingTiming(_) -> "Timing"
           TriggerdefinitionTimingReference(_) -> "Reference"
           TriggerdefinitionTimingDate(_) -> "Date"
-          TriggerdefinitionTimingDatetime(_) -> "Datetime"
+          TriggerdefinitionTimingDatetime(_) -> "DateTime"
         },
         triggerdefinition_timing_to_json(v),
       ),
@@ -7616,6 +7668,7 @@ pub fn triggerdefinition_to_json(triggerdefinition: Triggerdefinition) -> Json {
 }
 
 pub fn triggerdefinition_decoder() -> Decoder(Triggerdefinition) {
+  use <- decode.recursive
   use condition <- decode.optional_field(
     "condition",
     None,
@@ -7721,6 +7774,7 @@ pub fn usagecontext_to_json(usagecontext: Usagecontext) -> Json {
 }
 
 pub fn usagecontext_decoder() -> Decoder(Usagecontext) {
+  use <- decode.recursive
   use value <- decode.then(usagecontext_value_decoder())
   use code <- decode.field("code", coding_decoder())
   use extension <- decode.optional_field(
@@ -7796,6 +7850,7 @@ pub fn moneyquantity_to_json(moneyquantity: Moneyquantity) -> Json {
 }
 
 pub fn moneyquantity_decoder() -> Decoder(Moneyquantity) {
+  use <- decode.recursive
   use code <- decode.optional_field(
     "code",
     None,
@@ -7819,7 +7874,7 @@ pub fn moneyquantity_decoder() -> Decoder(Moneyquantity) {
   use value <- decode.optional_field(
     "value",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -7893,6 +7948,7 @@ pub fn simplequantity_to_json(simplequantity: Simplequantity) -> Json {
 }
 
 pub fn simplequantity_decoder() -> Decoder(Simplequantity) {
+  use <- decode.recursive
   use code <- decode.optional_field(
     "code",
     None,
@@ -7911,7 +7967,7 @@ pub fn simplequantity_decoder() -> Decoder(Simplequantity) {
   use value <- decode.optional_field(
     "value",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -8054,6 +8110,7 @@ pub fn account_guarantor_to_json(account_guarantor: AccountGuarantor) -> Json {
 }
 
 pub fn account_guarantor_decoder() -> Decoder(AccountGuarantor) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -8120,6 +8177,7 @@ pub fn account_coverage_to_json(account_coverage: AccountCoverage) -> Json {
 }
 
 pub fn account_coverage_decoder() -> Decoder(AccountCoverage) {
+  use <- decode.recursive
   use priority <- decode.optional_field(
     "priority",
     None,
@@ -8257,6 +8315,7 @@ pub fn account_to_json(account: Account) -> Json {
 }
 
 pub fn account_decoder() -> Decoder(Account) {
+  use <- decode.recursive
   use part_of <- decode.optional_field(
     "partOf",
     None,
@@ -8684,6 +8743,7 @@ pub fn activitydefinition_dynamicvalue_to_json(
 pub fn activitydefinition_dynamicvalue_decoder() -> Decoder(
   ActivitydefinitionDynamicvalue,
 ) {
+  use <- decode.recursive
   use expression <- decode.field("expression", expression_decoder())
   use path <- decode.field("path", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -8744,6 +8804,7 @@ pub fn activitydefinition_participant_to_json(
 pub fn activitydefinition_participant_decoder() -> Decoder(
   ActivitydefinitionParticipant,
 ) {
+  use <- decode.recursive
   use role <- decode.optional_field(
     "role",
     None,
@@ -8900,7 +8961,7 @@ pub fn activitydefinition_to_json(
         "product"
           <> case v {
           ActivitydefinitionProductReference(_) -> "Reference"
-          ActivitydefinitionProductCodeableconcept(_) -> "Codeableconcept"
+          ActivitydefinitionProductCodeableconcept(_) -> "CodeableConcept"
         },
         activitydefinition_product_to_json(v),
       ),
@@ -8928,7 +8989,7 @@ pub fn activitydefinition_to_json(
         "timing"
           <> case v {
           ActivitydefinitionTimingTiming(_) -> "Timing"
-          ActivitydefinitionTimingDatetime(_) -> "Datetime"
+          ActivitydefinitionTimingDatetime(_) -> "DateTime"
           ActivitydefinitionTimingAge(_) -> "Age"
           ActivitydefinitionTimingPeriod(_) -> "Period"
           ActivitydefinitionTimingRange(_) -> "Range"
@@ -9063,7 +9124,7 @@ pub fn activitydefinition_to_json(
       #(
         "subject"
           <> case v {
-          ActivitydefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          ActivitydefinitionSubjectCodeableconcept(_) -> "CodeableConcept"
           ActivitydefinitionSubjectReference(_) -> "Reference"
           ActivitydefinitionSubjectCanonical(_) -> "Canonical"
         },
@@ -9136,11 +9197,12 @@ pub fn activitydefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Activitydefinition")), ..fields]
+  let fields = [#("resourceType", json.string("ActivityDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
+  use <- decode.recursive
   use dynamic_value <- decode.optional_field(
     "dynamicValue",
     [],
@@ -9396,7 +9458,7 @@ pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Activitydefinition",
+    rt != "ActivityDefinition",
     decode.failure(activitydefinition_new(status:), "resourceType"),
   )
   decode.success(Activitydefinition(
@@ -9709,6 +9771,7 @@ pub fn administrableproductdefinition_routeofadministration_targetspecies_withdr
 pub fn administrableproductdefinition_routeofadministration_targetspecies_withdrawalperiod_decoder() -> Decoder(
   AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdrawalperiod,
 ) {
+  use <- decode.recursive
   use supporting_information <- decode.optional_field(
     "supportingInformation",
     None,
@@ -9786,6 +9849,7 @@ pub fn administrableproductdefinition_routeofadministration_targetspecies_to_jso
 pub fn administrableproductdefinition_routeofadministration_targetspecies_decoder() -> Decoder(
   AdministrableproductdefinitionRouteofadministrationTargetspecies,
 ) {
+  use <- decode.recursive
   use withdrawal_period <- decode.optional_field(
     "withdrawalPeriod",
     [],
@@ -9888,6 +9952,7 @@ pub fn administrableproductdefinition_routeofadministration_to_json(
 pub fn administrableproductdefinition_routeofadministration_decoder() -> Decoder(
   AdministrableproductdefinitionRouteofadministration,
 ) {
+  use <- decode.recursive
   use target_species <- decode.optional_field(
     "targetSpecies",
     [],
@@ -9970,7 +10035,7 @@ pub fn administrableproductdefinition_property_to_json(
         "value"
           <> case v {
           AdministrableproductdefinitionPropertyValueCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           AdministrableproductdefinitionPropertyValueQuantity(_) -> "Quantity"
           AdministrableproductdefinitionPropertyValueDate(_) -> "Date"
           AdministrableproductdefinitionPropertyValueBoolean(_) -> "Boolean"
@@ -10004,6 +10069,7 @@ pub fn administrableproductdefinition_property_to_json(
 pub fn administrableproductdefinition_property_decoder() -> Decoder(
   AdministrableproductdefinitionProperty,
 ) {
+  use <- decode.recursive
   use status <- decode.optional_field(
     "status",
     None,
@@ -10156,7 +10222,7 @@ pub fn administrableproductdefinition_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Administrableproductdefinition")),
+    #("resourceType", json.string("AdministrableProductDefinition")),
     ..fields
   ]
   json.object(fields)
@@ -10165,6 +10231,7 @@ pub fn administrableproductdefinition_to_json(
 pub fn administrableproductdefinition_decoder() -> Decoder(
   Administrableproductdefinition,
 ) {
+  use <- decode.recursive
   use route_of_administration <- decode.optional_field(
     "routeOfAdministration",
     [],
@@ -10250,7 +10317,7 @@ pub fn administrableproductdefinition_decoder() -> Decoder(
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Administrableproductdefinition",
+    rt != "AdministrableProductDefinition",
     decode.failure(administrableproductdefinition_new(status:), "resourceType"),
   )
   decode.success(Administrableproductdefinition(
@@ -10443,6 +10510,7 @@ pub fn adverseevent_suspectentity_causality_to_json(
 pub fn adverseevent_suspectentity_causality_decoder() -> Decoder(
   AdverseeventSuspectentityCausality,
 ) {
+  use <- decode.recursive
   use method <- decode.optional_field(
     "method",
     None,
@@ -10529,6 +10597,7 @@ pub fn adverseevent_suspectentity_to_json(
 pub fn adverseevent_suspectentity_decoder() -> Decoder(
   AdverseeventSuspectentity,
 ) {
+  use <- decode.recursive
   use causality <- decode.optional_field(
     "causality",
     [],
@@ -10724,11 +10793,12 @@ pub fn adverseevent_to_json(adverseevent: Adverseevent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Adverseevent")), ..fields]
+  let fields = [#("resourceType", json.string("AdverseEvent")), ..fields]
   json.object(fields)
 }
 
 pub fn adverseevent_decoder() -> Decoder(Adverseevent) {
+  use <- decode.recursive
   use study <- decode.optional_field(
     "study",
     [],
@@ -10863,7 +10933,7 @@ pub fn adverseevent_decoder() -> Decoder(Adverseevent) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Adverseevent",
+    rt != "AdverseEvent",
     decode.failure(adverseevent_new(subject:, actuality:), "resourceType"),
   )
   decode.success(Adverseevent(
@@ -11095,6 +11165,7 @@ pub fn allergyintolerance_reaction_to_json(
 pub fn allergyintolerance_reaction_decoder() -> Decoder(
   AllergyintoleranceReaction,
 ) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -11219,7 +11290,7 @@ pub fn allergyintolerance_to_json(
       #(
         "onset"
           <> case v {
-          AllergyintoleranceOnsetDatetime(_) -> "Datetime"
+          AllergyintoleranceOnsetDatetime(_) -> "DateTime"
           AllergyintoleranceOnsetAge(_) -> "Age"
           AllergyintoleranceOnsetPeriod(_) -> "Period"
           AllergyintoleranceOnsetRange(_) -> "Range"
@@ -11310,11 +11381,12 @@ pub fn allergyintolerance_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Allergyintolerance")), ..fields]
+  let fields = [#("resourceType", json.string("AllergyIntolerance")), ..fields]
   json.object(fields)
 }
 
 pub fn allergyintolerance_decoder() -> Decoder(Allergyintolerance) {
+  use <- decode.recursive
   use reaction <- decode.optional_field(
     "reaction",
     [],
@@ -11426,7 +11498,7 @@ pub fn allergyintolerance_decoder() -> Decoder(Allergyintolerance) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Allergyintolerance",
+    rt != "AllergyIntolerance",
     decode.failure(allergyintolerance_new(patient:), "resourceType"),
   )
   decode.success(Allergyintolerance(
@@ -11613,6 +11685,7 @@ pub fn appointment_participant_to_json(
 }
 
 pub fn appointment_participant_decoder() -> Decoder(AppointmentParticipant) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -11850,6 +11923,7 @@ pub fn appointment_to_json(appointment: Appointment) -> Json {
 }
 
 pub fn appointment_decoder() -> Decoder(Appointment) {
+  use <- decode.recursive
   use requested_period <- decode.optional_field(
     "requestedPeriod",
     [],
@@ -12167,11 +12241,12 @@ pub fn appointmentresponse_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Appointmentresponse")), ..fields]
+  let fields = [#("resourceType", json.string("AppointmentResponse")), ..fields]
   json.object(fields)
 }
 
 pub fn appointmentresponse_decoder() -> Decoder(Appointmentresponse) {
+  use <- decode.recursive
   use comment <- decode.optional_field(
     "comment",
     None,
@@ -12242,7 +12317,7 @@ pub fn appointmentresponse_decoder() -> Decoder(Appointmentresponse) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Appointmentresponse",
+    rt != "AppointmentResponse",
     decode.failure(
       appointmentresponse_new(participant_status:, appointment:),
       "resourceType",
@@ -12524,6 +12599,7 @@ pub fn auditevent_entity_detail_to_json(
 }
 
 pub fn auditevent_entity_detail_decoder() -> Decoder(AuditeventEntityDetail) {
+  use <- decode.recursive
   use value <- decode.then(auditevent_entity_detail_value_decoder())
   use type_ <- decode.field("type", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -12623,6 +12699,7 @@ pub fn auditevent_entity_to_json(auditevent_entity: AuditeventEntity) -> Json {
 }
 
 pub fn auditevent_entity_decoder() -> Decoder(AuditeventEntity) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     [],
@@ -12734,6 +12811,7 @@ pub fn auditevent_source_to_json(auditevent_source: AuditeventSource) -> Json {
 }
 
 pub fn auditevent_source_decoder() -> Decoder(AuditeventSource) {
+  use <- decode.recursive
   use type_ <- decode.optional_field("type", [], decode.list(coding_decoder()))
   use observer <- decode.field("observer", reference_decoder())
   use site <- decode.optional_field(
@@ -12800,6 +12878,7 @@ pub fn auditevent_agent_network_to_json(
 }
 
 pub fn auditevent_agent_network_decoder() -> Decoder(AuditeventAgentNetwork) {
+  use <- decode.recursive
   use type_ <- decode.optional_field(
     "type",
     None,
@@ -12912,6 +12991,7 @@ pub fn auditevent_agent_to_json(auditevent_agent: AuditeventAgent) -> Json {
 }
 
 pub fn auditevent_agent_decoder() -> Decoder(AuditeventAgent) {
+  use <- decode.recursive
   use purpose_of_use <- decode.optional_field(
     "purposeOfUse",
     [],
@@ -13088,11 +13168,12 @@ pub fn auditevent_to_json(auditevent: Auditevent) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Auditevent")), ..fields]
+  let fields = [#("resourceType", json.string("AuditEvent")), ..fields]
   json.object(fields)
 }
 
 pub fn auditevent_decoder() -> Decoder(Auditevent) {
+  use <- decode.recursive
   use entity <- decode.optional_field(
     "entity",
     [],
@@ -13175,7 +13256,7 @@ pub fn auditevent_decoder() -> Decoder(Auditevent) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Auditevent",
+    rt != "AuditEvent",
     decode.failure(auditevent_new(source:, recorded:, type_:), "resourceType"),
   )
   decode.success(Auditevent(
@@ -13313,6 +13394,7 @@ pub fn basic_to_json(basic: Basic) -> Json {
 }
 
 pub fn basic_decoder() -> Decoder(Basic) {
+  use <- decode.recursive
   use author <- decode.optional_field(
     "author",
     None,
@@ -13460,6 +13542,7 @@ pub fn binary_to_json(binary: Binary) -> Json {
 }
 
 pub fn binary_decoder() -> Decoder(Binary) {
+  use <- decode.recursive
   use data <- decode.optional_field(
     "data",
     None,
@@ -13784,6 +13867,7 @@ pub fn biologicallyderivedproduct_storage_to_json(
 pub fn biologicallyderivedproduct_storage_decoder() -> Decoder(
   BiologicallyderivedproductStorage,
 ) {
+  use <- decode.recursive
   use duration <- decode.optional_field(
     "duration",
     None,
@@ -13797,7 +13881,7 @@ pub fn biologicallyderivedproduct_storage_decoder() -> Decoder(
   use temperature <- decode.optional_field(
     "temperature",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use description <- decode.optional_field(
     "description",
@@ -13842,7 +13926,7 @@ pub fn biologicallyderivedproduct_manipulation_to_json(
       #(
         "time"
           <> case v {
-          BiologicallyderivedproductManipulationTimeDatetime(_) -> "Datetime"
+          BiologicallyderivedproductManipulationTimeDatetime(_) -> "DateTime"
           BiologicallyderivedproductManipulationTimePeriod(_) -> "Period"
         },
         biologicallyderivedproduct_manipulation_time_to_json(v),
@@ -13876,6 +13960,7 @@ pub fn biologicallyderivedproduct_manipulation_to_json(
 pub fn biologicallyderivedproduct_manipulation_decoder() -> Decoder(
   BiologicallyderivedproductManipulation,
 ) {
+  use <- decode.recursive
   use time <- decode.then(
     none_if_omitted(biologicallyderivedproduct_manipulation_time_decoder()),
   )
@@ -13922,7 +14007,7 @@ pub fn biologicallyderivedproduct_processing_to_json(
       #(
         "time"
           <> case v {
-          BiologicallyderivedproductProcessingTimeDatetime(_) -> "Datetime"
+          BiologicallyderivedproductProcessingTimeDatetime(_) -> "DateTime"
           BiologicallyderivedproductProcessingTimePeriod(_) -> "Period"
         },
         biologicallyderivedproduct_processing_time_to_json(v),
@@ -13964,6 +14049,7 @@ pub fn biologicallyderivedproduct_processing_to_json(
 pub fn biologicallyderivedproduct_processing_decoder() -> Decoder(
   BiologicallyderivedproductProcessing,
 ) {
+  use <- decode.recursive
   use time <- decode.then(
     none_if_omitted(biologicallyderivedproduct_processing_time_decoder()),
   )
@@ -14021,7 +14107,7 @@ pub fn biologicallyderivedproduct_collection_to_json(
       #(
         "collected"
           <> case v {
-          BiologicallyderivedproductCollectionCollectedDatetime(_) -> "Datetime"
+          BiologicallyderivedproductCollectionCollectedDatetime(_) -> "DateTime"
           BiologicallyderivedproductCollectionCollectedPeriod(_) -> "Period"
         },
         biologicallyderivedproduct_collection_collected_to_json(v),
@@ -14059,6 +14145,7 @@ pub fn biologicallyderivedproduct_collection_to_json(
 pub fn biologicallyderivedproduct_collection_decoder() -> Decoder(
   BiologicallyderivedproductCollection,
 ) {
+  use <- decode.recursive
   use collected <- decode.then(
     none_if_omitted(biologicallyderivedproduct_collection_collected_decoder()),
   )
@@ -14219,7 +14306,7 @@ pub fn biologicallyderivedproduct_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Biologicallyderivedproduct")),
+    #("resourceType", json.string("BiologicallyDerivedProduct")),
     ..fields
   ]
   json.object(fields)
@@ -14228,6 +14315,7 @@ pub fn biologicallyderivedproduct_to_json(
 pub fn biologicallyderivedproduct_decoder() -> Decoder(
   Biologicallyderivedproduct,
 ) {
+  use <- decode.recursive
   use storage <- decode.optional_field(
     "storage",
     [],
@@ -14322,7 +14410,7 @@ pub fn biologicallyderivedproduct_decoder() -> Decoder(
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Biologicallyderivedproduct",
+    rt != "BiologicallyDerivedProduct",
     decode.failure(biologicallyderivedproduct_new(), "resourceType"),
   )
   decode.success(Biologicallyderivedproduct(
@@ -14482,11 +14570,12 @@ pub fn bodystructure_to_json(bodystructure: Bodystructure) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Bodystructure")), ..fields]
+  let fields = [#("resourceType", json.string("BodyStructure")), ..fields]
   json.object(fields)
 }
 
 pub fn bodystructure_decoder() -> Decoder(Bodystructure) {
+  use <- decode.recursive
   use patient <- decode.field("patient", reference_decoder())
   use image <- decode.optional_field(
     "image",
@@ -14562,7 +14651,7 @@ pub fn bodystructure_decoder() -> Decoder(Bodystructure) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Bodystructure",
+    rt != "BodyStructure",
     decode.failure(bodystructure_new(patient:), "resourceType"),
   )
   decode.success(Bodystructure(
@@ -14793,6 +14882,7 @@ pub fn bundle_entry_response_to_json(
 }
 
 pub fn bundle_entry_response_decoder() -> Decoder(BundleEntryResponse) {
+  use <- decode.recursive
   use outcome <- decode.optional_field(
     "outcome",
     None,
@@ -14890,6 +14980,7 @@ pub fn bundle_entry_request_to_json(
 }
 
 pub fn bundle_entry_request_decoder() -> Decoder(BundleEntryRequest) {
+  use <- decode.recursive
   use if_none_exist <- decode.optional_field(
     "ifNoneExist",
     None,
@@ -14969,10 +15060,11 @@ pub fn bundle_entry_search_to_json(
 }
 
 pub fn bundle_entry_search_decoder() -> Decoder(BundleEntrySearch) {
+  use <- decode.recursive
   use score <- decode.optional_field(
     "score",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use mode <- decode.optional_field(
     "mode",
@@ -15055,6 +15147,7 @@ pub fn bundle_entry_to_json(bundle_entry: BundleEntry) -> Json {
 }
 
 pub fn bundle_entry_decoder() -> Decoder(BundleEntry) {
+  use <- decode.recursive
   use response <- decode.optional_field(
     "response",
     None,
@@ -15135,6 +15228,7 @@ pub fn bundle_link_to_json(bundle_link: BundleLink) -> Json {
 }
 
 pub fn bundle_link_decoder() -> Decoder(BundleLink) {
+  use <- decode.recursive
   use url <- decode.field("url", decode.string)
   use relation <- decode.field("relation", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -15219,6 +15313,7 @@ pub fn bundle_to_json(bundle: Bundle) -> Json {
 }
 
 pub fn bundle_decoder() -> Decoder(Bundle) {
+  use <- decode.recursive
   use signature <- decode.optional_field(
     "signature",
     None,
@@ -15767,6 +15862,7 @@ pub fn capabilitystatement_document_to_json(
 pub fn capabilitystatement_document_decoder() -> Decoder(
   CapabilitystatementDocument,
 ) {
+  use <- decode.recursive
   use profile <- decode.field("profile", decode.string)
   use documentation <- decode.optional_field(
     "documentation",
@@ -15830,6 +15926,7 @@ pub fn capabilitystatement_messaging_supportedmessage_to_json(
 pub fn capabilitystatement_messaging_supportedmessage_decoder() -> Decoder(
   CapabilitystatementMessagingSupportedmessage,
 ) {
+  use <- decode.recursive
   use definition <- decode.field("definition", decode.string)
   use mode <- decode.field("mode", r4bvaluesets.eventcapabilitymode_decoder())
   use modifier_extension <- decode.optional_field(
@@ -15887,6 +15984,7 @@ pub fn capabilitystatement_messaging_endpoint_to_json(
 pub fn capabilitystatement_messaging_endpoint_decoder() -> Decoder(
   CapabilitystatementMessagingEndpoint,
 ) {
+  use <- decode.recursive
   use address <- decode.field("address", decode.string)
   use protocol <- decode.field("protocol", coding_decoder())
   use modifier_extension <- decode.optional_field(
@@ -15974,6 +16072,7 @@ pub fn capabilitystatement_messaging_to_json(
 pub fn capabilitystatement_messaging_decoder() -> Decoder(
   CapabilitystatementMessaging,
 ) {
+  use <- decode.recursive
   use supported_message <- decode.optional_field(
     "supportedMessage",
     [],
@@ -16054,6 +16153,7 @@ pub fn capabilitystatement_rest_interaction_to_json(
 pub fn capabilitystatement_rest_interaction_decoder() -> Decoder(
   CapabilitystatementRestInteraction,
 ) {
+  use <- decode.recursive
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -16123,6 +16223,7 @@ pub fn capabilitystatement_rest_resource_operation_to_json(
 pub fn capabilitystatement_rest_resource_operation_decoder() -> Decoder(
   CapabilitystatementRestResourceOperation,
 ) {
+  use <- decode.recursive
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -16196,6 +16297,7 @@ pub fn capabilitystatement_rest_resource_searchparam_to_json(
 pub fn capabilitystatement_rest_resource_searchparam_decoder() -> Decoder(
   CapabilitystatementRestResourceSearchparam,
 ) {
+  use <- decode.recursive
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -16268,6 +16370,7 @@ pub fn capabilitystatement_rest_resource_interaction_to_json(
 pub fn capabilitystatement_rest_resource_interaction_decoder() -> Decoder(
   CapabilitystatementRestResourceInteraction,
 ) {
+  use <- decode.recursive
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -16461,6 +16564,7 @@ pub fn capabilitystatement_rest_resource_to_json(
 pub fn capabilitystatement_rest_resource_decoder() -> Decoder(
   CapabilitystatementRestResource,
 ) {
+  use <- decode.recursive
   use operation <- decode.optional_field(
     "operation",
     [],
@@ -16622,6 +16726,7 @@ pub fn capabilitystatement_rest_security_to_json(
 pub fn capabilitystatement_rest_security_decoder() -> Decoder(
   CapabilitystatementRestSecurity,
 ) {
+  use <- decode.recursive
   use description <- decode.optional_field(
     "description",
     None,
@@ -16753,6 +16858,7 @@ pub fn capabilitystatement_rest_to_json(
 }
 
 pub fn capabilitystatement_rest_decoder() -> Decoder(CapabilitystatementRest) {
+  use <- decode.recursive
   use compartment <- decode.optional_field(
     "compartment",
     [],
@@ -16858,6 +16964,7 @@ pub fn capabilitystatement_implementation_to_json(
 pub fn capabilitystatement_implementation_decoder() -> Decoder(
   CapabilitystatementImplementation,
 ) {
+  use <- decode.recursive
   use custodian <- decode.optional_field(
     "custodian",
     None,
@@ -16929,6 +17036,7 @@ pub fn capabilitystatement_software_to_json(
 pub fn capabilitystatement_software_decoder() -> Decoder(
   CapabilitystatementSoftware,
 ) {
+  use <- decode.recursive
   use release_date <- decode.optional_field(
     "releaseDate",
     None,
@@ -17156,11 +17264,12 @@ pub fn capabilitystatement_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Capabilitystatement")), ..fields]
+  let fields = [#("resourceType", json.string("CapabilityStatement")), ..fields]
   json.object(fields)
 }
 
 pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
+  use <- decode.recursive
   use document <- decode.optional_field(
     "document",
     [],
@@ -17312,7 +17421,7 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Capabilitystatement",
+    rt != "CapabilityStatement",
     decode.failure(
       capabilitystatement_new(fhir_version:, kind:, date:, status:),
       "resourceType",
@@ -17623,7 +17732,7 @@ pub fn careplan_activity_detail_to_json(
       #(
         "product"
           <> case v {
-          CareplanActivityDetailProductCodeableconcept(_) -> "Codeableconcept"
+          CareplanActivityDetailProductCodeableconcept(_) -> "CodeableConcept"
           CareplanActivityDetailProductReference(_) -> "Reference"
         },
         careplan_activity_detail_product_to_json(v),
@@ -17728,6 +17837,7 @@ pub fn careplan_activity_detail_to_json(
 }
 
 pub fn careplan_activity_detail_decoder() -> Decoder(CareplanActivityDetail) {
+  use <- decode.recursive
   use description <- decode.optional_field(
     "description",
     None,
@@ -17903,6 +18013,7 @@ pub fn careplan_activity_to_json(careplan_activity: CareplanActivity) -> Json {
 }
 
 pub fn careplan_activity_decoder() -> Decoder(CareplanActivity) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     None,
@@ -18126,11 +18237,12 @@ pub fn careplan_to_json(careplan: Careplan) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Careplan")), ..fields]
+  let fields = [#("resourceType", json.string("CarePlan")), ..fields]
   json.object(fields)
 }
 
 pub fn careplan_decoder() -> Decoder(Careplan) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -18273,7 +18385,7 @@ pub fn careplan_decoder() -> Decoder(Careplan) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Careplan",
+    rt != "CarePlan",
     decode.failure(careplan_new(subject:, intent:, status:), "resourceType"),
   )
   decode.success(Careplan(
@@ -18437,6 +18549,7 @@ pub fn careteam_participant_to_json(
 }
 
 pub fn careteam_participant_decoder() -> Decoder(CareteamParticipant) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -18609,11 +18722,12 @@ pub fn careteam_to_json(careteam: Careteam) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Careteam")), ..fields]
+  let fields = [#("resourceType", json.string("CareTeam")), ..fields]
   json.object(fields)
 }
 
 pub fn careteam_decoder() -> Decoder(Careteam) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -18718,7 +18832,7 @@ pub fn careteam_decoder() -> Decoder(Careteam) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Careteam",
+    rt != "CareTeam",
     decode.failure(careteam_new(), "resourceType"),
   )
   decode.success(Careteam(
@@ -18859,6 +18973,7 @@ pub fn catalogentry_relatedentry_to_json(
 }
 
 pub fn catalogentry_relatedentry_decoder() -> Decoder(CatalogentryRelatedentry) {
+  use <- decode.recursive
   use item <- decode.field("item", reference_decoder())
   use relationtype <- decode.field(
     "relationtype",
@@ -19021,11 +19136,12 @@ pub fn catalogentry_to_json(catalogentry: Catalogentry) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Catalogentry")), ..fields]
+  let fields = [#("resourceType", json.string("CatalogEntry")), ..fields]
   json.object(fields)
 }
 
 pub fn catalogentry_decoder() -> Decoder(Catalogentry) {
+  use <- decode.recursive
   use related_entry <- decode.optional_field(
     "relatedEntry",
     [],
@@ -19122,7 +19238,7 @@ pub fn catalogentry_decoder() -> Decoder(Catalogentry) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Catalogentry",
+    rt != "CatalogEntry",
     decode.failure(
       catalogentry_new(referenced_item:, orderable:),
       "resourceType",
@@ -19349,6 +19465,7 @@ pub fn chargeitem_performer_to_json(
 }
 
 pub fn chargeitem_performer_decoder() -> Decoder(ChargeitemPerformer) {
+  use <- decode.recursive
   use actor <- decode.field("actor", reference_decoder())
   use function <- decode.optional_field(
     "function",
@@ -19441,7 +19558,7 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
         "product"
           <> case v {
           ChargeitemProductReference(_) -> "Reference"
-          ChargeitemProductCodeableconcept(_) -> "Codeableconcept"
+          ChargeitemProductCodeableconcept(_) -> "CodeableConcept"
         },
         chargeitem_product_to_json(v),
       ),
@@ -19512,7 +19629,7 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
       #(
         "occurrence"
           <> case v {
-          ChargeitemOccurrenceDatetime(_) -> "Datetime"
+          ChargeitemOccurrenceDatetime(_) -> "DateTime"
           ChargeitemOccurrencePeriod(_) -> "Period"
           ChargeitemOccurrenceTiming(_) -> "Timing"
         },
@@ -19580,11 +19697,12 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Chargeitem")), ..fields]
+  let fields = [#("resourceType", json.string("ChargeItem")), ..fields]
   json.object(fields)
 }
 
 pub fn chargeitem_decoder() -> Decoder(Chargeitem) {
+  use <- decode.recursive
   use supporting_information <- decode.optional_field(
     "supportingInformation",
     [],
@@ -19634,7 +19752,7 @@ pub fn chargeitem_decoder() -> Decoder(Chargeitem) {
   use factor_override <- decode.optional_field(
     "factorOverride",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use bodysite <- decode.optional_field(
     "bodysite",
@@ -19736,7 +19854,7 @@ pub fn chargeitem_decoder() -> Decoder(Chargeitem) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Chargeitem",
+    rt != "ChargeItem",
     decode.failure(chargeitem_new(subject:, code:, status:), "resourceType"),
   )
   decode.success(Chargeitem(
@@ -19972,6 +20090,7 @@ pub fn chargeitemdefinition_propertygroup_pricecomponent_to_json(
 pub fn chargeitemdefinition_propertygroup_pricecomponent_decoder() -> Decoder(
   ChargeitemdefinitionPropertygroupPricecomponent,
 ) {
+  use <- decode.recursive
   use amount <- decode.optional_field(
     "amount",
     None,
@@ -19980,7 +20099,7 @@ pub fn chargeitemdefinition_propertygroup_pricecomponent_decoder() -> Decoder(
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use code <- decode.optional_field(
     "code",
@@ -20068,6 +20187,7 @@ pub fn chargeitemdefinition_propertygroup_to_json(
 pub fn chargeitemdefinition_propertygroup_decoder() -> Decoder(
   ChargeitemdefinitionPropertygroup,
 ) {
+  use <- decode.recursive
   use price_component <- decode.optional_field(
     "priceComponent",
     [],
@@ -20143,6 +20263,7 @@ pub fn chargeitemdefinition_applicability_to_json(
 pub fn chargeitemdefinition_applicability_decoder() -> Decoder(
   ChargeitemdefinitionApplicability,
 ) {
+  use <- decode.recursive
   use expression <- decode.optional_field(
     "expression",
     None,
@@ -20360,13 +20481,14 @@ pub fn chargeitemdefinition_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Chargeitemdefinition")),
+    #("resourceType", json.string("ChargeItemDefinition")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn chargeitemdefinition_decoder() -> Decoder(Chargeitemdefinition) {
+  use <- decode.recursive
   use property_group <- decode.optional_field(
     "propertyGroup",
     [],
@@ -20509,7 +20631,7 @@ pub fn chargeitemdefinition_decoder() -> Decoder(Chargeitemdefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Chargeitemdefinition",
+    rt != "ChargeItemDefinition",
     decode.failure(chargeitemdefinition_new(status:, url:), "resourceType"),
   )
   decode.success(Chargeitemdefinition(
@@ -21375,6 +21497,7 @@ pub fn citation_citedartifact_contributorship_summary_to_json(
 pub fn citation_citedartifact_contributorship_summary_decoder() -> Decoder(
   CitationCitedartifactContributorshipSummary,
 ) {
+  use <- decode.recursive
   use value <- decode.field("value", decode.string)
   use source <- decode.optional_field(
     "source",
@@ -21451,6 +21574,7 @@ pub fn citation_citedartifact_contributorship_entry_contributioninstance_to_json
 pub fn citation_citedartifact_contributorship_entry_contributioninstance_decoder() -> Decoder(
   CitationCitedartifactContributorshipEntryContributioninstance,
 ) {
+  use <- decode.recursive
   use time <- decode.optional_field(
     "time",
     None,
@@ -21522,6 +21646,7 @@ pub fn citation_citedartifact_contributorship_entry_affiliationinfo_to_json(
 pub fn citation_citedartifact_contributorship_entry_affiliationinfo_decoder() -> Decoder(
   CitationCitedartifactContributorshipEntryAffiliationinfo,
 ) {
+  use <- decode.recursive
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -21672,6 +21797,7 @@ pub fn citation_citedartifact_contributorship_entry_to_json(
 pub fn citation_citedartifact_contributorship_entry_decoder() -> Decoder(
   CitationCitedartifactContributorshipEntry,
 ) {
+  use <- decode.recursive
   use list_order <- decode.optional_field(
     "listOrder",
     None,
@@ -21826,6 +21952,7 @@ pub fn citation_citedartifact_contributorship_to_json(
 pub fn citation_citedartifact_contributorship_decoder() -> Decoder(
   CitationCitedartifactContributorship,
 ) {
+  use <- decode.recursive
   use summary <- decode.optional_field(
     "summary",
     [],
@@ -21917,6 +22044,7 @@ pub fn citation_citedartifact_classification_whoclassified_to_json(
 pub fn citation_citedartifact_classification_whoclassified_decoder() -> Decoder(
   CitationCitedartifactClassificationWhoclassified,
 ) {
+  use <- decode.recursive
   use free_to_share <- decode.optional_field(
     "freeToShare",
     None,
@@ -22019,6 +22147,7 @@ pub fn citation_citedartifact_classification_to_json(
 pub fn citation_citedartifact_classification_decoder() -> Decoder(
   CitationCitedartifactClassification,
 ) {
+  use <- decode.recursive
   use who_classified <- decode.optional_field(
     "whoClassified",
     None,
@@ -22097,6 +22226,7 @@ pub fn citation_citedartifact_weblocation_to_json(
 pub fn citation_citedartifact_weblocation_decoder() -> Decoder(
   CitationCitedartifactWeblocation,
 ) {
+  use <- decode.recursive
   use url <- decode.optional_field("url", None, decode.optional(decode.string))
   use type_ <- decode.optional_field(
     "type",
@@ -22183,6 +22313,7 @@ pub fn citation_citedartifact_publicationform_periodicrelease_dateofpublication_
 pub fn citation_citedartifact_publicationform_periodicrelease_dateofpublication_decoder() -> Decoder(
   CitationCitedartifactPublicationformPeriodicreleaseDateofpublication,
 ) {
+  use <- decode.recursive
   use text <- decode.optional_field(
     "text",
     None,
@@ -22293,6 +22424,7 @@ pub fn citation_citedartifact_publicationform_periodicrelease_to_json(
 pub fn citation_citedartifact_publicationform_periodicrelease_decoder() -> Decoder(
   CitationCitedartifactPublicationformPeriodicrelease,
 ) {
+  use <- decode.recursive
   use date_of_publication <- decode.optional_field(
     "dateOfPublication",
     None,
@@ -22392,6 +22524,7 @@ pub fn citation_citedartifact_publicationform_publishedin_to_json(
 pub fn citation_citedartifact_publicationform_publishedin_decoder() -> Decoder(
   CitationCitedartifactPublicationformPublishedin,
 ) {
+  use <- decode.recursive
   use publisher_location <- decode.optional_field(
     "publisherLocation",
     None,
@@ -22540,6 +22673,7 @@ pub fn citation_citedartifact_publicationform_to_json(
 pub fn citation_citedartifact_publicationform_decoder() -> Decoder(
   CitationCitedartifactPublicationform,
 ) {
+  use <- decode.recursive
   use copyright <- decode.optional_field(
     "copyright",
     None,
@@ -22674,6 +22808,7 @@ pub fn citation_citedartifact_relatesto_to_json(
 pub fn citation_citedartifact_relatesto_decoder() -> Decoder(
   CitationCitedartifactRelatesto,
 ) {
+  use <- decode.recursive
   use target <- decode.then(citation_citedartifact_relatesto_target_decoder())
   use target_classifier <- decode.optional_field(
     "targetClassifier",
@@ -22750,6 +22885,7 @@ pub fn citation_citedartifact_part_to_json(
 pub fn citation_citedartifact_part_decoder() -> Decoder(
   CitationCitedartifactPart,
 ) {
+  use <- decode.recursive
   use base_citation <- decode.optional_field(
     "baseCitation",
     None,
@@ -22834,6 +22970,7 @@ pub fn citation_citedartifact_abstract_to_json(
 pub fn citation_citedartifact_abstract_decoder() -> Decoder(
   CitationCitedartifactAbstract,
 ) {
+  use <- decode.recursive
   use copyright <- decode.optional_field(
     "copyright",
     None,
@@ -22915,6 +23052,7 @@ pub fn citation_citedartifact_title_to_json(
 pub fn citation_citedartifact_title_decoder() -> Decoder(
   CitationCitedartifactTitle,
 ) {
+  use <- decode.recursive
   use text <- decode.field("text", decode.string)
   use language <- decode.optional_field(
     "language",
@@ -22987,6 +23125,7 @@ pub fn citation_citedartifact_statusdate_to_json(
 pub fn citation_citedartifact_statusdate_decoder() -> Decoder(
   CitationCitedartifactStatusdate,
 ) {
+  use <- decode.recursive
   use period <- decode.field("period", period_decoder())
   use actual <- decode.optional_field(
     "actual",
@@ -23053,6 +23192,7 @@ pub fn citation_citedartifact_version_to_json(
 pub fn citation_citedartifact_version_decoder() -> Decoder(
   CitationCitedartifactVersion,
 ) {
+  use <- decode.recursive
   use base_citation <- decode.optional_field(
     "baseCitation",
     None,
@@ -23239,6 +23379,7 @@ pub fn citation_citedartifact_to_json(
 }
 
 pub fn citation_citedartifact_decoder() -> Decoder(CitationCitedartifact) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -23389,6 +23530,7 @@ pub fn citation_relatesto_to_json(citation_relatesto: CitationRelatesto) -> Json
 }
 
 pub fn citation_relatesto_decoder() -> Decoder(CitationRelatesto) {
+  use <- decode.recursive
   use target <- decode.then(citation_relatesto_target_decoder())
   use target_classifier <- decode.optional_field(
     "targetClassifier",
@@ -23458,6 +23600,7 @@ pub fn citation_statusdate_to_json(
 }
 
 pub fn citation_statusdate_decoder() -> Decoder(CitationStatusdate) {
+  use <- decode.recursive
   use period <- decode.field("period", period_decoder())
   use actual <- decode.optional_field(
     "actual",
@@ -23527,6 +23670,7 @@ pub fn citation_classification_to_json(
 }
 
 pub fn citation_classification_decoder() -> Decoder(CitationClassification) {
+  use <- decode.recursive
   use classifier <- decode.optional_field(
     "classifier",
     [],
@@ -23586,6 +23730,7 @@ pub fn citation_summary_to_json(citation_summary: CitationSummary) -> Json {
 }
 
 pub fn citation_summary_decoder() -> Decoder(CitationSummary) {
+  use <- decode.recursive
   use text <- decode.field("text", decode.string)
   use style <- decode.optional_field(
     "style",
@@ -23828,6 +23973,7 @@ pub fn citation_to_json(citation: Citation) -> Json {
 }
 
 pub fn citation_decoder() -> Decoder(Citation) {
+  use <- decode.recursive
   use cited_artifact <- decode.optional_field(
     "citedArtifact",
     None,
@@ -24795,6 +24941,7 @@ pub fn claim_item_detail_subdetail_to_json(
 pub fn claim_item_detail_subdetail_decoder() -> Decoder(
   ClaimItemDetailSubdetail,
 ) {
+  use <- decode.recursive
   use udi <- decode.optional_field("udi", [], decode.list(reference_decoder()))
   use net <- decode.optional_field(
     "net",
@@ -24804,7 +24951,7 @@ pub fn claim_item_detail_subdetail_decoder() -> Decoder(
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -24963,6 +25110,7 @@ pub fn claim_item_detail_to_json(claim_item_detail: ClaimItemDetail) -> Json {
 }
 
 pub fn claim_item_detail_decoder() -> Decoder(ClaimItemDetail) {
+  use <- decode.recursive
   use sub_detail <- decode.optional_field(
     "subDetail",
     [],
@@ -24977,7 +25125,7 @@ pub fn claim_item_detail_decoder() -> Decoder(ClaimItemDetail) {
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -25116,7 +25264,7 @@ pub fn claim_item_to_json(claim_item: ClaimItem) -> Json {
       #(
         "location"
           <> case v {
-          ClaimItemLocationCodeableconcept(_) -> "Codeableconcept"
+          ClaimItemLocationCodeableconcept(_) -> "CodeableConcept"
           ClaimItemLocationAddress(_) -> "Address"
           ClaimItemLocationReference(_) -> "Reference"
         },
@@ -25209,6 +25357,7 @@ pub fn claim_item_to_json(claim_item: ClaimItem) -> Json {
 }
 
 pub fn claim_item_decoder() -> Decoder(ClaimItem) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     [],
@@ -25238,7 +25387,7 @@ pub fn claim_item_decoder() -> Decoder(ClaimItem) {
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -25385,6 +25534,7 @@ pub fn claim_accident_to_json(claim_accident: ClaimAccident) -> Json {
 }
 
 pub fn claim_accident_decoder() -> Decoder(ClaimAccident) {
+  use <- decode.recursive
   use location <- decode.then(
     none_if_omitted(claim_accident_location_decoder()),
   )
@@ -25468,6 +25618,7 @@ pub fn claim_insurance_to_json(claim_insurance: ClaimInsurance) -> Json {
 }
 
 pub fn claim_insurance_decoder() -> Decoder(ClaimInsurance) {
+  use <- decode.recursive
   use claim_response <- decode.optional_field(
     "claimResponse",
     None,
@@ -25562,6 +25713,7 @@ pub fn claim_procedure_to_json(claim_procedure: ClaimProcedure) -> Json {
 }
 
 pub fn claim_procedure_decoder() -> Decoder(ClaimProcedure) {
+  use <- decode.recursive
   use udi <- decode.optional_field("udi", [], decode.list(reference_decoder()))
   use procedure <- decode.then(claim_procedure_procedure_decoder())
   use date <- decode.optional_field(
@@ -25644,6 +25796,7 @@ pub fn claim_diagnosis_to_json(claim_diagnosis: ClaimDiagnosis) -> Json {
 }
 
 pub fn claim_diagnosis_decoder() -> Decoder(ClaimDiagnosis) {
+  use <- decode.recursive
   use package_code <- decode.optional_field(
     "packageCode",
     None,
@@ -25760,6 +25913,7 @@ pub fn claim_supportinginfo_to_json(
 }
 
 pub fn claim_supportinginfo_decoder() -> Decoder(ClaimSupportinginfo) {
+  use <- decode.recursive
   use reason <- decode.optional_field(
     "reason",
     None,
@@ -25848,6 +26002,7 @@ pub fn claim_careteam_to_json(claim_careteam: ClaimCareteam) -> Json {
 }
 
 pub fn claim_careteam_decoder() -> Decoder(ClaimCareteam) {
+  use <- decode.recursive
   use qualification <- decode.optional_field(
     "qualification",
     None,
@@ -25917,6 +26072,7 @@ pub fn claim_payee_to_json(claim_payee: ClaimPayee) -> Json {
 }
 
 pub fn claim_payee_decoder() -> Decoder(ClaimPayee) {
+  use <- decode.recursive
   use party <- decode.optional_field(
     "party",
     None,
@@ -25984,6 +26140,7 @@ pub fn claim_related_to_json(claim_related: ClaimRelated) -> Json {
 }
 
 pub fn claim_related_decoder() -> Decoder(ClaimRelated) {
+  use <- decode.recursive
   use reference <- decode.optional_field(
     "reference",
     None,
@@ -26205,6 +26362,7 @@ pub fn claim_to_json(claim: Claim) -> Json {
 }
 
 pub fn claim_decoder() -> Decoder(Claim) {
+  use <- decode.recursive
   use total <- decode.optional_field(
     "total",
     None,
@@ -26975,6 +27133,7 @@ pub fn claimresponse_error_to_json(
 }
 
 pub fn claimresponse_error_decoder() -> Decoder(ClaimresponseError) {
+  use <- decode.recursive
   use code <- decode.field("code", codeableconcept_decoder())
   use sub_detail_sequence <- decode.optional_field(
     "subDetailSequence",
@@ -27058,6 +27217,7 @@ pub fn claimresponse_insurance_to_json(
 }
 
 pub fn claimresponse_insurance_decoder() -> Decoder(ClaimresponseInsurance) {
+  use <- decode.recursive
   use claim_response <- decode.optional_field(
     "claimResponse",
     None,
@@ -27140,6 +27300,7 @@ pub fn claimresponse_processnote_to_json(
 }
 
 pub fn claimresponse_processnote_decoder() -> Decoder(ClaimresponseProcessnote) {
+  use <- decode.recursive
   use language <- decode.optional_field(
     "language",
     None,
@@ -27231,6 +27392,7 @@ pub fn claimresponse_payment_to_json(
 }
 
 pub fn claimresponse_payment_decoder() -> Decoder(ClaimresponsePayment) {
+  use <- decode.recursive
   use identifier <- decode.optional_field(
     "identifier",
     None,
@@ -27310,6 +27472,7 @@ pub fn claimresponse_total_to_json(
 }
 
 pub fn claimresponse_total_decoder() -> Decoder(ClaimresponseTotal) {
+  use <- decode.recursive
   use amount <- decode.field("amount", money_decoder())
   use category <- decode.field("category", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
@@ -27409,6 +27572,7 @@ pub fn claimresponse_additem_detail_subdetail_to_json(
 pub fn claimresponse_additem_detail_subdetail_decoder() -> Decoder(
   ClaimresponseAdditemDetailSubdetail,
 ) {
+  use <- decode.recursive
   use adjudication <- decode.optional_field(
     "adjudication",
     [],
@@ -27427,7 +27591,7 @@ pub fn claimresponse_additem_detail_subdetail_decoder() -> Decoder(
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -27562,6 +27726,7 @@ pub fn claimresponse_additem_detail_to_json(
 pub fn claimresponse_additem_detail_decoder() -> Decoder(
   ClaimresponseAdditemDetail,
 ) {
+  use <- decode.recursive
   use sub_detail <- decode.optional_field(
     "subDetail",
     [],
@@ -27585,7 +27750,7 @@ pub fn claimresponse_additem_detail_decoder() -> Decoder(
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -27712,7 +27877,7 @@ pub fn claimresponse_additem_to_json(
       #(
         "location"
           <> case v {
-          ClaimresponseAdditemLocationCodeableconcept(_) -> "Codeableconcept"
+          ClaimresponseAdditemLocationCodeableconcept(_) -> "CodeableConcept"
           ClaimresponseAdditemLocationAddress(_) -> "Address"
           ClaimresponseAdditemLocationReference(_) -> "Reference"
         },
@@ -27788,6 +27953,7 @@ pub fn claimresponse_additem_to_json(
 }
 
 pub fn claimresponse_additem_decoder() -> Decoder(ClaimresponseAdditem) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     [],
@@ -27821,7 +27987,7 @@ pub fn claimresponse_additem_decoder() -> Decoder(ClaimresponseAdditem) {
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -27958,6 +28124,7 @@ pub fn claimresponse_item_detail_subdetail_to_json(
 pub fn claimresponse_item_detail_subdetail_decoder() -> Decoder(
   ClaimresponseItemDetailSubdetail,
 ) {
+  use <- decode.recursive
   use adjudication <- decode.optional_field(
     "adjudication",
     [],
@@ -28048,6 +28215,7 @@ pub fn claimresponse_item_detail_to_json(
 }
 
 pub fn claimresponse_item_detail_decoder() -> Decoder(ClaimresponseItemDetail) {
+  use <- decode.recursive
   use sub_detail <- decode.optional_field(
     "subDetail",
     [],
@@ -28134,10 +28302,11 @@ pub fn claimresponse_item_adjudication_to_json(
 pub fn claimresponse_item_adjudication_decoder() -> Decoder(
   ClaimresponseItemAdjudication,
 ) {
+  use <- decode.recursive
   use value <- decode.optional_field(
     "value",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use amount <- decode.optional_field(
     "amount",
@@ -28225,6 +28394,7 @@ pub fn claimresponse_item_to_json(claimresponse_item: ClaimresponseItem) -> Json
 }
 
 pub fn claimresponse_item_decoder() -> Decoder(ClaimresponseItem) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     [],
@@ -28449,11 +28619,12 @@ pub fn claimresponse_to_json(claimresponse: Claimresponse) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Claimresponse")), ..fields]
+  let fields = [#("resourceType", json.string("ClaimResponse")), ..fields]
   json.object(fields)
 }
 
 pub fn claimresponse_decoder() -> Decoder(Claimresponse) {
+  use <- decode.recursive
   use error <- decode.optional_field(
     "error",
     [],
@@ -28603,7 +28774,7 @@ pub fn claimresponse_decoder() -> Decoder(Claimresponse) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Claimresponse",
+    rt != "ClaimResponse",
     decode.failure(
       claimresponse_new(
         outcome:,
@@ -28845,6 +29016,7 @@ pub fn clinicalimpression_finding_to_json(
 pub fn clinicalimpression_finding_decoder() -> Decoder(
   ClinicalimpressionFinding,
 ) {
+  use <- decode.recursive
   use basis <- decode.optional_field(
     "basis",
     None,
@@ -28919,6 +29091,7 @@ pub fn clinicalimpression_investigation_to_json(
 pub fn clinicalimpression_investigation_decoder() -> Decoder(
   ClinicalimpressionInvestigation,
 ) {
+  use <- decode.recursive
   use item <- decode.optional_field(
     "item",
     [],
@@ -29059,7 +29232,7 @@ pub fn clinicalimpression_to_json(
       #(
         "effective"
           <> case v {
-          ClinicalimpressionEffectiveDatetime(_) -> "Datetime"
+          ClinicalimpressionEffectiveDatetime(_) -> "DateTime"
           ClinicalimpressionEffectivePeriod(_) -> "Period"
         },
         clinicalimpression_effective_to_json(v),
@@ -29123,11 +29296,12 @@ pub fn clinicalimpression_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Clinicalimpression")), ..fields]
+  let fields = [#("resourceType", json.string("ClinicalImpression")), ..fields]
   json.object(fields)
 }
 
 pub fn clinicalimpression_decoder() -> Decoder(Clinicalimpression) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -29260,7 +29434,7 @@ pub fn clinicalimpression_decoder() -> Decoder(Clinicalimpression) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Clinicalimpression",
+    rt != "ClinicalImpression",
     decode.failure(clinicalimpression_new(subject:, status:), "resourceType"),
   )
   decode.success(Clinicalimpression(
@@ -29626,6 +29800,7 @@ pub fn clinicalusedefinition_warning_to_json(
 pub fn clinicalusedefinition_warning_decoder() -> Decoder(
   ClinicalusedefinitionWarning,
 ) {
+  use <- decode.recursive
   use code <- decode.optional_field(
     "code",
     None,
@@ -29707,6 +29882,7 @@ pub fn clinicalusedefinition_undesirableeffect_to_json(
 pub fn clinicalusedefinition_undesirableeffect_decoder() -> Decoder(
   ClinicalusedefinitionUndesirableeffect,
 ) {
+  use <- decode.recursive
   use frequency_of_occurrence <- decode.optional_field(
     "frequencyOfOccurrence",
     None,
@@ -29776,6 +29952,7 @@ pub fn clinicalusedefinition_interaction_interactant_to_json(
 pub fn clinicalusedefinition_interaction_interactant_decoder() -> Decoder(
   ClinicalusedefinitionInteractionInteractant,
 ) {
+  use <- decode.recursive
   use item <- decode.then(
     clinicalusedefinition_interaction_interactant_item_decoder(),
   )
@@ -29865,6 +30042,7 @@ pub fn clinicalusedefinition_interaction_to_json(
 pub fn clinicalusedefinition_interaction_decoder() -> Decoder(
   ClinicalusedefinitionInteraction,
 ) {
+  use <- decode.recursive
   use management <- decode.optional_field(
     "management",
     [],
@@ -30006,6 +30184,7 @@ pub fn clinicalusedefinition_indication_to_json(
 pub fn clinicalusedefinition_indication_decoder() -> Decoder(
   ClinicalusedefinitionIndication,
 ) {
+  use <- decode.recursive
   use other_therapy <- decode.optional_field(
     "otherTherapy",
     [],
@@ -30099,6 +30278,7 @@ pub fn clinicalusedefinition_contraindication_othertherapy_to_json(
 pub fn clinicalusedefinition_contraindication_othertherapy_decoder() -> Decoder(
   ClinicalusedefinitionContraindicationOthertherapy,
 ) {
+  use <- decode.recursive
   use therapy <- decode.field("therapy", codeablereference_decoder())
   use relationship_type <- decode.field(
     "relationshipType",
@@ -30194,6 +30374,7 @@ pub fn clinicalusedefinition_contraindication_to_json(
 pub fn clinicalusedefinition_contraindication_decoder() -> Decoder(
   ClinicalusedefinitionContraindication,
 ) {
+  use <- decode.recursive
   use other_therapy <- decode.optional_field(
     "otherTherapy",
     [],
@@ -30363,13 +30544,14 @@ pub fn clinicalusedefinition_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Clinicalusedefinition")),
+    #("resourceType", json.string("ClinicalUseDefinition")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn clinicalusedefinition_decoder() -> Decoder(Clinicalusedefinition) {
+  use <- decode.recursive
   use warning <- decode.optional_field(
     "warning",
     None,
@@ -30463,7 +30645,7 @@ pub fn clinicalusedefinition_decoder() -> Decoder(Clinicalusedefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Clinicalusedefinition",
+    rt != "ClinicalUseDefinition",
     decode.failure(clinicalusedefinition_new(type_:), "resourceType"),
   )
   decode.success(Clinicalusedefinition(
@@ -30734,7 +30916,7 @@ pub fn codesystem_concept_property_value_decoder() -> Decoder(
         |> decode.map(CodesystemConceptPropertyValueBoolean),
       decode.field("valueDateTime", decode.string, decode.success)
         |> decode.map(CodesystemConceptPropertyValueDatetime),
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(CodesystemConceptPropertyValueDecimal),
     ],
   )
@@ -30788,6 +30970,7 @@ pub fn codesystem_concept_property_to_json(
 pub fn codesystem_concept_property_decoder() -> Decoder(
   CodesystemConceptProperty,
 ) {
+  use <- decode.recursive
   use value <- decode.then(codesystem_concept_property_value_decoder())
   use code <- decode.field("code", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -30853,6 +31036,7 @@ pub fn codesystem_concept_designation_to_json(
 pub fn codesystem_concept_designation_decoder() -> Decoder(
   CodesystemConceptDesignation,
 ) {
+  use <- decode.recursive
   use value <- decode.field("value", decode.string)
   use use_ <- decode.optional_field(
     "use",
@@ -30951,6 +31135,7 @@ pub fn codesystem_concept_to_json(codesystem_concept: CodesystemConcept) -> Json
 }
 
 pub fn codesystem_concept_decoder() -> Decoder(CodesystemConcept) {
+  use <- decode.recursive
   use concept <- decode.optional_field(
     "concept",
     [],
@@ -31044,6 +31229,7 @@ pub fn codesystem_property_to_json(
 }
 
 pub fn codesystem_property_decoder() -> Decoder(CodesystemProperty) {
+  use <- decode.recursive
   use type_ <- decode.field("type", r4bvaluesets.conceptpropertytype_decoder())
   use description <- decode.optional_field(
     "description",
@@ -31118,6 +31304,7 @@ pub fn codesystem_filter_to_json(codesystem_filter: CodesystemFilter) -> Json {
 }
 
 pub fn codesystem_filter_decoder() -> Decoder(CodesystemFilter) {
+  use <- decode.recursive
   use value <- decode.field("value", decode.string)
   use operator <- decode.optional_field(
     "operator",
@@ -31339,11 +31526,12 @@ pub fn codesystem_to_json(codesystem: Codesystem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Codesystem")), ..fields]
+  let fields = [#("resourceType", json.string("CodeSystem")), ..fields]
   json.object(fields)
 }
 
 pub fn codesystem_decoder() -> Decoder(Codesystem) {
+  use <- decode.recursive
   use concept <- decode.optional_field(
     "concept",
     [],
@@ -31500,7 +31688,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Codesystem",
+    rt != "CodeSystem",
     decode.failure(codesystem_new(content:, status:), "resourceType"),
   )
   decode.success(Codesystem(
@@ -31696,6 +31884,7 @@ pub fn communication_payload_to_json(
 }
 
 pub fn communication_payload_decoder() -> Decoder(CommunicationPayload) {
+  use <- decode.recursive
   use content <- decode.then(communication_payload_content_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -31908,6 +32097,7 @@ pub fn communication_to_json(communication: Communication) -> Json {
 }
 
 pub fn communication_decoder() -> Decoder(Communication) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -32283,6 +32473,7 @@ pub fn communicationrequest_payload_to_json(
 pub fn communicationrequest_payload_decoder() -> Decoder(
   CommunicationrequestPayload,
 ) {
+  use <- decode.recursive
   use content <- decode.then(communicationrequest_payload_content_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -32380,7 +32571,7 @@ pub fn communicationrequest_to_json(
       #(
         "occurrence"
           <> case v {
-          CommunicationrequestOccurrenceDatetime(_) -> "Datetime"
+          CommunicationrequestOccurrenceDatetime(_) -> "DateTime"
           CommunicationrequestOccurrencePeriod(_) -> "Period"
         },
         communicationrequest_occurrence_to_json(v),
@@ -32486,13 +32677,14 @@ pub fn communicationrequest_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Communicationrequest")),
+    #("resourceType", json.string("CommunicationRequest")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn communicationrequest_decoder() -> Decoder(Communicationrequest) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -32636,7 +32828,7 @@ pub fn communicationrequest_decoder() -> Decoder(Communicationrequest) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Communicationrequest",
+    rt != "CommunicationRequest",
     decode.failure(communicationrequest_new(status:), "resourceType"),
   )
   decode.success(Communicationrequest(
@@ -32802,6 +32994,7 @@ pub fn compartmentdefinition_resource_to_json(
 pub fn compartmentdefinition_resource_decoder() -> Decoder(
   CompartmentdefinitionResource,
 ) {
+  use <- decode.recursive
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -32945,13 +33138,14 @@ pub fn compartmentdefinition_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Compartmentdefinition")),
+    #("resourceType", json.string("CompartmentDefinition")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn compartmentdefinition_decoder() -> Decoder(Compartmentdefinition) {
+  use <- decode.recursive
   use resource <- decode.optional_field(
     "resource",
     [],
@@ -33041,7 +33235,7 @@ pub fn compartmentdefinition_decoder() -> Decoder(Compartmentdefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Compartmentdefinition",
+    rt != "CompartmentDefinition",
     decode.failure(
       compartmentdefinition_new(search:, code:, status:, name:, url:),
       "resourceType",
@@ -33353,6 +33547,7 @@ pub fn composition_section_to_json(
 }
 
 pub fn composition_section_decoder() -> Decoder(CompositionSection) {
+  use <- decode.recursive
   use section <- decode.optional_field(
     "section",
     [],
@@ -33472,6 +33667,7 @@ pub fn composition_event_to_json(composition_event: CompositionEvent) -> Json {
 }
 
 pub fn composition_event_decoder() -> Decoder(CompositionEvent) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     [],
@@ -33536,6 +33732,7 @@ pub fn composition_relatesto_to_json(
 }
 
 pub fn composition_relatesto_decoder() -> Decoder(CompositionRelatesto) {
+  use <- decode.recursive
   use target <- decode.then(composition_relatesto_target_decoder())
   use code <- decode.field(
     "code",
@@ -33602,6 +33799,7 @@ pub fn composition_attester_to_json(
 }
 
 pub fn composition_attester_decoder() -> Decoder(CompositionAttester) {
+  use <- decode.recursive
   use party <- decode.optional_field(
     "party",
     None,
@@ -33765,6 +33963,7 @@ pub fn composition_to_json(composition: Composition) -> Json {
 }
 
 pub fn composition_decoder() -> Decoder(Composition) {
+  use <- decode.recursive
   use section <- decode.optional_field(
     "section",
     [],
@@ -34193,6 +34392,7 @@ pub fn conceptmap_group_unmapped_to_json(
 }
 
 pub fn conceptmap_group_unmapped_decoder() -> Decoder(ConceptmapGroupUnmapped) {
+  use <- decode.recursive
   use url <- decode.optional_field("url", None, decode.optional(decode.string))
   use display <- decode.optional_field(
     "display",
@@ -34275,6 +34475,7 @@ pub fn conceptmap_group_element_target_dependson_to_json(
 pub fn conceptmap_group_element_target_dependson_decoder() -> Decoder(
   ConceptmapGroupElementTargetDependson,
 ) {
+  use <- decode.recursive
   use display <- decode.optional_field(
     "display",
     None,
@@ -34382,6 +34583,7 @@ pub fn conceptmap_group_element_target_to_json(
 pub fn conceptmap_group_element_target_decoder() -> Decoder(
   ConceptmapGroupElementTarget,
 ) {
+  use <- decode.recursive
   use product <- decode.optional_field(
     "product",
     [],
@@ -34481,6 +34683,7 @@ pub fn conceptmap_group_element_to_json(
 }
 
 pub fn conceptmap_group_element_decoder() -> Decoder(ConceptmapGroupElement) {
+  use <- decode.recursive
   use target <- decode.optional_field(
     "target",
     [],
@@ -34576,6 +34779,7 @@ pub fn conceptmap_group_to_json(conceptmap_group: ConceptmapGroup) -> Json {
 }
 
 pub fn conceptmap_group_decoder() -> Decoder(ConceptmapGroup) {
+  use <- decode.recursive
   use unmapped <- decode.optional_field(
     "unmapped",
     None,
@@ -34791,11 +34995,12 @@ pub fn conceptmap_to_json(conceptmap: Conceptmap) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Conceptmap")), ..fields]
+  let fields = [#("resourceType", json.string("ConceptMap")), ..fields]
   json.object(fields)
 }
 
 pub fn conceptmap_decoder() -> Decoder(Conceptmap) {
+  use <- decode.recursive
   use group <- decode.optional_field(
     "group",
     [],
@@ -34909,7 +35114,7 @@ pub fn conceptmap_decoder() -> Decoder(Conceptmap) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Conceptmap",
+    rt != "ConceptMap",
     decode.failure(conceptmap_new(status:), "resourceType"),
   )
   decode.success(Conceptmap(
@@ -35150,6 +35355,7 @@ pub fn condition_evidence_to_json(condition_evidence: ConditionEvidence) -> Json
 }
 
 pub fn condition_evidence_decoder() -> Decoder(ConditionEvidence) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     [],
@@ -35221,6 +35427,7 @@ pub fn condition_stage_to_json(condition_stage: ConditionStage) -> Json {
 }
 
 pub fn condition_stage_decoder() -> Decoder(ConditionStage) {
+  use <- decode.recursive
   use type_ <- decode.optional_field(
     "type",
     None,
@@ -35320,7 +35527,7 @@ pub fn condition_to_json(condition: Condition) -> Json {
       #(
         "abatement"
           <> case v {
-          ConditionAbatementDatetime(_) -> "Datetime"
+          ConditionAbatementDatetime(_) -> "DateTime"
           ConditionAbatementAge(_) -> "Age"
           ConditionAbatementPeriod(_) -> "Period"
           ConditionAbatementRange(_) -> "Range"
@@ -35337,7 +35544,7 @@ pub fn condition_to_json(condition: Condition) -> Json {
       #(
         "onset"
           <> case v {
-          ConditionOnsetDatetime(_) -> "Datetime"
+          ConditionOnsetDatetime(_) -> "DateTime"
           ConditionOnsetAge(_) -> "Age"
           ConditionOnsetPeriod(_) -> "Period"
           ConditionOnsetRange(_) -> "Range"
@@ -35427,6 +35634,7 @@ pub fn condition_to_json(condition: Condition) -> Json {
 }
 
 pub fn condition_decoder() -> Decoder(Condition) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -35815,6 +36023,7 @@ pub fn consent_provision_data_to_json(
 }
 
 pub fn consent_provision_data_decoder() -> Decoder(ConsentProvisionData) {
+  use <- decode.recursive
   use reference <- decode.field("reference", reference_decoder())
   use meaning <- decode.field(
     "meaning",
@@ -35873,6 +36082,7 @@ pub fn consent_provision_actor_to_json(
 }
 
 pub fn consent_provision_actor_decoder() -> Decoder(ConsentProvisionActor) {
+  use <- decode.recursive
   use reference <- decode.field("reference", reference_decoder())
   use role <- decode.field("role", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
@@ -35988,6 +36198,7 @@ pub fn consent_provision_to_json(consent_provision: ConsentProvision) -> Json {
 }
 
 pub fn consent_provision_decoder() -> Decoder(ConsentProvision) {
+  use <- decode.recursive
   use provision <- decode.optional_field(
     "provision",
     [],
@@ -36109,6 +36320,7 @@ pub fn consent_verification_to_json(
 }
 
 pub fn consent_verification_decoder() -> Decoder(ConsentVerification) {
+  use <- decode.recursive
   use verification_date <- decode.optional_field(
     "verificationDate",
     None,
@@ -36172,6 +36384,7 @@ pub fn consent_policy_to_json(consent_policy: ConsentPolicy) -> Json {
 }
 
 pub fn consent_policy_decoder() -> Decoder(ConsentPolicy) {
+  use <- decode.recursive
   use uri <- decode.optional_field("uri", None, decode.optional(decode.string))
   use authority <- decode.optional_field(
     "authority",
@@ -36329,6 +36542,7 @@ pub fn consent_to_json(consent: Consent) -> Json {
 }
 
 pub fn consent_decoder() -> Decoder(Consent) {
+  use <- decode.recursive
   use provision <- decode.optional_field(
     "provision",
     None,
@@ -36842,7 +37056,7 @@ pub fn contract_term_offer_answer_value_decoder() -> Decoder(
     decode.field("valueBoolean", decode.bool, decode.success)
       |> decode.map(ContractTermOfferAnswerValueBoolean),
     [
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(ContractTermOfferAnswerValueDecimal),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(ContractTermOfferAnswerValueInteger),
@@ -37312,6 +37526,7 @@ pub fn contract_rule_to_json(contract_rule: ContractRule) -> Json {
 }
 
 pub fn contract_rule_decoder() -> Decoder(ContractRule) {
+  use <- decode.recursive
   use content <- decode.then(contract_rule_content_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -37352,6 +37567,7 @@ pub fn contract_legal_to_json(contract_legal: ContractLegal) -> Json {
 }
 
 pub fn contract_legal_decoder() -> Decoder(ContractLegal) {
+  use <- decode.recursive
   use content <- decode.then(contract_legal_content_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -37392,6 +37608,7 @@ pub fn contract_friendly_to_json(contract_friendly: ContractFriendly) -> Json {
 }
 
 pub fn contract_friendly_decoder() -> Decoder(ContractFriendly) {
+  use <- decode.recursive
   use content <- decode.then(contract_friendly_content_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -37448,6 +37665,7 @@ pub fn contract_signer_to_json(contract_signer: ContractSigner) -> Json {
 }
 
 pub fn contract_signer_decoder() -> Decoder(ContractSigner) {
+  use <- decode.recursive
   use signature <- decode.optional_field(
     "signature",
     [],
@@ -37516,6 +37734,7 @@ pub fn contract_term_action_subject_to_json(
 pub fn contract_term_action_subject_decoder() -> Decoder(
   ContractTermActionSubject,
 ) {
+  use <- decode.recursive
   use role <- decode.optional_field(
     "role",
     None,
@@ -37651,7 +37870,7 @@ pub fn contract_term_action_to_json(
       #(
         "occurrence"
           <> case v {
-          ContractTermActionOccurrenceDatetime(_) -> "Datetime"
+          ContractTermActionOccurrenceDatetime(_) -> "DateTime"
           ContractTermActionOccurrencePeriod(_) -> "Period"
           ContractTermActionOccurrenceTiming(_) -> "Timing"
         },
@@ -37706,6 +37925,7 @@ pub fn contract_term_action_to_json(
 }
 
 pub fn contract_term_action_decoder() -> Decoder(ContractTermAction) {
+  use <- decode.recursive
   use security_label_number <- decode.optional_field(
     "securityLabelNumber",
     [],
@@ -37912,7 +38132,7 @@ pub fn contract_term_asset_valueditem_to_json(
         "entity"
           <> case v {
           ContractTermAssetValueditemEntityCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           ContractTermAssetValueditemEntityReference(_) -> "Reference"
         },
         contract_term_asset_valueditem_entity_to_json(v),
@@ -37942,6 +38162,7 @@ pub fn contract_term_asset_valueditem_to_json(
 pub fn contract_term_asset_valueditem_decoder() -> Decoder(
   ContractTermAssetValueditem,
 ) {
+  use <- decode.recursive
   use security_label_number <- decode.optional_field(
     "securityLabelNumber",
     [],
@@ -37976,12 +38197,12 @@ pub fn contract_term_asset_valueditem_decoder() -> Decoder(
   use points <- decode.optional_field(
     "points",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -38083,6 +38304,7 @@ pub fn contract_term_asset_context_to_json(
 pub fn contract_term_asset_context_decoder() -> Decoder(
   ContractTermAssetContext,
 ) {
+  use <- decode.recursive
   use text <- decode.optional_field(
     "text",
     None,
@@ -38243,6 +38465,7 @@ pub fn contract_term_asset_to_json(
 }
 
 pub fn contract_term_asset_decoder() -> Decoder(ContractTermAsset) {
+  use <- decode.recursive
   use valued_item <- decode.optional_field(
     "valuedItem",
     [],
@@ -38374,6 +38597,7 @@ pub fn contract_term_offer_answer_to_json(
 }
 
 pub fn contract_term_offer_answer_decoder() -> Decoder(ContractTermOfferAnswer) {
+  use <- decode.recursive
   use value <- decode.then(contract_term_offer_answer_value_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -38430,6 +38654,7 @@ pub fn contract_term_offer_party_to_json(
 }
 
 pub fn contract_term_offer_party_decoder() -> Decoder(ContractTermOfferParty) {
+  use <- decode.recursive
   use role <- decode.field("role", codeableconcept_decoder())
   use reference <- decode.optional_field(
     "reference",
@@ -38546,6 +38771,7 @@ pub fn contract_term_offer_to_json(
 }
 
 pub fn contract_term_offer_decoder() -> Decoder(ContractTermOffer) {
+  use <- decode.recursive
   use security_label_number <- decode.optional_field(
     "securityLabelNumber",
     [],
@@ -38668,6 +38894,7 @@ pub fn contract_term_securitylabel_to_json(
 pub fn contract_term_securitylabel_decoder() -> Decoder(
   ContractTermSecuritylabel,
 ) {
+  use <- decode.recursive
   use control <- decode.optional_field(
     "control",
     [],
@@ -38765,7 +38992,7 @@ pub fn contract_term_to_json(contract_term: ContractTerm) -> Json {
       #(
         "topic"
           <> case v {
-          ContractTermTopicCodeableconcept(_) -> "Codeableconcept"
+          ContractTermTopicCodeableconcept(_) -> "CodeableConcept"
           ContractTermTopicReference(_) -> "Reference"
         },
         contract_term_topic_to_json(v),
@@ -38805,6 +39032,7 @@ pub fn contract_term_to_json(contract_term: ContractTerm) -> Json {
 }
 
 pub fn contract_term_decoder() -> Decoder(ContractTerm) {
+  use <- decode.recursive
   use group <- decode.optional_field(
     "group",
     [],
@@ -38945,6 +39173,7 @@ pub fn contract_contentdefinition_to_json(
 pub fn contract_contentdefinition_decoder() -> Decoder(
   ContractContentdefinition,
 ) {
+  use <- decode.recursive
   use copyright <- decode.optional_field(
     "copyright",
     None,
@@ -39110,7 +39339,7 @@ pub fn contract_to_json(contract: Contract) -> Json {
       #(
         "topic"
           <> case v {
-          ContractTopicCodeableconcept(_) -> "Codeableconcept"
+          ContractTopicCodeableconcept(_) -> "CodeableConcept"
           ContractTopicReference(_) -> "Reference"
         },
         contract_topic_to_json(v),
@@ -39243,6 +39472,7 @@ pub fn contract_to_json(contract: Contract) -> Json {
 }
 
 pub fn contract_decoder() -> Decoder(Contract) {
+  use <- decode.recursive
   use legally_binding <- decode.then(
     none_if_omitted(contract_legallybinding_decoder()),
   )
@@ -39685,6 +39915,7 @@ pub fn coverage_costtobeneficiary_exception_to_json(
 pub fn coverage_costtobeneficiary_exception_decoder() -> Decoder(
   CoverageCosttobeneficiaryException,
 ) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -39760,6 +39991,7 @@ pub fn coverage_costtobeneficiary_to_json(
 pub fn coverage_costtobeneficiary_decoder() -> Decoder(
   CoverageCosttobeneficiary,
 ) {
+  use <- decode.recursive
   use exception <- decode.optional_field(
     "exception",
     [],
@@ -39822,6 +40054,7 @@ pub fn coverage_class_to_json(coverage_class: CoverageClass) -> Json {
 }
 
 pub fn coverage_class_decoder() -> Decoder(CoverageClass) {
+  use <- decode.recursive
   use name <- decode.optional_field(
     "name",
     None,
@@ -39988,6 +40221,7 @@ pub fn coverage_to_json(coverage: Coverage) -> Json {
 }
 
 pub fn coverage_decoder() -> Decoder(Coverage) {
+  use <- decode.recursive
   use contract <- decode.optional_field(
     "contract",
     [],
@@ -40383,7 +40617,7 @@ pub fn coverageeligibilityrequest_item_diagnosis_to_json(
         "diagnosis"
           <> case v {
           CoverageeligibilityrequestItemDiagnosisDiagnosisCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           CoverageeligibilityrequestItemDiagnosisDiagnosisReference(_) ->
             "Reference"
         },
@@ -40414,6 +40648,7 @@ pub fn coverageeligibilityrequest_item_diagnosis_to_json(
 pub fn coverageeligibilityrequest_item_diagnosis_decoder() -> Decoder(
   CoverageeligibilityrequestItemDiagnosis,
 ) {
+  use <- decode.recursive
   use diagnosis <- decode.then(
     none_if_omitted(
       coverageeligibilityrequest_item_diagnosis_diagnosis_decoder(),
@@ -40533,6 +40768,7 @@ pub fn coverageeligibilityrequest_item_to_json(
 pub fn coverageeligibilityrequest_item_decoder() -> Decoder(
   CoverageeligibilityrequestItem,
 ) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     [],
@@ -40654,6 +40890,7 @@ pub fn coverageeligibilityrequest_insurance_to_json(
 pub fn coverageeligibilityrequest_insurance_decoder() -> Decoder(
   CoverageeligibilityrequestInsurance,
 ) {
+  use <- decode.recursive
   use business_arrangement <- decode.optional_field(
     "businessArrangement",
     None,
@@ -40726,6 +40963,7 @@ pub fn coverageeligibilityrequest_supportinginfo_to_json(
 pub fn coverageeligibilityrequest_supportinginfo_decoder() -> Decoder(
   CoverageeligibilityrequestSupportinginfo,
 ) {
+  use <- decode.recursive
   use applies_to_all <- decode.optional_field(
     "appliesToAll",
     None,
@@ -40897,7 +41135,7 @@ pub fn coverageeligibilityrequest_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Coverageeligibilityrequest")),
+    #("resourceType", json.string("CoverageEligibilityRequest")),
     ..fields
   ]
   json.object(fields)
@@ -40906,6 +41144,7 @@ pub fn coverageeligibilityrequest_to_json(
 pub fn coverageeligibilityrequest_decoder() -> Decoder(
   Coverageeligibilityrequest,
 ) {
+  use <- decode.recursive
   use item <- decode.optional_field(
     "item",
     [],
@@ -40997,7 +41236,7 @@ pub fn coverageeligibilityrequest_decoder() -> Decoder(
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Coverageeligibilityrequest",
+    rt != "CoverageEligibilityRequest",
     decode.failure(
       coverageeligibilityrequest_new(insurer:, created:, patient:, status:),
       "resourceType",
@@ -41352,6 +41591,7 @@ pub fn coverageeligibilityresponse_error_to_json(
 pub fn coverageeligibilityresponse_error_decoder() -> Decoder(
   CoverageeligibilityresponseError,
 ) {
+  use <- decode.recursive
   use code <- decode.field("code", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -41392,7 +41632,7 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_to_json(
         "used"
           <> case v {
           CoverageeligibilityresponseInsuranceItemBenefitUsedUnsignedint(_) ->
-            "Unsignedint"
+            "UnsignedInt"
           CoverageeligibilityresponseInsuranceItemBenefitUsedString(_) ->
             "String"
           CoverageeligibilityresponseInsuranceItemBenefitUsedMoney(_) -> "Money"
@@ -41409,7 +41649,7 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_to_json(
         "allowed"
           <> case v {
           CoverageeligibilityresponseInsuranceItemBenefitAllowedUnsignedint(_) ->
-            "Unsignedint"
+            "UnsignedInt"
           CoverageeligibilityresponseInsuranceItemBenefitAllowedString(_) ->
             "String"
           CoverageeligibilityresponseInsuranceItemBenefitAllowedMoney(_) ->
@@ -41442,6 +41682,7 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_to_json(
 pub fn coverageeligibilityresponse_insurance_item_benefit_decoder() -> Decoder(
   CoverageeligibilityresponseInsuranceItemBenefit,
 ) {
+  use <- decode.recursive
   use used <- decode.then(
     none_if_omitted(
       coverageeligibilityresponse_insurance_item_benefit_used_decoder(),
@@ -41592,6 +41833,7 @@ pub fn coverageeligibilityresponse_insurance_item_to_json(
 pub fn coverageeligibilityresponse_insurance_item_decoder() -> Decoder(
   CoverageeligibilityresponseInsuranceItem,
 ) {
+  use <- decode.recursive
   use authorization_url <- decode.optional_field(
     "authorizationUrl",
     None,
@@ -41748,6 +41990,7 @@ pub fn coverageeligibilityresponse_insurance_to_json(
 pub fn coverageeligibilityresponse_insurance_decoder() -> Decoder(
   CoverageeligibilityresponseInsurance,
 ) {
+  use <- decode.recursive
   use item <- decode.optional_field(
     "item",
     [],
@@ -41919,7 +42162,7 @@ pub fn coverageeligibilityresponse_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Coverageeligibilityresponse")),
+    #("resourceType", json.string("CoverageEligibilityResponse")),
     ..fields
   ]
   json.object(fields)
@@ -41928,6 +42171,7 @@ pub fn coverageeligibilityresponse_to_json(
 pub fn coverageeligibilityresponse_decoder() -> Decoder(
   Coverageeligibilityresponse,
 ) {
+  use <- decode.recursive
   use error <- decode.optional_field(
     "error",
     [],
@@ -42019,7 +42263,7 @@ pub fn coverageeligibilityresponse_decoder() -> Decoder(
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Coverageeligibilityresponse",
+    rt != "CoverageEligibilityResponse",
     decode.failure(
       coverageeligibilityresponse_new(
         insurer:,
@@ -42223,6 +42467,7 @@ pub fn detectedissue_mitigation_to_json(
 }
 
 pub fn detectedissue_mitigation_decoder() -> Decoder(DetectedissueMitigation) {
+  use <- decode.recursive
   use author <- decode.optional_field(
     "author",
     None,
@@ -42293,6 +42538,7 @@ pub fn detectedissue_evidence_to_json(
 }
 
 pub fn detectedissue_evidence_decoder() -> Decoder(DetectedissueEvidence) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     [],
@@ -42384,7 +42630,7 @@ pub fn detectedissue_to_json(detectedissue: Detectedissue) -> Json {
       #(
         "identified"
           <> case v {
-          DetectedissueIdentifiedDatetime(_) -> "Datetime"
+          DetectedissueIdentifiedDatetime(_) -> "DateTime"
           DetectedissueIdentifiedPeriod(_) -> "Period"
         },
         detectedissue_identified_to_json(v),
@@ -42447,11 +42693,12 @@ pub fn detectedissue_to_json(detectedissue: Detectedissue) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Detectedissue")), ..fields]
+  let fields = [#("resourceType", json.string("DetectedIssue")), ..fields]
   json.object(fields)
 }
 
 pub fn detectedissue_decoder() -> Decoder(Detectedissue) {
+  use <- decode.recursive
   use mitigation <- decode.optional_field(
     "mitigation",
     [],
@@ -42545,7 +42792,7 @@ pub fn detectedissue_decoder() -> Decoder(Detectedissue) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Detectedissue",
+    rt != "DetectedIssue",
     decode.failure(detectedissue_new(status:), "resourceType"),
   )
   decode.success(Detectedissue(
@@ -42818,6 +43065,7 @@ pub fn device_property_to_json(device_property: DeviceProperty) -> Json {
 }
 
 pub fn device_property_decoder() -> Decoder(DeviceProperty) {
+  use <- decode.recursive
   use value_code <- decode.optional_field(
     "valueCode",
     [],
@@ -42889,6 +43137,7 @@ pub fn device_version_to_json(device_version: DeviceVersion) -> Json {
 }
 
 pub fn device_version_decoder() -> Decoder(DeviceVersion) {
+  use <- decode.recursive
   use value <- decode.field("value", decode.string)
   use component <- decode.optional_field(
     "component",
@@ -42957,6 +43206,7 @@ pub fn device_specialization_to_json(
 }
 
 pub fn device_specialization_decoder() -> Decoder(DeviceSpecialization) {
+  use <- decode.recursive
   use version <- decode.optional_field(
     "version",
     None,
@@ -43009,6 +43259,7 @@ pub fn device_devicename_to_json(device_devicename: DeviceDevicename) -> Json {
 }
 
 pub fn device_devicename_decoder() -> Decoder(DeviceDevicename) {
+  use <- decode.recursive
   use type_ <- decode.field("type", r4bvaluesets.devicenametype_decoder())
   use name <- decode.field("name", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -43087,6 +43338,7 @@ pub fn device_udicarrier_to_json(device_udicarrier: DeviceUdicarrier) -> Json {
 }
 
 pub fn device_udicarrier_decoder() -> Decoder(DeviceUdicarrier) {
+  use <- decode.recursive
   use entry_type <- decode.optional_field(
     "entryType",
     None,
@@ -43341,6 +43593,7 @@ pub fn device_to_json(device: Device) -> Json {
 }
 
 pub fn device_decoder() -> Decoder(Device) {
+  use <- decode.recursive
   use parent <- decode.optional_field(
     "parent",
     None,
@@ -43834,6 +44087,7 @@ pub fn devicedefinition_material_to_json(
 }
 
 pub fn devicedefinition_material_decoder() -> Decoder(DevicedefinitionMaterial) {
+  use <- decode.recursive
   use allergenic_indicator <- decode.optional_field(
     "allergenicIndicator",
     None,
@@ -43913,6 +44167,7 @@ pub fn devicedefinition_property_to_json(
 }
 
 pub fn devicedefinition_property_decoder() -> Decoder(DevicedefinitionProperty) {
+  use <- decode.recursive
   use value_code <- decode.optional_field(
     "valueCode",
     [],
@@ -43986,6 +44241,7 @@ pub fn devicedefinition_capability_to_json(
 pub fn devicedefinition_capability_decoder() -> Decoder(
   DevicedefinitionCapability,
 ) {
+  use <- decode.recursive
   use description <- decode.optional_field(
     "description",
     [],
@@ -44050,6 +44306,7 @@ pub fn devicedefinition_specialization_to_json(
 pub fn devicedefinition_specialization_decoder() -> Decoder(
   DevicedefinitionSpecialization,
 ) {
+  use <- decode.recursive
   use version <- decode.optional_field(
     "version",
     None,
@@ -44111,6 +44368,7 @@ pub fn devicedefinition_devicename_to_json(
 pub fn devicedefinition_devicename_decoder() -> Decoder(
   DevicedefinitionDevicename,
 ) {
+  use <- decode.recursive
   use type_ <- decode.field("type", r4bvaluesets.devicenametype_decoder())
   use name <- decode.field("name", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -44170,6 +44428,7 @@ pub fn devicedefinition_udideviceidentifier_to_json(
 pub fn devicedefinition_udideviceidentifier_decoder() -> Decoder(
   DevicedefinitionUdideviceidentifier,
 ) {
+  use <- decode.recursive
   use jurisdiction <- decode.field("jurisdiction", decode.string)
   use issuer <- decode.field("issuer", decode.string)
   use device_identifier <- decode.field("deviceIdentifier", decode.string)
@@ -44406,11 +44665,12 @@ pub fn devicedefinition_to_json(devicedefinition: Devicedefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Devicedefinition")), ..fields]
+  let fields = [#("resourceType", json.string("DeviceDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn devicedefinition_decoder() -> Decoder(Devicedefinition) {
+  use <- decode.recursive
   use material <- decode.optional_field(
     "material",
     [],
@@ -44554,7 +44814,7 @@ pub fn devicedefinition_decoder() -> Decoder(Devicedefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Devicedefinition",
+    rt != "DeviceDefinition",
     decode.failure(devicedefinition_new(), "resourceType"),
   )
   decode.success(Devicedefinition(
@@ -44713,6 +44973,7 @@ pub fn devicemetric_calibration_to_json(
 }
 
 pub fn devicemetric_calibration_decoder() -> Decoder(DevicemetricCalibration) {
+  use <- decode.recursive
   use time <- decode.optional_field(
     "time",
     None,
@@ -44850,11 +45111,12 @@ pub fn devicemetric_to_json(devicemetric: Devicemetric) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Devicemetric")), ..fields]
+  let fields = [#("resourceType", json.string("DeviceMetric")), ..fields]
   json.object(fields)
 }
 
 pub fn devicemetric_decoder() -> Decoder(Devicemetric) {
+  use <- decode.recursive
   use calibration <- decode.optional_field(
     "calibration",
     [],
@@ -44939,7 +45201,7 @@ pub fn devicemetric_decoder() -> Decoder(Devicemetric) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Devicemetric",
+    rt != "DeviceMetric",
     decode.failure(devicemetric_new(category:, type_:), "resourceType"),
   )
   decode.success(Devicemetric(
@@ -45176,7 +45438,7 @@ pub fn devicerequest_parameter_to_json(
       #(
         "value"
           <> case v {
-          DevicerequestParameterValueCodeableconcept(_) -> "Codeableconcept"
+          DevicerequestParameterValueCodeableconcept(_) -> "CodeableConcept"
           DevicerequestParameterValueQuantity(_) -> "Quantity"
           DevicerequestParameterValueRange(_) -> "Range"
           DevicerequestParameterValueBoolean(_) -> "Boolean"
@@ -45210,6 +45472,7 @@ pub fn devicerequest_parameter_to_json(
 }
 
 pub fn devicerequest_parameter_decoder() -> Decoder(DevicerequestParameter) {
+  use <- decode.recursive
   use value <- decode.then(
     none_if_omitted(devicerequest_parameter_value_decoder()),
   )
@@ -45335,7 +45598,7 @@ pub fn devicerequest_to_json(devicerequest: Devicerequest) -> Json {
       #(
         "occurrence"
           <> case v {
-          DevicerequestOccurrenceDatetime(_) -> "Datetime"
+          DevicerequestOccurrenceDatetime(_) -> "DateTime"
           DevicerequestOccurrencePeriod(_) -> "Period"
           DevicerequestOccurrenceTiming(_) -> "Timing"
         },
@@ -45438,11 +45701,12 @@ pub fn devicerequest_to_json(devicerequest: Devicerequest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Devicerequest")), ..fields]
+  let fields = [#("resourceType", json.string("DeviceRequest")), ..fields]
   json.object(fields)
 }
 
 pub fn devicerequest_decoder() -> Decoder(Devicerequest) {
+  use <- decode.recursive
   use relevant_history <- decode.optional_field(
     "relevantHistory",
     [],
@@ -45588,7 +45852,7 @@ pub fn devicerequest_decoder() -> Decoder(Devicerequest) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Devicerequest",
+    rt != "DeviceRequest",
     decode.failure(devicerequest_new(subject:, code:, intent:), "resourceType"),
   )
   decode.success(Devicerequest(
@@ -45780,7 +46044,7 @@ pub fn deviceusestatement_to_json(
           <> case v {
           DeviceusestatementTimingTiming(_) -> "Timing"
           DeviceusestatementTimingPeriod(_) -> "Period"
-          DeviceusestatementTimingDatetime(_) -> "Datetime"
+          DeviceusestatementTimingDatetime(_) -> "DateTime"
         },
         deviceusestatement_timing_to_json(v),
       ),
@@ -45838,11 +46102,12 @@ pub fn deviceusestatement_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Deviceusestatement")), ..fields]
+  let fields = [#("resourceType", json.string("DeviceUseStatement")), ..fields]
   json.object(fields)
 }
 
 pub fn deviceusestatement_decoder() -> Decoder(Deviceusestatement) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -45936,7 +46201,7 @@ pub fn deviceusestatement_decoder() -> Decoder(Deviceusestatement) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Deviceusestatement",
+    rt != "DeviceUseStatement",
     decode.failure(
       deviceusestatement_new(device:, subject:, status:),
       "resourceType",
@@ -46118,6 +46383,7 @@ pub fn diagnosticreport_media_to_json(
 }
 
 pub fn diagnosticreport_media_decoder() -> Decoder(DiagnosticreportMedia) {
+  use <- decode.recursive
   use link <- decode.field("link", reference_decoder())
   use comment <- decode.optional_field(
     "comment",
@@ -46240,7 +46506,7 @@ pub fn diagnosticreport_to_json(diagnosticreport: Diagnosticreport) -> Json {
       #(
         "effective"
           <> case v {
-          DiagnosticreportEffectiveDatetime(_) -> "Datetime"
+          DiagnosticreportEffectiveDatetime(_) -> "DateTime"
           DiagnosticreportEffectivePeriod(_) -> "Period"
         },
         diagnosticreport_effective_to_json(v),
@@ -46307,11 +46573,12 @@ pub fn diagnosticreport_to_json(diagnosticreport: Diagnosticreport) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Diagnosticreport")), ..fields]
+  let fields = [#("resourceType", json.string("DiagnosticReport")), ..fields]
   json.object(fields)
 }
 
 pub fn diagnosticreport_decoder() -> Decoder(Diagnosticreport) {
+  use <- decode.recursive
   use presented_form <- decode.optional_field(
     "presentedForm",
     [],
@@ -46434,7 +46701,7 @@ pub fn diagnosticreport_decoder() -> Decoder(Diagnosticreport) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Diagnosticreport",
+    rt != "DiagnosticReport",
     decode.failure(diagnosticreport_new(code:, status:), "resourceType"),
   )
   decode.success(Diagnosticreport(
@@ -46579,6 +46846,7 @@ pub fn documentmanifest_related_to_json(
 }
 
 pub fn documentmanifest_related_decoder() -> Decoder(DocumentmanifestRelated) {
+  use <- decode.recursive
   use ref <- decode.optional_field(
     "ref",
     None,
@@ -46717,11 +46985,12 @@ pub fn documentmanifest_to_json(documentmanifest: Documentmanifest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Documentmanifest")), ..fields]
+  let fields = [#("resourceType", json.string("DocumentManifest")), ..fields]
   json.object(fields)
 }
 
 pub fn documentmanifest_decoder() -> Decoder(Documentmanifest) {
+  use <- decode.recursive
   use related <- decode.optional_field(
     "related",
     [],
@@ -46820,7 +47089,7 @@ pub fn documentmanifest_decoder() -> Decoder(Documentmanifest) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Documentmanifest",
+    rt != "DocumentManifest",
     decode.failure(documentmanifest_new(status:), "resourceType"),
   )
   decode.success(Documentmanifest(
@@ -47049,6 +47318,7 @@ pub fn documentreference_context_to_json(
 }
 
 pub fn documentreference_context_decoder() -> Decoder(DocumentreferenceContext) {
+  use <- decode.recursive
   use related <- decode.optional_field(
     "related",
     [],
@@ -47145,6 +47415,7 @@ pub fn documentreference_content_to_json(
 }
 
 pub fn documentreference_content_decoder() -> Decoder(DocumentreferenceContent) {
+  use <- decode.recursive
   use format <- decode.optional_field(
     "format",
     None,
@@ -47206,6 +47477,7 @@ pub fn documentreference_relatesto_to_json(
 pub fn documentreference_relatesto_decoder() -> Decoder(
   DocumentreferenceRelatesto,
 ) {
+  use <- decode.recursive
   use target <- decode.field("target", reference_decoder())
   use code <- decode.field(
     "code",
@@ -47374,11 +47646,12 @@ pub fn documentreference_to_json(documentreference: Documentreference) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Documentreference")), ..fields]
+  let fields = [#("resourceType", json.string("DocumentReference")), ..fields]
   json.object(fields)
 }
 
 pub fn documentreference_decoder() -> Decoder(Documentreference) {
+  use <- decode.recursive
   use context <- decode.optional_field(
     "context",
     None,
@@ -47497,7 +47770,7 @@ pub fn documentreference_decoder() -> Decoder(Documentreference) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Documentreference",
+    rt != "DocumentReference",
     decode.failure(documentreference_new(status:), "resourceType"),
   )
   decode.success(Documentreference(
@@ -47602,11 +47875,12 @@ pub fn domainresource_to_json(domainresource: Domainresource) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Domainresource")), ..fields]
+  let fields = [#("resourceType", json.string("DomainResource")), ..fields]
   json.object(fields)
 }
 
 pub fn domainresource_decoder() -> Decoder(Domainresource) {
+  use <- decode.recursive
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -47646,7 +47920,7 @@ pub fn domainresource_decoder() -> Decoder(Domainresource) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Domainresource",
+    rt != "DomainResource",
     decode.failure(domainresource_new(), "resourceType"),
   )
   decode.success(Domainresource(
@@ -47940,6 +48214,7 @@ pub fn encounter_location_to_json(encounter_location: EncounterLocation) -> Json
 }
 
 pub fn encounter_location_decoder() -> Decoder(EncounterLocation) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -48066,6 +48341,7 @@ pub fn encounter_hospitalization_to_json(
 }
 
 pub fn encounter_hospitalization_decoder() -> Decoder(EncounterHospitalization) {
+  use <- decode.recursive
   use discharge_disposition <- decode.optional_field(
     "dischargeDisposition",
     None,
@@ -48179,6 +48455,7 @@ pub fn encounter_diagnosis_to_json(
 }
 
 pub fn encounter_diagnosis_decoder() -> Decoder(EncounterDiagnosis) {
+  use <- decode.recursive
   use rank <- decode.optional_field("rank", None, decode.optional(decode.int))
   use use_ <- decode.optional_field(
     "use",
@@ -48250,6 +48527,7 @@ pub fn encounter_participant_to_json(
 }
 
 pub fn encounter_participant_decoder() -> Decoder(EncounterParticipant) {
+  use <- decode.recursive
   use individual <- decode.optional_field(
     "individual",
     None,
@@ -48319,6 +48597,7 @@ pub fn encounter_classhistory_to_json(
 }
 
 pub fn encounter_classhistory_decoder() -> Decoder(EncounterClasshistory) {
+  use <- decode.recursive
   use period <- decode.field("period", period_decoder())
   use class <- decode.field("class", coding_decoder())
   use modifier_extension <- decode.optional_field(
@@ -48374,6 +48653,7 @@ pub fn encounter_statushistory_to_json(
 }
 
 pub fn encounter_statushistory_decoder() -> Decoder(EncounterStatushistory) {
+  use <- decode.recursive
   use period <- decode.field("period", period_decoder())
   use status <- decode.field("status", r4bvaluesets.encounterstatus_decoder())
   use modifier_extension <- decode.optional_field(
@@ -48594,6 +48874,7 @@ pub fn encounter_to_json(encounter: Encounter) -> Json {
 }
 
 pub fn encounter_decoder() -> Decoder(Encounter) {
+  use <- decode.recursive
   use part_of <- decode.optional_field(
     "partOf",
     None,
@@ -48936,6 +49217,7 @@ pub fn endpoint_to_json(endpoint: Endpoint) -> Json {
 }
 
 pub fn endpoint_decoder() -> Decoder(Endpoint) {
+  use <- decode.recursive
   use header <- decode.optional_field("header", [], decode.list(decode.string))
   use address <- decode.field("address", decode.string)
   use payload_mime_type <- decode.optional_field(
@@ -49166,11 +49448,12 @@ pub fn enrollmentrequest_to_json(enrollmentrequest: Enrollmentrequest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Enrollmentrequest")), ..fields]
+  let fields = [#("resourceType", json.string("EnrollmentRequest")), ..fields]
   json.object(fields)
 }
 
 pub fn enrollmentrequest_decoder() -> Decoder(Enrollmentrequest) {
+  use <- decode.recursive
   use coverage <- decode.optional_field(
     "coverage",
     None,
@@ -49245,7 +49528,7 @@ pub fn enrollmentrequest_decoder() -> Decoder(Enrollmentrequest) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Enrollmentrequest",
+    rt != "EnrollmentRequest",
     decode.failure(enrollmentrequest_new(), "resourceType"),
   )
   decode.success(Enrollmentrequest(
@@ -49402,11 +49685,12 @@ pub fn enrollmentresponse_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Enrollmentresponse")), ..fields]
+  let fields = [#("resourceType", json.string("EnrollmentResponse")), ..fields]
   json.object(fields)
 }
 
 pub fn enrollmentresponse_decoder() -> Decoder(Enrollmentresponse) {
+  use <- decode.recursive
   use request_provider <- decode.optional_field(
     "requestProvider",
     None,
@@ -49486,7 +49770,7 @@ pub fn enrollmentresponse_decoder() -> Decoder(Enrollmentresponse) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Enrollmentresponse",
+    rt != "EnrollmentResponse",
     decode.failure(enrollmentresponse_new(), "resourceType"),
   )
   decode.success(Enrollmentresponse(
@@ -49653,6 +49937,7 @@ pub fn episodeofcare_diagnosis_to_json(
 }
 
 pub fn episodeofcare_diagnosis_decoder() -> Decoder(EpisodeofcareDiagnosis) {
+  use <- decode.recursive
   use rank <- decode.optional_field("rank", None, decode.optional(decode.int))
   use role <- decode.optional_field(
     "role",
@@ -49716,6 +50001,7 @@ pub fn episodeofcare_statushistory_to_json(
 pub fn episodeofcare_statushistory_decoder() -> Decoder(
   EpisodeofcareStatushistory,
 ) {
+  use <- decode.recursive
   use period <- decode.field("period", period_decoder())
   use status <- decode.field(
     "status",
@@ -49855,11 +50141,12 @@ pub fn episodeofcare_to_json(episodeofcare: Episodeofcare) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Episodeofcare")), ..fields]
+  let fields = [#("resourceType", json.string("EpisodeOfCare")), ..fields]
   json.object(fields)
 }
 
 pub fn episodeofcare_decoder() -> Decoder(Episodeofcare) {
+  use <- decode.recursive
   use account <- decode.optional_field(
     "account",
     [],
@@ -49954,7 +50241,7 @@ pub fn episodeofcare_decoder() -> Decoder(Episodeofcare) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Episodeofcare",
+    rt != "EpisodeOfCare",
     decode.failure(episodeofcare_new(patient:, status:), "resourceType"),
   )
   decode.success(Episodeofcare(
@@ -50232,7 +50519,7 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
       #(
         "subject"
           <> case v {
-          EventdefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          EventdefinitionSubjectCodeableconcept(_) -> "CodeableConcept"
           EventdefinitionSubjectReference(_) -> "Reference"
         },
         eventdefinition_subject_to_json(v),
@@ -50304,11 +50591,12 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Eventdefinition")), ..fields]
+  let fields = [#("resourceType", json.string("EventDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
+  use <- decode.recursive
   use trigger <- decode.optional_field(
     "trigger",
     [],
@@ -50476,7 +50764,7 @@ pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Eventdefinition",
+    rt != "EventDefinition",
     decode.failure(eventdefinition_new(status:), "resourceType"),
   )
   decode.success(Eventdefinition(
@@ -50890,6 +51178,7 @@ pub fn evidence_certainty_to_json(evidence_certainty: EvidenceCertainty) -> Json
 }
 
 pub fn evidence_certainty_decoder() -> Decoder(EvidenceCertainty) {
+  use <- decode.recursive
   use subcomponent <- decode.optional_field(
     "subcomponent",
     [],
@@ -51006,6 +51295,7 @@ pub fn evidence_statistic_modelcharacteristic_variable_to_json(
 pub fn evidence_statistic_modelcharacteristic_variable_decoder() -> Decoder(
   EvidenceStatisticModelcharacteristicVariable,
 ) {
+  use <- decode.recursive
   use value_range <- decode.optional_field(
     "valueRange",
     [],
@@ -51119,6 +51409,7 @@ pub fn evidence_statistic_modelcharacteristic_to_json(
 pub fn evidence_statistic_modelcharacteristic_decoder() -> Decoder(
   EvidenceStatisticModelcharacteristic,
 ) {
+  use <- decode.recursive
   use attribute_estimate <- decode.optional_field(
     "attributeEstimate",
     [],
@@ -51231,6 +51522,7 @@ pub fn evidence_statistic_attributeestimate_to_json(
 pub fn evidence_statistic_attributeestimate_decoder() -> Decoder(
   EvidenceStatisticAttributeestimate,
 ) {
+  use <- decode.recursive
   use attribute_estimate <- decode.optional_field(
     "attributeEstimate",
     [],
@@ -51244,7 +51536,7 @@ pub fn evidence_statistic_attributeestimate_decoder() -> Decoder(
   use level <- decode.optional_field(
     "level",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use quantity <- decode.optional_field(
     "quantity",
@@ -51346,6 +51638,7 @@ pub fn evidence_statistic_samplesize_to_json(
 pub fn evidence_statistic_samplesize_decoder() -> Decoder(
   EvidenceStatisticSamplesize,
 ) {
+  use <- decode.recursive
   use known_data_count <- decode.optional_field(
     "knownDataCount",
     None,
@@ -51491,6 +51784,7 @@ pub fn evidence_statistic_to_json(evidence_statistic: EvidenceStatistic) -> Json
 }
 
 pub fn evidence_statistic_decoder() -> Decoder(EvidenceStatistic) {
+  use <- decode.recursive
   use model_characteristic <- decode.optional_field(
     "modelCharacteristic",
     [],
@@ -51627,6 +51921,7 @@ pub fn evidence_variabledefinition_to_json(
 pub fn evidence_variabledefinition_decoder() -> Decoder(
   EvidenceVariabledefinition,
 ) {
+  use <- decode.recursive
   use directness_match <- decode.optional_field(
     "directnessMatch",
     None,
@@ -51883,6 +52178,7 @@ pub fn evidence_to_json(evidence: Evidence) -> Json {
 }
 
 pub fn evidence_decoder() -> Decoder(Evidence) {
+  use <- decode.recursive
   use certainty <- decode.optional_field(
     "certainty",
     [],
@@ -52457,6 +52753,7 @@ pub fn evidencereport_section_to_json(
 }
 
 pub fn evidencereport_section_decoder() -> Decoder(EvidencereportSection) {
+  use <- decode.recursive
   use section <- decode.optional_field(
     "section",
     [],
@@ -52580,6 +52877,7 @@ pub fn evidencereport_relatesto_to_json(
 }
 
 pub fn evidencereport_relatesto_decoder() -> Decoder(EvidencereportRelatesto) {
+  use <- decode.recursive
   use target <- decode.then(evidencereport_relatesto_target_decoder())
   use code <- decode.field("code", r4bvaluesets.reportrelationtype_decoder())
   use modifier_extension <- decode.optional_field(
@@ -52647,6 +52945,7 @@ pub fn evidencereport_subject_characteristic_to_json(
 pub fn evidencereport_subject_characteristic_decoder() -> Decoder(
   EvidencereportSubjectCharacteristic,
 ) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -52730,6 +53029,7 @@ pub fn evidencereport_subject_to_json(
 }
 
 pub fn evidencereport_subject_decoder() -> Decoder(EvidencereportSubject) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -52920,11 +53220,12 @@ pub fn evidencereport_to_json(evidencereport: Evidencereport) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Evidencereport")), ..fields]
+  let fields = [#("resourceType", json.string("EvidenceReport")), ..fields]
   json.object(fields)
 }
 
 pub fn evidencereport_decoder() -> Decoder(Evidencereport) {
+  use <- decode.recursive
   use section <- decode.optional_field(
     "section",
     [],
@@ -53038,7 +53339,7 @@ pub fn evidencereport_decoder() -> Decoder(Evidencereport) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Evidencereport",
+    rt != "EvidenceReport",
     decode.failure(evidencereport_new(subject:, status:), "resourceType"),
   )
   decode.success(Evidencereport(
@@ -53324,7 +53625,7 @@ pub fn evidencevariable_category_to_json(
       #(
         "value"
           <> case v {
-          EvidencevariableCategoryValueCodeableconcept(_) -> "Codeableconcept"
+          EvidencevariableCategoryValueCodeableconcept(_) -> "CodeableConcept"
           EvidencevariableCategoryValueQuantity(_) -> "Quantity"
           EvidencevariableCategoryValueRange(_) -> "Range"
         },
@@ -53357,6 +53658,7 @@ pub fn evidencevariable_category_to_json(
 }
 
 pub fn evidencevariable_category_decoder() -> Decoder(EvidencevariableCategory) {
+  use <- decode.recursive
   use value <- decode.then(
     none_if_omitted(evidencevariable_category_value_decoder()),
   )
@@ -53435,6 +53737,7 @@ pub fn evidencevariable_characteristic_timefromstart_to_json(
 pub fn evidencevariable_characteristic_timefromstart_decoder() -> Decoder(
   EvidencevariableCharacteristicTimefromstart,
 ) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -53552,6 +53855,7 @@ pub fn evidencevariable_characteristic_to_json(
 pub fn evidencevariable_characteristic_decoder() -> Decoder(
   EvidencevariableCharacteristic,
 ) {
+  use <- decode.recursive
   use group_measure <- decode.optional_field(
     "groupMeasure",
     None,
@@ -53802,11 +54106,12 @@ pub fn evidencevariable_to_json(evidencevariable: Evidencevariable) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Evidencevariable")), ..fields]
+  let fields = [#("resourceType", json.string("EvidenceVariable")), ..fields]
   json.object(fields)
 }
 
 pub fn evidencevariable_decoder() -> Decoder(Evidencevariable) {
+  use <- decode.recursive
   use category <- decode.optional_field(
     "category",
     [],
@@ -53958,7 +54263,7 @@ pub fn evidencevariable_decoder() -> Decoder(Evidencevariable) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Evidencevariable",
+    rt != "EvidenceVariable",
     decode.failure(evidencevariable_new(status:), "resourceType"),
   )
   decode.success(Evidencevariable(
@@ -54331,6 +54636,7 @@ pub fn examplescenario_process_step_alternative_to_json(
 pub fn examplescenario_process_step_alternative_decoder() -> Decoder(
   ExamplescenarioProcessStepAlternative,
 ) {
+  use <- decode.recursive
   use step <- decode.optional_field(
     "step",
     [],
@@ -54447,6 +54753,7 @@ pub fn examplescenario_process_step_operation_to_json(
 pub fn examplescenario_process_step_operation_decoder() -> Decoder(
   ExamplescenarioProcessStepOperation,
 ) {
+  use <- decode.recursive
   use response <- decode.optional_field(
     "response",
     None,
@@ -54586,6 +54893,7 @@ pub fn examplescenario_process_step_to_json(
 pub fn examplescenario_process_step_decoder() -> Decoder(
   ExamplescenarioProcessStep,
 ) {
+  use <- decode.recursive
   use alternative <- decode.optional_field(
     "alternative",
     [],
@@ -54682,6 +54990,7 @@ pub fn examplescenario_process_to_json(
 }
 
 pub fn examplescenario_process_decoder() -> Decoder(ExamplescenarioProcess) {
+  use <- decode.recursive
   use step <- decode.optional_field(
     "step",
     [],
@@ -54764,6 +55073,7 @@ pub fn examplescenario_instance_containedinstance_to_json(
 pub fn examplescenario_instance_containedinstance_decoder() -> Decoder(
   ExamplescenarioInstanceContainedinstance,
 ) {
+  use <- decode.recursive
   use version_id <- decode.optional_field(
     "versionId",
     None,
@@ -54825,6 +55135,7 @@ pub fn examplescenario_instance_version_to_json(
 pub fn examplescenario_instance_version_decoder() -> Decoder(
   ExamplescenarioInstanceVersion,
 ) {
+  use <- decode.recursive
   use description <- decode.field("description", decode.string)
   use version_id <- decode.field("versionId", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -54915,6 +55226,7 @@ pub fn examplescenario_instance_to_json(
 }
 
 pub fn examplescenario_instance_decoder() -> Decoder(ExamplescenarioInstance) {
+  use <- decode.recursive
   use contained_instance <- decode.optional_field(
     "containedInstance",
     [],
@@ -55007,6 +55319,7 @@ pub fn examplescenario_actor_to_json(
 }
 
 pub fn examplescenario_actor_decoder() -> Decoder(ExamplescenarioActor) {
+  use <- decode.recursive
   use description <- decode.optional_field(
     "description",
     None,
@@ -55189,11 +55502,12 @@ pub fn examplescenario_to_json(examplescenario: Examplescenario) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Examplescenario")), ..fields]
+  let fields = [#("resourceType", json.string("ExampleScenario")), ..fields]
   json.object(fields)
 }
 
 pub fn examplescenario_decoder() -> Decoder(Examplescenario) {
+  use <- decode.recursive
   use workflow <- decode.optional_field(
     "workflow",
     [],
@@ -55310,7 +55624,7 @@ pub fn examplescenario_decoder() -> Decoder(Examplescenario) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Examplescenario",
+    rt != "ExampleScenario",
     decode.failure(examplescenario_new(status:), "resourceType"),
   )
   decode.success(Examplescenario(
@@ -56513,7 +56827,7 @@ pub fn explanationofbenefit_benefitbalance_financial_to_json(
         "used"
           <> case v {
           ExplanationofbenefitBenefitbalanceFinancialUsedUnsignedint(_) ->
-            "Unsignedint"
+            "UnsignedInt"
           ExplanationofbenefitBenefitbalanceFinancialUsedMoney(_) -> "Money"
         },
         explanationofbenefit_benefitbalance_financial_used_to_json(v),
@@ -56528,7 +56842,7 @@ pub fn explanationofbenefit_benefitbalance_financial_to_json(
         "allowed"
           <> case v {
           ExplanationofbenefitBenefitbalanceFinancialAllowedUnsignedint(_) ->
-            "Unsignedint"
+            "UnsignedInt"
           ExplanationofbenefitBenefitbalanceFinancialAllowedString(_) ->
             "String"
           ExplanationofbenefitBenefitbalanceFinancialAllowedMoney(_) -> "Money"
@@ -56560,6 +56874,7 @@ pub fn explanationofbenefit_benefitbalance_financial_to_json(
 pub fn explanationofbenefit_benefitbalance_financial_decoder() -> Decoder(
   ExplanationofbenefitBenefitbalanceFinancial,
 ) {
+  use <- decode.recursive
   use used <- decode.then(
     none_if_omitted(
       explanationofbenefit_benefitbalance_financial_used_decoder(),
@@ -56669,6 +56984,7 @@ pub fn explanationofbenefit_benefitbalance_to_json(
 pub fn explanationofbenefit_benefitbalance_decoder() -> Decoder(
   ExplanationofbenefitBenefitbalance,
 ) {
+  use <- decode.recursive
   use financial <- decode.optional_field(
     "financial",
     [],
@@ -56781,6 +57097,7 @@ pub fn explanationofbenefit_processnote_to_json(
 pub fn explanationofbenefit_processnote_decoder() -> Decoder(
   ExplanationofbenefitProcessnote,
 ) {
+  use <- decode.recursive
   use language <- decode.optional_field(
     "language",
     None,
@@ -56883,6 +57200,7 @@ pub fn explanationofbenefit_payment_to_json(
 pub fn explanationofbenefit_payment_decoder() -> Decoder(
   ExplanationofbenefitPayment,
 ) {
+  use <- decode.recursive
   use identifier <- decode.optional_field(
     "identifier",
     None,
@@ -56972,6 +57290,7 @@ pub fn explanationofbenefit_total_to_json(
 pub fn explanationofbenefit_total_decoder() -> Decoder(
   ExplanationofbenefitTotal,
 ) {
+  use <- decode.recursive
   use amount <- decode.field("amount", money_decoder())
   use category <- decode.field("category", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
@@ -57071,6 +57390,7 @@ pub fn explanationofbenefit_additem_detail_subdetail_to_json(
 pub fn explanationofbenefit_additem_detail_subdetail_decoder() -> Decoder(
   ExplanationofbenefitAdditemDetailSubdetail,
 ) {
+  use <- decode.recursive
   use adjudication <- decode.optional_field(
     "adjudication",
     [],
@@ -57089,7 +57409,7 @@ pub fn explanationofbenefit_additem_detail_subdetail_decoder() -> Decoder(
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -57227,6 +57547,7 @@ pub fn explanationofbenefit_additem_detail_to_json(
 pub fn explanationofbenefit_additem_detail_decoder() -> Decoder(
   ExplanationofbenefitAdditemDetail,
 ) {
+  use <- decode.recursive
   use sub_detail <- decode.optional_field(
     "subDetail",
     [],
@@ -57250,7 +57571,7 @@ pub fn explanationofbenefit_additem_detail_decoder() -> Decoder(
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -57381,7 +57702,7 @@ pub fn explanationofbenefit_additem_to_json(
         "location"
           <> case v {
           ExplanationofbenefitAdditemLocationCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           ExplanationofbenefitAdditemLocationAddress(_) -> "Address"
           ExplanationofbenefitAdditemLocationReference(_) -> "Reference"
         },
@@ -57459,6 +57780,7 @@ pub fn explanationofbenefit_additem_to_json(
 pub fn explanationofbenefit_additem_decoder() -> Decoder(
   ExplanationofbenefitAdditem,
 ) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     [],
@@ -57492,7 +57814,7 @@ pub fn explanationofbenefit_additem_decoder() -> Decoder(
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -57682,6 +58004,7 @@ pub fn explanationofbenefit_item_detail_subdetail_to_json(
 pub fn explanationofbenefit_item_detail_subdetail_decoder() -> Decoder(
   ExplanationofbenefitItemDetailSubdetail,
 ) {
+  use <- decode.recursive
   use adjudication <- decode.optional_field(
     "adjudication",
     [],
@@ -57701,7 +58024,7 @@ pub fn explanationofbenefit_item_detail_subdetail_decoder() -> Decoder(
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -57885,6 +58208,7 @@ pub fn explanationofbenefit_item_detail_to_json(
 pub fn explanationofbenefit_item_detail_decoder() -> Decoder(
   ExplanationofbenefitItemDetail,
 ) {
+  use <- decode.recursive
   use sub_detail <- decode.optional_field(
     "subDetail",
     [],
@@ -57909,7 +58233,7 @@ pub fn explanationofbenefit_item_detail_decoder() -> Decoder(
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -58026,10 +58350,11 @@ pub fn explanationofbenefit_item_adjudication_to_json(
 pub fn explanationofbenefit_item_adjudication_decoder() -> Decoder(
   ExplanationofbenefitItemAdjudication,
 ) {
+  use <- decode.recursive
   use value <- decode.optional_field(
     "value",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use amount <- decode.optional_field(
     "amount",
@@ -58158,7 +58483,7 @@ pub fn explanationofbenefit_item_to_json(
         "location"
           <> case v {
           ExplanationofbenefitItemLocationCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           ExplanationofbenefitItemLocationAddress(_) -> "Address"
           ExplanationofbenefitItemLocationReference(_) -> "Reference"
         },
@@ -58251,6 +58576,7 @@ pub fn explanationofbenefit_item_to_json(
 }
 
 pub fn explanationofbenefit_item_decoder() -> Decoder(ExplanationofbenefitItem) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     [],
@@ -58290,7 +58616,7 @@ pub fn explanationofbenefit_item_decoder() -> Decoder(ExplanationofbenefitItem) 
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit_price <- decode.optional_field(
     "unitPrice",
@@ -58449,6 +58775,7 @@ pub fn explanationofbenefit_accident_to_json(
 pub fn explanationofbenefit_accident_decoder() -> Decoder(
   ExplanationofbenefitAccident,
 ) {
+  use <- decode.recursive
   use location <- decode.then(
     none_if_omitted(explanationofbenefit_accident_location_decoder()),
   )
@@ -58523,6 +58850,7 @@ pub fn explanationofbenefit_insurance_to_json(
 pub fn explanationofbenefit_insurance_decoder() -> Decoder(
   ExplanationofbenefitInsurance,
 ) {
+  use <- decode.recursive
   use pre_auth_ref <- decode.optional_field(
     "preAuthRef",
     [],
@@ -58601,6 +58929,7 @@ pub fn explanationofbenefit_procedure_to_json(
 pub fn explanationofbenefit_procedure_decoder() -> Decoder(
   ExplanationofbenefitProcedure,
 ) {
+  use <- decode.recursive
   use udi <- decode.optional_field("udi", [], decode.list(reference_decoder()))
   use procedure <- decode.then(
     explanationofbenefit_procedure_procedure_decoder(),
@@ -58689,6 +59018,7 @@ pub fn explanationofbenefit_diagnosis_to_json(
 pub fn explanationofbenefit_diagnosis_decoder() -> Decoder(
   ExplanationofbenefitDiagnosis,
 ) {
+  use <- decode.recursive
   use package_code <- decode.optional_field(
     "packageCode",
     None,
@@ -58809,6 +59139,7 @@ pub fn explanationofbenefit_supportinginfo_to_json(
 pub fn explanationofbenefit_supportinginfo_decoder() -> Decoder(
   ExplanationofbenefitSupportinginfo,
 ) {
+  use <- decode.recursive
   use reason <- decode.optional_field(
     "reason",
     None,
@@ -58901,6 +59232,7 @@ pub fn explanationofbenefit_careteam_to_json(
 pub fn explanationofbenefit_careteam_decoder() -> Decoder(
   ExplanationofbenefitCareteam,
 ) {
+  use <- decode.recursive
   use qualification <- decode.optional_field(
     "qualification",
     None,
@@ -58981,6 +59313,7 @@ pub fn explanationofbenefit_payee_to_json(
 pub fn explanationofbenefit_payee_decoder() -> Decoder(
   ExplanationofbenefitPayee,
 ) {
+  use <- decode.recursive
   use party <- decode.optional_field(
     "party",
     None,
@@ -59056,6 +59389,7 @@ pub fn explanationofbenefit_related_to_json(
 pub fn explanationofbenefit_related_decoder() -> Decoder(
   ExplanationofbenefitRelated,
 ) {
+  use <- decode.recursive
   use reference <- decode.optional_field(
     "reference",
     None,
@@ -59403,13 +59737,14 @@ pub fn explanationofbenefit_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Explanationofbenefit")),
+    #("resourceType", json.string("ExplanationOfBenefit")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn explanationofbenefit_decoder() -> Decoder(Explanationofbenefit) {
+  use <- decode.recursive
   use benefit_balance <- decode.optional_field(
     "benefitBalance",
     [],
@@ -59638,7 +59973,7 @@ pub fn explanationofbenefit_decoder() -> Decoder(Explanationofbenefit) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Explanationofbenefit",
+    rt != "ExplanationOfBenefit",
     decode.failure(
       explanationofbenefit_new(
         outcome:,
@@ -60001,6 +60336,7 @@ pub fn familymemberhistory_condition_to_json(
 pub fn familymemberhistory_condition_decoder() -> Decoder(
   FamilymemberhistoryCondition,
 ) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -60230,11 +60566,12 @@ pub fn familymemberhistory_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Familymemberhistory")), ..fields]
+  let fields = [#("resourceType", json.string("FamilyMemberHistory")), ..fields]
   json.object(fields)
 }
 
 pub fn familymemberhistory_decoder() -> Decoder(Familymemberhistory) {
+  use <- decode.recursive
   use condition <- decode.optional_field(
     "condition",
     [],
@@ -60342,7 +60679,7 @@ pub fn familymemberhistory_decoder() -> Decoder(Familymemberhistory) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Familymemberhistory",
+    rt != "FamilyMemberHistory",
     decode.failure(
       familymemberhistory_new(relationship:, patient:, status:),
       "resourceType",
@@ -60512,6 +60849,7 @@ pub fn flag_to_json(flag: Flag) -> Json {
 }
 
 pub fn flag_decoder() -> Decoder(Flag) {
+  use <- decode.recursive
   use author <- decode.optional_field(
     "author",
     None,
@@ -60813,7 +61151,7 @@ pub fn goal_target_to_json(goal_target: GoalTarget) -> Json {
           <> case v {
           GoalTargetDetailQuantity(_) -> "Quantity"
           GoalTargetDetailRange(_) -> "Range"
-          GoalTargetDetailCodeableconcept(_) -> "Codeableconcept"
+          GoalTargetDetailCodeableconcept(_) -> "CodeableConcept"
           GoalTargetDetailString(_) -> "String"
           GoalTargetDetailBoolean(_) -> "Boolean"
           GoalTargetDetailInteger(_) -> "Integer"
@@ -60848,6 +61186,7 @@ pub fn goal_target_to_json(goal_target: GoalTarget) -> Json {
 }
 
 pub fn goal_target_decoder() -> Decoder(GoalTarget) {
+  use <- decode.recursive
   use due <- decode.then(none_if_omitted(goal_target_due_decoder()))
   use detail <- decode.then(none_if_omitted(goal_target_detail_decoder()))
   use measure <- decode.optional_field(
@@ -60952,7 +61291,7 @@ pub fn goal_to_json(goal: Goal) -> Json {
         "start"
           <> case v {
           GoalStartDate(_) -> "Date"
-          GoalStartCodeableconcept(_) -> "Codeableconcept"
+          GoalStartCodeableconcept(_) -> "CodeableConcept"
         },
         goal_start_to_json(v),
       ),
@@ -61019,6 +61358,7 @@ pub fn goal_to_json(goal: Goal) -> Json {
 }
 
 pub fn goal_decoder() -> Decoder(Goal) {
+  use <- decode.recursive
   use outcome_reference <- decode.optional_field(
     "outcomeReference",
     [],
@@ -61356,6 +61696,7 @@ pub fn graphdefinition_link_target_compartment_to_json(
 pub fn graphdefinition_link_target_compartment_decoder() -> Decoder(
   GraphdefinitionLinkTargetCompartment,
 ) {
+  use <- decode.recursive
   use description <- decode.optional_field(
     "description",
     None,
@@ -61451,6 +61792,7 @@ pub fn graphdefinition_link_target_to_json(
 pub fn graphdefinition_link_target_decoder() -> Decoder(
   GraphdefinitionLinkTarget,
 ) {
+  use <- decode.recursive
   use link <- decode.optional_field(
     "link",
     [],
@@ -61556,6 +61898,7 @@ pub fn graphdefinition_link_to_json(
 }
 
 pub fn graphdefinition_link_decoder() -> Decoder(GraphdefinitionLink) {
+  use <- decode.recursive
   use target <- decode.optional_field(
     "target",
     [],
@@ -61722,11 +62065,12 @@ pub fn graphdefinition_to_json(graphdefinition: Graphdefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Graphdefinition")), ..fields]
+  let fields = [#("resourceType", json.string("GraphDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn graphdefinition_decoder() -> Decoder(Graphdefinition) {
+  use <- decode.recursive
   use link <- decode.optional_field(
     "link",
     [],
@@ -61825,7 +62169,7 @@ pub fn graphdefinition_decoder() -> Decoder(Graphdefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Graphdefinition",
+    rt != "GraphDefinition",
     decode.failure(graphdefinition_new(start:, status:, name:), "resourceType"),
   )
   decode.success(Graphdefinition(
@@ -62036,6 +62380,7 @@ pub fn group_member_to_json(group_member: GroupMember) -> Json {
 }
 
 pub fn group_member_decoder() -> Decoder(GroupMember) {
+  use <- decode.recursive
   use inactive <- decode.optional_field(
     "inactive",
     None,
@@ -62108,6 +62453,7 @@ pub fn group_characteristic_to_json(
 }
 
 pub fn group_characteristic_decoder() -> Decoder(GroupCharacteristic) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -62241,6 +62587,7 @@ pub fn group_to_json(group: Group) -> Json {
 }
 
 pub fn group_decoder() -> Decoder(Group) {
+  use <- decode.recursive
   use member <- decode.optional_field(
     "member",
     [],
@@ -62571,11 +62918,12 @@ pub fn guidanceresponse_to_json(guidanceresponse: Guidanceresponse) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Guidanceresponse")), ..fields]
+  let fields = [#("resourceType", json.string("GuidanceResponse")), ..fields]
   json.object(fields)
 }
 
 pub fn guidanceresponse_decoder() -> Decoder(Guidanceresponse) {
+  use <- decode.recursive
   use data_requirement <- decode.optional_field(
     "dataRequirement",
     [],
@@ -62685,7 +63033,7 @@ pub fn guidanceresponse_decoder() -> Decoder(Guidanceresponse) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Guidanceresponse",
+    rt != "GuidanceResponse",
     decode.failure(guidanceresponse_new(status:, module:), "resourceType"),
   )
   decode.success(Guidanceresponse(
@@ -62897,6 +63245,7 @@ pub fn healthcareservice_notavailable_to_json(
 pub fn healthcareservice_notavailable_decoder() -> Decoder(
   HealthcareserviceNotavailable,
 ) {
+  use <- decode.recursive
   use during <- decode.optional_field(
     "during",
     None,
@@ -62976,6 +63325,7 @@ pub fn healthcareservice_availabletime_to_json(
 pub fn healthcareservice_availabletime_decoder() -> Decoder(
   HealthcareserviceAvailabletime,
 ) {
+  use <- decode.recursive
   use available_end_time <- decode.optional_field(
     "availableEndTime",
     None,
@@ -63058,6 +63408,7 @@ pub fn healthcareservice_eligibility_to_json(
 pub fn healthcareservice_eligibility_decoder() -> Decoder(
   HealthcareserviceEligibility,
 ) {
+  use <- decode.recursive
   use comment <- decode.optional_field(
     "comment",
     None,
@@ -63297,11 +63648,12 @@ pub fn healthcareservice_to_json(healthcareservice: Healthcareservice) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Healthcareservice")), ..fields]
+  let fields = [#("resourceType", json.string("HealthcareService")), ..fields]
   json.object(fields)
 }
 
 pub fn healthcareservice_decoder() -> Decoder(Healthcareservice) {
+  use <- decode.recursive
   use endpoint <- decode.optional_field(
     "endpoint",
     [],
@@ -63461,7 +63813,7 @@ pub fn healthcareservice_decoder() -> Decoder(Healthcareservice) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Healthcareservice",
+    rt != "HealthcareService",
     decode.failure(healthcareservice_new(), "resourceType"),
   )
   decode.success(Healthcareservice(
@@ -63710,6 +64062,7 @@ pub fn imagingstudy_series_instance_to_json(
 pub fn imagingstudy_series_instance_decoder() -> Decoder(
   ImagingstudySeriesInstance,
 ) {
+  use <- decode.recursive
   use title <- decode.optional_field(
     "title",
     None,
@@ -63782,6 +64135,7 @@ pub fn imagingstudy_series_performer_to_json(
 pub fn imagingstudy_series_performer_decoder() -> Decoder(
   ImagingstudySeriesPerformer,
 ) {
+  use <- decode.recursive
   use actor <- decode.field("actor", reference_decoder())
   use function <- decode.optional_field(
     "function",
@@ -63900,6 +64254,7 @@ pub fn imagingstudy_series_to_json(
 }
 
 pub fn imagingstudy_series_decoder() -> Decoder(ImagingstudySeries) {
+  use <- decode.recursive
   use instance <- decode.optional_field(
     "instance",
     [],
@@ -64139,11 +64494,12 @@ pub fn imagingstudy_to_json(imagingstudy: Imagingstudy) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Imagingstudy")), ..fields]
+  let fields = [#("resourceType", json.string("ImagingStudy")), ..fields]
   json.object(fields)
 }
 
 pub fn imagingstudy_decoder() -> Decoder(Imagingstudy) {
+  use <- decode.recursive
   use series <- decode.optional_field(
     "series",
     [],
@@ -64278,7 +64634,7 @@ pub fn imagingstudy_decoder() -> Decoder(Imagingstudy) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Imagingstudy",
+    rt != "ImagingStudy",
     decode.failure(imagingstudy_new(subject:, status:), "resourceType"),
   )
   decode.success(Imagingstudy(
@@ -64605,7 +64961,7 @@ pub fn immunization_protocolapplied_to_json(
       #(
         "seriesDoses"
           <> case v {
-          ImmunizationProtocolappliedSeriesdosesPositiveint(_) -> "Positiveint"
+          ImmunizationProtocolappliedSeriesdosesPositiveint(_) -> "PositiveInt"
           ImmunizationProtocolappliedSeriesdosesString(_) -> "String"
         },
         immunization_protocolapplied_seriesdoses_to_json(v),
@@ -64650,6 +65006,7 @@ pub fn immunization_protocolapplied_to_json(
 pub fn immunization_protocolapplied_decoder() -> Decoder(
   ImmunizationProtocolapplied,
 ) {
+  use <- decode.recursive
   use series_doses <- decode.then(
     none_if_omitted(immunization_protocolapplied_seriesdoses_decoder()),
   )
@@ -64737,6 +65094,7 @@ pub fn immunization_reaction_to_json(
 }
 
 pub fn immunization_reaction_decoder() -> Decoder(ImmunizationReaction) {
+  use <- decode.recursive
   use reported <- decode.optional_field(
     "reported",
     None,
@@ -64821,6 +65179,7 @@ pub fn immunization_education_to_json(
 }
 
 pub fn immunization_education_decoder() -> Decoder(ImmunizationEducation) {
+  use <- decode.recursive
   use presentation_date <- decode.optional_field(
     "presentationDate",
     None,
@@ -64899,6 +65258,7 @@ pub fn immunization_performer_to_json(
 }
 
 pub fn immunization_performer_decoder() -> Decoder(ImmunizationPerformer) {
+  use <- decode.recursive
   use actor <- decode.field("actor", reference_decoder())
   use function <- decode.optional_field(
     "function",
@@ -65139,6 +65499,7 @@ pub fn immunization_to_json(immunization: Immunization) -> Json {
 }
 
 pub fn immunization_decoder() -> Decoder(Immunization) {
+  use <- decode.recursive
   use protocol_applied <- decode.optional_field(
     "protocolApplied",
     [],
@@ -65504,7 +65865,7 @@ pub fn immunizationevaluation_to_json(
       #(
         "seriesDoses"
           <> case v {
-          ImmunizationevaluationSeriesdosesPositiveint(_) -> "Positiveint"
+          ImmunizationevaluationSeriesdosesPositiveint(_) -> "PositiveInt"
           ImmunizationevaluationSeriesdosesString(_) -> "String"
         },
         immunizationevaluation_seriesdoses_to_json(v),
@@ -65518,7 +65879,7 @@ pub fn immunizationevaluation_to_json(
       #(
         "doseNumber"
           <> case v {
-          ImmunizationevaluationDosenumberPositiveint(_) -> "Positiveint"
+          ImmunizationevaluationDosenumberPositiveint(_) -> "PositiveInt"
           ImmunizationevaluationDosenumberString(_) -> "String"
         },
         immunizationevaluation_dosenumber_to_json(v),
@@ -65593,13 +65954,14 @@ pub fn immunizationevaluation_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Immunizationevaluation")),
+    #("resourceType", json.string("ImmunizationEvaluation")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn immunizationevaluation_decoder() -> Decoder(Immunizationevaluation) {
+  use <- decode.recursive
   use series_doses <- decode.then(
     none_if_omitted(immunizationevaluation_seriesdoses_decoder()),
   )
@@ -65686,7 +66048,7 @@ pub fn immunizationevaluation_decoder() -> Decoder(Immunizationevaluation) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Immunizationevaluation",
+    rt != "ImmunizationEvaluation",
     decode.failure(
       immunizationevaluation_new(
         dose_status:,
@@ -65935,6 +66297,7 @@ pub fn immunizationrecommendation_recommendation_datecriterion_to_json(
 pub fn immunizationrecommendation_recommendation_datecriterion_decoder() -> Decoder(
   ImmunizationrecommendationRecommendationDatecriterion,
 ) {
+  use <- decode.recursive
   use value <- decode.field("value", decode.string)
   use code <- decode.field("code", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
@@ -66006,7 +66369,7 @@ pub fn immunizationrecommendation_recommendation_to_json(
         "seriesDoses"
           <> case v {
           ImmunizationrecommendationRecommendationSeriesdosesPositiveint(_) ->
-            "Positiveint"
+            "PositiveInt"
           ImmunizationrecommendationRecommendationSeriesdosesString(_) ->
             "String"
         },
@@ -66022,7 +66385,7 @@ pub fn immunizationrecommendation_recommendation_to_json(
         "doseNumber"
           <> case v {
           ImmunizationrecommendationRecommendationDosenumberPositiveint(_) ->
-            "Positiveint"
+            "PositiveInt"
           ImmunizationrecommendationRecommendationDosenumberString(_) ->
             "String"
         },
@@ -66102,6 +66465,7 @@ pub fn immunizationrecommendation_recommendation_to_json(
 pub fn immunizationrecommendation_recommendation_decoder() -> Decoder(
   ImmunizationrecommendationRecommendation,
 ) {
+  use <- decode.recursive
   use supporting_patient_information <- decode.optional_field(
     "supportingPatientInformation",
     [],
@@ -66272,7 +66636,7 @@ pub fn immunizationrecommendation_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Immunizationrecommendation")),
+    #("resourceType", json.string("ImmunizationRecommendation")),
     ..fields
   ]
   json.object(fields)
@@ -66281,6 +66645,7 @@ pub fn immunizationrecommendation_to_json(
 pub fn immunizationrecommendation_decoder() -> Decoder(
   Immunizationrecommendation,
 ) {
+  use <- decode.recursive
   use recommendation <- decode.optional_field(
     "recommendation",
     [],
@@ -66337,7 +66702,7 @@ pub fn immunizationrecommendation_decoder() -> Decoder(
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Immunizationrecommendation",
+    rt != "ImmunizationRecommendation",
     decode.failure(
       immunizationrecommendation_new(date:, patient:),
       "resourceType",
@@ -66845,6 +67210,7 @@ pub fn implementationguide_manifest_page_to_json(
 pub fn implementationguide_manifest_page_decoder() -> Decoder(
   ImplementationguideManifestPage,
 ) {
+  use <- decode.recursive
   use anchor <- decode.optional_field("anchor", [], decode.list(decode.string))
   use title <- decode.optional_field(
     "title",
@@ -66926,6 +67292,7 @@ pub fn implementationguide_manifest_resource_to_json(
 pub fn implementationguide_manifest_resource_decoder() -> Decoder(
   ImplementationguideManifestResource,
 ) {
+  use <- decode.recursive
   use relative_path <- decode.optional_field(
     "relativePath",
     None,
@@ -67020,6 +67387,7 @@ pub fn implementationguide_manifest_to_json(
 pub fn implementationguide_manifest_decoder() -> Decoder(
   ImplementationguideManifest,
 ) {
+  use <- decode.recursive
   use other <- decode.optional_field("other", [], decode.list(decode.string))
   use image <- decode.optional_field("image", [], decode.list(decode.string))
   use page <- decode.optional_field(
@@ -67100,6 +67468,7 @@ pub fn implementationguide_definition_template_to_json(
 pub fn implementationguide_definition_template_decoder() -> Decoder(
   ImplementationguideDefinitionTemplate,
 ) {
+  use <- decode.recursive
   use scope <- decode.optional_field(
     "scope",
     None,
@@ -67163,6 +67532,7 @@ pub fn implementationguide_definition_parameter_to_json(
 pub fn implementationguide_definition_parameter_decoder() -> Decoder(
   ImplementationguideDefinitionParameter,
 ) {
+  use <- decode.recursive
   use value <- decode.field("value", decode.string)
   use code <- decode.field("code", r4bvaluesets.guideparametercode_decoder())
   use modifier_extension <- decode.optional_field(
@@ -67230,6 +67600,7 @@ pub fn implementationguide_definition_page_to_json(
 pub fn implementationguide_definition_page_decoder() -> Decoder(
   ImplementationguideDefinitionPage,
 ) {
+  use <- decode.recursive
   use page <- decode.optional_field(
     "page",
     [],
@@ -67338,6 +67709,7 @@ pub fn implementationguide_definition_resource_to_json(
 pub fn implementationguide_definition_resource_decoder() -> Decoder(
   ImplementationguideDefinitionResource,
 ) {
+  use <- decode.recursive
   use grouping_id <- decode.optional_field(
     "groupingId",
     None,
@@ -67424,6 +67796,7 @@ pub fn implementationguide_definition_grouping_to_json(
 pub fn implementationguide_definition_grouping_decoder() -> Decoder(
   ImplementationguideDefinitionGrouping,
 ) {
+  use <- decode.recursive
   use description <- decode.optional_field(
     "description",
     None,
@@ -67532,6 +67905,7 @@ pub fn implementationguide_definition_to_json(
 pub fn implementationguide_definition_decoder() -> Decoder(
   ImplementationguideDefinition,
 ) {
+  use <- decode.recursive
   use template <- decode.optional_field(
     "template",
     [],
@@ -67615,6 +67989,7 @@ pub fn implementationguide_global_to_json(
 pub fn implementationguide_global_decoder() -> Decoder(
   ImplementationguideGlobal,
 ) {
+  use <- decode.recursive
   use profile <- decode.field("profile", decode.string)
   use type_ <- decode.field("type", r4bvaluesets.resourcetypes_decoder())
   use modifier_extension <- decode.optional_field(
@@ -67680,6 +68055,7 @@ pub fn implementationguide_dependson_to_json(
 pub fn implementationguide_dependson_decoder() -> Decoder(
   ImplementationguideDependson,
 ) {
+  use <- decode.recursive
   use version <- decode.optional_field(
     "version",
     None,
@@ -67877,11 +68253,12 @@ pub fn implementationguide_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Implementationguide")), ..fields]
+  let fields = [#("resourceType", json.string("ImplementationGuide")), ..fields]
   json.object(fields)
 }
 
 pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
+  use <- decode.recursive
   use manifest <- decode.optional_field(
     "manifest",
     None,
@@ -68005,7 +68382,7 @@ pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Implementationguide",
+    rt != "ImplementationGuide",
     decode.failure(
       implementationguide_new(package_id:, status:, name:, url:),
       "resourceType",
@@ -68345,6 +68722,7 @@ pub fn ingredient_substance_strength_referencestrength_to_json(
 pub fn ingredient_substance_strength_referencestrength_decoder() -> Decoder(
   IngredientSubstanceStrengthReferencestrength,
 ) {
+  use <- decode.recursive
   use country <- decode.optional_field(
     "country",
     [],
@@ -68432,7 +68810,7 @@ pub fn ingredient_substance_strength_to_json(
         "concentration"
           <> case v {
           IngredientSubstanceStrengthConcentrationRatio(_) -> "Ratio"
-          IngredientSubstanceStrengthConcentrationRatiorange(_) -> "Ratiorange"
+          IngredientSubstanceStrengthConcentrationRatiorange(_) -> "RatioRange"
         },
         ingredient_substance_strength_concentration_to_json(v),
       ),
@@ -68450,7 +68828,7 @@ pub fn ingredient_substance_strength_to_json(
         "presentation"
           <> case v {
           IngredientSubstanceStrengthPresentationRatio(_) -> "Ratio"
-          IngredientSubstanceStrengthPresentationRatiorange(_) -> "Ratiorange"
+          IngredientSubstanceStrengthPresentationRatiorange(_) -> "RatioRange"
         },
         ingredient_substance_strength_presentation_to_json(v),
       ),
@@ -68479,6 +68857,7 @@ pub fn ingredient_substance_strength_to_json(
 pub fn ingredient_substance_strength_decoder() -> Decoder(
   IngredientSubstanceStrength,
 ) {
+  use <- decode.recursive
   use reference_strength <- decode.optional_field(
     "referenceStrength",
     [],
@@ -68574,6 +68953,7 @@ pub fn ingredient_substance_to_json(
 }
 
 pub fn ingredient_substance_decoder() -> Decoder(IngredientSubstance) {
+  use <- decode.recursive
   use strength <- decode.optional_field(
     "strength",
     [],
@@ -68639,6 +69019,7 @@ pub fn ingredient_manufacturer_to_json(
 }
 
 pub fn ingredient_manufacturer_decoder() -> Decoder(IngredientManufacturer) {
+  use <- decode.recursive
   use manufacturer <- decode.field("manufacturer", reference_decoder())
   use role <- decode.optional_field(
     "role",
@@ -68758,6 +69139,7 @@ pub fn ingredient_to_json(ingredient: Ingredient) -> Json {
 }
 
 pub fn ingredient_decoder() -> Decoder(Ingredient) {
+  use <- decode.recursive
   use substance <- decode.field("substance", ingredient_substance_decoder())
   use manufacturer <- decode.optional_field(
     "manufacturer",
@@ -69173,6 +69555,7 @@ pub fn insuranceplan_plan_specificcost_benefit_cost_to_json(
 pub fn insuranceplan_plan_specificcost_benefit_cost_decoder() -> Decoder(
   InsuranceplanPlanSpecificcostBenefitCost,
 ) {
+  use <- decode.recursive
   use value <- decode.optional_field(
     "value",
     None,
@@ -69255,6 +69638,7 @@ pub fn insuranceplan_plan_specificcost_benefit_to_json(
 pub fn insuranceplan_plan_specificcost_benefit_decoder() -> Decoder(
   InsuranceplanPlanSpecificcostBenefit,
 ) {
+  use <- decode.recursive
   use cost <- decode.optional_field(
     "cost",
     [],
@@ -69325,6 +69709,7 @@ pub fn insuranceplan_plan_specificcost_to_json(
 pub fn insuranceplan_plan_specificcost_decoder() -> Decoder(
   InsuranceplanPlanSpecificcost,
 ) {
+  use <- decode.recursive
   use benefit <- decode.optional_field(
     "benefit",
     [],
@@ -69401,6 +69786,7 @@ pub fn insuranceplan_plan_generalcost_to_json(
 pub fn insuranceplan_plan_generalcost_decoder() -> Decoder(
   InsuranceplanPlanGeneralcost,
 ) {
+  use <- decode.recursive
   use comment <- decode.optional_field(
     "comment",
     None,
@@ -69514,6 +69900,7 @@ pub fn insuranceplan_plan_to_json(insuranceplan_plan: InsuranceplanPlan) -> Json
 }
 
 pub fn insuranceplan_plan_decoder() -> Decoder(InsuranceplanPlan) {
+  use <- decode.recursive
   use specific_cost <- decode.optional_field(
     "specificCost",
     [],
@@ -69608,6 +69995,7 @@ pub fn insuranceplan_coverage_benefit_limit_to_json(
 pub fn insuranceplan_coverage_benefit_limit_decoder() -> Decoder(
   InsuranceplanCoverageBenefitLimit,
 ) {
+  use <- decode.recursive
   use code <- decode.optional_field(
     "code",
     None,
@@ -69687,6 +70075,7 @@ pub fn insuranceplan_coverage_benefit_to_json(
 pub fn insuranceplan_coverage_benefit_decoder() -> Decoder(
   InsuranceplanCoverageBenefit,
 ) {
+  use <- decode.recursive
   use limit <- decode.optional_field(
     "limit",
     [],
@@ -69763,6 +70152,7 @@ pub fn insuranceplan_coverage_to_json(
 }
 
 pub fn insuranceplan_coverage_decoder() -> Decoder(InsuranceplanCoverage) {
+  use <- decode.recursive
   use benefit <- decode.optional_field(
     "benefit",
     [],
@@ -69843,6 +70233,7 @@ pub fn insuranceplan_contact_to_json(
 }
 
 pub fn insuranceplan_contact_decoder() -> Decoder(InsuranceplanContact) {
+  use <- decode.recursive
   use address <- decode.optional_field(
     "address",
     None,
@@ -70014,11 +70405,12 @@ pub fn insuranceplan_to_json(insuranceplan: Insuranceplan) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Insuranceplan")), ..fields]
+  let fields = [#("resourceType", json.string("InsurancePlan")), ..fields]
   json.object(fields)
 }
 
 pub fn insuranceplan_decoder() -> Decoder(Insuranceplan) {
+  use <- decode.recursive
   use plan <- decode.optional_field(
     "plan",
     [],
@@ -70124,7 +70516,7 @@ pub fn insuranceplan_decoder() -> Decoder(Insuranceplan) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Insuranceplan",
+    rt != "InsurancePlan",
     decode.failure(insuranceplan_new(), "resourceType"),
   )
   decode.success(Insuranceplan(
@@ -70365,6 +70757,7 @@ pub fn invoice_lineitem_pricecomponent_to_json(
 pub fn invoice_lineitem_pricecomponent_decoder() -> Decoder(
   InvoiceLineitemPricecomponent,
 ) {
+  use <- decode.recursive
   use amount <- decode.optional_field(
     "amount",
     None,
@@ -70373,7 +70766,7 @@ pub fn invoice_lineitem_pricecomponent_decoder() -> Decoder(
   use factor <- decode.optional_field(
     "factor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use code <- decode.optional_field(
     "code",
@@ -70451,6 +70844,7 @@ pub fn invoice_lineitem_to_json(invoice_lineitem: InvoiceLineitem) -> Json {
 }
 
 pub fn invoice_lineitem_decoder() -> Decoder(InvoiceLineitem) {
+  use <- decode.recursive
   use price_component <- decode.optional_field(
     "priceComponent",
     [],
@@ -70514,6 +70908,7 @@ pub fn invoice_participant_to_json(
 }
 
 pub fn invoice_participant_decoder() -> Decoder(InvoiceParticipant) {
+  use <- decode.recursive
   use actor <- decode.field("actor", reference_decoder())
   use role <- decode.optional_field(
     "role",
@@ -70685,6 +71080,7 @@ pub fn invoice_to_json(invoice: Invoice) -> Json {
 }
 
 pub fn invoice_decoder() -> Decoder(Invoice) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -71107,7 +71503,7 @@ pub fn library_to_json(library: Library) -> Json {
       #(
         "subject"
           <> case v {
-          LibrarySubjectCodeableconcept(_) -> "Codeableconcept"
+          LibrarySubjectCodeableconcept(_) -> "CodeableConcept"
           LibrarySubjectReference(_) -> "Reference"
         },
         library_subject_to_json(v),
@@ -71184,6 +71580,7 @@ pub fn library_to_json(library: Library) -> Json {
 }
 
 pub fn library_decoder() -> Decoder(Library) {
+  use <- decode.recursive
   use content <- decode.optional_field(
     "content",
     [],
@@ -71491,6 +71888,7 @@ pub fn linkage_item_to_json(linkage_item: LinkageItem) -> Json {
 }
 
 pub fn linkage_item_decoder() -> Decoder(LinkageItem) {
+  use <- decode.recursive
   use resource <- decode.field("resource", reference_decoder())
   use type_ <- decode.field("type", r4bvaluesets.linkagetype_decoder())
   use modifier_extension <- decode.optional_field(
@@ -71580,6 +71978,7 @@ pub fn linkage_to_json(linkage: Linkage) -> Json {
 }
 
 pub fn linkage_decoder() -> Decoder(Linkage) {
+  use <- decode.recursive
   use item <- decode.optional_field(
     "item",
     [],
@@ -71777,6 +72176,7 @@ pub fn list_entry_to_json(list_entry: ListEntry) -> Json {
 }
 
 pub fn list_entry_decoder() -> Decoder(ListEntry) {
+  use <- decode.recursive
   use item <- decode.field("item", reference_decoder())
   use date <- decode.optional_field(
     "date",
@@ -71922,11 +72322,12 @@ pub fn listfhir_to_json(listfhir: Listfhir) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Listfhir")), ..fields]
+  let fields = [#("resourceType", json.string("List")), ..fields]
   json.object(fields)
 }
 
 pub fn listfhir_decoder() -> Decoder(Listfhir) {
+  use <- decode.recursive
   use empty_reason <- decode.optional_field(
     "emptyReason",
     None,
@@ -72023,7 +72424,7 @@ pub fn listfhir_decoder() -> Decoder(Listfhir) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Listfhir",
+    rt != "List",
     decode.failure(listfhir_new(mode:, status:), "resourceType"),
   )
   decode.success(Listfhir(
@@ -72214,6 +72615,7 @@ pub fn location_hoursofoperation_to_json(
 }
 
 pub fn location_hoursofoperation_decoder() -> Decoder(LocationHoursofoperation) {
+  use <- decode.recursive
   use closing_time <- decode.optional_field(
     "closingTime",
     None,
@@ -72292,13 +72694,14 @@ pub fn location_position_to_json(location_position: LocationPosition) -> Json {
 }
 
 pub fn location_position_decoder() -> Decoder(LocationPosition) {
+  use <- decode.recursive
   use altitude <- decode.optional_field(
     "altitude",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
-  use latitude <- decode.field("latitude", decode.float)
-  use longitude <- decode.field("longitude", decode.float)
+  use latitude <- decode.field("latitude", decode_number())
+  use longitude <- decode.field("longitude", decode_number())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -72463,6 +72866,7 @@ pub fn location_to_json(location: Location) -> Json {
 }
 
 pub fn location_decoder() -> Decoder(Location) {
+  use <- decode.recursive
   use endpoint <- decode.optional_field(
     "endpoint",
     [],
@@ -72747,7 +73151,7 @@ pub fn manufactureditemdefinition_property_to_json(
         "value"
           <> case v {
           ManufactureditemdefinitionPropertyValueCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           ManufactureditemdefinitionPropertyValueQuantity(_) -> "Quantity"
           ManufactureditemdefinitionPropertyValueDate(_) -> "Date"
           ManufactureditemdefinitionPropertyValueBoolean(_) -> "Boolean"
@@ -72780,6 +73184,7 @@ pub fn manufactureditemdefinition_property_to_json(
 pub fn manufactureditemdefinition_property_decoder() -> Decoder(
   ManufactureditemdefinitionProperty,
 ) {
+  use <- decode.recursive
   use value <- decode.then(
     none_if_omitted(manufactureditemdefinition_property_value_decoder()),
   )
@@ -72896,7 +73301,7 @@ pub fn manufactureditemdefinition_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Manufactureditemdefinition")),
+    #("resourceType", json.string("ManufacturedItemDefinition")),
     ..fields
   ]
   json.object(fields)
@@ -72905,6 +73310,7 @@ pub fn manufactureditemdefinition_to_json(
 pub fn manufactureditemdefinition_decoder() -> Decoder(
   Manufactureditemdefinition,
 ) {
+  use <- decode.recursive
   use property <- decode.optional_field(
     "property",
     [],
@@ -72974,7 +73380,7 @@ pub fn manufactureditemdefinition_decoder() -> Decoder(
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Manufactureditemdefinition",
+    rt != "ManufacturedItemDefinition",
     decode.failure(
       manufactureditemdefinition_new(manufactured_dose_form:, status:),
       "resourceType",
@@ -73309,6 +73715,7 @@ pub fn measure_supplementaldata_to_json(
 }
 
 pub fn measure_supplementaldata_decoder() -> Decoder(MeasureSupplementaldata) {
+  use <- decode.recursive
   use criteria <- decode.field("criteria", expression_decoder())
   use description <- decode.optional_field(
     "description",
@@ -73390,6 +73797,7 @@ pub fn measure_group_stratifier_component_to_json(
 pub fn measure_group_stratifier_component_decoder() -> Decoder(
   MeasureGroupStratifierComponent,
 ) {
+  use <- decode.recursive
   use criteria <- decode.field("criteria", expression_decoder())
   use description <- decode.optional_field(
     "description",
@@ -73476,6 +73884,7 @@ pub fn measure_group_stratifier_to_json(
 }
 
 pub fn measure_group_stratifier_decoder() -> Decoder(MeasureGroupStratifier) {
+  use <- decode.recursive
   use component <- decode.optional_field(
     "component",
     [],
@@ -73559,6 +73968,7 @@ pub fn measure_group_population_to_json(
 }
 
 pub fn measure_group_population_decoder() -> Decoder(MeasureGroupPopulation) {
+  use <- decode.recursive
   use criteria <- decode.field("criteria", expression_decoder())
   use description <- decode.optional_field(
     "description",
@@ -73643,6 +74053,7 @@ pub fn measure_group_to_json(measure_group: MeasureGroup) -> Json {
 }
 
 pub fn measure_group_decoder() -> Decoder(MeasureGroup) {
+  use <- decode.recursive
   use stratifier <- decode.optional_field(
     "stratifier",
     [],
@@ -73891,7 +74302,7 @@ pub fn measure_to_json(measure: Measure) -> Json {
       #(
         "subject"
           <> case v {
-          MeasureSubjectCodeableconcept(_) -> "Codeableconcept"
+          MeasureSubjectCodeableconcept(_) -> "CodeableConcept"
           MeasureSubjectReference(_) -> "Reference"
         },
         measure_subject_to_json(v),
@@ -73968,6 +74379,7 @@ pub fn measure_to_json(measure: Measure) -> Json {
 }
 
 pub fn measure_decoder() -> Decoder(Measure) {
+  use <- decode.recursive
   use supplemental_data <- decode.optional_field(
     "supplementalData",
     [],
@@ -74496,6 +74908,7 @@ pub fn measurereport_group_stratifier_stratum_population_to_json(
 pub fn measurereport_group_stratifier_stratum_population_decoder() -> Decoder(
   MeasurereportGroupStratifierStratumPopulation,
 ) {
+  use <- decode.recursive
   use subject_results <- decode.optional_field(
     "subjectResults",
     None,
@@ -74563,6 +74976,7 @@ pub fn measurereport_group_stratifier_stratum_component_to_json(
 pub fn measurereport_group_stratifier_stratum_component_decoder() -> Decoder(
   MeasurereportGroupStratifierStratumComponent,
 ) {
+  use <- decode.recursive
   use value <- decode.field("value", codeableconcept_decoder())
   use code <- decode.field("code", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
@@ -74653,6 +75067,7 @@ pub fn measurereport_group_stratifier_stratum_to_json(
 pub fn measurereport_group_stratifier_stratum_decoder() -> Decoder(
   MeasurereportGroupStratifierStratum,
 ) {
+  use <- decode.recursive
   use measure_score <- decode.optional_field(
     "measureScore",
     None,
@@ -74741,6 +75156,7 @@ pub fn measurereport_group_stratifier_to_json(
 pub fn measurereport_group_stratifier_decoder() -> Decoder(
   MeasurereportGroupStratifier,
 ) {
+  use <- decode.recursive
   use stratum <- decode.optional_field(
     "stratum",
     [],
@@ -74816,6 +75232,7 @@ pub fn measurereport_group_population_to_json(
 pub fn measurereport_group_population_decoder() -> Decoder(
   MeasurereportGroupPopulation,
 ) {
+  use <- decode.recursive
   use subject_results <- decode.optional_field(
     "subjectResults",
     None,
@@ -74908,6 +75325,7 @@ pub fn measurereport_group_to_json(
 }
 
 pub fn measurereport_group_decoder() -> Decoder(MeasurereportGroup) {
+  use <- decode.recursive
   use stratifier <- decode.optional_field(
     "stratifier",
     [],
@@ -75044,11 +75462,12 @@ pub fn measurereport_to_json(measurereport: Measurereport) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Measurereport")), ..fields]
+  let fields = [#("resourceType", json.string("MeasureReport")), ..fields]
   json.object(fields)
 }
 
 pub fn measurereport_decoder() -> Decoder(Measurereport) {
+  use <- decode.recursive
   use evaluated_resource <- decode.optional_field(
     "evaluatedResource",
     [],
@@ -75130,7 +75549,7 @@ pub fn measurereport_decoder() -> Decoder(Measurereport) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Measurereport",
+    rt != "MeasureReport",
     decode.failure(
       measurereport_new(period:, measure:, type_:, status:),
       "resourceType",
@@ -75346,7 +75765,7 @@ pub fn media_to_json(media: Media) -> Json {
       #(
         "created"
           <> case v {
-          MediaCreatedDatetime(_) -> "Datetime"
+          MediaCreatedDatetime(_) -> "DateTime"
           MediaCreatedPeriod(_) -> "Period"
         },
         media_created_to_json(v),
@@ -75427,6 +75846,7 @@ pub fn media_to_json(media: Media) -> Json {
 }
 
 pub fn media_decoder() -> Decoder(Media) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -75436,7 +75856,7 @@ pub fn media_decoder() -> Decoder(Media) {
   use duration <- decode.optional_field(
     "duration",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use frames <- decode.optional_field(
     "frames",
@@ -75750,6 +76170,7 @@ pub fn medication_batch_to_json(medication_batch: MedicationBatch) -> Json {
 }
 
 pub fn medication_batch_decoder() -> Decoder(MedicationBatch) {
+  use <- decode.recursive
   use expiration_date <- decode.optional_field(
     "expirationDate",
     None,
@@ -75821,6 +76242,7 @@ pub fn medication_ingredient_to_json(
 }
 
 pub fn medication_ingredient_decoder() -> Decoder(MedicationIngredient) {
+  use <- decode.recursive
   use strength <- decode.optional_field(
     "strength",
     None,
@@ -75948,6 +76370,7 @@ pub fn medication_to_json(medication: Medication) -> Json {
 }
 
 pub fn medication_decoder() -> Decoder(Medication) {
+  use <- decode.recursive
   use batch <- decode.optional_field(
     "batch",
     None,
@@ -76331,6 +76754,7 @@ pub fn medicationadministration_dosage_to_json(
 pub fn medicationadministration_dosage_decoder() -> Decoder(
   MedicationadministrationDosage,
 ) {
+  use <- decode.recursive
   use rate <- decode.then(
     none_if_omitted(medicationadministration_dosage_rate_decoder()),
   )
@@ -76421,6 +76845,7 @@ pub fn medicationadministration_performer_to_json(
 pub fn medicationadministration_performer_decoder() -> Decoder(
   MedicationadministrationPerformer,
 ) {
+  use <- decode.recursive
   use actor <- decode.field("actor", reference_decoder())
   use function <- decode.optional_field(
     "function",
@@ -76608,13 +77033,14 @@ pub fn medicationadministration_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Medicationadministration")),
+    #("resourceType", json.string("MedicationAdministration")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn medicationadministration_decoder() -> Decoder(Medicationadministration) {
+  use <- decode.recursive
   use event_history <- decode.optional_field(
     "eventHistory",
     [],
@@ -76736,7 +77162,7 @@ pub fn medicationadministration_decoder() -> Decoder(Medicationadministration) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Medicationadministration",
+    rt != "MedicationAdministration",
     decode.failure(
       medicationadministration_new(effective:, subject:, medication:, status:),
       "resourceType",
@@ -77017,6 +77443,7 @@ pub fn medicationdispense_substitution_to_json(
 pub fn medicationdispense_substitution_decoder() -> Decoder(
   MedicationdispenseSubstitution,
 ) {
+  use <- decode.recursive
   use responsible_party <- decode.optional_field(
     "responsibleParty",
     [],
@@ -77093,6 +77520,7 @@ pub fn medicationdispense_performer_to_json(
 pub fn medicationdispense_performer_decoder() -> Decoder(
   MedicationdispensePerformer,
 ) {
+  use <- decode.recursive
   use actor <- decode.field("actor", reference_decoder())
   use function <- decode.optional_field(
     "function",
@@ -77271,7 +77699,7 @@ pub fn medicationdispense_to_json(
       #(
         "statusReason"
           <> case v {
-          MedicationdispenseStatusreasonCodeableconcept(_) -> "Codeableconcept"
+          MedicationdispenseStatusreasonCodeableconcept(_) -> "CodeableConcept"
           MedicationdispenseStatusreasonReference(_) -> "Reference"
         },
         medicationdispense_statusreason_to_json(v),
@@ -77323,11 +77751,12 @@ pub fn medicationdispense_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Medicationdispense")), ..fields]
+  let fields = [#("resourceType", json.string("MedicationDispense")), ..fields]
   json.object(fields)
 }
 
 pub fn medicationdispense_decoder() -> Decoder(Medicationdispense) {
+  use <- decode.recursive
   use event_history <- decode.optional_field(
     "eventHistory",
     [],
@@ -77480,7 +77909,7 @@ pub fn medicationdispense_decoder() -> Decoder(Medicationdispense) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Medicationdispense",
+    rt != "MedicationDispense",
     decode.failure(medicationdispense_new(medication:, status:), "resourceType"),
   )
   decode.success(Medicationdispense(
@@ -78175,6 +78604,7 @@ pub fn medicationknowledge_kinetics_to_json(
 pub fn medicationknowledge_kinetics_decoder() -> Decoder(
   MedicationknowledgeKinetics,
 ) {
+  use <- decode.recursive
   use half_life_period <- decode.optional_field(
     "halfLifePeriod",
     None,
@@ -78249,6 +78679,7 @@ pub fn medicationknowledge_regulatory_maxdispense_to_json(
 pub fn medicationknowledge_regulatory_maxdispense_decoder() -> Decoder(
   MedicationknowledgeRegulatoryMaxdispense,
 ) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -78308,6 +78739,7 @@ pub fn medicationknowledge_regulatory_schedule_to_json(
 pub fn medicationknowledge_regulatory_schedule_decoder() -> Decoder(
   MedicationknowledgeRegulatorySchedule,
 ) {
+  use <- decode.recursive
   use schedule <- decode.field("schedule", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -78363,6 +78795,7 @@ pub fn medicationknowledge_regulatory_substitution_to_json(
 pub fn medicationknowledge_regulatory_substitution_decoder() -> Decoder(
   MedicationknowledgeRegulatorySubstitution,
 ) {
+  use <- decode.recursive
   use allowed <- decode.field("allowed", decode.bool)
   use type_ <- decode.field("type", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
@@ -78451,6 +78884,7 @@ pub fn medicationknowledge_regulatory_to_json(
 pub fn medicationknowledge_regulatory_decoder() -> Decoder(
   MedicationknowledgeRegulatory,
 ) {
+  use <- decode.recursive
   use max_dispense <- decode.optional_field(
     "maxDispense",
     None,
@@ -78509,11 +78943,11 @@ pub fn medicationknowledge_drugcharacteristic_to_json(
         "value"
           <> case v {
           MedicationknowledgeDrugcharacteristicValueCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           MedicationknowledgeDrugcharacteristicValueString(_) -> "String"
           MedicationknowledgeDrugcharacteristicValueQuantity(_) -> "Quantity"
           MedicationknowledgeDrugcharacteristicValueBase64binary(_) ->
-            "Base64binary"
+            "Base64Binary"
         },
         medicationknowledge_drugcharacteristic_value_to_json(v),
       ),
@@ -78546,6 +78980,7 @@ pub fn medicationknowledge_drugcharacteristic_to_json(
 pub fn medicationknowledge_drugcharacteristic_decoder() -> Decoder(
   MedicationknowledgeDrugcharacteristic,
 ) {
+  use <- decode.recursive
   use value <- decode.then(
     none_if_omitted(medicationknowledge_drugcharacteristic_value_decoder()),
   )
@@ -78614,6 +79049,7 @@ pub fn medicationknowledge_packaging_to_json(
 pub fn medicationknowledge_packaging_decoder() -> Decoder(
   MedicationknowledgePackaging,
 ) {
+  use <- decode.recursive
   use quantity <- decode.optional_field(
     "quantity",
     None,
@@ -78685,6 +79121,7 @@ pub fn medicationknowledge_medicineclassification_to_json(
 pub fn medicationknowledge_medicineclassification_decoder() -> Decoder(
   MedicationknowledgeMedicineclassification,
 ) {
+  use <- decode.recursive
   use classification <- decode.optional_field(
     "classification",
     [],
@@ -78754,6 +79191,7 @@ pub fn medicationknowledge_administrationguidelines_patientcharacteristics_to_js
 pub fn medicationknowledge_administrationguidelines_patientcharacteristics_decoder() -> Decoder(
   MedicationknowledgeAdministrationguidelinesPatientcharacteristics,
 ) {
+  use <- decode.recursive
   use value <- decode.optional_field("value", [], decode.list(decode.string))
   use characteristic <- decode.then(
     medicationknowledge_administrationguidelines_patientcharacteristics_characteristic_decoder(),
@@ -78818,6 +79256,7 @@ pub fn medicationknowledge_administrationguidelines_dosage_to_json(
 pub fn medicationknowledge_administrationguidelines_dosage_decoder() -> Decoder(
   MedicationknowledgeAdministrationguidelinesDosage,
 ) {
+  use <- decode.recursive
   use dosage <- decode.optional_field(
     "dosage",
     [],
@@ -78876,7 +79315,7 @@ pub fn medicationknowledge_administrationguidelines_to_json(
           <> case v {
           MedicationknowledgeAdministrationguidelinesIndicationCodeableconcept(
             _,
-          ) -> "Codeableconcept"
+          ) -> "CodeableConcept"
           MedicationknowledgeAdministrationguidelinesIndicationReference(_) ->
             "Reference"
         },
@@ -78920,6 +79359,7 @@ pub fn medicationknowledge_administrationguidelines_to_json(
 pub fn medicationknowledge_administrationguidelines_decoder() -> Decoder(
   MedicationknowledgeAdministrationguidelines,
 ) {
+  use <- decode.recursive
   use patient_characteristics <- decode.optional_field(
     "patientCharacteristics",
     [],
@@ -78998,6 +79438,7 @@ pub fn medicationknowledge_monitoringprogram_to_json(
 pub fn medicationknowledge_monitoringprogram_decoder() -> Decoder(
   MedicationknowledgeMonitoringprogram,
 ) {
+  use <- decode.recursive
   use name <- decode.optional_field(
     "name",
     None,
@@ -79066,6 +79507,7 @@ pub fn medicationknowledge_cost_to_json(
 }
 
 pub fn medicationknowledge_cost_decoder() -> Decoder(MedicationknowledgeCost) {
+  use <- decode.recursive
   use cost <- decode.field("cost", money_decoder())
   use source <- decode.optional_field(
     "source",
@@ -79137,6 +79579,7 @@ pub fn medicationknowledge_ingredient_to_json(
 pub fn medicationknowledge_ingredient_decoder() -> Decoder(
   MedicationknowledgeIngredient,
 ) {
+  use <- decode.recursive
   use strength <- decode.optional_field(
     "strength",
     None,
@@ -79209,6 +79652,7 @@ pub fn medicationknowledge_monograph_to_json(
 pub fn medicationknowledge_monograph_decoder() -> Decoder(
   MedicationknowledgeMonograph,
 ) {
+  use <- decode.recursive
   use source <- decode.optional_field(
     "source",
     None,
@@ -79277,6 +79721,7 @@ pub fn medicationknowledge_relatedmedicationknowledge_to_json(
 pub fn medicationknowledge_relatedmedicationknowledge_decoder() -> Decoder(
   MedicationknowledgeRelatedmedicationknowledge,
 ) {
+  use <- decode.recursive
   use reference <- decode.optional_field(
     "reference",
     [],
@@ -79552,11 +79997,12 @@ pub fn medicationknowledge_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Medicationknowledge")), ..fields]
+  let fields = [#("resourceType", json.string("MedicationKnowledge")), ..fields]
   json.object(fields)
 }
 
 pub fn medicationknowledge_decoder() -> Decoder(Medicationknowledge) {
+  use <- decode.recursive
   use kinetics <- decode.optional_field(
     "kinetics",
     [],
@@ -79706,7 +80152,7 @@ pub fn medicationknowledge_decoder() -> Decoder(Medicationknowledge) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Medicationknowledge",
+    rt != "MedicationKnowledge",
     decode.failure(medicationknowledge_new(), "resourceType"),
   )
   decode.success(Medicationknowledge(
@@ -80045,6 +80491,7 @@ pub fn medicationrequest_substitution_to_json(
 pub fn medicationrequest_substitution_decoder() -> Decoder(
   MedicationrequestSubstitution,
 ) {
+  use <- decode.recursive
   use reason <- decode.optional_field(
     "reason",
     None,
@@ -80111,6 +80558,7 @@ pub fn medicationrequest_dispenserequest_initialfill_to_json(
 pub fn medicationrequest_dispenserequest_initialfill_decoder() -> Decoder(
   MedicationrequestDispenserequestInitialfill,
 ) {
+  use <- decode.recursive
   use duration <- decode.optional_field(
     "duration",
     None,
@@ -80209,6 +80657,7 @@ pub fn medicationrequest_dispenserequest_to_json(
 pub fn medicationrequest_dispenserequest_decoder() -> Decoder(
   MedicationrequestDispenserequest,
 ) {
+  use <- decode.recursive
   use performer <- decode.optional_field(
     "performer",
     None,
@@ -80517,11 +80966,12 @@ pub fn medicationrequest_to_json(medicationrequest: Medicationrequest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Medicationrequest")), ..fields]
+  let fields = [#("resourceType", json.string("MedicationRequest")), ..fields]
   json.object(fields)
 }
 
 pub fn medicationrequest_decoder() -> Decoder(Medicationrequest) {
+  use <- decode.recursive
   use event_history <- decode.optional_field(
     "eventHistory",
     [],
@@ -80709,7 +81159,7 @@ pub fn medicationrequest_decoder() -> Decoder(Medicationrequest) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Medicationrequest",
+    rt != "MedicationRequest",
     decode.failure(
       medicationrequest_new(subject:, medication:, intent:, status:),
       "resourceType",
@@ -80962,7 +81412,7 @@ pub fn medicationstatement_to_json(
       #(
         "effective"
           <> case v {
-          MedicationstatementEffectiveDatetime(_) -> "Datetime"
+          MedicationstatementEffectiveDatetime(_) -> "DateTime"
           MedicationstatementEffectivePeriod(_) -> "Period"
         },
         medicationstatement_effective_to_json(v),
@@ -81033,11 +81483,12 @@ pub fn medicationstatement_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Medicationstatement")), ..fields]
+  let fields = [#("resourceType", json.string("MedicationStatement")), ..fields]
   json.object(fields)
 }
 
 pub fn medicationstatement_decoder() -> Decoder(Medicationstatement) {
+  use <- decode.recursive
   use dosage <- decode.optional_field(
     "dosage",
     [],
@@ -81151,7 +81602,7 @@ pub fn medicationstatement_decoder() -> Decoder(Medicationstatement) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Medicationstatement",
+    rt != "MedicationStatement",
     decode.failure(
       medicationstatement_new(subject:, medication:, status:),
       "resourceType",
@@ -81510,7 +81961,7 @@ pub fn medicinalproductdefinition_characteristic_to_json(
         "value"
           <> case v {
           MedicinalproductdefinitionCharacteristicValueCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           MedicinalproductdefinitionCharacteristicValueQuantity(_) -> "Quantity"
           MedicinalproductdefinitionCharacteristicValueDate(_) -> "Date"
           MedicinalproductdefinitionCharacteristicValueBoolean(_) -> "Boolean"
@@ -81544,6 +81995,7 @@ pub fn medicinalproductdefinition_characteristic_to_json(
 pub fn medicinalproductdefinition_characteristic_decoder() -> Decoder(
   MedicinalproductdefinitionCharacteristic,
 ) {
+  use <- decode.recursive
   use value <- decode.then(
     none_if_omitted(medicinalproductdefinition_characteristic_value_decoder()),
   )
@@ -81624,6 +82076,7 @@ pub fn medicinalproductdefinition_operation_to_json(
 pub fn medicinalproductdefinition_operation_decoder() -> Decoder(
   MedicinalproductdefinitionOperation,
 ) {
+  use <- decode.recursive
   use confidentiality_indicator <- decode.optional_field(
     "confidentialityIndicator",
     None,
@@ -81704,6 +82157,7 @@ pub fn medicinalproductdefinition_crossreference_to_json(
 pub fn medicinalproductdefinition_crossreference_decoder() -> Decoder(
   MedicinalproductdefinitionCrossreference,
 ) {
+  use <- decode.recursive
   use type_ <- decode.optional_field(
     "type",
     None,
@@ -81770,6 +82224,7 @@ pub fn medicinalproductdefinition_name_countrylanguage_to_json(
 pub fn medicinalproductdefinition_name_countrylanguage_decoder() -> Decoder(
   MedicinalproductdefinitionNameCountrylanguage,
 ) {
+  use <- decode.recursive
   use language <- decode.field("language", codeableconcept_decoder())
   use jurisdiction <- decode.optional_field(
     "jurisdiction",
@@ -81833,6 +82288,7 @@ pub fn medicinalproductdefinition_name_namepart_to_json(
 pub fn medicinalproductdefinition_name_namepart_decoder() -> Decoder(
   MedicinalproductdefinitionNameNamepart,
 ) {
+  use <- decode.recursive
   use type_ <- decode.field("type", codeableconcept_decoder())
   use part <- decode.field("part", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -81918,6 +82374,7 @@ pub fn medicinalproductdefinition_name_to_json(
 pub fn medicinalproductdefinition_name_decoder() -> Decoder(
   MedicinalproductdefinitionName,
 ) {
+  use <- decode.recursive
   use country_language <- decode.optional_field(
     "countryLanguage",
     [],
@@ -81994,6 +82451,7 @@ pub fn medicinalproductdefinition_contact_to_json(
 pub fn medicinalproductdefinition_contact_decoder() -> Decoder(
   MedicinalproductdefinitionContact,
 ) {
+  use <- decode.recursive
   use contact <- decode.field("contact", reference_decoder())
   use type_ <- decode.optional_field(
     "type",
@@ -82285,7 +82743,7 @@ pub fn medicinalproductdefinition_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Medicinalproductdefinition")),
+    #("resourceType", json.string("MedicinalProductDefinition")),
     ..fields
   ]
   json.object(fields)
@@ -82294,6 +82752,7 @@ pub fn medicinalproductdefinition_to_json(
 pub fn medicinalproductdefinition_decoder() -> Decoder(
   Medicinalproductdefinition,
 ) {
+  use <- decode.recursive
   use characteristic <- decode.optional_field(
     "characteristic",
     [],
@@ -82469,7 +82928,7 @@ pub fn medicinalproductdefinition_decoder() -> Decoder(
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Medicinalproductdefinition",
+    rt != "MedicinalProductDefinition",
     decode.failure(medicinalproductdefinition_new(), "resourceType"),
   )
   decode.success(Medicinalproductdefinition(
@@ -82704,6 +83163,7 @@ pub fn messagedefinition_allowedresponse_to_json(
 pub fn messagedefinition_allowedresponse_decoder() -> Decoder(
   MessagedefinitionAllowedresponse,
 ) {
+  use <- decode.recursive
   use situation <- decode.optional_field(
     "situation",
     None,
@@ -82773,6 +83233,7 @@ pub fn messagedefinition_focus_to_json(
 }
 
 pub fn messagedefinition_focus_decoder() -> Decoder(MessagedefinitionFocus) {
+  use <- decode.recursive
   use max <- decode.optional_field("max", None, decode.optional(decode.string))
   use min <- decode.field("min", decode.int)
   use profile <- decode.optional_field(
@@ -82986,11 +83447,12 @@ pub fn messagedefinition_to_json(messagedefinition: Messagedefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Messagedefinition")), ..fields]
+  let fields = [#("resourceType", json.string("MessageDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn messagedefinition_decoder() -> Decoder(Messagedefinition) {
+  use <- decode.recursive
   use graph <- decode.optional_field("graph", [], decode.list(decode.string))
   use allowed_response <- decode.optional_field(
     "allowedResponse",
@@ -83126,7 +83588,7 @@ pub fn messagedefinition_decoder() -> Decoder(Messagedefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Messagedefinition",
+    rt != "MessageDefinition",
     decode.failure(
       messagedefinition_new(event:, date:, status:),
       "resourceType",
@@ -83364,6 +83826,7 @@ pub fn messageheader_response_to_json(
 }
 
 pub fn messageheader_response_decoder() -> Decoder(MessageheaderResponse) {
+  use <- decode.recursive
   use details <- decode.optional_field(
     "details",
     None,
@@ -83443,6 +83906,7 @@ pub fn messageheader_source_to_json(
 }
 
 pub fn messageheader_source_decoder() -> Decoder(MessageheaderSource) {
+  use <- decode.recursive
   use endpoint <- decode.field("endpoint", decode.string)
   use contact <- decode.optional_field(
     "contact",
@@ -83533,6 +83997,7 @@ pub fn messageheader_destination_to_json(
 }
 
 pub fn messageheader_destination_decoder() -> Decoder(MessageheaderDestination) {
+  use <- decode.recursive
   use receiver <- decode.optional_field(
     "receiver",
     None,
@@ -83674,11 +84139,12 @@ pub fn messageheader_to_json(messageheader: Messageheader) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Messageheader")), ..fields]
+  let fields = [#("resourceType", json.string("MessageHeader")), ..fields]
   json.object(fields)
 }
 
 pub fn messageheader_decoder() -> Decoder(Messageheader) {
+  use <- decode.recursive
   use definition <- decode.optional_field(
     "definition",
     None,
@@ -83765,7 +84231,7 @@ pub fn messageheader_decoder() -> Decoder(Messageheader) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Messageheader",
+    rt != "MessageHeader",
     decode.failure(messageheader_new(source:, event:), "resourceType"),
   )
   decode.success(Messageheader(
@@ -84136,6 +84602,7 @@ pub fn molecularsequence_structurevariant_inner_to_json(
 pub fn molecularsequence_structurevariant_inner_decoder() -> Decoder(
   MolecularsequenceStructurevariantInner,
 ) {
+  use <- decode.recursive
   use end <- decode.optional_field("end", None, decode.optional(decode.int))
   use start <- decode.optional_field("start", None, decode.optional(decode.int))
   use modifier_extension <- decode.optional_field(
@@ -84198,6 +84665,7 @@ pub fn molecularsequence_structurevariant_outer_to_json(
 pub fn molecularsequence_structurevariant_outer_decoder() -> Decoder(
   MolecularsequenceStructurevariantOuter,
 ) {
+  use <- decode.recursive
   use end <- decode.optional_field("end", None, decode.optional(decode.int))
   use start <- decode.optional_field("start", None, decode.optional(decode.int))
   use modifier_extension <- decode.optional_field(
@@ -84281,6 +84749,7 @@ pub fn molecularsequence_structurevariant_to_json(
 pub fn molecularsequence_structurevariant_decoder() -> Decoder(
   MolecularsequenceStructurevariant,
 ) {
+  use <- decode.recursive
   use inner <- decode.optional_field(
     "inner",
     None,
@@ -84387,6 +84856,7 @@ pub fn molecularsequence_repository_to_json(
 pub fn molecularsequence_repository_decoder() -> Decoder(
   MolecularsequenceRepository,
 ) {
+  use <- decode.recursive
   use readset_id <- decode.optional_field(
     "readsetId",
     None,
@@ -84498,20 +84968,21 @@ pub fn molecularsequence_quality_roc_to_json(
 pub fn molecularsequence_quality_roc_decoder() -> Decoder(
   MolecularsequenceQualityRoc,
 ) {
+  use <- decode.recursive
   use f_measure <- decode.optional_field(
     "fMeasure",
     [],
-    decode.list(decode.float),
+    decode.list(decode_number()),
   )
   use sensitivity <- decode.optional_field(
     "sensitivity",
     [],
-    decode.list(decode.float),
+    decode.list(decode_number()),
   )
   use precision <- decode.optional_field(
     "precision",
     [],
-    decode.list(decode.float),
+    decode.list(decode_number()),
   )
   use num_fn <- decode.optional_field("numFN", [], decode.list(decode.int))
   use num_fp <- decode.optional_field("numFP", [], decode.list(decode.int))
@@ -84643,6 +85114,7 @@ pub fn molecularsequence_quality_to_json(
 }
 
 pub fn molecularsequence_quality_decoder() -> Decoder(MolecularsequenceQuality) {
+  use <- decode.recursive
   use roc <- decode.optional_field(
     "roc",
     None,
@@ -84651,42 +85123,42 @@ pub fn molecularsequence_quality_decoder() -> Decoder(MolecularsequenceQuality) 
   use f_score <- decode.optional_field(
     "fScore",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use recall <- decode.optional_field(
     "recall",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use precision <- decode.optional_field(
     "precision",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use gt_fp <- decode.optional_field(
     "gtFP",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use query_fp <- decode.optional_field(
     "queryFP",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use truth_fn <- decode.optional_field(
     "truthFN",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use query_tp <- decode.optional_field(
     "queryTP",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use truth_tp <- decode.optional_field(
     "truthTP",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use method <- decode.optional_field(
     "method",
@@ -84797,6 +85269,7 @@ pub fn molecularsequence_variant_to_json(
 }
 
 pub fn molecularsequence_variant_decoder() -> Decoder(MolecularsequenceVariant) {
+  use <- decode.recursive
   use variant_pointer <- decode.optional_field(
     "variantPointer",
     None,
@@ -84921,6 +85394,7 @@ pub fn molecularsequence_referenceseq_to_json(
 pub fn molecularsequence_referenceseq_decoder() -> Decoder(
   MolecularsequenceReferenceseq,
 ) {
+  use <- decode.recursive
   use window_end <- decode.optional_field(
     "windowEnd",
     None,
@@ -85142,11 +85616,12 @@ pub fn molecularsequence_to_json(molecularsequence: Molecularsequence) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Molecularsequence")), ..fields]
+  let fields = [#("resourceType", json.string("MolecularSequence")), ..fields]
   json.object(fields)
 }
 
 pub fn molecularsequence_decoder() -> Decoder(Molecularsequence) {
+  use <- decode.recursive
   use structure_variant <- decode.optional_field(
     "structureVariant",
     [],
@@ -85262,7 +85737,7 @@ pub fn molecularsequence_decoder() -> Decoder(Molecularsequence) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Molecularsequence",
+    rt != "MolecularSequence",
     decode.failure(molecularsequence_new(coordinate_system:), "resourceType"),
   )
   decode.success(Molecularsequence(
@@ -85429,6 +85904,7 @@ pub fn namingsystem_uniqueid_to_json(
 }
 
 pub fn namingsystem_uniqueid_decoder() -> Decoder(NamingsystemUniqueid) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -85582,11 +86058,12 @@ pub fn namingsystem_to_json(namingsystem: Namingsystem) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Namingsystem")), ..fields]
+  let fields = [#("resourceType", json.string("NamingSystem")), ..fields]
   json.object(fields)
 }
 
 pub fn namingsystem_decoder() -> Decoder(Namingsystem) {
+  use <- decode.recursive
   use unique_id <- decode.optional_field(
     "uniqueId",
     [],
@@ -85675,7 +86152,7 @@ pub fn namingsystem_decoder() -> Decoder(Namingsystem) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Namingsystem",
+    rt != "NamingSystem",
     decode.failure(
       namingsystem_new(date:, kind:, status:, name:),
       "resourceType",
@@ -86013,6 +86490,7 @@ pub fn nutritionorder_enteralformula_administration_to_json(
 pub fn nutritionorder_enteralformula_administration_decoder() -> Decoder(
   NutritionorderEnteralformulaAdministration,
 ) {
+  use <- decode.recursive
   use rate <- decode.then(
     none_if_omitted(nutritionorder_enteralformula_administration_rate_decoder()),
   )
@@ -86134,6 +86612,7 @@ pub fn nutritionorder_enteralformula_to_json(
 pub fn nutritionorder_enteralformula_decoder() -> Decoder(
   NutritionorderEnteralformula,
 ) {
+  use <- decode.recursive
   use administration_instruction <- decode.optional_field(
     "administrationInstruction",
     None,
@@ -86259,6 +86738,7 @@ pub fn nutritionorder_supplement_to_json(
 }
 
 pub fn nutritionorder_supplement_decoder() -> Decoder(NutritionorderSupplement) {
+  use <- decode.recursive
   use instruction <- decode.optional_field(
     "instruction",
     None,
@@ -86347,6 +86827,7 @@ pub fn nutritionorder_oraldiet_texture_to_json(
 pub fn nutritionorder_oraldiet_texture_decoder() -> Decoder(
   NutritionorderOraldietTexture,
 ) {
+  use <- decode.recursive
   use food_type <- decode.optional_field(
     "foodType",
     None,
@@ -86417,6 +86898,7 @@ pub fn nutritionorder_oraldiet_nutrient_to_json(
 pub fn nutritionorder_oraldiet_nutrient_decoder() -> Decoder(
   NutritionorderOraldietNutrient,
 ) {
+  use <- decode.recursive
   use amount <- decode.optional_field(
     "amount",
     None,
@@ -86520,6 +87002,7 @@ pub fn nutritionorder_oraldiet_to_json(
 }
 
 pub fn nutritionorder_oraldiet_decoder() -> Decoder(NutritionorderOraldiet) {
+  use <- decode.recursive
   use instruction <- decode.optional_field(
     "instruction",
     None,
@@ -86728,11 +87211,12 @@ pub fn nutritionorder_to_json(nutritionorder: Nutritionorder) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Nutritionorder")), ..fields]
+  let fields = [#("resourceType", json.string("NutritionOrder")), ..fields]
   json.object(fields)
 }
 
 pub fn nutritionorder_decoder() -> Decoder(Nutritionorder) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -86841,7 +87325,7 @@ pub fn nutritionorder_decoder() -> Decoder(Nutritionorder) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Nutritionorder",
+    rt != "NutritionOrder",
     decode.failure(
       nutritionorder_new(date_time:, patient:, intent:, status:),
       "resourceType",
@@ -87125,6 +87609,7 @@ pub fn nutritionproduct_instance_to_json(
 }
 
 pub fn nutritionproduct_instance_decoder() -> Decoder(NutritionproductInstance) {
+  use <- decode.recursive
   use use_by <- decode.optional_field(
     "useBy",
     None,
@@ -87208,6 +87693,7 @@ pub fn nutritionproduct_productcharacteristic_to_json(
 pub fn nutritionproduct_productcharacteristic_decoder() -> Decoder(
   NutritionproductProductcharacteristic,
 ) {
+  use <- decode.recursive
   use value <- decode.then(
     nutritionproduct_productcharacteristic_value_decoder(),
   )
@@ -87270,6 +87756,7 @@ pub fn nutritionproduct_ingredient_to_json(
 pub fn nutritionproduct_ingredient_decoder() -> Decoder(
   NutritionproductIngredient,
 ) {
+  use <- decode.recursive
   use amount <- decode.optional_field(
     "amount",
     [],
@@ -87334,6 +87821,7 @@ pub fn nutritionproduct_nutrient_to_json(
 }
 
 pub fn nutritionproduct_nutrient_decoder() -> Decoder(NutritionproductNutrient) {
+  use <- decode.recursive
   use amount <- decode.optional_field(
     "amount",
     [],
@@ -87486,11 +87974,12 @@ pub fn nutritionproduct_to_json(nutritionproduct: Nutritionproduct) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Nutritionproduct")), ..fields]
+  let fields = [#("resourceType", json.string("NutritionProduct")), ..fields]
   json.object(fields)
 }
 
 pub fn nutritionproduct_decoder() -> Decoder(Nutritionproduct) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -87579,7 +88068,7 @@ pub fn nutritionproduct_decoder() -> Decoder(Nutritionproduct) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Nutritionproduct",
+    rt != "NutritionProduct",
     decode.failure(nutritionproduct_new(status:), "resourceType"),
   )
   decode.success(Nutritionproduct(
@@ -87947,15 +88436,15 @@ pub fn observation_component_to_json(
         "value"
           <> case v {
           ObservationComponentValueQuantity(_) -> "Quantity"
-          ObservationComponentValueCodeableconcept(_) -> "Codeableconcept"
+          ObservationComponentValueCodeableconcept(_) -> "CodeableConcept"
           ObservationComponentValueString(_) -> "String"
           ObservationComponentValueBoolean(_) -> "Boolean"
           ObservationComponentValueInteger(_) -> "Integer"
           ObservationComponentValueRange(_) -> "Range"
           ObservationComponentValueRatio(_) -> "Ratio"
-          ObservationComponentValueSampleddata(_) -> "Sampleddata"
+          ObservationComponentValueSampleddata(_) -> "SampledData"
           ObservationComponentValueTime(_) -> "Time"
-          ObservationComponentValueDatetime(_) -> "Datetime"
+          ObservationComponentValueDatetime(_) -> "DateTime"
           ObservationComponentValuePeriod(_) -> "Period"
         },
         observation_component_value_to_json(v),
@@ -87983,6 +88472,7 @@ pub fn observation_component_to_json(
 }
 
 pub fn observation_component_decoder() -> Decoder(ObservationComponent) {
+  use <- decode.recursive
   use reference_range <- decode.optional_field(
     "referenceRange",
     [],
@@ -88088,6 +88578,7 @@ pub fn observation_referencerange_to_json(
 pub fn observation_referencerange_decoder() -> Decoder(
   ObservationReferencerange,
 ) {
+  use <- decode.recursive
   use text <- decode.optional_field(
     "text",
     None,
@@ -88246,15 +88737,15 @@ pub fn observation_to_json(observation: Observation) -> Json {
         "value"
           <> case v {
           ObservationValueQuantity(_) -> "Quantity"
-          ObservationValueCodeableconcept(_) -> "Codeableconcept"
+          ObservationValueCodeableconcept(_) -> "CodeableConcept"
           ObservationValueString(_) -> "String"
           ObservationValueBoolean(_) -> "Boolean"
           ObservationValueInteger(_) -> "Integer"
           ObservationValueRange(_) -> "Range"
           ObservationValueRatio(_) -> "Ratio"
-          ObservationValueSampleddata(_) -> "Sampleddata"
+          ObservationValueSampleddata(_) -> "SampledData"
           ObservationValueTime(_) -> "Time"
-          ObservationValueDatetime(_) -> "Datetime"
+          ObservationValueDatetime(_) -> "DateTime"
           ObservationValuePeriod(_) -> "Period"
         },
         observation_value_to_json(v),
@@ -88276,7 +88767,7 @@ pub fn observation_to_json(observation: Observation) -> Json {
       #(
         "effective"
           <> case v {
-          ObservationEffectiveDatetime(_) -> "Datetime"
+          ObservationEffectiveDatetime(_) -> "DateTime"
           ObservationEffectivePeriod(_) -> "Period"
           ObservationEffectiveTiming(_) -> "Timing"
           ObservationEffectiveInstant(_) -> "Instant"
@@ -88358,6 +88849,7 @@ pub fn observation_to_json(observation: Observation) -> Json {
 }
 
 pub fn observation_decoder() -> Decoder(Observation) {
+  use <- decode.recursive
   use component <- decode.optional_field(
     "component",
     [],
@@ -88732,6 +89224,7 @@ pub fn observationdefinition_qualifiedinterval_to_json(
 pub fn observationdefinition_qualifiedinterval_decoder() -> Decoder(
   ObservationdefinitionQualifiedinterval,
 ) {
+  use <- decode.recursive
   use condition <- decode.optional_field(
     "condition",
     None,
@@ -88848,6 +89341,7 @@ pub fn observationdefinition_quantitativedetails_to_json(
 pub fn observationdefinition_quantitativedetails_decoder() -> Decoder(
   ObservationdefinitionQuantitativedetails,
 ) {
+  use <- decode.recursive
   use decimal_precision <- decode.optional_field(
     "decimalPrecision",
     None,
@@ -88856,7 +89350,7 @@ pub fn observationdefinition_quantitativedetails_decoder() -> Decoder(
   use conversion_factor <- decode.optional_field(
     "conversionFactor",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use unit <- decode.optional_field(
     "unit",
@@ -89027,13 +89521,14 @@ pub fn observationdefinition_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Observationdefinition")),
+    #("resourceType", json.string("ObservationDefinition")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn observationdefinition_decoder() -> Decoder(Observationdefinition) {
+  use <- decode.recursive
   use critical_coded_value_set <- decode.optional_field(
     "criticalCodedValueSet",
     None,
@@ -89134,7 +89629,7 @@ pub fn observationdefinition_decoder() -> Decoder(Observationdefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Observationdefinition",
+    rt != "ObservationDefinition",
     decode.failure(observationdefinition_new(code:), "resourceType"),
   )
   decode.success(Observationdefinition(
@@ -89401,6 +89896,7 @@ pub fn operationdefinition_overload_to_json(
 pub fn operationdefinition_overload_decoder() -> Decoder(
   OperationdefinitionOverload,
 ) {
+  use <- decode.recursive
   use comment <- decode.optional_field(
     "comment",
     None,
@@ -89469,6 +89965,7 @@ pub fn operationdefinition_parameter_referencedfrom_to_json(
 pub fn operationdefinition_parameter_referencedfrom_decoder() -> Decoder(
   OperationdefinitionParameterReferencedfrom,
 ) {
+  use <- decode.recursive
   use source_id <- decode.optional_field(
     "sourceId",
     None,
@@ -89530,6 +90027,7 @@ pub fn operationdefinition_parameter_binding_to_json(
 pub fn operationdefinition_parameter_binding_decoder() -> Decoder(
   OperationdefinitionParameterBinding,
 ) {
+  use <- decode.recursive
   use value_set <- decode.field("valueSet", decode.string)
   use strength <- decode.field(
     "strength",
@@ -89647,6 +90145,7 @@ pub fn operationdefinition_parameter_to_json(
 pub fn operationdefinition_parameter_decoder() -> Decoder(
   OperationdefinitionParameter,
 ) {
+  use <- decode.recursive
   use part <- decode.optional_field(
     "part",
     [],
@@ -89892,11 +90391,12 @@ pub fn operationdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Operationdefinition")), ..fields]
+  let fields = [#("resourceType", json.string("OperationDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn operationdefinition_decoder() -> Decoder(Operationdefinition) {
+  use <- decode.recursive
   use overload <- decode.optional_field(
     "overload",
     [],
@@ -90034,7 +90534,7 @@ pub fn operationdefinition_decoder() -> Decoder(Operationdefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Operationdefinition",
+    rt != "OperationDefinition",
     decode.failure(
       operationdefinition_new(
         instance:,
@@ -90200,6 +90700,7 @@ pub fn operationoutcome_issue_to_json(
 }
 
 pub fn operationoutcome_issue_decoder() -> Decoder(OperationoutcomeIssue) {
+  use <- decode.recursive
   use expression <- decode.optional_field(
     "expression",
     [],
@@ -90301,11 +90802,12 @@ pub fn operationoutcome_to_json(operationoutcome: Operationoutcome) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Operationoutcome")), ..fields]
+  let fields = [#("resourceType", json.string("OperationOutcome")), ..fields]
   json.object(fields)
 }
 
 pub fn operationoutcome_decoder() -> Decoder(Operationoutcome) {
+  use <- decode.recursive
   use issue <- decode.optional_field(
     "issue",
     [],
@@ -90350,7 +90852,7 @@ pub fn operationoutcome_decoder() -> Decoder(Operationoutcome) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Operationoutcome",
+    rt != "OperationOutcome",
     decode.failure(operationoutcome_new(), "resourceType"),
   )
   decode.success(Operationoutcome(
@@ -90486,6 +90988,7 @@ pub fn organization_contact_to_json(
 }
 
 pub fn organization_contact_decoder() -> Decoder(OrganizationContact) {
+  use <- decode.recursive
   use address <- decode.optional_field(
     "address",
     None,
@@ -90633,6 +91136,7 @@ pub fn organization_to_json(organization: Organization) -> Json {
 }
 
 pub fn organization_decoder() -> Decoder(Organization) {
+  use <- decode.recursive
   use endpoint <- decode.optional_field(
     "endpoint",
     [],
@@ -90910,13 +91414,14 @@ pub fn organizationaffiliation_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Organizationaffiliation")),
+    #("resourceType", json.string("OrganizationAffiliation")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn organizationaffiliation_decoder() -> Decoder(Organizationaffiliation) {
+  use <- decode.recursive
   use endpoint <- decode.optional_field(
     "endpoint",
     [],
@@ -91016,7 +91521,7 @@ pub fn organizationaffiliation_decoder() -> Decoder(Organizationaffiliation) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Organizationaffiliation",
+    rt != "OrganizationAffiliation",
     decode.failure(organizationaffiliation_new(), "resourceType"),
   )
   decode.success(Organizationaffiliation(
@@ -91350,6 +91855,7 @@ pub fn packagedproductdefinition_package_containeditem_to_json(
 pub fn packagedproductdefinition_package_containeditem_decoder() -> Decoder(
   PackagedproductdefinitionPackageContaineditem,
 ) {
+  use <- decode.recursive
   use amount <- decode.optional_field(
     "amount",
     None,
@@ -91395,7 +91901,7 @@ pub fn packagedproductdefinition_package_property_to_json(
         "value"
           <> case v {
           PackagedproductdefinitionPackagePropertyValueCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           PackagedproductdefinitionPackagePropertyValueQuantity(_) -> "Quantity"
           PackagedproductdefinitionPackagePropertyValueDate(_) -> "Date"
           PackagedproductdefinitionPackagePropertyValueBoolean(_) -> "Boolean"
@@ -91429,6 +91935,7 @@ pub fn packagedproductdefinition_package_property_to_json(
 pub fn packagedproductdefinition_package_property_decoder() -> Decoder(
   PackagedproductdefinitionPackageProperty,
 ) {
+  use <- decode.recursive
   use value <- decode.then(
     none_if_omitted(packagedproductdefinition_package_property_value_decoder()),
   )
@@ -91516,6 +92023,7 @@ pub fn packagedproductdefinition_package_shelflifestorage_to_json(
 pub fn packagedproductdefinition_package_shelflifestorage_decoder() -> Decoder(
   PackagedproductdefinitionPackageShelflifestorage,
 ) {
+  use <- decode.recursive
   use special_precautions_for_storage <- decode.optional_field(
     "specialPrecautionsForStorage",
     [],
@@ -91674,6 +92182,7 @@ pub fn packagedproductdefinition_package_to_json(
 pub fn packagedproductdefinition_package_decoder() -> Decoder(
   PackagedproductdefinitionPackage,
 ) {
+  use <- decode.recursive
   use package <- decode.optional_field(
     "package",
     [],
@@ -91792,6 +92301,7 @@ pub fn packagedproductdefinition_legalstatusofsupply_to_json(
 pub fn packagedproductdefinition_legalstatusofsupply_decoder() -> Decoder(
   PackagedproductdefinitionLegalstatusofsupply,
 ) {
+  use <- decode.recursive
   use jurisdiction <- decode.optional_field(
     "jurisdiction",
     None,
@@ -91972,13 +92482,14 @@ pub fn packagedproductdefinition_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Packagedproductdefinition")),
+    #("resourceType", json.string("PackagedProductDefinition")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn packagedproductdefinition_decoder() -> Decoder(Packagedproductdefinition) {
+  use <- decode.recursive
   use package <- decode.optional_field(
     "package",
     None,
@@ -92088,7 +92599,7 @@ pub fn packagedproductdefinition_decoder() -> Decoder(Packagedproductdefinition)
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Packagedproductdefinition",
+    rt != "PackagedProductDefinition",
     decode.failure(packagedproductdefinition_new(), "resourceType"),
   )
   decode.success(Packagedproductdefinition(
@@ -92276,7 +92787,7 @@ pub fn parameters_parameter_value_decoder() -> Decoder(ParametersParameterValue)
         |> decode.map(ParametersParameterValueDate),
       decode.field("valueDateTime", decode.string, decode.success)
         |> decode.map(ParametersParameterValueDatetime),
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(ParametersParameterValueDecimal),
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(ParametersParameterValueId),
@@ -92432,22 +92943,22 @@ pub fn parameters_parameter_to_json(
       #(
         "value"
           <> case v {
-          ParametersParameterValueBase64binary(_) -> "Base64binary"
+          ParametersParameterValueBase64binary(_) -> "Base64Binary"
           ParametersParameterValueBoolean(_) -> "Boolean"
           ParametersParameterValueCanonical(_) -> "Canonical"
           ParametersParameterValueCode(_) -> "Code"
           ParametersParameterValueDate(_) -> "Date"
-          ParametersParameterValueDatetime(_) -> "Datetime"
+          ParametersParameterValueDatetime(_) -> "DateTime"
           ParametersParameterValueDecimal(_) -> "Decimal"
           ParametersParameterValueId(_) -> "Id"
           ParametersParameterValueInstant(_) -> "Instant"
           ParametersParameterValueInteger(_) -> "Integer"
           ParametersParameterValueMarkdown(_) -> "Markdown"
           ParametersParameterValueOid(_) -> "Oid"
-          ParametersParameterValuePositiveint(_) -> "Positiveint"
+          ParametersParameterValuePositiveint(_) -> "PositiveInt"
           ParametersParameterValueString(_) -> "String"
           ParametersParameterValueTime(_) -> "Time"
-          ParametersParameterValueUnsignedint(_) -> "Unsignedint"
+          ParametersParameterValueUnsignedint(_) -> "UnsignedInt"
           ParametersParameterValueUri(_) -> "Uri"
           ParametersParameterValueUrl(_) -> "Url"
           ParametersParameterValueUuid(_) -> "Uuid"
@@ -92455,13 +92966,13 @@ pub fn parameters_parameter_to_json(
           ParametersParameterValueAge(_) -> "Age"
           ParametersParameterValueAnnotation(_) -> "Annotation"
           ParametersParameterValueAttachment(_) -> "Attachment"
-          ParametersParameterValueCodeableconcept(_) -> "Codeableconcept"
+          ParametersParameterValueCodeableconcept(_) -> "CodeableConcept"
           ParametersParameterValueCoding(_) -> "Coding"
-          ParametersParameterValueContactpoint(_) -> "Contactpoint"
+          ParametersParameterValueContactpoint(_) -> "ContactPoint"
           ParametersParameterValueCount(_) -> "Count"
           ParametersParameterValueDistance(_) -> "Distance"
           ParametersParameterValueDuration(_) -> "Duration"
-          ParametersParameterValueHumanname(_) -> "Humanname"
+          ParametersParameterValueHumanname(_) -> "HumanName"
           ParametersParameterValueIdentifier(_) -> "Identifier"
           ParametersParameterValueMoney(_) -> "Money"
           ParametersParameterValuePeriod(_) -> "Period"
@@ -92469,18 +92980,18 @@ pub fn parameters_parameter_to_json(
           ParametersParameterValueRange(_) -> "Range"
           ParametersParameterValueRatio(_) -> "Ratio"
           ParametersParameterValueReference(_) -> "Reference"
-          ParametersParameterValueSampleddata(_) -> "Sampleddata"
+          ParametersParameterValueSampleddata(_) -> "SampledData"
           ParametersParameterValueSignature(_) -> "Signature"
           ParametersParameterValueTiming(_) -> "Timing"
-          ParametersParameterValueContactdetail(_) -> "Contactdetail"
+          ParametersParameterValueContactdetail(_) -> "ContactDetail"
           ParametersParameterValueContributor(_) -> "Contributor"
-          ParametersParameterValueDatarequirement(_) -> "Datarequirement"
+          ParametersParameterValueDatarequirement(_) -> "DataRequirement"
           ParametersParameterValueExpression(_) -> "Expression"
           ParametersParameterValueParameterdefinition(_) ->
-            "Parameterdefinition"
-          ParametersParameterValueRelatedartifact(_) -> "Relatedartifact"
-          ParametersParameterValueTriggerdefinition(_) -> "Triggerdefinition"
-          ParametersParameterValueUsagecontext(_) -> "Usagecontext"
+            "ParameterDefinition"
+          ParametersParameterValueRelatedartifact(_) -> "RelatedArtifact"
+          ParametersParameterValueTriggerdefinition(_) -> "TriggerDefinition"
+          ParametersParameterValueUsagecontext(_) -> "UsageContext"
           ParametersParameterValueDosage(_) -> "Dosage"
           ParametersParameterValueMeta(_) -> "Meta"
         },
@@ -92509,6 +93020,7 @@ pub fn parameters_parameter_to_json(
 }
 
 pub fn parameters_parameter_decoder() -> Decoder(ParametersParameter) {
+  use <- decode.recursive
   use part <- decode.optional_field(
     "part",
     [],
@@ -92577,6 +93089,7 @@ pub fn parameters_to_json(parameters: Parameters) -> Json {
 }
 
 pub fn parameters_decoder() -> Decoder(Parameters) {
+  use <- decode.recursive
   use parameter <- decode.optional_field(
     "parameter",
     [],
@@ -92812,6 +93325,7 @@ pub fn patient_link_to_json(patient_link: PatientLink) -> Json {
 }
 
 pub fn patient_link_decoder() -> Decoder(PatientLink) {
+  use <- decode.recursive
   use type_ <- decode.field("type", r4bvaluesets.linktype_decoder())
   use other <- decode.field("other", reference_decoder())
   use modifier_extension <- decode.optional_field(
@@ -92870,6 +93384,7 @@ pub fn patient_communication_to_json(
 }
 
 pub fn patient_communication_decoder() -> Decoder(PatientCommunication) {
+  use <- decode.recursive
   use preferred <- decode.optional_field(
     "preferred",
     None,
@@ -92963,6 +93478,7 @@ pub fn patient_contact_to_json(patient_contact: PatientContact) -> Json {
 }
 
 pub fn patient_contact_decoder() -> Decoder(PatientContact) {
+  use <- decode.recursive
   use period <- decode.optional_field(
     "period",
     None,
@@ -93115,7 +93631,7 @@ pub fn patient_to_json(patient: Patient) -> Json {
         "deceased"
           <> case v {
           PatientDeceasedBoolean(_) -> "Boolean"
-          PatientDeceasedDatetime(_) -> "Datetime"
+          PatientDeceasedDatetime(_) -> "DateTime"
         },
         patient_deceased_to_json(v),
       ),
@@ -93190,6 +93706,7 @@ pub fn patient_to_json(patient: Patient) -> Json {
 }
 
 pub fn patient_decoder() -> Decoder(Patient) {
+  use <- decode.recursive
   use link <- decode.optional_field(
     "link",
     [],
@@ -93484,11 +94001,12 @@ pub fn paymentnotice_to_json(paymentnotice: Paymentnotice) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Paymentnotice")), ..fields]
+  let fields = [#("resourceType", json.string("PaymentNotice")), ..fields]
   json.object(fields)
 }
 
 pub fn paymentnotice_decoder() -> Decoder(Paymentnotice) {
+  use <- decode.recursive
   use payment_status <- decode.optional_field(
     "paymentStatus",
     None,
@@ -93568,7 +94086,7 @@ pub fn paymentnotice_decoder() -> Decoder(Paymentnotice) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Paymentnotice",
+    rt != "PaymentNotice",
     decode.failure(
       paymentnotice_new(amount:, recipient:, payment:, created:, status:),
       "resourceType",
@@ -93760,6 +94278,7 @@ pub fn paymentreconciliation_processnote_to_json(
 pub fn paymentreconciliation_processnote_decoder() -> Decoder(
   PaymentreconciliationProcessnote,
 ) {
+  use <- decode.recursive
   use text <- decode.optional_field(
     "text",
     None,
@@ -93868,6 +94387,7 @@ pub fn paymentreconciliation_detail_to_json(
 pub fn paymentreconciliation_detail_decoder() -> Decoder(
   PaymentreconciliationDetail,
 ) {
+  use <- decode.recursive
   use amount <- decode.optional_field(
     "amount",
     None,
@@ -94068,13 +94588,14 @@ pub fn paymentreconciliation_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Paymentreconciliation")),
+    #("resourceType", json.string("PaymentReconciliation")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn paymentreconciliation_decoder() -> Decoder(Paymentreconciliation) {
+  use <- decode.recursive
   use process_note <- decode.optional_field(
     "processNote",
     [],
@@ -94173,7 +94694,7 @@ pub fn paymentreconciliation_decoder() -> Decoder(Paymentreconciliation) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Paymentreconciliation",
+    rt != "PaymentReconciliation",
     decode.failure(
       paymentreconciliation_new(
         payment_amount:,
@@ -94311,6 +94832,7 @@ pub fn person_link_to_json(person_link: PersonLink) -> Json {
 }
 
 pub fn person_link_decoder() -> Decoder(PersonLink) {
+  use <- decode.recursive
   use assurance <- decode.optional_field(
     "assurance",
     None,
@@ -94442,6 +94964,7 @@ pub fn person_to_json(person: Person) -> Json {
 }
 
 pub fn person_decoder() -> Decoder(Person) {
+  use <- decode.recursive
   use link <- decode.optional_field(
     "link",
     [],
@@ -95112,6 +95635,7 @@ pub fn plandefinition_action_dynamicvalue_to_json(
 pub fn plandefinition_action_dynamicvalue_decoder() -> Decoder(
   PlandefinitionActionDynamicvalue,
 ) {
+  use <- decode.recursive
   use expression <- decode.optional_field(
     "expression",
     None,
@@ -95180,6 +95704,7 @@ pub fn plandefinition_action_participant_to_json(
 pub fn plandefinition_action_participant_decoder() -> Decoder(
   PlandefinitionActionParticipant,
 ) {
+  use <- decode.recursive
   use role <- decode.optional_field(
     "role",
     None,
@@ -95259,6 +95784,7 @@ pub fn plandefinition_action_relatedaction_to_json(
 pub fn plandefinition_action_relatedaction_decoder() -> Decoder(
   PlandefinitionActionRelatedaction,
 ) {
+  use <- decode.recursive
   use offset <- decode.then(
     none_if_omitted(plandefinition_action_relatedaction_offset_decoder()),
   )
@@ -95326,6 +95852,7 @@ pub fn plandefinition_action_condition_to_json(
 pub fn plandefinition_action_condition_decoder() -> Decoder(
   PlandefinitionActionCondition,
 ) {
+  use <- decode.recursive
   use expression <- decode.optional_field(
     "expression",
     None,
@@ -95480,7 +96007,7 @@ pub fn plandefinition_action_to_json(
       #(
         "timing"
           <> case v {
-          PlandefinitionActionTimingDatetime(_) -> "Datetime"
+          PlandefinitionActionTimingDatetime(_) -> "DateTime"
           PlandefinitionActionTimingAge(_) -> "Age"
           PlandefinitionActionTimingPeriod(_) -> "Period"
           PlandefinitionActionTimingDuration(_) -> "Duration"
@@ -95533,7 +96060,7 @@ pub fn plandefinition_action_to_json(
       #(
         "subject"
           <> case v {
-          PlandefinitionActionSubjectCodeableconcept(_) -> "Codeableconcept"
+          PlandefinitionActionSubjectCodeableconcept(_) -> "CodeableConcept"
           PlandefinitionActionSubjectReference(_) -> "Reference"
           PlandefinitionActionSubjectCanonical(_) -> "Canonical"
         },
@@ -95604,6 +96131,7 @@ pub fn plandefinition_action_to_json(
 }
 
 pub fn plandefinition_action_decoder() -> Decoder(PlandefinitionAction) {
+  use <- decode.recursive
   use action <- decode.optional_field(
     "action",
     [],
@@ -95797,7 +96325,7 @@ pub fn plandefinition_goal_target_to_json(
           <> case v {
           PlandefinitionGoalTargetDetailQuantity(_) -> "Quantity"
           PlandefinitionGoalTargetDetailRange(_) -> "Range"
-          PlandefinitionGoalTargetDetailCodeableconcept(_) -> "Codeableconcept"
+          PlandefinitionGoalTargetDetailCodeableconcept(_) -> "CodeableConcept"
         },
         plandefinition_goal_target_detail_to_json(v),
       ),
@@ -95828,6 +96356,7 @@ pub fn plandefinition_goal_target_to_json(
 }
 
 pub fn plandefinition_goal_target_decoder() -> Decoder(PlandefinitionGoalTarget) {
+  use <- decode.recursive
   use due <- decode.optional_field(
     "due",
     None,
@@ -95932,6 +96461,7 @@ pub fn plandefinition_goal_to_json(
 }
 
 pub fn plandefinition_goal_decoder() -> Decoder(PlandefinitionGoal) {
+  use <- decode.recursive
   use target <- decode.optional_field(
     "target",
     [],
@@ -96137,7 +96667,7 @@ pub fn plandefinition_to_json(plandefinition: Plandefinition) -> Json {
       #(
         "subject"
           <> case v {
-          PlandefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          PlandefinitionSubjectCodeableconcept(_) -> "CodeableConcept"
           PlandefinitionSubjectReference(_) -> "Reference"
           PlandefinitionSubjectCanonical(_) -> "Canonical"
         },
@@ -96214,11 +96744,12 @@ pub fn plandefinition_to_json(plandefinition: Plandefinition) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Plandefinition")), ..fields]
+  let fields = [#("resourceType", json.string("PlanDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn plandefinition_decoder() -> Decoder(Plandefinition) {
+  use <- decode.recursive
   use action <- decode.optional_field(
     "action",
     [],
@@ -96401,7 +96932,7 @@ pub fn plandefinition_decoder() -> Decoder(Plandefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Plandefinition",
+    rt != "PlanDefinition",
     decode.failure(plandefinition_new(status:), "resourceType"),
   )
   decode.success(Plandefinition(
@@ -96569,6 +97100,7 @@ pub fn practitioner_qualification_to_json(
 pub fn practitioner_qualification_decoder() -> Decoder(
   PractitionerQualification,
 ) {
+  use <- decode.recursive
   use issuer <- decode.optional_field(
     "issuer",
     None,
@@ -96721,6 +97253,7 @@ pub fn practitioner_to_json(practitioner: Practitioner) -> Json {
 }
 
 pub fn practitioner_decoder() -> Decoder(Practitioner) {
+  use <- decode.recursive
   use communication <- decode.optional_field(
     "communication",
     [],
@@ -96976,6 +97509,7 @@ pub fn practitionerrole_notavailable_to_json(
 pub fn practitionerrole_notavailable_decoder() -> Decoder(
   PractitionerroleNotavailable,
 ) {
+  use <- decode.recursive
   use during <- decode.optional_field(
     "during",
     None,
@@ -97055,6 +97589,7 @@ pub fn practitionerrole_availabletime_to_json(
 pub fn practitionerrole_availabletime_decoder() -> Decoder(
   PractitionerroleAvailabletime,
 ) {
+  use <- decode.recursive
   use available_end_time <- decode.optional_field(
     "availableEndTime",
     None,
@@ -97232,11 +97767,12 @@ pub fn practitionerrole_to_json(practitionerrole: Practitionerrole) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Practitionerrole")), ..fields]
+  let fields = [#("resourceType", json.string("PractitionerRole")), ..fields]
   json.object(fields)
 }
 
 pub fn practitionerrole_decoder() -> Decoder(Practitionerrole) {
+  use <- decode.recursive
   use endpoint <- decode.optional_field(
     "endpoint",
     [],
@@ -97346,7 +97882,7 @@ pub fn practitionerrole_decoder() -> Decoder(Practitionerrole) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Practitionerrole",
+    rt != "PractitionerRole",
     decode.failure(practitionerrole_new(), "resourceType"),
   )
   decode.success(Practitionerrole(
@@ -97579,6 +98115,7 @@ pub fn procedure_focaldevice_to_json(
 }
 
 pub fn procedure_focaldevice_decoder() -> Decoder(ProcedureFocaldevice) {
+  use <- decode.recursive
   use manipulated <- decode.field("manipulated", reference_decoder())
   use action <- decode.optional_field(
     "action",
@@ -97646,6 +98183,7 @@ pub fn procedure_performer_to_json(
 }
 
 pub fn procedure_performer_decoder() -> Decoder(ProcedurePerformer) {
+  use <- decode.recursive
   use on_behalf_of <- decode.optional_field(
     "onBehalfOf",
     None,
@@ -97823,7 +98361,7 @@ pub fn procedure_to_json(procedure: Procedure) -> Json {
       #(
         "performed"
           <> case v {
-          ProcedurePerformedDatetime(_) -> "Datetime"
+          ProcedurePerformedDatetime(_) -> "DateTime"
           ProcedurePerformedPeriod(_) -> "Period"
           ProcedurePerformedString(_) -> "String"
           ProcedurePerformedAge(_) -> "Age"
@@ -97920,6 +98458,7 @@ pub fn procedure_to_json(procedure: Procedure) -> Json {
 }
 
 pub fn procedure_decoder() -> Decoder(Procedure) {
+  use <- decode.recursive
   use used_code <- decode.optional_field(
     "usedCode",
     [],
@@ -98288,6 +98827,7 @@ pub fn provenance_entity_to_json(provenance_entity: ProvenanceEntity) -> Json {
 }
 
 pub fn provenance_entity_decoder() -> Decoder(ProvenanceEntity) {
+  use <- decode.recursive
   use agent <- decode.optional_field(
     "agent",
     [],
@@ -98360,6 +98900,7 @@ pub fn provenance_agent_to_json(provenance_agent: ProvenanceAgent) -> Json {
 }
 
 pub fn provenance_agent_decoder() -> Decoder(ProvenanceAgent) {
+  use <- decode.recursive
   use on_behalf_of <- decode.optional_field(
     "onBehalfOf",
     None,
@@ -98456,7 +98997,7 @@ pub fn provenance_to_json(provenance: Provenance) -> Json {
         "occurred"
           <> case v {
           ProvenanceOccurredPeriod(_) -> "Period"
-          ProvenanceOccurredDatetime(_) -> "Datetime"
+          ProvenanceOccurredDatetime(_) -> "DateTime"
         },
         provenance_occurred_to_json(v),
       ),
@@ -98508,6 +99049,7 @@ pub fn provenance_to_json(provenance: Provenance) -> Json {
 }
 
 pub fn provenance_decoder() -> Decoder(Provenance) {
+  use <- decode.recursive
   use signature <- decode.optional_field(
     "signature",
     [],
@@ -98785,7 +99327,7 @@ pub fn questionnaire_item_enablewhen_answer_decoder() -> Decoder(
     decode.field("answerBoolean", decode.bool, decode.success)
       |> decode.map(QuestionnaireItemEnablewhenAnswerBoolean),
     [
-      decode.field("answerDecimal", decode.float, decode.success)
+      decode.field("answerDecimal", decode_number(), decode.success)
         |> decode.map(QuestionnaireItemEnablewhenAnswerDecimal),
       decode.field("answerInteger", decode.int, decode.success)
         |> decode.map(QuestionnaireItemEnablewhenAnswerInteger),
@@ -98941,7 +99483,7 @@ pub fn questionnaire_item_initial_value_decoder() -> Decoder(
     decode.field("valueBoolean", decode.bool, decode.success)
       |> decode.map(QuestionnaireItemInitialValueBoolean),
     [
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(QuestionnaireItemInitialValueDecimal),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(QuestionnaireItemInitialValueInteger),
@@ -99005,6 +99547,7 @@ pub fn questionnaire_item_initial_to_json(
 }
 
 pub fn questionnaire_item_initial_decoder() -> Decoder(QuestionnaireItemInitial) {
+  use <- decode.recursive
   use value <- decode.then(questionnaire_item_initial_value_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -99063,6 +99606,7 @@ pub fn questionnaire_item_answeroption_to_json(
 pub fn questionnaire_item_answeroption_decoder() -> Decoder(
   QuestionnaireItemAnsweroption,
 ) {
+  use <- decode.recursive
   use initial_selected <- decode.optional_field(
     "initialSelected",
     None,
@@ -99126,6 +99670,7 @@ pub fn questionnaire_item_enablewhen_to_json(
 pub fn questionnaire_item_enablewhen_decoder() -> Decoder(
   QuestionnaireItemEnablewhen,
 ) {
+  use <- decode.recursive
   use answer <- decode.then(questionnaire_item_enablewhen_answer_decoder())
   use operator <- decode.field(
     "operator",
@@ -99272,6 +99817,7 @@ pub fn questionnaire_item_to_json(questionnaire_item: QuestionnaireItem) -> Json
 }
 
 pub fn questionnaire_item_decoder() -> Decoder(QuestionnaireItem) {
+  use <- decode.recursive
   use item <- decode.optional_field(
     "item",
     [],
@@ -99546,6 +100092,7 @@ pub fn questionnaire_to_json(questionnaire: Questionnaire) -> Json {
 }
 
 pub fn questionnaire_decoder() -> Decoder(Questionnaire) {
+  use <- decode.recursive
   use item <- decode.optional_field(
     "item",
     [],
@@ -99853,7 +100400,7 @@ pub fn questionnaireresponse_item_answer_value_decoder() -> Decoder(
     decode.field("valueBoolean", decode.bool, decode.success)
       |> decode.map(QuestionnaireresponseItemAnswerValueBoolean),
     [
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(QuestionnaireresponseItemAnswerValueDecimal),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(QuestionnaireresponseItemAnswerValueInteger),
@@ -99916,7 +100463,7 @@ pub fn questionnaireresponse_item_answer_to_json(
           QuestionnaireresponseItemAnswerValueDecimal(_) -> "Decimal"
           QuestionnaireresponseItemAnswerValueInteger(_) -> "Integer"
           QuestionnaireresponseItemAnswerValueDate(_) -> "Date"
-          QuestionnaireresponseItemAnswerValueDatetime(_) -> "Datetime"
+          QuestionnaireresponseItemAnswerValueDatetime(_) -> "DateTime"
           QuestionnaireresponseItemAnswerValueTime(_) -> "Time"
           QuestionnaireresponseItemAnswerValueString(_) -> "String"
           QuestionnaireresponseItemAnswerValueUri(_) -> "Uri"
@@ -99952,6 +100499,7 @@ pub fn questionnaireresponse_item_answer_to_json(
 pub fn questionnaireresponse_item_answer_decoder() -> Decoder(
   QuestionnaireresponseItemAnswer,
 ) {
+  use <- decode.recursive
   use item <- decode.optional_field(
     "item",
     [],
@@ -100039,6 +100587,7 @@ pub fn questionnaireresponse_item_to_json(
 pub fn questionnaireresponse_item_decoder() -> Decoder(
   QuestionnaireresponseItem,
 ) {
+  use <- decode.recursive
   use item <- decode.optional_field(
     "item",
     [],
@@ -100189,13 +100738,14 @@ pub fn questionnaireresponse_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Questionnaireresponse")),
+    #("resourceType", json.string("QuestionnaireResponse")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn questionnaireresponse_decoder() -> Decoder(Questionnaireresponse) {
+  use <- decode.recursive
   use item <- decode.optional_field(
     "item",
     [],
@@ -100289,7 +100839,7 @@ pub fn questionnaireresponse_decoder() -> Decoder(Questionnaireresponse) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Questionnaireresponse",
+    rt != "QuestionnaireResponse",
     decode.failure(questionnaireresponse_new(status:), "resourceType"),
   )
   decode.success(Questionnaireresponse(
@@ -100455,7 +101005,7 @@ pub fn regulatedauthorization_case_to_json(
         "date"
           <> case v {
           RegulatedauthorizationCaseDatePeriod(_) -> "Period"
-          RegulatedauthorizationCaseDateDatetime(_) -> "Datetime"
+          RegulatedauthorizationCaseDateDatetime(_) -> "DateTime"
         },
         regulatedauthorization_case_date_to_json(v),
       ),
@@ -100496,6 +101046,7 @@ pub fn regulatedauthorization_case_to_json(
 pub fn regulatedauthorization_case_decoder() -> Decoder(
   RegulatedauthorizationCase,
 ) {
+  use <- decode.recursive
   use application <- decode.optional_field(
     "application",
     [],
@@ -100662,13 +101213,14 @@ pub fn regulatedauthorization_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Regulatedauthorization")),
+    #("resourceType", json.string("RegulatedAuthorization")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn regulatedauthorization_decoder() -> Decoder(Regulatedauthorization) {
+  use <- decode.recursive
   use case_ <- decode.optional_field(
     "case",
     None,
@@ -100778,7 +101330,7 @@ pub fn regulatedauthorization_decoder() -> Decoder(Regulatedauthorization) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Regulatedauthorization",
+    rt != "RegulatedAuthorization",
     decode.failure(regulatedauthorization_new(), "resourceType"),
   )
   decode.success(Regulatedauthorization(
@@ -100919,6 +101471,7 @@ pub fn relatedperson_communication_to_json(
 pub fn relatedperson_communication_decoder() -> Decoder(
   RelatedpersonCommunication,
 ) {
+  use <- decode.recursive
   use preferred <- decode.optional_field(
     "preferred",
     None,
@@ -101062,11 +101615,12 @@ pub fn relatedperson_to_json(relatedperson: Relatedperson) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Relatedperson")), ..fields]
+  let fields = [#("resourceType", json.string("RelatedPerson")), ..fields]
   json.object(fields)
 }
 
 pub fn relatedperson_decoder() -> Decoder(Relatedperson) {
+  use <- decode.recursive
   use communication <- decode.optional_field(
     "communication",
     [],
@@ -101162,7 +101716,7 @@ pub fn relatedperson_decoder() -> Decoder(Relatedperson) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Relatedperson",
+    rt != "RelatedPerson",
     decode.failure(relatedperson_new(patient:), "resourceType"),
   )
   decode.success(Relatedperson(
@@ -101477,6 +102031,7 @@ pub fn requestgroup_action_relatedaction_to_json(
 pub fn requestgroup_action_relatedaction_decoder() -> Decoder(
   RequestgroupActionRelatedaction,
 ) {
+  use <- decode.recursive
   use offset <- decode.then(
     none_if_omitted(requestgroup_action_relatedaction_offset_decoder()),
   )
@@ -101544,6 +102099,7 @@ pub fn requestgroup_action_condition_to_json(
 pub fn requestgroup_action_condition_decoder() -> Decoder(
   RequestgroupActionCondition,
 ) {
+  use <- decode.recursive
   use expression <- decode.optional_field(
     "expression",
     None,
@@ -101663,7 +102219,7 @@ pub fn requestgroup_action_to_json(
       #(
         "timing"
           <> case v {
-          RequestgroupActionTimingDatetime(_) -> "Datetime"
+          RequestgroupActionTimingDatetime(_) -> "DateTime"
           RequestgroupActionTimingAge(_) -> "Age"
           RequestgroupActionTimingPeriod(_) -> "Period"
           RequestgroupActionTimingDuration(_) -> "Duration"
@@ -101749,6 +102305,7 @@ pub fn requestgroup_action_to_json(
 }
 
 pub fn requestgroup_action_decoder() -> Decoder(RequestgroupAction) {
+  use <- decode.recursive
   use action <- decode.optional_field(
     "action",
     [],
@@ -102032,11 +102589,12 @@ pub fn requestgroup_to_json(requestgroup: Requestgroup) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Requestgroup")), ..fields]
+  let fields = [#("resourceType", json.string("RequestGroup")), ..fields]
   json.object(fields)
 }
 
 pub fn requestgroup_decoder() -> Decoder(Requestgroup) {
+  use <- decode.recursive
   use action <- decode.optional_field(
     "action",
     [],
@@ -102158,7 +102716,7 @@ pub fn requestgroup_decoder() -> Decoder(Requestgroup) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Requestgroup",
+    rt != "RequestGroup",
     decode.failure(requestgroup_new(intent:, status:), "resourceType"),
   )
   decode.success(Requestgroup(
@@ -102481,7 +103039,7 @@ pub fn researchdefinition_to_json(
       #(
         "subject"
           <> case v {
-          ResearchdefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          ResearchdefinitionSubjectCodeableconcept(_) -> "CodeableConcept"
           ResearchdefinitionSubjectReference(_) -> "Reference"
         },
         researchdefinition_subject_to_json(v),
@@ -102557,11 +103115,12 @@ pub fn researchdefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Researchdefinition")), ..fields]
+  let fields = [#("resourceType", json.string("ResearchDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn researchdefinition_decoder() -> Decoder(Researchdefinition) {
+  use <- decode.recursive
   use outcome <- decode.optional_field(
     "outcome",
     None,
@@ -102757,7 +103316,7 @@ pub fn researchdefinition_decoder() -> Decoder(Researchdefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Researchdefinition",
+    rt != "ResearchDefinition",
     decode.failure(researchdefinition_new(population:, status:), "resourceType"),
   )
   decode.success(Researchdefinition(
@@ -103217,7 +103776,7 @@ pub fn researchelementdefinition_characteristic_to_json(
         "participantEffective"
           <> case v {
           ResearchelementdefinitionCharacteristicParticipanteffectiveDatetime(_) ->
-            "Datetime"
+            "DateTime"
           ResearchelementdefinitionCharacteristicParticipanteffectivePeriod(_) ->
             "Period"
           ResearchelementdefinitionCharacteristicParticipanteffectiveDuration(_) ->
@@ -103252,7 +103811,7 @@ pub fn researchelementdefinition_characteristic_to_json(
         "studyEffective"
           <> case v {
           ResearchelementdefinitionCharacteristicStudyeffectiveDatetime(_) ->
-            "Datetime"
+            "DateTime"
           ResearchelementdefinitionCharacteristicStudyeffectivePeriod(_) ->
             "Period"
           ResearchelementdefinitionCharacteristicStudyeffectiveDuration(_) ->
@@ -103306,6 +103865,7 @@ pub fn researchelementdefinition_characteristic_to_json(
 pub fn researchelementdefinition_characteristic_decoder() -> Decoder(
   ResearchelementdefinitionCharacteristic,
 ) {
+  use <- decode.recursive
   use participant_effective_group_measure <- decode.optional_field(
     "participantEffectiveGroupMeasure",
     None,
@@ -103562,7 +104122,7 @@ pub fn researchelementdefinition_to_json(
         "subject"
           <> case v {
           ResearchelementdefinitionSubjectCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           ResearchelementdefinitionSubjectReference(_) -> "Reference"
         },
         researchelementdefinition_subject_to_json(v),
@@ -103639,13 +104199,14 @@ pub fn researchelementdefinition_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Researchelementdefinition")),
+    #("resourceType", json.string("ResearchElementDefinition")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn researchelementdefinition_decoder() -> Decoder(Researchelementdefinition) {
+  use <- decode.recursive
   use characteristic <- decode.optional_field(
     "characteristic",
     [],
@@ -103836,7 +104397,7 @@ pub fn researchelementdefinition_decoder() -> Decoder(Researchelementdefinition)
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Researchelementdefinition",
+    rt != "ResearchElementDefinition",
     decode.failure(
       researchelementdefinition_new(type_:, status:),
       "resourceType",
@@ -104046,6 +104607,7 @@ pub fn researchstudy_objective_to_json(
 }
 
 pub fn researchstudy_objective_decoder() -> Decoder(ResearchstudyObjective) {
+  use <- decode.recursive
   use type_ <- decode.optional_field(
     "type",
     None,
@@ -104115,6 +104677,7 @@ pub fn researchstudy_arm_to_json(researchstudy_arm: ResearchstudyArm) -> Json {
 }
 
 pub fn researchstudy_arm_decoder() -> Decoder(ResearchstudyArm) {
+  use <- decode.recursive
   use description <- decode.optional_field(
     "description",
     None,
@@ -104330,11 +104893,12 @@ pub fn researchstudy_to_json(researchstudy: Researchstudy) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Researchstudy")), ..fields]
+  let fields = [#("resourceType", json.string("ResearchStudy")), ..fields]
   json.object(fields)
 }
 
 pub fn researchstudy_decoder() -> Decoder(Researchstudy) {
+  use <- decode.recursive
   use objective <- decode.optional_field(
     "objective",
     [],
@@ -104493,7 +105057,7 @@ pub fn researchstudy_decoder() -> Decoder(Researchstudy) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Researchstudy",
+    rt != "ResearchStudy",
     decode.failure(researchstudy_new(status:), "resourceType"),
   )
   decode.success(Researchstudy(
@@ -104658,11 +105222,12 @@ pub fn researchsubject_to_json(researchsubject: Researchsubject) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Researchsubject")), ..fields]
+  let fields = [#("resourceType", json.string("ResearchSubject")), ..fields]
   json.object(fields)
 }
 
 pub fn researchsubject_decoder() -> Decoder(Researchsubject) {
+  use <- decode.recursive
   use consent <- decode.optional_field(
     "consent",
     None,
@@ -104733,7 +105298,7 @@ pub fn researchsubject_decoder() -> Decoder(Researchsubject) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Researchsubject",
+    rt != "ResearchSubject",
     decode.failure(
       researchsubject_new(individual:, study:, status:),
       "resourceType",
@@ -104881,7 +105446,7 @@ pub fn riskassessment_prediction_probability_decoder() -> Decoder(
   RiskassessmentPredictionProbability,
 ) {
   decode.one_of(
-    decode.field("probabilityDecimal", decode.float, decode.success)
+    decode.field("probabilityDecimal", decode_number(), decode.success)
       |> decode.map(RiskassessmentPredictionProbabilityDecimal),
     [
       decode.field("probabilityRange", range_decoder(), decode.success)
@@ -105010,6 +105575,7 @@ pub fn riskassessment_prediction_to_json(
 }
 
 pub fn riskassessment_prediction_decoder() -> Decoder(RiskassessmentPrediction) {
+  use <- decode.recursive
   use rationale <- decode.optional_field(
     "rationale",
     None,
@@ -105021,7 +105587,7 @@ pub fn riskassessment_prediction_decoder() -> Decoder(RiskassessmentPrediction) 
   use relative_risk <- decode.optional_field(
     "relativeRisk",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use qualitative_risk <- decode.optional_field(
     "qualitativeRisk",
@@ -105138,7 +105704,7 @@ pub fn riskassessment_to_json(riskassessment: Riskassessment) -> Json {
       #(
         "occurrence"
           <> case v {
-          RiskassessmentOccurrenceDatetime(_) -> "Datetime"
+          RiskassessmentOccurrenceDatetime(_) -> "DateTime"
           RiskassessmentOccurrencePeriod(_) -> "Period"
         },
         riskassessment_occurrence_to_json(v),
@@ -105206,11 +105772,12 @@ pub fn riskassessment_to_json(riskassessment: Riskassessment) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Riskassessment")), ..fields]
+  let fields = [#("resourceType", json.string("RiskAssessment")), ..fields]
   json.object(fields)
 }
 
 pub fn riskassessment_decoder() -> Decoder(Riskassessment) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -105325,7 +105892,7 @@ pub fn riskassessment_decoder() -> Decoder(Riskassessment) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Riskassessment",
+    rt != "RiskAssessment",
     decode.failure(riskassessment_new(subject:, status:), "resourceType"),
   )
   decode.success(Riskassessment(
@@ -105504,6 +106071,7 @@ pub fn schedule_to_json(schedule: Schedule) -> Json {
 }
 
 pub fn schedule_decoder() -> Decoder(Schedule) {
+  use <- decode.recursive
   use comment <- decode.optional_field(
     "comment",
     None,
@@ -105749,6 +106317,7 @@ pub fn searchparameter_component_to_json(
 }
 
 pub fn searchparameter_component_decoder() -> Decoder(SearchparameterComponent) {
+  use <- decode.recursive
   use expression <- decode.field("expression", decode.string)
   use definition <- decode.field("definition", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -105961,11 +106530,12 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Searchparameter")), ..fields]
+  let fields = [#("resourceType", json.string("SearchParameter")), ..fields]
   json.object(fields)
 }
 
 pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
+  use <- decode.recursive
   use component <- decode.optional_field(
     "component",
     [],
@@ -106107,7 +106677,7 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Searchparameter",
+    rt != "SearchParameter",
     decode.failure(
       searchparameter_new(type_:, code:, description:, status:, name:, url:),
       "resourceType",
@@ -106468,7 +107038,7 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
         "asNeeded"
           <> case v {
           ServicerequestAsneededBoolean(_) -> "Boolean"
-          ServicerequestAsneededCodeableconcept(_) -> "Codeableconcept"
+          ServicerequestAsneededCodeableconcept(_) -> "CodeableConcept"
         },
         servicerequest_asneeded_to_json(v),
       ),
@@ -106481,7 +107051,7 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
       #(
         "occurrence"
           <> case v {
-          ServicerequestOccurrenceDatetime(_) -> "Datetime"
+          ServicerequestOccurrenceDatetime(_) -> "DateTime"
           ServicerequestOccurrencePeriod(_) -> "Period"
           ServicerequestOccurrenceTiming(_) -> "Timing"
         },
@@ -106607,11 +107177,12 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Servicerequest")), ..fields]
+  let fields = [#("resourceType", json.string("ServiceRequest")), ..fields]
   json.object(fields)
 }
 
 pub fn servicerequest_decoder() -> Decoder(Servicerequest) {
+  use <- decode.recursive
   use relevant_history <- decode.optional_field(
     "relevantHistory",
     [],
@@ -106798,7 +107369,7 @@ pub fn servicerequest_decoder() -> Decoder(Servicerequest) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Servicerequest",
+    rt != "ServiceRequest",
     decode.failure(
       servicerequest_new(subject:, intent:, status:),
       "resourceType",
@@ -107011,6 +107582,7 @@ pub fn slot_to_json(slot: Slot) -> Json {
 }
 
 pub fn slot_decoder() -> Decoder(Slot) {
+  use <- decode.recursive
   use comment <- decode.optional_field(
     "comment",
     None,
@@ -107390,7 +107962,7 @@ pub fn specimen_container_to_json(specimen_container: SpecimenContainer) -> Json
       #(
         "additive"
           <> case v {
-          SpecimenContainerAdditiveCodeableconcept(_) -> "Codeableconcept"
+          SpecimenContainerAdditiveCodeableconcept(_) -> "CodeableConcept"
           SpecimenContainerAdditiveReference(_) -> "Reference"
         },
         specimen_container_additive_to_json(v),
@@ -107438,6 +108010,7 @@ pub fn specimen_container_to_json(specimen_container: SpecimenContainer) -> Json
 }
 
 pub fn specimen_container_decoder() -> Decoder(SpecimenContainer) {
+  use <- decode.recursive
   use additive <- decode.then(
     none_if_omitted(specimen_container_additive_decoder()),
   )
@@ -107508,7 +108081,7 @@ pub fn specimen_processing_to_json(
       #(
         "time"
           <> case v {
-          SpecimenProcessingTimeDatetime(_) -> "Datetime"
+          SpecimenProcessingTimeDatetime(_) -> "DateTime"
           SpecimenProcessingTimePeriod(_) -> "Period"
         },
         specimen_processing_time_to_json(v),
@@ -107548,6 +108121,7 @@ pub fn specimen_processing_to_json(
 }
 
 pub fn specimen_processing_decoder() -> Decoder(SpecimenProcessing) {
+  use <- decode.recursive
   use time <- decode.then(none_if_omitted(specimen_processing_time_decoder()))
   use additive <- decode.optional_field(
     "additive",
@@ -107607,7 +108181,7 @@ pub fn specimen_collection_to_json(
       #(
         "fastingStatus"
           <> case v {
-          SpecimenCollectionFastingstatusCodeableconcept(_) -> "Codeableconcept"
+          SpecimenCollectionFastingstatusCodeableconcept(_) -> "CodeableConcept"
           SpecimenCollectionFastingstatusDuration(_) -> "Duration"
         },
         specimen_collection_fastingstatus_to_json(v),
@@ -107637,7 +108211,7 @@ pub fn specimen_collection_to_json(
       #(
         "collected"
           <> case v {
-          SpecimenCollectionCollectedDatetime(_) -> "Datetime"
+          SpecimenCollectionCollectedDatetime(_) -> "DateTime"
           SpecimenCollectionCollectedPeriod(_) -> "Period"
         },
         specimen_collection_collected_to_json(v),
@@ -107669,6 +108243,7 @@ pub fn specimen_collection_to_json(
 }
 
 pub fn specimen_collection_decoder() -> Decoder(SpecimenCollection) {
+  use <- decode.recursive
   use fasting_status <- decode.then(
     none_if_omitted(specimen_collection_fastingstatus_decoder()),
   )
@@ -107851,6 +108426,7 @@ pub fn specimen_to_json(specimen: Specimen) -> Json {
 }
 
 pub fn specimen_decoder() -> Decoder(Specimen) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -108262,6 +108838,7 @@ pub fn specimendefinition_typetested_handling_to_json(
 pub fn specimendefinition_typetested_handling_decoder() -> Decoder(
   SpecimendefinitionTypetestedHandling,
 ) {
+  use <- decode.recursive
   use instruction <- decode.optional_field(
     "instruction",
     None,
@@ -108342,6 +108919,7 @@ pub fn specimendefinition_typetested_container_additive_to_json(
 pub fn specimendefinition_typetested_container_additive_decoder() -> Decoder(
   SpecimendefinitionTypetestedContainerAdditive,
 ) {
+  use <- decode.recursive
   use additive <- decode.then(
     specimendefinition_typetested_container_additive_additive_decoder(),
   )
@@ -108455,6 +109033,7 @@ pub fn specimendefinition_typetested_container_to_json(
 pub fn specimendefinition_typetested_container_decoder() -> Decoder(
   SpecimendefinitionTypetestedContainer,
 ) {
+  use <- decode.recursive
   use preparation <- decode.optional_field(
     "preparation",
     None,
@@ -108607,6 +109186,7 @@ pub fn specimendefinition_typetested_to_json(
 pub fn specimendefinition_typetested_decoder() -> Decoder(
   SpecimendefinitionTypetested,
 ) {
+  use <- decode.recursive
   use handling <- decode.optional_field(
     "handling",
     [],
@@ -108766,11 +109346,12 @@ pub fn specimendefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Specimendefinition")), ..fields]
+  let fields = [#("resourceType", json.string("SpecimenDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn specimendefinition_decoder() -> Decoder(Specimendefinition) {
+  use <- decode.recursive
   use type_tested <- decode.optional_field(
     "typeTested",
     [],
@@ -108840,7 +109421,7 @@ pub fn specimendefinition_decoder() -> Decoder(Specimendefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Specimendefinition",
+    rt != "SpecimenDefinition",
     decode.failure(specimendefinition_new(), "resourceType"),
   )
   decode.success(Specimendefinition(
@@ -109076,6 +109657,7 @@ pub fn structuredefinition_differential_to_json(
 pub fn structuredefinition_differential_decoder() -> Decoder(
   StructuredefinitionDifferential,
 ) {
+  use <- decode.recursive
   use element <- decode.optional_field(
     "element",
     [],
@@ -109138,6 +109720,7 @@ pub fn structuredefinition_snapshot_to_json(
 pub fn structuredefinition_snapshot_decoder() -> Decoder(
   StructuredefinitionSnapshot,
 ) {
+  use <- decode.recursive
   use element <- decode.optional_field(
     "element",
     [],
@@ -109197,6 +109780,7 @@ pub fn structuredefinition_context_to_json(
 pub fn structuredefinition_context_decoder() -> Decoder(
   StructuredefinitionContext,
 ) {
+  use <- decode.recursive
   use expression <- decode.field("expression", decode.string)
   use type_ <- decode.field("type", r4bvaluesets.extensioncontexttype_decoder())
   use modifier_extension <- decode.optional_field(
@@ -109267,6 +109851,7 @@ pub fn structuredefinition_mapping_to_json(
 pub fn structuredefinition_mapping_decoder() -> Decoder(
   StructuredefinitionMapping,
 ) {
+  use <- decode.recursive
   use comment <- decode.optional_field(
     "comment",
     None,
@@ -109492,11 +110077,12 @@ pub fn structuredefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Structuredefinition")), ..fields]
+  let fields = [#("resourceType", json.string("StructureDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
+  use <- decode.recursive
   use differential <- decode.optional_field(
     "differential",
     None,
@@ -109650,7 +110236,7 @@ pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Structuredefinition",
+    rt != "StructureDefinition",
     decode.failure(
       structuredefinition_new(type_:, abstract:, kind:, status:, name:, url:),
       "resourceType",
@@ -110057,7 +110643,7 @@ pub fn structuremap_group_rule_source_defaultvalue_decoder() -> Decoder(
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueDate),
       decode.field("defaultValueDateTime", decode.string, decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueDatetime),
-      decode.field("defaultValueDecimal", decode.float, decode.success)
+      decode.field("defaultValueDecimal", decode_number(), decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueDecimal),
       decode.field("defaultValueId", decode.string, decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueId),
@@ -110305,7 +110891,7 @@ pub fn structuremap_group_rule_target_parameter_value_decoder() -> Decoder(
         |> decode.map(StructuremapGroupRuleTargetParameterValueBoolean),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(StructuremapGroupRuleTargetParameterValueInteger),
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(StructuremapGroupRuleTargetParameterValueDecimal),
     ],
   )
@@ -110383,6 +110969,7 @@ pub fn structuremap_group_rule_dependent_to_json(
 pub fn structuremap_group_rule_dependent_decoder() -> Decoder(
   StructuremapGroupRuleDependent,
 ) {
+  use <- decode.recursive
   use variable <- decode.optional_field(
     "variable",
     [],
@@ -110442,6 +111029,7 @@ pub fn structuremap_group_rule_target_parameter_to_json(
 pub fn structuremap_group_rule_target_parameter_decoder() -> Decoder(
   StructuremapGroupRuleTargetParameter,
 ) {
+  use <- decode.recursive
   use value <- decode.then(
     structuremap_group_rule_target_parameter_value_decoder(),
   )
@@ -110549,6 +111137,7 @@ pub fn structuremap_group_rule_target_to_json(
 pub fn structuremap_group_rule_target_decoder() -> Decoder(
   StructuremapGroupRuleTarget,
 ) {
+  use <- decode.recursive
   use parameter <- decode.optional_field(
     "parameter",
     [],
@@ -110670,22 +111259,22 @@ pub fn structuremap_group_rule_source_to_json(
         "defaultValue"
           <> case v {
           StructuremapGroupRuleSourceDefaultvalueBase64binary(_) ->
-            "Base64binary"
+            "Base64Binary"
           StructuremapGroupRuleSourceDefaultvalueBoolean(_) -> "Boolean"
           StructuremapGroupRuleSourceDefaultvalueCanonical(_) -> "Canonical"
           StructuremapGroupRuleSourceDefaultvalueCode(_) -> "Code"
           StructuremapGroupRuleSourceDefaultvalueDate(_) -> "Date"
-          StructuremapGroupRuleSourceDefaultvalueDatetime(_) -> "Datetime"
+          StructuremapGroupRuleSourceDefaultvalueDatetime(_) -> "DateTime"
           StructuremapGroupRuleSourceDefaultvalueDecimal(_) -> "Decimal"
           StructuremapGroupRuleSourceDefaultvalueId(_) -> "Id"
           StructuremapGroupRuleSourceDefaultvalueInstant(_) -> "Instant"
           StructuremapGroupRuleSourceDefaultvalueInteger(_) -> "Integer"
           StructuremapGroupRuleSourceDefaultvalueMarkdown(_) -> "Markdown"
           StructuremapGroupRuleSourceDefaultvalueOid(_) -> "Oid"
-          StructuremapGroupRuleSourceDefaultvaluePositiveint(_) -> "Positiveint"
+          StructuremapGroupRuleSourceDefaultvaluePositiveint(_) -> "PositiveInt"
           StructuremapGroupRuleSourceDefaultvalueString(_) -> "String"
           StructuremapGroupRuleSourceDefaultvalueTime(_) -> "Time"
-          StructuremapGroupRuleSourceDefaultvalueUnsignedint(_) -> "Unsignedint"
+          StructuremapGroupRuleSourceDefaultvalueUnsignedint(_) -> "UnsignedInt"
           StructuremapGroupRuleSourceDefaultvalueUri(_) -> "Uri"
           StructuremapGroupRuleSourceDefaultvalueUrl(_) -> "Url"
           StructuremapGroupRuleSourceDefaultvalueUuid(_) -> "Uuid"
@@ -110694,14 +111283,14 @@ pub fn structuremap_group_rule_source_to_json(
           StructuremapGroupRuleSourceDefaultvalueAnnotation(_) -> "Annotation"
           StructuremapGroupRuleSourceDefaultvalueAttachment(_) -> "Attachment"
           StructuremapGroupRuleSourceDefaultvalueCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           StructuremapGroupRuleSourceDefaultvalueCoding(_) -> "Coding"
           StructuremapGroupRuleSourceDefaultvalueContactpoint(_) ->
-            "Contactpoint"
+            "ContactPoint"
           StructuremapGroupRuleSourceDefaultvalueCount(_) -> "Count"
           StructuremapGroupRuleSourceDefaultvalueDistance(_) -> "Distance"
           StructuremapGroupRuleSourceDefaultvalueDuration(_) -> "Duration"
-          StructuremapGroupRuleSourceDefaultvalueHumanname(_) -> "Humanname"
+          StructuremapGroupRuleSourceDefaultvalueHumanname(_) -> "HumanName"
           StructuremapGroupRuleSourceDefaultvalueIdentifier(_) -> "Identifier"
           StructuremapGroupRuleSourceDefaultvalueMoney(_) -> "Money"
           StructuremapGroupRuleSourceDefaultvaluePeriod(_) -> "Period"
@@ -110709,23 +111298,23 @@ pub fn structuremap_group_rule_source_to_json(
           StructuremapGroupRuleSourceDefaultvalueRange(_) -> "Range"
           StructuremapGroupRuleSourceDefaultvalueRatio(_) -> "Ratio"
           StructuremapGroupRuleSourceDefaultvalueReference(_) -> "Reference"
-          StructuremapGroupRuleSourceDefaultvalueSampleddata(_) -> "Sampleddata"
+          StructuremapGroupRuleSourceDefaultvalueSampleddata(_) -> "SampledData"
           StructuremapGroupRuleSourceDefaultvalueSignature(_) -> "Signature"
           StructuremapGroupRuleSourceDefaultvalueTiming(_) -> "Timing"
           StructuremapGroupRuleSourceDefaultvalueContactdetail(_) ->
-            "Contactdetail"
+            "ContactDetail"
           StructuremapGroupRuleSourceDefaultvalueContributor(_) -> "Contributor"
           StructuremapGroupRuleSourceDefaultvalueDatarequirement(_) ->
-            "Datarequirement"
+            "DataRequirement"
           StructuremapGroupRuleSourceDefaultvalueExpression(_) -> "Expression"
           StructuremapGroupRuleSourceDefaultvalueParameterdefinition(_) ->
-            "Parameterdefinition"
+            "ParameterDefinition"
           StructuremapGroupRuleSourceDefaultvalueRelatedartifact(_) ->
-            "Relatedartifact"
+            "RelatedArtifact"
           StructuremapGroupRuleSourceDefaultvalueTriggerdefinition(_) ->
-            "Triggerdefinition"
+            "TriggerDefinition"
           StructuremapGroupRuleSourceDefaultvalueUsagecontext(_) ->
-            "Usagecontext"
+            "UsageContext"
           StructuremapGroupRuleSourceDefaultvalueDosage(_) -> "Dosage"
           StructuremapGroupRuleSourceDefaultvalueMeta(_) -> "Meta"
         },
@@ -110768,6 +111357,7 @@ pub fn structuremap_group_rule_source_to_json(
 pub fn structuremap_group_rule_source_decoder() -> Decoder(
   StructuremapGroupRuleSource,
 ) {
+  use <- decode.recursive
   use log_message <- decode.optional_field(
     "logMessage",
     None,
@@ -110909,6 +111499,7 @@ pub fn structuremap_group_rule_to_json(
 }
 
 pub fn structuremap_group_rule_decoder() -> Decoder(StructuremapGroupRule) {
+  use <- decode.recursive
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -111002,6 +111593,7 @@ pub fn structuremap_group_input_to_json(
 }
 
 pub fn structuremap_group_input_decoder() -> Decoder(StructuremapGroupInput) {
+  use <- decode.recursive
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -111093,6 +111685,7 @@ pub fn structuremap_group_to_json(structuremap_group: StructuremapGroup) -> Json
 }
 
 pub fn structuremap_group_decoder() -> Decoder(StructuremapGroup) {
+  use <- decode.recursive
   use rule <- decode.optional_field(
     "rule",
     [],
@@ -111185,6 +111778,7 @@ pub fn structuremap_structure_to_json(
 }
 
 pub fn structuremap_structure_decoder() -> Decoder(StructuremapStructure) {
+  use <- decode.recursive
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -111357,11 +111951,12 @@ pub fn structuremap_to_json(structuremap: Structuremap) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Structuremap")), ..fields]
+  let fields = [#("resourceType", json.string("StructureMap")), ..fields]
   json.object(fields)
 }
 
 pub fn structuremap_decoder() -> Decoder(Structuremap) {
+  use <- decode.recursive
   use group <- decode.optional_field(
     "group",
     [],
@@ -111475,7 +112070,7 @@ pub fn structuremap_decoder() -> Decoder(Structuremap) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Structuremap",
+    rt != "StructureMap",
     decode.failure(structuremap_new(status:, name:, url:), "resourceType"),
   )
   decode.success(Structuremap(
@@ -111627,6 +112222,7 @@ pub fn subscription_channel_to_json(
 }
 
 pub fn subscription_channel_decoder() -> Decoder(SubscriptionChannel) {
+  use <- decode.recursive
   use header <- decode.optional_field("header", [], decode.list(decode.string))
   use payload <- decode.optional_field(
     "payload",
@@ -111740,6 +112336,7 @@ pub fn subscription_to_json(subscription: Subscription) -> Json {
 }
 
 pub fn subscription_decoder() -> Decoder(Subscription) {
+  use <- decode.recursive
   use channel <- decode.field("channel", subscription_channel_decoder())
   use error <- decode.optional_field(
     "error",
@@ -111944,6 +112541,7 @@ pub fn subscriptionstatus_notificationevent_to_json(
 pub fn subscriptionstatus_notificationevent_decoder() -> Decoder(
   SubscriptionstatusNotificationevent,
 ) {
+  use <- decode.recursive
   use additional_context <- decode.optional_field(
     "additionalContext",
     [],
@@ -112073,11 +112671,12 @@ pub fn subscriptionstatus_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Subscriptionstatus")), ..fields]
+  let fields = [#("resourceType", json.string("SubscriptionStatus")), ..fields]
   json.object(fields)
 }
 
 pub fn subscriptionstatus_decoder() -> Decoder(Subscriptionstatus) {
+  use <- decode.recursive
   use error <- decode.optional_field(
     "error",
     [],
@@ -112147,7 +112746,7 @@ pub fn subscriptionstatus_decoder() -> Decoder(Subscriptionstatus) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Subscriptionstatus",
+    rt != "SubscriptionStatus",
     decode.failure(
       subscriptionstatus_new(subscription:, type_:),
       "resourceType",
@@ -112425,6 +113024,7 @@ pub fn subscriptiontopic_notificationshape_to_json(
 pub fn subscriptiontopic_notificationshape_decoder() -> Decoder(
   SubscriptiontopicNotificationshape,
 ) {
+  use <- decode.recursive
   use rev_include <- decode.optional_field(
     "revInclude",
     [],
@@ -112516,6 +113116,7 @@ pub fn subscriptiontopic_canfilterby_to_json(
 pub fn subscriptiontopic_canfilterby_decoder() -> Decoder(
   SubscriptiontopicCanfilterby,
 ) {
+  use <- decode.recursive
   use modifier <- decode.optional_field(
     "modifier",
     [],
@@ -112600,6 +113201,7 @@ pub fn subscriptiontopic_eventtrigger_to_json(
 pub fn subscriptiontopic_eventtrigger_decoder() -> Decoder(
   SubscriptiontopicEventtrigger,
 ) {
+  use <- decode.recursive
   use resource <- decode.field("resource", decode.string)
   use event <- decode.field("event", codeableconcept_decoder())
   use description <- decode.optional_field(
@@ -112689,6 +113291,7 @@ pub fn subscriptiontopic_resourcetrigger_querycriteria_to_json(
 pub fn subscriptiontopic_resourcetrigger_querycriteria_decoder() -> Decoder(
   SubscriptiontopicResourcetriggerQuerycriteria,
 ) {
+  use <- decode.recursive
   use require_both <- decode.optional_field(
     "requireBoth",
     None,
@@ -112805,6 +113408,7 @@ pub fn subscriptiontopic_resourcetrigger_to_json(
 pub fn subscriptiontopic_resourcetrigger_decoder() -> Decoder(
   SubscriptiontopicResourcetrigger,
 ) {
+  use <- decode.recursive
   use fhir_path_criteria <- decode.optional_field(
     "fhirPathCriteria",
     None,
@@ -113034,11 +113638,12 @@ pub fn subscriptiontopic_to_json(subscriptiontopic: Subscriptiontopic) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Subscriptiontopic")), ..fields]
+  let fields = [#("resourceType", json.string("SubscriptionTopic")), ..fields]
   json.object(fields)
 }
 
 pub fn subscriptiontopic_decoder() -> Decoder(Subscriptiontopic) {
+  use <- decode.recursive
   use notification_shape <- decode.optional_field(
     "notificationShape",
     [],
@@ -113180,7 +113785,7 @@ pub fn subscriptiontopic_decoder() -> Decoder(Subscriptiontopic) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Subscriptiontopic",
+    rt != "SubscriptionTopic",
     decode.failure(subscriptiontopic_new(status:, url:), "resourceType"),
   )
   decode.success(Subscriptiontopic(
@@ -113372,6 +113977,7 @@ pub fn substance_ingredient_to_json(
 }
 
 pub fn substance_ingredient_decoder() -> Decoder(SubstanceIngredient) {
+  use <- decode.recursive
   use substance <- decode.then(substance_ingredient_substance_decoder())
   use quantity <- decode.optional_field(
     "quantity",
@@ -113439,6 +114045,7 @@ pub fn substance_instance_to_json(substance_instance: SubstanceInstance) -> Json
 }
 
 pub fn substance_instance_decoder() -> Decoder(SubstanceInstance) {
+  use <- decode.recursive
   use quantity <- decode.optional_field(
     "quantity",
     None,
@@ -113569,6 +114176,7 @@ pub fn substance_to_json(substance: Substance) -> Json {
 }
 
 pub fn substance_decoder() -> Decoder(Substance) {
+  use <- decode.recursive
   use ingredient <- decode.optional_field(
     "ingredient",
     [],
@@ -114228,6 +114836,7 @@ pub fn substancedefinition_sourcematerial_to_json(
 pub fn substancedefinition_sourcematerial_decoder() -> Decoder(
   SubstancedefinitionSourcematerial,
 ) {
+  use <- decode.recursive
   use country_of_origin <- decode.optional_field(
     "countryOfOrigin",
     [],
@@ -114333,7 +114942,7 @@ pub fn substancedefinition_relationship_to_json(
           SubstancedefinitionRelationshipSubstancedefinitionReference(_) ->
             "Reference"
           SubstancedefinitionRelationshipSubstancedefinitionCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
         },
         substancedefinition_relationship_substancedefinition_to_json(v),
       ),
@@ -114362,6 +114971,7 @@ pub fn substancedefinition_relationship_to_json(
 pub fn substancedefinition_relationship_decoder() -> Decoder(
   SubstancedefinitionRelationship,
 ) {
+  use <- decode.recursive
   use source <- decode.optional_field(
     "source",
     [],
@@ -114461,6 +115071,7 @@ pub fn substancedefinition_name_official_to_json(
 pub fn substancedefinition_name_official_decoder() -> Decoder(
   SubstancedefinitionNameOfficial,
 ) {
+  use <- decode.recursive
   use date <- decode.optional_field(
     "date",
     None,
@@ -114599,6 +115210,7 @@ pub fn substancedefinition_name_to_json(
 }
 
 pub fn substancedefinition_name_decoder() -> Decoder(SubstancedefinitionName) {
+  use <- decode.recursive
   use source <- decode.optional_field(
     "source",
     [],
@@ -114732,6 +115344,7 @@ pub fn substancedefinition_code_to_json(
 }
 
 pub fn substancedefinition_code_decoder() -> Decoder(SubstancedefinitionCode) {
+  use <- decode.recursive
   use source <- decode.optional_field(
     "source",
     [],
@@ -114830,6 +115443,7 @@ pub fn substancedefinition_structure_representation_to_json(
 pub fn substancedefinition_structure_representation_decoder() -> Decoder(
   SubstancedefinitionStructureRepresentation,
 ) {
+  use <- decode.recursive
   use document <- decode.optional_field(
     "document",
     None,
@@ -114960,6 +115574,7 @@ pub fn substancedefinition_structure_to_json(
 pub fn substancedefinition_structure_decoder() -> Decoder(
   SubstancedefinitionStructure,
 ) {
+  use <- decode.recursive
   use representation <- decode.optional_field(
     "representation",
     [],
@@ -115069,6 +115684,7 @@ pub fn substancedefinition_molecularweight_to_json(
 pub fn substancedefinition_molecularweight_decoder() -> Decoder(
   SubstancedefinitionMolecularweight,
 ) {
+  use <- decode.recursive
   use amount <- decode.field("amount", quantity_decoder())
   use type_ <- decode.optional_field(
     "type",
@@ -115120,7 +115736,7 @@ pub fn substancedefinition_property_to_json(
         "value"
           <> case v {
           SubstancedefinitionPropertyValueCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           SubstancedefinitionPropertyValueQuantity(_) -> "Quantity"
           SubstancedefinitionPropertyValueDate(_) -> "Date"
           SubstancedefinitionPropertyValueBoolean(_) -> "Boolean"
@@ -115153,6 +115769,7 @@ pub fn substancedefinition_property_to_json(
 pub fn substancedefinition_property_decoder() -> Decoder(
   SubstancedefinitionProperty,
 ) {
+  use <- decode.recursive
   use value <- decode.then(
     none_if_omitted(substancedefinition_property_value_decoder()),
   )
@@ -115257,6 +115874,7 @@ pub fn substancedefinition_moiety_to_json(
 pub fn substancedefinition_moiety_decoder() -> Decoder(
   SubstancedefinitionMoiety,
 ) {
+  use <- decode.recursive
   use measurement_type <- decode.optional_field(
     "measurementType",
     None,
@@ -115507,11 +116125,12 @@ pub fn substancedefinition_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Substancedefinition")), ..fields]
+  let fields = [#("resourceType", json.string("SubstanceDefinition")), ..fields]
   json.object(fields)
 }
 
 pub fn substancedefinition_decoder() -> Decoder(Substancedefinition) {
+  use <- decode.recursive
   use source_material <- decode.optional_field(
     "sourceMaterial",
     None,
@@ -115646,7 +116265,7 @@ pub fn substancedefinition_decoder() -> Decoder(Substancedefinition) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Substancedefinition",
+    rt != "SubstanceDefinition",
     decode.failure(substancedefinition_new(), "resourceType"),
   )
   decode.success(Substancedefinition(
@@ -115827,7 +116446,7 @@ pub fn supplydelivery_supplieditem_to_json(
       #(
         "item"
           <> case v {
-          SupplydeliverySupplieditemItemCodeableconcept(_) -> "Codeableconcept"
+          SupplydeliverySupplieditemItemCodeableconcept(_) -> "CodeableConcept"
           SupplydeliverySupplieditemItemReference(_) -> "Reference"
         },
         supplydelivery_supplieditem_item_to_json(v),
@@ -115861,6 +116480,7 @@ pub fn supplydelivery_supplieditem_to_json(
 pub fn supplydelivery_supplieditem_decoder() -> Decoder(
   SupplydeliverySupplieditem,
 ) {
+  use <- decode.recursive
   use item <- decode.then(
     none_if_omitted(supplydelivery_supplieditem_item_decoder()),
   )
@@ -115929,7 +116549,7 @@ pub fn supplydelivery_to_json(supplydelivery: Supplydelivery) -> Json {
       #(
         "occurrence"
           <> case v {
-          SupplydeliveryOccurrenceDatetime(_) -> "Datetime"
+          SupplydeliveryOccurrenceDatetime(_) -> "DateTime"
           SupplydeliveryOccurrencePeriod(_) -> "Period"
           SupplydeliveryOccurrenceTiming(_) -> "Timing"
         },
@@ -116008,11 +116628,12 @@ pub fn supplydelivery_to_json(supplydelivery: Supplydelivery) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Supplydelivery")), ..fields]
+  let fields = [#("resourceType", json.string("SupplyDelivery")), ..fields]
   json.object(fields)
 }
 
 pub fn supplydelivery_decoder() -> Decoder(Supplydelivery) {
+  use <- decode.recursive
   use receiver <- decode.optional_field(
     "receiver",
     [],
@@ -116105,7 +116726,7 @@ pub fn supplydelivery_decoder() -> Decoder(Supplydelivery) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Supplydelivery",
+    rt != "SupplyDelivery",
     decode.failure(supplydelivery_new(), "resourceType"),
   )
   decode.success(Supplydelivery(
@@ -116324,7 +116945,7 @@ pub fn supplyrequest_parameter_to_json(
       #(
         "value"
           <> case v {
-          SupplyrequestParameterValueCodeableconcept(_) -> "Codeableconcept"
+          SupplyrequestParameterValueCodeableconcept(_) -> "CodeableConcept"
           SupplyrequestParameterValueQuantity(_) -> "Quantity"
           SupplyrequestParameterValueRange(_) -> "Range"
           SupplyrequestParameterValueBoolean(_) -> "Boolean"
@@ -116358,6 +116979,7 @@ pub fn supplyrequest_parameter_to_json(
 }
 
 pub fn supplyrequest_parameter_decoder() -> Decoder(SupplyrequestParameter) {
+  use <- decode.recursive
   use value <- decode.then(
     none_if_omitted(supplyrequest_parameter_value_decoder()),
   )
@@ -116455,7 +117077,7 @@ pub fn supplyrequest_to_json(supplyrequest: Supplyrequest) -> Json {
       #(
         "occurrence"
           <> case v {
-          SupplyrequestOccurrenceDatetime(_) -> "Datetime"
+          SupplyrequestOccurrenceDatetime(_) -> "DateTime"
           SupplyrequestOccurrencePeriod(_) -> "Period"
           SupplyrequestOccurrenceTiming(_) -> "Timing"
         },
@@ -116529,11 +117151,12 @@ pub fn supplyrequest_to_json(supplyrequest: Supplyrequest) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Supplyrequest")), ..fields]
+  let fields = [#("resourceType", json.string("SupplyRequest")), ..fields]
   json.object(fields)
 }
 
 pub fn supplyrequest_decoder() -> Decoder(Supplyrequest) {
+  use <- decode.recursive
   use deliver_to <- decode.optional_field(
     "deliverTo",
     None,
@@ -116638,7 +117261,7 @@ pub fn supplyrequest_decoder() -> Decoder(Supplyrequest) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Supplyrequest",
+    rt != "SupplyRequest",
     decode.failure(supplyrequest_new(quantity:, item:), "resourceType"),
   )
   decode.success(Supplyrequest(
@@ -116918,7 +117541,7 @@ pub fn task_input_value_decoder() -> Decoder(TaskInputValue) {
         |> decode.map(TaskInputValueDate),
       decode.field("valueDateTime", decode.string, decode.success)
         |> decode.map(TaskInputValueDatetime),
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(TaskInputValueDecimal),
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(TaskInputValueId),
@@ -117176,7 +117799,7 @@ pub fn task_output_value_decoder() -> Decoder(TaskOutputValue) {
         |> decode.map(TaskOutputValueDate),
       decode.field("valueDateTime", decode.string, decode.success)
         |> decode.map(TaskOutputValueDatetime),
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(TaskOutputValueDecimal),
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(TaskOutputValueId),
@@ -117325,6 +117948,7 @@ pub fn task_output_to_json(task_output: TaskOutput) -> Json {
 }
 
 pub fn task_output_decoder() -> Decoder(TaskOutput) {
+  use <- decode.recursive
   use value <- decode.then(task_output_value_decoder())
   use type_ <- decode.field("type", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
@@ -117373,6 +117997,7 @@ pub fn task_input_to_json(task_input: TaskInput) -> Json {
 }
 
 pub fn task_input_decoder() -> Decoder(TaskInput) {
+  use <- decode.recursive
   use value <- decode.then(task_input_value_decoder())
   use type_ <- decode.field("type", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
@@ -117430,6 +118055,7 @@ pub fn task_restriction_to_json(task_restriction: TaskRestriction) -> Json {
 }
 
 pub fn task_restriction_decoder() -> Decoder(TaskRestriction) {
+  use <- decode.recursive
   use recipient <- decode.optional_field(
     "recipient",
     [],
@@ -117677,6 +118303,7 @@ pub fn task_to_json(task: Task) -> Json {
 }
 
 pub fn task_decoder() -> Decoder(Task) {
+  use <- decode.recursive
   use output <- decode.optional_field(
     "output",
     [],
@@ -118255,6 +118882,7 @@ pub fn terminologycapabilities_closure_to_json(
 pub fn terminologycapabilities_closure_decoder() -> Decoder(
   TerminologycapabilitiesClosure,
 ) {
+  use <- decode.recursive
   use translation <- decode.optional_field(
     "translation",
     None,
@@ -118312,6 +118940,7 @@ pub fn terminologycapabilities_translation_to_json(
 pub fn terminologycapabilities_translation_decoder() -> Decoder(
   TerminologycapabilitiesTranslation,
 ) {
+  use <- decode.recursive
   use needs_map <- decode.field("needsMap", decode.bool)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -118365,6 +118994,7 @@ pub fn terminologycapabilities_validatecode_to_json(
 pub fn terminologycapabilities_validatecode_decoder() -> Decoder(
   TerminologycapabilitiesValidatecode,
 ) {
+  use <- decode.recursive
   use translations <- decode.field("translations", decode.bool)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -118423,6 +119053,7 @@ pub fn terminologycapabilities_expansion_parameter_to_json(
 pub fn terminologycapabilities_expansion_parameter_decoder() -> Decoder(
   TerminologycapabilitiesExpansionParameter,
 ) {
+  use <- decode.recursive
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -118513,6 +119144,7 @@ pub fn terminologycapabilities_expansion_to_json(
 pub fn terminologycapabilities_expansion_decoder() -> Decoder(
   TerminologycapabilitiesExpansion,
 ) {
+  use <- decode.recursive
   use text_filter <- decode.optional_field(
     "textFilter",
     None,
@@ -118599,6 +119231,7 @@ pub fn terminologycapabilities_codesystem_version_filter_to_json(
 pub fn terminologycapabilities_codesystem_version_filter_decoder() -> Decoder(
   TerminologycapabilitiesCodesystemVersionFilter,
 ) {
+  use <- decode.recursive
   use op <- decode.optional_field("op", [], decode.list(decode.string))
   use code <- decode.field("code", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -118690,6 +119323,7 @@ pub fn terminologycapabilities_codesystem_version_to_json(
 pub fn terminologycapabilities_codesystem_version_decoder() -> Decoder(
   TerminologycapabilitiesCodesystemVersion,
 ) {
+  use <- decode.recursive
   use property <- decode.optional_field(
     "property",
     [],
@@ -118795,6 +119429,7 @@ pub fn terminologycapabilities_codesystem_to_json(
 pub fn terminologycapabilities_codesystem_decoder() -> Decoder(
   TerminologycapabilitiesCodesystem,
 ) {
+  use <- decode.recursive
   use subsumption <- decode.optional_field(
     "subsumption",
     None,
@@ -118865,6 +119500,7 @@ pub fn terminologycapabilities_implementation_to_json(
 pub fn terminologycapabilities_implementation_decoder() -> Decoder(
   TerminologycapabilitiesImplementation,
 ) {
+  use <- decode.recursive
   use url <- decode.optional_field("url", None, decode.optional(decode.string))
   use description <- decode.field("description", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -118925,6 +119561,7 @@ pub fn terminologycapabilities_software_to_json(
 pub fn terminologycapabilities_software_decoder() -> Decoder(
   TerminologycapabilitiesSoftware,
 ) {
+  use <- decode.recursive
   use version <- decode.optional_field(
     "version",
     None,
@@ -119146,13 +119783,14 @@ pub fn terminologycapabilities_to_json(
     None -> fields
   }
   let fields = [
-    #("resourceType", json.string("Terminologycapabilities")),
+    #("resourceType", json.string("TerminologyCapabilities")),
     ..fields
   ]
   json.object(fields)
 }
 
 pub fn terminologycapabilities_decoder() -> Decoder(Terminologycapabilities) {
+  use <- decode.recursive
   use closure <- decode.optional_field(
     "closure",
     None,
@@ -119299,7 +119937,7 @@ pub fn terminologycapabilities_decoder() -> Decoder(Terminologycapabilities) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Terminologycapabilities",
+    rt != "TerminologyCapabilities",
     decode.failure(
       terminologycapabilities_new(kind:, date:, status:),
       "resourceType",
@@ -119618,6 +120256,7 @@ pub fn testreport_teardown_action_to_json(
 }
 
 pub fn testreport_teardown_action_decoder() -> Decoder(TestreportTeardownAction) {
+  use <- decode.recursive
   use operation <- decode.field(
     "operation",
     testreport_setup_action_operation_decoder(),
@@ -119673,6 +120312,7 @@ pub fn testreport_teardown_to_json(
 }
 
 pub fn testreport_teardown_decoder() -> Decoder(TestreportTeardown) {
+  use <- decode.recursive
   use action <- decode.optional_field(
     "action",
     [],
@@ -119741,6 +120381,7 @@ pub fn testreport_test_action_to_json(
 }
 
 pub fn testreport_test_action_decoder() -> Decoder(TestreportTestAction) {
+  use <- decode.recursive
   use assert_ <- decode.optional_field(
     "assert",
     None,
@@ -119815,6 +120456,7 @@ pub fn testreport_test_to_json(testreport_test: TestreportTest) -> Json {
 }
 
 pub fn testreport_test_decoder() -> Decoder(TestreportTest) {
+  use <- decode.recursive
   use action <- decode.optional_field(
     "action",
     [],
@@ -119894,6 +120536,7 @@ pub fn testreport_setup_action_assert_to_json(
 pub fn testreport_setup_action_assert_decoder() -> Decoder(
   TestreportSetupActionAssert,
 ) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     None,
@@ -119972,6 +120615,7 @@ pub fn testreport_setup_action_operation_to_json(
 pub fn testreport_setup_action_operation_decoder() -> Decoder(
   TestreportSetupActionOperation,
 ) {
+  use <- decode.recursive
   use detail <- decode.optional_field(
     "detail",
     None,
@@ -120051,6 +120695,7 @@ pub fn testreport_setup_action_to_json(
 }
 
 pub fn testreport_setup_action_decoder() -> Decoder(TestreportSetupAction) {
+  use <- decode.recursive
   use assert_ <- decode.optional_field(
     "assert",
     None,
@@ -120111,6 +120756,7 @@ pub fn testreport_setup_to_json(testreport_setup: TestreportSetup) -> Json {
 }
 
 pub fn testreport_setup_decoder() -> Decoder(TestreportSetup) {
+  use <- decode.recursive
   use action <- decode.optional_field(
     "action",
     [],
@@ -120168,6 +120814,7 @@ pub fn testreport_participant_to_json(
 }
 
 pub fn testreport_participant_decoder() -> Decoder(TestreportParticipant) {
+  use <- decode.recursive
   use display <- decode.optional_field(
     "display",
     None,
@@ -120301,11 +120948,12 @@ pub fn testreport_to_json(testreport: Testreport) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Testreport")), ..fields]
+  let fields = [#("resourceType", json.string("TestReport")), ..fields]
   json.object(fields)
 }
 
 pub fn testreport_decoder() -> Decoder(Testreport) {
+  use <- decode.recursive
   use teardown <- decode.optional_field(
     "teardown",
     None,
@@ -120339,7 +120987,7 @@ pub fn testreport_decoder() -> Decoder(Testreport) {
   use score <- decode.optional_field(
     "score",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use result <- decode.field("result", r4bvaluesets.reportresultcodes_decoder())
   use test_script <- decode.field("testScript", reference_decoder())
@@ -120393,7 +121041,7 @@ pub fn testreport_decoder() -> Decoder(Testreport) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Testreport",
+    rt != "TestReport",
     decode.failure(
       testreport_new(result:, test_script:, status:),
       "resourceType",
@@ -120972,6 +121620,7 @@ pub fn testscript_teardown_action_to_json(
 }
 
 pub fn testscript_teardown_action_decoder() -> Decoder(TestscriptTeardownAction) {
+  use <- decode.recursive
   use operation <- decode.field(
     "operation",
     testscript_setup_action_operation_decoder(),
@@ -121027,6 +121676,7 @@ pub fn testscript_teardown_to_json(
 }
 
 pub fn testscript_teardown_decoder() -> Decoder(TestscriptTeardown) {
+  use <- decode.recursive
   use action <- decode.optional_field(
     "action",
     [],
@@ -121095,6 +121745,7 @@ pub fn testscript_test_action_to_json(
 }
 
 pub fn testscript_test_action_decoder() -> Decoder(TestscriptTestAction) {
+  use <- decode.recursive
   use assert_ <- decode.optional_field(
     "assert",
     None,
@@ -121169,6 +121820,7 @@ pub fn testscript_test_to_json(testscript_test: TestscriptTest) -> Json {
 }
 
 pub fn testscript_test_decoder() -> Decoder(TestscriptTest) {
+  use <- decode.recursive
   use action <- decode.optional_field(
     "action",
     [],
@@ -121355,6 +122007,7 @@ pub fn testscript_setup_action_assert_to_json(
 pub fn testscript_setup_action_assert_decoder() -> Decoder(
   TestscriptSetupActionAssert,
 ) {
+  use <- decode.recursive
   use warning_only <- decode.field("warningOnly", decode.bool)
   use value <- decode.optional_field(
     "value",
@@ -121536,6 +122189,7 @@ pub fn testscript_setup_action_operation_requestheader_to_json(
 pub fn testscript_setup_action_operation_requestheader_decoder() -> Decoder(
   TestscriptSetupActionOperationRequestheader,
 ) {
+  use <- decode.recursive
   use value <- decode.field("value", decode.string)
   use field <- decode.field("field", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -121680,6 +122334,7 @@ pub fn testscript_setup_action_operation_to_json(
 pub fn testscript_setup_action_operation_decoder() -> Decoder(
   TestscriptSetupActionOperation,
 ) {
+  use <- decode.recursive
   use url <- decode.optional_field("url", None, decode.optional(decode.string))
   use target_id <- decode.optional_field(
     "targetId",
@@ -121836,6 +122491,7 @@ pub fn testscript_setup_action_to_json(
 }
 
 pub fn testscript_setup_action_decoder() -> Decoder(TestscriptSetupAction) {
+  use <- decode.recursive
   use assert_ <- decode.optional_field(
     "assert",
     None,
@@ -121896,6 +122552,7 @@ pub fn testscript_setup_to_json(testscript_setup: TestscriptSetup) -> Json {
 }
 
 pub fn testscript_setup_decoder() -> Decoder(TestscriptSetup) {
+  use <- decode.recursive
   use action <- decode.optional_field(
     "action",
     [],
@@ -121981,6 +122638,7 @@ pub fn testscript_variable_to_json(
 }
 
 pub fn testscript_variable_decoder() -> Decoder(TestscriptVariable) {
+  use <- decode.recursive
   use source_id <- decode.optional_field(
     "sourceId",
     None,
@@ -122079,6 +122737,7 @@ pub fn testscript_fixture_to_json(testscript_fixture: TestscriptFixture) -> Json
 }
 
 pub fn testscript_fixture_decoder() -> Decoder(TestscriptFixture) {
+  use <- decode.recursive
   use resource <- decode.optional_field(
     "resource",
     None,
@@ -122164,6 +122823,7 @@ pub fn testscript_metadata_capability_to_json(
 pub fn testscript_metadata_capability_decoder() -> Decoder(
   TestscriptMetadataCapability,
 ) {
+  use <- decode.recursive
   use capabilities <- decode.field("capabilities", decode.string)
   use link <- decode.optional_field("link", [], decode.list(decode.string))
   use destination <- decode.optional_field(
@@ -122240,6 +122900,7 @@ pub fn testscript_metadata_link_to_json(
 }
 
 pub fn testscript_metadata_link_decoder() -> Decoder(TestscriptMetadataLink) {
+  use <- decode.recursive
   use description <- decode.optional_field(
     "description",
     None,
@@ -122313,6 +122974,7 @@ pub fn testscript_metadata_to_json(
 }
 
 pub fn testscript_metadata_decoder() -> Decoder(TestscriptMetadata) {
+  use <- decode.recursive
   use capability <- decode.optional_field(
     "capability",
     [],
@@ -122376,6 +123038,7 @@ pub fn testscript_destination_to_json(
 }
 
 pub fn testscript_destination_decoder() -> Decoder(TestscriptDestination) {
+  use <- decode.recursive
   use profile <- decode.field("profile", coding_decoder())
   use index <- decode.field("index", decode.int)
   use modifier_extension <- decode.optional_field(
@@ -122424,6 +123087,7 @@ pub fn testscript_origin_to_json(testscript_origin: TestscriptOrigin) -> Json {
 }
 
 pub fn testscript_origin_decoder() -> Decoder(TestscriptOrigin) {
+  use <- decode.recursive
   use profile <- decode.field("profile", coding_decoder())
   use index <- decode.field("index", decode.int)
   use modifier_extension <- decode.optional_field(
@@ -122620,11 +123284,12 @@ pub fn testscript_to_json(testscript: Testscript) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Testscript")), ..fields]
+  let fields = [#("resourceType", json.string("TestScript")), ..fields]
   json.object(fields)
 }
 
 pub fn testscript_decoder() -> Decoder(Testscript) {
+  use <- decode.recursive
   use teardown <- decode.optional_field(
     "teardown",
     None,
@@ -122772,7 +123437,7 @@ pub fn testscript_decoder() -> Decoder(Testscript) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Testscript",
+    rt != "TestScript",
     decode.failure(testscript_new(status:, name:, url:), "resourceType"),
   )
   decode.success(Testscript(
@@ -123079,7 +123744,7 @@ pub fn valueset_expansion_parameter_value_decoder() -> Decoder(
         |> decode.map(ValuesetExpansionParameterValueBoolean),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(ValuesetExpansionParameterValueInteger),
-      decode.field("valueDecimal", decode.float, decode.success)
+      decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(ValuesetExpansionParameterValueDecimal),
       decode.field("valueUri", decode.string, decode.success)
         |> decode.map(ValuesetExpansionParameterValueUri),
@@ -123218,6 +123883,7 @@ pub fn valueset_expansion_contains_to_json(
 pub fn valueset_expansion_contains_decoder() -> Decoder(
   ValuesetExpansionContains,
 ) {
+  use <- decode.recursive
   use contains <- decode.optional_field(
     "contains",
     [],
@@ -123308,7 +123974,7 @@ pub fn valueset_expansion_parameter_to_json(
           ValuesetExpansionParameterValueDecimal(_) -> "Decimal"
           ValuesetExpansionParameterValueUri(_) -> "Uri"
           ValuesetExpansionParameterValueCode(_) -> "Code"
-          ValuesetExpansionParameterValueDatetime(_) -> "Datetime"
+          ValuesetExpansionParameterValueDatetime(_) -> "DateTime"
         },
         valueset_expansion_parameter_value_to_json(v),
       ),
@@ -123337,6 +124003,7 @@ pub fn valueset_expansion_parameter_to_json(
 pub fn valueset_expansion_parameter_decoder() -> Decoder(
   ValuesetExpansionParameter,
 ) {
+  use <- decode.recursive
   use value <- decode.then(
     none_if_omitted(valueset_expansion_parameter_value_decoder()),
   )
@@ -123424,6 +124091,7 @@ pub fn valueset_expansion_to_json(valueset_expansion: ValuesetExpansion) -> Json
 }
 
 pub fn valueset_expansion_decoder() -> Decoder(ValuesetExpansion) {
+  use <- decode.recursive
   use contains <- decode.optional_field(
     "contains",
     [],
@@ -123507,6 +124175,7 @@ pub fn valueset_compose_include_filter_to_json(
 pub fn valueset_compose_include_filter_decoder() -> Decoder(
   ValuesetComposeIncludeFilter,
 ) {
+  use <- decode.recursive
   use value <- decode.field("value", decode.string)
   use op <- decode.field("op", r4bvaluesets.filteroperator_decoder())
   use property <- decode.field("property", decode.string)
@@ -123574,6 +124243,7 @@ pub fn valueset_compose_include_concept_designation_to_json(
 pub fn valueset_compose_include_concept_designation_decoder() -> Decoder(
   ValuesetComposeIncludeConceptDesignation,
 ) {
+  use <- decode.recursive
   use value <- decode.field("value", decode.string)
   use use_ <- decode.optional_field(
     "use",
@@ -123658,6 +124328,7 @@ pub fn valueset_compose_include_concept_to_json(
 pub fn valueset_compose_include_concept_decoder() -> Decoder(
   ValuesetComposeIncludeConcept,
 ) {
+  use <- decode.recursive
   use designation <- decode.optional_field(
     "designation",
     [],
@@ -123752,6 +124423,7 @@ pub fn valueset_compose_include_to_json(
 }
 
 pub fn valueset_compose_include_decoder() -> Decoder(ValuesetComposeInclude) {
+  use <- decode.recursive
   use value_set <- decode.optional_field(
     "valueSet",
     [],
@@ -123852,6 +124524,7 @@ pub fn valueset_compose_to_json(valueset_compose: ValuesetCompose) -> Json {
 }
 
 pub fn valueset_compose_decoder() -> Decoder(ValuesetCompose) {
+  use <- decode.recursive
   use exclude <- decode.optional_field(
     "exclude",
     [],
@@ -124035,11 +124708,12 @@ pub fn valueset_to_json(valueset: Valueset) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Valueset")), ..fields]
+  let fields = [#("resourceType", json.string("ValueSet")), ..fields]
   json.object(fields)
 }
 
 pub fn valueset_decoder() -> Decoder(Valueset) {
+  use <- decode.recursive
   use expansion <- decode.optional_field(
     "expansion",
     None,
@@ -124161,7 +124835,7 @@ pub fn valueset_decoder() -> Decoder(Valueset) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Valueset",
+    rt != "ValueSet",
     decode.failure(valueset_new(status:), "resourceType"),
   )
   decode.success(Valueset(
@@ -124383,6 +125057,7 @@ pub fn verificationresult_validator_to_json(
 pub fn verificationresult_validator_decoder() -> Decoder(
   VerificationresultValidator,
 ) {
+  use <- decode.recursive
   use attestation_signature <- decode.optional_field(
     "attestationSignature",
     None,
@@ -124485,6 +125160,7 @@ pub fn verificationresult_attestation_to_json(
 pub fn verificationresult_attestation_decoder() -> Decoder(
   VerificationresultAttestation,
 ) {
+  use <- decode.recursive
   use source_signature <- decode.optional_field(
     "sourceSignature",
     None,
@@ -124628,6 +125304,7 @@ pub fn verificationresult_primarysource_to_json(
 pub fn verificationresult_primarysource_decoder() -> Decoder(
   VerificationresultPrimarysource,
 ) {
+  use <- decode.recursive
   use push_type_available <- decode.optional_field(
     "pushTypeAvailable",
     [],
@@ -124829,11 +125506,12 @@ pub fn verificationresult_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Verificationresult")), ..fields]
+  let fields = [#("resourceType", json.string("VerificationResult")), ..fields]
   json.object(fields)
 }
 
 pub fn verificationresult_decoder() -> Decoder(Verificationresult) {
+  use <- decode.recursive
   use validator <- decode.optional_field(
     "validator",
     [],
@@ -124942,7 +125620,7 @@ pub fn verificationresult_decoder() -> Decoder(Verificationresult) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Verificationresult",
+    rt != "VerificationResult",
     decode.failure(verificationresult_new(status:), "resourceType"),
   )
   decode.success(Verificationresult(
@@ -125127,8 +125805,9 @@ pub fn visionprescription_lensspecification_prism_to_json(
 pub fn visionprescription_lensspecification_prism_decoder() -> Decoder(
   VisionprescriptionLensspecificationPrism,
 ) {
+  use <- decode.recursive
   use base <- decode.field("base", r4bvaluesets.visionbasecodes_decoder())
-  use amount <- decode.field("amount", decode.float)
+  use amount <- decode.field("amount", decode_number())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -125250,6 +125929,7 @@ pub fn visionprescription_lensspecification_to_json(
 pub fn visionprescription_lensspecification_decoder() -> Decoder(
   VisionprescriptionLensspecification,
 ) {
+  use <- decode.recursive
   use note <- decode.optional_field(
     "note",
     [],
@@ -125273,19 +125953,23 @@ pub fn visionprescription_lensspecification_decoder() -> Decoder(
   use diameter <- decode.optional_field(
     "diameter",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use back_curve <- decode.optional_field(
     "backCurve",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use power <- decode.optional_field(
     "power",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
-  use add <- decode.optional_field("add", None, decode.optional(decode.float))
+  use add <- decode.optional_field(
+    "add",
+    None,
+    decode.optional(decode_number()),
+  )
   use prism <- decode.optional_field(
     "prism",
     [],
@@ -125295,12 +125979,12 @@ pub fn visionprescription_lensspecification_decoder() -> Decoder(
   use cylinder <- decode.optional_field(
     "cylinder",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use sphere <- decode.optional_field(
     "sphere",
     None,
-    decode.optional(decode.float),
+    decode.optional(decode_number()),
   )
   use eye <- decode.field("eye", r4bvaluesets.visioneyecodes_decoder())
   use product <- decode.field("product", codeableconcept_decoder())
@@ -125420,11 +126104,12 @@ pub fn visionprescription_to_json(
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [#("resourceType", json.string("Visionprescription")), ..fields]
+  let fields = [#("resourceType", json.string("VisionPrescription")), ..fields]
   json.object(fields)
 }
 
 pub fn visionprescription_decoder() -> Decoder(Visionprescription) {
+  use <- decode.recursive
   use lens_specification <- decode.optional_field(
     "lensSpecification",
     [],
@@ -125484,7 +126169,7 @@ pub fn visionprescription_decoder() -> Decoder(Visionprescription) {
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
-    rt != "Visionprescription",
+    rt != "VisionPrescription",
     decode.failure(
       visionprescription_new(
         prescriber:,
@@ -125819,248 +126504,248 @@ pub fn resource_decoder() -> Decoder(Resource) {
   use tag <- decode.field("resourceType", decode.string)
   case tag {
     "Account" -> account_decoder() |> decode.map(ResourceAccount)
-    "Activitydefinition" ->
+    "ActivityDefinition" ->
       activitydefinition_decoder() |> decode.map(ResourceActivitydefinition)
-    "Administrableproductdefinition" ->
+    "AdministrableProductDefinition" ->
       administrableproductdefinition_decoder()
       |> decode.map(ResourceAdministrableproductdefinition)
-    "Adverseevent" -> adverseevent_decoder() |> decode.map(ResourceAdverseevent)
-    "Allergyintolerance" ->
+    "AdverseEvent" -> adverseevent_decoder() |> decode.map(ResourceAdverseevent)
+    "AllergyIntolerance" ->
       allergyintolerance_decoder() |> decode.map(ResourceAllergyintolerance)
     "Appointment" -> appointment_decoder() |> decode.map(ResourceAppointment)
-    "Appointmentresponse" ->
+    "AppointmentResponse" ->
       appointmentresponse_decoder() |> decode.map(ResourceAppointmentresponse)
-    "Auditevent" -> auditevent_decoder() |> decode.map(ResourceAuditevent)
+    "AuditEvent" -> auditevent_decoder() |> decode.map(ResourceAuditevent)
     "Basic" -> basic_decoder() |> decode.map(ResourceBasic)
     "Binary" -> binary_decoder() |> decode.map(ResourceBinary)
-    "Biologicallyderivedproduct" ->
+    "BiologicallyDerivedProduct" ->
       biologicallyderivedproduct_decoder()
       |> decode.map(ResourceBiologicallyderivedproduct)
-    "Bodystructure" ->
+    "BodyStructure" ->
       bodystructure_decoder() |> decode.map(ResourceBodystructure)
     "Bundle" -> bundle_decoder() |> decode.map(ResourceBundle)
-    "Capabilitystatement" ->
+    "CapabilityStatement" ->
       capabilitystatement_decoder() |> decode.map(ResourceCapabilitystatement)
-    "Careplan" -> careplan_decoder() |> decode.map(ResourceCareplan)
-    "Careteam" -> careteam_decoder() |> decode.map(ResourceCareteam)
-    "Catalogentry" -> catalogentry_decoder() |> decode.map(ResourceCatalogentry)
-    "Chargeitem" -> chargeitem_decoder() |> decode.map(ResourceChargeitem)
-    "Chargeitemdefinition" ->
+    "CarePlan" -> careplan_decoder() |> decode.map(ResourceCareplan)
+    "CareTeam" -> careteam_decoder() |> decode.map(ResourceCareteam)
+    "CatalogEntry" -> catalogentry_decoder() |> decode.map(ResourceCatalogentry)
+    "ChargeItem" -> chargeitem_decoder() |> decode.map(ResourceChargeitem)
+    "ChargeItemDefinition" ->
       chargeitemdefinition_decoder() |> decode.map(ResourceChargeitemdefinition)
     "Citation" -> citation_decoder() |> decode.map(ResourceCitation)
     "Claim" -> claim_decoder() |> decode.map(ResourceClaim)
-    "Claimresponse" ->
+    "ClaimResponse" ->
       claimresponse_decoder() |> decode.map(ResourceClaimresponse)
-    "Clinicalimpression" ->
+    "ClinicalImpression" ->
       clinicalimpression_decoder() |> decode.map(ResourceClinicalimpression)
-    "Clinicalusedefinition" ->
+    "ClinicalUseDefinition" ->
       clinicalusedefinition_decoder()
       |> decode.map(ResourceClinicalusedefinition)
-    "Codesystem" -> codesystem_decoder() |> decode.map(ResourceCodesystem)
+    "CodeSystem" -> codesystem_decoder() |> decode.map(ResourceCodesystem)
     "Communication" ->
       communication_decoder() |> decode.map(ResourceCommunication)
-    "Communicationrequest" ->
+    "CommunicationRequest" ->
       communicationrequest_decoder() |> decode.map(ResourceCommunicationrequest)
-    "Compartmentdefinition" ->
+    "CompartmentDefinition" ->
       compartmentdefinition_decoder()
       |> decode.map(ResourceCompartmentdefinition)
     "Composition" -> composition_decoder() |> decode.map(ResourceComposition)
-    "Conceptmap" -> conceptmap_decoder() |> decode.map(ResourceConceptmap)
+    "ConceptMap" -> conceptmap_decoder() |> decode.map(ResourceConceptmap)
     "Condition" -> condition_decoder() |> decode.map(ResourceCondition)
     "Consent" -> consent_decoder() |> decode.map(ResourceConsent)
     "Contract" -> contract_decoder() |> decode.map(ResourceContract)
     "Coverage" -> coverage_decoder() |> decode.map(ResourceCoverage)
-    "Coverageeligibilityrequest" ->
+    "CoverageEligibilityRequest" ->
       coverageeligibilityrequest_decoder()
       |> decode.map(ResourceCoverageeligibilityrequest)
-    "Coverageeligibilityresponse" ->
+    "CoverageEligibilityResponse" ->
       coverageeligibilityresponse_decoder()
       |> decode.map(ResourceCoverageeligibilityresponse)
-    "Detectedissue" ->
+    "DetectedIssue" ->
       detectedissue_decoder() |> decode.map(ResourceDetectedissue)
     "Device" -> device_decoder() |> decode.map(ResourceDevice)
-    "Devicedefinition" ->
+    "DeviceDefinition" ->
       devicedefinition_decoder() |> decode.map(ResourceDevicedefinition)
-    "Devicemetric" -> devicemetric_decoder() |> decode.map(ResourceDevicemetric)
-    "Devicerequest" ->
+    "DeviceMetric" -> devicemetric_decoder() |> decode.map(ResourceDevicemetric)
+    "DeviceRequest" ->
       devicerequest_decoder() |> decode.map(ResourceDevicerequest)
-    "Deviceusestatement" ->
+    "DeviceUseStatement" ->
       deviceusestatement_decoder() |> decode.map(ResourceDeviceusestatement)
-    "Diagnosticreport" ->
+    "DiagnosticReport" ->
       diagnosticreport_decoder() |> decode.map(ResourceDiagnosticreport)
-    "Documentmanifest" ->
+    "DocumentManifest" ->
       documentmanifest_decoder() |> decode.map(ResourceDocumentmanifest)
-    "Documentreference" ->
+    "DocumentReference" ->
       documentreference_decoder() |> decode.map(ResourceDocumentreference)
-    "Domainresource" ->
+    "DomainResource" ->
       domainresource_decoder() |> decode.map(ResourceDomainresource)
     "Encounter" -> encounter_decoder() |> decode.map(ResourceEncounter)
     "Endpoint" -> endpoint_decoder() |> decode.map(ResourceEndpoint)
-    "Enrollmentrequest" ->
+    "EnrollmentRequest" ->
       enrollmentrequest_decoder() |> decode.map(ResourceEnrollmentrequest)
-    "Enrollmentresponse" ->
+    "EnrollmentResponse" ->
       enrollmentresponse_decoder() |> decode.map(ResourceEnrollmentresponse)
-    "Episodeofcare" ->
+    "EpisodeOfCare" ->
       episodeofcare_decoder() |> decode.map(ResourceEpisodeofcare)
-    "Eventdefinition" ->
+    "EventDefinition" ->
       eventdefinition_decoder() |> decode.map(ResourceEventdefinition)
     "Evidence" -> evidence_decoder() |> decode.map(ResourceEvidence)
-    "Evidencereport" ->
+    "EvidenceReport" ->
       evidencereport_decoder() |> decode.map(ResourceEvidencereport)
-    "Evidencevariable" ->
+    "EvidenceVariable" ->
       evidencevariable_decoder() |> decode.map(ResourceEvidencevariable)
-    "Examplescenario" ->
+    "ExampleScenario" ->
       examplescenario_decoder() |> decode.map(ResourceExamplescenario)
-    "Explanationofbenefit" ->
+    "ExplanationOfBenefit" ->
       explanationofbenefit_decoder() |> decode.map(ResourceExplanationofbenefit)
-    "Familymemberhistory" ->
+    "FamilyMemberHistory" ->
       familymemberhistory_decoder() |> decode.map(ResourceFamilymemberhistory)
     "Flag" -> flag_decoder() |> decode.map(ResourceFlag)
     "Goal" -> goal_decoder() |> decode.map(ResourceGoal)
-    "Graphdefinition" ->
+    "GraphDefinition" ->
       graphdefinition_decoder() |> decode.map(ResourceGraphdefinition)
     "Group" -> group_decoder() |> decode.map(ResourceGroup)
-    "Guidanceresponse" ->
+    "GuidanceResponse" ->
       guidanceresponse_decoder() |> decode.map(ResourceGuidanceresponse)
-    "Healthcareservice" ->
+    "HealthcareService" ->
       healthcareservice_decoder() |> decode.map(ResourceHealthcareservice)
-    "Imagingstudy" -> imagingstudy_decoder() |> decode.map(ResourceImagingstudy)
+    "ImagingStudy" -> imagingstudy_decoder() |> decode.map(ResourceImagingstudy)
     "Immunization" -> immunization_decoder() |> decode.map(ResourceImmunization)
-    "Immunizationevaluation" ->
+    "ImmunizationEvaluation" ->
       immunizationevaluation_decoder()
       |> decode.map(ResourceImmunizationevaluation)
-    "Immunizationrecommendation" ->
+    "ImmunizationRecommendation" ->
       immunizationrecommendation_decoder()
       |> decode.map(ResourceImmunizationrecommendation)
-    "Implementationguide" ->
+    "ImplementationGuide" ->
       implementationguide_decoder() |> decode.map(ResourceImplementationguide)
     "Ingredient" -> ingredient_decoder() |> decode.map(ResourceIngredient)
-    "Insuranceplan" ->
+    "InsurancePlan" ->
       insuranceplan_decoder() |> decode.map(ResourceInsuranceplan)
     "Invoice" -> invoice_decoder() |> decode.map(ResourceInvoice)
     "Library" -> library_decoder() |> decode.map(ResourceLibrary)
     "Linkage" -> linkage_decoder() |> decode.map(ResourceLinkage)
-    "Listfhir" -> listfhir_decoder() |> decode.map(ResourceListfhir)
+    "List" -> listfhir_decoder() |> decode.map(ResourceListfhir)
     "Location" -> location_decoder() |> decode.map(ResourceLocation)
-    "Manufactureditemdefinition" ->
+    "ManufacturedItemDefinition" ->
       manufactureditemdefinition_decoder()
       |> decode.map(ResourceManufactureditemdefinition)
     "Measure" -> measure_decoder() |> decode.map(ResourceMeasure)
-    "Measurereport" ->
+    "MeasureReport" ->
       measurereport_decoder() |> decode.map(ResourceMeasurereport)
     "Media" -> media_decoder() |> decode.map(ResourceMedia)
     "Medication" -> medication_decoder() |> decode.map(ResourceMedication)
-    "Medicationadministration" ->
+    "MedicationAdministration" ->
       medicationadministration_decoder()
       |> decode.map(ResourceMedicationadministration)
-    "Medicationdispense" ->
+    "MedicationDispense" ->
       medicationdispense_decoder() |> decode.map(ResourceMedicationdispense)
-    "Medicationknowledge" ->
+    "MedicationKnowledge" ->
       medicationknowledge_decoder() |> decode.map(ResourceMedicationknowledge)
-    "Medicationrequest" ->
+    "MedicationRequest" ->
       medicationrequest_decoder() |> decode.map(ResourceMedicationrequest)
-    "Medicationstatement" ->
+    "MedicationStatement" ->
       medicationstatement_decoder() |> decode.map(ResourceMedicationstatement)
-    "Medicinalproductdefinition" ->
+    "MedicinalProductDefinition" ->
       medicinalproductdefinition_decoder()
       |> decode.map(ResourceMedicinalproductdefinition)
-    "Messagedefinition" ->
+    "MessageDefinition" ->
       messagedefinition_decoder() |> decode.map(ResourceMessagedefinition)
-    "Messageheader" ->
+    "MessageHeader" ->
       messageheader_decoder() |> decode.map(ResourceMessageheader)
-    "Molecularsequence" ->
+    "MolecularSequence" ->
       molecularsequence_decoder() |> decode.map(ResourceMolecularsequence)
-    "Namingsystem" -> namingsystem_decoder() |> decode.map(ResourceNamingsystem)
-    "Nutritionorder" ->
+    "NamingSystem" -> namingsystem_decoder() |> decode.map(ResourceNamingsystem)
+    "NutritionOrder" ->
       nutritionorder_decoder() |> decode.map(ResourceNutritionorder)
-    "Nutritionproduct" ->
+    "NutritionProduct" ->
       nutritionproduct_decoder() |> decode.map(ResourceNutritionproduct)
     "Observation" -> observation_decoder() |> decode.map(ResourceObservation)
-    "Observationdefinition" ->
+    "ObservationDefinition" ->
       observationdefinition_decoder()
       |> decode.map(ResourceObservationdefinition)
-    "Operationdefinition" ->
+    "OperationDefinition" ->
       operationdefinition_decoder() |> decode.map(ResourceOperationdefinition)
-    "Operationoutcome" ->
+    "OperationOutcome" ->
       operationoutcome_decoder() |> decode.map(ResourceOperationoutcome)
     "Organization" -> organization_decoder() |> decode.map(ResourceOrganization)
-    "Organizationaffiliation" ->
+    "OrganizationAffiliation" ->
       organizationaffiliation_decoder()
       |> decode.map(ResourceOrganizationaffiliation)
-    "Packagedproductdefinition" ->
+    "PackagedProductDefinition" ->
       packagedproductdefinition_decoder()
       |> decode.map(ResourcePackagedproductdefinition)
     "Parameters" -> parameters_decoder() |> decode.map(ResourceParameters)
     "Patient" -> patient_decoder() |> decode.map(ResourcePatient)
-    "Paymentnotice" ->
+    "PaymentNotice" ->
       paymentnotice_decoder() |> decode.map(ResourcePaymentnotice)
-    "Paymentreconciliation" ->
+    "PaymentReconciliation" ->
       paymentreconciliation_decoder()
       |> decode.map(ResourcePaymentreconciliation)
     "Person" -> person_decoder() |> decode.map(ResourcePerson)
-    "Plandefinition" ->
+    "PlanDefinition" ->
       plandefinition_decoder() |> decode.map(ResourcePlandefinition)
     "Practitioner" -> practitioner_decoder() |> decode.map(ResourcePractitioner)
-    "Practitionerrole" ->
+    "PractitionerRole" ->
       practitionerrole_decoder() |> decode.map(ResourcePractitionerrole)
     "Procedure" -> procedure_decoder() |> decode.map(ResourceProcedure)
     "Provenance" -> provenance_decoder() |> decode.map(ResourceProvenance)
     "Questionnaire" ->
       questionnaire_decoder() |> decode.map(ResourceQuestionnaire)
-    "Questionnaireresponse" ->
+    "QuestionnaireResponse" ->
       questionnaireresponse_decoder()
       |> decode.map(ResourceQuestionnaireresponse)
-    "Regulatedauthorization" ->
+    "RegulatedAuthorization" ->
       regulatedauthorization_decoder()
       |> decode.map(ResourceRegulatedauthorization)
-    "Relatedperson" ->
+    "RelatedPerson" ->
       relatedperson_decoder() |> decode.map(ResourceRelatedperson)
-    "Requestgroup" -> requestgroup_decoder() |> decode.map(ResourceRequestgroup)
-    "Researchdefinition" ->
+    "RequestGroup" -> requestgroup_decoder() |> decode.map(ResourceRequestgroup)
+    "ResearchDefinition" ->
       researchdefinition_decoder() |> decode.map(ResourceResearchdefinition)
-    "Researchelementdefinition" ->
+    "ResearchElementDefinition" ->
       researchelementdefinition_decoder()
       |> decode.map(ResourceResearchelementdefinition)
-    "Researchstudy" ->
+    "ResearchStudy" ->
       researchstudy_decoder() |> decode.map(ResourceResearchstudy)
-    "Researchsubject" ->
+    "ResearchSubject" ->
       researchsubject_decoder() |> decode.map(ResourceResearchsubject)
-    "Riskassessment" ->
+    "RiskAssessment" ->
       riskassessment_decoder() |> decode.map(ResourceRiskassessment)
     "Schedule" -> schedule_decoder() |> decode.map(ResourceSchedule)
-    "Searchparameter" ->
+    "SearchParameter" ->
       searchparameter_decoder() |> decode.map(ResourceSearchparameter)
-    "Servicerequest" ->
+    "ServiceRequest" ->
       servicerequest_decoder() |> decode.map(ResourceServicerequest)
     "Slot" -> slot_decoder() |> decode.map(ResourceSlot)
     "Specimen" -> specimen_decoder() |> decode.map(ResourceSpecimen)
-    "Specimendefinition" ->
+    "SpecimenDefinition" ->
       specimendefinition_decoder() |> decode.map(ResourceSpecimendefinition)
-    "Structuredefinition" ->
+    "StructureDefinition" ->
       structuredefinition_decoder() |> decode.map(ResourceStructuredefinition)
-    "Structuremap" -> structuremap_decoder() |> decode.map(ResourceStructuremap)
+    "StructureMap" -> structuremap_decoder() |> decode.map(ResourceStructuremap)
     "Subscription" -> subscription_decoder() |> decode.map(ResourceSubscription)
-    "Subscriptionstatus" ->
+    "SubscriptionStatus" ->
       subscriptionstatus_decoder() |> decode.map(ResourceSubscriptionstatus)
-    "Subscriptiontopic" ->
+    "SubscriptionTopic" ->
       subscriptiontopic_decoder() |> decode.map(ResourceSubscriptiontopic)
     "Substance" -> substance_decoder() |> decode.map(ResourceSubstance)
-    "Substancedefinition" ->
+    "SubstanceDefinition" ->
       substancedefinition_decoder() |> decode.map(ResourceSubstancedefinition)
-    "Supplydelivery" ->
+    "SupplyDelivery" ->
       supplydelivery_decoder() |> decode.map(ResourceSupplydelivery)
-    "Supplyrequest" ->
+    "SupplyRequest" ->
       supplyrequest_decoder() |> decode.map(ResourceSupplyrequest)
     "Task" -> task_decoder() |> decode.map(ResourceTask)
-    "Terminologycapabilities" ->
+    "TerminologyCapabilities" ->
       terminologycapabilities_decoder()
       |> decode.map(ResourceTerminologycapabilities)
-    "Testreport" -> testreport_decoder() |> decode.map(ResourceTestreport)
-    "Testscript" -> testscript_decoder() |> decode.map(ResourceTestscript)
-    "Valueset" -> valueset_decoder() |> decode.map(ResourceValueset)
-    "Verificationresult" ->
+    "TestReport" -> testreport_decoder() |> decode.map(ResourceTestreport)
+    "TestScript" -> testscript_decoder() |> decode.map(ResourceTestscript)
+    "ValueSet" -> valueset_decoder() |> decode.map(ResourceValueset)
+    "VerificationResult" ->
       verificationresult_decoder() |> decode.map(ResourceVerificationresult)
-    "Visionprescription" ->
+    "VisionPrescription" ->
       visionprescription_decoder() |> decode.map(ResourceVisionprescription)
 
     _ ->
@@ -126071,4 +126756,9 @@ pub fn resource_decoder() -> Decoder(Resource) {
 //std lib decode.optional supports myfield: null but what if myfield is omitted from json entirely?
 fn none_if_omitted(d: decode.Decoder(a)) -> decode.Decoder(Option(a)) {
   decode.one_of(d |> decode.map(Some), [decode.success(None)])
+}
+
+//std lib decode.float will NOT decode numbers without decimal point eg 4, only 4.0
+fn decode_number() {
+  decode.one_of(decode.float, [decode.map(decode.int, int.to_float)])
 }

@@ -69,19 +69,19 @@ pub fn some_resource_test() {
   //last assert catches everything but already wrote previous asserts plus they give more granular print if fail
   assert parsed_allergy == myallergy
   let bad_json =
-    json |> string.replace("\"resourceType\":\"Allergyintolerance\",", "")
+    json |> string.replace("\"resourceType\":\"AllergyIntolerance\",", "")
   let assert Error(_) = bad_json |> json.parse(fhirversion.resource_decoder())
   let bad_json2 =
     json
     |> string.replace(
-      "\"resourceType\":\"Allergyintolerance\",",
+      "\"resourceType\":\"AllergyIntolerance\",",
       "\"resourceType\":\"xdd\",",
     )
   let assert Error(_) = bad_json2 |> json.parse(fhirversion.resource_decoder())
   let bad_json3 =
     json
     |> string.replace(
-      "\"resourceType\":\"Allergyintolerance\",",
+      "\"resourceType\":\"AllergyIntolerance\",",
       "\"resourceType\":\"Immunization\",",
     )
   let assert Error(_) = bad_json3 |> json.parse(fhirversion.resource_decoder())

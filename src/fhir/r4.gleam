@@ -1209,7 +1209,7 @@ pub fn datarequirement_datefilter_to_json(
       #(
         "value"
           <> case v {
-          DatarequirementDatefilterValueDatetime(_) -> "Datetime"
+          DatarequirementDatefilterValueDatetime(_) -> "DateTime"
           DatarequirementDatefilterValuePeriod(_) -> "Period"
           DatarequirementDatefilterValueDuration(_) -> "Duration"
         },
@@ -1398,7 +1398,7 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
       #(
         "subject"
           <> case v {
-          DatarequirementSubjectCodeableconcept(_) -> "Codeableconcept"
+          DatarequirementSubjectCodeableconcept(_) -> "CodeableConcept"
           DatarequirementSubjectReference(_) -> "Reference"
         },
         datarequirement_subject_to_json(v),
@@ -1846,7 +1846,7 @@ pub fn dosage_to_json(dosage: Dosage) -> Json {
         "asNeeded"
           <> case v {
           DosageAsneededBoolean(_) -> "Boolean"
-          DosageAsneededCodeableconcept(_) -> "Codeableconcept"
+          DosageAsneededCodeableconcept(_) -> "CodeableConcept"
         },
         dosage_asneeded_to_json(v),
       ),
@@ -4100,13 +4100,13 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
         "maxValue"
           <> case v {
           ElementdefinitionMaxvalueDate(_) -> "Date"
-          ElementdefinitionMaxvalueDatetime(_) -> "Datetime"
+          ElementdefinitionMaxvalueDatetime(_) -> "DateTime"
           ElementdefinitionMaxvalueInstant(_) -> "Instant"
           ElementdefinitionMaxvalueTime(_) -> "Time"
           ElementdefinitionMaxvalueDecimal(_) -> "Decimal"
           ElementdefinitionMaxvalueInteger(_) -> "Integer"
-          ElementdefinitionMaxvaluePositiveint(_) -> "Positiveint"
-          ElementdefinitionMaxvalueUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionMaxvaluePositiveint(_) -> "PositiveInt"
+          ElementdefinitionMaxvalueUnsignedint(_) -> "UnsignedInt"
           ElementdefinitionMaxvalueQuantity(_) -> "Quantity"
         },
         elementdefinition_maxvalue_to_json(v),
@@ -4121,13 +4121,13 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
         "minValue"
           <> case v {
           ElementdefinitionMinvalueDate(_) -> "Date"
-          ElementdefinitionMinvalueDatetime(_) -> "Datetime"
+          ElementdefinitionMinvalueDatetime(_) -> "DateTime"
           ElementdefinitionMinvalueInstant(_) -> "Instant"
           ElementdefinitionMinvalueTime(_) -> "Time"
           ElementdefinitionMinvalueDecimal(_) -> "Decimal"
           ElementdefinitionMinvalueInteger(_) -> "Integer"
-          ElementdefinitionMinvaluePositiveint(_) -> "Positiveint"
-          ElementdefinitionMinvalueUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionMinvaluePositiveint(_) -> "PositiveInt"
+          ElementdefinitionMinvalueUnsignedint(_) -> "UnsignedInt"
           ElementdefinitionMinvalueQuantity(_) -> "Quantity"
         },
         elementdefinition_minvalue_to_json(v),
@@ -4148,22 +4148,22 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
       #(
         "pattern"
           <> case v {
-          ElementdefinitionPatternBase64binary(_) -> "Base64binary"
+          ElementdefinitionPatternBase64binary(_) -> "Base64Binary"
           ElementdefinitionPatternBoolean(_) -> "Boolean"
           ElementdefinitionPatternCanonical(_) -> "Canonical"
           ElementdefinitionPatternCode(_) -> "Code"
           ElementdefinitionPatternDate(_) -> "Date"
-          ElementdefinitionPatternDatetime(_) -> "Datetime"
+          ElementdefinitionPatternDatetime(_) -> "DateTime"
           ElementdefinitionPatternDecimal(_) -> "Decimal"
           ElementdefinitionPatternId(_) -> "Id"
           ElementdefinitionPatternInstant(_) -> "Instant"
           ElementdefinitionPatternInteger(_) -> "Integer"
           ElementdefinitionPatternMarkdown(_) -> "Markdown"
           ElementdefinitionPatternOid(_) -> "Oid"
-          ElementdefinitionPatternPositiveint(_) -> "Positiveint"
+          ElementdefinitionPatternPositiveint(_) -> "PositiveInt"
           ElementdefinitionPatternString(_) -> "String"
           ElementdefinitionPatternTime(_) -> "Time"
-          ElementdefinitionPatternUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionPatternUnsignedint(_) -> "UnsignedInt"
           ElementdefinitionPatternUri(_) -> "Uri"
           ElementdefinitionPatternUrl(_) -> "Url"
           ElementdefinitionPatternUuid(_) -> "Uuid"
@@ -4171,13 +4171,13 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
           ElementdefinitionPatternAge(_) -> "Age"
           ElementdefinitionPatternAnnotation(_) -> "Annotation"
           ElementdefinitionPatternAttachment(_) -> "Attachment"
-          ElementdefinitionPatternCodeableconcept(_) -> "Codeableconcept"
+          ElementdefinitionPatternCodeableconcept(_) -> "CodeableConcept"
           ElementdefinitionPatternCoding(_) -> "Coding"
-          ElementdefinitionPatternContactpoint(_) -> "Contactpoint"
+          ElementdefinitionPatternContactpoint(_) -> "ContactPoint"
           ElementdefinitionPatternCount(_) -> "Count"
           ElementdefinitionPatternDistance(_) -> "Distance"
           ElementdefinitionPatternDuration(_) -> "Duration"
-          ElementdefinitionPatternHumanname(_) -> "Humanname"
+          ElementdefinitionPatternHumanname(_) -> "HumanName"
           ElementdefinitionPatternIdentifier(_) -> "Identifier"
           ElementdefinitionPatternMoney(_) -> "Money"
           ElementdefinitionPatternPeriod(_) -> "Period"
@@ -4185,18 +4185,18 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
           ElementdefinitionPatternRange(_) -> "Range"
           ElementdefinitionPatternRatio(_) -> "Ratio"
           ElementdefinitionPatternReference(_) -> "Reference"
-          ElementdefinitionPatternSampleddata(_) -> "Sampleddata"
+          ElementdefinitionPatternSampleddata(_) -> "SampledData"
           ElementdefinitionPatternSignature(_) -> "Signature"
           ElementdefinitionPatternTiming(_) -> "Timing"
-          ElementdefinitionPatternContactdetail(_) -> "Contactdetail"
+          ElementdefinitionPatternContactdetail(_) -> "ContactDetail"
           ElementdefinitionPatternContributor(_) -> "Contributor"
-          ElementdefinitionPatternDatarequirement(_) -> "Datarequirement"
+          ElementdefinitionPatternDatarequirement(_) -> "DataRequirement"
           ElementdefinitionPatternExpression(_) -> "Expression"
           ElementdefinitionPatternParameterdefinition(_) ->
-            "Parameterdefinition"
-          ElementdefinitionPatternRelatedartifact(_) -> "Relatedartifact"
-          ElementdefinitionPatternTriggerdefinition(_) -> "Triggerdefinition"
-          ElementdefinitionPatternUsagecontext(_) -> "Usagecontext"
+            "ParameterDefinition"
+          ElementdefinitionPatternRelatedartifact(_) -> "RelatedArtifact"
+          ElementdefinitionPatternTriggerdefinition(_) -> "TriggerDefinition"
+          ElementdefinitionPatternUsagecontext(_) -> "UsageContext"
           ElementdefinitionPatternDosage(_) -> "Dosage"
           ElementdefinitionPatternMeta(_) -> "Meta"
         },
@@ -4211,22 +4211,22 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
       #(
         "fixed"
           <> case v {
-          ElementdefinitionFixedBase64binary(_) -> "Base64binary"
+          ElementdefinitionFixedBase64binary(_) -> "Base64Binary"
           ElementdefinitionFixedBoolean(_) -> "Boolean"
           ElementdefinitionFixedCanonical(_) -> "Canonical"
           ElementdefinitionFixedCode(_) -> "Code"
           ElementdefinitionFixedDate(_) -> "Date"
-          ElementdefinitionFixedDatetime(_) -> "Datetime"
+          ElementdefinitionFixedDatetime(_) -> "DateTime"
           ElementdefinitionFixedDecimal(_) -> "Decimal"
           ElementdefinitionFixedId(_) -> "Id"
           ElementdefinitionFixedInstant(_) -> "Instant"
           ElementdefinitionFixedInteger(_) -> "Integer"
           ElementdefinitionFixedMarkdown(_) -> "Markdown"
           ElementdefinitionFixedOid(_) -> "Oid"
-          ElementdefinitionFixedPositiveint(_) -> "Positiveint"
+          ElementdefinitionFixedPositiveint(_) -> "PositiveInt"
           ElementdefinitionFixedString(_) -> "String"
           ElementdefinitionFixedTime(_) -> "Time"
-          ElementdefinitionFixedUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionFixedUnsignedint(_) -> "UnsignedInt"
           ElementdefinitionFixedUri(_) -> "Uri"
           ElementdefinitionFixedUrl(_) -> "Url"
           ElementdefinitionFixedUuid(_) -> "Uuid"
@@ -4234,13 +4234,13 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
           ElementdefinitionFixedAge(_) -> "Age"
           ElementdefinitionFixedAnnotation(_) -> "Annotation"
           ElementdefinitionFixedAttachment(_) -> "Attachment"
-          ElementdefinitionFixedCodeableconcept(_) -> "Codeableconcept"
+          ElementdefinitionFixedCodeableconcept(_) -> "CodeableConcept"
           ElementdefinitionFixedCoding(_) -> "Coding"
-          ElementdefinitionFixedContactpoint(_) -> "Contactpoint"
+          ElementdefinitionFixedContactpoint(_) -> "ContactPoint"
           ElementdefinitionFixedCount(_) -> "Count"
           ElementdefinitionFixedDistance(_) -> "Distance"
           ElementdefinitionFixedDuration(_) -> "Duration"
-          ElementdefinitionFixedHumanname(_) -> "Humanname"
+          ElementdefinitionFixedHumanname(_) -> "HumanName"
           ElementdefinitionFixedIdentifier(_) -> "Identifier"
           ElementdefinitionFixedMoney(_) -> "Money"
           ElementdefinitionFixedPeriod(_) -> "Period"
@@ -4248,17 +4248,17 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
           ElementdefinitionFixedRange(_) -> "Range"
           ElementdefinitionFixedRatio(_) -> "Ratio"
           ElementdefinitionFixedReference(_) -> "Reference"
-          ElementdefinitionFixedSampleddata(_) -> "Sampleddata"
+          ElementdefinitionFixedSampleddata(_) -> "SampledData"
           ElementdefinitionFixedSignature(_) -> "Signature"
           ElementdefinitionFixedTiming(_) -> "Timing"
-          ElementdefinitionFixedContactdetail(_) -> "Contactdetail"
+          ElementdefinitionFixedContactdetail(_) -> "ContactDetail"
           ElementdefinitionFixedContributor(_) -> "Contributor"
-          ElementdefinitionFixedDatarequirement(_) -> "Datarequirement"
+          ElementdefinitionFixedDatarequirement(_) -> "DataRequirement"
           ElementdefinitionFixedExpression(_) -> "Expression"
-          ElementdefinitionFixedParameterdefinition(_) -> "Parameterdefinition"
-          ElementdefinitionFixedRelatedartifact(_) -> "Relatedartifact"
-          ElementdefinitionFixedTriggerdefinition(_) -> "Triggerdefinition"
-          ElementdefinitionFixedUsagecontext(_) -> "Usagecontext"
+          ElementdefinitionFixedParameterdefinition(_) -> "ParameterDefinition"
+          ElementdefinitionFixedRelatedartifact(_) -> "RelatedArtifact"
+          ElementdefinitionFixedTriggerdefinition(_) -> "TriggerDefinition"
+          ElementdefinitionFixedUsagecontext(_) -> "UsageContext"
           ElementdefinitionFixedDosage(_) -> "Dosage"
           ElementdefinitionFixedMeta(_) -> "Meta"
         },
@@ -4281,22 +4281,22 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
       #(
         "defaultValue"
           <> case v {
-          ElementdefinitionDefaultvalueBase64binary(_) -> "Base64binary"
+          ElementdefinitionDefaultvalueBase64binary(_) -> "Base64Binary"
           ElementdefinitionDefaultvalueBoolean(_) -> "Boolean"
           ElementdefinitionDefaultvalueCanonical(_) -> "Canonical"
           ElementdefinitionDefaultvalueCode(_) -> "Code"
           ElementdefinitionDefaultvalueDate(_) -> "Date"
-          ElementdefinitionDefaultvalueDatetime(_) -> "Datetime"
+          ElementdefinitionDefaultvalueDatetime(_) -> "DateTime"
           ElementdefinitionDefaultvalueDecimal(_) -> "Decimal"
           ElementdefinitionDefaultvalueId(_) -> "Id"
           ElementdefinitionDefaultvalueInstant(_) -> "Instant"
           ElementdefinitionDefaultvalueInteger(_) -> "Integer"
           ElementdefinitionDefaultvalueMarkdown(_) -> "Markdown"
           ElementdefinitionDefaultvalueOid(_) -> "Oid"
-          ElementdefinitionDefaultvaluePositiveint(_) -> "Positiveint"
+          ElementdefinitionDefaultvaluePositiveint(_) -> "PositiveInt"
           ElementdefinitionDefaultvalueString(_) -> "String"
           ElementdefinitionDefaultvalueTime(_) -> "Time"
-          ElementdefinitionDefaultvalueUnsignedint(_) -> "Unsignedint"
+          ElementdefinitionDefaultvalueUnsignedint(_) -> "UnsignedInt"
           ElementdefinitionDefaultvalueUri(_) -> "Uri"
           ElementdefinitionDefaultvalueUrl(_) -> "Url"
           ElementdefinitionDefaultvalueUuid(_) -> "Uuid"
@@ -4304,13 +4304,13 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
           ElementdefinitionDefaultvalueAge(_) -> "Age"
           ElementdefinitionDefaultvalueAnnotation(_) -> "Annotation"
           ElementdefinitionDefaultvalueAttachment(_) -> "Attachment"
-          ElementdefinitionDefaultvalueCodeableconcept(_) -> "Codeableconcept"
+          ElementdefinitionDefaultvalueCodeableconcept(_) -> "CodeableConcept"
           ElementdefinitionDefaultvalueCoding(_) -> "Coding"
-          ElementdefinitionDefaultvalueContactpoint(_) -> "Contactpoint"
+          ElementdefinitionDefaultvalueContactpoint(_) -> "ContactPoint"
           ElementdefinitionDefaultvalueCount(_) -> "Count"
           ElementdefinitionDefaultvalueDistance(_) -> "Distance"
           ElementdefinitionDefaultvalueDuration(_) -> "Duration"
-          ElementdefinitionDefaultvalueHumanname(_) -> "Humanname"
+          ElementdefinitionDefaultvalueHumanname(_) -> "HumanName"
           ElementdefinitionDefaultvalueIdentifier(_) -> "Identifier"
           ElementdefinitionDefaultvalueMoney(_) -> "Money"
           ElementdefinitionDefaultvaluePeriod(_) -> "Period"
@@ -4318,19 +4318,19 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
           ElementdefinitionDefaultvalueRange(_) -> "Range"
           ElementdefinitionDefaultvalueRatio(_) -> "Ratio"
           ElementdefinitionDefaultvalueReference(_) -> "Reference"
-          ElementdefinitionDefaultvalueSampleddata(_) -> "Sampleddata"
+          ElementdefinitionDefaultvalueSampleddata(_) -> "SampledData"
           ElementdefinitionDefaultvalueSignature(_) -> "Signature"
           ElementdefinitionDefaultvalueTiming(_) -> "Timing"
-          ElementdefinitionDefaultvalueContactdetail(_) -> "Contactdetail"
+          ElementdefinitionDefaultvalueContactdetail(_) -> "ContactDetail"
           ElementdefinitionDefaultvalueContributor(_) -> "Contributor"
-          ElementdefinitionDefaultvalueDatarequirement(_) -> "Datarequirement"
+          ElementdefinitionDefaultvalueDatarequirement(_) -> "DataRequirement"
           ElementdefinitionDefaultvalueExpression(_) -> "Expression"
           ElementdefinitionDefaultvalueParameterdefinition(_) ->
-            "Parameterdefinition"
-          ElementdefinitionDefaultvalueRelatedartifact(_) -> "Relatedartifact"
+            "ParameterDefinition"
+          ElementdefinitionDefaultvalueRelatedartifact(_) -> "RelatedArtifact"
           ElementdefinitionDefaultvalueTriggerdefinition(_) ->
-            "Triggerdefinition"
-          ElementdefinitionDefaultvalueUsagecontext(_) -> "Usagecontext"
+            "TriggerDefinition"
+          ElementdefinitionDefaultvalueUsagecontext(_) -> "UsageContext"
           ElementdefinitionDefaultvalueDosage(_) -> "Dosage"
           ElementdefinitionDefaultvalueMeta(_) -> "Meta"
         },
@@ -4992,22 +4992,22 @@ pub fn extension_to_json(extension: Extension) -> Json {
       #(
         "value"
           <> case v {
-          ExtensionValueBase64binary(_) -> "Base64binary"
+          ExtensionValueBase64binary(_) -> "Base64Binary"
           ExtensionValueBoolean(_) -> "Boolean"
           ExtensionValueCanonical(_) -> "Canonical"
           ExtensionValueCode(_) -> "Code"
           ExtensionValueDate(_) -> "Date"
-          ExtensionValueDatetime(_) -> "Datetime"
+          ExtensionValueDatetime(_) -> "DateTime"
           ExtensionValueDecimal(_) -> "Decimal"
           ExtensionValueId(_) -> "Id"
           ExtensionValueInstant(_) -> "Instant"
           ExtensionValueInteger(_) -> "Integer"
           ExtensionValueMarkdown(_) -> "Markdown"
           ExtensionValueOid(_) -> "Oid"
-          ExtensionValuePositiveint(_) -> "Positiveint"
+          ExtensionValuePositiveint(_) -> "PositiveInt"
           ExtensionValueString(_) -> "String"
           ExtensionValueTime(_) -> "Time"
-          ExtensionValueUnsignedint(_) -> "Unsignedint"
+          ExtensionValueUnsignedint(_) -> "UnsignedInt"
           ExtensionValueUri(_) -> "Uri"
           ExtensionValueUrl(_) -> "Url"
           ExtensionValueUuid(_) -> "Uuid"
@@ -5015,13 +5015,13 @@ pub fn extension_to_json(extension: Extension) -> Json {
           ExtensionValueAge(_) -> "Age"
           ExtensionValueAnnotation(_) -> "Annotation"
           ExtensionValueAttachment(_) -> "Attachment"
-          ExtensionValueCodeableconcept(_) -> "Codeableconcept"
+          ExtensionValueCodeableconcept(_) -> "CodeableConcept"
           ExtensionValueCoding(_) -> "Coding"
-          ExtensionValueContactpoint(_) -> "Contactpoint"
+          ExtensionValueContactpoint(_) -> "ContactPoint"
           ExtensionValueCount(_) -> "Count"
           ExtensionValueDistance(_) -> "Distance"
           ExtensionValueDuration(_) -> "Duration"
-          ExtensionValueHumanname(_) -> "Humanname"
+          ExtensionValueHumanname(_) -> "HumanName"
           ExtensionValueIdentifier(_) -> "Identifier"
           ExtensionValueMoney(_) -> "Money"
           ExtensionValuePeriod(_) -> "Period"
@@ -5029,17 +5029,17 @@ pub fn extension_to_json(extension: Extension) -> Json {
           ExtensionValueRange(_) -> "Range"
           ExtensionValueRatio(_) -> "Ratio"
           ExtensionValueReference(_) -> "Reference"
-          ExtensionValueSampleddata(_) -> "Sampleddata"
+          ExtensionValueSampleddata(_) -> "SampledData"
           ExtensionValueSignature(_) -> "Signature"
           ExtensionValueTiming(_) -> "Timing"
-          ExtensionValueContactdetail(_) -> "Contactdetail"
+          ExtensionValueContactdetail(_) -> "ContactDetail"
           ExtensionValueContributor(_) -> "Contributor"
-          ExtensionValueDatarequirement(_) -> "Datarequirement"
+          ExtensionValueDatarequirement(_) -> "DataRequirement"
           ExtensionValueExpression(_) -> "Expression"
-          ExtensionValueParameterdefinition(_) -> "Parameterdefinition"
-          ExtensionValueRelatedartifact(_) -> "Relatedartifact"
-          ExtensionValueTriggerdefinition(_) -> "Triggerdefinition"
-          ExtensionValueUsagecontext(_) -> "Usagecontext"
+          ExtensionValueParameterdefinition(_) -> "ParameterDefinition"
+          ExtensionValueRelatedartifact(_) -> "RelatedArtifact"
+          ExtensionValueTriggerdefinition(_) -> "TriggerDefinition"
+          ExtensionValueUsagecontext(_) -> "UsageContext"
           ExtensionValueDosage(_) -> "Dosage"
           ExtensionValueMeta(_) -> "Meta"
         },
@@ -5916,7 +5916,7 @@ pub fn population_to_json(population: Population) -> Json {
         "age"
           <> case v {
           PopulationAgeRange(_) -> "Range"
-          PopulationAgeCodeableconcept(_) -> "Codeableconcept"
+          PopulationAgeCodeableconcept(_) -> "CodeableConcept"
         },
         population_age_to_json(v),
       ),
@@ -7659,7 +7659,7 @@ pub fn triggerdefinition_to_json(triggerdefinition: Triggerdefinition) -> Json {
           TriggerdefinitionTimingTiming(_) -> "Timing"
           TriggerdefinitionTimingReference(_) -> "Reference"
           TriggerdefinitionTimingDate(_) -> "Date"
-          TriggerdefinitionTimingDatetime(_) -> "Datetime"
+          TriggerdefinitionTimingDatetime(_) -> "DateTime"
         },
         triggerdefinition_timing_to_json(v),
       ),
@@ -8969,7 +8969,7 @@ pub fn activitydefinition_to_json(
         "product"
           <> case v {
           ActivitydefinitionProductReference(_) -> "Reference"
-          ActivitydefinitionProductCodeableconcept(_) -> "Codeableconcept"
+          ActivitydefinitionProductCodeableconcept(_) -> "CodeableConcept"
         },
         activitydefinition_product_to_json(v),
       ),
@@ -8997,7 +8997,7 @@ pub fn activitydefinition_to_json(
         "timing"
           <> case v {
           ActivitydefinitionTimingTiming(_) -> "Timing"
-          ActivitydefinitionTimingDatetime(_) -> "Datetime"
+          ActivitydefinitionTimingDatetime(_) -> "DateTime"
           ActivitydefinitionTimingAge(_) -> "Age"
           ActivitydefinitionTimingPeriod(_) -> "Period"
           ActivitydefinitionTimingRange(_) -> "Range"
@@ -9129,7 +9129,7 @@ pub fn activitydefinition_to_json(
       #(
         "subject"
           <> case v {
-          ActivitydefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          ActivitydefinitionSubjectCodeableconcept(_) -> "CodeableConcept"
           ActivitydefinitionSubjectReference(_) -> "Reference"
         },
         activitydefinition_subject_to_json(v),
@@ -10471,7 +10471,7 @@ pub fn allergyintolerance_to_json(
       #(
         "onset"
           <> case v {
-          AllergyintoleranceOnsetDatetime(_) -> "Datetime"
+          AllergyintoleranceOnsetDatetime(_) -> "DateTime"
           AllergyintoleranceOnsetAge(_) -> "Age"
           AllergyintoleranceOnsetPeriod(_) -> "Period"
           AllergyintoleranceOnsetRange(_) -> "Range"
@@ -13107,7 +13107,7 @@ pub fn biologicallyderivedproduct_manipulation_to_json(
       #(
         "time"
           <> case v {
-          BiologicallyderivedproductManipulationTimeDatetime(_) -> "Datetime"
+          BiologicallyderivedproductManipulationTimeDatetime(_) -> "DateTime"
           BiologicallyderivedproductManipulationTimePeriod(_) -> "Period"
         },
         biologicallyderivedproduct_manipulation_time_to_json(v),
@@ -13188,7 +13188,7 @@ pub fn biologicallyderivedproduct_processing_to_json(
       #(
         "time"
           <> case v {
-          BiologicallyderivedproductProcessingTimeDatetime(_) -> "Datetime"
+          BiologicallyderivedproductProcessingTimeDatetime(_) -> "DateTime"
           BiologicallyderivedproductProcessingTimePeriod(_) -> "Period"
         },
         biologicallyderivedproduct_processing_time_to_json(v),
@@ -13288,7 +13288,7 @@ pub fn biologicallyderivedproduct_collection_to_json(
       #(
         "collected"
           <> case v {
-          BiologicallyderivedproductCollectionCollectedDatetime(_) -> "Datetime"
+          BiologicallyderivedproductCollectionCollectedDatetime(_) -> "DateTime"
           BiologicallyderivedproductCollectionCollectedPeriod(_) -> "Period"
         },
         biologicallyderivedproduct_collection_collected_to_json(v),
@@ -16910,7 +16910,7 @@ pub fn careplan_activity_detail_to_json(
       #(
         "product"
           <> case v {
-          CareplanActivityDetailProductCodeableconcept(_) -> "Codeableconcept"
+          CareplanActivityDetailProductCodeableconcept(_) -> "CodeableConcept"
           CareplanActivityDetailProductReference(_) -> "Reference"
         },
         careplan_activity_detail_product_to_json(v),
@@ -18733,7 +18733,7 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
         "product"
           <> case v {
           ChargeitemProductReference(_) -> "Reference"
-          ChargeitemProductCodeableconcept(_) -> "Codeableconcept"
+          ChargeitemProductCodeableconcept(_) -> "CodeableConcept"
         },
         chargeitem_product_to_json(v),
       ),
@@ -18804,7 +18804,7 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
       #(
         "occurrence"
           <> case v {
-          ChargeitemOccurrenceDatetime(_) -> "Datetime"
+          ChargeitemOccurrenceDatetime(_) -> "DateTime"
           ChargeitemOccurrencePeriod(_) -> "Period"
           ChargeitemOccurrenceTiming(_) -> "Timing"
         },
@@ -20914,7 +20914,7 @@ pub fn claim_item_to_json(claim_item: ClaimItem) -> Json {
       #(
         "location"
           <> case v {
-          ClaimItemLocationCodeableconcept(_) -> "Codeableconcept"
+          ClaimItemLocationCodeableconcept(_) -> "CodeableConcept"
           ClaimItemLocationAddress(_) -> "Address"
           ClaimItemLocationReference(_) -> "Reference"
         },
@@ -23527,7 +23527,7 @@ pub fn claimresponse_additem_to_json(
       #(
         "location"
           <> case v {
-          ClaimresponseAdditemLocationCodeableconcept(_) -> "Codeableconcept"
+          ClaimresponseAdditemLocationCodeableconcept(_) -> "CodeableConcept"
           ClaimresponseAdditemLocationAddress(_) -> "Address"
           ClaimresponseAdditemLocationReference(_) -> "Reference"
         },
@@ -24882,7 +24882,7 @@ pub fn clinicalimpression_to_json(
       #(
         "effective"
           <> case v {
-          ClinicalimpressionEffectiveDatetime(_) -> "Datetime"
+          ClinicalimpressionEffectiveDatetime(_) -> "DateTime"
           ClinicalimpressionEffectivePeriod(_) -> "Period"
         },
         clinicalimpression_effective_to_json(v),
@@ -27016,7 +27016,7 @@ pub fn communicationrequest_to_json(
       #(
         "occurrence"
           <> case v {
-          CommunicationrequestOccurrenceDatetime(_) -> "Datetime"
+          CommunicationrequestOccurrenceDatetime(_) -> "DateTime"
           CommunicationrequestOccurrencePeriod(_) -> "Period"
         },
         communicationrequest_occurrence_to_json(v),
@@ -29966,7 +29966,7 @@ pub fn condition_to_json(condition: Condition) -> Json {
       #(
         "abatement"
           <> case v {
-          ConditionAbatementDatetime(_) -> "Datetime"
+          ConditionAbatementDatetime(_) -> "DateTime"
           ConditionAbatementAge(_) -> "Age"
           ConditionAbatementPeriod(_) -> "Period"
           ConditionAbatementRange(_) -> "Range"
@@ -29983,7 +29983,7 @@ pub fn condition_to_json(condition: Condition) -> Json {
       #(
         "onset"
           <> case v {
-          ConditionOnsetDatetime(_) -> "Datetime"
+          ConditionOnsetDatetime(_) -> "DateTime"
           ConditionOnsetAge(_) -> "Age"
           ConditionOnsetPeriod(_) -> "Period"
           ConditionOnsetRange(_) -> "Range"
@@ -32309,7 +32309,7 @@ pub fn contract_term_action_to_json(
       #(
         "occurrence"
           <> case v {
-          ContractTermActionOccurrenceDatetime(_) -> "Datetime"
+          ContractTermActionOccurrenceDatetime(_) -> "DateTime"
           ContractTermActionOccurrencePeriod(_) -> "Period"
           ContractTermActionOccurrenceTiming(_) -> "Timing"
         },
@@ -32571,7 +32571,7 @@ pub fn contract_term_asset_valueditem_to_json(
         "entity"
           <> case v {
           ContractTermAssetValueditemEntityCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           ContractTermAssetValueditemEntityReference(_) -> "Reference"
         },
         contract_term_asset_valueditem_entity_to_json(v),
@@ -33431,7 +33431,7 @@ pub fn contract_term_to_json(contract_term: ContractTerm) -> Json {
       #(
         "topic"
           <> case v {
-          ContractTermTopicCodeableconcept(_) -> "Codeableconcept"
+          ContractTermTopicCodeableconcept(_) -> "CodeableConcept"
           ContractTermTopicReference(_) -> "Reference"
         },
         contract_term_topic_to_json(v),
@@ -33778,7 +33778,7 @@ pub fn contract_to_json(contract: Contract) -> Json {
       #(
         "topic"
           <> case v {
-          ContractTopicCodeableconcept(_) -> "Codeableconcept"
+          ContractTopicCodeableconcept(_) -> "CodeableConcept"
           ContractTopicReference(_) -> "Reference"
         },
         contract_topic_to_json(v),
@@ -35056,7 +35056,7 @@ pub fn coverageeligibilityrequest_item_diagnosis_to_json(
         "diagnosis"
           <> case v {
           CoverageeligibilityrequestItemDiagnosisDiagnosisCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           CoverageeligibilityrequestItemDiagnosisDiagnosisReference(_) ->
             "Reference"
         },
@@ -36071,7 +36071,7 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_to_json(
         "used"
           <> case v {
           CoverageeligibilityresponseInsuranceItemBenefitUsedUnsignedint(_) ->
-            "Unsignedint"
+            "UnsignedInt"
           CoverageeligibilityresponseInsuranceItemBenefitUsedString(_) ->
             "String"
           CoverageeligibilityresponseInsuranceItemBenefitUsedMoney(_) -> "Money"
@@ -36088,7 +36088,7 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_to_json(
         "allowed"
           <> case v {
           CoverageeligibilityresponseInsuranceItemBenefitAllowedUnsignedint(_) ->
-            "Unsignedint"
+            "UnsignedInt"
           CoverageeligibilityresponseInsuranceItemBenefitAllowedString(_) ->
             "String"
           CoverageeligibilityresponseInsuranceItemBenefitAllowedMoney(_) ->
@@ -37069,7 +37069,7 @@ pub fn detectedissue_to_json(detectedissue: Detectedissue) -> Json {
       #(
         "identified"
           <> case v {
-          DetectedissueIdentifiedDatetime(_) -> "Datetime"
+          DetectedissueIdentifiedDatetime(_) -> "DateTime"
           DetectedissueIdentifiedPeriod(_) -> "Period"
         },
         detectedissue_identified_to_json(v),
@@ -39874,7 +39874,7 @@ pub fn devicerequest_parameter_to_json(
       #(
         "value"
           <> case v {
-          DevicerequestParameterValueCodeableconcept(_) -> "Codeableconcept"
+          DevicerequestParameterValueCodeableconcept(_) -> "CodeableConcept"
           DevicerequestParameterValueQuantity(_) -> "Quantity"
           DevicerequestParameterValueRange(_) -> "Range"
           DevicerequestParameterValueBoolean(_) -> "Boolean"
@@ -40034,7 +40034,7 @@ pub fn devicerequest_to_json(devicerequest: Devicerequest) -> Json {
       #(
         "occurrence"
           <> case v {
-          DevicerequestOccurrenceDatetime(_) -> "Datetime"
+          DevicerequestOccurrenceDatetime(_) -> "DateTime"
           DevicerequestOccurrencePeriod(_) -> "Period"
           DevicerequestOccurrenceTiming(_) -> "Timing"
         },
@@ -40477,7 +40477,7 @@ pub fn deviceusestatement_to_json(
           <> case v {
           DeviceusestatementTimingTiming(_) -> "Timing"
           DeviceusestatementTimingPeriod(_) -> "Period"
-          DeviceusestatementTimingDatetime(_) -> "Datetime"
+          DeviceusestatementTimingDatetime(_) -> "DateTime"
         },
         deviceusestatement_timing_to_json(v),
       ),
@@ -40939,7 +40939,7 @@ pub fn diagnosticreport_to_json(diagnosticreport: Diagnosticreport) -> Json {
       #(
         "effective"
           <> case v {
-          DiagnosticreportEffectiveDatetime(_) -> "Datetime"
+          DiagnosticreportEffectiveDatetime(_) -> "DateTime"
           DiagnosticreportEffectivePeriod(_) -> "Period"
         },
         diagnosticreport_effective_to_json(v),
@@ -46258,7 +46258,7 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
       #(
         "subject"
           <> case v {
-          EventdefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          EventdefinitionSubjectCodeableconcept(_) -> "CodeableConcept"
           EventdefinitionSubjectReference(_) -> "Reference"
         },
         eventdefinition_subject_to_json(v),
@@ -47332,7 +47332,7 @@ pub fn evidencevariable_characteristic_to_json(
         "participantEffective"
           <> case v {
           EvidencevariableCharacteristicParticipanteffectiveDatetime(_) ->
-            "Datetime"
+            "DateTime"
           EvidencevariableCharacteristicParticipanteffectivePeriod(_) ->
             "Period"
           EvidencevariableCharacteristicParticipanteffectiveDuration(_) ->
@@ -50378,7 +50378,7 @@ pub fn explanationofbenefit_benefitbalance_financial_to_json(
         "used"
           <> case v {
           ExplanationofbenefitBenefitbalanceFinancialUsedUnsignedint(_) ->
-            "Unsignedint"
+            "UnsignedInt"
           ExplanationofbenefitBenefitbalanceFinancialUsedMoney(_) -> "Money"
         },
         explanationofbenefit_benefitbalance_financial_used_to_json(v),
@@ -50393,7 +50393,7 @@ pub fn explanationofbenefit_benefitbalance_financial_to_json(
         "allowed"
           <> case v {
           ExplanationofbenefitBenefitbalanceFinancialAllowedUnsignedint(_) ->
-            "Unsignedint"
+            "UnsignedInt"
           ExplanationofbenefitBenefitbalanceFinancialAllowedString(_) ->
             "String"
           ExplanationofbenefitBenefitbalanceFinancialAllowedMoney(_) -> "Money"
@@ -51253,7 +51253,7 @@ pub fn explanationofbenefit_additem_to_json(
         "location"
           <> case v {
           ExplanationofbenefitAdditemLocationCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           ExplanationofbenefitAdditemLocationAddress(_) -> "Address"
           ExplanationofbenefitAdditemLocationReference(_) -> "Reference"
         },
@@ -52034,7 +52034,7 @@ pub fn explanationofbenefit_item_to_json(
         "location"
           <> case v {
           ExplanationofbenefitItemLocationCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           ExplanationofbenefitItemLocationAddress(_) -> "Address"
           ExplanationofbenefitItemLocationReference(_) -> "Reference"
         },
@@ -54702,7 +54702,7 @@ pub fn goal_target_to_json(goal_target: GoalTarget) -> Json {
           <> case v {
           GoalTargetDetailQuantity(_) -> "Quantity"
           GoalTargetDetailRange(_) -> "Range"
-          GoalTargetDetailCodeableconcept(_) -> "Codeableconcept"
+          GoalTargetDetailCodeableconcept(_) -> "CodeableConcept"
           GoalTargetDetailString(_) -> "String"
           GoalTargetDetailBoolean(_) -> "Boolean"
           GoalTargetDetailInteger(_) -> "Integer"
@@ -54842,7 +54842,7 @@ pub fn goal_to_json(goal: Goal) -> Json {
         "start"
           <> case v {
           GoalStartDate(_) -> "Date"
-          GoalStartCodeableconcept(_) -> "Codeableconcept"
+          GoalStartCodeableconcept(_) -> "CodeableConcept"
         },
         goal_start_to_json(v),
       ),
@@ -58509,7 +58509,7 @@ pub fn immunization_protocolapplied_to_json(
       #(
         "seriesDoses"
           <> case v {
-          ImmunizationProtocolappliedSeriesdosesPositiveint(_) -> "Positiveint"
+          ImmunizationProtocolappliedSeriesdosesPositiveint(_) -> "PositiveInt"
           ImmunizationProtocolappliedSeriesdosesString(_) -> "String"
         },
         immunization_protocolapplied_seriesdoses_to_json(v),
@@ -59410,7 +59410,7 @@ pub fn immunizationevaluation_to_json(
       #(
         "seriesDoses"
           <> case v {
-          ImmunizationevaluationSeriesdosesPositiveint(_) -> "Positiveint"
+          ImmunizationevaluationSeriesdosesPositiveint(_) -> "PositiveInt"
           ImmunizationevaluationSeriesdosesString(_) -> "String"
         },
         immunizationevaluation_seriesdoses_to_json(v),
@@ -59424,7 +59424,7 @@ pub fn immunizationevaluation_to_json(
       #(
         "doseNumber"
           <> case v {
-          ImmunizationevaluationDosenumberPositiveint(_) -> "Positiveint"
+          ImmunizationevaluationDosenumberPositiveint(_) -> "PositiveInt"
           ImmunizationevaluationDosenumberString(_) -> "String"
         },
         immunizationevaluation_dosenumber_to_json(v),
@@ -59914,7 +59914,7 @@ pub fn immunizationrecommendation_recommendation_to_json(
         "seriesDoses"
           <> case v {
           ImmunizationrecommendationRecommendationSeriesdosesPositiveint(_) ->
-            "Positiveint"
+            "PositiveInt"
           ImmunizationrecommendationRecommendationSeriesdosesString(_) ->
             "String"
         },
@@ -59930,7 +59930,7 @@ pub fn immunizationrecommendation_recommendation_to_json(
         "doseNumber"
           <> case v {
           ImmunizationrecommendationRecommendationDosenumberPositiveint(_) ->
-            "Positiveint"
+            "PositiveInt"
           ImmunizationrecommendationRecommendationDosenumberString(_) ->
             "String"
         },
@@ -64239,7 +64239,7 @@ pub fn library_to_json(library: Library) -> Json {
       #(
         "subject"
           <> case v {
-          LibrarySubjectCodeableconcept(_) -> "Codeableconcept"
+          LibrarySubjectCodeableconcept(_) -> "CodeableConcept"
           LibrarySubjectReference(_) -> "Reference"
         },
         library_subject_to_json(v),
@@ -66652,7 +66652,7 @@ pub fn measure_to_json(measure: Measure) -> Json {
       #(
         "subject"
           <> case v {
-          MeasureSubjectCodeableconcept(_) -> "Codeableconcept"
+          MeasureSubjectCodeableconcept(_) -> "CodeableConcept"
           MeasureSubjectReference(_) -> "Reference"
         },
         measure_subject_to_json(v),
@@ -68115,7 +68115,7 @@ pub fn media_to_json(media: Media) -> Json {
       #(
         "created"
           <> case v {
-          MediaCreatedDatetime(_) -> "Datetime"
+          MediaCreatedDatetime(_) -> "DateTime"
           MediaCreatedPeriod(_) -> "Period"
         },
         media_created_to_json(v),
@@ -70049,7 +70049,7 @@ pub fn medicationdispense_to_json(
       #(
         "statusReason"
           <> case v {
-          MedicationdispenseStatusreasonCodeableconcept(_) -> "Codeableconcept"
+          MedicationdispenseStatusreasonCodeableconcept(_) -> "CodeableConcept"
           MedicationdispenseStatusreasonReference(_) -> "Reference"
         },
         medicationdispense_statusreason_to_json(v),
@@ -71293,11 +71293,11 @@ pub fn medicationknowledge_drugcharacteristic_to_json(
         "value"
           <> case v {
           MedicationknowledgeDrugcharacteristicValueCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           MedicationknowledgeDrugcharacteristicValueString(_) -> "String"
           MedicationknowledgeDrugcharacteristicValueQuantity(_) -> "Quantity"
           MedicationknowledgeDrugcharacteristicValueBase64binary(_) ->
-            "Base64binary"
+            "Base64Binary"
         },
         medicationknowledge_drugcharacteristic_value_to_json(v),
       ),
@@ -71665,7 +71665,7 @@ pub fn medicationknowledge_administrationguidelines_to_json(
           <> case v {
           MedicationknowledgeAdministrationguidelinesIndicationCodeableconcept(
             _,
-          ) -> "Codeableconcept"
+          ) -> "CodeableConcept"
           MedicationknowledgeAdministrationguidelinesIndicationReference(_) ->
             "Reference"
         },
@@ -73759,7 +73759,7 @@ pub fn medicationstatement_to_json(
       #(
         "effective"
           <> case v {
-          MedicationstatementEffectiveDatetime(_) -> "Datetime"
+          MedicationstatementEffectiveDatetime(_) -> "DateTime"
           MedicationstatementEffectivePeriod(_) -> "Period"
         },
         medicationstatement_effective_to_json(v),
@@ -74258,7 +74258,7 @@ pub fn medicinalproduct_specialdesignation_to_json(
         "indication"
           <> case v {
           MedicinalproductSpecialdesignationIndicationCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           MedicinalproductSpecialdesignationIndicationReference(_) ->
             "Reference"
         },
@@ -75264,7 +75264,7 @@ pub fn medicinalproductauthorization_procedure_to_json(
         "date"
           <> case v {
           MedicinalproductauthorizationProcedureDatePeriod(_) -> "Period"
-          MedicinalproductauthorizationProcedureDateDatetime(_) -> "Datetime"
+          MedicinalproductauthorizationProcedureDateDatetime(_) -> "DateTime"
         },
         medicinalproductauthorization_procedure_date_to_json(v),
       ),
@@ -84144,15 +84144,15 @@ pub fn observation_component_to_json(
         "value"
           <> case v {
           ObservationComponentValueQuantity(_) -> "Quantity"
-          ObservationComponentValueCodeableconcept(_) -> "Codeableconcept"
+          ObservationComponentValueCodeableconcept(_) -> "CodeableConcept"
           ObservationComponentValueString(_) -> "String"
           ObservationComponentValueBoolean(_) -> "Boolean"
           ObservationComponentValueInteger(_) -> "Integer"
           ObservationComponentValueRange(_) -> "Range"
           ObservationComponentValueRatio(_) -> "Ratio"
-          ObservationComponentValueSampleddata(_) -> "Sampleddata"
+          ObservationComponentValueSampleddata(_) -> "SampledData"
           ObservationComponentValueTime(_) -> "Time"
-          ObservationComponentValueDatetime(_) -> "Datetime"
+          ObservationComponentValueDatetime(_) -> "DateTime"
           ObservationComponentValuePeriod(_) -> "Period"
         },
         observation_component_value_to_json(v),
@@ -84445,15 +84445,15 @@ pub fn observation_to_json(observation: Observation) -> Json {
         "value"
           <> case v {
           ObservationValueQuantity(_) -> "Quantity"
-          ObservationValueCodeableconcept(_) -> "Codeableconcept"
+          ObservationValueCodeableconcept(_) -> "CodeableConcept"
           ObservationValueString(_) -> "String"
           ObservationValueBoolean(_) -> "Boolean"
           ObservationValueInteger(_) -> "Integer"
           ObservationValueRange(_) -> "Range"
           ObservationValueRatio(_) -> "Ratio"
-          ObservationValueSampleddata(_) -> "Sampleddata"
+          ObservationValueSampleddata(_) -> "SampledData"
           ObservationValueTime(_) -> "Time"
-          ObservationValueDatetime(_) -> "Datetime"
+          ObservationValueDatetime(_) -> "DateTime"
           ObservationValuePeriod(_) -> "Period"
         },
         observation_value_to_json(v),
@@ -84475,7 +84475,7 @@ pub fn observation_to_json(observation: Observation) -> Json {
       #(
         "effective"
           <> case v {
-          ObservationEffectiveDatetime(_) -> "Datetime"
+          ObservationEffectiveDatetime(_) -> "DateTime"
           ObservationEffectivePeriod(_) -> "Period"
           ObservationEffectiveTiming(_) -> "Timing"
           ObservationEffectiveInstant(_) -> "Instant"
@@ -87571,22 +87571,22 @@ pub fn parameters_parameter_to_json(
       #(
         "value"
           <> case v {
-          ParametersParameterValueBase64binary(_) -> "Base64binary"
+          ParametersParameterValueBase64binary(_) -> "Base64Binary"
           ParametersParameterValueBoolean(_) -> "Boolean"
           ParametersParameterValueCanonical(_) -> "Canonical"
           ParametersParameterValueCode(_) -> "Code"
           ParametersParameterValueDate(_) -> "Date"
-          ParametersParameterValueDatetime(_) -> "Datetime"
+          ParametersParameterValueDatetime(_) -> "DateTime"
           ParametersParameterValueDecimal(_) -> "Decimal"
           ParametersParameterValueId(_) -> "Id"
           ParametersParameterValueInstant(_) -> "Instant"
           ParametersParameterValueInteger(_) -> "Integer"
           ParametersParameterValueMarkdown(_) -> "Markdown"
           ParametersParameterValueOid(_) -> "Oid"
-          ParametersParameterValuePositiveint(_) -> "Positiveint"
+          ParametersParameterValuePositiveint(_) -> "PositiveInt"
           ParametersParameterValueString(_) -> "String"
           ParametersParameterValueTime(_) -> "Time"
-          ParametersParameterValueUnsignedint(_) -> "Unsignedint"
+          ParametersParameterValueUnsignedint(_) -> "UnsignedInt"
           ParametersParameterValueUri(_) -> "Uri"
           ParametersParameterValueUrl(_) -> "Url"
           ParametersParameterValueUuid(_) -> "Uuid"
@@ -87594,13 +87594,13 @@ pub fn parameters_parameter_to_json(
           ParametersParameterValueAge(_) -> "Age"
           ParametersParameterValueAnnotation(_) -> "Annotation"
           ParametersParameterValueAttachment(_) -> "Attachment"
-          ParametersParameterValueCodeableconcept(_) -> "Codeableconcept"
+          ParametersParameterValueCodeableconcept(_) -> "CodeableConcept"
           ParametersParameterValueCoding(_) -> "Coding"
-          ParametersParameterValueContactpoint(_) -> "Contactpoint"
+          ParametersParameterValueContactpoint(_) -> "ContactPoint"
           ParametersParameterValueCount(_) -> "Count"
           ParametersParameterValueDistance(_) -> "Distance"
           ParametersParameterValueDuration(_) -> "Duration"
-          ParametersParameterValueHumanname(_) -> "Humanname"
+          ParametersParameterValueHumanname(_) -> "HumanName"
           ParametersParameterValueIdentifier(_) -> "Identifier"
           ParametersParameterValueMoney(_) -> "Money"
           ParametersParameterValuePeriod(_) -> "Period"
@@ -87608,18 +87608,18 @@ pub fn parameters_parameter_to_json(
           ParametersParameterValueRange(_) -> "Range"
           ParametersParameterValueRatio(_) -> "Ratio"
           ParametersParameterValueReference(_) -> "Reference"
-          ParametersParameterValueSampleddata(_) -> "Sampleddata"
+          ParametersParameterValueSampleddata(_) -> "SampledData"
           ParametersParameterValueSignature(_) -> "Signature"
           ParametersParameterValueTiming(_) -> "Timing"
-          ParametersParameterValueContactdetail(_) -> "Contactdetail"
+          ParametersParameterValueContactdetail(_) -> "ContactDetail"
           ParametersParameterValueContributor(_) -> "Contributor"
-          ParametersParameterValueDatarequirement(_) -> "Datarequirement"
+          ParametersParameterValueDatarequirement(_) -> "DataRequirement"
           ParametersParameterValueExpression(_) -> "Expression"
           ParametersParameterValueParameterdefinition(_) ->
-            "Parameterdefinition"
-          ParametersParameterValueRelatedartifact(_) -> "Relatedartifact"
-          ParametersParameterValueTriggerdefinition(_) -> "Triggerdefinition"
-          ParametersParameterValueUsagecontext(_) -> "Usagecontext"
+            "ParameterDefinition"
+          ParametersParameterValueRelatedartifact(_) -> "RelatedArtifact"
+          ParametersParameterValueTriggerdefinition(_) -> "TriggerDefinition"
+          ParametersParameterValueUsagecontext(_) -> "UsageContext"
           ParametersParameterValueDosage(_) -> "Dosage"
           ParametersParameterValueMeta(_) -> "Meta"
         },
@@ -88259,7 +88259,7 @@ pub fn patient_to_json(patient: Patient) -> Json {
         "deceased"
           <> case v {
           PatientDeceasedBoolean(_) -> "Boolean"
-          PatientDeceasedDatetime(_) -> "Datetime"
+          PatientDeceasedDatetime(_) -> "DateTime"
         },
         patient_deceased_to_json(v),
       ),
@@ -90621,7 +90621,7 @@ pub fn plandefinition_action_to_json(
       #(
         "timing"
           <> case v {
-          PlandefinitionActionTimingDatetime(_) -> "Datetime"
+          PlandefinitionActionTimingDatetime(_) -> "DateTime"
           PlandefinitionActionTimingAge(_) -> "Age"
           PlandefinitionActionTimingPeriod(_) -> "Period"
           PlandefinitionActionTimingDuration(_) -> "Duration"
@@ -90674,7 +90674,7 @@ pub fn plandefinition_action_to_json(
       #(
         "subject"
           <> case v {
-          PlandefinitionActionSubjectCodeableconcept(_) -> "Codeableconcept"
+          PlandefinitionActionSubjectCodeableconcept(_) -> "CodeableConcept"
           PlandefinitionActionSubjectReference(_) -> "Reference"
         },
         plandefinition_action_subject_to_json(v),
@@ -90935,7 +90935,7 @@ pub fn plandefinition_goal_target_to_json(
           <> case v {
           PlandefinitionGoalTargetDetailQuantity(_) -> "Quantity"
           PlandefinitionGoalTargetDetailRange(_) -> "Range"
-          PlandefinitionGoalTargetDetailCodeableconcept(_) -> "Codeableconcept"
+          PlandefinitionGoalTargetDetailCodeableconcept(_) -> "CodeableConcept"
         },
         plandefinition_goal_target_detail_to_json(v),
       ),
@@ -91277,7 +91277,7 @@ pub fn plandefinition_to_json(plandefinition: Plandefinition) -> Json {
       #(
         "subject"
           <> case v {
-          PlandefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          PlandefinitionSubjectCodeableconcept(_) -> "CodeableConcept"
           PlandefinitionSubjectReference(_) -> "Reference"
         },
         plandefinition_subject_to_json(v),
@@ -92970,7 +92970,7 @@ pub fn procedure_to_json(procedure: Procedure) -> Json {
       #(
         "performed"
           <> case v {
-          ProcedurePerformedDatetime(_) -> "Datetime"
+          ProcedurePerformedDatetime(_) -> "DateTime"
           ProcedurePerformedPeriod(_) -> "Period"
           ProcedurePerformedString(_) -> "String"
           ProcedurePerformedAge(_) -> "Age"
@@ -93606,7 +93606,7 @@ pub fn provenance_to_json(provenance: Provenance) -> Json {
         "occurred"
           <> case v {
           ProvenanceOccurredPeriod(_) -> "Period"
-          ProvenanceOccurredDatetime(_) -> "Datetime"
+          ProvenanceOccurredDatetime(_) -> "DateTime"
         },
         provenance_occurred_to_json(v),
       ),
@@ -95072,7 +95072,7 @@ pub fn questionnaireresponse_item_answer_to_json(
           QuestionnaireresponseItemAnswerValueDecimal(_) -> "Decimal"
           QuestionnaireresponseItemAnswerValueInteger(_) -> "Integer"
           QuestionnaireresponseItemAnswerValueDate(_) -> "Date"
-          QuestionnaireresponseItemAnswerValueDatetime(_) -> "Datetime"
+          QuestionnaireresponseItemAnswerValueDatetime(_) -> "DateTime"
           QuestionnaireresponseItemAnswerValueTime(_) -> "Time"
           QuestionnaireresponseItemAnswerValueString(_) -> "String"
           QuestionnaireresponseItemAnswerValueUri(_) -> "Uri"
@@ -96331,7 +96331,7 @@ pub fn requestgroup_action_to_json(
       #(
         "timing"
           <> case v {
-          RequestgroupActionTimingDatetime(_) -> "Datetime"
+          RequestgroupActionTimingDatetime(_) -> "DateTime"
           RequestgroupActionTimingAge(_) -> "Age"
           RequestgroupActionTimingPeriod(_) -> "Period"
           RequestgroupActionTimingDuration(_) -> "Duration"
@@ -97145,7 +97145,7 @@ pub fn researchdefinition_to_json(
       #(
         "subject"
           <> case v {
-          ResearchdefinitionSubjectCodeableconcept(_) -> "Codeableconcept"
+          ResearchdefinitionSubjectCodeableconcept(_) -> "CodeableConcept"
           ResearchdefinitionSubjectReference(_) -> "Reference"
         },
         researchdefinition_subject_to_json(v),
@@ -97879,7 +97879,7 @@ pub fn researchelementdefinition_characteristic_to_json(
         "participantEffective"
           <> case v {
           ResearchelementdefinitionCharacteristicParticipanteffectiveDatetime(_) ->
-            "Datetime"
+            "DateTime"
           ResearchelementdefinitionCharacteristicParticipanteffectivePeriod(_) ->
             "Period"
           ResearchelementdefinitionCharacteristicParticipanteffectiveDuration(_) ->
@@ -97914,7 +97914,7 @@ pub fn researchelementdefinition_characteristic_to_json(
         "studyEffective"
           <> case v {
           ResearchelementdefinitionCharacteristicStudyeffectiveDatetime(_) ->
-            "Datetime"
+            "DateTime"
           ResearchelementdefinitionCharacteristicStudyeffectivePeriod(_) ->
             "Period"
           ResearchelementdefinitionCharacteristicStudyeffectiveDuration(_) ->
@@ -98225,7 +98225,7 @@ pub fn researchelementdefinition_to_json(
         "subject"
           <> case v {
           ResearchelementdefinitionSubjectCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           ResearchelementdefinitionSubjectReference(_) -> "Reference"
         },
         researchelementdefinition_subject_to_json(v),
@@ -99807,7 +99807,7 @@ pub fn riskassessment_to_json(riskassessment: Riskassessment) -> Json {
       #(
         "occurrence"
           <> case v {
-          RiskassessmentOccurrenceDatetime(_) -> "Datetime"
+          RiskassessmentOccurrenceDatetime(_) -> "DateTime"
           RiskassessmentOccurrencePeriod(_) -> "Period"
         },
         riskassessment_occurrence_to_json(v),
@@ -102296,7 +102296,7 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
         "asNeeded"
           <> case v {
           ServicerequestAsneededBoolean(_) -> "Boolean"
-          ServicerequestAsneededCodeableconcept(_) -> "Codeableconcept"
+          ServicerequestAsneededCodeableconcept(_) -> "CodeableConcept"
         },
         servicerequest_asneeded_to_json(v),
       ),
@@ -102309,7 +102309,7 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
       #(
         "occurrence"
           <> case v {
-          ServicerequestOccurrenceDatetime(_) -> "Datetime"
+          ServicerequestOccurrenceDatetime(_) -> "DateTime"
           ServicerequestOccurrencePeriod(_) -> "Period"
           ServicerequestOccurrenceTiming(_) -> "Timing"
         },
@@ -103217,7 +103217,7 @@ pub fn specimen_container_to_json(specimen_container: SpecimenContainer) -> Json
       #(
         "additive"
           <> case v {
-          SpecimenContainerAdditiveCodeableconcept(_) -> "Codeableconcept"
+          SpecimenContainerAdditiveCodeableconcept(_) -> "CodeableConcept"
           SpecimenContainerAdditiveReference(_) -> "Reference"
         },
         specimen_container_additive_to_json(v),
@@ -103336,7 +103336,7 @@ pub fn specimen_processing_to_json(
       #(
         "time"
           <> case v {
-          SpecimenProcessingTimeDatetime(_) -> "Datetime"
+          SpecimenProcessingTimeDatetime(_) -> "DateTime"
           SpecimenProcessingTimePeriod(_) -> "Period"
         },
         specimen_processing_time_to_json(v),
@@ -103436,7 +103436,7 @@ pub fn specimen_collection_to_json(
       #(
         "fastingStatus"
           <> case v {
-          SpecimenCollectionFastingstatusCodeableconcept(_) -> "Codeableconcept"
+          SpecimenCollectionFastingstatusCodeableconcept(_) -> "CodeableConcept"
           SpecimenCollectionFastingstatusDuration(_) -> "Duration"
         },
         specimen_collection_fastingstatus_to_json(v),
@@ -103466,7 +103466,7 @@ pub fn specimen_collection_to_json(
       #(
         "collected"
           <> case v {
-          SpecimenCollectionCollectedDatetime(_) -> "Datetime"
+          SpecimenCollectionCollectedDatetime(_) -> "DateTime"
           SpecimenCollectionCollectedPeriod(_) -> "Period"
         },
         specimen_collection_collected_to_json(v),
@@ -106511,22 +106511,22 @@ pub fn structuremap_group_rule_source_to_json(
         "defaultValue"
           <> case v {
           StructuremapGroupRuleSourceDefaultvalueBase64binary(_) ->
-            "Base64binary"
+            "Base64Binary"
           StructuremapGroupRuleSourceDefaultvalueBoolean(_) -> "Boolean"
           StructuremapGroupRuleSourceDefaultvalueCanonical(_) -> "Canonical"
           StructuremapGroupRuleSourceDefaultvalueCode(_) -> "Code"
           StructuremapGroupRuleSourceDefaultvalueDate(_) -> "Date"
-          StructuremapGroupRuleSourceDefaultvalueDatetime(_) -> "Datetime"
+          StructuremapGroupRuleSourceDefaultvalueDatetime(_) -> "DateTime"
           StructuremapGroupRuleSourceDefaultvalueDecimal(_) -> "Decimal"
           StructuremapGroupRuleSourceDefaultvalueId(_) -> "Id"
           StructuremapGroupRuleSourceDefaultvalueInstant(_) -> "Instant"
           StructuremapGroupRuleSourceDefaultvalueInteger(_) -> "Integer"
           StructuremapGroupRuleSourceDefaultvalueMarkdown(_) -> "Markdown"
           StructuremapGroupRuleSourceDefaultvalueOid(_) -> "Oid"
-          StructuremapGroupRuleSourceDefaultvaluePositiveint(_) -> "Positiveint"
+          StructuremapGroupRuleSourceDefaultvaluePositiveint(_) -> "PositiveInt"
           StructuremapGroupRuleSourceDefaultvalueString(_) -> "String"
           StructuremapGroupRuleSourceDefaultvalueTime(_) -> "Time"
-          StructuremapGroupRuleSourceDefaultvalueUnsignedint(_) -> "Unsignedint"
+          StructuremapGroupRuleSourceDefaultvalueUnsignedint(_) -> "UnsignedInt"
           StructuremapGroupRuleSourceDefaultvalueUri(_) -> "Uri"
           StructuremapGroupRuleSourceDefaultvalueUrl(_) -> "Url"
           StructuremapGroupRuleSourceDefaultvalueUuid(_) -> "Uuid"
@@ -106535,14 +106535,14 @@ pub fn structuremap_group_rule_source_to_json(
           StructuremapGroupRuleSourceDefaultvalueAnnotation(_) -> "Annotation"
           StructuremapGroupRuleSourceDefaultvalueAttachment(_) -> "Attachment"
           StructuremapGroupRuleSourceDefaultvalueCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
           StructuremapGroupRuleSourceDefaultvalueCoding(_) -> "Coding"
           StructuremapGroupRuleSourceDefaultvalueContactpoint(_) ->
-            "Contactpoint"
+            "ContactPoint"
           StructuremapGroupRuleSourceDefaultvalueCount(_) -> "Count"
           StructuremapGroupRuleSourceDefaultvalueDistance(_) -> "Distance"
           StructuremapGroupRuleSourceDefaultvalueDuration(_) -> "Duration"
-          StructuremapGroupRuleSourceDefaultvalueHumanname(_) -> "Humanname"
+          StructuremapGroupRuleSourceDefaultvalueHumanname(_) -> "HumanName"
           StructuremapGroupRuleSourceDefaultvalueIdentifier(_) -> "Identifier"
           StructuremapGroupRuleSourceDefaultvalueMoney(_) -> "Money"
           StructuremapGroupRuleSourceDefaultvaluePeriod(_) -> "Period"
@@ -106550,23 +106550,23 @@ pub fn structuremap_group_rule_source_to_json(
           StructuremapGroupRuleSourceDefaultvalueRange(_) -> "Range"
           StructuremapGroupRuleSourceDefaultvalueRatio(_) -> "Ratio"
           StructuremapGroupRuleSourceDefaultvalueReference(_) -> "Reference"
-          StructuremapGroupRuleSourceDefaultvalueSampleddata(_) -> "Sampleddata"
+          StructuremapGroupRuleSourceDefaultvalueSampleddata(_) -> "SampledData"
           StructuremapGroupRuleSourceDefaultvalueSignature(_) -> "Signature"
           StructuremapGroupRuleSourceDefaultvalueTiming(_) -> "Timing"
           StructuremapGroupRuleSourceDefaultvalueContactdetail(_) ->
-            "Contactdetail"
+            "ContactDetail"
           StructuremapGroupRuleSourceDefaultvalueContributor(_) -> "Contributor"
           StructuremapGroupRuleSourceDefaultvalueDatarequirement(_) ->
-            "Datarequirement"
+            "DataRequirement"
           StructuremapGroupRuleSourceDefaultvalueExpression(_) -> "Expression"
           StructuremapGroupRuleSourceDefaultvalueParameterdefinition(_) ->
-            "Parameterdefinition"
+            "ParameterDefinition"
           StructuremapGroupRuleSourceDefaultvalueRelatedartifact(_) ->
-            "Relatedartifact"
+            "RelatedArtifact"
           StructuremapGroupRuleSourceDefaultvalueTriggerdefinition(_) ->
-            "Triggerdefinition"
+            "TriggerDefinition"
           StructuremapGroupRuleSourceDefaultvalueUsagecontext(_) ->
-            "Usagecontext"
+            "UsageContext"
           StructuremapGroupRuleSourceDefaultvalueDosage(_) -> "Dosage"
           StructuremapGroupRuleSourceDefaultvalueMeta(_) -> "Meta"
         },
@@ -112426,7 +112426,7 @@ pub fn substancespecification_relationship_to_json(
           <> case v {
           SubstancespecificationRelationshipSubstanceReference(_) -> "Reference"
           SubstancespecificationRelationshipSubstanceCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
         },
         substancespecification_relationship_substance_to_json(v),
       ),
@@ -113355,7 +113355,7 @@ pub fn substancespecification_property_to_json(
           SubstancespecificationPropertyDefiningsubstanceReference(_) ->
             "Reference"
           SubstancespecificationPropertyDefiningsubstanceCodeableconcept(_) ->
-            "Codeableconcept"
+            "CodeableConcept"
         },
         substancespecification_property_definingsubstance_to_json(v),
       ),
@@ -114078,7 +114078,7 @@ pub fn supplydelivery_supplieditem_to_json(
       #(
         "item"
           <> case v {
-          SupplydeliverySupplieditemItemCodeableconcept(_) -> "Codeableconcept"
+          SupplydeliverySupplieditemItemCodeableconcept(_) -> "CodeableConcept"
           SupplydeliverySupplieditemItemReference(_) -> "Reference"
         },
         supplydelivery_supplieditem_item_to_json(v),
@@ -114181,7 +114181,7 @@ pub fn supplydelivery_to_json(supplydelivery: Supplydelivery) -> Json {
       #(
         "occurrence"
           <> case v {
-          SupplydeliveryOccurrenceDatetime(_) -> "Datetime"
+          SupplydeliveryOccurrenceDatetime(_) -> "DateTime"
           SupplydeliveryOccurrencePeriod(_) -> "Period"
           SupplydeliveryOccurrenceTiming(_) -> "Timing"
         },
@@ -114577,7 +114577,7 @@ pub fn supplyrequest_parameter_to_json(
       #(
         "value"
           <> case v {
-          SupplyrequestParameterValueCodeableconcept(_) -> "Codeableconcept"
+          SupplyrequestParameterValueCodeableconcept(_) -> "CodeableConcept"
           SupplyrequestParameterValueQuantity(_) -> "Quantity"
           SupplyrequestParameterValueRange(_) -> "Range"
           SupplyrequestParameterValueBoolean(_) -> "Boolean"
@@ -114709,7 +114709,7 @@ pub fn supplyrequest_to_json(supplyrequest: Supplyrequest) -> Json {
       #(
         "occurrence"
           <> case v {
-          SupplyrequestOccurrenceDatetime(_) -> "Datetime"
+          SupplyrequestOccurrenceDatetime(_) -> "DateTime"
           SupplyrequestOccurrencePeriod(_) -> "Period"
           SupplyrequestOccurrenceTiming(_) -> "Timing"
         },
@@ -121597,7 +121597,7 @@ pub fn valueset_expansion_parameter_to_json(
           ValuesetExpansionParameterValueDecimal(_) -> "Decimal"
           ValuesetExpansionParameterValueUri(_) -> "Uri"
           ValuesetExpansionParameterValueCode(_) -> "Code"
-          ValuesetExpansionParameterValueDatetime(_) -> "Datetime"
+          ValuesetExpansionParameterValueDatetime(_) -> "DateTime"
         },
         valueset_expansion_parameter_value_to_json(v),
       ),

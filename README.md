@@ -14,20 +14,6 @@ pub fn main() -> Nil {
 }
 ```
 
-Further documentation can be found at <https://hexdocs.pm/fhir>.
+<https://hexdocs.pm/fhir>
 
-## Development
-
-```sh
-gleam run -m internal/codegen r4 r4B r5 download 
-```
-
-```sh
-rm -r .\src\r4\; gleam run -m internal/codegen r4; gleam format
-```
-
-link type (how to support link type eg Provenance.entity.agent links to 0..* Provenance.agent)
-valueset composition (idk)
-time (scared)
-decimal (idk)
-opaque constructors (hard to implement/use? value?)
+https://github.com/PotatoEMR/gleam-fhir/issues

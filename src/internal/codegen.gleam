@@ -17,18 +17,9 @@ import fhir/r4
 
 const check_versions = ["r4", "r4b", "r5"]
 
-const valuesets_json = "valuesets.json"
-
-const v2tables_json = "v2-tables.json"
-
-const v3codesystems_json = "v3-codesystems.json"
-
 const zip_file_names = [
   "profiles-resources.json",
   "profiles-types.json",
-  valuesets_json,
-  v2tables_json,
-  v3codesystems_json,
 ]
 
 const fhir_url = "https://www.hl7.org/fhir"
@@ -352,7 +343,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
 
   // gen valuesets for resource fields with required code binding
   // which were written as list to file by gen_gleamfile (why this fn needs to know file as temp list)
-  let all_vs = valueset_to_types(extract_dir_ver, gen_vsfile)
+  let all_vs = valueset_to_types(gen_vsfile, fhir_version)
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
 }
@@ -748,11 +739,20 @@ fn file_to_types(
                                 from: "",
                                 over: elt.type_,
                                 with: fn(suffixes_acc, ct) {
+                                  let assert [first_letter, ..rest] =
+                                    ct.code |> string.to_graphemes
+                                  // unlike string.capitalise this doesnt make everything after first lowercase
+                                  // so createdDateTime doesnt become createdDatetime
+                                  let capital_ct =
+                                    string.concat([
+                                      string.uppercase(first_letter),
+                                      ..rest
+                                    ])
                                   suffixes_acc
                                   <> field_name_new
                                   <> string.capitalise(ct.code)
                                   <> "(_) -> \""
-                                  <> string.capitalise(ct.code)
+                                  <> capital_ct
                                   <> "\"\n"
                                 },
                               ),
@@ -1062,6 +1062,7 @@ fn string_to_type(
                         || string.contains(url, "currencies")
                         || string.contains(url, "all-languages")
                         || string.contains(url, "ucum-units")
+                        || string.contains(url, "color-codes")
                       {
                         True -> "String"
                         //idk whats going on here, probably i dont understand valueset composition
@@ -1158,6 +1159,7 @@ fn string_to_decoder_type(
                         || string.contains(url, "currencies")
                         || string.contains(url, "all-languages")
                         || string.contains(url, "ucum-units")
+                        || string.contains(url, "color-codes")
                       {
                         True -> "decode.string"
                         //idk whats going on here, probably i dont understand valueset composition
@@ -1253,6 +1255,7 @@ fn string_to_encoder_type(
                         || string.contains(url, "currencies")
                         || string.contains(url, "all-languages")
                         || string.contains(url, "ucum-units")
+                        || string.contains(url, "color-codes")
                       {
                         True -> "json.string"
                         //idk whats going on here, probably i dont understand valueset composition
@@ -1429,58 +1432,8 @@ fn concept_name_from_url(u) {
   |> string.capitalise
 }
 
-type VsOrCs {
-  VocValueset(v: r4.Valueset)
-  VocCodesystem(c: r4.Codesystem)
-}
-
-fn valueset_to_types(extract_zips: String, vsfile: String) {
-  let assert Ok(f_json) =
-    simplifile.read(filepath.join(extract_zips, valuesets_json))
-    as "valuesets_json download"
-  //they make status required but don't provide it for an entry??
-  let f_json =
-    f_json
-    |> string.replace(
-      "\"name\" : \"CatalogType\",",
-      "\"name\" : \"CatalogType\", \"status\": \"unknown\"",
-    )
-  let assert Ok(vs_bundle) =
-    json.parse(from: f_json, using: r4.bundle_decoder())
-
-  let assert Ok(f_json) =
-    simplifile.read(filepath.join(extract_zips, v2tables_json))
-    as "v2tables_json download"
-  let assert Ok(tables_bundle) =
-    json.parse(from: f_json, using: r4.bundle_decoder())
-
-  let assert Ok(f_json) =
-    simplifile.read(filepath.join(extract_zips, v3codesystems_json))
-    as "v3codesystems_json download"
-  let assert Ok(codesystems_bundle) =
-    json.parse(from: f_json, using: r4.bundle_decoder())
-
-  let all_vs_or_cs: Dict(String, VsOrCs) =
-    list.fold(
-      from: dict.new(),
-      over: [vs_bundle, tables_bundle, codesystems_bundle],
-      with: fn(outer_acc, bndl) {
-        list.fold(from: outer_acc, over: bndl.entry, with: fn(inner_acc, entry) {
-          case entry.resource {
-            Some(r4.ResourceValueset(vs)) -> {
-              let assert Some(url) = vs.url
-              inner_acc |> dict.insert(url, VocValueset(vs))
-            }
-            Some(r4.ResourceCodesystem(cs)) -> {
-              let assert Some(url) = cs.url
-              inner_acc |> dict.insert(url, VocCodesystem(cs))
-            }
-            _ -> panic
-          }
-        })
-      },
-    )
-
+fn valueset_to_types(vsfile: String, fhir_version: String) {
+  //the valueset urls needed by element bindings
   let assert Ok(vs_list) = simplifile.read(vsfile)
   let vs_url_set =
     list.fold(
@@ -1489,15 +1442,20 @@ fn valueset_to_types(extract_zips: String, vsfile: String) {
       with: fn(acc, vs) { acc |> set.insert(vs) },
     )
     |> set.delete("")
+    |> set.delete("http://unitsofmeasure.org")
+    |> set.delete("http://hl7.org/fhir/ValueSet/color-codes")
 
   let vs_imports =
     "import gleam/dynamic/decode.{type Decoder}
   import gleam/json.{type Json}\n"
+  let expansion_dir =
+    "src"
+    |> filepath.join("internal")
+    |> filepath.join("valueset_expansions")
+    |> filepath.join(fhir_version)
   set.fold(from: vs_imports, over: vs_url_set, with: fn(valuesets_acc, vs_url) {
     let vsname = concept_name_from_url(Some(vs_url))
-    let vs_codes =
-      get_codes(vs_url, all_vs_or_cs)
-      |> list.unique
+    let vs_codes = get_codes(vs_url, expansion_dir)
     let vs_named_codes =
       vs_codes
       |> list.map(fn(code) { vsname <> string.capitalise(codetovarname(code)) })
@@ -1514,43 +1472,20 @@ fn valueset_to_types(extract_zips: String, vsfile: String) {
   })
 }
 
-fn get_codes(url: String, all_vs_or_cs: Dict(String, VsOrCs)) {
-  case url {
-    "http://unitsofmeasure.org" -> []
-    _ ->
-      case all_vs_or_cs |> dict.get(url) {
-        Error(_) -> panic as url
-        Ok(VocValueset(vs)) -> {
-          case vs.compose {
-            None -> []
-            Some(vsc) -> valuesetcompose_get_codes(vsc, all_vs_or_cs)
-          }
-        }
-        Ok(VocCodesystem(cs)) -> codesystemconcepts_get_codes(cs.concept)
-      }
-  }
-}
-
-fn valuesetcompose_get_codes(
-  vsc: r4.ValuesetCompose,
-  all_vs_or_cs: Dict(String, VsOrCs),
-) {
-  list.fold(from: [], over: vsc.include, with: fn(outer_acc, vsci) {
-    let outer_acc =
-      list.fold(from: outer_acc, over: vsci.concept, with: fn(inner_acc, vscic) {
-        [vscic.code, ..inner_acc]
-      })
-    case vsci.system {
-      None -> outer_acc
-      Some(vsci_system) ->
-        get_codes(vsci_system, all_vs_or_cs) |> list.append(outer_acc)
-    }
-  })
-}
-
-fn codesystemconcepts_get_codes(codesystem_concepts: List(r4.CodesystemConcept)) {
-  list.fold(from: [], over: codesystem_concepts, with: fn(acc, csc) {
-    [csc.code, ..acc] |> list.append(codesystemconcepts_get_codes(csc.concept))
+// https://chat.fhir.org/#narrow/channel/179166-implementers/topic/Kotlin.20FHIR.20model.20code.20generation.20questions/near/524688061
+// kind of pissed after the satisfying experience of getting the recursive valueset/codesystem expansion working in gleam that you can (and must in r4b/r5) simply use the expanded valuesets from terminology download?
+fn get_codes(url: String, expansion_dir: String) {
+  let assert Ok(vs_file) =
+    url |> string.split("/") |> list.reverse |> list.first
+  let expansion =
+    expansion_dir |> filepath.join("ValueSet-" <> vs_file <> ".json")
+  let assert Ok(vs_json) = simplifile.read(expansion) as url
+  let assert Ok(vs) = vs_json |> json.parse(r4.valueset_decoder())
+  let assert Some(vs_expansion) = vs.expansion
+  vs_expansion.contains
+  |> list.map(fn(c: r4.ValuesetExpansionContains) {
+    let assert Some(code) = c.code
+    code
   })
 }
 
@@ -1600,7 +1535,7 @@ fn gen_valueset_encoder(vsname: String, vs_codes: List(String)) -> String {
 
 fn gen_valueset_decoder(vsname: String, vs_codes: List(String)) -> String {
   let vsname_lower = vsname |> string.lowercase()
-  let assert Ok(fail_code) = list.first(vs_codes)
+  let assert Ok(fail_code) = list.first(vs_codes) as vsname
   let template = "pub fn CNAMELOWER_decoder() -> Decoder(CNAMECAPITAL) {
     use variant <- decode.then(decode.string)
     case variant {" <> list.fold(
