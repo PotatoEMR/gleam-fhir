@@ -10,6 +10,7 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/set
 import gleam/string
+import internal/codegen_client
 import simplifile
 
 //dogfood r4 to parse valuesets
@@ -78,7 +79,6 @@ pub fn main() {
     True -> gen_fhir(fhir_version, download_files)
     False -> Nil
   }
-
   Nil
 }
 
@@ -304,9 +304,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
 
   let gen_gleamfile = filepath.join(gen_into_dir, fhir_version) <> ".gleam"
   let gen_vsfile =
-    filepath.join(gen_into_dir, fhir_version) <> "valuesets.gleam"
-  let gen_clientfile =
-    filepath.join(gen_into_dir, fhir_version) <> "client.gleam"
+    filepath.join(gen_into_dir, fhir_version) <> "_valuesets.gleam"
   let all_types =
     string.concat([
       "////FHIR ",
@@ -315,7 +313,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
       fhir_version,
       "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport gleam/bool\nimport gleam/int\nimport fhir/",
       fhir_version,
-      "valuesets\n",
+      "_valuesets\n",
       file_to_types(
         spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
         fv: fhir_version,
@@ -346,6 +344,11 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
   let all_vs = valueset_to_types(gen_vsfile, fhir_version)
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
+
+  let f_sansio = gen_into_dir |> filepath.join(fhir_version <> "_sansio")
+  let sansio = codegen_client.gen_sansio(fhir_version)
+  let assert Ok(_) = simplifile.write(to: f_sansio, contents: sansio)
+  io.println("generated " <> f_sansio)
 }
 
 fn file_to_types(
@@ -1072,7 +1075,7 @@ fn string_to_type(
                             contents: url <> "\n",
                           )
                           fhir_version
-                          <> "valuesets."
+                          <> "_valuesets."
                           <> concept_name_from_url(Some(url))
                         }
                       }
@@ -1165,7 +1168,7 @@ fn string_to_decoder_type(
                         //idk whats going on here, probably i dont understand valueset composition
                         False ->
                           fhir_version
-                          <> "valuesets."
+                          <> "_valuesets."
                           <> Some(url)
                           |> concept_name_from_url()
                           |> to_snake_case
@@ -1261,7 +1264,7 @@ fn string_to_encoder_type(
                         //idk whats going on here, probably i dont understand valueset composition
                         False ->
                           fhir_version
-                          <> "valuesets."
+                          <> "_valuesets."
                           <> Some(url)
                           |> concept_name_from_url()
                           |> to_snake_case

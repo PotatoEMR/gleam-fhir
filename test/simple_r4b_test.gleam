@@ -2,7 +2,7 @@ import gleam/json
 import gleam/option.{Some}
 
 import fhir/r4b as fhirversion
-import fhir/r4bvaluesets as fhirversionvaluesets
+import fhir/r4b_valuesets as fhirversionvaluesets
 
 pub fn r4b_allergy_test() {
   let myallergy =

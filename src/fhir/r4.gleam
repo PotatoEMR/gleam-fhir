@@ -1,7 +1,7 @@
 ////FHIR r4 types
 ////https://hl7.org/fhir/r4
 
-import fhir/r4valuesets
+import fhir/r4_valuesets
 import gleam/bool
 import gleam/dynamic/decode.{type Decoder}
 import gleam/int
@@ -13,8 +13,8 @@ pub type Address {
   Address(
     id: Option(String),
     extension: List(Extension),
-    use_: Option(r4valuesets.Addressuse),
-    type_: Option(r4valuesets.Addresstype),
+    use_: Option(r4_valuesets.Addressuse),
+    type_: Option(r4_valuesets.Addresstype),
     text: Option(String),
     line: List(String),
     city: Option(String),
@@ -92,11 +92,11 @@ pub fn address_to_json(address: Address) -> Json {
     None -> fields
   }
   let fields = case type_ {
-    Some(v) -> [#("type", r4valuesets.addresstype_to_json(v)), ..fields]
+    Some(v) -> [#("type", r4_valuesets.addresstype_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case use_ {
-    Some(v) -> [#("use", r4valuesets.addressuse_to_json(v)), ..fields]
+    Some(v) -> [#("use", r4_valuesets.addressuse_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case extension {
@@ -151,12 +151,12 @@ pub fn address_decoder() -> Decoder(Address) {
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.addresstype_decoder()),
+    decode.optional(r4_valuesets.addresstype_decoder()),
   )
   use use_ <- decode.optional_field(
     "use",
     None,
-    decode.optional(r4valuesets.addressuse_decoder()),
+    decode.optional(r4_valuesets.addressuse_decoder()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -186,7 +186,7 @@ pub type Age {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(r4valuesets.Quantitycomparator),
+    comparator: Option(r4_valuesets.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -222,7 +222,7 @@ pub fn age_to_json(age: Age) -> Json {
   }
   let fields = case comparator {
     Some(v) -> [
-      #("comparator", r4valuesets.quantitycomparator_to_json(v)),
+      #("comparator", r4_valuesets.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -262,7 +262,7 @@ pub fn age_decoder() -> Decoder(Age) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(r4valuesets.quantitycomparator_decoder()),
+    decode.optional(r4_valuesets.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -749,9 +749,9 @@ pub type Contactpoint {
   Contactpoint(
     id: Option(String),
     extension: List(Extension),
-    system: Option(r4valuesets.Contactpointsystem),
+    system: Option(r4_valuesets.Contactpointsystem),
     value: Option(String),
-    use_: Option(r4valuesets.Contactpointuse),
+    use_: Option(r4_valuesets.Contactpointuse),
     rank: Option(Int),
     period: Option(Period),
   )
@@ -782,7 +782,7 @@ pub fn contactpoint_to_json(contactpoint: Contactpoint) -> Json {
     None -> fields
   }
   let fields = case use_ {
-    Some(v) -> [#("use", r4valuesets.contactpointuse_to_json(v)), ..fields]
+    Some(v) -> [#("use", r4_valuesets.contactpointuse_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case value {
@@ -791,7 +791,7 @@ pub fn contactpoint_to_json(contactpoint: Contactpoint) -> Json {
   }
   let fields = case system {
     Some(v) -> [
-      #("system", r4valuesets.contactpointsystem_to_json(v)),
+      #("system", r4_valuesets.contactpointsystem_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -818,7 +818,7 @@ pub fn contactpoint_decoder() -> Decoder(Contactpoint) {
   use use_ <- decode.optional_field(
     "use",
     None,
-    decode.optional(r4valuesets.contactpointuse_decoder()),
+    decode.optional(r4_valuesets.contactpointuse_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -828,7 +828,7 @@ pub fn contactpoint_decoder() -> Decoder(Contactpoint) {
   use system <- decode.optional_field(
     "system",
     None,
-    decode.optional(r4valuesets.contactpointsystem_decoder()),
+    decode.optional(r4_valuesets.contactpointsystem_decoder()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -852,7 +852,7 @@ pub type Contributor {
   Contributor(
     id: Option(String),
     extension: List(Extension),
-    type_: r4valuesets.Contributortype,
+    type_: r4_valuesets.Contributortype,
     name: String,
     contact: List(Contactdetail),
   )
@@ -860,7 +860,7 @@ pub type Contributor {
 
 pub fn contributor_new(
   name name: String,
-  type_ type_: r4valuesets.Contributortype,
+  type_ type_: r4_valuesets.Contributortype,
 ) -> Contributor {
   Contributor(contact: [], name:, type_:, extension: [], id: None)
 }
@@ -869,7 +869,7 @@ pub fn contributor_to_json(contributor: Contributor) -> Json {
   let Contributor(contact:, name:, type_:, extension:, id:) = contributor
   let fields = [
     #("name", json.string(name)),
-    #("type", r4valuesets.contributortype_to_json(type_)),
+    #("type", r4_valuesets.contributortype_to_json(type_)),
   ]
   let fields = case contact {
     [] -> fields
@@ -894,7 +894,7 @@ pub fn contributor_decoder() -> Decoder(Contributor) {
     decode.list(contactdetail_decoder()),
   )
   use name <- decode.field("name", decode.string)
-  use type_ <- decode.field("type", r4valuesets.contributortype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.contributortype_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -910,7 +910,7 @@ pub type Count {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(r4valuesets.Quantitycomparator),
+    comparator: Option(r4_valuesets.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -946,7 +946,7 @@ pub fn count_to_json(count: Count) -> Json {
   }
   let fields = case comparator {
     Some(v) -> [
-      #("comparator", r4valuesets.quantitycomparator_to_json(v)),
+      #("comparator", r4_valuesets.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -986,7 +986,7 @@ pub fn count_decoder() -> Decoder(Count) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(r4valuesets.quantitycomparator_decoder()),
+    decode.optional(r4_valuesets.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -1015,7 +1015,7 @@ pub type Datarequirement {
   Datarequirement(
     id: Option(String),
     extension: List(Extension),
-    type_: r4valuesets.Alltypes,
+    type_: r4_valuesets.Alltypes,
     profile: List(String),
     subject: Option(DatarequirementSubject),
     must_support: List(String),
@@ -1054,7 +1054,9 @@ pub fn datarequirement_subject_decoder() -> Decoder(DatarequirementSubject) {
   )
 }
 
-pub fn datarequirement_new(type_ type_: r4valuesets.Alltypes) -> Datarequirement {
+pub fn datarequirement_new(
+  type_ type_: r4_valuesets.Alltypes,
+) -> Datarequirement {
   Datarequirement(
     sort: [],
     limit: None,
@@ -1151,12 +1153,12 @@ pub type DatarequirementSort {
     id: Option(String),
     extension: List(Extension),
     path: String,
-    direction: r4valuesets.Sortdirection,
+    direction: r4_valuesets.Sortdirection,
   )
 }
 
 pub fn datarequirement_sort_new(
-  direction direction: r4valuesets.Sortdirection,
+  direction direction: r4_valuesets.Sortdirection,
   path path: String,
 ) -> DatarequirementSort {
   DatarequirementSort(direction:, path:, extension: [], id: None)
@@ -1168,7 +1170,7 @@ pub fn datarequirement_sort_to_json(
   let DatarequirementSort(direction:, path:, extension:, id:) =
     datarequirement_sort
   let fields = [
-    #("direction", r4valuesets.sortdirection_to_json(direction)),
+    #("direction", r4_valuesets.sortdirection_to_json(direction)),
     #("path", json.string(path)),
   ]
   let fields = case extension {
@@ -1186,7 +1188,7 @@ pub fn datarequirement_sort_decoder() -> Decoder(DatarequirementSort) {
   use <- decode.recursive
   use direction <- decode.field(
     "direction",
-    r4valuesets.sortdirection_decoder(),
+    r4_valuesets.sortdirection_decoder(),
   )
   use path <- decode.field("path", decode.string)
   use extension <- decode.optional_field(
@@ -1359,7 +1361,7 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
     id:,
   ) = datarequirement
   let fields = [
-    #("type", r4valuesets.alltypes_to_json(type_)),
+    #("type", r4_valuesets.alltypes_to_json(type_)),
   ]
   let fields = case sort {
     [] -> fields
@@ -1451,7 +1453,7 @@ pub fn datarequirement_decoder() -> Decoder(Datarequirement) {
     [],
     decode.list(decode.string),
   )
-  use type_ <- decode.field("type", r4valuesets.alltypes_decoder())
+  use type_ <- decode.field("type", r4_valuesets.alltypes_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -1478,7 +1480,7 @@ pub type Distance {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(r4valuesets.Quantitycomparator),
+    comparator: Option(r4_valuesets.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -1515,7 +1517,7 @@ pub fn distance_to_json(distance: Distance) -> Json {
   }
   let fields = case comparator {
     Some(v) -> [
-      #("comparator", r4valuesets.quantitycomparator_to_json(v)),
+      #("comparator", r4_valuesets.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -1555,7 +1557,7 @@ pub fn distance_decoder() -> Decoder(Distance) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(r4valuesets.quantitycomparator_decoder()),
+    decode.optional(r4_valuesets.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -1998,7 +2000,7 @@ pub type Duration {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(r4valuesets.Quantitycomparator),
+    comparator: Option(r4_valuesets.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -2035,7 +2037,7 @@ pub fn duration_to_json(duration: Duration) -> Json {
   }
   let fields = case comparator {
     Some(v) -> [
-      #("comparator", r4valuesets.quantitycomparator_to_json(v)),
+      #("comparator", r4_valuesets.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -2075,7 +2077,7 @@ pub fn duration_decoder() -> Decoder(Duration) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(r4valuesets.quantitycomparator_decoder()),
+    decode.optional(r4_valuesets.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -2106,7 +2108,7 @@ pub type Elementdefinition {
     extension: List(Extension),
     modifier_extension: List(Extension),
     path: String,
-    representation: List(r4valuesets.Propertyrepresentation),
+    representation: List(r4_valuesets.Propertyrepresentation),
     slice_name: Option(String),
     slice_is_constraining: Option(Bool),
     label: Option(String),
@@ -3079,12 +3081,12 @@ pub type ElementdefinitionSlicing {
     discriminator: List(ElementdefinitionSlicingDiscriminator),
     description: Option(String),
     ordered: Option(Bool),
-    rules: r4valuesets.Resourceslicingrules,
+    rules: r4_valuesets.Resourceslicingrules,
   )
 }
 
 pub fn elementdefinition_slicing_new(
-  rules rules: r4valuesets.Resourceslicingrules,
+  rules rules: r4_valuesets.Resourceslicingrules,
 ) -> ElementdefinitionSlicing {
   ElementdefinitionSlicing(
     rules:,
@@ -3101,14 +3103,14 @@ pub type ElementdefinitionSlicingDiscriminator {
   ElementdefinitionSlicingDiscriminator(
     id: Option(String),
     extension: List(Extension),
-    type_: r4valuesets.Discriminatortype,
+    type_: r4_valuesets.Discriminatortype,
     path: String,
   )
 }
 
 pub fn elementdefinition_slicing_discriminator_new(
   path path: String,
-  type_ type_: r4valuesets.Discriminatortype,
+  type_ type_: r4_valuesets.Discriminatortype,
 ) -> ElementdefinitionSlicingDiscriminator {
   ElementdefinitionSlicingDiscriminator(path:, type_:, extension: [], id: None)
 }
@@ -3140,8 +3142,8 @@ pub type ElementdefinitionType {
     code: String,
     profile: List(String),
     target_profile: List(String),
-    aggregation: List(r4valuesets.Resourceaggregationmode),
-    versioning: Option(r4valuesets.Referenceversionrules),
+    aggregation: List(r4_valuesets.Resourceaggregationmode),
+    versioning: Option(r4_valuesets.Referenceversionrules),
   )
 }
 
@@ -3430,7 +3432,7 @@ pub type ElementdefinitionConstraint {
     extension: List(Extension),
     key: String,
     requirements: Option(String),
-    severity: r4valuesets.Constraintseverity,
+    severity: r4_valuesets.Constraintseverity,
     human: String,
     expression: Option(String),
     xpath: Option(String),
@@ -3440,7 +3442,7 @@ pub type ElementdefinitionConstraint {
 
 pub fn elementdefinition_constraint_new(
   human human: String,
-  severity severity: r4valuesets.Constraintseverity,
+  severity severity: r4_valuesets.Constraintseverity,
   key key: String,
 ) -> ElementdefinitionConstraint {
   ElementdefinitionConstraint(
@@ -3461,14 +3463,14 @@ pub type ElementdefinitionBinding {
   ElementdefinitionBinding(
     id: Option(String),
     extension: List(Extension),
-    strength: r4valuesets.Bindingstrength,
+    strength: r4_valuesets.Bindingstrength,
     description: Option(String),
     value_set: Option(String),
   )
 }
 
 pub fn elementdefinition_binding_new(
-  strength strength: r4valuesets.Bindingstrength,
+  strength strength: r4_valuesets.Bindingstrength,
 ) -> ElementdefinitionBinding {
   ElementdefinitionBinding(
     value_set: None,
@@ -3580,7 +3582,7 @@ pub fn elementdefinition_binding_to_json(
     id:,
   ) = elementdefinition_binding
   let fields = [
-    #("strength", r4valuesets.bindingstrength_to_json(strength)),
+    #("strength", r4_valuesets.bindingstrength_to_json(strength)),
   ]
   let fields = case value_set {
     Some(v) -> [#("valueSet", json.string(v)), ..fields]
@@ -3615,7 +3617,7 @@ pub fn elementdefinition_binding_decoder() -> Decoder(ElementdefinitionBinding) 
   )
   use strength <- decode.field(
     "strength",
-    r4valuesets.bindingstrength_decoder(),
+    r4_valuesets.bindingstrength_decoder(),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -3648,7 +3650,7 @@ pub fn elementdefinition_constraint_to_json(
   ) = elementdefinition_constraint
   let fields = [
     #("human", json.string(human)),
-    #("severity", r4valuesets.constraintseverity_to_json(severity)),
+    #("severity", r4_valuesets.constraintseverity_to_json(severity)),
     #("key", json.string(key)),
   ]
   let fields = case source {
@@ -3700,7 +3702,7 @@ pub fn elementdefinition_constraint_decoder() -> Decoder(
   use human <- decode.field("human", decode.string)
   use severity <- decode.field(
     "severity",
-    r4valuesets.constraintseverity_decoder(),
+    r4_valuesets.constraintseverity_decoder(),
   )
   use requirements <- decode.optional_field(
     "requirements",
@@ -3777,7 +3779,7 @@ pub fn elementdefinition_type_to_json(
   ]
   let fields = case versioning {
     Some(v) -> [
-      #("versioning", r4valuesets.referenceversionrules_to_json(v)),
+      #("versioning", r4_valuesets.referenceversionrules_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -3787,7 +3789,7 @@ pub fn elementdefinition_type_to_json(
     _ -> [
       #(
         "aggregation",
-        json.array(aggregation, r4valuesets.resourceaggregationmode_to_json),
+        json.array(aggregation, r4_valuesets.resourceaggregationmode_to_json),
       ),
       ..fields
     ]
@@ -3816,12 +3818,12 @@ pub fn elementdefinition_type_decoder() -> Decoder(ElementdefinitionType) {
   use versioning <- decode.optional_field(
     "versioning",
     None,
-    decode.optional(r4valuesets.referenceversionrules_decoder()),
+    decode.optional(r4_valuesets.referenceversionrules_decoder()),
   )
   use aggregation <- decode.optional_field(
     "aggregation",
     [],
-    decode.list(r4valuesets.resourceaggregationmode_decoder()),
+    decode.list(r4_valuesets.resourceaggregationmode_decoder()),
   )
   use target_profile <- decode.optional_field(
     "targetProfile",
@@ -3893,7 +3895,7 @@ pub fn elementdefinition_slicing_discriminator_to_json(
     elementdefinition_slicing_discriminator
   let fields = [
     #("path", json.string(path)),
-    #("type", r4valuesets.discriminatortype_to_json(type_)),
+    #("type", r4_valuesets.discriminatortype_to_json(type_)),
   ]
   let fields = case extension {
     [] -> fields
@@ -3911,7 +3913,7 @@ pub fn elementdefinition_slicing_discriminator_decoder() -> Decoder(
 ) {
   use <- decode.recursive
   use path <- decode.field("path", decode.string)
-  use type_ <- decode.field("type", r4valuesets.discriminatortype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.discriminatortype_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -3938,7 +3940,7 @@ pub fn elementdefinition_slicing_to_json(
     id:,
   ) = elementdefinition_slicing
   let fields = [
-    #("rules", r4valuesets.resourceslicingrules_to_json(rules)),
+    #("rules", r4_valuesets.resourceslicingrules_to_json(rules)),
   ]
   let fields = case ordered {
     Some(v) -> [#("ordered", json.bool(v)), ..fields]
@@ -3974,7 +3976,10 @@ pub fn elementdefinition_slicing_to_json(
 
 pub fn elementdefinition_slicing_decoder() -> Decoder(ElementdefinitionSlicing) {
   use <- decode.recursive
-  use rules <- decode.field("rules", r4valuesets.resourceslicingrules_decoder())
+  use rules <- decode.field(
+    "rules",
+    r4_valuesets.resourceslicingrules_decoder(),
+  )
   use ordered <- decode.optional_field(
     "ordered",
     None,
@@ -4408,7 +4413,7 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
     _ -> [
       #(
         "representation",
-        json.array(representation, r4valuesets.propertyrepresentation_to_json),
+        json.array(representation, r4_valuesets.propertyrepresentation_to_json),
       ),
       ..fields
     ]
@@ -4568,7 +4573,7 @@ pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
   use representation <- decode.optional_field(
     "representation",
     [],
-    decode.list(r4valuesets.propertyrepresentation_decoder()),
+    decode.list(r4_valuesets.propertyrepresentation_decoder()),
   )
   use path <- decode.field("path", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -5078,7 +5083,7 @@ pub type Humanname {
   Humanname(
     id: Option(String),
     extension: List(Extension),
-    use_: Option(r4valuesets.Nameuse),
+    use_: Option(r4_valuesets.Nameuse),
     text: Option(String),
     family: Option(String),
     given: List(String),
@@ -5140,7 +5145,7 @@ pub fn humanname_to_json(humanname: Humanname) -> Json {
     None -> fields
   }
   let fields = case use_ {
-    Some(v) -> [#("use", r4valuesets.nameuse_to_json(v)), ..fields]
+    Some(v) -> [#("use", r4_valuesets.nameuse_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case extension {
@@ -5177,7 +5182,7 @@ pub fn humanname_decoder() -> Decoder(Humanname) {
   use use_ <- decode.optional_field(
     "use",
     None,
-    decode.optional(r4valuesets.nameuse_decoder()),
+    decode.optional(r4_valuesets.nameuse_decoder()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -5203,7 +5208,7 @@ pub type Identifier {
   Identifier(
     id: Option(String),
     extension: List(Extension),
-    use_: Option(r4valuesets.Identifieruse),
+    use_: Option(r4_valuesets.Identifieruse),
     type_: Option(Codeableconcept),
     system: Option(String),
     value: Option(String),
@@ -5258,7 +5263,7 @@ pub fn identifier_to_json(identifier: Identifier) -> Json {
     None -> fields
   }
   let fields = case use_ {
-    Some(v) -> [#("use", r4valuesets.identifieruse_to_json(v)), ..fields]
+    Some(v) -> [#("use", r4_valuesets.identifieruse_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case extension {
@@ -5302,7 +5307,7 @@ pub fn identifier_decoder() -> Decoder(Identifier) {
   use use_ <- decode.optional_field(
     "use",
     None,
-    decode.optional(r4valuesets.identifieruse_decoder()),
+    decode.optional(r4_valuesets.identifieruse_decoder()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -5615,14 +5620,14 @@ pub type Narrative {
   Narrative(
     id: Option(String),
     extension: List(Extension),
-    status: r4valuesets.Narrativestatus,
+    status: r4_valuesets.Narrativestatus,
     div: String,
   )
 }
 
 pub fn narrative_new(
   div div: String,
-  status status: r4valuesets.Narrativestatus,
+  status status: r4_valuesets.Narrativestatus,
 ) -> Narrative {
   Narrative(div:, status:, extension: [], id: None)
 }
@@ -5631,7 +5636,7 @@ pub fn narrative_to_json(narrative: Narrative) -> Json {
   let Narrative(div:, status:, extension:, id:) = narrative
   let fields = [
     #("div", json.string(div)),
-    #("status", r4valuesets.narrativestatus_to_json(status)),
+    #("status", r4_valuesets.narrativestatus_to_json(status)),
   ]
   let fields = case extension {
     [] -> fields
@@ -5647,7 +5652,7 @@ pub fn narrative_to_json(narrative: Narrative) -> Json {
 pub fn narrative_decoder() -> Decoder(Narrative) {
   use <- decode.recursive
   use div <- decode.field("div", decode.string)
-  use status <- decode.field("status", r4valuesets.narrativestatus_decoder())
+  use status <- decode.field("status", r4_valuesets.narrativestatus_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -5663,18 +5668,18 @@ pub type Parameterdefinition {
     id: Option(String),
     extension: List(Extension),
     name: Option(String),
-    use_: r4valuesets.Operationparameteruse,
+    use_: r4_valuesets.Operationparameteruse,
     min: Option(Int),
     max: Option(String),
     documentation: Option(String),
-    type_: r4valuesets.Alltypes,
+    type_: r4_valuesets.Alltypes,
     profile: Option(String),
   )
 }
 
 pub fn parameterdefinition_new(
-  type_ type_: r4valuesets.Alltypes,
-  use_ use_: r4valuesets.Operationparameteruse,
+  type_ type_: r4_valuesets.Alltypes,
+  use_ use_: r4_valuesets.Operationparameteruse,
 ) -> Parameterdefinition {
   Parameterdefinition(
     profile: None,
@@ -5704,8 +5709,8 @@ pub fn parameterdefinition_to_json(
     id:,
   ) = parameterdefinition
   let fields = [
-    #("type", r4valuesets.alltypes_to_json(type_)),
-    #("use", r4valuesets.operationparameteruse_to_json(use_)),
+    #("type", r4_valuesets.alltypes_to_json(type_)),
+    #("use", r4_valuesets.operationparameteruse_to_json(use_)),
   ]
   let fields = case profile {
     Some(v) -> [#("profile", json.string(v)), ..fields]
@@ -5745,7 +5750,7 @@ pub fn parameterdefinition_decoder() -> Decoder(Parameterdefinition) {
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", r4valuesets.alltypes_decoder())
+  use type_ <- decode.field("type", r4_valuesets.alltypes_decoder())
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -5753,7 +5758,7 @@ pub fn parameterdefinition_decoder() -> Decoder(Parameterdefinition) {
   )
   use max <- decode.optional_field("max", None, decode.optional(decode.string))
   use min <- decode.optional_field("min", None, decode.optional(decode.int))
-  use use_ <- decode.field("use", r4valuesets.operationparameteruse_decoder())
+  use use_ <- decode.field("use", r4_valuesets.operationparameteruse_decoder())
   use name <- decode.optional_field(
     "name",
     None,
@@ -6301,7 +6306,7 @@ pub type Quantity {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(r4valuesets.Quantitycomparator),
+    comparator: Option(r4_valuesets.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -6338,7 +6343,7 @@ pub fn quantity_to_json(quantity: Quantity) -> Json {
   }
   let fields = case comparator {
     Some(v) -> [
-      #("comparator", r4valuesets.quantitycomparator_to_json(v)),
+      #("comparator", r4_valuesets.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -6378,7 +6383,7 @@ pub fn quantity_decoder() -> Decoder(Quantity) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(r4valuesets.quantitycomparator_decoder()),
+    decode.optional(r4_valuesets.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -6613,7 +6618,7 @@ pub type Relatedartifact {
   Relatedartifact(
     id: Option(String),
     extension: List(Extension),
-    type_: r4valuesets.Relatedartifacttype,
+    type_: r4_valuesets.Relatedartifacttype,
     label: Option(String),
     display: Option(String),
     citation: Option(String),
@@ -6624,7 +6629,7 @@ pub type Relatedartifact {
 }
 
 pub fn relatedartifact_new(
-  type_ type_: r4valuesets.Relatedartifacttype,
+  type_ type_: r4_valuesets.Relatedartifacttype,
 ) -> Relatedartifact {
   Relatedartifact(
     resource: None,
@@ -6652,7 +6657,7 @@ pub fn relatedartifact_to_json(relatedartifact: Relatedartifact) -> Json {
     id:,
   ) = relatedartifact
   let fields = [
-    #("type", r4valuesets.relatedartifacttype_to_json(type_)),
+    #("type", r4_valuesets.relatedartifacttype_to_json(type_)),
   ]
   let fields = case resource {
     Some(v) -> [#("resource", json.string(v)), ..fields]
@@ -6717,7 +6722,7 @@ pub fn relatedartifact_decoder() -> Decoder(Relatedartifact) {
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", r4valuesets.relatedartifacttype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.relatedartifacttype_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -7235,15 +7240,15 @@ pub type TimingRepeat {
     count_max: Option(Int),
     duration: Option(Float),
     duration_max: Option(Float),
-    duration_unit: Option(r4valuesets.Unitsoftime),
+    duration_unit: Option(r4_valuesets.Unitsoftime),
     frequency: Option(Int),
     frequency_max: Option(Int),
     period: Option(Float),
     period_max: Option(Float),
-    period_unit: Option(r4valuesets.Unitsoftime),
-    day_of_week: List(r4valuesets.Daysofweek),
+    period_unit: Option(r4_valuesets.Unitsoftime),
+    day_of_week: List(r4_valuesets.Daysofweek),
     time_of_day: List(String),
-    when: List(r4valuesets.Eventtiming),
+    when: List(r4_valuesets.Eventtiming),
     offset: Option(Int),
   )
 }
@@ -7326,7 +7331,7 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
   let fields = case when {
     [] -> fields
     _ -> [
-      #("when", json.array(when, r4valuesets.eventtiming_to_json)),
+      #("when", json.array(when, r4_valuesets.eventtiming_to_json)),
       ..fields
     ]
   }
@@ -7337,12 +7342,12 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
   let fields = case day_of_week {
     [] -> fields
     _ -> [
-      #("dayOfWeek", json.array(day_of_week, r4valuesets.daysofweek_to_json)),
+      #("dayOfWeek", json.array(day_of_week, r4_valuesets.daysofweek_to_json)),
       ..fields
     ]
   }
   let fields = case period_unit {
-    Some(v) -> [#("periodUnit", r4valuesets.unitsoftime_to_json(v)), ..fields]
+    Some(v) -> [#("periodUnit", r4_valuesets.unitsoftime_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case period_max {
@@ -7362,7 +7367,10 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
     None -> fields
   }
   let fields = case duration_unit {
-    Some(v) -> [#("durationUnit", r4valuesets.unitsoftime_to_json(v)), ..fields]
+    Some(v) -> [
+      #("durationUnit", r4_valuesets.unitsoftime_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case duration_max {
@@ -7417,7 +7425,7 @@ pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
   use when <- decode.optional_field(
     "when",
     [],
-    decode.list(r4valuesets.eventtiming_decoder()),
+    decode.list(r4_valuesets.eventtiming_decoder()),
   )
   use time_of_day <- decode.optional_field(
     "timeOfDay",
@@ -7427,12 +7435,12 @@ pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
   use day_of_week <- decode.optional_field(
     "dayOfWeek",
     [],
-    decode.list(r4valuesets.daysofweek_decoder()),
+    decode.list(r4_valuesets.daysofweek_decoder()),
   )
   use period_unit <- decode.optional_field(
     "periodUnit",
     None,
-    decode.optional(r4valuesets.unitsoftime_decoder()),
+    decode.optional(r4_valuesets.unitsoftime_decoder()),
   )
   use period_max <- decode.optional_field(
     "periodMax",
@@ -7457,7 +7465,7 @@ pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
   use duration_unit <- decode.optional_field(
     "durationUnit",
     None,
-    decode.optional(r4valuesets.unitsoftime_decoder()),
+    decode.optional(r4_valuesets.unitsoftime_decoder()),
   )
   use duration_max <- decode.optional_field(
     "durationMax",
@@ -7576,7 +7584,7 @@ pub type Triggerdefinition {
   Triggerdefinition(
     id: Option(String),
     extension: List(Extension),
-    type_: r4valuesets.Triggertype,
+    type_: r4_valuesets.Triggertype,
     name: Option(String),
     timing: Option(TriggerdefinitionTiming),
     data: List(Datarequirement),
@@ -7617,7 +7625,7 @@ pub fn triggerdefinition_timing_decoder() -> Decoder(TriggerdefinitionTiming) {
 }
 
 pub fn triggerdefinition_new(
-  type_ type_: r4valuesets.Triggertype,
+  type_ type_: r4_valuesets.Triggertype,
 ) -> Triggerdefinition {
   Triggerdefinition(
     condition: None,
@@ -7641,7 +7649,7 @@ pub fn triggerdefinition_to_json(triggerdefinition: Triggerdefinition) -> Json {
     id:,
   ) = triggerdefinition
   let fields = [
-    #("type", r4valuesets.triggertype_to_json(type_)),
+    #("type", r4_valuesets.triggertype_to_json(type_)),
   ]
   let fields = case condition {
     Some(v) -> [#("condition", expression_to_json(v)), ..fields]
@@ -7700,7 +7708,7 @@ pub fn triggerdefinition_decoder() -> Decoder(Triggerdefinition) {
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", r4valuesets.triggertype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.triggertype_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -7807,7 +7815,7 @@ pub type Moneyquantity {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(r4valuesets.Quantitycomparator),
+    comparator: Option(r4_valuesets.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -7844,7 +7852,7 @@ pub fn moneyquantity_to_json(moneyquantity: Moneyquantity) -> Json {
   }
   let fields = case comparator {
     Some(v) -> [
-      #("comparator", r4valuesets.quantitycomparator_to_json(v)),
+      #("comparator", r4_valuesets.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -7884,7 +7892,7 @@ pub fn moneyquantity_decoder() -> Decoder(Moneyquantity) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(r4valuesets.quantitycomparator_decoder()),
+    decode.optional(r4_valuesets.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -8005,7 +8013,7 @@ pub type Account {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Accountstatus,
+    status: r4_valuesets.Accountstatus,
     type_: Option(Codeableconcept),
     name: Option(String),
     subject: List(Reference),
@@ -8018,7 +8026,7 @@ pub type Account {
   )
 }
 
-pub fn account_new(status status: r4valuesets.Accountstatus) -> Account {
+pub fn account_new(status status: r4_valuesets.Accountstatus) -> Account {
   Account(
     part_of: None,
     guarantor: [],
@@ -8242,7 +8250,7 @@ pub fn account_to_json(account: Account) -> Json {
     id:,
   ) = account
   let fields = [
-    #("status", r4valuesets.accountstatus_to_json(status)),
+    #("status", r4_valuesets.accountstatus_to_json(status)),
   ]
   let fields = case part_of {
     Some(v) -> [#("partOf", reference_to_json(v)), ..fields]
@@ -8376,7 +8384,7 @@ pub fn account_decoder() -> Decoder(Account) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.accountstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.accountstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -8464,7 +8472,7 @@ pub type Activitydefinition {
     name: Option(String),
     title: Option(String),
     subtitle: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     subject: Option(ActivitydefinitionSubject),
     date: Option(String),
@@ -8486,11 +8494,11 @@ pub type Activitydefinition {
     endorser: List(Contactdetail),
     related_artifact: List(Relatedartifact),
     library: List(String),
-    kind: Option(r4valuesets.Requestresourcetypes),
+    kind: Option(r4_valuesets.Requestresourcetypes),
     profile: Option(String),
     code: Option(Codeableconcept),
-    intent: Option(r4valuesets.Requestintent),
-    priority: Option(r4valuesets.Requestpriority),
+    intent: Option(r4_valuesets.Requestintent),
+    priority: Option(r4_valuesets.Requestpriority),
     do_not_perform: Option(Bool),
     timing: Option(ActivitydefinitionTiming),
     location: Option(Reference),
@@ -8612,7 +8620,7 @@ pub fn activitydefinition_product_decoder() -> Decoder(
 }
 
 pub fn activitydefinition_new(
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Activitydefinition {
   Activitydefinition(
     dynamic_value: [],
@@ -8678,13 +8686,13 @@ pub type ActivitydefinitionParticipant {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Actionparticipanttype,
+    type_: r4_valuesets.Actionparticipanttype,
     role: Option(Codeableconcept),
   )
 }
 
 pub fn activitydefinition_participant_new(
-  type_ type_: r4valuesets.Actionparticipanttype,
+  type_ type_: r4_valuesets.Actionparticipanttype,
 ) -> ActivitydefinitionParticipant {
   ActivitydefinitionParticipant(
     role: None,
@@ -8788,7 +8796,7 @@ pub fn activitydefinition_participant_to_json(
     id:,
   ) = activitydefinition_participant
   let fields = [
-    #("type", r4valuesets.actionparticipanttype_to_json(type_)),
+    #("type", r4_valuesets.actionparticipanttype_to_json(type_)),
   ]
   let fields = case role {
     Some(v) -> [#("role", codeableconcept_to_json(v)), ..fields]
@@ -8821,7 +8829,10 @@ pub fn activitydefinition_participant_decoder() -> Decoder(
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use type_ <- decode.field("type", r4valuesets.actionparticipanttype_decoder())
+  use type_ <- decode.field(
+    "type",
+    r4_valuesets.actionparticipanttype_decoder(),
+  )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -8902,7 +8913,7 @@ pub fn activitydefinition_to_json(
     id:,
   ) = activitydefinition
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case dynamic_value {
     [] -> fields
@@ -9014,11 +9025,14 @@ pub fn activitydefinition_to_json(
     None -> fields
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case intent {
-    Some(v) -> [#("intent", r4valuesets.requestintent_to_json(v)), ..fields]
+    Some(v) -> [#("intent", r4_valuesets.requestintent_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case code {
@@ -9031,7 +9045,7 @@ pub fn activitydefinition_to_json(
   }
   let fields = case kind {
     Some(v) -> [
-      #("kind", r4valuesets.requestresourcetypes_to_json(v)),
+      #("kind", r4_valuesets.requestresourcetypes_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -9271,12 +9285,12 @@ pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
   use intent <- decode.optional_field(
     "intent",
     None,
-    decode.optional(r4valuesets.requestintent_decoder()),
+    decode.optional(r4_valuesets.requestintent_decoder()),
   )
   use code <- decode.optional_field(
     "code",
@@ -9291,7 +9305,7 @@ pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
   use kind <- decode.optional_field(
     "kind",
     None,
-    decode.optional(r4valuesets.requestresourcetypes_decoder()),
+    decode.optional(r4_valuesets.requestresourcetypes_decoder()),
   )
   use library <- decode.optional_field(
     "library",
@@ -9396,7 +9410,7 @@ pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use subtitle <- decode.optional_field(
     "subtitle",
     None,
@@ -9535,7 +9549,7 @@ pub type Adverseevent {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
-    actuality: r4valuesets.Adverseeventactuality,
+    actuality: r4_valuesets.Adverseeventactuality,
     category: List(Codeableconcept),
     event: Option(Codeableconcept),
     subject: Reference,
@@ -9559,7 +9573,7 @@ pub type Adverseevent {
 
 pub fn adverseevent_new(
   subject subject: Reference,
-  actuality actuality: r4valuesets.Adverseeventactuality,
+  actuality actuality: r4_valuesets.Adverseeventactuality,
 ) -> Adverseevent {
   Adverseevent(
     study: [],
@@ -9838,7 +9852,7 @@ pub fn adverseevent_to_json(adverseevent: Adverseevent) -> Json {
   ) = adverseevent
   let fields = [
     #("subject", reference_to_json(subject)),
-    #("actuality", r4valuesets.adverseeventactuality_to_json(actuality)),
+    #("actuality", r4_valuesets.adverseeventactuality_to_json(actuality)),
   ]
   let fields = case study {
     [] -> fields
@@ -10068,7 +10082,7 @@ pub fn adverseevent_decoder() -> Decoder(Adverseevent) {
   )
   use actuality <- decode.field(
     "actuality",
-    r4valuesets.adverseeventactuality_decoder(),
+    r4_valuesets.adverseeventactuality_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -10163,9 +10177,9 @@ pub type Allergyintolerance {
     identifier: List(Identifier),
     clinical_status: Option(Codeableconcept),
     verification_status: Option(Codeableconcept),
-    type_: Option(r4valuesets.Allergyintolerancetype),
-    category: List(r4valuesets.Allergyintolerancecategory),
-    criticality: Option(r4valuesets.Allergyintolerancecriticality),
+    type_: Option(r4_valuesets.Allergyintolerancetype),
+    category: List(r4_valuesets.Allergyintolerancecategory),
+    criticality: Option(r4_valuesets.Allergyintolerancecriticality),
     code: Option(Codeableconcept),
     patient: Reference,
     encounter: Option(Reference),
@@ -10254,7 +10268,7 @@ pub type AllergyintoleranceReaction {
     manifestation: List(Codeableconcept),
     description: Option(String),
     onset: Option(String),
-    severity: Option(r4valuesets.Reactioneventseverity),
+    severity: Option(r4_valuesets.Reactioneventseverity),
     exposure_route: Option(Codeableconcept),
     note: List(Annotation),
   )
@@ -10301,7 +10315,7 @@ pub fn allergyintolerance_reaction_to_json(
   }
   let fields = case severity {
     Some(v) -> [
-      #("severity", r4valuesets.reactioneventseverity_to_json(v)),
+      #("severity", r4_valuesets.reactioneventseverity_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -10360,7 +10374,7 @@ pub fn allergyintolerance_reaction_decoder() -> Decoder(
   use severity <- decode.optional_field(
     "severity",
     None,
-    decode.optional(r4valuesets.reactioneventseverity_decoder()),
+    decode.optional(r4_valuesets.reactioneventseverity_decoder()),
   )
   use onset <- decode.optional_field(
     "onset",
@@ -10493,7 +10507,7 @@ pub fn allergyintolerance_to_json(
   }
   let fields = case criticality {
     Some(v) -> [
-      #("criticality", r4valuesets.allergyintolerancecriticality_to_json(v)),
+      #("criticality", r4_valuesets.allergyintolerancecriticality_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -10503,14 +10517,14 @@ pub fn allergyintolerance_to_json(
     _ -> [
       #(
         "category",
-        json.array(category, r4valuesets.allergyintolerancecategory_to_json),
+        json.array(category, r4_valuesets.allergyintolerancecategory_to_json),
       ),
       ..fields
     ]
   }
   let fields = case type_ {
     Some(v) -> [
-      #("type", r4valuesets.allergyintolerancetype_to_json(v)),
+      #("type", r4_valuesets.allergyintolerancetype_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -10613,17 +10627,17 @@ pub fn allergyintolerance_decoder() -> Decoder(Allergyintolerance) {
   use criticality <- decode.optional_field(
     "criticality",
     None,
-    decode.optional(r4valuesets.allergyintolerancecriticality_decoder()),
+    decode.optional(r4_valuesets.allergyintolerancecriticality_decoder()),
   )
   use category <- decode.optional_field(
     "category",
     [],
-    decode.list(r4valuesets.allergyintolerancecategory_decoder()),
+    decode.list(r4_valuesets.allergyintolerancecategory_decoder()),
   )
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.allergyintolerancetype_decoder()),
+    decode.optional(r4_valuesets.allergyintolerancetype_decoder()),
   )
   use verification_status <- decode.optional_field(
     "verificationStatus",
@@ -10722,7 +10736,7 @@ pub type Appointment {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Appointmentstatus,
+    status: r4_valuesets.Appointmentstatus,
     cancelation_reason: Option(Codeableconcept),
     service_category: List(Codeableconcept),
     service_type: List(Codeableconcept),
@@ -10747,7 +10761,7 @@ pub type Appointment {
 }
 
 pub fn appointment_new(
-  status status: r4valuesets.Appointmentstatus,
+  status status: r4_valuesets.Appointmentstatus,
 ) -> Appointment {
   Appointment(
     requested_period: [],
@@ -10791,14 +10805,14 @@ pub type AppointmentParticipant {
     modifier_extension: List(Extension),
     type_: List(Codeableconcept),
     actor: Option(Reference),
-    required: Option(r4valuesets.Participantrequired),
-    status: r4valuesets.Participationstatus,
+    required: Option(r4_valuesets.Participantrequired),
+    status: r4_valuesets.Participationstatus,
     period: Option(Period),
   )
 }
 
 pub fn appointment_participant_new(
-  status status: r4valuesets.Participationstatus,
+  status status: r4_valuesets.Participationstatus,
 ) -> AppointmentParticipant {
   AppointmentParticipant(
     period: None,
@@ -10826,7 +10840,7 @@ pub fn appointment_participant_to_json(
     id:,
   ) = appointment_participant
   let fields = [
-    #("status", r4valuesets.participationstatus_to_json(status)),
+    #("status", r4_valuesets.participationstatus_to_json(status)),
   ]
   let fields = case period {
     Some(v) -> [#("period", period_to_json(v)), ..fields]
@@ -10834,7 +10848,7 @@ pub fn appointment_participant_to_json(
   }
   let fields = case required {
     Some(v) -> [
-      #("required", r4valuesets.participantrequired_to_json(v)),
+      #("required", r4_valuesets.participantrequired_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -10874,12 +10888,12 @@ pub fn appointment_participant_decoder() -> Decoder(AppointmentParticipant) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.participationstatus_decoder(),
+    r4_valuesets.participationstatus_decoder(),
   )
   use required <- decode.optional_field(
     "required",
     None,
-    decode.optional(r4valuesets.participantrequired_decoder()),
+    decode.optional(r4_valuesets.participantrequired_decoder()),
   )
   use actor <- decode.optional_field(
     "actor",
@@ -10948,7 +10962,7 @@ pub fn appointment_to_json(appointment: Appointment) -> Json {
     id:,
   ) = appointment
   let fields = [
-    #("status", r4valuesets.appointmentstatus_to_json(status)),
+    #("status", r4_valuesets.appointmentstatus_to_json(status)),
   ]
   let fields = case requested_period {
     [] -> fields
@@ -11201,7 +11215,7 @@ pub fn appointment_decoder() -> Decoder(Appointment) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.appointmentstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.appointmentstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -11300,13 +11314,13 @@ pub type Appointmentresponse {
     end: Option(String),
     participant_type: List(Codeableconcept),
     actor: Option(Reference),
-    participant_status: r4valuesets.Participationstatus,
+    participant_status: r4_valuesets.Participationstatus,
     comment: Option(String),
   )
 }
 
 pub fn appointmentresponse_new(
-  participant_status participant_status: r4valuesets.Participationstatus,
+  participant_status participant_status: r4_valuesets.Participationstatus,
   appointment appointment: Reference,
 ) -> Appointmentresponse {
   Appointmentresponse(
@@ -11353,7 +11367,7 @@ pub fn appointmentresponse_to_json(
   let fields = [
     #(
       "participantStatus",
-      r4valuesets.participationstatus_to_json(participant_status),
+      r4_valuesets.participationstatus_to_json(participant_status),
     ),
     #("appointment", reference_to_json(appointment)),
   ]
@@ -11435,7 +11449,7 @@ pub fn appointmentresponse_decoder() -> Decoder(Appointmentresponse) {
   )
   use participant_status <- decode.field(
     "participantStatus",
-    r4valuesets.participationstatus_decoder(),
+    r4_valuesets.participationstatus_decoder(),
   )
   use actor <- decode.optional_field(
     "actor",
@@ -11537,10 +11551,10 @@ pub type Auditevent {
     modifier_extension: List(Extension),
     type_: Coding,
     subtype: List(Coding),
-    action: Option(r4valuesets.Auditeventaction),
+    action: Option(r4_valuesets.Auditeventaction),
     period: Option(Period),
     recorded: String,
-    outcome: Option(r4valuesets.Auditeventoutcome),
+    outcome: Option(r4_valuesets.Auditeventoutcome),
     outcome_desc: Option(String),
     purpose_of_event: List(Codeableconcept),
     agent: List(AuditeventAgent),
@@ -11623,7 +11637,7 @@ pub type AuditeventAgentNetwork {
     extension: List(Extension),
     modifier_extension: List(Extension),
     address: Option(String),
-    type_: Option(r4valuesets.Networktype),
+    type_: Option(r4_valuesets.Networktype),
   )
 }
 
@@ -12033,7 +12047,7 @@ pub fn auditevent_agent_network_to_json(
   ) = auditevent_agent_network
   let fields = []
   let fields = case type_ {
-    Some(v) -> [#("type", r4valuesets.networktype_to_json(v)), ..fields]
+    Some(v) -> [#("type", r4_valuesets.networktype_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case address {
@@ -12063,7 +12077,7 @@ pub fn auditevent_agent_network_decoder() -> Decoder(AuditeventAgentNetwork) {
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.networktype_decoder()),
+    decode.optional(r4_valuesets.networktype_decoder()),
   )
   use address <- decode.optional_field(
     "address",
@@ -12297,7 +12311,7 @@ pub fn auditevent_to_json(auditevent: Auditevent) -> Json {
   }
   let fields = case outcome {
     Some(v) -> [
-      #("outcome", r4valuesets.auditeventoutcome_to_json(v)),
+      #("outcome", r4_valuesets.auditeventoutcome_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -12307,7 +12321,7 @@ pub fn auditevent_to_json(auditevent: Auditevent) -> Json {
     None -> fields
   }
   let fields = case action {
-    Some(v) -> [#("action", r4valuesets.auditeventaction_to_json(v)), ..fields]
+    Some(v) -> [#("action", r4_valuesets.auditeventaction_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case subtype {
@@ -12379,7 +12393,7 @@ pub fn auditevent_decoder() -> Decoder(Auditevent) {
   use outcome <- decode.optional_field(
     "outcome",
     None,
-    decode.optional(r4valuesets.auditeventoutcome_decoder()),
+    decode.optional(r4_valuesets.auditeventoutcome_decoder()),
   )
   use recorded <- decode.field("recorded", decode.string)
   use period <- decode.optional_field(
@@ -12390,7 +12404,7 @@ pub fn auditevent_decoder() -> Decoder(Auditevent) {
   use action <- decode.optional_field(
     "action",
     None,
-    decode.optional(r4valuesets.auditeventaction_decoder()),
+    decode.optional(r4_valuesets.auditeventaction_decoder()),
   )
   use subtype <- decode.optional_field(
     "subtype",
@@ -12780,9 +12794,9 @@ pub type Biologicallyderivedproduct {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    product_category: Option(r4valuesets.Productcategory),
+    product_category: Option(r4_valuesets.Productcategory),
     product_code: Option(Codeableconcept),
-    status: Option(r4valuesets.Productstatus),
+    status: Option(r4_valuesets.Productstatus),
     request: List(Reference),
     quantity: Option(Int),
     parent: List(Reference),
@@ -12978,7 +12992,7 @@ pub type BiologicallyderivedproductStorage {
     modifier_extension: List(Extension),
     description: Option(String),
     temperature: Option(Float),
-    scale: Option(r4valuesets.Productstoragescale),
+    scale: Option(r4_valuesets.Productstoragescale),
     duration: Option(Period),
   )
 }
@@ -13014,7 +13028,7 @@ pub fn biologicallyderivedproduct_storage_to_json(
   }
   let fields = case scale {
     Some(v) -> [
-      #("scale", r4valuesets.productstoragescale_to_json(v)),
+      #("scale", r4_valuesets.productstoragescale_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -13057,7 +13071,7 @@ pub fn biologicallyderivedproduct_storage_decoder() -> Decoder(
   use scale <- decode.optional_field(
     "scale",
     None,
-    decode.optional(r4valuesets.productstoragescale_decoder()),
+    decode.optional(r4_valuesets.productstoragescale_decoder()),
   )
   use temperature <- decode.optional_field(
     "temperature",
@@ -13433,7 +13447,7 @@ pub fn biologicallyderivedproduct_to_json(
     _ -> [#("request", json.array(request, reference_to_json)), ..fields]
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.productstatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.productstatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case product_code {
@@ -13442,7 +13456,7 @@ pub fn biologicallyderivedproduct_to_json(
   }
   let fields = case product_category {
     Some(v) -> [
-      #("productCategory", r4valuesets.productcategory_to_json(v)),
+      #("productCategory", r4_valuesets.productcategory_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -13535,7 +13549,7 @@ pub fn biologicallyderivedproduct_decoder() -> Decoder(
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.productstatus_decoder()),
+    decode.optional(r4_valuesets.productstatus_decoder()),
   )
   use product_code <- decode.optional_field(
     "productCode",
@@ -13545,7 +13559,7 @@ pub fn biologicallyderivedproduct_decoder() -> Decoder(
   use product_category <- decode.optional_field(
     "productCategory",
     None,
-    decode.optional(r4valuesets.productcategory_decoder()),
+    decode.optional(r4_valuesets.productcategory_decoder()),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -13863,7 +13877,7 @@ pub type Bundle {
     implicit_rules: Option(String),
     language: Option(String),
     identifier: Option(Identifier),
-    type_: r4valuesets.Bundletype,
+    type_: r4_valuesets.Bundletype,
     timestamp: Option(String),
     total: Option(Int),
     link: List(BundleLink),
@@ -13872,7 +13886,7 @@ pub type Bundle {
   )
 }
 
-pub fn bundle_new(type_ type_: r4valuesets.Bundletype) -> Bundle {
+pub fn bundle_new(type_ type_: r4_valuesets.Bundletype) -> Bundle {
   Bundle(
     signature: None,
     entry: [],
@@ -13938,7 +13952,7 @@ pub type BundleEntrySearch {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    mode: Option(r4valuesets.Searchentrymode),
+    mode: Option(r4_valuesets.Searchentrymode),
     score: Option(Float),
   )
 }
@@ -13959,7 +13973,7 @@ pub type BundleEntryRequest {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    method: r4valuesets.Httpverb,
+    method: r4_valuesets.Httpverb,
     url: String,
     if_none_match: Option(String),
     if_modified_since: Option(String),
@@ -13970,7 +13984,7 @@ pub type BundleEntryRequest {
 
 pub fn bundle_entry_request_new(
   url url: String,
-  method method: r4valuesets.Httpverb,
+  method method: r4_valuesets.Httpverb,
 ) -> BundleEntryRequest {
   BundleEntryRequest(
     if_none_exist: None,
@@ -14124,7 +14138,7 @@ pub fn bundle_entry_request_to_json(
   ) = bundle_entry_request
   let fields = [
     #("url", json.string(url)),
-    #("method", r4valuesets.httpverb_to_json(method)),
+    #("method", r4_valuesets.httpverb_to_json(method)),
   ]
   let fields = case if_none_exist {
     Some(v) -> [#("ifNoneExist", json.string(v)), ..fields]
@@ -14183,7 +14197,7 @@ pub fn bundle_entry_request_decoder() -> Decoder(BundleEntryRequest) {
     decode.optional(decode.string),
   )
   use url <- decode.field("url", decode.string)
-  use method <- decode.field("method", r4valuesets.httpverb_decoder())
+  use method <- decode.field("method", r4_valuesets.httpverb_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -14219,7 +14233,7 @@ pub fn bundle_entry_search_to_json(
     None -> fields
   }
   let fields = case mode {
-    Some(v) -> [#("mode", r4valuesets.searchentrymode_to_json(v)), ..fields]
+    Some(v) -> [#("mode", r4_valuesets.searchentrymode_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case modifier_extension {
@@ -14250,7 +14264,7 @@ pub fn bundle_entry_search_decoder() -> Decoder(BundleEntrySearch) {
   use mode <- decode.optional_field(
     "mode",
     None,
-    decode.optional(r4valuesets.searchentrymode_decoder()),
+    decode.optional(r4_valuesets.searchentrymode_decoder()),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -14447,7 +14461,7 @@ pub fn bundle_to_json(bundle: Bundle) -> Json {
     id:,
   ) = bundle
   let fields = [
-    #("type", r4valuesets.bundletype_to_json(type_)),
+    #("type", r4_valuesets.bundletype_to_json(type_)),
   ]
   let fields = case signature {
     Some(v) -> [#("signature", signature_to_json(v)), ..fields]
@@ -14516,7 +14530,7 @@ pub fn bundle_decoder() -> Decoder(Bundle) {
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", r4valuesets.bundletype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.bundletype_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     None,
@@ -14574,7 +14588,7 @@ pub type Capabilitystatement {
     version: Option(String),
     name: Option(String),
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: String,
     publisher: Option(String),
@@ -14584,12 +14598,12 @@ pub type Capabilitystatement {
     jurisdiction: List(Codeableconcept),
     purpose: Option(String),
     copyright: Option(String),
-    kind: r4valuesets.Capabilitystatementkind,
+    kind: r4_valuesets.Capabilitystatementkind,
     instantiates: List(String),
     imports: List(String),
     software: Option(CapabilitystatementSoftware),
     implementation: Option(CapabilitystatementImplementation),
-    fhir_version: r4valuesets.Fhirversion,
+    fhir_version: r4_valuesets.Fhirversion,
     format: List(String),
     patch_format: List(String),
     implementation_guide: List(String),
@@ -14600,10 +14614,10 @@ pub type Capabilitystatement {
 }
 
 pub fn capabilitystatement_new(
-  fhir_version fhir_version: r4valuesets.Fhirversion,
-  kind kind: r4valuesets.Capabilitystatementkind,
+  fhir_version fhir_version: r4_valuesets.Fhirversion,
+  kind kind: r4_valuesets.Capabilitystatementkind,
   date date: String,
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Capabilitystatement {
   Capabilitystatement(
     document: [],
@@ -14699,7 +14713,7 @@ pub type CapabilitystatementRest {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    mode: r4valuesets.Restfulcapabilitymode,
+    mode: r4_valuesets.Restfulcapabilitymode,
     documentation: Option(String),
     security: Option(CapabilitystatementRestSecurity),
     resource: List(CapabilitystatementRestResource),
@@ -14711,7 +14725,7 @@ pub type CapabilitystatementRest {
 }
 
 pub fn capabilitystatement_rest_new(
-  mode mode: r4valuesets.Restfulcapabilitymode,
+  mode mode: r4_valuesets.Restfulcapabilitymode,
 ) -> CapabilitystatementRest {
   CapabilitystatementRest(
     compartment: [],
@@ -14757,19 +14771,19 @@ pub type CapabilitystatementRestResource {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Resourcetypes,
+    type_: r4_valuesets.Resourcetypes,
     profile: Option(String),
     supported_profile: List(String),
     documentation: Option(String),
     interaction: List(CapabilitystatementRestResourceInteraction),
-    versioning: Option(r4valuesets.Versioningpolicy),
+    versioning: Option(r4_valuesets.Versioningpolicy),
     read_history: Option(Bool),
     update_create: Option(Bool),
     conditional_create: Option(Bool),
-    conditional_read: Option(r4valuesets.Conditionalreadstatus),
+    conditional_read: Option(r4_valuesets.Conditionalreadstatus),
     conditional_update: Option(Bool),
-    conditional_delete: Option(r4valuesets.Conditionaldeletestatus),
-    reference_policy: List(r4valuesets.Referencehandlingpolicy),
+    conditional_delete: Option(r4_valuesets.Conditionaldeletestatus),
+    reference_policy: List(r4_valuesets.Referencehandlingpolicy),
     search_include: List(String),
     search_rev_include: List(String),
     search_param: List(CapabilitystatementRestResourceSearchparam),
@@ -14778,7 +14792,7 @@ pub type CapabilitystatementRestResource {
 }
 
 pub fn capabilitystatement_rest_resource_new(
-  type_ type_: r4valuesets.Resourcetypes,
+  type_ type_: r4_valuesets.Resourcetypes,
 ) -> CapabilitystatementRestResource {
   CapabilitystatementRestResource(
     operation: [],
@@ -14810,13 +14824,13 @@ pub type CapabilitystatementRestResourceInteraction {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    code: r4valuesets.Typerestfulinteraction,
+    code: r4_valuesets.Typerestfulinteraction,
     documentation: Option(String),
   )
 }
 
 pub fn capabilitystatement_rest_resource_interaction_new(
-  code code: r4valuesets.Typerestfulinteraction,
+  code code: r4_valuesets.Typerestfulinteraction,
 ) -> CapabilitystatementRestResourceInteraction {
   CapabilitystatementRestResourceInteraction(
     documentation: None,
@@ -14835,13 +14849,13 @@ pub type CapabilitystatementRestResourceSearchparam {
     modifier_extension: List(Extension),
     name: String,
     definition: Option(String),
-    type_: r4valuesets.Searchparamtype,
+    type_: r4_valuesets.Searchparamtype,
     documentation: Option(String),
   )
 }
 
 pub fn capabilitystatement_rest_resource_searchparam_new(
-  type_ type_: r4valuesets.Searchparamtype,
+  type_ type_: r4_valuesets.Searchparamtype,
   name name: String,
 ) -> CapabilitystatementRestResourceSearchparam {
   CapabilitystatementRestResourceSearchparam(
@@ -14887,13 +14901,13 @@ pub type CapabilitystatementRestInteraction {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    code: r4valuesets.Systemrestfulinteraction,
+    code: r4_valuesets.Systemrestfulinteraction,
     documentation: Option(String),
   )
 }
 
 pub fn capabilitystatement_rest_interaction_new(
-  code code: r4valuesets.Systemrestfulinteraction,
+  code code: r4_valuesets.Systemrestfulinteraction,
 ) -> CapabilitystatementRestInteraction {
   CapabilitystatementRestInteraction(
     documentation: None,
@@ -14959,14 +14973,14 @@ pub type CapabilitystatementMessagingSupportedmessage {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    mode: r4valuesets.Eventcapabilitymode,
+    mode: r4_valuesets.Eventcapabilitymode,
     definition: String,
   )
 }
 
 pub fn capabilitystatement_messaging_supportedmessage_new(
   definition definition: String,
-  mode mode: r4valuesets.Eventcapabilitymode,
+  mode mode: r4_valuesets.Eventcapabilitymode,
 ) -> CapabilitystatementMessagingSupportedmessage {
   CapabilitystatementMessagingSupportedmessage(
     definition:,
@@ -14983,7 +14997,7 @@ pub type CapabilitystatementDocument {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    mode: r4valuesets.Documentmode,
+    mode: r4_valuesets.Documentmode,
     documentation: Option(String),
     profile: String,
   )
@@ -14991,7 +15005,7 @@ pub type CapabilitystatementDocument {
 
 pub fn capabilitystatement_document_new(
   profile profile: String,
-  mode mode: r4valuesets.Documentmode,
+  mode mode: r4_valuesets.Documentmode,
 ) -> CapabilitystatementDocument {
   CapabilitystatementDocument(
     profile:,
@@ -15016,7 +15030,7 @@ pub fn capabilitystatement_document_to_json(
   ) = capabilitystatement_document
   let fields = [
     #("profile", json.string(profile)),
-    #("mode", r4valuesets.documentmode_to_json(mode)),
+    #("mode", r4_valuesets.documentmode_to_json(mode)),
   ]
   let fields = case documentation {
     Some(v) -> [#("documentation", json.string(v)), ..fields]
@@ -15050,7 +15064,7 @@ pub fn capabilitystatement_document_decoder() -> Decoder(
     None,
     decode.optional(decode.string),
   )
-  use mode <- decode.field("mode", r4valuesets.documentmode_decoder())
+  use mode <- decode.field("mode", r4_valuesets.documentmode_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -15084,7 +15098,7 @@ pub fn capabilitystatement_messaging_supportedmessage_to_json(
   ) = capabilitystatement_messaging_supportedmessage
   let fields = [
     #("definition", json.string(definition)),
-    #("mode", r4valuesets.eventcapabilitymode_to_json(mode)),
+    #("mode", r4_valuesets.eventcapabilitymode_to_json(mode)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -15109,7 +15123,7 @@ pub fn capabilitystatement_messaging_supportedmessage_decoder() -> Decoder(
 ) {
   use <- decode.recursive
   use definition <- decode.field("definition", decode.string)
-  use mode <- decode.field("mode", r4valuesets.eventcapabilitymode_decoder())
+  use mode <- decode.field("mode", r4_valuesets.eventcapabilitymode_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -15307,7 +15321,7 @@ pub fn capabilitystatement_rest_interaction_to_json(
     id:,
   ) = capabilitystatement_rest_interaction
   let fields = [
-    #("code", r4valuesets.systemrestfulinteraction_to_json(code)),
+    #("code", r4_valuesets.systemrestfulinteraction_to_json(code)),
   ]
   let fields = case documentation {
     Some(v) -> [#("documentation", json.string(v)), ..fields]
@@ -15342,7 +15356,7 @@ pub fn capabilitystatement_rest_interaction_decoder() -> Decoder(
   )
   use code <- decode.field(
     "code",
-    r4valuesets.systemrestfulinteraction_decoder(),
+    r4_valuesets.systemrestfulinteraction_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -15446,7 +15460,7 @@ pub fn capabilitystatement_rest_resource_searchparam_to_json(
     id:,
   ) = capabilitystatement_rest_resource_searchparam
   let fields = [
-    #("type", r4valuesets.searchparamtype_to_json(type_)),
+    #("type", r4_valuesets.searchparamtype_to_json(type_)),
     #("name", json.string(name)),
   ]
   let fields = case documentation {
@@ -15484,7 +15498,7 @@ pub fn capabilitystatement_rest_resource_searchparam_decoder() -> Decoder(
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", r4valuesets.searchparamtype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.searchparamtype_decoder())
   use definition <- decode.optional_field(
     "definition",
     None,
@@ -15524,7 +15538,7 @@ pub fn capabilitystatement_rest_resource_interaction_to_json(
     id:,
   ) = capabilitystatement_rest_resource_interaction
   let fields = [
-    #("code", r4valuesets.typerestfulinteraction_to_json(code)),
+    #("code", r4_valuesets.typerestfulinteraction_to_json(code)),
   ]
   let fields = case documentation {
     Some(v) -> [#("documentation", json.string(v)), ..fields]
@@ -15557,7 +15571,10 @@ pub fn capabilitystatement_rest_resource_interaction_decoder() -> Decoder(
     None,
     decode.optional(decode.string),
   )
-  use code <- decode.field("code", r4valuesets.typerestfulinteraction_decoder())
+  use code <- decode.field(
+    "code",
+    r4_valuesets.typerestfulinteraction_decoder(),
+  )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -15604,7 +15621,7 @@ pub fn capabilitystatement_rest_resource_to_json(
     id:,
   ) = capabilitystatement_rest_resource
   let fields = [
-    #("type", r4valuesets.resourcetypes_to_json(type_)),
+    #("type", r4_valuesets.resourcetypes_to_json(type_)),
   ]
   let fields = case operation {
     [] -> fields
@@ -15650,7 +15667,7 @@ pub fn capabilitystatement_rest_resource_to_json(
         "referencePolicy",
         json.array(
           reference_policy,
-          r4valuesets.referencehandlingpolicy_to_json,
+          r4_valuesets.referencehandlingpolicy_to_json,
         ),
       ),
       ..fields
@@ -15658,7 +15675,7 @@ pub fn capabilitystatement_rest_resource_to_json(
   }
   let fields = case conditional_delete {
     Some(v) -> [
-      #("conditionalDelete", r4valuesets.conditionaldeletestatus_to_json(v)),
+      #("conditionalDelete", r4_valuesets.conditionaldeletestatus_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -15669,7 +15686,7 @@ pub fn capabilitystatement_rest_resource_to_json(
   }
   let fields = case conditional_read {
     Some(v) -> [
-      #("conditionalRead", r4valuesets.conditionalreadstatus_to_json(v)),
+      #("conditionalRead", r4_valuesets.conditionalreadstatus_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -15688,7 +15705,7 @@ pub fn capabilitystatement_rest_resource_to_json(
   }
   let fields = case versioning {
     Some(v) -> [
-      #("versioning", r4valuesets.versioningpolicy_to_json(v)),
+      #("versioning", r4_valuesets.versioningpolicy_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -15766,12 +15783,12 @@ pub fn capabilitystatement_rest_resource_decoder() -> Decoder(
   use reference_policy <- decode.optional_field(
     "referencePolicy",
     [],
-    decode.list(r4valuesets.referencehandlingpolicy_decoder()),
+    decode.list(r4_valuesets.referencehandlingpolicy_decoder()),
   )
   use conditional_delete <- decode.optional_field(
     "conditionalDelete",
     None,
-    decode.optional(r4valuesets.conditionaldeletestatus_decoder()),
+    decode.optional(r4_valuesets.conditionaldeletestatus_decoder()),
   )
   use conditional_update <- decode.optional_field(
     "conditionalUpdate",
@@ -15781,7 +15798,7 @@ pub fn capabilitystatement_rest_resource_decoder() -> Decoder(
   use conditional_read <- decode.optional_field(
     "conditionalRead",
     None,
-    decode.optional(r4valuesets.conditionalreadstatus_decoder()),
+    decode.optional(r4_valuesets.conditionalreadstatus_decoder()),
   )
   use conditional_create <- decode.optional_field(
     "conditionalCreate",
@@ -15801,7 +15818,7 @@ pub fn capabilitystatement_rest_resource_decoder() -> Decoder(
   use versioning <- decode.optional_field(
     "versioning",
     None,
-    decode.optional(r4valuesets.versioningpolicy_decoder()),
+    decode.optional(r4_valuesets.versioningpolicy_decoder()),
   )
   use interaction <- decode.optional_field(
     "interaction",
@@ -15823,7 +15840,7 @@ pub fn capabilitystatement_rest_resource_decoder() -> Decoder(
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", r4valuesets.resourcetypes_decoder())
+  use type_ <- decode.field("type", r4_valuesets.resourcetypes_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -15954,7 +15971,7 @@ pub fn capabilitystatement_rest_to_json(
     id:,
   ) = capabilitystatement_rest
   let fields = [
-    #("mode", r4valuesets.restfulcapabilitymode_to_json(mode)),
+    #("mode", r4_valuesets.restfulcapabilitymode_to_json(mode)),
   ]
   let fields = case compartment {
     [] -> fields
@@ -16072,7 +16089,7 @@ pub fn capabilitystatement_rest_decoder() -> Decoder(CapabilitystatementRest) {
     None,
     decode.optional(decode.string),
   )
-  use mode <- decode.field("mode", r4valuesets.restfulcapabilitymode_decoder())
+  use mode <- decode.field("mode", r4_valuesets.restfulcapabilitymode_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -16287,10 +16304,10 @@ pub fn capabilitystatement_to_json(
     id:,
   ) = capabilitystatement
   let fields = [
-    #("fhirVersion", r4valuesets.fhirversion_to_json(fhir_version)),
-    #("kind", r4valuesets.capabilitystatementkind_to_json(kind)),
+    #("fhirVersion", r4_valuesets.fhirversion_to_json(fhir_version)),
+    #("kind", r4_valuesets.capabilitystatementkind_to_json(kind)),
     #("date", json.string(date)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case document {
     [] -> fields
@@ -16476,7 +16493,7 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
   use format <- decode.optional_field("format", [], decode.list(decode.string))
   use fhir_version <- decode.field(
     "fhirVersion",
-    r4valuesets.fhirversion_decoder(),
+    r4_valuesets.fhirversion_decoder(),
   )
   use implementation <- decode.optional_field(
     "implementation",
@@ -16500,7 +16517,7 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
   )
   use kind <- decode.field(
     "kind",
-    r4valuesets.capabilitystatementkind_decoder(),
+    r4_valuesets.capabilitystatementkind_decoder(),
   )
   use copyright <- decode.optional_field(
     "copyright",
@@ -16543,7 +16560,7 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -16660,8 +16677,8 @@ pub type Careplan {
     based_on: List(Reference),
     replaces: List(Reference),
     part_of: List(Reference),
-    status: r4valuesets.Requeststatus,
-    intent: r4valuesets.Careplanintent,
+    status: r4_valuesets.Requeststatus,
+    intent: r4_valuesets.Careplanintent,
     category: List(Codeableconcept),
     title: Option(String),
     description: Option(String),
@@ -16682,8 +16699,8 @@ pub type Careplan {
 
 pub fn careplan_new(
   subject subject: Reference,
-  intent intent: r4valuesets.Careplanintent,
-  status status: r4valuesets.Requeststatus,
+  intent intent: r4_valuesets.Careplanintent,
+  status status: r4_valuesets.Requeststatus,
 ) -> Careplan {
   Careplan(
     note: [],
@@ -16753,14 +16770,14 @@ pub type CareplanActivityDetail {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    kind: Option(r4valuesets.Careplanactivitykind),
+    kind: Option(r4_valuesets.Careplanactivitykind),
     instantiates_canonical: List(String),
     instantiates_uri: List(String),
     code: Option(Codeableconcept),
     reason_code: List(Codeableconcept),
     reason_reference: List(Reference),
     goal: List(Reference),
-    status: r4valuesets.Careplanactivitystatus,
+    status: r4_valuesets.Careplanactivitystatus,
     status_reason: Option(Codeableconcept),
     do_not_perform: Option(Bool),
     scheduled: Option(CareplanActivityDetailScheduled),
@@ -16839,7 +16856,7 @@ pub fn careplan_activity_detail_product_decoder() -> Decoder(
 }
 
 pub fn careplan_activity_detail_new(
-  status status: r4valuesets.Careplanactivitystatus,
+  status status: r4_valuesets.Careplanactivitystatus,
 ) -> CareplanActivityDetail {
   CareplanActivityDetail(
     description: None,
@@ -16891,7 +16908,7 @@ pub fn careplan_activity_detail_to_json(
     id:,
   ) = careplan_activity_detail
   let fields = [
-    #("status", r4valuesets.careplanactivitystatus_to_json(status)),
+    #("status", r4_valuesets.careplanactivitystatus_to_json(status)),
   ]
   let fields = case description {
     Some(v) -> [#("description", json.string(v)), ..fields]
@@ -16991,7 +17008,7 @@ pub fn careplan_activity_detail_to_json(
   }
   let fields = case kind {
     Some(v) -> [
-      #("kind", r4valuesets.careplanactivitykind_to_json(v)),
+      #("kind", r4_valuesets.careplanactivitykind_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -17059,7 +17076,7 @@ pub fn careplan_activity_detail_decoder() -> Decoder(CareplanActivityDetail) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.careplanactivitystatus_decoder(),
+    r4_valuesets.careplanactivitystatus_decoder(),
   )
   use goal <- decode.optional_field(
     "goal",
@@ -17094,7 +17111,7 @@ pub fn careplan_activity_detail_decoder() -> Decoder(CareplanActivityDetail) {
   use kind <- decode.optional_field(
     "kind",
     None,
-    decode.optional(r4valuesets.careplanactivitykind_decoder()),
+    decode.optional(r4_valuesets.careplanactivitykind_decoder()),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -17276,8 +17293,8 @@ pub fn careplan_to_json(careplan: Careplan) -> Json {
   ) = careplan
   let fields = [
     #("subject", reference_to_json(subject)),
-    #("intent", r4valuesets.careplanintent_to_json(intent)),
-    #("status", r4valuesets.requeststatus_to_json(status)),
+    #("intent", r4_valuesets.careplanintent_to_json(intent)),
+    #("status", r4_valuesets.requeststatus_to_json(status)),
   ]
   let fields = case note {
     [] -> fields
@@ -17492,8 +17509,8 @@ pub fn careplan_decoder() -> Decoder(Careplan) {
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use intent <- decode.field("intent", r4valuesets.careplanintent_decoder())
-  use status <- decode.field("status", r4valuesets.requeststatus_decoder())
+  use intent <- decode.field("intent", r4_valuesets.careplanintent_decoder())
+  use status <- decode.field("status", r4_valuesets.requeststatus_decoder())
   use part_of <- decode.optional_field(
     "partOf",
     [],
@@ -17613,7 +17630,7 @@ pub type Careteam {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: Option(r4valuesets.Careteamstatus),
+    status: Option(r4_valuesets.Careteamstatus),
     category: List(Codeableconcept),
     name: Option(String),
     subject: Option(Reference),
@@ -17858,7 +17875,7 @@ pub fn careteam_to_json(careteam: Careteam) -> Json {
     ]
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.careteamstatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.careteamstatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case identifier {
@@ -17964,7 +17981,7 @@ pub fn careteam_decoder() -> Decoder(Careteam) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.careteamstatus_decoder()),
+    decode.optional(r4_valuesets.careteamstatus_decoder()),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -18055,7 +18072,7 @@ pub type Catalogentry {
     referenced_item: Reference,
     additional_identifier: List(Identifier),
     classification: List(Codeableconcept),
-    status: Option(r4valuesets.Publicationstatus),
+    status: Option(r4_valuesets.Publicationstatus),
     validity_period: Option(Period),
     valid_to: Option(String),
     last_updated: Option(String),
@@ -18100,14 +18117,14 @@ pub type CatalogentryRelatedentry {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    relationtype: r4valuesets.Relationtype,
+    relationtype: r4_valuesets.Relationtype,
     item: Reference,
   )
 }
 
 pub fn catalogentry_relatedentry_new(
   item item: Reference,
-  relationtype relationtype: r4valuesets.Relationtype,
+  relationtype relationtype: r4_valuesets.Relationtype,
 ) -> CatalogentryRelatedentry {
   CatalogentryRelatedentry(
     item:,
@@ -18130,7 +18147,7 @@ pub fn catalogentry_relatedentry_to_json(
   ) = catalogentry_relatedentry
   let fields = [
     #("item", reference_to_json(item)),
-    #("relationtype", r4valuesets.relationtype_to_json(relationtype)),
+    #("relationtype", r4_valuesets.relationtype_to_json(relationtype)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -18155,7 +18172,7 @@ pub fn catalogentry_relatedentry_decoder() -> Decoder(CatalogentryRelatedentry) 
   use item <- decode.field("item", reference_decoder())
   use relationtype <- decode.field(
     "relationtype",
-    r4valuesets.relationtype_decoder(),
+    r4_valuesets.relationtype_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -18248,7 +18265,10 @@ pub fn catalogentry_to_json(catalogentry: Catalogentry) -> Json {
     None -> fields
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.publicationstatus_to_json(v)), ..fields]
+    Some(v) -> [
+      #("status", r4_valuesets.publicationstatus_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case classification {
@@ -18350,7 +18370,7 @@ pub fn catalogentry_decoder() -> Decoder(Catalogentry) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.publicationstatus_decoder()),
+    decode.optional(r4_valuesets.publicationstatus_decoder()),
   )
   use classification <- decode.optional_field(
     "classification",
@@ -18458,7 +18478,7 @@ pub type Chargeitem {
     identifier: List(Identifier),
     definition_uri: List(String),
     definition_canonical: List(String),
-    status: r4valuesets.Chargeitemstatus,
+    status: r4_valuesets.Chargeitemstatus,
     part_of: List(Reference),
     code: Codeableconcept,
     subject: Reference,
@@ -18543,7 +18563,7 @@ pub fn chargeitem_product_decoder() -> Decoder(ChargeitemProduct) {
 pub fn chargeitem_new(
   subject subject: Reference,
   code code: Codeableconcept,
-  status status: r4valuesets.Chargeitemstatus,
+  status status: r4_valuesets.Chargeitemstatus,
 ) -> Chargeitem {
   Chargeitem(
     supporting_information: [],
@@ -18707,7 +18727,7 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
   let fields = [
     #("subject", reference_to_json(subject)),
     #("code", codeableconcept_to_json(code)),
-    #("status", r4valuesets.chargeitemstatus_to_json(status)),
+    #("status", r4_valuesets.chargeitemstatus_to_json(status)),
   ]
   let fields = case supporting_information {
     [] -> fields
@@ -18974,7 +18994,7 @@ pub fn chargeitem_decoder() -> Decoder(Chargeitem) {
     [],
     decode.list(reference_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.chargeitemstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.chargeitemstatus_decoder())
   use definition_canonical <- decode.optional_field(
     "definitionCanonical",
     [],
@@ -19088,7 +19108,7 @@ pub type Chargeitemdefinition {
     derived_from_uri: List(String),
     part_of: List(String),
     replaces: List(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -19108,7 +19128,7 @@ pub type Chargeitemdefinition {
 }
 
 pub fn chargeitemdefinition_new(
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
   url url: String,
 ) -> Chargeitemdefinition {
   Chargeitemdefinition(
@@ -19196,7 +19216,7 @@ pub type ChargeitemdefinitionPropertygroupPricecomponent {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Invoicepricecomponenttype,
+    type_: r4_valuesets.Invoicepricecomponenttype,
     code: Option(Codeableconcept),
     factor: Option(Float),
     amount: Option(Money),
@@ -19204,7 +19224,7 @@ pub type ChargeitemdefinitionPropertygroupPricecomponent {
 }
 
 pub fn chargeitemdefinition_propertygroup_pricecomponent_new(
-  type_ type_: r4valuesets.Invoicepricecomponenttype,
+  type_ type_: r4_valuesets.Invoicepricecomponenttype,
 ) -> ChargeitemdefinitionPropertygroupPricecomponent {
   ChargeitemdefinitionPropertygroupPricecomponent(
     amount: None,
@@ -19230,7 +19250,7 @@ pub fn chargeitemdefinition_propertygroup_pricecomponent_to_json(
     id:,
   ) = chargeitemdefinition_propertygroup_pricecomponent
   let fields = [
-    #("type", r4valuesets.invoicepricecomponenttype_to_json(type_)),
+    #("type", r4_valuesets.invoicepricecomponenttype_to_json(type_)),
   ]
   let fields = case amount {
     Some(v) -> [#("amount", money_to_json(v)), ..fields]
@@ -19283,7 +19303,7 @@ pub fn chargeitemdefinition_propertygroup_pricecomponent_decoder() -> Decoder(
   )
   use type_ <- decode.field(
     "type",
-    r4valuesets.invoicepricecomponenttype_decoder(),
+    r4_valuesets.invoicepricecomponenttype_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -19512,7 +19532,7 @@ pub fn chargeitemdefinition_to_json(
     id:,
   ) = chargeitemdefinition
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
     #("url", json.string(url)),
   ]
   let fields = case property_group {
@@ -19739,7 +19759,7 @@ pub fn chargeitemdefinition_decoder() -> Decoder(Chargeitemdefinition) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use replaces <- decode.optional_field(
     "replaces",
     [],
@@ -19856,10 +19876,10 @@ pub type Claim {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Fmstatus,
+    status: r4_valuesets.Fmstatus,
     type_: Codeableconcept,
     sub_type: Option(Codeableconcept),
-    use_: r4valuesets.Claimuse,
+    use_: r4_valuesets.Claimuse,
     patient: Reference,
     billable_period: Option(Period),
     created: String,
@@ -19890,9 +19910,9 @@ pub fn claim_new(
   provider provider: Reference,
   created created: String,
   patient patient: Reference,
-  use_ use_: r4valuesets.Claimuse,
+  use_ use_: r4_valuesets.Claimuse,
   type_ type_: Codeableconcept,
-  status status: r4valuesets.Fmstatus,
+  status status: r4_valuesets.Fmstatus,
 ) -> Claim {
   Claim(
     total: None,
@@ -21870,9 +21890,9 @@ pub fn claim_to_json(claim: Claim) -> Json {
     #("provider", reference_to_json(provider)),
     #("created", json.string(created)),
     #("patient", reference_to_json(patient)),
-    #("use", r4valuesets.claimuse_to_json(use_)),
+    #("use", r4_valuesets.claimuse_to_json(use_)),
     #("type", codeableconcept_to_json(type_)),
-    #("status", r4valuesets.fmstatus_to_json(status)),
+    #("status", r4_valuesets.fmstatus_to_json(status)),
   ]
   let fields = case total {
     Some(v) -> [#("total", money_to_json(v)), ..fields]
@@ -22107,14 +22127,14 @@ pub fn claim_decoder() -> Decoder(Claim) {
     decode.optional(period_decoder()),
   )
   use patient <- decode.field("patient", reference_decoder())
-  use use_ <- decode.field("use", r4valuesets.claimuse_decoder())
+  use use_ <- decode.field("use", r4_valuesets.claimuse_decoder())
   use sub_type <- decode.optional_field(
     "subType",
     None,
     decode.optional(codeableconcept_decoder()),
   )
   use type_ <- decode.field("type", codeableconcept_decoder())
-  use status <- decode.field("status", r4valuesets.fmstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -22224,16 +22244,16 @@ pub type Claimresponse {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Fmstatus,
+    status: r4_valuesets.Fmstatus,
     type_: Codeableconcept,
     sub_type: Option(Codeableconcept),
-    use_: r4valuesets.Claimuse,
+    use_: r4_valuesets.Claimuse,
     patient: Reference,
     created: String,
     insurer: Reference,
     requestor: Option(Reference),
     request: Option(Reference),
-    outcome: r4valuesets.Remittanceoutcome,
+    outcome: r4_valuesets.Remittanceoutcome,
     disposition: Option(String),
     pre_auth_ref: Option(String),
     pre_auth_period: Option(Period),
@@ -22254,13 +22274,13 @@ pub type Claimresponse {
 }
 
 pub fn claimresponse_new(
-  outcome outcome: r4valuesets.Remittanceoutcome,
+  outcome outcome: r4_valuesets.Remittanceoutcome,
   insurer insurer: Reference,
   created created: String,
   patient patient: Reference,
-  use_ use_: r4valuesets.Claimuse,
+  use_ use_: r4_valuesets.Claimuse,
   type_ type_: Codeableconcept,
-  status status: r4valuesets.Fmstatus,
+  status status: r4_valuesets.Fmstatus,
 ) -> Claimresponse {
   Claimresponse(
     error: [],
@@ -22661,7 +22681,7 @@ pub type ClaimresponseProcessnote {
     extension: List(Extension),
     modifier_extension: List(Extension),
     number: Option(Int),
-    type_: Option(r4valuesets.Notetype),
+    type_: Option(r4_valuesets.Notetype),
     text: String,
     language: Option(Codeableconcept),
   )
@@ -22924,7 +22944,7 @@ pub fn claimresponse_processnote_to_json(
     None -> fields
   }
   let fields = case type_ {
-    Some(v) -> [#("type", r4valuesets.notetype_to_json(v)), ..fields]
+    Some(v) -> [#("type", r4_valuesets.notetype_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case number {
@@ -22960,7 +22980,7 @@ pub fn claimresponse_processnote_decoder() -> Decoder(ClaimresponseProcessnote) 
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.notetype_decoder()),
+    decode.optional(r4_valuesets.notetype_decoder()),
   )
   use number <- decode.optional_field(
     "number",
@@ -24122,13 +24142,13 @@ pub fn claimresponse_to_json(claimresponse: Claimresponse) -> Json {
     id:,
   ) = claimresponse
   let fields = [
-    #("outcome", r4valuesets.remittanceoutcome_to_json(outcome)),
+    #("outcome", r4_valuesets.remittanceoutcome_to_json(outcome)),
     #("insurer", reference_to_json(insurer)),
     #("created", json.string(created)),
     #("patient", reference_to_json(patient)),
-    #("use", r4valuesets.claimuse_to_json(use_)),
+    #("use", r4_valuesets.claimuse_to_json(use_)),
     #("type", codeableconcept_to_json(type_)),
-    #("status", r4valuesets.fmstatus_to_json(status)),
+    #("status", r4_valuesets.fmstatus_to_json(status)),
   ]
   let fields = case error {
     [] -> fields
@@ -24357,7 +24377,7 @@ pub fn claimresponse_decoder() -> Decoder(Claimresponse) {
   )
   use outcome <- decode.field(
     "outcome",
-    r4valuesets.remittanceoutcome_decoder(),
+    r4_valuesets.remittanceoutcome_decoder(),
   )
   use request <- decode.optional_field(
     "request",
@@ -24372,14 +24392,14 @@ pub fn claimresponse_decoder() -> Decoder(Claimresponse) {
   use insurer <- decode.field("insurer", reference_decoder())
   use created <- decode.field("created", decode.string)
   use patient <- decode.field("patient", reference_decoder())
-  use use_ <- decode.field("use", r4valuesets.claimuse_decoder())
+  use use_ <- decode.field("use", r4_valuesets.claimuse_decoder())
   use sub_type <- decode.optional_field(
     "subType",
     None,
     decode.optional(codeableconcept_decoder()),
   )
   use type_ <- decode.field("type", codeableconcept_decoder())
-  use status <- decode.field("status", r4valuesets.fmstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -24489,7 +24509,7 @@ pub type Clinicalimpression {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Clinicalimpressionstatus,
+    status: r4_valuesets.Clinicalimpressionstatus,
     status_reason: Option(Codeableconcept),
     code: Option(Codeableconcept),
     description: Option(String),
@@ -24541,7 +24561,7 @@ pub fn clinicalimpression_effective_decoder() -> Decoder(
 
 pub fn clinicalimpression_new(
   subject subject: Reference,
-  status status: r4valuesets.Clinicalimpressionstatus,
+  status status: r4_valuesets.Clinicalimpressionstatus,
 ) -> Clinicalimpression {
   Clinicalimpression(
     note: [],
@@ -24803,7 +24823,7 @@ pub fn clinicalimpression_to_json(
   ) = clinicalimpression
   let fields = [
     #("subject", reference_to_json(subject)),
-    #("status", r4valuesets.clinicalimpressionstatus_to_json(status)),
+    #("status", r4_valuesets.clinicalimpressionstatus_to_json(status)),
   ]
   let fields = case note {
     [] -> fields
@@ -25038,7 +25058,7 @@ pub fn clinicalimpression_decoder() -> Decoder(Clinicalimpression) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.clinicalimpressionstatus_decoder(),
+    r4_valuesets.clinicalimpressionstatus_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -25135,7 +25155,7 @@ pub type Codesystem {
     version: Option(String),
     name: Option(String),
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -25147,10 +25167,10 @@ pub type Codesystem {
     copyright: Option(String),
     case_sensitive: Option(Bool),
     value_set: Option(String),
-    hierarchy_meaning: Option(r4valuesets.Codesystemhierarchymeaning),
+    hierarchy_meaning: Option(r4_valuesets.Codesystemhierarchymeaning),
     compositional: Option(Bool),
     version_needed: Option(Bool),
-    content: r4valuesets.Codesystemcontentmode,
+    content: r4_valuesets.Codesystemcontentmode,
     supplements: Option(String),
     count: Option(Int),
     filter: List(CodesystemFilter),
@@ -25160,8 +25180,8 @@ pub type Codesystem {
 }
 
 pub fn codesystem_new(
-  content content: r4valuesets.Codesystemcontentmode,
-  status status: r4valuesets.Publicationstatus,
+  content content: r4_valuesets.Codesystemcontentmode,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Codesystem {
   Codesystem(
     concept: [],
@@ -25209,7 +25229,7 @@ pub type CodesystemFilter {
     modifier_extension: List(Extension),
     code: String,
     description: Option(String),
-    operator: List(r4valuesets.Filteroperator),
+    operator: List(r4_valuesets.Filteroperator),
     value: String,
   )
 }
@@ -25238,12 +25258,12 @@ pub type CodesystemProperty {
     code: String,
     uri: Option(String),
     description: Option(String),
-    type_: r4valuesets.Conceptpropertytype,
+    type_: r4_valuesets.Conceptpropertytype,
   )
 }
 
 pub fn codesystem_property_new(
-  type_ type_: r4valuesets.Conceptpropertytype,
+  type_ type_: r4_valuesets.Conceptpropertytype,
   code code: String,
 ) -> CodesystemProperty {
   CodesystemProperty(
@@ -25647,7 +25667,7 @@ pub fn codesystem_property_to_json(
     id:,
   ) = codesystem_property
   let fields = [
-    #("type", r4valuesets.conceptpropertytype_to_json(type_)),
+    #("type", r4_valuesets.conceptpropertytype_to_json(type_)),
     #("code", json.string(code)),
   ]
   let fields = case description {
@@ -25678,7 +25698,7 @@ pub fn codesystem_property_to_json(
 
 pub fn codesystem_property_decoder() -> Decoder(CodesystemProperty) {
   use <- decode.recursive
-  use type_ <- decode.field("type", r4valuesets.conceptpropertytype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.conceptpropertytype_decoder())
   use description <- decode.optional_field(
     "description",
     None,
@@ -25725,7 +25745,7 @@ pub fn codesystem_filter_to_json(codesystem_filter: CodesystemFilter) -> Json {
   let fields = case operator {
     [] -> fields
     _ -> [
-      #("operator", json.array(operator, r4valuesets.filteroperator_to_json)),
+      #("operator", json.array(operator, r4_valuesets.filteroperator_to_json)),
       ..fields
     ]
   }
@@ -25757,7 +25777,7 @@ pub fn codesystem_filter_decoder() -> Decoder(CodesystemFilter) {
   use operator <- decode.optional_field(
     "operator",
     [],
-    decode.list(r4valuesets.filteroperator_decoder()),
+    decode.list(r4_valuesets.filteroperator_decoder()),
   )
   use description <- decode.optional_field(
     "description",
@@ -25825,8 +25845,8 @@ pub fn codesystem_to_json(codesystem: Codesystem) -> Json {
     id:,
   ) = codesystem
   let fields = [
-    #("content", r4valuesets.codesystemcontentmode_to_json(content)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("content", r4_valuesets.codesystemcontentmode_to_json(content)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case concept {
     [] -> fields
@@ -25864,7 +25884,7 @@ pub fn codesystem_to_json(codesystem: Codesystem) -> Json {
   }
   let fields = case hierarchy_meaning {
     Some(v) -> [
-      #("hierarchyMeaning", r4valuesets.codesystemhierarchymeaning_to_json(v)),
+      #("hierarchyMeaning", r4_valuesets.codesystemhierarchymeaning_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -26003,7 +26023,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
   )
   use content <- decode.field(
     "content",
-    r4valuesets.codesystemcontentmode_decoder(),
+    r4_valuesets.codesystemcontentmode_decoder(),
   )
   use version_needed <- decode.optional_field(
     "versionNeeded",
@@ -26018,7 +26038,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
   use hierarchy_meaning <- decode.optional_field(
     "hierarchyMeaning",
     None,
-    decode.optional(r4valuesets.codesystemhierarchymeaning_decoder()),
+    decode.optional(r4_valuesets.codesystemhierarchymeaning_decoder()),
   )
   use value_set <- decode.optional_field(
     "valueSet",
@@ -26075,7 +26095,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -26194,10 +26214,10 @@ pub type Communication {
     based_on: List(Reference),
     part_of: List(Reference),
     in_response_to: List(Reference),
-    status: r4valuesets.Eventstatus,
+    status: r4_valuesets.Eventstatus,
     status_reason: Option(Codeableconcept),
     category: List(Codeableconcept),
-    priority: Option(r4valuesets.Requestpriority),
+    priority: Option(r4_valuesets.Requestpriority),
     medium: List(Codeableconcept),
     subject: Option(Reference),
     topic: Option(Codeableconcept),
@@ -26215,7 +26235,7 @@ pub type Communication {
 }
 
 pub fn communication_new(
-  status status: r4valuesets.Eventstatus,
+  status status: r4_valuesets.Eventstatus,
 ) -> Communication {
   Communication(
     note: [],
@@ -26388,7 +26408,7 @@ pub fn communication_to_json(communication: Communication) -> Json {
     id:,
   ) = communication
   let fields = [
-    #("status", r4valuesets.eventstatus_to_json(status)),
+    #("status", r4_valuesets.eventstatus_to_json(status)),
   ]
   let fields = case note {
     [] -> fields
@@ -26452,7 +26472,10 @@ pub fn communication_to_json(communication: Communication) -> Json {
     _ -> [#("medium", json.array(medium, codeableconcept_to_json)), ..fields]
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case category {
@@ -26611,7 +26634,7 @@ pub fn communication_decoder() -> Decoder(Communication) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
   use category <- decode.optional_field(
     "category",
@@ -26623,7 +26646,7 @@ pub fn communication_decoder() -> Decoder(Communication) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.eventstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.eventstatus_decoder())
   use in_response_to <- decode.optional_field(
     "inResponseTo",
     [],
@@ -26746,10 +26769,10 @@ pub type Communicationrequest {
     based_on: List(Reference),
     replaces: List(Reference),
     group_identifier: Option(Identifier),
-    status: r4valuesets.Requeststatus,
+    status: r4_valuesets.Requeststatus,
     status_reason: Option(Codeableconcept),
     category: List(Codeableconcept),
-    priority: Option(r4valuesets.Requestpriority),
+    priority: Option(r4_valuesets.Requestpriority),
     do_not_perform: Option(Bool),
     medium: List(Codeableconcept),
     subject: Option(Reference),
@@ -26796,7 +26819,7 @@ pub fn communicationrequest_occurrence_decoder() -> Decoder(
 }
 
 pub fn communicationrequest_new(
-  status status: r4valuesets.Requeststatus,
+  status status: r4_valuesets.Requeststatus,
 ) -> Communicationrequest {
   Communicationrequest(
     note: [],
@@ -26975,7 +26998,7 @@ pub fn communicationrequest_to_json(
     id:,
   ) = communicationrequest
   let fields = [
-    #("status", r4valuesets.requeststatus_to_json(status)),
+    #("status", r4_valuesets.requeststatus_to_json(status)),
   ]
   let fields = case note {
     [] -> fields
@@ -27053,7 +27076,10 @@ pub fn communicationrequest_to_json(
     None -> fields
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case category {
@@ -27198,7 +27224,7 @@ pub fn communicationrequest_decoder() -> Decoder(Communicationrequest) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
   use category <- decode.optional_field(
     "category",
@@ -27210,7 +27236,7 @@ pub fn communicationrequest_decoder() -> Decoder(Communicationrequest) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.requeststatus_decoder())
+  use status <- decode.field("status", r4_valuesets.requeststatus_decoder())
   use group_identifier <- decode.optional_field(
     "groupIdentifier",
     None,
@@ -27321,7 +27347,7 @@ pub type Compartmentdefinition {
     url: String,
     version: Option(String),
     name: String,
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -27329,7 +27355,7 @@ pub type Compartmentdefinition {
     description: Option(String),
     use_context: List(Usagecontext),
     purpose: Option(String),
-    code: r4valuesets.Compartmenttype,
+    code: r4_valuesets.Compartmenttype,
     search: Bool,
     resource: List(CompartmentdefinitionResource),
   )
@@ -27337,8 +27363,8 @@ pub type Compartmentdefinition {
 
 pub fn compartmentdefinition_new(
   search search: Bool,
-  code code: r4valuesets.Compartmenttype,
-  status status: r4valuesets.Publicationstatus,
+  code code: r4_valuesets.Compartmenttype,
+  status status: r4_valuesets.Publicationstatus,
   name name: String,
   url url: String,
 ) -> Compartmentdefinition {
@@ -27374,14 +27400,14 @@ pub type CompartmentdefinitionResource {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    code: r4valuesets.Resourcetypes,
+    code: r4_valuesets.Resourcetypes,
     param: List(String),
     documentation: Option(String),
   )
 }
 
 pub fn compartmentdefinition_resource_new(
-  code code: r4valuesets.Resourcetypes,
+  code code: r4_valuesets.Resourcetypes,
 ) -> CompartmentdefinitionResource {
   CompartmentdefinitionResource(
     documentation: None,
@@ -27405,7 +27431,7 @@ pub fn compartmentdefinition_resource_to_json(
     id:,
   ) = compartmentdefinition_resource
   let fields = [
-    #("code", r4valuesets.resourcetypes_to_json(code)),
+    #("code", r4_valuesets.resourcetypes_to_json(code)),
   ]
   let fields = case documentation {
     Some(v) -> [#("documentation", json.string(v)), ..fields]
@@ -27443,7 +27469,7 @@ pub fn compartmentdefinition_resource_decoder() -> Decoder(
     decode.optional(decode.string),
   )
   use param <- decode.optional_field("param", [], decode.list(decode.string))
-  use code <- decode.field("code", r4valuesets.resourcetypes_decoder())
+  use code <- decode.field("code", r4_valuesets.resourcetypes_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -27494,8 +27520,8 @@ pub fn compartmentdefinition_to_json(
   ) = compartmentdefinition
   let fields = [
     #("search", json.bool(search)),
-    #("code", r4valuesets.compartmenttype_to_json(code)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("code", r4_valuesets.compartmenttype_to_json(code)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
     #("url", json.string(url)),
   ]
@@ -27594,7 +27620,7 @@ pub fn compartmentdefinition_decoder() -> Decoder(Compartmentdefinition) {
     decode.list(compartmentdefinition_resource_decoder()),
   )
   use search <- decode.field("search", decode.bool)
-  use code <- decode.field("code", r4valuesets.compartmenttype_decoder())
+  use code <- decode.field("code", r4_valuesets.compartmenttype_decoder())
   use purpose <- decode.optional_field(
     "purpose",
     None,
@@ -27630,7 +27656,7 @@ pub fn compartmentdefinition_decoder() -> Decoder(Compartmentdefinition) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use name <- decode.field("name", decode.string)
   use version <- decode.optional_field(
     "version",
@@ -27721,7 +27747,7 @@ pub type Composition {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
-    status: r4valuesets.Compositionstatus,
+    status: r4_valuesets.Compositionstatus,
     type_: Codeableconcept,
     category: List(Codeableconcept),
     subject: Option(Reference),
@@ -27742,7 +27768,7 @@ pub fn composition_new(
   title title: String,
   date date: String,
   type_ type_: Codeableconcept,
-  status status: r4valuesets.Compositionstatus,
+  status status: r4_valuesets.Compositionstatus,
 ) -> Composition {
   Composition(
     section: [],
@@ -27777,14 +27803,14 @@ pub type CompositionAttester {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    mode: r4valuesets.Compositionattestationmode,
+    mode: r4_valuesets.Compositionattestationmode,
     time: Option(String),
     party: Option(Reference),
   )
 }
 
 pub fn composition_attester_new(
-  mode mode: r4valuesets.Compositionattestationmode,
+  mode mode: r4_valuesets.Compositionattestationmode,
 ) -> CompositionAttester {
   CompositionAttester(
     party: None,
@@ -27802,7 +27828,7 @@ pub type CompositionRelatesto {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    code: r4valuesets.Documentrelationshiptype,
+    code: r4_valuesets.Documentrelationshiptype,
     target: CompositionRelatestoTarget,
   )
 }
@@ -27837,7 +27863,7 @@ pub fn composition_relatesto_target_decoder() -> Decoder(
 
 pub fn composition_relatesto_new(
   target target: CompositionRelatestoTarget,
-  code code: r4valuesets.Documentrelationshiptype,
+  code code: r4_valuesets.Documentrelationshiptype,
 ) -> CompositionRelatesto {
   CompositionRelatesto(
     target:,
@@ -27882,7 +27908,7 @@ pub type CompositionSection {
     author: List(Reference),
     focus: Option(Reference),
     text: Option(Narrative),
-    mode: Option(r4valuesets.Listmode),
+    mode: Option(r4_valuesets.Listmode),
     ordered_by: Option(Codeableconcept),
     entry: List(Reference),
     empty_reason: Option(Codeableconcept),
@@ -27947,7 +27973,7 @@ pub fn composition_section_to_json(
     None -> fields
   }
   let fields = case mode {
-    Some(v) -> [#("mode", r4valuesets.listmode_to_json(v)), ..fields]
+    Some(v) -> [#("mode", r4_valuesets.listmode_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case text {
@@ -28013,7 +28039,7 @@ pub fn composition_section_decoder() -> Decoder(CompositionSection) {
   use mode <- decode.optional_field(
     "mode",
     None,
-    decode.optional(r4valuesets.listmode_decoder()),
+    decode.optional(r4_valuesets.listmode_decoder()),
   )
   use text <- decode.optional_field(
     "text",
@@ -28153,7 +28179,7 @@ pub fn composition_relatesto_to_json(
     composition_relatesto
   let fields = [
     #("target", composition_relatesto_target_to_json(target)),
-    #("code", r4valuesets.documentrelationshiptype_to_json(code)),
+    #("code", r4_valuesets.documentrelationshiptype_to_json(code)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -28178,7 +28204,7 @@ pub fn composition_relatesto_decoder() -> Decoder(CompositionRelatesto) {
   use target <- decode.then(composition_relatesto_target_decoder())
   use code <- decode.field(
     "code",
-    r4valuesets.documentrelationshiptype_decoder(),
+    r4_valuesets.documentrelationshiptype_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -28212,7 +28238,7 @@ pub fn composition_attester_to_json(
     id:,
   ) = composition_attester
   let fields = [
-    #("mode", r4valuesets.compositionattestationmode_to_json(mode)),
+    #("mode", r4_valuesets.compositionattestationmode_to_json(mode)),
   ]
   let fields = case party {
     Some(v) -> [#("party", reference_to_json(v)), ..fields]
@@ -28254,7 +28280,7 @@ pub fn composition_attester_decoder() -> Decoder(CompositionAttester) {
   )
   use mode <- decode.field(
     "mode",
-    r4valuesets.compositionattestationmode_decoder(),
+    r4_valuesets.compositionattestationmode_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -28307,7 +28333,7 @@ pub fn composition_to_json(composition: Composition) -> Json {
     #("title", json.string(title)),
     #("date", json.string(date)),
     #("type", codeableconcept_to_json(type_)),
-    #("status", r4valuesets.compositionstatus_to_json(status)),
+    #("status", r4_valuesets.compositionstatus_to_json(status)),
   ]
   let fields = case section {
     [] -> fields
@@ -28459,7 +28485,7 @@ pub fn composition_decoder() -> Decoder(Composition) {
     decode.list(codeableconcept_decoder()),
   )
   use type_ <- decode.field("type", codeableconcept_decoder())
-  use status <- decode.field("status", r4valuesets.compositionstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.compositionstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     None,
@@ -28553,7 +28579,7 @@ pub type Conceptmap {
     version: Option(String),
     name: Option(String),
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -28618,7 +28644,7 @@ pub fn conceptmap_target_decoder() -> Decoder(ConceptmapTarget) {
 }
 
 pub fn conceptmap_new(
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Conceptmap {
   Conceptmap(
     group: [],
@@ -28710,7 +28736,7 @@ pub type ConceptmapGroupElementTarget {
     modifier_extension: List(Extension),
     code: Option(String),
     display: Option(String),
-    equivalence: r4valuesets.Conceptmapequivalence,
+    equivalence: r4_valuesets.Conceptmapequivalence,
     comment: Option(String),
     depends_on: List(ConceptmapGroupElementTargetDependson),
     product: List(ConceptmapGroupElementTargetDependson),
@@ -28718,7 +28744,7 @@ pub type ConceptmapGroupElementTarget {
 }
 
 pub fn conceptmap_group_element_target_new(
-  equivalence equivalence: r4valuesets.Conceptmapequivalence,
+  equivalence equivalence: r4_valuesets.Conceptmapequivalence,
 ) -> ConceptmapGroupElementTarget {
   ConceptmapGroupElementTarget(
     product: [],
@@ -28767,7 +28793,7 @@ pub type ConceptmapGroupUnmapped {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    mode: r4valuesets.Conceptmapunmappedmode,
+    mode: r4_valuesets.Conceptmapunmappedmode,
     code: Option(String),
     display: Option(String),
     url: Option(String),
@@ -28775,7 +28801,7 @@ pub type ConceptmapGroupUnmapped {
 }
 
 pub fn conceptmap_group_unmapped_new(
-  mode mode: r4valuesets.Conceptmapunmappedmode,
+  mode mode: r4_valuesets.Conceptmapunmappedmode,
 ) -> ConceptmapGroupUnmapped {
   ConceptmapGroupUnmapped(
     url: None,
@@ -28801,7 +28827,7 @@ pub fn conceptmap_group_unmapped_to_json(
     id:,
   ) = conceptmap_group_unmapped
   let fields = [
-    #("mode", r4valuesets.conceptmapunmappedmode_to_json(mode)),
+    #("mode", r4_valuesets.conceptmapunmappedmode_to_json(mode)),
   ]
   let fields = case url {
     Some(v) -> [#("url", json.string(v)), ..fields]
@@ -28846,7 +28872,10 @@ pub fn conceptmap_group_unmapped_decoder() -> Decoder(ConceptmapGroupUnmapped) {
     None,
     decode.optional(decode.string),
   )
-  use mode <- decode.field("mode", r4valuesets.conceptmapunmappedmode_decoder())
+  use mode <- decode.field(
+    "mode",
+    r4_valuesets.conceptmapunmappedmode_decoder(),
+  )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -28964,7 +28993,7 @@ pub fn conceptmap_group_element_target_to_json(
     id:,
   ) = conceptmap_group_element_target
   let fields = [
-    #("equivalence", r4valuesets.conceptmapequivalence_to_json(equivalence)),
+    #("equivalence", r4_valuesets.conceptmapequivalence_to_json(equivalence)),
   ]
   let fields = case product {
     [] -> fields
@@ -29040,7 +29069,7 @@ pub fn conceptmap_group_element_target_decoder() -> Decoder(
   )
   use equivalence <- decode.field(
     "equivalence",
-    r4valuesets.conceptmapequivalence_decoder(),
+    r4_valuesets.conceptmapequivalence_decoder(),
   )
   use display <- decode.optional_field(
     "display",
@@ -29303,7 +29332,7 @@ pub fn conceptmap_to_json(conceptmap: Conceptmap) -> Json {
     id:,
   ) = conceptmap
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case group {
     [] -> fields
@@ -29492,7 +29521,7 @@ pub fn conceptmap_decoder() -> Decoder(Conceptmap) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -30230,7 +30259,7 @@ pub type Consent {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Consentstatecodes,
+    status: r4_valuesets.Consentstatecodes,
     scope: Codeableconcept,
     category: List(Codeableconcept),
     patient: Option(Reference),
@@ -30271,7 +30300,7 @@ pub fn consent_source_decoder() -> Decoder(ConsentSource) {
 
 pub fn consent_new(
   scope scope: Codeableconcept,
-  status status: r4valuesets.Consentstatecodes,
+  status status: r4_valuesets.Consentstatecodes,
 ) -> Consent {
   Consent(
     provision: None,
@@ -30348,7 +30377,7 @@ pub type ConsentProvision {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: Option(r4valuesets.Consentprovisiontype),
+    type_: Option(r4_valuesets.Consentprovisiontype),
     period: Option(Period),
     actor: List(ConsentProvisionActor),
     action: List(Codeableconcept),
@@ -30411,14 +30440,14 @@ pub type ConsentProvisionData {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    meaning: r4valuesets.Consentdatameaning,
+    meaning: r4_valuesets.Consentdatameaning,
     reference: Reference,
   )
 }
 
 pub fn consent_provision_data_new(
   reference reference: Reference,
-  meaning meaning: r4valuesets.Consentdatameaning,
+  meaning meaning: r4_valuesets.Consentdatameaning,
 ) -> ConsentProvisionData {
   ConsentProvisionData(
     reference:,
@@ -30441,7 +30470,7 @@ pub fn consent_provision_data_to_json(
   ) = consent_provision_data
   let fields = [
     #("reference", reference_to_json(reference)),
-    #("meaning", r4valuesets.consentdatameaning_to_json(meaning)),
+    #("meaning", r4_valuesets.consentdatameaning_to_json(meaning)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -30466,7 +30495,7 @@ pub fn consent_provision_data_decoder() -> Decoder(ConsentProvisionData) {
   use reference <- decode.field("reference", reference_decoder())
   use meaning <- decode.field(
     "meaning",
-    r4valuesets.consentdatameaning_decoder(),
+    r4_valuesets.consentdatameaning_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -30613,7 +30642,7 @@ pub fn consent_provision_to_json(consent_provision: ConsentProvision) -> Json {
   }
   let fields = case type_ {
     Some(v) -> [
-      #("type", r4valuesets.consentprovisiontype_to_json(v)),
+      #("type", r4_valuesets.consentprovisiontype_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -30687,7 +30716,7 @@ pub fn consent_provision_decoder() -> Decoder(ConsentProvision) {
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.consentprovisiontype_decoder()),
+    decode.optional(r4_valuesets.consentprovisiontype_decoder()),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -30876,7 +30905,7 @@ pub fn consent_to_json(consent: Consent) -> Json {
   ) = consent
   let fields = [
     #("scope", codeableconcept_to_json(scope)),
-    #("status", r4valuesets.consentstatecodes_to_json(status)),
+    #("status", r4_valuesets.consentstatecodes_to_json(status)),
   ]
   let fields = case provision {
     Some(v) -> [#("provision", consent_provision_to_json(v)), ..fields]
@@ -31029,7 +31058,7 @@ pub fn consent_decoder() -> Decoder(Consent) {
     decode.list(codeableconcept_decoder()),
   )
   use scope <- decode.field("scope", codeableconcept_decoder())
-  use status <- decode.field("status", r4valuesets.consentstatecodes_decoder())
+  use status <- decode.field("status", r4_valuesets.consentstatecodes_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -31116,7 +31145,7 @@ pub type Contract {
     identifier: List(Identifier),
     url: Option(String),
     version: Option(String),
-    status: Option(r4valuesets.Contractstatus),
+    status: Option(r4_valuesets.Contractstatus),
     legal_state: Option(Codeableconcept),
     instantiates_canonical: Option(Reference),
     instantiates_uri: Option(String),
@@ -31265,13 +31294,13 @@ pub type ContractContentdefinition {
     sub_type: Option(Codeableconcept),
     publisher: Option(Reference),
     publication_date: Option(String),
-    publication_status: r4valuesets.Contractpublicationstatus,
+    publication_status: r4_valuesets.Contractpublicationstatus,
     copyright: Option(String),
   )
 }
 
 pub fn contract_contentdefinition_new(
-  publication_status publication_status: r4valuesets.Contractpublicationstatus,
+  publication_status publication_status: r4_valuesets.Contractpublicationstatus,
   type_ type_: Codeableconcept,
 ) -> ContractContentdefinition {
   ContractContentdefinition(
@@ -33571,7 +33600,7 @@ pub fn contract_contentdefinition_to_json(
   let fields = [
     #(
       "publicationStatus",
-      r4valuesets.contractpublicationstatus_to_json(publication_status),
+      r4_valuesets.contractpublicationstatus_to_json(publication_status),
     ),
     #("type", codeableconcept_to_json(type_)),
   ]
@@ -33620,7 +33649,7 @@ pub fn contract_contentdefinition_decoder() -> Decoder(
   )
   use publication_status <- decode.field(
     "publicationStatus",
-    r4valuesets.contractpublicationstatus_decoder(),
+    r4_valuesets.contractpublicationstatus_decoder(),
   )
   use publication_date <- decode.optional_field(
     "publicationDate",
@@ -33856,7 +33885,7 @@ pub fn contract_to_json(contract: Contract) -> Json {
     None -> fields
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.contractstatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.contractstatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case version {
@@ -34050,7 +34079,7 @@ pub fn contract_decoder() -> Decoder(Contract) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.contractstatus_decoder()),
+    decode.optional(r4_valuesets.contractstatus_decoder()),
   )
   use version <- decode.optional_field(
     "version",
@@ -34162,7 +34191,7 @@ pub type Coverage {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Fmstatus,
+    status: r4_valuesets.Fmstatus,
     type_: Option(Codeableconcept),
     policy_holder: Option(Reference),
     subscriber: Option(Reference),
@@ -34183,7 +34212,7 @@ pub type Coverage {
 
 pub fn coverage_new(
   beneficiary beneficiary: Reference,
-  status status: r4valuesets.Fmstatus,
+  status status: r4_valuesets.Fmstatus,
 ) -> Coverage {
   Coverage(
     contract: [],
@@ -34552,7 +34581,7 @@ pub fn coverage_to_json(coverage: Coverage) -> Json {
   ) = coverage
   let fields = [
     #("beneficiary", reference_to_json(beneficiary)),
-    #("status", r4valuesets.fmstatus_to_json(status)),
+    #("status", r4_valuesets.fmstatus_to_json(status)),
   ]
   let fields = case contract {
     [] -> fields
@@ -34728,7 +34757,7 @@ pub fn coverage_decoder() -> Decoder(Coverage) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.fmstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -34817,9 +34846,9 @@ pub type Coverageeligibilityrequest {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Fmstatus,
+    status: r4_valuesets.Fmstatus,
     priority: Option(Codeableconcept),
-    purpose: List(r4valuesets.Eligibilityrequestpurpose),
+    purpose: List(r4_valuesets.Eligibilityrequestpurpose),
     patient: Reference,
     serviced: Option(CoverageeligibilityrequestServiced),
     created: String,
@@ -34865,7 +34894,7 @@ pub fn coverageeligibilityrequest_new(
   insurer insurer: Reference,
   created created: String,
   patient patient: Reference,
-  status status: r4valuesets.Fmstatus,
+  status status: r4_valuesets.Fmstatus,
 ) -> Coverageeligibilityrequest {
   Coverageeligibilityrequest(
     item: [],
@@ -35462,7 +35491,7 @@ pub fn coverageeligibilityrequest_to_json(
     #("insurer", reference_to_json(insurer)),
     #("created", json.string(created)),
     #("patient", reference_to_json(patient)),
-    #("status", r4valuesets.fmstatus_to_json(status)),
+    #("status", r4_valuesets.fmstatus_to_json(status)),
   ]
   let fields = case item {
     [] -> fields
@@ -35525,7 +35554,7 @@ pub fn coverageeligibilityrequest_to_json(
     _ -> [
       #(
         "purpose",
-        json.array(purpose, r4valuesets.eligibilityrequestpurpose_to_json),
+        json.array(purpose, r4_valuesets.eligibilityrequestpurpose_to_json),
       ),
       ..fields
     ]
@@ -35623,14 +35652,14 @@ pub fn coverageeligibilityrequest_decoder() -> Decoder(
   use purpose <- decode.optional_field(
     "purpose",
     [],
-    decode.list(r4valuesets.eligibilityrequestpurpose_decoder()),
+    decode.list(r4_valuesets.eligibilityrequestpurpose_decoder()),
   )
   use priority <- decode.optional_field(
     "priority",
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.fmstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -35719,14 +35748,14 @@ pub type Coverageeligibilityresponse {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Fmstatus,
-    purpose: List(r4valuesets.Eligibilityresponsepurpose),
+    status: r4_valuesets.Fmstatus,
+    purpose: List(r4_valuesets.Eligibilityresponsepurpose),
     patient: Reference,
     serviced: Option(CoverageeligibilityresponseServiced),
     created: String,
     requestor: Option(Reference),
     request: Reference,
-    outcome: r4valuesets.Remittanceoutcome,
+    outcome: r4_valuesets.Remittanceoutcome,
     disposition: Option(String),
     insurer: Reference,
     insurance: List(CoverageeligibilityresponseInsurance),
@@ -35766,11 +35795,11 @@ pub fn coverageeligibilityresponse_serviced_decoder() -> Decoder(
 
 pub fn coverageeligibilityresponse_new(
   insurer insurer: Reference,
-  outcome outcome: r4valuesets.Remittanceoutcome,
+  outcome outcome: r4_valuesets.Remittanceoutcome,
   request request: Reference,
   created created: String,
   patient patient: Reference,
-  status status: r4valuesets.Fmstatus,
+  status status: r4_valuesets.Fmstatus,
 ) -> Coverageeligibilityresponse {
   Coverageeligibilityresponse(
     error: [],
@@ -36498,11 +36527,11 @@ pub fn coverageeligibilityresponse_to_json(
   ) = coverageeligibilityresponse
   let fields = [
     #("insurer", reference_to_json(insurer)),
-    #("outcome", r4valuesets.remittanceoutcome_to_json(outcome)),
+    #("outcome", r4_valuesets.remittanceoutcome_to_json(outcome)),
     #("request", reference_to_json(request)),
     #("created", json.string(created)),
     #("patient", reference_to_json(patient)),
-    #("status", r4valuesets.fmstatus_to_json(status)),
+    #("status", r4_valuesets.fmstatus_to_json(status)),
   ]
   let fields = case error {
     [] -> fields
@@ -36556,7 +36585,7 @@ pub fn coverageeligibilityresponse_to_json(
     _ -> [
       #(
         "purpose",
-        json.array(purpose, r4valuesets.eligibilityresponsepurpose_to_json),
+        json.array(purpose, r4_valuesets.eligibilityresponsepurpose_to_json),
       ),
       ..fields
     ]
@@ -36639,7 +36668,7 @@ pub fn coverageeligibilityresponse_decoder() -> Decoder(
   )
   use outcome <- decode.field(
     "outcome",
-    r4valuesets.remittanceoutcome_decoder(),
+    r4_valuesets.remittanceoutcome_decoder(),
   )
   use request <- decode.field("request", reference_decoder())
   use requestor <- decode.optional_field(
@@ -36655,9 +36684,9 @@ pub fn coverageeligibilityresponse_decoder() -> Decoder(
   use purpose <- decode.optional_field(
     "purpose",
     [],
-    decode.list(r4valuesets.eligibilityresponsepurpose_decoder()),
+    decode.list(r4_valuesets.eligibilityresponsepurpose_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.fmstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -36754,9 +36783,9 @@ pub type Detectedissue {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Observationstatus,
+    status: r4_valuesets.Observationstatus,
     code: Option(Codeableconcept),
-    severity: Option(r4valuesets.Detectedissueseverity),
+    severity: Option(r4_valuesets.Detectedissueseverity),
     patient: Option(Reference),
     identified: Option(DetectedissueIdentified),
     author: Option(Reference),
@@ -36793,7 +36822,7 @@ pub fn detectedissue_identified_decoder() -> Decoder(DetectedissueIdentified) {
 }
 
 pub fn detectedissue_new(
-  status status: r4valuesets.Observationstatus,
+  status status: r4_valuesets.Observationstatus,
 ) -> Detectedissue {
   Detectedissue(
     mitigation: [],
@@ -37032,7 +37061,7 @@ pub fn detectedissue_to_json(detectedissue: Detectedissue) -> Json {
     id:,
   ) = detectedissue
   let fields = [
-    #("status", r4valuesets.observationstatus_to_json(status)),
+    #("status", r4_valuesets.observationstatus_to_json(status)),
   ]
   let fields = case mitigation {
     [] -> fields
@@ -37084,7 +37113,7 @@ pub fn detectedissue_to_json(detectedissue: Detectedissue) -> Json {
   }
   let fields = case severity {
     Some(v) -> [
-      #("severity", r4valuesets.detectedissueseverity_to_json(v)),
+      #("severity", r4_valuesets.detectedissueseverity_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -37179,14 +37208,14 @@ pub fn detectedissue_decoder() -> Decoder(Detectedissue) {
   use severity <- decode.optional_field(
     "severity",
     None,
-    decode.optional(r4valuesets.detectedissueseverity_decoder()),
+    decode.optional(r4_valuesets.detectedissueseverity_decoder()),
   )
   use code <- decode.optional_field(
     "code",
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.observationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.observationstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -37272,7 +37301,7 @@ pub type Device {
     identifier: List(Identifier),
     definition: Option(Reference),
     udi_carrier: List(DeviceUdicarrier),
-    status: Option(r4valuesets.Devicestatus),
+    status: Option(r4_valuesets.Devicestatus),
     status_reason: List(Codeableconcept),
     distinct_identifier: Option(String),
     manufacturer: Option(String),
@@ -37348,7 +37377,7 @@ pub type DeviceUdicarrier {
     jurisdiction: Option(String),
     carrier_aidc: Option(String),
     carrier_hrf: Option(String),
-    entry_type: Option(r4valuesets.Udientrytype),
+    entry_type: Option(r4_valuesets.Udientrytype),
   )
 }
 
@@ -37373,12 +37402,12 @@ pub type DeviceDevicename {
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: String,
-    type_: r4valuesets.Devicenametype,
+    type_: r4_valuesets.Devicenametype,
   )
 }
 
 pub fn device_devicename_new(
-  type_ type_: r4valuesets.Devicenametype,
+  type_ type_: r4_valuesets.Devicenametype,
   name name: String,
 ) -> DeviceDevicename {
   DeviceDevicename(
@@ -37676,7 +37705,7 @@ pub fn device_devicename_to_json(device_devicename: DeviceDevicename) -> Json {
   let DeviceDevicename(type_:, name:, modifier_extension:, extension:, id:) =
     device_devicename
   let fields = [
-    #("type", r4valuesets.devicenametype_to_json(type_)),
+    #("type", r4_valuesets.devicenametype_to_json(type_)),
     #("name", json.string(name)),
   ]
   let fields = case modifier_extension {
@@ -37699,7 +37728,7 @@ pub fn device_devicename_to_json(device_devicename: DeviceDevicename) -> Json {
 
 pub fn device_devicename_decoder() -> Decoder(DeviceDevicename) {
   use <- decode.recursive
-  use type_ <- decode.field("type", r4valuesets.devicenametype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.devicenametype_decoder())
   use name <- decode.field("name", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -37735,7 +37764,7 @@ pub fn device_udicarrier_to_json(device_udicarrier: DeviceUdicarrier) -> Json {
   ) = device_udicarrier
   let fields = []
   let fields = case entry_type {
-    Some(v) -> [#("entryType", r4valuesets.udientrytype_to_json(v)), ..fields]
+    Some(v) -> [#("entryType", r4_valuesets.udientrytype_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case carrier_hrf {
@@ -37781,7 +37810,7 @@ pub fn device_udicarrier_decoder() -> Decoder(DeviceUdicarrier) {
   use entry_type <- decode.optional_field(
     "entryType",
     None,
-    decode.optional(r4valuesets.udientrytype_decoder()),
+    decode.optional(r4_valuesets.udientrytype_decoder()),
   )
   use carrier_hrf <- decode.optional_field(
     "carrierHRF",
@@ -37974,7 +38003,7 @@ pub fn device_to_json(device: Device) -> Json {
     ]
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.devicestatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.devicestatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case udi_carrier {
@@ -38142,7 +38171,7 @@ pub fn device_decoder() -> Decoder(Device) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.devicestatus_decoder()),
+    decode.optional(r4_valuesets.devicestatus_decoder()),
   )
   use udi_carrier <- decode.optional_field(
     "udiCarrier",
@@ -38372,12 +38401,12 @@ pub type DevicedefinitionDevicename {
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: String,
-    type_: r4valuesets.Devicenametype,
+    type_: r4_valuesets.Devicenametype,
   )
 }
 
 pub fn devicedefinition_devicename_new(
-  type_ type_: r4valuesets.Devicenametype,
+  type_ type_: r4_valuesets.Devicenametype,
   name name: String,
 ) -> DevicedefinitionDevicename {
   DevicedefinitionDevicename(
@@ -38783,7 +38812,7 @@ pub fn devicedefinition_devicename_to_json(
     id:,
   ) = devicedefinition_devicename
   let fields = [
-    #("type", r4valuesets.devicenametype_to_json(type_)),
+    #("type", r4_valuesets.devicenametype_to_json(type_)),
     #("name", json.string(name)),
   ]
   let fields = case modifier_extension {
@@ -38808,7 +38837,7 @@ pub fn devicedefinition_devicename_decoder() -> Decoder(
   DevicedefinitionDevicename,
 ) {
   use <- decode.recursive
-  use type_ <- decode.field("type", r4valuesets.devicenametype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.devicenametype_decoder())
   use name <- decode.field("name", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -39306,16 +39335,16 @@ pub type Devicemetric {
     unit: Option(Codeableconcept),
     source: Option(Reference),
     parent: Option(Reference),
-    operational_status: Option(r4valuesets.Metricoperationalstatus),
-    color: Option(r4valuesets.Metriccolor),
-    category: r4valuesets.Metriccategory,
+    operational_status: Option(r4_valuesets.Metricoperationalstatus),
+    color: Option(r4_valuesets.Metriccolor),
+    category: r4_valuesets.Metriccategory,
     measurement_period: Option(Timing),
     calibration: List(DevicemetricCalibration),
   )
 }
 
 pub fn devicemetric_new(
-  category category: r4valuesets.Metriccategory,
+  category category: r4_valuesets.Metriccategory,
   type_ type_: Codeableconcept,
 ) -> Devicemetric {
   Devicemetric(
@@ -39346,8 +39375,8 @@ pub type DevicemetricCalibration {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: Option(r4valuesets.Metriccalibrationtype),
-    state: Option(r4valuesets.Metriccalibrationstate),
+    type_: Option(r4_valuesets.Metriccalibrationtype),
+    state: Option(r4_valuesets.Metriccalibrationstate),
     time: Option(String),
   )
 }
@@ -39381,14 +39410,14 @@ pub fn devicemetric_calibration_to_json(
   }
   let fields = case state {
     Some(v) -> [
-      #("state", r4valuesets.metriccalibrationstate_to_json(v)),
+      #("state", r4_valuesets.metriccalibrationstate_to_json(v)),
       ..fields
     ]
     None -> fields
   }
   let fields = case type_ {
     Some(v) -> [
-      #("type", r4valuesets.metriccalibrationtype_to_json(v)),
+      #("type", r4_valuesets.metriccalibrationtype_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -39421,12 +39450,12 @@ pub fn devicemetric_calibration_decoder() -> Decoder(DevicemetricCalibration) {
   use state <- decode.optional_field(
     "state",
     None,
-    decode.optional(r4valuesets.metriccalibrationstate_decoder()),
+    decode.optional(r4_valuesets.metriccalibrationstate_decoder()),
   )
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.metriccalibrationtype_decoder()),
+    decode.optional(r4_valuesets.metriccalibrationtype_decoder()),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -39471,7 +39500,7 @@ pub fn devicemetric_to_json(devicemetric: Devicemetric) -> Json {
     id:,
   ) = devicemetric
   let fields = [
-    #("category", r4valuesets.metriccategory_to_json(category)),
+    #("category", r4_valuesets.metriccategory_to_json(category)),
     #("type", codeableconcept_to_json(type_)),
   ]
   let fields = case calibration {
@@ -39489,12 +39518,12 @@ pub fn devicemetric_to_json(devicemetric: Devicemetric) -> Json {
     None -> fields
   }
   let fields = case color {
-    Some(v) -> [#("color", r4valuesets.metriccolor_to_json(v)), ..fields]
+    Some(v) -> [#("color", r4_valuesets.metriccolor_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case operational_status {
     Some(v) -> [
-      #("operationalStatus", r4valuesets.metricoperationalstatus_to_json(v)),
+      #("operationalStatus", r4_valuesets.metricoperationalstatus_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -39566,16 +39595,19 @@ pub fn devicemetric_decoder() -> Decoder(Devicemetric) {
     None,
     decode.optional(timing_decoder()),
   )
-  use category <- decode.field("category", r4valuesets.metriccategory_decoder())
+  use category <- decode.field(
+    "category",
+    r4_valuesets.metriccategory_decoder(),
+  )
   use color <- decode.optional_field(
     "color",
     None,
-    decode.optional(r4valuesets.metriccolor_decoder()),
+    decode.optional(r4_valuesets.metriccolor_decoder()),
   )
   use operational_status <- decode.optional_field(
     "operationalStatus",
     None,
-    decode.optional(r4valuesets.metricoperationalstatus_decoder()),
+    decode.optional(r4_valuesets.metricoperationalstatus_decoder()),
   )
   use parent <- decode.optional_field(
     "parent",
@@ -39679,9 +39711,9 @@ pub type Devicerequest {
     based_on: List(Reference),
     prior_request: List(Reference),
     group_identifier: Option(Identifier),
-    status: Option(r4valuesets.Requeststatus),
-    intent: r4valuesets.Requestintent,
-    priority: Option(r4valuesets.Requestpriority),
+    status: Option(r4_valuesets.Requeststatus),
+    intent: r4_valuesets.Requestintent,
+    priority: Option(r4_valuesets.Requestpriority),
     code: DevicerequestCode,
     parameter: List(DevicerequestParameter),
     subject: Reference,
@@ -39759,7 +39791,7 @@ pub fn devicerequest_occurrence_decoder() -> Decoder(DevicerequestOccurrence) {
 pub fn devicerequest_new(
   subject subject: Reference,
   code code: DevicerequestCode,
-  intent intent: r4valuesets.Requestintent,
+  intent intent: r4_valuesets.Requestintent,
 ) -> Devicerequest {
   Devicerequest(
     relevant_history: [],
@@ -39975,7 +40007,7 @@ pub fn devicerequest_to_json(devicerequest: Devicerequest) -> Json {
   let fields = [
     #("subject", reference_to_json(subject)),
     #("code", devicerequest_code_to_json(code)),
-    #("intent", r4valuesets.requestintent_to_json(intent)),
+    #("intent", r4_valuesets.requestintent_to_json(intent)),
   ]
   let fields = case relevant_history {
     [] -> fields
@@ -40056,11 +40088,14 @@ pub fn devicerequest_to_json(devicerequest: Devicerequest) -> Json {
     ]
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.requeststatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.requeststatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case group_identifier {
@@ -40208,13 +40243,13 @@ pub fn devicerequest_decoder() -> Decoder(Devicerequest) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
-  use intent <- decode.field("intent", r4valuesets.requestintent_decoder())
+  use intent <- decode.field("intent", r4_valuesets.requestintent_decoder())
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.requeststatus_decoder()),
+    decode.optional(r4_valuesets.requeststatus_decoder()),
   )
   use group_identifier <- decode.optional_field(
     "groupIdentifier",
@@ -40337,7 +40372,7 @@ pub type Deviceusestatement {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     based_on: List(Reference),
-    status: r4valuesets.Devicestatementstatus,
+    status: r4_valuesets.Devicestatementstatus,
     subject: Reference,
     derived_from: List(Reference),
     timing: Option(DeviceusestatementTiming),
@@ -40382,7 +40417,7 @@ pub fn deviceusestatement_timing_decoder() -> Decoder(DeviceusestatementTiming) 
 pub fn deviceusestatement_new(
   device device: Reference,
   subject subject: Reference,
-  status status: r4valuesets.Devicestatementstatus,
+  status status: r4_valuesets.Devicestatementstatus,
 ) -> Deviceusestatement {
   Deviceusestatement(
     note: [],
@@ -40438,7 +40473,7 @@ pub fn deviceusestatement_to_json(
   let fields = [
     #("device", reference_to_json(device)),
     #("subject", reference_to_json(subject)),
-    #("status", r4valuesets.devicestatementstatus_to_json(status)),
+    #("status", r4_valuesets.devicestatementstatus_to_json(status)),
   ]
   let fields = case note {
     [] -> fields
@@ -40583,7 +40618,7 @@ pub fn deviceusestatement_decoder() -> Decoder(Deviceusestatement) {
   use subject <- decode.field("subject", reference_decoder())
   use status <- decode.field(
     "status",
-    r4valuesets.devicestatementstatus_decoder(),
+    r4_valuesets.devicestatementstatus_decoder(),
   )
   use based_on <- decode.optional_field(
     "basedOn",
@@ -40678,7 +40713,7 @@ pub type Diagnosticreport {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     based_on: List(Reference),
-    status: r4valuesets.Diagnosticreportstatus,
+    status: r4_valuesets.Diagnosticreportstatus,
     category: List(Codeableconcept),
     code: Codeableconcept,
     subject: Option(Reference),
@@ -40727,7 +40762,7 @@ pub fn diagnosticreport_effective_decoder() -> Decoder(
 
 pub fn diagnosticreport_new(
   code code: Codeableconcept,
-  status status: r4valuesets.Diagnosticreportstatus,
+  status status: r4_valuesets.Diagnosticreportstatus,
 ) -> Diagnosticreport {
   Diagnosticreport(
     presented_form: [],
@@ -40874,7 +40909,7 @@ pub fn diagnosticreport_to_json(diagnosticreport: Diagnosticreport) -> Json {
   ) = diagnosticreport
   let fields = [
     #("code", codeableconcept_to_json(code)),
-    #("status", r4valuesets.diagnosticreportstatus_to_json(status)),
+    #("status", r4_valuesets.diagnosticreportstatus_to_json(status)),
   ]
   let fields = case presented_form {
     [] -> fields
@@ -41083,7 +41118,7 @@ pub fn diagnosticreport_decoder() -> Decoder(Diagnosticreport) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.diagnosticreportstatus_decoder(),
+    r4_valuesets.diagnosticreportstatus_decoder(),
   )
   use based_on <- decode.optional_field(
     "basedOn",
@@ -41180,7 +41215,7 @@ pub type Documentmanifest {
     modifier_extension: List(Extension),
     master_identifier: Option(Identifier),
     identifier: List(Identifier),
-    status: r4valuesets.Documentreferencestatus,
+    status: r4_valuesets.Documentreferencestatus,
     type_: Option(Codeableconcept),
     subject: Option(Reference),
     created: Option(String),
@@ -41194,7 +41229,7 @@ pub type Documentmanifest {
 }
 
 pub fn documentmanifest_new(
-  status status: r4valuesets.Documentreferencestatus,
+  status status: r4_valuesets.Documentreferencestatus,
 ) -> Documentmanifest {
   Documentmanifest(
     related: [],
@@ -41334,7 +41369,7 @@ pub fn documentmanifest_to_json(documentmanifest: Documentmanifest) -> Json {
     id:,
   ) = documentmanifest
   let fields = [
-    #("status", r4valuesets.documentreferencestatus_to_json(status)),
+    #("status", r4_valuesets.documentreferencestatus_to_json(status)),
   ]
   let fields = case related {
     [] -> fields
@@ -41471,7 +41506,7 @@ pub fn documentmanifest_decoder() -> Decoder(Documentmanifest) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.documentreferencestatus_decoder(),
+    r4_valuesets.documentreferencestatus_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -41562,8 +41597,8 @@ pub type Documentreference {
     modifier_extension: List(Extension),
     master_identifier: Option(Identifier),
     identifier: List(Identifier),
-    status: r4valuesets.Documentreferencestatus,
-    doc_status: Option(r4valuesets.Compositionstatus),
+    status: r4_valuesets.Documentreferencestatus,
+    doc_status: Option(r4_valuesets.Compositionstatus),
     type_: Option(Codeableconcept),
     category: List(Codeableconcept),
     subject: Option(Reference),
@@ -41580,7 +41615,7 @@ pub type Documentreference {
 }
 
 pub fn documentreference_new(
-  status status: r4valuesets.Documentreferencestatus,
+  status status: r4_valuesets.Documentreferencestatus,
 ) -> Documentreference {
   Documentreference(
     context: None,
@@ -41616,14 +41651,14 @@ pub type DocumentreferenceRelatesto {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    code: r4valuesets.Documentrelationshiptype,
+    code: r4_valuesets.Documentrelationshiptype,
     target: Reference,
   )
 }
 
 pub fn documentreference_relatesto_new(
   target target: Reference,
-  code code: r4valuesets.Documentrelationshiptype,
+  code code: r4_valuesets.Documentrelationshiptype,
 ) -> DocumentreferenceRelatesto {
   DocumentreferenceRelatesto(
     target:,
@@ -41887,7 +41922,7 @@ pub fn documentreference_relatesto_to_json(
   ) = documentreference_relatesto
   let fields = [
     #("target", reference_to_json(target)),
-    #("code", r4valuesets.documentrelationshiptype_to_json(code)),
+    #("code", r4_valuesets.documentrelationshiptype_to_json(code)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -41914,7 +41949,7 @@ pub fn documentreference_relatesto_decoder() -> Decoder(
   use target <- decode.field("target", reference_decoder())
   use code <- decode.field(
     "code",
-    r4valuesets.documentrelationshiptype_decoder(),
+    r4_valuesets.documentrelationshiptype_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -41964,7 +41999,7 @@ pub fn documentreference_to_json(documentreference: Documentreference) -> Json {
     id:,
   ) = documentreference
   let fields = [
-    #("status", r4valuesets.documentreferencestatus_to_json(status)),
+    #("status", r4_valuesets.documentreferencestatus_to_json(status)),
   ]
   let fields = case context {
     Some(v) -> [#("context", documentreference_context_to_json(v)), ..fields]
@@ -42031,7 +42066,7 @@ pub fn documentreference_to_json(documentreference: Documentreference) -> Json {
   }
   let fields = case doc_status {
     Some(v) -> [
-      #("docStatus", r4valuesets.compositionstatus_to_json(v)),
+      #("docStatus", r4_valuesets.compositionstatus_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -42148,11 +42183,11 @@ pub fn documentreference_decoder() -> Decoder(Documentreference) {
   use doc_status <- decode.optional_field(
     "docStatus",
     None,
-    decode.optional(r4valuesets.compositionstatus_decoder()),
+    decode.optional(r4_valuesets.compositionstatus_decoder()),
   )
   use status <- decode.field(
     "status",
-    r4valuesets.documentreferencestatus_decoder(),
+    r4_valuesets.documentreferencestatus_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -42384,7 +42419,7 @@ pub type Effectevidencesynthesis {
     version: Option(String),
     name: Option(String),
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     date: Option(String),
     publisher: Option(String),
     contact: List(Contactdetail),
@@ -42420,7 +42455,7 @@ pub fn effectevidencesynthesis_new(
   exposure_alternative exposure_alternative: Reference,
   exposure exposure: Reference,
   population population: Reference,
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Effectevidencesynthesis {
   Effectevidencesynthesis(
     certainty: [],
@@ -42497,7 +42532,7 @@ pub type EffectevidencesynthesisResultsbyexposure {
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Option(String),
-    exposure_state: Option(r4valuesets.Exposurestate),
+    exposure_state: Option(r4_valuesets.Exposurestate),
     variant_state: Option(Codeableconcept),
     risk_evidence_synthesis: Reference,
   )
@@ -43032,7 +43067,7 @@ pub fn effectevidencesynthesis_resultsbyexposure_to_json(
   }
   let fields = case exposure_state {
     Some(v) -> [
-      #("exposureState", r4valuesets.exposurestate_to_json(v)),
+      #("exposureState", r4_valuesets.exposurestate_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -43075,7 +43110,7 @@ pub fn effectevidencesynthesis_resultsbyexposure_decoder() -> Decoder(
   use exposure_state <- decode.optional_field(
     "exposureState",
     None,
-    decode.optional(r4valuesets.exposurestate_decoder()),
+    decode.optional(r4_valuesets.exposurestate_decoder()),
   )
   use description <- decode.optional_field(
     "description",
@@ -43237,7 +43272,7 @@ pub fn effectevidencesynthesis_to_json(
     #("exposureAlternative", reference_to_json(exposure_alternative)),
     #("exposure", reference_to_json(exposure)),
     #("population", reference_to_json(population)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case certainty {
     [] -> fields
@@ -43556,7 +43591,7 @@ pub fn effectevidencesynthesis_decoder() -> Decoder(Effectevidencesynthesis) {
     None,
     decode.optional(decode.string),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -43686,7 +43721,7 @@ pub type Encounter {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Encounterstatus,
+    status: r4_valuesets.Encounterstatus,
     status_history: List(EncounterStatushistory),
     class: Coding,
     class_history: List(EncounterClasshistory),
@@ -43713,7 +43748,7 @@ pub type Encounter {
 
 pub fn encounter_new(
   class class: Coding,
-  status status: r4valuesets.Encounterstatus,
+  status status: r4_valuesets.Encounterstatus,
 ) -> Encounter {
   Encounter(
     part_of: None,
@@ -43756,14 +43791,14 @@ pub type EncounterStatushistory {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    status: r4valuesets.Encounterstatus,
+    status: r4_valuesets.Encounterstatus,
     period: Period,
   )
 }
 
 pub fn encounter_statushistory_new(
   period period: Period,
-  status status: r4valuesets.Encounterstatus,
+  status status: r4_valuesets.Encounterstatus,
 ) -> EncounterStatushistory {
   EncounterStatushistory(
     period:,
@@ -43888,7 +43923,7 @@ pub type EncounterLocation {
     extension: List(Extension),
     modifier_extension: List(Extension),
     location: Reference,
-    status: Option(r4valuesets.Encounterlocationstatus),
+    status: Option(r4_valuesets.Encounterlocationstatus),
     physical_type: Option(Codeableconcept),
     period: Option(Period),
   )
@@ -43929,7 +43964,7 @@ pub fn encounter_location_to_json(encounter_location: EncounterLocation) -> Json
   }
   let fields = case status {
     Some(v) -> [
-      #("status", r4valuesets.encounterlocationstatus_to_json(v)),
+      #("status", r4_valuesets.encounterlocationstatus_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -43967,7 +44002,7 @@ pub fn encounter_location_decoder() -> Decoder(EncounterLocation) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.encounterlocationstatus_decoder()),
+    decode.optional(r4_valuesets.encounterlocationstatus_decoder()),
   )
   use location <- decode.field("location", reference_decoder())
   use modifier_extension <- decode.optional_field(
@@ -44371,7 +44406,7 @@ pub fn encounter_statushistory_to_json(
   ) = encounter_statushistory
   let fields = [
     #("period", period_to_json(period)),
-    #("status", r4valuesets.encounterstatus_to_json(status)),
+    #("status", r4_valuesets.encounterstatus_to_json(status)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -44394,7 +44429,7 @@ pub fn encounter_statushistory_to_json(
 pub fn encounter_statushistory_decoder() -> Decoder(EncounterStatushistory) {
   use <- decode.recursive
   use period <- decode.field("period", period_decoder())
-  use status <- decode.field("status", r4valuesets.encounterstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.encounterstatus_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -44451,7 +44486,7 @@ pub fn encounter_to_json(encounter: Encounter) -> Json {
   ) = encounter
   let fields = [
     #("class", coding_to_json(class)),
-    #("status", r4valuesets.encounterstatus_to_json(status)),
+    #("status", r4_valuesets.encounterstatus_to_json(status)),
   ]
   let fields = case part_of {
     Some(v) -> [#("partOf", reference_to_json(v)), ..fields]
@@ -44715,7 +44750,7 @@ pub fn encounter_decoder() -> Decoder(Encounter) {
     [],
     decode.list(encounter_statushistory_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.encounterstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.encounterstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -44810,7 +44845,7 @@ pub type Endpoint {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Endpointstatus,
+    status: r4_valuesets.Endpointstatus,
     connection_type: Coding,
     name: Option(String),
     managing_organization: Option(Reference),
@@ -44826,7 +44861,7 @@ pub type Endpoint {
 pub fn endpoint_new(
   address address: String,
   connection_type connection_type: Coding,
-  status status: r4valuesets.Endpointstatus,
+  status status: r4_valuesets.Endpointstatus,
 ) -> Endpoint {
   Endpoint(
     header: [],
@@ -44876,7 +44911,7 @@ pub fn endpoint_to_json(endpoint: Endpoint) -> Json {
   let fields = [
     #("address", json.string(address)),
     #("connectionType", coding_to_json(connection_type)),
-    #("status", r4valuesets.endpointstatus_to_json(status)),
+    #("status", r4_valuesets.endpointstatus_to_json(status)),
   ]
   let fields = case header {
     [] -> fields
@@ -44990,7 +45025,7 @@ pub fn endpoint_decoder() -> Decoder(Endpoint) {
     decode.optional(decode.string),
   )
   use connection_type <- decode.field("connectionType", coding_decoder())
-  use status <- decode.field("status", r4valuesets.endpointstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.endpointstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -45076,7 +45111,7 @@ pub type Enrollmentrequest {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: Option(r4valuesets.Fmstatus),
+    status: Option(r4_valuesets.Fmstatus),
     created: Option(String),
     insurer: Option(Reference),
     provider: Option(Reference),
@@ -45145,7 +45180,7 @@ pub fn enrollmentrequest_to_json(enrollmentrequest: Enrollmentrequest) -> Json {
     None -> fields
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.fmstatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.fmstatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case identifier {
@@ -45221,7 +45256,7 @@ pub fn enrollmentrequest_decoder() -> Decoder(Enrollmentrequest) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.fmstatus_decoder()),
+    decode.optional(r4_valuesets.fmstatus_decoder()),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -45301,9 +45336,9 @@ pub type Enrollmentresponse {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: Option(r4valuesets.Fmstatus),
+    status: Option(r4_valuesets.Fmstatus),
     request: Option(Reference),
-    outcome: Option(r4valuesets.Remittanceoutcome),
+    outcome: Option(r4_valuesets.Remittanceoutcome),
     disposition: Option(String),
     created: Option(String),
     organization: Option(Reference),
@@ -45372,7 +45407,7 @@ pub fn enrollmentresponse_to_json(
   }
   let fields = case outcome {
     Some(v) -> [
-      #("outcome", r4valuesets.remittanceoutcome_to_json(v)),
+      #("outcome", r4_valuesets.remittanceoutcome_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -45382,7 +45417,7 @@ pub fn enrollmentresponse_to_json(
     None -> fields
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.fmstatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.fmstatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case identifier {
@@ -45453,7 +45488,7 @@ pub fn enrollmentresponse_decoder() -> Decoder(Enrollmentresponse) {
   use outcome <- decode.optional_field(
     "outcome",
     None,
-    decode.optional(r4valuesets.remittanceoutcome_decoder()),
+    decode.optional(r4_valuesets.remittanceoutcome_decoder()),
   )
   use request <- decode.optional_field(
     "request",
@@ -45463,7 +45498,7 @@ pub fn enrollmentresponse_decoder() -> Decoder(Enrollmentresponse) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.fmstatus_decoder()),
+    decode.optional(r4_valuesets.fmstatus_decoder()),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -45544,7 +45579,7 @@ pub type Episodeofcare {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Episodeofcarestatus,
+    status: r4_valuesets.Episodeofcarestatus,
     status_history: List(EpisodeofcareStatushistory),
     type_: List(Codeableconcept),
     diagnosis: List(EpisodeofcareDiagnosis),
@@ -45560,7 +45595,7 @@ pub type Episodeofcare {
 
 pub fn episodeofcare_new(
   patient patient: Reference,
-  status status: r4valuesets.Episodeofcarestatus,
+  status status: r4_valuesets.Episodeofcarestatus,
 ) -> Episodeofcare {
   Episodeofcare(
     account: [],
@@ -45592,14 +45627,14 @@ pub type EpisodeofcareStatushistory {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    status: r4valuesets.Episodeofcarestatus,
+    status: r4_valuesets.Episodeofcarestatus,
     period: Period,
   )
 }
 
 pub fn episodeofcare_statushistory_new(
   period period: Period,
-  status status: r4valuesets.Episodeofcarestatus,
+  status status: r4_valuesets.Episodeofcarestatus,
 ) -> EpisodeofcareStatushistory {
   EpisodeofcareStatushistory(
     period:,
@@ -45717,7 +45752,7 @@ pub fn episodeofcare_statushistory_to_json(
   ) = episodeofcare_statushistory
   let fields = [
     #("period", period_to_json(period)),
-    #("status", r4valuesets.episodeofcarestatus_to_json(status)),
+    #("status", r4_valuesets.episodeofcarestatus_to_json(status)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -45744,7 +45779,7 @@ pub fn episodeofcare_statushistory_decoder() -> Decoder(
   use period <- decode.field("period", period_decoder())
   use status <- decode.field(
     "status",
-    r4valuesets.episodeofcarestatus_decoder(),
+    r4_valuesets.episodeofcarestatus_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -45791,7 +45826,7 @@ pub fn episodeofcare_to_json(episodeofcare: Episodeofcare) -> Json {
   ) = episodeofcare
   let fields = [
     #("patient", reference_to_json(patient)),
-    #("status", r4valuesets.episodeofcarestatus_to_json(status)),
+    #("status", r4_valuesets.episodeofcarestatus_to_json(status)),
   ]
   let fields = case account {
     [] -> fields
@@ -45934,7 +45969,7 @@ pub fn episodeofcare_decoder() -> Decoder(Episodeofcare) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.episodeofcarestatus_decoder(),
+    r4_valuesets.episodeofcarestatus_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -46024,7 +46059,7 @@ pub type Eventdefinition {
     name: Option(String),
     title: Option(String),
     subtitle: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     subject: Option(EventdefinitionSubject),
     date: Option(String),
@@ -46078,7 +46113,7 @@ pub fn eventdefinition_subject_decoder() -> Decoder(EventdefinitionSubject) {
 }
 
 pub fn eventdefinition_new(
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Eventdefinition {
   Eventdefinition(
     trigger: [],
@@ -46160,7 +46195,7 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
     id:,
   ) = eventdefinition
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case trigger {
     [] -> fields
@@ -46437,7 +46472,7 @@ pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use subtitle <- decode.optional_field(
     "subtitle",
     None,
@@ -46564,7 +46599,7 @@ pub type Evidence {
     title: Option(String),
     short_title: Option(String),
     subtitle: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     date: Option(String),
     publisher: Option(String),
     contact: List(Contactdetail),
@@ -46590,7 +46625,7 @@ pub type Evidence {
 
 pub fn evidence_new(
   exposure_background exposure_background: Reference,
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Evidence {
   Evidence(
     outcome: [],
@@ -46673,7 +46708,7 @@ pub fn evidence_to_json(evidence: Evidence) -> Json {
   ) = evidence
   let fields = [
     #("exposureBackground", reference_to_json(exposure_background)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case outcome {
     [] -> fields
@@ -46934,7 +46969,7 @@ pub fn evidence_decoder() -> Decoder(Evidence) {
     None,
     decode.optional(decode.string),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use subtitle <- decode.optional_field(
     "subtitle",
     None,
@@ -47066,7 +47101,7 @@ pub type Evidencevariable {
     title: Option(String),
     short_title: Option(String),
     subtitle: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     date: Option(String),
     publisher: Option(String),
     contact: List(Contactdetail),
@@ -47084,13 +47119,13 @@ pub type Evidencevariable {
     reviewer: List(Contactdetail),
     endorser: List(Contactdetail),
     related_artifact: List(Relatedartifact),
-    type_: Option(r4valuesets.Variabletype),
+    type_: Option(r4_valuesets.Variabletype),
     characteristic: List(EvidencevariableCharacteristic),
   )
 }
 
 pub fn evidencevariable_new(
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Evidencevariable {
   Evidencevariable(
     characteristic: [],
@@ -47145,7 +47180,7 @@ pub type EvidencevariableCharacteristic {
       EvidencevariableCharacteristicParticipanteffective,
     ),
     time_from_start: Option(Duration),
-    group_measure: Option(r4valuesets.Groupmeasure),
+    group_measure: Option(r4_valuesets.Groupmeasure),
   )
 }
 
@@ -47317,7 +47352,7 @@ pub fn evidencevariable_characteristic_to_json(
   ]
   let fields = case group_measure {
     Some(v) -> [
-      #("groupMeasure", r4valuesets.groupmeasure_to_json(v)),
+      #("groupMeasure", r4_valuesets.groupmeasure_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -47386,7 +47421,7 @@ pub fn evidencevariable_characteristic_decoder() -> Decoder(
   use group_measure <- decode.optional_field(
     "groupMeasure",
     None,
-    decode.optional(r4valuesets.groupmeasure_decoder()),
+    decode.optional(r4_valuesets.groupmeasure_decoder()),
   )
   use time_from_start <- decode.optional_field(
     "timeFromStart",
@@ -47480,7 +47515,7 @@ pub fn evidencevariable_to_json(evidencevariable: Evidencevariable) -> Json {
     id:,
   ) = evidencevariable
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case characteristic {
     [] -> fields
@@ -47493,7 +47528,7 @@ pub fn evidencevariable_to_json(evidencevariable: Evidencevariable) -> Json {
     ]
   }
   let fields = case type_ {
-    Some(v) -> [#("type", r4valuesets.variabletype_to_json(v)), ..fields]
+    Some(v) -> [#("type", r4_valuesets.variabletype_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case related_artifact {
@@ -47653,7 +47688,7 @@ pub fn evidencevariable_decoder() -> Decoder(Evidencevariable) {
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.variabletype_decoder()),
+    decode.optional(r4_valuesets.variabletype_decoder()),
   )
   use related_artifact <- decode.optional_field(
     "relatedArtifact",
@@ -47740,7 +47775,7 @@ pub fn evidencevariable_decoder() -> Decoder(Evidencevariable) {
     None,
     decode.optional(decode.string),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use subtitle <- decode.optional_field(
     "subtitle",
     None,
@@ -47868,7 +47903,7 @@ pub type Examplescenario {
     identifier: List(Identifier),
     version: Option(String),
     name: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -47885,7 +47920,7 @@ pub type Examplescenario {
 }
 
 pub fn examplescenario_new(
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Examplescenario {
   Examplescenario(
     workflow: [],
@@ -47923,14 +47958,14 @@ pub type ExamplescenarioActor {
     extension: List(Extension),
     modifier_extension: List(Extension),
     actor_id: String,
-    type_: r4valuesets.Examplescenarioactortype,
+    type_: r4_valuesets.Examplescenarioactortype,
     name: Option(String),
     description: Option(String),
   )
 }
 
 pub fn examplescenario_actor_new(
-  type_ type_: r4valuesets.Examplescenarioactortype,
+  type_ type_: r4_valuesets.Examplescenarioactortype,
   actor_id actor_id: String,
 ) -> ExamplescenarioActor {
   ExamplescenarioActor(
@@ -47951,7 +47986,7 @@ pub type ExamplescenarioInstance {
     extension: List(Extension),
     modifier_extension: List(Extension),
     resource_id: String,
-    resource_type: r4valuesets.Resourcetypes,
+    resource_type: r4_valuesets.Resourcetypes,
     name: Option(String),
     description: Option(String),
     version: List(ExamplescenarioInstanceVersion),
@@ -47960,7 +47995,7 @@ pub type ExamplescenarioInstance {
 }
 
 pub fn examplescenario_instance_new(
-  resource_type resource_type: r4valuesets.Resourcetypes,
+  resource_type resource_type: r4_valuesets.Resourcetypes,
   resource_id resource_id: String,
 ) -> ExamplescenarioInstance {
   ExamplescenarioInstance(
@@ -48724,7 +48759,7 @@ pub fn examplescenario_instance_to_json(
     id:,
   ) = examplescenario_instance
   let fields = [
-    #("resourceType", r4valuesets.resourcetypes_to_json(resource_type)),
+    #("resourceType", r4_valuesets.resourcetypes_to_json(resource_type)),
     #("resourceId", json.string(resource_id)),
   ]
   let fields = case contained_instance {
@@ -48800,7 +48835,7 @@ pub fn examplescenario_instance_decoder() -> Decoder(ExamplescenarioInstance) {
   )
   use resource_type <- decode.field(
     "resourceType",
-    r4valuesets.resourcetypes_decoder(),
+    r4_valuesets.resourcetypes_decoder(),
   )
   use resource_id <- decode.field("resourceId", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -48840,7 +48875,7 @@ pub fn examplescenario_actor_to_json(
     id:,
   ) = examplescenario_actor
   let fields = [
-    #("type", r4valuesets.examplescenarioactortype_to_json(type_)),
+    #("type", r4_valuesets.examplescenarioactortype_to_json(type_)),
     #("actorId", json.string(actor_id)),
   ]
   let fields = case description {
@@ -48883,7 +48918,7 @@ pub fn examplescenario_actor_decoder() -> Decoder(ExamplescenarioActor) {
   )
   use type_ <- decode.field(
     "type",
-    r4valuesets.examplescenarioactortype_decoder(),
+    r4_valuesets.examplescenarioactortype_decoder(),
   )
   use actor_id <- decode.field("actorId", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -48937,7 +48972,7 @@ pub fn examplescenario_to_json(examplescenario: Examplescenario) -> Json {
     id:,
   ) = examplescenario
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case workflow {
     [] -> fields
@@ -49119,7 +49154,7 @@ pub fn examplescenario_decoder() -> Decoder(Examplescenario) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use name <- decode.optional_field(
     "name",
     None,
@@ -49219,10 +49254,10 @@ pub type Explanationofbenefit {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Explanationofbenefitstatus,
+    status: r4_valuesets.Explanationofbenefitstatus,
     type_: Codeableconcept,
     sub_type: Option(Codeableconcept),
-    use_: r4valuesets.Claimuse,
+    use_: r4_valuesets.Claimuse,
     patient: Reference,
     billable_period: Option(Period),
     created: String,
@@ -49240,7 +49275,7 @@ pub type Explanationofbenefit {
     facility: Option(Reference),
     claim: Option(Reference),
     claim_response: Option(Reference),
-    outcome: r4valuesets.Remittanceoutcome,
+    outcome: r4_valuesets.Remittanceoutcome,
     disposition: Option(String),
     pre_auth_ref: List(String),
     pre_auth_ref_period: List(Period),
@@ -49265,14 +49300,14 @@ pub type Explanationofbenefit {
 }
 
 pub fn explanationofbenefit_new(
-  outcome outcome: r4valuesets.Remittanceoutcome,
+  outcome outcome: r4_valuesets.Remittanceoutcome,
   provider provider: Reference,
   insurer insurer: Reference,
   created created: String,
   patient patient: Reference,
-  use_ use_: r4valuesets.Claimuse,
+  use_ use_: r4_valuesets.Claimuse,
   type_ type_: Codeableconcept,
-  status status: r4valuesets.Explanationofbenefitstatus,
+  status status: r4_valuesets.Explanationofbenefitstatus,
 ) -> Explanationofbenefit {
   Explanationofbenefit(
     benefit_balance: [],
@@ -50215,7 +50250,7 @@ pub type ExplanationofbenefitProcessnote {
     extension: List(Extension),
     modifier_extension: List(Extension),
     number: Option(Int),
-    type_: Option(r4valuesets.Notetype),
+    type_: Option(r4_valuesets.Notetype),
     text: Option(String),
     language: Option(Codeableconcept),
   )
@@ -50620,7 +50655,7 @@ pub fn explanationofbenefit_processnote_to_json(
     None -> fields
   }
   let fields = case type_ {
-    Some(v) -> [#("type", r4valuesets.notetype_to_json(v)), ..fields]
+    Some(v) -> [#("type", r4_valuesets.notetype_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case number {
@@ -50662,7 +50697,7 @@ pub fn explanationofbenefit_processnote_decoder() -> Decoder(
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.notetype_decoder()),
+    decode.optional(r4_valuesets.notetype_decoder()),
   )
   use number <- decode.optional_field(
     "number",
@@ -53034,14 +53069,14 @@ pub fn explanationofbenefit_to_json(
     id:,
   ) = explanationofbenefit
   let fields = [
-    #("outcome", r4valuesets.remittanceoutcome_to_json(outcome)),
+    #("outcome", r4_valuesets.remittanceoutcome_to_json(outcome)),
     #("provider", reference_to_json(provider)),
     #("insurer", reference_to_json(insurer)),
     #("created", json.string(created)),
     #("patient", reference_to_json(patient)),
-    #("use", r4valuesets.claimuse_to_json(use_)),
+    #("use", r4_valuesets.claimuse_to_json(use_)),
     #("type", codeableconcept_to_json(type_)),
-    #("status", r4valuesets.explanationofbenefitstatus_to_json(status)),
+    #("status", r4_valuesets.explanationofbenefitstatus_to_json(status)),
   ]
   let fields = case benefit_balance {
     [] -> fields
@@ -53398,7 +53433,7 @@ pub fn explanationofbenefit_decoder() -> Decoder(Explanationofbenefit) {
   )
   use outcome <- decode.field(
     "outcome",
-    r4valuesets.remittanceoutcome_decoder(),
+    r4_valuesets.remittanceoutcome_decoder(),
   )
   use claim_response <- decode.optional_field(
     "claimResponse",
@@ -53469,7 +53504,7 @@ pub fn explanationofbenefit_decoder() -> Decoder(Explanationofbenefit) {
     decode.optional(period_decoder()),
   )
   use patient <- decode.field("patient", reference_decoder())
-  use use_ <- decode.field("use", r4valuesets.claimuse_decoder())
+  use use_ <- decode.field("use", r4_valuesets.claimuse_decoder())
   use sub_type <- decode.optional_field(
     "subType",
     None,
@@ -53478,7 +53513,7 @@ pub fn explanationofbenefit_decoder() -> Decoder(Explanationofbenefit) {
   use type_ <- decode.field("type", codeableconcept_decoder())
   use status <- decode.field(
     "status",
-    r4valuesets.explanationofbenefitstatus_decoder(),
+    r4_valuesets.explanationofbenefitstatus_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -53608,7 +53643,7 @@ pub type Familymemberhistory {
     identifier: List(Identifier),
     instantiates_canonical: List(String),
     instantiates_uri: List(String),
-    status: r4valuesets.Historystatus,
+    status: r4_valuesets.Historystatus,
     data_absent_reason: Option(Codeableconcept),
     patient: Reference,
     date: Option(String),
@@ -53725,7 +53760,7 @@ pub fn familymemberhistory_deceased_decoder() -> Decoder(
 pub fn familymemberhistory_new(
   relationship relationship: Codeableconcept,
   patient patient: Reference,
-  status status: r4valuesets.Historystatus,
+  status status: r4_valuesets.Historystatus,
 ) -> Familymemberhistory {
   Familymemberhistory(
     condition: [],
@@ -53964,7 +53999,7 @@ pub fn familymemberhistory_to_json(
   let fields = [
     #("relationship", codeableconcept_to_json(relationship)),
     #("patient", reference_to_json(patient)),
-    #("status", r4valuesets.historystatus_to_json(status)),
+    #("status", r4_valuesets.historystatus_to_json(status)),
   ]
   let fields = case condition {
     [] -> fields
@@ -54175,7 +54210,7 @@ pub fn familymemberhistory_decoder() -> Decoder(Familymemberhistory) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.historystatus_decoder())
+  use status <- decode.field("status", r4_valuesets.historystatus_decoder())
   use instantiates_uri <- decode.optional_field(
     "instantiatesUri",
     [],
@@ -54278,7 +54313,7 @@ pub type Flag {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Flagstatus,
+    status: r4_valuesets.Flagstatus,
     category: List(Codeableconcept),
     code: Codeableconcept,
     subject: Reference,
@@ -54291,7 +54326,7 @@ pub type Flag {
 pub fn flag_new(
   subject subject: Reference,
   code code: Codeableconcept,
-  status status: r4valuesets.Flagstatus,
+  status status: r4_valuesets.Flagstatus,
 ) -> Flag {
   Flag(
     author: None,
@@ -54335,7 +54370,7 @@ pub fn flag_to_json(flag: Flag) -> Json {
   let fields = [
     #("subject", reference_to_json(subject)),
     #("code", codeableconcept_to_json(code)),
-    #("status", r4valuesets.flagstatus_to_json(status)),
+    #("status", r4_valuesets.flagstatus_to_json(status)),
   ]
   let fields = case author {
     Some(v) -> [#("author", reference_to_json(v)), ..fields]
@@ -54423,7 +54458,7 @@ pub fn flag_decoder() -> Decoder(Flag) {
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.flagstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.flagstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -54503,7 +54538,7 @@ pub type Goal {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    lifecycle_status: r4valuesets.Goalstatus,
+    lifecycle_status: r4_valuesets.Goalstatus,
     achievement_status: Option(Codeableconcept),
     category: List(Codeableconcept),
     priority: Option(Codeableconcept),
@@ -54552,7 +54587,7 @@ pub fn goal_start_decoder() -> Decoder(GoalStart) {
 pub fn goal_new(
   subject subject: Reference,
   description description: Codeableconcept,
-  lifecycle_status lifecycle_status: r4valuesets.Goalstatus,
+  lifecycle_status lifecycle_status: r4_valuesets.Goalstatus,
 ) -> Goal {
   Goal(
     outcome_reference: [],
@@ -54796,7 +54831,7 @@ pub fn goal_to_json(goal: Goal) -> Json {
   let fields = [
     #("subject", reference_to_json(subject)),
     #("description", codeableconcept_to_json(description)),
-    #("lifecycleStatus", r4valuesets.goalstatus_to_json(lifecycle_status)),
+    #("lifecycleStatus", r4_valuesets.goalstatus_to_json(lifecycle_status)),
   ]
   let fields = case outcome_reference {
     [] -> fields
@@ -54970,7 +55005,7 @@ pub fn goal_decoder() -> Decoder(Goal) {
   )
   use lifecycle_status <- decode.field(
     "lifecycleStatus",
-    r4valuesets.goalstatus_decoder(),
+    r4_valuesets.goalstatus_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -55064,7 +55099,7 @@ pub type Graphdefinition {
     url: Option(String),
     version: Option(String),
     name: String,
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -55073,15 +55108,15 @@ pub type Graphdefinition {
     use_context: List(Usagecontext),
     jurisdiction: List(Codeableconcept),
     purpose: Option(String),
-    start: r4valuesets.Resourcetypes,
+    start: r4_valuesets.Resourcetypes,
     profile: Option(String),
     link: List(GraphdefinitionLink),
   )
 }
 
 pub fn graphdefinition_new(
-  start start: r4valuesets.Resourcetypes,
-  status status: r4valuesets.Publicationstatus,
+  start start: r4_valuesets.Resourcetypes,
+  status status: r4_valuesets.Publicationstatus,
   name name: String,
 ) -> Graphdefinition {
   Graphdefinition(
@@ -55146,7 +55181,7 @@ pub type GraphdefinitionLinkTarget {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Resourcetypes,
+    type_: r4_valuesets.Resourcetypes,
     params: Option(String),
     profile: Option(String),
     compartment: List(GraphdefinitionLinkTargetCompartment),
@@ -55155,7 +55190,7 @@ pub type GraphdefinitionLinkTarget {
 }
 
 pub fn graphdefinition_link_target_new(
-  type_ type_: r4valuesets.Resourcetypes,
+  type_ type_: r4_valuesets.Resourcetypes,
 ) -> GraphdefinitionLinkTarget {
   GraphdefinitionLinkTarget(
     link: [],
@@ -55175,18 +55210,18 @@ pub type GraphdefinitionLinkTargetCompartment {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    use_: r4valuesets.Graphcompartmentuse,
-    code: r4valuesets.Compartmenttype,
-    rule: r4valuesets.Graphcompartmentrule,
+    use_: r4_valuesets.Graphcompartmentuse,
+    code: r4_valuesets.Compartmenttype,
+    rule: r4_valuesets.Graphcompartmentrule,
     expression: Option(String),
     description: Option(String),
   )
 }
 
 pub fn graphdefinition_link_target_compartment_new(
-  rule rule: r4valuesets.Graphcompartmentrule,
-  code code: r4valuesets.Compartmenttype,
-  use_ use_: r4valuesets.Graphcompartmentuse,
+  rule rule: r4_valuesets.Graphcompartmentrule,
+  code code: r4_valuesets.Compartmenttype,
+  use_ use_: r4_valuesets.Graphcompartmentuse,
 ) -> GraphdefinitionLinkTargetCompartment {
   GraphdefinitionLinkTargetCompartment(
     description: None,
@@ -55214,9 +55249,9 @@ pub fn graphdefinition_link_target_compartment_to_json(
     id:,
   ) = graphdefinition_link_target_compartment
   let fields = [
-    #("rule", r4valuesets.graphcompartmentrule_to_json(rule)),
-    #("code", r4valuesets.compartmenttype_to_json(code)),
-    #("use", r4valuesets.graphcompartmentuse_to_json(use_)),
+    #("rule", r4_valuesets.graphcompartmentrule_to_json(rule)),
+    #("code", r4_valuesets.compartmenttype_to_json(code)),
+    #("use", r4_valuesets.graphcompartmentuse_to_json(use_)),
   ]
   let fields = case description {
     Some(v) -> [#("description", json.string(v)), ..fields]
@@ -55258,9 +55293,9 @@ pub fn graphdefinition_link_target_compartment_decoder() -> Decoder(
     None,
     decode.optional(decode.string),
   )
-  use rule <- decode.field("rule", r4valuesets.graphcompartmentrule_decoder())
-  use code <- decode.field("code", r4valuesets.compartmenttype_decoder())
-  use use_ <- decode.field("use", r4valuesets.graphcompartmentuse_decoder())
+  use rule <- decode.field("rule", r4_valuesets.graphcompartmentrule_decoder())
+  use code <- decode.field("code", r4_valuesets.compartmenttype_decoder())
+  use use_ <- decode.field("use", r4_valuesets.graphcompartmentuse_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -55298,7 +55333,7 @@ pub fn graphdefinition_link_target_to_json(
     id:,
   ) = graphdefinition_link_target
   let fields = [
-    #("type", r4valuesets.resourcetypes_to_json(type_)),
+    #("type", r4_valuesets.resourcetypes_to_json(type_)),
   ]
   let fields = case link {
     [] -> fields
@@ -55364,7 +55399,7 @@ pub fn graphdefinition_link_target_decoder() -> Decoder(
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", r4valuesets.resourcetypes_decoder())
+  use type_ <- decode.field("type", r4_valuesets.resourcetypes_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -55523,8 +55558,8 @@ pub fn graphdefinition_to_json(graphdefinition: Graphdefinition) -> Json {
     id:,
   ) = graphdefinition
   let fields = [
-    #("start", r4valuesets.resourcetypes_to_json(start)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("start", r4_valuesets.resourcetypes_to_json(start)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
   ]
   let fields = case link {
@@ -55632,7 +55667,7 @@ pub fn graphdefinition_decoder() -> Decoder(Graphdefinition) {
     None,
     decode.optional(decode.string),
   )
-  use start <- decode.field("start", r4valuesets.resourcetypes_decoder())
+  use start <- decode.field("start", r4_valuesets.resourcetypes_decoder())
   use purpose <- decode.optional_field(
     "purpose",
     None,
@@ -55673,7 +55708,7 @@ pub fn graphdefinition_decoder() -> Decoder(Graphdefinition) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use name <- decode.field("name", decode.string)
   use version <- decode.optional_field(
     "version",
@@ -55763,7 +55798,7 @@ pub type Group {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     active: Option(Bool),
-    type_: r4valuesets.Grouptype,
+    type_: r4_valuesets.Grouptype,
     actual: Bool,
     code: Option(Codeableconcept),
     name: Option(String),
@@ -55776,7 +55811,7 @@ pub type Group {
 
 pub fn group_new(
   actual actual: Bool,
-  type_ type_: r4valuesets.Grouptype,
+  type_ type_: r4_valuesets.Grouptype,
 ) -> Group {
   Group(
     member: [],
@@ -56058,7 +56093,7 @@ pub fn group_to_json(group: Group) -> Json {
   ) = group
   let fields = [
     #("actual", json.bool(actual)),
-    #("type", r4valuesets.grouptype_to_json(type_)),
+    #("type", r4_valuesets.grouptype_to_json(type_)),
   ]
   let fields = case member {
     [] -> fields
@@ -56170,7 +56205,7 @@ pub fn group_decoder() -> Decoder(Group) {
     decode.optional(codeableconcept_decoder()),
   )
   use actual <- decode.field("actual", decode.bool)
-  use type_ <- decode.field("type", r4valuesets.grouptype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.grouptype_decoder())
   use active <- decode.optional_field(
     "active",
     None,
@@ -56259,7 +56294,7 @@ pub type Guidanceresponse {
     request_identifier: Option(Identifier),
     identifier: List(Identifier),
     module: GuidanceresponseModule,
-    status: r4valuesets.Guidanceresponsestatus,
+    status: r4_valuesets.Guidanceresponsestatus,
     subject: Option(Reference),
     encounter: Option(Reference),
     occurrence_date_time: Option(String),
@@ -56307,7 +56342,7 @@ pub fn guidanceresponse_module_decoder() -> Decoder(GuidanceresponseModule) {
 }
 
 pub fn guidanceresponse_new(
-  status status: r4valuesets.Guidanceresponsestatus,
+  status status: r4_valuesets.Guidanceresponsestatus,
   module module: GuidanceresponseModule,
 ) -> Guidanceresponse {
   Guidanceresponse(
@@ -56364,7 +56399,7 @@ pub fn guidanceresponse_to_json(guidanceresponse: Guidanceresponse) -> Json {
     id:,
   ) = guidanceresponse
   let fields = [
-    #("status", r4valuesets.guidanceresponsestatus_to_json(status)),
+    #("status", r4_valuesets.guidanceresponsestatus_to_json(status)),
     #("module", guidanceresponse_module_to_json(module)),
   ]
   let fields = case data_requirement {
@@ -56532,7 +56567,7 @@ pub fn guidanceresponse_decoder() -> Decoder(Guidanceresponse) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.guidanceresponsestatus_decoder(),
+    r4_valuesets.guidanceresponsestatus_decoder(),
   )
   use module <- decode.then(guidanceresponse_module_decoder())
   use identifier <- decode.optional_field(
@@ -56716,7 +56751,7 @@ pub type HealthcareserviceAvailabletime {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    days_of_week: List(r4valuesets.Daysofweek),
+    days_of_week: List(r4_valuesets.Daysofweek),
     all_day: Option(Bool),
     available_start_time: Option(String),
     available_end_time: Option(String),
@@ -56851,7 +56886,7 @@ pub fn healthcareservice_availabletime_to_json(
   let fields = case days_of_week {
     [] -> fields
     _ -> [
-      #("daysOfWeek", json.array(days_of_week, r4valuesets.daysofweek_to_json)),
+      #("daysOfWeek", json.array(days_of_week, r4_valuesets.daysofweek_to_json)),
       ..fields
     ]
   }
@@ -56895,7 +56930,7 @@ pub fn healthcareservice_availabletime_decoder() -> Decoder(
   use days_of_week <- decode.optional_field(
     "daysOfWeek",
     [],
-    decode.list(r4valuesets.daysofweek_decoder()),
+    decode.list(r4_valuesets.daysofweek_decoder()),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -57415,7 +57450,7 @@ pub type Imagingstudy {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Imagingstudystatus,
+    status: r4_valuesets.Imagingstudystatus,
     modality: List(Coding),
     subject: Reference,
     encounter: Option(Reference),
@@ -57439,7 +57474,7 @@ pub type Imagingstudy {
 
 pub fn imagingstudy_new(
   subject subject: Reference,
-  status status: r4valuesets.Imagingstudystatus,
+  status status: r4_valuesets.Imagingstudystatus,
 ) -> Imagingstudy {
   Imagingstudy(
     series: [],
@@ -57921,7 +57956,7 @@ pub fn imagingstudy_to_json(imagingstudy: Imagingstudy) -> Json {
   ) = imagingstudy
   let fields = [
     #("subject", reference_to_json(subject)),
-    #("status", r4valuesets.imagingstudystatus_to_json(status)),
+    #("status", r4_valuesets.imagingstudystatus_to_json(status)),
   ]
   let fields = case series {
     [] -> fields
@@ -58137,7 +58172,10 @@ pub fn imagingstudy_decoder() -> Decoder(Imagingstudy) {
     [],
     decode.list(coding_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.imagingstudystatus_decoder())
+  use status <- decode.field(
+    "status",
+    r4_valuesets.imagingstudystatus_decoder(),
+  )
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -58229,7 +58267,7 @@ pub type Immunization {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Immunizationstatus,
+    status: r4_valuesets.Immunizationstatus,
     status_reason: Option(Codeableconcept),
     vaccine_code: Codeableconcept,
     patient: Reference,
@@ -58287,7 +58325,7 @@ pub fn immunization_new(
   occurrence occurrence: ImmunizationOccurrence,
   patient patient: Reference,
   vaccine_code vaccine_code: Codeableconcept,
-  status status: r4valuesets.Immunizationstatus,
+  status status: r4_valuesets.Immunizationstatus,
 ) -> Immunization {
   Immunization(
     protocol_applied: [],
@@ -58876,7 +58914,7 @@ pub fn immunization_to_json(immunization: Immunization) -> Json {
     #("occurrence", immunization_occurrence_to_json(occurrence)),
     #("patient", reference_to_json(patient)),
     #("vaccineCode", codeableconcept_to_json(vaccine_code)),
-    #("status", r4valuesets.immunizationstatus_to_json(status)),
+    #("status", r4_valuesets.immunizationstatus_to_json(status)),
   ]
   let fields = case protocol_applied {
     [] -> fields
@@ -59166,7 +59204,10 @@ pub fn immunization_decoder() -> Decoder(Immunization) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.immunizationstatus_decoder())
+  use status <- decode.field(
+    "status",
+    r4_valuesets.immunizationstatus_decoder(),
+  )
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -59269,7 +59310,7 @@ pub type Immunizationevaluation {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Immunizationevaluationstatus,
+    status: r4_valuesets.Immunizationevaluationstatus,
     patient: Reference,
     date: Option(String),
     authority: Option(Reference),
@@ -59345,7 +59386,7 @@ pub fn immunizationevaluation_new(
   immunization_event immunization_event: Reference,
   target_disease target_disease: Codeableconcept,
   patient patient: Reference,
-  status status: r4valuesets.Immunizationevaluationstatus,
+  status status: r4_valuesets.Immunizationevaluationstatus,
 ) -> Immunizationevaluation {
   Immunizationevaluation(
     series_doses: None,
@@ -59403,7 +59444,7 @@ pub fn immunizationevaluation_to_json(
     #("immunizationEvent", reference_to_json(immunization_event)),
     #("targetDisease", codeableconcept_to_json(target_disease)),
     #("patient", reference_to_json(patient)),
-    #("status", r4valuesets.immunizationevaluationstatus_to_json(status)),
+    #("status", r4_valuesets.immunizationevaluationstatus_to_json(status)),
   ]
   let fields = case series_doses {
     Some(v) -> [
@@ -59547,7 +59588,7 @@ pub fn immunizationevaluation_decoder() -> Decoder(Immunizationevaluation) {
   use patient <- decode.field("patient", reference_decoder())
   use status <- decode.field(
     "status",
-    r4valuesets.immunizationevaluationstatus_decoder(),
+    r4_valuesets.immunizationevaluationstatus_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -60285,7 +60326,7 @@ pub type Implementationguide {
     version: Option(String),
     name: String,
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -60295,8 +60336,8 @@ pub type Implementationguide {
     jurisdiction: List(Codeableconcept),
     copyright: Option(String),
     package_id: String,
-    license: Option(r4valuesets.Spdxlicense),
-    fhir_version: List(r4valuesets.Fhirversion),
+    license: Option(r4_valuesets.Spdxlicense),
+    fhir_version: List(r4_valuesets.Fhirversion),
     depends_on: List(ImplementationguideDependson),
     global: List(ImplementationguideGlobal),
     definition: Option(ImplementationguideDefinition),
@@ -60306,7 +60347,7 @@ pub type Implementationguide {
 
 pub fn implementationguide_new(
   package_id package_id: String,
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
   name name: String,
   url url: String,
 ) -> Implementationguide {
@@ -60373,14 +60414,14 @@ pub type ImplementationguideGlobal {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Resourcetypes,
+    type_: r4_valuesets.Resourcetypes,
     profile: String,
   )
 }
 
 pub fn implementationguide_global_new(
   profile profile: String,
-  type_ type_: r4valuesets.Resourcetypes,
+  type_ type_: r4_valuesets.Resourcetypes,
 ) -> ImplementationguideGlobal {
   ImplementationguideGlobal(
     profile:,
@@ -60448,7 +60489,7 @@ pub type ImplementationguideDefinitionResource {
     extension: List(Extension),
     modifier_extension: List(Extension),
     reference: Reference,
-    fhir_version: List(r4valuesets.Fhirversion),
+    fhir_version: List(r4_valuesets.Fhirversion),
     name: Option(String),
     description: Option(String),
     example: Option(ImplementationguideDefinitionResourceExample),
@@ -60508,7 +60549,7 @@ pub type ImplementationguideDefinitionPage {
     modifier_extension: List(Extension),
     name: ImplementationguideDefinitionPageName,
     title: String,
-    generation: r4valuesets.Guidepagegeneration,
+    generation: r4_valuesets.Guidepagegeneration,
     page: List(ImplementationguideDefinitionPage),
   )
 }
@@ -60542,7 +60583,7 @@ pub fn implementationguide_definition_page_name_decoder() -> Decoder(
 }
 
 pub fn implementationguide_definition_page_new(
-  generation generation: r4valuesets.Guidepagegeneration,
+  generation generation: r4_valuesets.Guidepagegeneration,
   title title: String,
   name name: ImplementationguideDefinitionPageName,
 ) -> ImplementationguideDefinitionPage {
@@ -60563,14 +60604,14 @@ pub type ImplementationguideDefinitionParameter {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    code: r4valuesets.Guideparametercode,
+    code: r4_valuesets.Guideparametercode,
     value: String,
   )
 }
 
 pub fn implementationguide_definition_parameter_new(
   value value: String,
-  code code: r4valuesets.Guideparametercode,
+  code code: r4_valuesets.Guideparametercode,
 ) -> ImplementationguideDefinitionParameter {
   ImplementationguideDefinitionParameter(
     value:,
@@ -61054,7 +61095,7 @@ pub fn implementationguide_definition_parameter_to_json(
   ) = implementationguide_definition_parameter
   let fields = [
     #("value", json.string(value)),
-    #("code", r4valuesets.guideparametercode_to_json(code)),
+    #("code", r4_valuesets.guideparametercode_to_json(code)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -61079,7 +61120,7 @@ pub fn implementationguide_definition_parameter_decoder() -> Decoder(
 ) {
   use <- decode.recursive
   use value <- decode.field("value", decode.string)
-  use code <- decode.field("code", r4valuesets.guideparametercode_decoder())
+  use code <- decode.field("code", r4_valuesets.guideparametercode_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -61113,7 +61154,7 @@ pub fn implementationguide_definition_page_to_json(
     id:,
   ) = implementationguide_definition_page
   let fields = [
-    #("generation", r4valuesets.guidepagegeneration_to_json(generation)),
+    #("generation", r4_valuesets.guidepagegeneration_to_json(generation)),
     #("title", json.string(title)),
     #("name", implementationguide_definition_page_name_to_json(name)),
   ]
@@ -61153,7 +61194,7 @@ pub fn implementationguide_definition_page_decoder() -> Decoder(
   )
   use generation <- decode.field(
     "generation",
-    r4valuesets.guidepagegeneration_decoder(),
+    r4_valuesets.guidepagegeneration_decoder(),
   )
   use title <- decode.field("title", decode.string)
   use name <- decode.then(implementationguide_definition_page_name_decoder())
@@ -61228,7 +61269,7 @@ pub fn implementationguide_definition_resource_to_json(
     _ -> [
       #(
         "fhirVersion",
-        json.array(fhir_version, r4valuesets.fhirversion_to_json),
+        json.array(fhir_version, r4_valuesets.fhirversion_to_json),
       ),
       ..fields
     ]
@@ -61276,7 +61317,7 @@ pub fn implementationguide_definition_resource_decoder() -> Decoder(
   use fhir_version <- decode.optional_field(
     "fhirVersion",
     [],
-    decode.list(r4valuesets.fhirversion_decoder()),
+    decode.list(r4_valuesets.fhirversion_decoder()),
   )
   use reference <- decode.field("reference", reference_decoder())
   use modifier_extension <- decode.optional_field(
@@ -61511,7 +61552,7 @@ pub fn implementationguide_global_to_json(
   ) = implementationguide_global
   let fields = [
     #("profile", json.string(profile)),
-    #("type", r4valuesets.resourcetypes_to_json(type_)),
+    #("type", r4_valuesets.resourcetypes_to_json(type_)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -61536,7 +61577,7 @@ pub fn implementationguide_global_decoder() -> Decoder(
 ) {
   use <- decode.recursive
   use profile <- decode.field("profile", decode.string)
-  use type_ <- decode.field("type", r4valuesets.resourcetypes_decoder())
+  use type_ <- decode.field("type", r4_valuesets.resourcetypes_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -61668,7 +61709,7 @@ pub fn implementationguide_to_json(
   ) = implementationguide
   let fields = [
     #("packageId", json.string(package_id)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
     #("url", json.string(url)),
   ]
@@ -61708,13 +61749,13 @@ pub fn implementationguide_to_json(
     _ -> [
       #(
         "fhirVersion",
-        json.array(fhir_version, r4valuesets.fhirversion_to_json),
+        json.array(fhir_version, r4_valuesets.fhirversion_to_json),
       ),
       ..fields
     ]
   }
   let fields = case license {
-    Some(v) -> [#("license", r4valuesets.spdxlicense_to_json(v)), ..fields]
+    Some(v) -> [#("license", r4_valuesets.spdxlicense_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case copyright {
@@ -61827,12 +61868,12 @@ pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
   use fhir_version <- decode.optional_field(
     "fhirVersion",
     [],
-    decode.list(r4valuesets.fhirversion_decoder()),
+    decode.list(r4_valuesets.fhirversion_decoder()),
   )
   use license <- decode.optional_field(
     "license",
     None,
-    decode.optional(r4valuesets.spdxlicense_decoder()),
+    decode.optional(r4_valuesets.spdxlicense_decoder()),
   )
   use package_id <- decode.field("packageId", decode.string)
   use copyright <- decode.optional_field(
@@ -61875,7 +61916,7 @@ pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -61977,7 +62018,7 @@ pub type Insuranceplan {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: Option(r4valuesets.Publicationstatus),
+    status: Option(r4_valuesets.Publicationstatus),
     type_: List(Codeableconcept),
     name: Option(String),
     alias: List(String),
@@ -63099,7 +63140,10 @@ pub fn insuranceplan_to_json(insuranceplan: Insuranceplan) -> Json {
     _ -> [#("type", json.array(type_, codeableconcept_to_json)), ..fields]
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.publicationstatus_to_json(v)), ..fields]
+    Some(v) -> [
+      #("status", r4_valuesets.publicationstatus_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case identifier {
@@ -63206,7 +63250,7 @@ pub fn insuranceplan_decoder() -> Decoder(Insuranceplan) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.publicationstatus_decoder()),
+    decode.optional(r4_valuesets.publicationstatus_decoder()),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -63293,7 +63337,7 @@ pub type Invoice {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Invoicestatus,
+    status: r4_valuesets.Invoicestatus,
     cancelled_reason: Option(String),
     type_: Option(Codeableconcept),
     subject: Option(Reference),
@@ -63311,7 +63355,7 @@ pub type Invoice {
   )
 }
 
-pub fn invoice_new(status status: r4valuesets.Invoicestatus) -> Invoice {
+pub fn invoice_new(status status: r4_valuesets.Invoicestatus) -> Invoice {
   Invoice(
     note: [],
     payment_terms: None,
@@ -63424,7 +63468,7 @@ pub type InvoiceLineitemPricecomponent {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Invoicepricecomponenttype,
+    type_: r4_valuesets.Invoicepricecomponenttype,
     code: Option(Codeableconcept),
     factor: Option(Float),
     amount: Option(Money),
@@ -63432,7 +63476,7 @@ pub type InvoiceLineitemPricecomponent {
 }
 
 pub fn invoice_lineitem_pricecomponent_new(
-  type_ type_: r4valuesets.Invoicepricecomponenttype,
+  type_ type_: r4_valuesets.Invoicepricecomponenttype,
 ) -> InvoiceLineitemPricecomponent {
   InvoiceLineitemPricecomponent(
     amount: None,
@@ -63458,7 +63502,7 @@ pub fn invoice_lineitem_pricecomponent_to_json(
     id:,
   ) = invoice_lineitem_pricecomponent
   let fields = [
-    #("type", r4valuesets.invoicepricecomponenttype_to_json(type_)),
+    #("type", r4_valuesets.invoicepricecomponenttype_to_json(type_)),
   ]
   let fields = case amount {
     Some(v) -> [#("amount", money_to_json(v)), ..fields]
@@ -63511,7 +63555,7 @@ pub fn invoice_lineitem_pricecomponent_decoder() -> Decoder(
   )
   use type_ <- decode.field(
     "type",
-    r4valuesets.invoicepricecomponenttype_decoder(),
+    r4_valuesets.invoicepricecomponenttype_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -63699,7 +63743,7 @@ pub fn invoice_to_json(invoice: Invoice) -> Json {
     id:,
   ) = invoice
   let fields = [
-    #("status", r4valuesets.invoicestatus_to_json(status)),
+    #("status", r4_valuesets.invoicestatus_to_json(status)),
   ]
   let fields = case note {
     [] -> fields
@@ -63887,7 +63931,7 @@ pub fn invoice_decoder() -> Decoder(Invoice) {
     None,
     decode.optional(decode.string),
   )
-  use status <- decode.field("status", r4valuesets.invoicestatus_decoder())
+  use status <- decode.field("status", r4_valuesets.invoicestatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -63980,7 +64024,7 @@ pub type Library {
     name: Option(String),
     title: Option(String),
     subtitle: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     type_: Codeableconcept,
     subject: Option(LibrarySubject),
@@ -64038,7 +64082,7 @@ pub fn library_subject_decoder() -> Decoder(LibrarySubject) {
 
 pub fn library_new(
   type_ type_: Codeableconcept,
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Library {
   Library(
     content: [],
@@ -64127,7 +64171,7 @@ pub fn library_to_json(library: Library) -> Json {
   ) = library
   let fields = [
     #("type", codeableconcept_to_json(type_)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case content {
     [] -> fields
@@ -64429,7 +64473,7 @@ pub fn library_decoder() -> Decoder(Library) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use subtitle <- decode.optional_field(
     "subtitle",
     None,
@@ -64580,14 +64624,14 @@ pub type LinkageItem {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Linkagetype,
+    type_: r4_valuesets.Linkagetype,
     resource: Reference,
   )
 }
 
 pub fn linkage_item_new(
   resource resource: Reference,
-  type_ type_: r4valuesets.Linkagetype,
+  type_ type_: r4_valuesets.Linkagetype,
 ) -> LinkageItem {
   LinkageItem(
     resource:,
@@ -64603,7 +64647,7 @@ pub fn linkage_item_to_json(linkage_item: LinkageItem) -> Json {
     linkage_item
   let fields = [
     #("resource", reference_to_json(resource)),
-    #("type", r4valuesets.linkagetype_to_json(type_)),
+    #("type", r4_valuesets.linkagetype_to_json(type_)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -64626,7 +64670,7 @@ pub fn linkage_item_to_json(linkage_item: LinkageItem) -> Json {
 pub fn linkage_item_decoder() -> Decoder(LinkageItem) {
   use <- decode.recursive
   use resource <- decode.field("resource", reference_decoder())
-  use type_ <- decode.field("type", r4valuesets.linkagetype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.linkagetype_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -64799,8 +64843,8 @@ pub type Listfhir {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Liststatus,
-    mode: r4valuesets.Listmode,
+    status: r4_valuesets.Liststatus,
+    mode: r4_valuesets.Listmode,
     title: Option(String),
     code: Option(Codeableconcept),
     subject: Option(Reference),
@@ -64815,8 +64859,8 @@ pub type Listfhir {
 }
 
 pub fn listfhir_new(
-  mode mode: r4valuesets.Listmode,
-  status status: r4valuesets.Liststatus,
+  mode mode: r4_valuesets.Listmode,
+  status status: r4_valuesets.Liststatus,
 ) -> Listfhir {
   Listfhir(
     empty_reason: None,
@@ -64976,8 +65020,8 @@ pub fn listfhir_to_json(listfhir: Listfhir) -> Json {
     id:,
   ) = listfhir
   let fields = [
-    #("mode", r4valuesets.listmode_to_json(mode)),
-    #("status", r4valuesets.liststatus_to_json(status)),
+    #("mode", r4_valuesets.listmode_to_json(mode)),
+    #("status", r4_valuesets.liststatus_to_json(status)),
   ]
   let fields = case empty_reason {
     Some(v) -> [#("emptyReason", codeableconcept_to_json(v)), ..fields]
@@ -65114,8 +65158,8 @@ pub fn listfhir_decoder() -> Decoder(Listfhir) {
     None,
     decode.optional(decode.string),
   )
-  use mode <- decode.field("mode", r4valuesets.listmode_decoder())
-  use status <- decode.field("status", r4valuesets.liststatus_decoder())
+  use mode <- decode.field("mode", r4_valuesets.listmode_decoder())
+  use status <- decode.field("status", r4_valuesets.liststatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -65200,12 +65244,12 @@ pub type Location {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: Option(r4valuesets.Locationstatus),
+    status: Option(r4_valuesets.Locationstatus),
     operational_status: Option(Coding),
     name: Option(String),
     alias: List(String),
     description: Option(String),
-    mode: Option(r4valuesets.Locationmode),
+    mode: Option(r4_valuesets.Locationmode),
     type_: List(Codeableconcept),
     telecom: List(Contactpoint),
     address: Option(Address),
@@ -65281,7 +65325,7 @@ pub type LocationHoursofoperation {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    days_of_week: List(r4valuesets.Daysofweek),
+    days_of_week: List(r4_valuesets.Daysofweek),
     all_day: Option(Bool),
     opening_time: Option(String),
     closing_time: Option(String),
@@ -65328,7 +65372,7 @@ pub fn location_hoursofoperation_to_json(
   let fields = case days_of_week {
     [] -> fields
     _ -> [
-      #("daysOfWeek", json.array(days_of_week, r4valuesets.daysofweek_to_json)),
+      #("daysOfWeek", json.array(days_of_week, r4_valuesets.daysofweek_to_json)),
       ..fields
     ]
   }
@@ -65370,7 +65414,7 @@ pub fn location_hoursofoperation_decoder() -> Decoder(LocationHoursofoperation) 
   use days_of_week <- decode.optional_field(
     "daysOfWeek",
     [],
-    decode.list(r4valuesets.daysofweek_decoder()),
+    decode.list(r4_valuesets.daysofweek_decoder()),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -65535,7 +65579,7 @@ pub fn location_to_json(location: Location) -> Json {
     _ -> [#("type", json.array(type_, codeableconcept_to_json)), ..fields]
   }
   let fields = case mode {
-    Some(v) -> [#("mode", r4valuesets.locationmode_to_json(v)), ..fields]
+    Some(v) -> [#("mode", r4_valuesets.locationmode_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case description {
@@ -65555,7 +65599,7 @@ pub fn location_to_json(location: Location) -> Json {
     None -> fields
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.locationstatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.locationstatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case identifier {
@@ -65656,7 +65700,7 @@ pub fn location_decoder() -> Decoder(Location) {
   use mode <- decode.optional_field(
     "mode",
     None,
-    decode.optional(r4valuesets.locationmode_decoder()),
+    decode.optional(r4_valuesets.locationmode_decoder()),
   )
   use description <- decode.optional_field(
     "description",
@@ -65677,7 +65721,7 @@ pub fn location_decoder() -> Decoder(Location) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.locationstatus_decoder()),
+    decode.optional(r4_valuesets.locationstatus_decoder()),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -65772,7 +65816,7 @@ pub type Measure {
     name: Option(String),
     title: Option(String),
     subtitle: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     subject: Option(MeasureSubject),
     date: Option(String),
@@ -65838,7 +65882,7 @@ pub fn measure_subject_decoder() -> Decoder(MeasureSubject) {
   )
 }
 
-pub fn measure_new(status status: r4valuesets.Publicationstatus) -> Measure {
+pub fn measure_new(status status: r4_valuesets.Publicationstatus) -> Measure {
   Measure(
     supplemental_data: [],
     group: [],
@@ -66499,7 +66543,7 @@ pub fn measure_to_json(measure: Measure) -> Json {
     id:,
   ) = measure
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case supplemental_data {
     [] -> fields
@@ -66896,7 +66940,7 @@ pub fn measure_decoder() -> Decoder(Measure) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use subtitle <- decode.optional_field(
     "subtitle",
     None,
@@ -67030,8 +67074,8 @@ pub type Measurereport {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Measurereportstatus,
-    type_: r4valuesets.Measurereporttype,
+    status: r4_valuesets.Measurereportstatus,
+    type_: r4_valuesets.Measurereporttype,
     measure: String,
     subject: Option(Reference),
     date: Option(String),
@@ -67046,8 +67090,8 @@ pub type Measurereport {
 pub fn measurereport_new(
   period period: Period,
   measure measure: String,
-  type_ type_: r4valuesets.Measurereporttype,
-  status status: r4valuesets.Measurereportstatus,
+  type_ type_: r4_valuesets.Measurereporttype,
+  status status: r4_valuesets.Measurereportstatus,
 ) -> Measurereport {
   Measurereport(
     evaluated_resource: [],
@@ -67743,8 +67787,8 @@ pub fn measurereport_to_json(measurereport: Measurereport) -> Json {
   let fields = [
     #("period", period_to_json(period)),
     #("measure", json.string(measure)),
-    #("type", r4valuesets.measurereporttype_to_json(type_)),
-    #("status", r4valuesets.measurereportstatus_to_json(status)),
+    #("type", r4_valuesets.measurereporttype_to_json(type_)),
+    #("status", r4_valuesets.measurereportstatus_to_json(status)),
   ]
   let fields = case evaluated_resource {
     [] -> fields
@@ -67850,10 +67894,10 @@ pub fn measurereport_decoder() -> Decoder(Measurereport) {
     decode.optional(reference_decoder()),
   )
   use measure <- decode.field("measure", decode.string)
-  use type_ <- decode.field("type", r4valuesets.measurereporttype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.measurereporttype_decoder())
   use status <- decode.field(
     "status",
-    r4valuesets.measurereportstatus_decoder(),
+    r4_valuesets.measurereportstatus_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -67942,7 +67986,7 @@ pub type Media {
     identifier: List(Identifier),
     based_on: List(Reference),
     part_of: List(Reference),
-    status: r4valuesets.Eventstatus,
+    status: r4_valuesets.Eventstatus,
     type_: Option(Codeableconcept),
     modality: Option(Codeableconcept),
     view: Option(Codeableconcept),
@@ -67990,7 +68034,7 @@ pub fn media_created_decoder() -> Decoder(MediaCreated) {
 
 pub fn media_new(
   content content: Attachment,
-  status status: r4valuesets.Eventstatus,
+  status status: r4_valuesets.Eventstatus,
 ) -> Media {
   Media(
     note: [],
@@ -68061,7 +68105,7 @@ pub fn media_to_json(media: Media) -> Json {
   ) = media
   let fields = [
     #("content", attachment_to_json(content)),
-    #("status", r4valuesets.eventstatus_to_json(status)),
+    #("status", r4_valuesets.eventstatus_to_json(status)),
   ]
   let fields = case note {
     [] -> fields
@@ -68275,7 +68319,7 @@ pub fn media_decoder() -> Decoder(Media) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.eventstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.eventstatus_decoder())
   use part_of <- decode.optional_field(
     "partOf",
     [],
@@ -68380,7 +68424,7 @@ pub type Medication {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     code: Option(Codeableconcept),
-    status: Option(r4valuesets.Medicationstatus),
+    status: Option(r4_valuesets.Medicationstatus),
     manufacturer: Option(Reference),
     form: Option(Codeableconcept),
     amount: Option(Ratio),
@@ -68669,7 +68713,7 @@ pub fn medication_to_json(medication: Medication) -> Json {
     None -> fields
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.medicationstatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.medicationstatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case code {
@@ -68749,7 +68793,7 @@ pub fn medication_decoder() -> Decoder(Medication) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.medicationstatus_decoder()),
+    decode.optional(r4_valuesets.medicationstatus_decoder()),
   )
   use code <- decode.optional_field(
     "code",
@@ -68837,7 +68881,7 @@ pub type Medicationadministration {
     identifier: List(Identifier),
     instantiates: List(String),
     part_of: List(Reference),
-    status: r4valuesets.Medicationadminstatus,
+    status: r4_valuesets.Medicationadminstatus,
     status_reason: List(Codeableconcept),
     category: Option(Codeableconcept),
     medication: MedicationadministrationMedication,
@@ -68921,7 +68965,7 @@ pub fn medicationadministration_new(
   effective effective: MedicationadministrationEffective,
   subject subject: Reference,
   medication medication: MedicationadministrationMedication,
-  status status: r4valuesets.Medicationadminstatus,
+  status status: r4_valuesets.Medicationadminstatus,
 ) -> Medicationadministration {
   Medicationadministration(
     event_history: [],
@@ -69258,7 +69302,7 @@ pub fn medicationadministration_to_json(
     #("effective", medicationadministration_effective_to_json(effective)),
     #("subject", reference_to_json(subject)),
     #("medication", medicationadministration_medication_to_json(medication)),
-    #("status", r4valuesets.medicationadminstatus_to_json(status)),
+    #("status", r4_valuesets.medicationadminstatus_to_json(status)),
   ]
   let fields = case event_history {
     [] -> fields
@@ -69456,7 +69500,7 @@ pub fn medicationadministration_decoder() -> Decoder(Medicationadministration) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.medicationadminstatus_decoder(),
+    r4_valuesets.medicationadminstatus_decoder(),
   )
   use part_of <- decode.optional_field(
     "partOf",
@@ -69562,7 +69606,7 @@ pub type Medicationdispense {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     part_of: List(Reference),
-    status: r4valuesets.Medicationdispensestatus,
+    status: r4_valuesets.Medicationdispensestatus,
     status_reason: Option(MedicationdispenseStatusreason),
     category: Option(Codeableconcept),
     medication: MedicationdispenseMedication,
@@ -69654,7 +69698,7 @@ pub fn medicationdispense_medication_decoder() -> Decoder(
 
 pub fn medicationdispense_new(
   medication medication: MedicationdispenseMedication,
-  status status: r4valuesets.Medicationdispensestatus,
+  status status: r4_valuesets.Medicationdispensestatus,
 ) -> Medicationdispense {
   Medicationdispense(
     event_history: [],
@@ -69936,7 +69980,7 @@ pub fn medicationdispense_to_json(
   ) = medicationdispense
   let fields = [
     #("medication", medicationdispense_medication_to_json(medication)),
-    #("status", r4valuesets.medicationdispensestatus_to_json(status)),
+    #("status", r4_valuesets.medicationdispensestatus_to_json(status)),
   ]
   let fields = case event_history {
     [] -> fields
@@ -70208,7 +70252,7 @@ pub fn medicationdispense_decoder() -> Decoder(Medicationdispense) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.medicationdispensestatus_decoder(),
+    r4_valuesets.medicationdispensestatus_decoder(),
   )
   use part_of <- decode.optional_field(
     "partOf",
@@ -70310,7 +70354,7 @@ pub type Medicationknowledge {
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
-    status: Option(r4valuesets.Medicationknowledgestatus),
+    status: Option(r4_valuesets.Medicationknowledgestatus),
     manufacturer: Option(Reference),
     dose_form: Option(Codeableconcept),
     amount: Option(Quantity),
@@ -72303,7 +72347,7 @@ pub fn medicationknowledge_to_json(
   }
   let fields = case status {
     Some(v) -> [
-      #("status", r4valuesets.medicationknowledgestatus_to_json(v)),
+      #("status", r4_valuesets.medicationknowledgestatus_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -72456,7 +72500,7 @@ pub fn medicationknowledge_decoder() -> Decoder(Medicationknowledge) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.medicationknowledgestatus_decoder()),
+    decode.optional(r4_valuesets.medicationknowledgestatus_decoder()),
   )
   use code <- decode.optional_field(
     "code",
@@ -72551,11 +72595,11 @@ pub type Medicationrequest {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Medicationrequeststatus,
+    status: r4_valuesets.Medicationrequeststatus,
     status_reason: Option(Codeableconcept),
-    intent: r4valuesets.Medicationrequestintent,
+    intent: r4_valuesets.Medicationrequestintent,
     category: List(Codeableconcept),
-    priority: Option(r4valuesets.Requestpriority),
+    priority: Option(r4_valuesets.Requestpriority),
     do_not_perform: Option(Bool),
     reported: Option(MedicationrequestReported),
     medication: MedicationrequestMedication,
@@ -72648,8 +72692,8 @@ pub fn medicationrequest_medication_decoder() -> Decoder(
 pub fn medicationrequest_new(
   subject subject: Reference,
   medication medication: MedicationrequestMedication,
-  intent intent: r4valuesets.Medicationrequestintent,
-  status status: r4valuesets.Medicationrequeststatus,
+  intent intent: r4_valuesets.Medicationrequestintent,
+  status status: r4_valuesets.Medicationrequeststatus,
 ) -> Medicationrequest {
   Medicationrequest(
     event_history: [],
@@ -73114,8 +73158,8 @@ pub fn medicationrequest_to_json(medicationrequest: Medicationrequest) -> Json {
   let fields = [
     #("subject", reference_to_json(subject)),
     #("medication", medicationrequest_medication_to_json(medication)),
-    #("intent", r4valuesets.medicationrequestintent_to_json(intent)),
-    #("status", r4valuesets.medicationrequeststatus_to_json(status)),
+    #("intent", r4_valuesets.medicationrequestintent_to_json(intent)),
+    #("status", r4_valuesets.medicationrequeststatus_to_json(status)),
   ]
   let fields = case event_history {
     [] -> fields
@@ -73260,7 +73304,10 @@ pub fn medicationrequest_to_json(medicationrequest: Medicationrequest) -> Json {
     None -> fields
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case category {
@@ -73442,7 +73489,7 @@ pub fn medicationrequest_decoder() -> Decoder(Medicationrequest) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
   use category <- decode.optional_field(
     "category",
@@ -73451,7 +73498,7 @@ pub fn medicationrequest_decoder() -> Decoder(Medicationrequest) {
   )
   use intent <- decode.field(
     "intent",
-    r4valuesets.medicationrequestintent_decoder(),
+    r4_valuesets.medicationrequestintent_decoder(),
   )
   use status_reason <- decode.optional_field(
     "statusReason",
@@ -73460,7 +73507,7 @@ pub fn medicationrequest_decoder() -> Decoder(Medicationrequest) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.medicationrequeststatus_decoder(),
+    r4_valuesets.medicationrequeststatus_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -73570,7 +73617,7 @@ pub type Medicationstatement {
     identifier: List(Identifier),
     based_on: List(Reference),
     part_of: List(Reference),
-    status: r4valuesets.Medicationstatementstatus,
+    status: r4_valuesets.Medicationstatementstatus,
     status_reason: List(Codeableconcept),
     category: Option(Codeableconcept),
     medication: MedicationstatementMedication,
@@ -73651,7 +73698,7 @@ pub fn medicationstatement_effective_decoder() -> Decoder(
 pub fn medicationstatement_new(
   subject subject: Reference,
   medication medication: MedicationstatementMedication,
-  status status: r4valuesets.Medicationstatementstatus,
+  status status: r4_valuesets.Medicationstatementstatus,
 ) -> Medicationstatement {
   Medicationstatement(
     dosage: [],
@@ -73715,7 +73762,7 @@ pub fn medicationstatement_to_json(
   let fields = [
     #("subject", reference_to_json(subject)),
     #("medication", medicationstatement_medication_to_json(medication)),
-    #("status", r4valuesets.medicationstatementstatus_to_json(status)),
+    #("status", r4_valuesets.medicationstatementstatus_to_json(status)),
   ]
   let fields = case dosage {
     [] -> fields
@@ -73893,7 +73940,7 @@ pub fn medicationstatement_decoder() -> Decoder(Medicationstatement) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.medicationstatementstatus_decoder(),
+    r4_valuesets.medicationstatementstatus_decoder(),
   )
   use part_of <- decode.optional_field(
     "partOf",
@@ -79432,7 +79479,7 @@ pub type Messagedefinition {
     name: Option(String),
     title: Option(String),
     replaces: List(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: String,
     publisher: Option(String),
@@ -79445,9 +79492,9 @@ pub type Messagedefinition {
     base: Option(String),
     parent: List(String),
     event: MessagedefinitionEvent,
-    category: Option(r4valuesets.Messagesignificancecategory),
+    category: Option(r4_valuesets.Messagesignificancecategory),
     focus: List(MessagedefinitionFocus),
-    response_required: Option(r4valuesets.Messageheaderresponserequest),
+    response_required: Option(r4_valuesets.Messageheaderresponserequest),
     allowed_response: List(MessagedefinitionAllowedresponse),
     graph: List(String),
   )
@@ -79480,7 +79527,7 @@ pub fn messagedefinition_event_decoder() -> Decoder(MessagedefinitionEvent) {
 pub fn messagedefinition_new(
   event event: MessagedefinitionEvent,
   date date: String,
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Messagedefinition {
   Messagedefinition(
     graph: [],
@@ -79524,7 +79571,7 @@ pub type MessagedefinitionFocus {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    code: r4valuesets.Resourcetypes,
+    code: r4_valuesets.Resourcetypes,
     profile: Option(String),
     min: Int,
     max: Option(String),
@@ -79533,7 +79580,7 @@ pub type MessagedefinitionFocus {
 
 pub fn messagedefinition_focus_new(
   min min: Int,
-  code code: r4valuesets.Resourcetypes,
+  code code: r4_valuesets.Resourcetypes,
 ) -> MessagedefinitionFocus {
   MessagedefinitionFocus(
     max: None,
@@ -79648,7 +79695,7 @@ pub fn messagedefinition_focus_to_json(
   ) = messagedefinition_focus
   let fields = [
     #("min", json.int(min)),
-    #("code", r4valuesets.resourcetypes_to_json(code)),
+    #("code", r4_valuesets.resourcetypes_to_json(code)),
   ]
   let fields = case max {
     Some(v) -> [#("max", json.string(v)), ..fields]
@@ -79685,7 +79732,7 @@ pub fn messagedefinition_focus_decoder() -> Decoder(MessagedefinitionFocus) {
     None,
     decode.optional(decode.string),
   )
-  use code <- decode.field("code", r4valuesets.resourcetypes_decoder())
+  use code <- decode.field("code", r4_valuesets.resourcetypes_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -79746,7 +79793,7 @@ pub fn messagedefinition_to_json(messagedefinition: Messagedefinition) -> Json {
   let fields = [
     #("event", messagedefinition_event_to_json(event)),
     #("date", json.string(date)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case graph {
     [] -> fields
@@ -79764,7 +79811,10 @@ pub fn messagedefinition_to_json(messagedefinition: Messagedefinition) -> Json {
   }
   let fields = case response_required {
     Some(v) -> [
-      #("responseRequired", r4valuesets.messageheaderresponserequest_to_json(v)),
+      #(
+        "responseRequired",
+        r4_valuesets.messageheaderresponserequest_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -79778,7 +79828,7 @@ pub fn messagedefinition_to_json(messagedefinition: Messagedefinition) -> Json {
   }
   let fields = case category {
     Some(v) -> [
-      #("category", r4valuesets.messagesignificancecategory_to_json(v)),
+      #("category", r4_valuesets.messagesignificancecategory_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -79903,7 +79953,7 @@ pub fn messagedefinition_decoder() -> Decoder(Messagedefinition) {
   use response_required <- decode.optional_field(
     "responseRequired",
     None,
-    decode.optional(r4valuesets.messageheaderresponserequest_decoder()),
+    decode.optional(r4_valuesets.messageheaderresponserequest_decoder()),
   )
   use focus <- decode.optional_field(
     "focus",
@@ -79913,7 +79963,7 @@ pub fn messagedefinition_decoder() -> Decoder(Messagedefinition) {
   use category <- decode.optional_field(
     "category",
     None,
-    decode.optional(r4valuesets.messagesignificancecategory_decoder()),
+    decode.optional(r4_valuesets.messagesignificancecategory_decoder()),
   )
   use event <- decode.then(messagedefinition_event_decoder())
   use parent <- decode.optional_field("parent", [], decode.list(decode.string))
@@ -79963,7 +80013,7 @@ pub fn messagedefinition_decoder() -> Decoder(Messagedefinition) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use replaces <- decode.optional_field(
     "replaces",
     [],
@@ -80210,13 +80260,13 @@ pub type MessageheaderResponse {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: String,
-    code: r4valuesets.Responsecode,
+    code: r4_valuesets.Responsecode,
     details: Option(Reference),
   )
 }
 
 pub fn messageheader_response_new(
-  code code: r4valuesets.Responsecode,
+  code code: r4_valuesets.Responsecode,
   identifier identifier: String,
 ) -> MessageheaderResponse {
   MessageheaderResponse(
@@ -80241,7 +80291,7 @@ pub fn messageheader_response_to_json(
     id:,
   ) = messageheader_response
   let fields = [
-    #("code", r4valuesets.responsecode_to_json(code)),
+    #("code", r4_valuesets.responsecode_to_json(code)),
     #("identifier", json.string(identifier)),
   ]
   let fields = case details {
@@ -80273,7 +80323,7 @@ pub fn messageheader_response_decoder() -> Decoder(MessageheaderResponse) {
     None,
     decode.optional(reference_decoder()),
   )
-  use code <- decode.field("code", r4valuesets.responsecode_decoder())
+  use code <- decode.field("code", r4_valuesets.responsecode_decoder())
   use identifier <- decode.field("identifier", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -80710,7 +80760,7 @@ pub type Molecularsequence {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    type_: Option(r4valuesets.Sequencetype),
+    type_: Option(r4_valuesets.Sequencetype),
     coordinate_system: Int,
     patient: Option(Reference),
     specimen: Option(Reference),
@@ -80767,11 +80817,11 @@ pub type MolecularsequenceReferenceseq {
     modifier_extension: List(Extension),
     chromosome: Option(Codeableconcept),
     genome_build: Option(String),
-    orientation: Option(r4valuesets.Orientationtype),
+    orientation: Option(r4_valuesets.Orientationtype),
     reference_seq_id: Option(Codeableconcept),
     reference_seq_pointer: Option(Reference),
     reference_seq_string: Option(String),
-    strand: Option(r4valuesets.Strandtype),
+    strand: Option(r4_valuesets.Strandtype),
     window_start: Option(Int),
     window_end: Option(Int),
   )
@@ -80829,7 +80879,7 @@ pub type MolecularsequenceQuality {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Qualitytype,
+    type_: r4_valuesets.Qualitytype,
     standard_sequence: Option(Codeableconcept),
     start: Option(Int),
     end: Option(Int),
@@ -80848,7 +80898,7 @@ pub type MolecularsequenceQuality {
 }
 
 pub fn molecularsequence_quality_new(
-  type_ type_: r4valuesets.Qualitytype,
+  type_ type_: r4_valuesets.Qualitytype,
 ) -> MolecularsequenceQuality {
   MolecularsequenceQuality(
     roc: None,
@@ -80909,7 +80959,7 @@ pub type MolecularsequenceRepository {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Repositorytype,
+    type_: r4_valuesets.Repositorytype,
     url: Option(String),
     name: Option(String),
     dataset_id: Option(String),
@@ -80919,7 +80969,7 @@ pub type MolecularsequenceRepository {
 }
 
 pub fn molecularsequence_repository_new(
-  type_ type_: r4valuesets.Repositorytype,
+  type_ type_: r4_valuesets.Repositorytype,
 ) -> MolecularsequenceRepository {
   MolecularsequenceRepository(
     readset_id: None,
@@ -81254,7 +81304,7 @@ pub fn molecularsequence_repository_to_json(
     id:,
   ) = molecularsequence_repository
   let fields = [
-    #("type", r4valuesets.repositorytype_to_json(type_)),
+    #("type", r4_valuesets.repositorytype_to_json(type_)),
   ]
   let fields = case readset_id {
     Some(v) -> [#("readsetId", json.string(v)), ..fields]
@@ -81319,7 +81369,7 @@ pub fn molecularsequence_repository_decoder() -> Decoder(
     decode.optional(decode.string),
   )
   use url <- decode.optional_field("url", None, decode.optional(decode.string))
-  use type_ <- decode.field("type", r4valuesets.repositorytype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.repositorytype_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -81478,7 +81528,7 @@ pub fn molecularsequence_quality_to_json(
     id:,
   ) = molecularsequence_quality
   let fields = [
-    #("type", r4valuesets.qualitytype_to_json(type_)),
+    #("type", r4_valuesets.qualitytype_to_json(type_)),
   ]
   let fields = case roc {
     Some(v) -> [#("roc", molecularsequence_quality_roc_to_json(v)), ..fields]
@@ -81618,7 +81668,7 @@ pub fn molecularsequence_quality_decoder() -> Decoder(MolecularsequenceQuality) 
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use type_ <- decode.field("type", r4valuesets.qualitytype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.qualitytype_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -81784,7 +81834,7 @@ pub fn molecularsequence_referenceseq_to_json(
     None -> fields
   }
   let fields = case strand {
-    Some(v) -> [#("strand", r4valuesets.strandtype_to_json(v)), ..fields]
+    Some(v) -> [#("strand", r4_valuesets.strandtype_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case reference_seq_string {
@@ -81801,7 +81851,7 @@ pub fn molecularsequence_referenceseq_to_json(
   }
   let fields = case orientation {
     Some(v) -> [
-      #("orientation", r4valuesets.orientationtype_to_json(v)),
+      #("orientation", r4_valuesets.orientationtype_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -81849,7 +81899,7 @@ pub fn molecularsequence_referenceseq_decoder() -> Decoder(
   use strand <- decode.optional_field(
     "strand",
     None,
-    decode.optional(r4valuesets.strandtype_decoder()),
+    decode.optional(r4_valuesets.strandtype_decoder()),
   )
   use reference_seq_string <- decode.optional_field(
     "referenceSeqString",
@@ -81869,7 +81919,7 @@ pub fn molecularsequence_referenceseq_decoder() -> Decoder(
   use orientation <- decode.optional_field(
     "orientation",
     None,
-    decode.optional(r4valuesets.orientationtype_decoder()),
+    decode.optional(r4_valuesets.orientationtype_decoder()),
   )
   use genome_build <- decode.optional_field(
     "genomeBuild",
@@ -82015,7 +82065,7 @@ pub fn molecularsequence_to_json(molecularsequence: Molecularsequence) -> Json {
     None -> fields
   }
   let fields = case type_ {
-    Some(v) -> [#("type", r4valuesets.sequencetype_to_json(v)), ..fields]
+    Some(v) -> [#("type", r4_valuesets.sequencetype_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case identifier {
@@ -82132,7 +82182,7 @@ pub fn molecularsequence_decoder() -> Decoder(Molecularsequence) {
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.sequencetype_decoder()),
+    decode.optional(r4_valuesets.sequencetype_decoder()),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -82221,8 +82271,8 @@ pub type Namingsystem {
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: String,
-    status: r4valuesets.Publicationstatus,
-    kind: r4valuesets.Namingsystemtype,
+    status: r4_valuesets.Publicationstatus,
+    kind: r4_valuesets.Namingsystemtype,
     date: String,
     publisher: Option(String),
     contact: List(Contactdetail),
@@ -82238,8 +82288,8 @@ pub type Namingsystem {
 
 pub fn namingsystem_new(
   date date: String,
-  kind kind: r4valuesets.Namingsystemtype,
-  status status: r4valuesets.Publicationstatus,
+  kind kind: r4_valuesets.Namingsystemtype,
+  status status: r4_valuesets.Publicationstatus,
   name name: String,
 ) -> Namingsystem {
   Namingsystem(
@@ -82273,7 +82323,7 @@ pub type NamingsystemUniqueid {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Namingsystemidentifiertype,
+    type_: r4_valuesets.Namingsystemidentifiertype,
     value: String,
     preferred: Option(Bool),
     comment: Option(String),
@@ -82283,7 +82333,7 @@ pub type NamingsystemUniqueid {
 
 pub fn namingsystem_uniqueid_new(
   value value: String,
-  type_ type_: r4valuesets.Namingsystemidentifiertype,
+  type_ type_: r4_valuesets.Namingsystemidentifiertype,
 ) -> NamingsystemUniqueid {
   NamingsystemUniqueid(
     period: None,
@@ -82312,7 +82362,7 @@ pub fn namingsystem_uniqueid_to_json(
   ) = namingsystem_uniqueid
   let fields = [
     #("value", json.string(value)),
-    #("type", r4valuesets.namingsystemidentifiertype_to_json(type_)),
+    #("type", r4_valuesets.namingsystemidentifiertype_to_json(type_)),
   ]
   let fields = case period {
     Some(v) -> [#("period", period_to_json(v)), ..fields]
@@ -82364,7 +82414,7 @@ pub fn namingsystem_uniqueid_decoder() -> Decoder(NamingsystemUniqueid) {
   use value <- decode.field("value", decode.string)
   use type_ <- decode.field(
     "type",
-    r4valuesets.namingsystemidentifiertype_decoder(),
+    r4_valuesets.namingsystemidentifiertype_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -82415,8 +82465,8 @@ pub fn namingsystem_to_json(namingsystem: Namingsystem) -> Json {
   ) = namingsystem
   let fields = [
     #("date", json.string(date)),
-    #("kind", r4valuesets.namingsystemtype_to_json(kind)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("kind", r4_valuesets.namingsystemtype_to_json(kind)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
   ]
   let fields = case unique_id {
@@ -82551,8 +82601,8 @@ pub fn namingsystem_decoder() -> Decoder(Namingsystem) {
     decode.optional(decode.string),
   )
   use date <- decode.field("date", decode.string)
-  use kind <- decode.field("kind", r4valuesets.namingsystemtype_decoder())
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use kind <- decode.field("kind", r4_valuesets.namingsystemtype_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use name <- decode.field("name", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -82639,8 +82689,8 @@ pub type Nutritionorder {
     instantiates_canonical: List(String),
     instantiates_uri: List(String),
     instantiates: List(String),
-    status: r4valuesets.Requeststatus,
-    intent: r4valuesets.Requestintent,
+    status: r4_valuesets.Requeststatus,
+    intent: r4_valuesets.Requestintent,
     patient: Reference,
     encounter: Option(Reference),
     date_time: String,
@@ -82658,8 +82708,8 @@ pub type Nutritionorder {
 pub fn nutritionorder_new(
   date_time date_time: String,
   patient patient: Reference,
-  intent intent: r4valuesets.Requestintent,
-  status status: r4valuesets.Requeststatus,
+  intent intent: r4_valuesets.Requestintent,
+  status status: r4_valuesets.Requeststatus,
 ) -> Nutritionorder {
   Nutritionorder(
     note: [],
@@ -83529,8 +83579,8 @@ pub fn nutritionorder_to_json(nutritionorder: Nutritionorder) -> Json {
   let fields = [
     #("dateTime", json.string(date_time)),
     #("patient", reference_to_json(patient)),
-    #("intent", r4valuesets.requestintent_to_json(intent)),
-    #("status", r4valuesets.requeststatus_to_json(status)),
+    #("intent", r4_valuesets.requestintent_to_json(intent)),
+    #("status", r4_valuesets.requeststatus_to_json(status)),
   ]
   let fields = case note {
     [] -> fields
@@ -83705,8 +83755,8 @@ pub fn nutritionorder_decoder() -> Decoder(Nutritionorder) {
     decode.optional(reference_decoder()),
   )
   use patient <- decode.field("patient", reference_decoder())
-  use intent <- decode.field("intent", r4valuesets.requestintent_decoder())
-  use status <- decode.field("status", r4valuesets.requeststatus_decoder())
+  use intent <- decode.field("intent", r4_valuesets.requestintent_decoder())
+  use status <- decode.field("status", r4_valuesets.requeststatus_decoder())
   use instantiates <- decode.optional_field(
     "instantiates",
     [],
@@ -83815,7 +83865,7 @@ pub type Observation {
     identifier: List(Identifier),
     based_on: List(Reference),
     part_of: List(Reference),
-    status: r4valuesets.Observationstatus,
+    status: r4_valuesets.Observationstatus,
     category: List(Codeableconcept),
     code: Codeableconcept,
     subject: Option(Reference),
@@ -83937,7 +83987,7 @@ pub fn observation_value_decoder() -> Decoder(ObservationValue) {
 
 pub fn observation_new(
   code code: Codeableconcept,
-  status status: r4valuesets.Observationstatus,
+  status status: r4_valuesets.Observationstatus,
 ) -> Observation {
   Observation(
     component: [],
@@ -84378,7 +84428,7 @@ pub fn observation_to_json(observation: Observation) -> Json {
   ) = observation
   let fields = [
     #("code", codeableconcept_to_json(code)),
-    #("status", r4valuesets.observationstatus_to_json(status)),
+    #("status", r4_valuesets.observationstatus_to_json(status)),
   ]
   let fields = case component {
     [] -> fields
@@ -84646,7 +84696,7 @@ pub fn observation_decoder() -> Decoder(Observation) {
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.observationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.observationstatus_decoder())
   use part_of <- decode.optional_field(
     "partOf",
     [],
@@ -84754,7 +84804,7 @@ pub type Observationdefinition {
     category: List(Codeableconcept),
     code: Codeableconcept,
     identifier: List(Identifier),
-    permitted_data_type: List(r4valuesets.Permitteddatatype),
+    permitted_data_type: List(r4_valuesets.Permitteddatatype),
     multiple_results_allowed: Option(Bool),
     method: Option(Codeableconcept),
     preferred_report_name: Option(String),
@@ -84826,11 +84876,11 @@ pub type ObservationdefinitionQualifiedinterval {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    category: Option(r4valuesets.Observationrangecategory),
+    category: Option(r4_valuesets.Observationrangecategory),
     range: Option(Range),
     context: Option(Codeableconcept),
     applies_to: List(Codeableconcept),
-    gender: Option(r4valuesets.Administrativegender),
+    gender: Option(r4_valuesets.Administrativegender),
     age: Option(Range),
     gestational_age: Option(Range),
     condition: Option(String),
@@ -84884,7 +84934,7 @@ pub fn observationdefinition_qualifiedinterval_to_json(
   }
   let fields = case gender {
     Some(v) -> [
-      #("gender", r4valuesets.administrativegender_to_json(v)),
+      #("gender", r4_valuesets.administrativegender_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -84906,7 +84956,7 @@ pub fn observationdefinition_qualifiedinterval_to_json(
   }
   let fields = case category {
     Some(v) -> [
-      #("category", r4valuesets.observationrangecategory_to_json(v)),
+      #("category", r4_valuesets.observationrangecategory_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -84951,7 +85001,7 @@ pub fn observationdefinition_qualifiedinterval_decoder() -> Decoder(
   use gender <- decode.optional_field(
     "gender",
     None,
-    decode.optional(r4valuesets.administrativegender_decoder()),
+    decode.optional(r4_valuesets.administrativegender_decoder()),
   )
   use applies_to <- decode.optional_field(
     "appliesTo",
@@ -84971,7 +85021,7 @@ pub fn observationdefinition_qualifiedinterval_decoder() -> Decoder(
   use category <- decode.optional_field(
     "category",
     None,
-    decode.optional(r4valuesets.observationrangecategory_decoder()),
+    decode.optional(r4_valuesets.observationrangecategory_decoder()),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -85177,7 +85227,7 @@ pub fn observationdefinition_to_json(
     _ -> [
       #(
         "permittedDataType",
-        json.array(permitted_data_type, r4valuesets.permitteddatatype_to_json),
+        json.array(permitted_data_type, r4_valuesets.permitteddatatype_to_json),
       ),
       ..fields
     ]
@@ -85285,7 +85335,7 @@ pub fn observationdefinition_decoder() -> Decoder(Observationdefinition) {
   use permitted_data_type <- decode.optional_field(
     "permittedDataType",
     [],
-    decode.list(r4valuesets.permitteddatatype_decoder()),
+    decode.list(r4_valuesets.permitteddatatype_decoder()),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -85380,8 +85430,8 @@ pub type Operationdefinition {
     version: Option(String),
     name: String,
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
-    kind: r4valuesets.Operationkind,
+    status: r4_valuesets.Publicationstatus,
+    kind: r4_valuesets.Operationkind,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -85394,7 +85444,7 @@ pub type Operationdefinition {
     code: String,
     comment: Option(String),
     base: Option(String),
-    resource: List(r4valuesets.Resourcetypes),
+    resource: List(r4_valuesets.Resourcetypes),
     system: Bool,
     type_: Bool,
     instance: Bool,
@@ -85410,8 +85460,8 @@ pub fn operationdefinition_new(
   type_ type_: Bool,
   system system: Bool,
   code code: String,
-  kind kind: r4valuesets.Operationkind,
-  status status: r4valuesets.Publicationstatus,
+  kind kind: r4_valuesets.Operationkind,
+  status status: r4_valuesets.Publicationstatus,
   name name: String,
 ) -> Operationdefinition {
   Operationdefinition(
@@ -85459,13 +85509,13 @@ pub type OperationdefinitionParameter {
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: String,
-    use_: r4valuesets.Operationparameteruse,
+    use_: r4_valuesets.Operationparameteruse,
     min: Int,
     max: String,
     documentation: Option(String),
-    type_: Option(r4valuesets.Alltypes),
+    type_: Option(r4_valuesets.Alltypes),
     target_profile: List(String),
-    search_type: Option(r4valuesets.Searchparamtype),
+    search_type: Option(r4_valuesets.Searchparamtype),
     binding: Option(OperationdefinitionParameterBinding),
     referenced_from: List(OperationdefinitionParameterReferencedfrom),
     part: List(OperationdefinitionParameter),
@@ -85475,7 +85525,7 @@ pub type OperationdefinitionParameter {
 pub fn operationdefinition_parameter_new(
   max max: String,
   min min: Int,
-  use_ use_: r4valuesets.Operationparameteruse,
+  use_ use_: r4_valuesets.Operationparameteruse,
   name name: String,
 ) -> OperationdefinitionParameter {
   OperationdefinitionParameter(
@@ -85502,14 +85552,14 @@ pub type OperationdefinitionParameterBinding {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    strength: r4valuesets.Bindingstrength,
+    strength: r4_valuesets.Bindingstrength,
     value_set: String,
   )
 }
 
 pub fn operationdefinition_parameter_binding_new(
   value_set value_set: String,
-  strength strength: r4valuesets.Bindingstrength,
+  strength strength: r4_valuesets.Bindingstrength,
 ) -> OperationdefinitionParameterBinding {
   OperationdefinitionParameterBinding(
     value_set:,
@@ -85712,7 +85762,7 @@ pub fn operationdefinition_parameter_binding_to_json(
   ) = operationdefinition_parameter_binding
   let fields = [
     #("valueSet", json.string(value_set)),
-    #("strength", r4valuesets.bindingstrength_to_json(strength)),
+    #("strength", r4_valuesets.bindingstrength_to_json(strength)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -85739,7 +85789,7 @@ pub fn operationdefinition_parameter_binding_decoder() -> Decoder(
   use value_set <- decode.field("valueSet", decode.string)
   use strength <- decode.field(
     "strength",
-    r4valuesets.bindingstrength_decoder(),
+    r4_valuesets.bindingstrength_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -85783,7 +85833,7 @@ pub fn operationdefinition_parameter_to_json(
   let fields = [
     #("max", json.string(max)),
     #("min", json.int(min)),
-    #("use", r4valuesets.operationparameteruse_to_json(use_)),
+    #("use", r4_valuesets.operationparameteruse_to_json(use_)),
     #("name", json.string(name)),
   ]
   let fields = case part {
@@ -85815,7 +85865,7 @@ pub fn operationdefinition_parameter_to_json(
   }
   let fields = case search_type {
     Some(v) -> [
-      #("searchType", r4valuesets.searchparamtype_to_json(v)),
+      #("searchType", r4_valuesets.searchparamtype_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -85825,7 +85875,7 @@ pub fn operationdefinition_parameter_to_json(
     _ -> [#("targetProfile", json.array(target_profile, json.string)), ..fields]
   }
   let fields = case type_ {
-    Some(v) -> [#("type", r4valuesets.alltypes_to_json(v)), ..fields]
+    Some(v) -> [#("type", r4_valuesets.alltypes_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case documentation {
@@ -85872,7 +85922,7 @@ pub fn operationdefinition_parameter_decoder() -> Decoder(
   use search_type <- decode.optional_field(
     "searchType",
     None,
-    decode.optional(r4valuesets.searchparamtype_decoder()),
+    decode.optional(r4_valuesets.searchparamtype_decoder()),
   )
   use target_profile <- decode.optional_field(
     "targetProfile",
@@ -85882,7 +85932,7 @@ pub fn operationdefinition_parameter_decoder() -> Decoder(
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.alltypes_decoder()),
+    decode.optional(r4_valuesets.alltypes_decoder()),
   )
   use documentation <- decode.optional_field(
     "documentation",
@@ -85891,7 +85941,7 @@ pub fn operationdefinition_parameter_decoder() -> Decoder(
   )
   use max <- decode.field("max", decode.string)
   use min <- decode.field("min", decode.int)
-  use use_ <- decode.field("use", r4valuesets.operationparameteruse_decoder())
+  use use_ <- decode.field("use", r4_valuesets.operationparameteruse_decoder())
   use name <- decode.field("name", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -85966,8 +86016,8 @@ pub fn operationdefinition_to_json(
     #("type", json.bool(type_)),
     #("system", json.bool(system)),
     #("code", json.string(code)),
-    #("kind", r4valuesets.operationkind_to_json(kind)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("kind", r4_valuesets.operationkind_to_json(kind)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
   ]
   let fields = case overload {
@@ -85998,7 +86048,7 @@ pub fn operationdefinition_to_json(
   let fields = case resource {
     [] -> fields
     _ -> [
-      #("resource", json.array(resource, r4valuesets.resourcetypes_to_json)),
+      #("resource", json.array(resource, r4_valuesets.resourcetypes_to_json)),
       ..fields
     ]
   }
@@ -86131,7 +86181,7 @@ pub fn operationdefinition_decoder() -> Decoder(Operationdefinition) {
   use resource <- decode.optional_field(
     "resource",
     [],
-    decode.list(r4valuesets.resourcetypes_decoder()),
+    decode.list(r4_valuesets.resourcetypes_decoder()),
   )
   use base <- decode.optional_field(
     "base",
@@ -86189,8 +86239,8 @@ pub fn operationdefinition_decoder() -> Decoder(Operationdefinition) {
     None,
     decode.optional(decode.bool),
   )
-  use kind <- decode.field("kind", r4valuesets.operationkind_decoder())
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use kind <- decode.field("kind", r4_valuesets.operationkind_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -86329,8 +86379,8 @@ pub type OperationoutcomeIssue {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    severity: r4valuesets.Issueseverity,
-    code: r4valuesets.Issuetype,
+    severity: r4_valuesets.Issueseverity,
+    code: r4_valuesets.Issuetype,
     details: Option(Codeableconcept),
     diagnostics: Option(String),
     location: List(String),
@@ -86339,8 +86389,8 @@ pub type OperationoutcomeIssue {
 }
 
 pub fn operationoutcome_issue_new(
-  code code: r4valuesets.Issuetype,
-  severity severity: r4valuesets.Issueseverity,
+  code code: r4_valuesets.Issuetype,
+  severity severity: r4_valuesets.Issueseverity,
 ) -> OperationoutcomeIssue {
   OperationoutcomeIssue(
     expression: [],
@@ -86370,8 +86420,8 @@ pub fn operationoutcome_issue_to_json(
     id:,
   ) = operationoutcome_issue
   let fields = [
-    #("code", r4valuesets.issuetype_to_json(code)),
-    #("severity", r4valuesets.issueseverity_to_json(severity)),
+    #("code", r4_valuesets.issuetype_to_json(code)),
+    #("severity", r4_valuesets.issueseverity_to_json(severity)),
   ]
   let fields = case expression {
     [] -> fields
@@ -86429,8 +86479,8 @@ pub fn operationoutcome_issue_decoder() -> Decoder(OperationoutcomeIssue) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use code <- decode.field("code", r4valuesets.issuetype_decoder())
-  use severity <- decode.field("severity", r4valuesets.issueseverity_decoder())
+  use code <- decode.field("code", r4_valuesets.issuetype_decoder())
+  use severity <- decode.field("severity", r4_valuesets.issueseverity_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -87763,7 +87813,7 @@ pub type Patient {
     active: Option(Bool),
     name: List(Humanname),
     telecom: List(Contactpoint),
-    gender: Option(r4valuesets.Administrativegender),
+    gender: Option(r4_valuesets.Administrativegender),
     birth_date: Option(String),
     deceased: Option(PatientDeceased),
     address: List(Address),
@@ -87865,7 +87915,7 @@ pub type PatientContact {
     name: Option(Humanname),
     telecom: List(Contactpoint),
     address: Option(Address),
-    gender: Option(r4valuesets.Administrativegender),
+    gender: Option(r4_valuesets.Administrativegender),
     organization: Option(Reference),
     period: Option(Period),
   )
@@ -87916,12 +87966,12 @@ pub type PatientLink {
     extension: List(Extension),
     modifier_extension: List(Extension),
     other: Reference,
-    type_: r4valuesets.Linktype,
+    type_: r4_valuesets.Linktype,
   )
 }
 
 pub fn patient_link_new(
-  type_ type_: r4valuesets.Linktype,
+  type_ type_: r4_valuesets.Linktype,
   other other: Reference,
 ) -> PatientLink {
   PatientLink(type_:, other:, modifier_extension: [], extension: [], id: None)
@@ -87931,7 +87981,7 @@ pub fn patient_link_to_json(patient_link: PatientLink) -> Json {
   let PatientLink(type_:, other:, modifier_extension:, extension:, id:) =
     patient_link
   let fields = [
-    #("type", r4valuesets.linktype_to_json(type_)),
+    #("type", r4_valuesets.linktype_to_json(type_)),
     #("other", reference_to_json(other)),
   ]
   let fields = case modifier_extension {
@@ -87954,7 +88004,7 @@ pub fn patient_link_to_json(patient_link: PatientLink) -> Json {
 
 pub fn patient_link_decoder() -> Decoder(PatientLink) {
   use <- decode.recursive
-  use type_ <- decode.field("type", r4valuesets.linktype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.linktype_decoder())
   use other <- decode.field("other", reference_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -88063,7 +88113,7 @@ pub fn patient_contact_to_json(patient_contact: PatientContact) -> Json {
   }
   let fields = case gender {
     Some(v) -> [
-      #("gender", r4valuesets.administrativegender_to_json(v)),
+      #("gender", r4_valuesets.administrativegender_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -88120,7 +88170,7 @@ pub fn patient_contact_decoder() -> Decoder(PatientContact) {
   use gender <- decode.optional_field(
     "gender",
     None,
-    decode.optional(r4valuesets.administrativegender_decoder()),
+    decode.optional(r4_valuesets.administrativegender_decoder()),
   )
   use address <- decode.optional_field(
     "address",
@@ -88273,7 +88323,7 @@ pub fn patient_to_json(patient: Patient) -> Json {
   }
   let fields = case gender {
     Some(v) -> [
-      #("gender", r4valuesets.administrativegender_to_json(v)),
+      #("gender", r4_valuesets.administrativegender_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -88387,7 +88437,7 @@ pub fn patient_decoder() -> Decoder(Patient) {
   use gender <- decode.optional_field(
     "gender",
     None,
-    decode.optional(r4valuesets.administrativegender_decoder()),
+    decode.optional(r4_valuesets.administrativegender_decoder()),
   )
   use telecom <- decode.optional_field(
     "telecom",
@@ -88491,7 +88541,7 @@ pub type Paymentnotice {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Fmstatus,
+    status: r4_valuesets.Fmstatus,
     request: Option(Reference),
     response: Option(Reference),
     created: String,
@@ -88510,7 +88560,7 @@ pub fn paymentnotice_new(
   recipient recipient: Reference,
   payment payment: Reference,
   created created: String,
-  status status: r4valuesets.Fmstatus,
+  status status: r4_valuesets.Fmstatus,
 ) -> Paymentnotice {
   Paymentnotice(
     payment_status: None,
@@ -88564,7 +88614,7 @@ pub fn paymentnotice_to_json(paymentnotice: Paymentnotice) -> Json {
     #("recipient", reference_to_json(recipient)),
     #("payment", reference_to_json(payment)),
     #("created", json.string(created)),
-    #("status", r4valuesets.fmstatus_to_json(status)),
+    #("status", r4_valuesets.fmstatus_to_json(status)),
   ]
   let fields = case payment_status {
     Some(v) -> [#("paymentStatus", codeableconcept_to_json(v)), ..fields]
@@ -88669,7 +88719,7 @@ pub fn paymentnotice_decoder() -> Decoder(Paymentnotice) {
     None,
     decode.optional(reference_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.fmstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -88756,13 +88806,13 @@ pub type Paymentreconciliation {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Fmstatus,
+    status: r4_valuesets.Fmstatus,
     period: Option(Period),
     created: String,
     payment_issuer: Option(Reference),
     request: Option(Reference),
     requestor: Option(Reference),
-    outcome: Option(r4valuesets.Remittanceoutcome),
+    outcome: Option(r4_valuesets.Remittanceoutcome),
     disposition: Option(String),
     payment_date: String,
     payment_amount: Money,
@@ -88777,7 +88827,7 @@ pub fn paymentreconciliation_new(
   payment_amount payment_amount: Money,
   payment_date payment_date: String,
   created created: String,
-  status status: r4valuesets.Fmstatus,
+  status status: r4_valuesets.Fmstatus,
 ) -> Paymentreconciliation {
   Paymentreconciliation(
     process_note: [],
@@ -88851,7 +88901,7 @@ pub type PaymentreconciliationProcessnote {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: Option(r4valuesets.Notetype),
+    type_: Option(r4_valuesets.Notetype),
     text: Option(String),
   )
 }
@@ -88882,7 +88932,7 @@ pub fn paymentreconciliation_processnote_to_json(
     None -> fields
   }
   let fields = case type_ {
-    Some(v) -> [#("type", r4valuesets.notetype_to_json(v)), ..fields]
+    Some(v) -> [#("type", r4_valuesets.notetype_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case modifier_extension {
@@ -88915,7 +88965,7 @@ pub fn paymentreconciliation_processnote_decoder() -> Decoder(
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(r4valuesets.notetype_decoder()),
+    decode.optional(r4_valuesets.notetype_decoder()),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -89122,7 +89172,7 @@ pub fn paymentreconciliation_to_json(
     #("paymentAmount", money_to_json(payment_amount)),
     #("paymentDate", json.string(payment_date)),
     #("created", json.string(created)),
-    #("status", r4valuesets.fmstatus_to_json(status)),
+    #("status", r4_valuesets.fmstatus_to_json(status)),
   ]
   let fields = case process_note {
     [] -> fields
@@ -89155,7 +89205,7 @@ pub fn paymentreconciliation_to_json(
   }
   let fields = case outcome {
     Some(v) -> [
-      #("outcome", r4valuesets.remittanceoutcome_to_json(v)),
+      #("outcome", r4_valuesets.remittanceoutcome_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -89254,7 +89304,7 @@ pub fn paymentreconciliation_decoder() -> Decoder(Paymentreconciliation) {
   use outcome <- decode.optional_field(
     "outcome",
     None,
-    decode.optional(r4valuesets.remittanceoutcome_decoder()),
+    decode.optional(r4_valuesets.remittanceoutcome_decoder()),
   )
   use requestor <- decode.optional_field(
     "requestor",
@@ -89277,7 +89327,7 @@ pub fn paymentreconciliation_decoder() -> Decoder(Paymentreconciliation) {
     None,
     decode.optional(period_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.fmstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
@@ -89374,7 +89424,7 @@ pub type Person {
     identifier: List(Identifier),
     name: List(Humanname),
     telecom: List(Contactpoint),
-    gender: Option(r4valuesets.Administrativegender),
+    gender: Option(r4_valuesets.Administrativegender),
     birth_date: Option(String),
     address: List(Address),
     photo: Option(Attachment),
@@ -89414,7 +89464,7 @@ pub type PersonLink {
     extension: List(Extension),
     modifier_extension: List(Extension),
     target: Reference,
-    assurance: Option(r4valuesets.Identityassurancelevel),
+    assurance: Option(r4_valuesets.Identityassurancelevel),
   )
 }
 
@@ -89436,7 +89486,7 @@ pub fn person_link_to_json(person_link: PersonLink) -> Json {
   ]
   let fields = case assurance {
     Some(v) -> [
-      #("assurance", r4valuesets.identityassurancelevel_to_json(v)),
+      #("assurance", r4_valuesets.identityassurancelevel_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -89464,7 +89514,7 @@ pub fn person_link_decoder() -> Decoder(PersonLink) {
   use assurance <- decode.optional_field(
     "assurance",
     None,
-    decode.optional(r4valuesets.identityassurancelevel_decoder()),
+    decode.optional(r4_valuesets.identityassurancelevel_decoder()),
   )
   use target <- decode.field("target", reference_decoder())
   use modifier_extension <- decode.optional_field(
@@ -89535,7 +89585,7 @@ pub fn person_to_json(person: Person) -> Json {
   }
   let fields = case gender {
     Some(v) -> [
-      #("gender", r4valuesets.administrativegender_to_json(v)),
+      #("gender", r4_valuesets.administrativegender_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -89626,7 +89676,7 @@ pub fn person_decoder() -> Decoder(Person) {
   use gender <- decode.optional_field(
     "gender",
     None,
-    decode.optional(r4valuesets.administrativegender_decoder()),
+    decode.optional(r4_valuesets.administrativegender_decoder()),
   )
   use telecom <- decode.optional_field(
     "telecom",
@@ -89725,7 +89775,7 @@ pub type Plandefinition {
     title: Option(String),
     subtitle: Option(String),
     type_: Option(Codeableconcept),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     subject: Option(PlandefinitionSubject),
     date: Option(String),
@@ -89781,7 +89831,7 @@ pub fn plandefinition_subject_decoder() -> Decoder(PlandefinitionSubject) {
 }
 
 pub fn plandefinition_new(
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Plandefinition {
   Plandefinition(
     action: [],
@@ -89929,7 +89979,7 @@ pub type PlandefinitionAction {
     title: Option(String),
     description: Option(String),
     text_equivalent: Option(String),
-    priority: Option(r4valuesets.Requestpriority),
+    priority: Option(r4_valuesets.Requestpriority),
     code: List(Codeableconcept),
     reason: List(Codeableconcept),
     documentation: List(Relatedartifact),
@@ -89943,11 +89993,11 @@ pub type PlandefinitionAction {
     timing: Option(PlandefinitionActionTiming),
     participant: List(PlandefinitionActionParticipant),
     type_: Option(Codeableconcept),
-    grouping_behavior: Option(r4valuesets.Actiongroupingbehavior),
-    selection_behavior: Option(r4valuesets.Actionselectionbehavior),
-    required_behavior: Option(r4valuesets.Actionrequiredbehavior),
-    precheck_behavior: Option(r4valuesets.Actionprecheckbehavior),
-    cardinality_behavior: Option(r4valuesets.Actioncardinalitybehavior),
+    grouping_behavior: Option(r4_valuesets.Actiongroupingbehavior),
+    selection_behavior: Option(r4_valuesets.Actionselectionbehavior),
+    required_behavior: Option(r4_valuesets.Actionrequiredbehavior),
+    precheck_behavior: Option(r4_valuesets.Actionprecheckbehavior),
+    cardinality_behavior: Option(r4_valuesets.Actioncardinalitybehavior),
     definition: Option(PlandefinitionActionDefinition),
     transform: Option(String),
     dynamic_value: List(PlandefinitionActionDynamicvalue),
@@ -90100,13 +90150,13 @@ pub type PlandefinitionActionCondition {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    kind: r4valuesets.Actionconditionkind,
+    kind: r4_valuesets.Actionconditionkind,
     expression: Option(Expression),
   )
 }
 
 pub fn plandefinition_action_condition_new(
-  kind kind: r4valuesets.Actionconditionkind,
+  kind kind: r4_valuesets.Actionconditionkind,
 ) -> PlandefinitionActionCondition {
   PlandefinitionActionCondition(
     expression: None,
@@ -90124,7 +90174,7 @@ pub type PlandefinitionActionRelatedaction {
     extension: List(Extension),
     modifier_extension: List(Extension),
     action_id: String,
-    relationship: r4valuesets.Actionrelationshiptype,
+    relationship: r4_valuesets.Actionrelationshiptype,
     offset: Option(PlandefinitionActionRelatedactionOffset),
   )
 }
@@ -90158,7 +90208,7 @@ pub fn plandefinition_action_relatedaction_offset_decoder() -> Decoder(
 }
 
 pub fn plandefinition_action_relatedaction_new(
-  relationship relationship: r4valuesets.Actionrelationshiptype,
+  relationship relationship: r4_valuesets.Actionrelationshiptype,
   action_id action_id: String,
 ) -> PlandefinitionActionRelatedaction {
   PlandefinitionActionRelatedaction(
@@ -90177,13 +90227,13 @@ pub type PlandefinitionActionParticipant {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Actionparticipanttype,
+    type_: r4_valuesets.Actionparticipanttype,
     role: Option(Codeableconcept),
   )
 }
 
 pub fn plandefinition_action_participant_new(
-  type_ type_: r4valuesets.Actionparticipanttype,
+  type_ type_: r4_valuesets.Actionparticipanttype,
 ) -> PlandefinitionActionParticipant {
   PlandefinitionActionParticipant(
     role: None,
@@ -90297,7 +90347,7 @@ pub fn plandefinition_action_participant_to_json(
     id:,
   ) = plandefinition_action_participant
   let fields = [
-    #("type", r4valuesets.actionparticipanttype_to_json(type_)),
+    #("type", r4_valuesets.actionparticipanttype_to_json(type_)),
   ]
   let fields = case role {
     Some(v) -> [#("role", codeableconcept_to_json(v)), ..fields]
@@ -90330,7 +90380,10 @@ pub fn plandefinition_action_participant_decoder() -> Decoder(
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use type_ <- decode.field("type", r4valuesets.actionparticipanttype_decoder())
+  use type_ <- decode.field(
+    "type",
+    r4_valuesets.actionparticipanttype_decoder(),
+  )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -90363,7 +90416,7 @@ pub fn plandefinition_action_relatedaction_to_json(
     id:,
   ) = plandefinition_action_relatedaction
   let fields = [
-    #("relationship", r4valuesets.actionrelationshiptype_to_json(relationship)),
+    #("relationship", r4_valuesets.actionrelationshiptype_to_json(relationship)),
     #("actionId", json.string(action_id)),
   ]
   let fields = case offset {
@@ -90407,7 +90460,7 @@ pub fn plandefinition_action_relatedaction_decoder() -> Decoder(
   )
   use relationship <- decode.field(
     "relationship",
-    r4valuesets.actionrelationshiptype_decoder(),
+    r4_valuesets.actionrelationshiptype_decoder(),
   )
   use action_id <- decode.field("actionId", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -90442,7 +90495,7 @@ pub fn plandefinition_action_condition_to_json(
     id:,
   ) = plandefinition_action_condition
   let fields = [
-    #("kind", r4valuesets.actionconditionkind_to_json(kind)),
+    #("kind", r4_valuesets.actionconditionkind_to_json(kind)),
   ]
   let fields = case expression {
     Some(v) -> [#("expression", expression_to_json(v)), ..fields]
@@ -90475,7 +90528,7 @@ pub fn plandefinition_action_condition_decoder() -> Decoder(
     None,
     decode.optional(expression_decoder()),
   )
-  use kind <- decode.field("kind", r4valuesets.actionconditionkind_decoder())
+  use kind <- decode.field("kind", r4_valuesets.actionconditionkind_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -90569,35 +90622,38 @@ pub fn plandefinition_action_to_json(
   }
   let fields = case cardinality_behavior {
     Some(v) -> [
-      #("cardinalityBehavior", r4valuesets.actioncardinalitybehavior_to_json(v)),
+      #(
+        "cardinalityBehavior",
+        r4_valuesets.actioncardinalitybehavior_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
   }
   let fields = case precheck_behavior {
     Some(v) -> [
-      #("precheckBehavior", r4valuesets.actionprecheckbehavior_to_json(v)),
+      #("precheckBehavior", r4_valuesets.actionprecheckbehavior_to_json(v)),
       ..fields
     ]
     None -> fields
   }
   let fields = case required_behavior {
     Some(v) -> [
-      #("requiredBehavior", r4valuesets.actionrequiredbehavior_to_json(v)),
+      #("requiredBehavior", r4_valuesets.actionrequiredbehavior_to_json(v)),
       ..fields
     ]
     None -> fields
   }
   let fields = case selection_behavior {
     Some(v) -> [
-      #("selectionBehavior", r4valuesets.actionselectionbehavior_to_json(v)),
+      #("selectionBehavior", r4_valuesets.actionselectionbehavior_to_json(v)),
       ..fields
     ]
     None -> fields
   }
   let fields = case grouping_behavior {
     Some(v) -> [
-      #("groupingBehavior", r4valuesets.actiongroupingbehavior_to_json(v)),
+      #("groupingBehavior", r4_valuesets.actiongroupingbehavior_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -90703,7 +90759,10 @@ pub fn plandefinition_action_to_json(
     _ -> [#("code", json.array(code, codeableconcept_to_json)), ..fields]
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case text_equivalent {
@@ -90763,27 +90822,27 @@ pub fn plandefinition_action_decoder() -> Decoder(PlandefinitionAction) {
   use cardinality_behavior <- decode.optional_field(
     "cardinalityBehavior",
     None,
-    decode.optional(r4valuesets.actioncardinalitybehavior_decoder()),
+    decode.optional(r4_valuesets.actioncardinalitybehavior_decoder()),
   )
   use precheck_behavior <- decode.optional_field(
     "precheckBehavior",
     None,
-    decode.optional(r4valuesets.actionprecheckbehavior_decoder()),
+    decode.optional(r4_valuesets.actionprecheckbehavior_decoder()),
   )
   use required_behavior <- decode.optional_field(
     "requiredBehavior",
     None,
-    decode.optional(r4valuesets.actionrequiredbehavior_decoder()),
+    decode.optional(r4_valuesets.actionrequiredbehavior_decoder()),
   )
   use selection_behavior <- decode.optional_field(
     "selectionBehavior",
     None,
-    decode.optional(r4valuesets.actionselectionbehavior_decoder()),
+    decode.optional(r4_valuesets.actionselectionbehavior_decoder()),
   )
   use grouping_behavior <- decode.optional_field(
     "groupingBehavior",
     None,
-    decode.optional(r4valuesets.actiongroupingbehavior_decoder()),
+    decode.optional(r4_valuesets.actiongroupingbehavior_decoder()),
   )
   use type_ <- decode.optional_field(
     "type",
@@ -90845,7 +90904,7 @@ pub fn plandefinition_action_decoder() -> Decoder(PlandefinitionAction) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
   use text_equivalent <- decode.optional_field(
     "textEquivalent",
@@ -91171,7 +91230,7 @@ pub fn plandefinition_to_json(plandefinition: Plandefinition) -> Json {
     id:,
   ) = plandefinition
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case action {
     [] -> fields
@@ -91470,7 +91529,7 @@ pub fn plandefinition_decoder() -> Decoder(Plandefinition) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use type_ <- decode.optional_field(
     "type",
     None,
@@ -91603,7 +91662,7 @@ pub type Practitioner {
     name: List(Humanname),
     telecom: List(Contactpoint),
     address: List(Address),
-    gender: Option(r4valuesets.Administrativegender),
+    gender: Option(r4_valuesets.Administrativegender),
     birth_date: Option(String),
     photo: List(Attachment),
     qualification: List(PractitionerQualification),
@@ -91797,7 +91856,7 @@ pub fn practitioner_to_json(practitioner: Practitioner) -> Json {
   }
   let fields = case gender {
     Some(v) -> [
-      #("gender", r4valuesets.administrativegender_to_json(v)),
+      #("gender", r4_valuesets.administrativegender_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -91886,7 +91945,7 @@ pub fn practitioner_decoder() -> Decoder(Practitioner) {
   use gender <- decode.optional_field(
     "gender",
     None,
-    decode.optional(r4valuesets.administrativegender_decoder()),
+    decode.optional(r4_valuesets.administrativegender_decoder()),
   )
   use address <- decode.optional_field(
     "address",
@@ -92038,7 +92097,7 @@ pub type PractitionerroleAvailabletime {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    days_of_week: List(r4valuesets.Daysofweek),
+    days_of_week: List(r4_valuesets.Daysofweek),
     all_day: Option(Bool),
     available_start_time: Option(String),
     available_end_time: Option(String),
@@ -92173,7 +92232,7 @@ pub fn practitionerrole_availabletime_to_json(
   let fields = case days_of_week {
     [] -> fields
     _ -> [
-      #("daysOfWeek", json.array(days_of_week, r4valuesets.daysofweek_to_json)),
+      #("daysOfWeek", json.array(days_of_week, r4_valuesets.daysofweek_to_json)),
       ..fields
     ]
   }
@@ -92217,7 +92276,7 @@ pub fn practitionerrole_availabletime_decoder() -> Decoder(
   use days_of_week <- decode.optional_field(
     "daysOfWeek",
     [],
-    decode.list(r4valuesets.daysofweek_decoder()),
+    decode.list(r4_valuesets.daysofweek_decoder()),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -92536,7 +92595,7 @@ pub type Procedure {
     instantiates_uri: List(String),
     based_on: List(Reference),
     part_of: List(Reference),
-    status: r4valuesets.Eventstatus,
+    status: r4_valuesets.Eventstatus,
     status_reason: Option(Codeableconcept),
     category: Option(Codeableconcept),
     code: Option(Codeableconcept),
@@ -92600,7 +92659,7 @@ pub fn procedure_performed_decoder() -> Decoder(ProcedurePerformed) {
 
 pub fn procedure_new(
   subject subject: Reference,
-  status status: r4valuesets.Eventstatus,
+  status status: r4_valuesets.Eventstatus,
 ) -> Procedure {
   Procedure(
     used_code: [],
@@ -92866,7 +92925,7 @@ pub fn procedure_to_json(procedure: Procedure) -> Json {
   ) = procedure
   let fields = [
     #("subject", reference_to_json(subject)),
-    #("status", r4valuesets.eventstatus_to_json(status)),
+    #("status", r4_valuesets.eventstatus_to_json(status)),
   ]
   let fields = case used_code {
     [] -> fields
@@ -93170,7 +93229,7 @@ pub fn procedure_decoder() -> Decoder(Procedure) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.eventstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.eventstatus_decoder())
   use part_of <- decode.optional_field(
     "partOf",
     [],
@@ -93380,7 +93439,7 @@ pub type ProvenanceEntity {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    role: r4valuesets.Provenanceentityrole,
+    role: r4_valuesets.Provenanceentityrole,
     what: Reference,
     agent: List(ProvenanceAgent),
   )
@@ -93388,7 +93447,7 @@ pub type ProvenanceEntity {
 
 pub fn provenance_entity_new(
   what what: Reference,
-  role role: r4valuesets.Provenanceentityrole,
+  role role: r4_valuesets.Provenanceentityrole,
 ) -> ProvenanceEntity {
   ProvenanceEntity(
     agent: [],
@@ -93411,7 +93470,7 @@ pub fn provenance_entity_to_json(provenance_entity: ProvenanceEntity) -> Json {
   ) = provenance_entity
   let fields = [
     #("what", reference_to_json(what)),
-    #("role", r4valuesets.provenanceentityrole_to_json(role)),
+    #("role", r4_valuesets.provenanceentityrole_to_json(role)),
   ]
   let fields = case agent {
     [] -> fields
@@ -93443,7 +93502,7 @@ pub fn provenance_entity_decoder() -> Decoder(ProvenanceEntity) {
     decode.list(provenance_agent_decoder()),
   )
   use what <- decode.field("what", reference_decoder())
-  use role <- decode.field("role", r4valuesets.provenanceentityrole_decoder())
+  use role <- decode.field("role", r4_valuesets.provenanceentityrole_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -93778,9 +93837,9 @@ pub type Questionnaire {
     name: Option(String),
     title: Option(String),
     derived_from: List(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
-    subject_type: List(r4valuesets.Resourcetypes),
+    subject_type: List(r4_valuesets.Resourcetypes),
     date: Option(String),
     publisher: Option(String),
     contact: List(Contactdetail),
@@ -93798,7 +93857,7 @@ pub type Questionnaire {
 }
 
 pub fn questionnaire_new(
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Questionnaire {
   Questionnaire(
     item: [],
@@ -93845,9 +93904,9 @@ pub type QuestionnaireItem {
     code: List(Coding),
     prefix: Option(String),
     text: Option(String),
-    type_: r4valuesets.Itemtype,
+    type_: r4_valuesets.Itemtype,
     enable_when: List(QuestionnaireItemEnablewhen),
-    enable_behavior: Option(r4valuesets.Questionnaireenablebehavior),
+    enable_behavior: Option(r4_valuesets.Questionnaireenablebehavior),
     required: Option(Bool),
     repeats: Option(Bool),
     read_only: Option(Bool),
@@ -93860,7 +93919,7 @@ pub type QuestionnaireItem {
 }
 
 pub fn questionnaire_item_new(
-  type_ type_: r4valuesets.Itemtype,
+  type_ type_: r4_valuesets.Itemtype,
   link_id link_id: String,
 ) -> QuestionnaireItem {
   QuestionnaireItem(
@@ -93893,7 +93952,7 @@ pub type QuestionnaireItemEnablewhen {
     extension: List(Extension),
     modifier_extension: List(Extension),
     question: String,
-    operator: r4valuesets.Questionnaireenableoperator,
+    operator: r4_valuesets.Questionnaireenableoperator,
     answer: QuestionnaireItemEnablewhenAnswer,
   )
 }
@@ -93960,7 +94019,7 @@ pub fn questionnaire_item_enablewhen_answer_decoder() -> Decoder(
 
 pub fn questionnaire_item_enablewhen_new(
   answer answer: QuestionnaireItemEnablewhenAnswer,
-  operator operator: r4valuesets.Questionnaireenableoperator,
+  operator operator: r4_valuesets.Questionnaireenableoperator,
   question question: String,
 ) -> QuestionnaireItemEnablewhen {
   QuestionnaireItemEnablewhen(
@@ -94255,7 +94314,7 @@ pub fn questionnaire_item_enablewhen_to_json(
   ) = questionnaire_item_enablewhen
   let fields = [
     #("answer", questionnaire_item_enablewhen_answer_to_json(answer)),
-    #("operator", r4valuesets.questionnaireenableoperator_to_json(operator)),
+    #("operator", r4_valuesets.questionnaireenableoperator_to_json(operator)),
     #("question", json.string(question)),
   ]
   let fields = case modifier_extension {
@@ -94283,7 +94342,7 @@ pub fn questionnaire_item_enablewhen_decoder() -> Decoder(
   use answer <- decode.then(questionnaire_item_enablewhen_answer_decoder())
   use operator <- decode.field(
     "operator",
-    r4valuesets.questionnaireenableoperator_decoder(),
+    r4_valuesets.questionnaireenableoperator_decoder(),
   )
   use question <- decode.field("question", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -94330,7 +94389,7 @@ pub fn questionnaire_item_to_json(questionnaire_item: QuestionnaireItem) -> Json
     id:,
   ) = questionnaire_item
   let fields = [
-    #("type", r4valuesets.itemtype_to_json(type_)),
+    #("type", r4_valuesets.itemtype_to_json(type_)),
     #("linkId", json.string(link_id)),
   ]
   let fields = case item {
@@ -94376,7 +94435,7 @@ pub fn questionnaire_item_to_json(questionnaire_item: QuestionnaireItem) -> Json
   }
   let fields = case enable_behavior {
     Some(v) -> [
-      #("enableBehavior", r4valuesets.questionnaireenablebehavior_to_json(v)),
+      #("enableBehavior", r4_valuesets.questionnaireenablebehavior_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -94470,14 +94529,14 @@ pub fn questionnaire_item_decoder() -> Decoder(QuestionnaireItem) {
   use enable_behavior <- decode.optional_field(
     "enableBehavior",
     None,
-    decode.optional(r4valuesets.questionnaireenablebehavior_decoder()),
+    decode.optional(r4_valuesets.questionnaireenablebehavior_decoder()),
   )
   use enable_when <- decode.optional_field(
     "enableWhen",
     [],
     decode.list(questionnaire_item_enablewhen_decoder()),
   )
-  use type_ <- decode.field("type", r4valuesets.itemtype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.itemtype_decoder())
   use text <- decode.optional_field(
     "text",
     None,
@@ -94563,7 +94622,7 @@ pub fn questionnaire_to_json(questionnaire: Questionnaire) -> Json {
     id:,
   ) = questionnaire
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case item {
     [] -> fields
@@ -94628,7 +94687,7 @@ pub fn questionnaire_to_json(questionnaire: Questionnaire) -> Json {
     _ -> [
       #(
         "subjectType",
-        json.array(subject_type, r4valuesets.resourcetypes_to_json),
+        json.array(subject_type, r4_valuesets.resourcetypes_to_json),
       ),
       ..fields
     ]
@@ -94766,14 +94825,14 @@ pub fn questionnaire_decoder() -> Decoder(Questionnaire) {
   use subject_type <- decode.optional_field(
     "subjectType",
     [],
-    decode.list(r4valuesets.resourcetypes_decoder()),
+    decode.list(r4_valuesets.resourcetypes_decoder()),
   )
   use experimental <- decode.optional_field(
     "experimental",
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use derived_from <- decode.optional_field(
     "derivedFrom",
     [],
@@ -94891,7 +94950,7 @@ pub type Questionnaireresponse {
     based_on: List(Reference),
     part_of: List(Reference),
     questionnaire: Option(String),
-    status: r4valuesets.Questionnaireanswersstatus,
+    status: r4_valuesets.Questionnaireanswersstatus,
     subject: Option(Reference),
     encounter: Option(Reference),
     authored: Option(String),
@@ -94902,7 +94961,7 @@ pub type Questionnaireresponse {
 }
 
 pub fn questionnaireresponse_new(
-  status status: r4valuesets.Questionnaireanswersstatus,
+  status status: r4_valuesets.Questionnaireanswersstatus,
 ) -> Questionnaireresponse {
   Questionnaireresponse(
     item: [],
@@ -95266,7 +95325,7 @@ pub fn questionnaireresponse_to_json(
     id:,
   ) = questionnaireresponse
   let fields = [
-    #("status", r4valuesets.questionnaireanswersstatus_to_json(status)),
+    #("status", r4_valuesets.questionnaireanswersstatus_to_json(status)),
   ]
   let fields = case item {
     [] -> fields
@@ -95387,7 +95446,7 @@ pub fn questionnaireresponse_decoder() -> Decoder(Questionnaireresponse) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.questionnaireanswersstatus_decoder(),
+    r4_valuesets.questionnaireanswersstatus_decoder(),
   )
   use questionnaire <- decode.optional_field(
     "questionnaire",
@@ -95491,7 +95550,7 @@ pub type Relatedperson {
     relationship: List(Codeableconcept),
     name: List(Humanname),
     telecom: List(Contactpoint),
-    gender: Option(r4valuesets.Administrativegender),
+    gender: Option(r4_valuesets.Administrativegender),
     birth_date: Option(String),
     address: List(Address),
     photo: List(Attachment),
@@ -95667,7 +95726,7 @@ pub fn relatedperson_to_json(relatedperson: Relatedperson) -> Json {
   }
   let fields = case gender {
     Some(v) -> [
-      #("gender", r4valuesets.administrativegender_to_json(v)),
+      #("gender", r4_valuesets.administrativegender_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -95764,7 +95823,7 @@ pub fn relatedperson_decoder() -> Decoder(Relatedperson) {
   use gender <- decode.optional_field(
     "gender",
     None,
-    decode.optional(r4valuesets.administrativegender_decoder()),
+    decode.optional(r4_valuesets.administrativegender_decoder()),
   )
   use telecom <- decode.optional_field(
     "telecom",
@@ -95875,9 +95934,9 @@ pub type Requestgroup {
     based_on: List(Reference),
     replaces: List(Reference),
     group_identifier: Option(Identifier),
-    status: r4valuesets.Requeststatus,
-    intent: r4valuesets.Requestintent,
-    priority: Option(r4valuesets.Requestpriority),
+    status: r4_valuesets.Requeststatus,
+    intent: r4_valuesets.Requestintent,
+    priority: Option(r4_valuesets.Requestpriority),
     code: Option(Codeableconcept),
     subject: Option(Reference),
     encounter: Option(Reference),
@@ -95891,8 +95950,8 @@ pub type Requestgroup {
 }
 
 pub fn requestgroup_new(
-  intent intent: r4valuesets.Requestintent,
-  status status: r4valuesets.Requeststatus,
+  intent intent: r4_valuesets.Requestintent,
+  status status: r4_valuesets.Requeststatus,
 ) -> Requestgroup {
   Requestgroup(
     action: [],
@@ -95934,7 +95993,7 @@ pub type RequestgroupAction {
     title: Option(String),
     description: Option(String),
     text_equivalent: Option(String),
-    priority: Option(r4valuesets.Requestpriority),
+    priority: Option(r4_valuesets.Requestpriority),
     code: List(Codeableconcept),
     documentation: List(Relatedartifact),
     condition: List(RequestgroupActionCondition),
@@ -95942,11 +96001,11 @@ pub type RequestgroupAction {
     timing: Option(RequestgroupActionTiming),
     participant: List(Reference),
     type_: Option(Codeableconcept),
-    grouping_behavior: Option(r4valuesets.Actiongroupingbehavior),
-    selection_behavior: Option(r4valuesets.Actionselectionbehavior),
-    required_behavior: Option(r4valuesets.Actionrequiredbehavior),
-    precheck_behavior: Option(r4valuesets.Actionprecheckbehavior),
-    cardinality_behavior: Option(r4valuesets.Actioncardinalitybehavior),
+    grouping_behavior: Option(r4_valuesets.Actiongroupingbehavior),
+    selection_behavior: Option(r4_valuesets.Actionselectionbehavior),
+    required_behavior: Option(r4_valuesets.Actionrequiredbehavior),
+    precheck_behavior: Option(r4_valuesets.Actionprecheckbehavior),
+    cardinality_behavior: Option(r4_valuesets.Actioncardinalitybehavior),
     resource: Option(Reference),
     action: List(RequestgroupAction),
   )
@@ -96025,13 +96084,13 @@ pub type RequestgroupActionCondition {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    kind: r4valuesets.Actionconditionkind,
+    kind: r4_valuesets.Actionconditionkind,
     expression: Option(Expression),
   )
 }
 
 pub fn requestgroup_action_condition_new(
-  kind kind: r4valuesets.Actionconditionkind,
+  kind kind: r4_valuesets.Actionconditionkind,
 ) -> RequestgroupActionCondition {
   RequestgroupActionCondition(
     expression: None,
@@ -96049,7 +96108,7 @@ pub type RequestgroupActionRelatedaction {
     extension: List(Extension),
     modifier_extension: List(Extension),
     action_id: String,
-    relationship: r4valuesets.Actionrelationshiptype,
+    relationship: r4_valuesets.Actionrelationshiptype,
     offset: Option(RequestgroupActionRelatedactionOffset),
   )
 }
@@ -96083,7 +96142,7 @@ pub fn requestgroup_action_relatedaction_offset_decoder() -> Decoder(
 }
 
 pub fn requestgroup_action_relatedaction_new(
-  relationship relationship: r4valuesets.Actionrelationshiptype,
+  relationship relationship: r4_valuesets.Actionrelationshiptype,
   action_id action_id: String,
 ) -> RequestgroupActionRelatedaction {
   RequestgroupActionRelatedaction(
@@ -96108,7 +96167,7 @@ pub fn requestgroup_action_relatedaction_to_json(
     id:,
   ) = requestgroup_action_relatedaction
   let fields = [
-    #("relationship", r4valuesets.actionrelationshiptype_to_json(relationship)),
+    #("relationship", r4_valuesets.actionrelationshiptype_to_json(relationship)),
     #("actionId", json.string(action_id)),
   ]
   let fields = case offset {
@@ -96152,7 +96211,7 @@ pub fn requestgroup_action_relatedaction_decoder() -> Decoder(
   )
   use relationship <- decode.field(
     "relationship",
-    r4valuesets.actionrelationshiptype_decoder(),
+    r4_valuesets.actionrelationshiptype_decoder(),
   )
   use action_id <- decode.field("actionId", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -96187,7 +96246,7 @@ pub fn requestgroup_action_condition_to_json(
     id:,
   ) = requestgroup_action_condition
   let fields = [
-    #("kind", r4valuesets.actionconditionkind_to_json(kind)),
+    #("kind", r4_valuesets.actionconditionkind_to_json(kind)),
   ]
   let fields = case expression {
     Some(v) -> [#("expression", expression_to_json(v)), ..fields]
@@ -96220,7 +96279,7 @@ pub fn requestgroup_action_condition_decoder() -> Decoder(
     None,
     decode.optional(expression_decoder()),
   )
-  use kind <- decode.field("kind", r4valuesets.actionconditionkind_decoder())
+  use kind <- decode.field("kind", r4_valuesets.actionconditionkind_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -96282,35 +96341,38 @@ pub fn requestgroup_action_to_json(
   }
   let fields = case cardinality_behavior {
     Some(v) -> [
-      #("cardinalityBehavior", r4valuesets.actioncardinalitybehavior_to_json(v)),
+      #(
+        "cardinalityBehavior",
+        r4_valuesets.actioncardinalitybehavior_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
   }
   let fields = case precheck_behavior {
     Some(v) -> [
-      #("precheckBehavior", r4valuesets.actionprecheckbehavior_to_json(v)),
+      #("precheckBehavior", r4_valuesets.actionprecheckbehavior_to_json(v)),
       ..fields
     ]
     None -> fields
   }
   let fields = case required_behavior {
     Some(v) -> [
-      #("requiredBehavior", r4valuesets.actionrequiredbehavior_to_json(v)),
+      #("requiredBehavior", r4_valuesets.actionrequiredbehavior_to_json(v)),
       ..fields
     ]
     None -> fields
   }
   let fields = case selection_behavior {
     Some(v) -> [
-      #("selectionBehavior", r4valuesets.actionselectionbehavior_to_json(v)),
+      #("selectionBehavior", r4_valuesets.actionselectionbehavior_to_json(v)),
       ..fields
     ]
     None -> fields
   }
   let fields = case grouping_behavior {
     Some(v) -> [
-      #("groupingBehavior", r4valuesets.actiongroupingbehavior_to_json(v)),
+      #("groupingBehavior", r4_valuesets.actiongroupingbehavior_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -96376,7 +96438,10 @@ pub fn requestgroup_action_to_json(
     _ -> [#("code", json.array(code, codeableconcept_to_json)), ..fields]
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case text_equivalent {
@@ -96428,27 +96493,27 @@ pub fn requestgroup_action_decoder() -> Decoder(RequestgroupAction) {
   use cardinality_behavior <- decode.optional_field(
     "cardinalityBehavior",
     None,
-    decode.optional(r4valuesets.actioncardinalitybehavior_decoder()),
+    decode.optional(r4_valuesets.actioncardinalitybehavior_decoder()),
   )
   use precheck_behavior <- decode.optional_field(
     "precheckBehavior",
     None,
-    decode.optional(r4valuesets.actionprecheckbehavior_decoder()),
+    decode.optional(r4_valuesets.actionprecheckbehavior_decoder()),
   )
   use required_behavior <- decode.optional_field(
     "requiredBehavior",
     None,
-    decode.optional(r4valuesets.actionrequiredbehavior_decoder()),
+    decode.optional(r4_valuesets.actionrequiredbehavior_decoder()),
   )
   use selection_behavior <- decode.optional_field(
     "selectionBehavior",
     None,
-    decode.optional(r4valuesets.actionselectionbehavior_decoder()),
+    decode.optional(r4_valuesets.actionselectionbehavior_decoder()),
   )
   use grouping_behavior <- decode.optional_field(
     "groupingBehavior",
     None,
-    decode.optional(r4valuesets.actiongroupingbehavior_decoder()),
+    decode.optional(r4_valuesets.actiongroupingbehavior_decoder()),
   )
   use type_ <- decode.optional_field(
     "type",
@@ -96486,7 +96551,7 @@ pub fn requestgroup_action_decoder() -> Decoder(RequestgroupAction) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
   use text_equivalent <- decode.optional_field(
     "textEquivalent",
@@ -96575,8 +96640,8 @@ pub fn requestgroup_to_json(requestgroup: Requestgroup) -> Json {
     id:,
   ) = requestgroup
   let fields = [
-    #("intent", r4valuesets.requestintent_to_json(intent)),
-    #("status", r4valuesets.requeststatus_to_json(status)),
+    #("intent", r4_valuesets.requestintent_to_json(intent)),
+    #("status", r4_valuesets.requeststatus_to_json(status)),
   ]
   let fields = case action {
     [] -> fields
@@ -96624,7 +96689,10 @@ pub fn requestgroup_to_json(requestgroup: Requestgroup) -> Json {
     None -> fields
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case group_identifier {
@@ -96749,10 +96817,10 @@ pub fn requestgroup_decoder() -> Decoder(Requestgroup) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
-  use intent <- decode.field("intent", r4valuesets.requestintent_decoder())
-  use status <- decode.field("status", r4valuesets.requeststatus_decoder())
+  use intent <- decode.field("intent", r4_valuesets.requestintent_decoder())
+  use status <- decode.field("status", r4_valuesets.requeststatus_decoder())
   use group_identifier <- decode.optional_field(
     "groupIdentifier",
     None,
@@ -96873,7 +96941,7 @@ pub type Researchdefinition {
     title: Option(String),
     short_title: Option(String),
     subtitle: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     subject: Option(ResearchdefinitionSubject),
     date: Option(String),
@@ -96937,7 +97005,7 @@ pub fn researchdefinition_subject_decoder() -> Decoder(
 
 pub fn researchdefinition_new(
   population population: Reference,
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Researchdefinition {
   Researchdefinition(
     outcome: None,
@@ -97034,7 +97102,7 @@ pub fn researchdefinition_to_json(
   ) = researchdefinition
   let fields = [
     #("population", reference_to_json(population)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case outcome {
     Some(v) -> [#("outcome", reference_to_json(v)), ..fields]
@@ -97351,7 +97419,7 @@ pub fn researchdefinition_decoder() -> Decoder(Researchdefinition) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use subtitle <- decode.optional_field(
     "subtitle",
     None,
@@ -97489,7 +97557,7 @@ pub type Researchelementdefinition {
     title: Option(String),
     short_title: Option(String),
     subtitle: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     subject: Option(ResearchelementdefinitionSubject),
     date: Option(String),
@@ -97512,8 +97580,8 @@ pub type Researchelementdefinition {
     endorser: List(Contactdetail),
     related_artifact: List(Relatedartifact),
     library: List(String),
-    type_: r4valuesets.Researchelementtype,
-    variable_type: Option(r4valuesets.Variabletype),
+    type_: r4_valuesets.Researchelementtype,
+    variable_type: Option(r4_valuesets.Variabletype),
     characteristic: List(ResearchelementdefinitionCharacteristic),
   )
 }
@@ -97552,8 +97620,8 @@ pub fn researchelementdefinition_subject_decoder() -> Decoder(
 }
 
 pub fn researchelementdefinition_new(
-  type_ type_: r4valuesets.Researchelementtype,
-  status status: r4valuesets.Publicationstatus,
+  type_ type_: r4_valuesets.Researchelementtype,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Researchelementdefinition {
   Researchelementdefinition(
     characteristic: [],
@@ -97615,13 +97683,13 @@ pub type ResearchelementdefinitionCharacteristic {
       ResearchelementdefinitionCharacteristicStudyeffective,
     ),
     study_effective_time_from_start: Option(Duration),
-    study_effective_group_measure: Option(r4valuesets.Groupmeasure),
+    study_effective_group_measure: Option(r4_valuesets.Groupmeasure),
     participant_effective_description: Option(String),
     participant_effective: Option(
       ResearchelementdefinitionCharacteristicParticipanteffective,
     ),
     participant_effective_time_from_start: Option(Duration),
-    participant_effective_group_measure: Option(r4valuesets.Groupmeasure),
+    participant_effective_group_measure: Option(r4_valuesets.Groupmeasure),
   )
 }
 
@@ -97861,7 +97929,10 @@ pub fn researchelementdefinition_characteristic_to_json(
   ]
   let fields = case participant_effective_group_measure {
     Some(v) -> [
-      #("participantEffectiveGroupMeasure", r4valuesets.groupmeasure_to_json(v)),
+      #(
+        "participantEffectiveGroupMeasure",
+        r4_valuesets.groupmeasure_to_json(v),
+      ),
       ..fields
     ]
     None -> fields
@@ -97899,7 +97970,7 @@ pub fn researchelementdefinition_characteristic_to_json(
   }
   let fields = case study_effective_group_measure {
     Some(v) -> [
-      #("studyEffectiveGroupMeasure", r4valuesets.groupmeasure_to_json(v)),
+      #("studyEffectiveGroupMeasure", r4_valuesets.groupmeasure_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -97972,7 +98043,7 @@ pub fn researchelementdefinition_characteristic_decoder() -> Decoder(
   use participant_effective_group_measure <- decode.optional_field(
     "participantEffectiveGroupMeasure",
     None,
-    decode.optional(r4valuesets.groupmeasure_decoder()),
+    decode.optional(r4_valuesets.groupmeasure_decoder()),
   )
   use participant_effective_time_from_start <- decode.optional_field(
     "participantEffectiveTimeFromStart",
@@ -97992,7 +98063,7 @@ pub fn researchelementdefinition_characteristic_decoder() -> Decoder(
   use study_effective_group_measure <- decode.optional_field(
     "studyEffectiveGroupMeasure",
     None,
-    decode.optional(r4valuesets.groupmeasure_decoder()),
+    decode.optional(r4_valuesets.groupmeasure_decoder()),
   )
   use study_effective_time_from_start <- decode.optional_field(
     "studyEffectiveTimeFromStart",
@@ -98104,8 +98175,8 @@ pub fn researchelementdefinition_to_json(
     id:,
   ) = researchelementdefinition
   let fields = [
-    #("type", r4valuesets.researchelementtype_to_json(type_)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("type", r4_valuesets.researchelementtype_to_json(type_)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case characteristic {
     [] -> fields
@@ -98122,7 +98193,7 @@ pub fn researchelementdefinition_to_json(
   }
   let fields = case variable_type {
     Some(v) -> [
-      #("variableType", r4valuesets.variabletype_to_json(v)),
+      #("variableType", r4_valuesets.variabletype_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -98318,9 +98389,9 @@ pub fn researchelementdefinition_decoder() -> Decoder(Researchelementdefinition)
   use variable_type <- decode.optional_field(
     "variableType",
     None,
-    decode.optional(r4valuesets.variabletype_decoder()),
+    decode.optional(r4_valuesets.variabletype_decoder()),
   )
-  use type_ <- decode.field("type", r4valuesets.researchelementtype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.researchelementtype_decoder())
   use library <- decode.optional_field(
     "library",
     [],
@@ -98429,7 +98500,7 @@ pub fn researchelementdefinition_decoder() -> Decoder(Researchelementdefinition)
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use subtitle <- decode.optional_field(
     "subtitle",
     None,
@@ -98566,7 +98637,7 @@ pub type Researchstudy {
     title: Option(String),
     protocol: List(Reference),
     part_of: List(Reference),
-    status: r4valuesets.Researchstudystatus,
+    status: r4_valuesets.Researchstudystatus,
     primary_purpose_type: Option(Codeableconcept),
     phase: Option(Codeableconcept),
     category: List(Codeableconcept),
@@ -98590,7 +98661,7 @@ pub type Researchstudy {
 }
 
 pub fn researchstudy_new(
-  status status: r4valuesets.Researchstudystatus,
+  status status: r4_valuesets.Researchstudystatus,
 ) -> Researchstudy {
   Researchstudy(
     objective: [],
@@ -98849,7 +98920,7 @@ pub fn researchstudy_to_json(researchstudy: Researchstudy) -> Json {
     id:,
   ) = researchstudy
   let fields = [
-    #("status", r4valuesets.researchstudystatus_to_json(status)),
+    #("status", r4_valuesets.researchstudystatus_to_json(status)),
   ]
   let fields = case objective {
     [] -> fields
@@ -99099,7 +99170,7 @@ pub fn researchstudy_decoder() -> Decoder(Researchstudy) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.researchstudystatus_decoder(),
+    r4_valuesets.researchstudystatus_decoder(),
   )
   use part_of <- decode.optional_field(
     "partOf",
@@ -99211,7 +99282,7 @@ pub type Researchsubject {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Researchsubjectstatus,
+    status: r4_valuesets.Researchsubjectstatus,
     period: Option(Period),
     study: Reference,
     individual: Reference,
@@ -99224,7 +99295,7 @@ pub type Researchsubject {
 pub fn researchsubject_new(
   individual individual: Reference,
   study study: Reference,
-  status status: r4valuesets.Researchsubjectstatus,
+  status status: r4_valuesets.Researchsubjectstatus,
 ) -> Researchsubject {
   Researchsubject(
     consent: None,
@@ -99268,7 +99339,7 @@ pub fn researchsubject_to_json(researchsubject: Researchsubject) -> Json {
   let fields = [
     #("individual", reference_to_json(individual)),
     #("study", reference_to_json(study)),
-    #("status", r4valuesets.researchsubjectstatus_to_json(status)),
+    #("status", r4_valuesets.researchsubjectstatus_to_json(status)),
   ]
   let fields = case consent {
     Some(v) -> [#("consent", reference_to_json(v)), ..fields]
@@ -99355,7 +99426,7 @@ pub fn researchsubject_decoder() -> Decoder(Researchsubject) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.researchsubjectstatus_decoder(),
+    r4_valuesets.researchsubjectstatus_decoder(),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -99441,7 +99512,7 @@ pub type Riskassessment {
     identifier: List(Identifier),
     based_on: Option(Reference),
     parent: Option(Reference),
-    status: r4valuesets.Observationstatus,
+    status: r4_valuesets.Observationstatus,
     method: Option(Codeableconcept),
     code: Option(Codeableconcept),
     subject: Reference,
@@ -99484,7 +99555,7 @@ pub fn riskassessment_occurrence_decoder() -> Decoder(RiskassessmentOccurrence) 
 
 pub fn riskassessment_new(
   subject subject: Reference,
-  status status: r4valuesets.Observationstatus,
+  status status: r4_valuesets.Observationstatus,
 ) -> Riskassessment {
   Riskassessment(
     note: [],
@@ -99759,7 +99830,7 @@ pub fn riskassessment_to_json(riskassessment: Riskassessment) -> Json {
   ) = riskassessment
   let fields = [
     #("subject", reference_to_json(subject)),
-    #("status", r4valuesets.observationstatus_to_json(status)),
+    #("status", r4_valuesets.observationstatus_to_json(status)),
   ]
   let fields = case note {
     [] -> fields
@@ -99940,7 +100011,7 @@ pub fn riskassessment_decoder() -> Decoder(Riskassessment) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.observationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.observationstatus_decoder())
   use parent <- decode.optional_field(
     "parent",
     None,
@@ -100043,7 +100114,7 @@ pub type Riskevidencesynthesis {
     version: Option(String),
     name: Option(String),
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     date: Option(String),
     publisher: Option(String),
     contact: List(Contactdetail),
@@ -100075,7 +100146,7 @@ pub type Riskevidencesynthesis {
 pub fn riskevidencesynthesis_new(
   outcome outcome: Reference,
   population population: Reference,
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Riskevidencesynthesis {
   Riskevidencesynthesis(
     certainty: [],
@@ -100773,7 +100844,7 @@ pub fn riskevidencesynthesis_to_json(
   let fields = [
     #("outcome", reference_to_json(outcome)),
     #("population", reference_to_json(population)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case certainty {
     [] -> fields
@@ -101072,7 +101143,7 @@ pub fn riskevidencesynthesis_decoder() -> Decoder(Riskevidencesynthesis) {
     None,
     decode.optional(decode.string),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -101447,7 +101518,7 @@ pub type Searchparameter {
     version: Option(String),
     name: String,
     derived_from: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -101457,26 +101528,26 @@ pub type Searchparameter {
     jurisdiction: List(Codeableconcept),
     purpose: Option(String),
     code: String,
-    base: List(r4valuesets.Resourcetypes),
-    type_: r4valuesets.Searchparamtype,
+    base: List(r4_valuesets.Resourcetypes),
+    type_: r4_valuesets.Searchparamtype,
     expression: Option(String),
     xpath: Option(String),
-    xpath_usage: Option(r4valuesets.Searchxpathusage),
-    target: List(r4valuesets.Resourcetypes),
+    xpath_usage: Option(r4_valuesets.Searchxpathusage),
+    target: List(r4_valuesets.Resourcetypes),
     multiple_or: Option(Bool),
     multiple_and: Option(Bool),
-    comparator: List(r4valuesets.Searchcomparator),
-    modifier: List(r4valuesets.Searchmodifiercode),
+    comparator: List(r4_valuesets.Searchcomparator),
+    modifier: List(r4_valuesets.Searchmodifiercode),
     chain: List(String),
     component: List(SearchparameterComponent),
   )
 }
 
 pub fn searchparameter_new(
-  type_ type_: r4valuesets.Searchparamtype,
+  type_ type_: r4_valuesets.Searchparamtype,
   code code: String,
   description description: String,
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
   name name: String,
   url url: String,
 ) -> Searchparameter {
@@ -101636,10 +101707,10 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
     id:,
   ) = searchparameter
   let fields = [
-    #("type", r4valuesets.searchparamtype_to_json(type_)),
+    #("type", r4_valuesets.searchparamtype_to_json(type_)),
     #("code", json.string(code)),
     #("description", json.string(description)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
     #("url", json.string(url)),
   ]
@@ -101659,7 +101730,7 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
     _ -> [
       #(
         "modifier",
-        json.array(modifier, r4valuesets.searchmodifiercode_to_json),
+        json.array(modifier, r4_valuesets.searchmodifiercode_to_json),
       ),
       ..fields
     ]
@@ -101669,7 +101740,7 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
     _ -> [
       #(
         "comparator",
-        json.array(comparator, r4valuesets.searchcomparator_to_json),
+        json.array(comparator, r4_valuesets.searchcomparator_to_json),
       ),
       ..fields
     ]
@@ -101685,13 +101756,13 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
   let fields = case target {
     [] -> fields
     _ -> [
-      #("target", json.array(target, r4valuesets.resourcetypes_to_json)),
+      #("target", json.array(target, r4_valuesets.resourcetypes_to_json)),
       ..fields
     ]
   }
   let fields = case xpath_usage {
     Some(v) -> [
-      #("xpathUsage", r4valuesets.searchxpathusage_to_json(v)),
+      #("xpathUsage", r4_valuesets.searchxpathusage_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -101707,7 +101778,7 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
   let fields = case base {
     [] -> fields
     _ -> [
-      #("base", json.array(base, r4valuesets.resourcetypes_to_json)),
+      #("base", json.array(base, r4_valuesets.resourcetypes_to_json)),
       ..fields
     ]
   }
@@ -101803,12 +101874,12 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
   use modifier <- decode.optional_field(
     "modifier",
     [],
-    decode.list(r4valuesets.searchmodifiercode_decoder()),
+    decode.list(r4_valuesets.searchmodifiercode_decoder()),
   )
   use comparator <- decode.optional_field(
     "comparator",
     [],
-    decode.list(r4valuesets.searchcomparator_decoder()),
+    decode.list(r4_valuesets.searchcomparator_decoder()),
   )
   use multiple_and <- decode.optional_field(
     "multipleAnd",
@@ -101823,12 +101894,12 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
   use target <- decode.optional_field(
     "target",
     [],
-    decode.list(r4valuesets.resourcetypes_decoder()),
+    decode.list(r4_valuesets.resourcetypes_decoder()),
   )
   use xpath_usage <- decode.optional_field(
     "xpathUsage",
     None,
-    decode.optional(r4valuesets.searchxpathusage_decoder()),
+    decode.optional(r4_valuesets.searchxpathusage_decoder()),
   )
   use xpath <- decode.optional_field(
     "xpath",
@@ -101840,11 +101911,11 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", r4valuesets.searchparamtype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.searchparamtype_decoder())
   use base <- decode.optional_field(
     "base",
     [],
-    decode.list(r4valuesets.resourcetypes_decoder()),
+    decode.list(r4_valuesets.resourcetypes_decoder()),
   )
   use code <- decode.field("code", decode.string)
   use purpose <- decode.optional_field(
@@ -101883,7 +101954,7 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use derived_from <- decode.optional_field(
     "derivedFrom",
     None,
@@ -101996,10 +102067,10 @@ pub type Servicerequest {
     based_on: List(Reference),
     replaces: List(Reference),
     requisition: Option(Identifier),
-    status: r4valuesets.Requeststatus,
-    intent: r4valuesets.Requestintent,
+    status: r4_valuesets.Requeststatus,
+    intent: r4_valuesets.Requestintent,
     category: List(Codeableconcept),
-    priority: Option(r4valuesets.Requestpriority),
+    priority: Option(r4_valuesets.Requestpriority),
     do_not_perform: Option(Bool),
     code: Option(Codeableconcept),
     order_detail: List(Codeableconcept),
@@ -102112,8 +102183,8 @@ pub fn servicerequest_asneeded_decoder() -> Decoder(ServicerequestAsneeded) {
 
 pub fn servicerequest_new(
   subject subject: Reference,
-  intent intent: r4valuesets.Requestintent,
-  status status: r4valuesets.Requeststatus,
+  intent intent: r4_valuesets.Requestintent,
+  status status: r4_valuesets.Requeststatus,
 ) -> Servicerequest {
   Servicerequest(
     relevant_history: [],
@@ -102206,8 +102277,8 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
   ) = servicerequest
   let fields = [
     #("subject", reference_to_json(subject)),
-    #("intent", r4valuesets.requestintent_to_json(intent)),
-    #("status", r4valuesets.requeststatus_to_json(status)),
+    #("intent", r4_valuesets.requestintent_to_json(intent)),
+    #("status", r4_valuesets.requeststatus_to_json(status)),
   ]
   let fields = case relevant_history {
     [] -> fields
@@ -102354,7 +102425,10 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
     None -> fields
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case category {
@@ -102546,15 +102620,15 @@ pub fn servicerequest_decoder() -> Decoder(Servicerequest) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
   use category <- decode.optional_field(
     "category",
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use intent <- decode.field("intent", r4valuesets.requestintent_decoder())
-  use status <- decode.field("status", r4valuesets.requeststatus_decoder())
+  use intent <- decode.field("intent", r4_valuesets.requestintent_decoder())
+  use status <- decode.field("status", r4_valuesets.requeststatus_decoder())
   use requisition <- decode.optional_field(
     "requisition",
     None,
@@ -102692,7 +102766,7 @@ pub type Slot {
     specialty: List(Codeableconcept),
     appointment_type: Option(Codeableconcept),
     schedule: Reference,
-    status: r4valuesets.Slotstatus,
+    status: r4_valuesets.Slotstatus,
     start: String,
     end: String,
     overbooked: Option(Bool),
@@ -102703,7 +102777,7 @@ pub type Slot {
 pub fn slot_new(
   end end: String,
   start start: String,
-  status status: r4valuesets.Slotstatus,
+  status status: r4_valuesets.Slotstatus,
   schedule schedule: Reference,
 ) -> Slot {
   Slot(
@@ -102754,7 +102828,7 @@ pub fn slot_to_json(slot: Slot) -> Json {
   let fields = [
     #("end", json.string(end)),
     #("start", json.string(start)),
-    #("status", r4valuesets.slotstatus_to_json(status)),
+    #("status", r4_valuesets.slotstatus_to_json(status)),
     #("schedule", reference_to_json(schedule)),
   ]
   let fields = case comment {
@@ -102850,7 +102924,7 @@ pub fn slot_decoder() -> Decoder(Slot) {
   )
   use end <- decode.field("end", decode.string)
   use start <- decode.field("start", decode.string)
-  use status <- decode.field("status", r4valuesets.slotstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.slotstatus_decoder())
   use schedule <- decode.field("schedule", reference_decoder())
   use appointment_type <- decode.optional_field(
     "appointmentType",
@@ -102955,7 +103029,7 @@ pub type Specimen {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     accession_identifier: Option(Identifier),
-    status: Option(r4valuesets.Specimenstatus),
+    status: Option(r4_valuesets.Specimenstatus),
     type_: Option(Codeableconcept),
     subject: Option(Reference),
     received_time: Option(String),
@@ -103630,7 +103704,7 @@ pub fn specimen_to_json(specimen: Specimen) -> Json {
     None -> fields
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.specimenstatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.specimenstatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case accession_identifier {
@@ -103735,7 +103809,7 @@ pub fn specimen_decoder() -> Decoder(Specimen) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.specimenstatus_decoder()),
+    decode.optional(r4_valuesets.specimenstatus_decoder()),
   )
   use accession_identifier <- decode.optional_field(
     "accessionIdentifier",
@@ -103861,7 +103935,7 @@ pub type SpecimendefinitionTypetested {
     modifier_extension: List(Extension),
     is_derived: Option(Bool),
     type_: Option(Codeableconcept),
-    preference: r4valuesets.Specimencontainedpreference,
+    preference: r4_valuesets.Specimencontainedpreference,
     container: Option(SpecimendefinitionTypetestedContainer),
     requirement: Option(String),
     retention_time: Option(Duration),
@@ -103871,7 +103945,7 @@ pub type SpecimendefinitionTypetested {
 }
 
 pub fn specimendefinition_typetested_new(
-  preference preference: r4valuesets.Specimencontainedpreference,
+  preference preference: r4_valuesets.Specimencontainedpreference,
 ) -> SpecimendefinitionTypetested {
   SpecimendefinitionTypetested(
     handling: [],
@@ -104372,7 +104446,10 @@ pub fn specimendefinition_typetested_to_json(
     id:,
   ) = specimendefinition_typetested
   let fields = [
-    #("preference", r4valuesets.specimencontainedpreference_to_json(preference)),
+    #(
+      "preference",
+      r4_valuesets.specimencontainedpreference_to_json(preference),
+    ),
   ]
   let fields = case handling {
     [] -> fields
@@ -104466,7 +104543,7 @@ pub fn specimendefinition_typetested_decoder() -> Decoder(
   )
   use preference <- decode.field(
     "preference",
-    r4valuesets.specimencontainedpreference_decoder(),
+    r4_valuesets.specimencontainedpreference_decoder(),
   )
   use type_ <- decode.optional_field(
     "type",
@@ -104710,7 +104787,7 @@ pub type Structuredefinition {
     version: Option(String),
     name: String,
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -104721,15 +104798,15 @@ pub type Structuredefinition {
     purpose: Option(String),
     copyright: Option(String),
     keyword: List(Coding),
-    fhir_version: Option(r4valuesets.Fhirversion),
+    fhir_version: Option(r4_valuesets.Fhirversion),
     mapping: List(StructuredefinitionMapping),
-    kind: r4valuesets.Structuredefinitionkind,
+    kind: r4_valuesets.Structuredefinitionkind,
     abstract: Bool,
     context: List(StructuredefinitionContext),
     context_invariant: List(String),
     type_: String,
     base_definition: Option(String),
-    derivation: Option(r4valuesets.Typederivationrule),
+    derivation: Option(r4_valuesets.Typederivationrule),
     snapshot: Option(StructuredefinitionSnapshot),
     differential: Option(StructuredefinitionDifferential),
   )
@@ -104738,8 +104815,8 @@ pub type Structuredefinition {
 pub fn structuredefinition_new(
   type_ type_: String,
   abstract abstract: Bool,
-  kind kind: r4valuesets.Structuredefinitionkind,
-  status status: r4valuesets.Publicationstatus,
+  kind kind: r4_valuesets.Structuredefinitionkind,
+  status status: r4_valuesets.Publicationstatus,
   name name: String,
   url url: String,
 ) -> Structuredefinition {
@@ -104815,14 +104892,14 @@ pub type StructuredefinitionContext {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Extensioncontexttype,
+    type_: r4_valuesets.Extensioncontexttype,
     expression: String,
   )
 }
 
 pub fn structuredefinition_context_new(
   expression expression: String,
-  type_ type_: r4valuesets.Extensioncontexttype,
+  type_ type_: r4_valuesets.Extensioncontexttype,
 ) -> StructuredefinitionContext {
   StructuredefinitionContext(
     expression:,
@@ -105009,7 +105086,7 @@ pub fn structuredefinition_context_to_json(
   ) = structuredefinition_context
   let fields = [
     #("expression", json.string(expression)),
-    #("type", r4valuesets.extensioncontexttype_to_json(type_)),
+    #("type", r4_valuesets.extensioncontexttype_to_json(type_)),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -105034,7 +105111,7 @@ pub fn structuredefinition_context_decoder() -> Decoder(
 ) {
   use <- decode.recursive
   use expression <- decode.field("expression", decode.string)
-  use type_ <- decode.field("type", r4valuesets.extensioncontexttype_decoder())
+  use type_ <- decode.field("type", r4_valuesets.extensioncontexttype_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -105181,8 +105258,8 @@ pub fn structuredefinition_to_json(
   let fields = [
     #("type", json.string(type_)),
     #("abstract", json.bool(abstract)),
-    #("kind", r4valuesets.structuredefinitionkind_to_json(kind)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("kind", r4_valuesets.structuredefinitionkind_to_json(kind)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
     #("url", json.string(url)),
   ]
@@ -105202,7 +105279,7 @@ pub fn structuredefinition_to_json(
   }
   let fields = case derivation {
     Some(v) -> [
-      #("derivation", r4valuesets.typederivationrule_to_json(v)),
+      #("derivation", r4_valuesets.typederivationrule_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -105233,7 +105310,7 @@ pub fn structuredefinition_to_json(
     ]
   }
   let fields = case fhir_version {
-    Some(v) -> [#("fhirVersion", r4valuesets.fhirversion_to_json(v)), ..fields]
+    Some(v) -> [#("fhirVersion", r4_valuesets.fhirversion_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case keyword {
@@ -105348,7 +105425,7 @@ pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
   use derivation <- decode.optional_field(
     "derivation",
     None,
-    decode.optional(r4valuesets.typederivationrule_decoder()),
+    decode.optional(r4_valuesets.typederivationrule_decoder()),
   )
   use base_definition <- decode.optional_field(
     "baseDefinition",
@@ -105369,7 +105446,7 @@ pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
   use abstract <- decode.field("abstract", decode.bool)
   use kind <- decode.field(
     "kind",
-    r4valuesets.structuredefinitionkind_decoder(),
+    r4_valuesets.structuredefinitionkind_decoder(),
   )
   use mapping <- decode.optional_field(
     "mapping",
@@ -105379,7 +105456,7 @@ pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
   use fhir_version <- decode.optional_field(
     "fhirVersion",
     None,
-    decode.optional(r4valuesets.fhirversion_decoder()),
+    decode.optional(r4_valuesets.fhirversion_decoder()),
   )
   use keyword <- decode.optional_field(
     "keyword",
@@ -105431,7 +105508,7 @@ pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -105549,7 +105626,7 @@ pub type Structuremap {
     version: Option(String),
     name: String,
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -105566,7 +105643,7 @@ pub type Structuremap {
 }
 
 pub fn structuremap_new(
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
   name name: String,
   url url: String,
 ) -> Structuremap {
@@ -105607,14 +105684,14 @@ pub type StructuremapStructure {
     extension: List(Extension),
     modifier_extension: List(Extension),
     url: String,
-    mode: r4valuesets.Mapmodelmode,
+    mode: r4_valuesets.Mapmodelmode,
     alias: Option(String),
     documentation: Option(String),
   )
 }
 
 pub fn structuremap_structure_new(
-  mode mode: r4valuesets.Mapmodelmode,
+  mode mode: r4_valuesets.Mapmodelmode,
   url url: String,
 ) -> StructuremapStructure {
   StructuremapStructure(
@@ -105636,7 +105713,7 @@ pub type StructuremapGroup {
     modifier_extension: List(Extension),
     name: String,
     extends: Option(String),
-    type_mode: r4valuesets.Mapgrouptypemode,
+    type_mode: r4_valuesets.Mapgrouptypemode,
     documentation: Option(String),
     input: List(StructuremapGroupInput),
     rule: List(StructuremapGroupRule),
@@ -105644,7 +105721,7 @@ pub type StructuremapGroup {
 }
 
 pub fn structuremap_group_new(
-  type_mode type_mode: r4valuesets.Mapgrouptypemode,
+  type_mode type_mode: r4_valuesets.Mapgrouptypemode,
   name name: String,
 ) -> StructuremapGroup {
   StructuremapGroup(
@@ -105668,13 +105745,13 @@ pub type StructuremapGroupInput {
     modifier_extension: List(Extension),
     name: String,
     type_: Option(String),
-    mode: r4valuesets.Mapinputmode,
+    mode: r4_valuesets.Mapinputmode,
     documentation: Option(String),
   )
 }
 
 pub fn structuremap_group_input_new(
-  mode mode: r4valuesets.Mapinputmode,
+  mode mode: r4_valuesets.Mapinputmode,
   name name: String,
 ) -> StructuremapGroupInput {
   StructuremapGroupInput(
@@ -105729,7 +105806,7 @@ pub type StructuremapGroupRuleSource {
     type_: Option(String),
     default_value: Option(StructuremapGroupRuleSourceDefaultvalue),
     element: Option(String),
-    list_mode: Option(r4valuesets.Mapsourcelistmode),
+    list_mode: Option(r4_valuesets.Mapsourcelistmode),
     variable: Option(String),
     condition: Option(String),
     check: Option(String),
@@ -106073,12 +106150,12 @@ pub type StructuremapGroupRuleTarget {
     extension: List(Extension),
     modifier_extension: List(Extension),
     context: Option(String),
-    context_type: Option(r4valuesets.Mapcontexttype),
+    context_type: Option(r4_valuesets.Mapcontexttype),
     element: Option(String),
     variable: Option(String),
-    list_mode: List(r4valuesets.Maptargetlistmode),
+    list_mode: List(r4_valuesets.Maptargetlistmode),
     list_rule_id: Option(String),
-    transform: Option(r4valuesets.Maptransform),
+    transform: Option(r4_valuesets.Maptransform),
     parameter: List(StructuremapGroupRuleTargetParameter),
   )
 }
@@ -106332,7 +106409,7 @@ pub fn structuremap_group_rule_target_to_json(
     ]
   }
   let fields = case transform {
-    Some(v) -> [#("transform", r4valuesets.maptransform_to_json(v)), ..fields]
+    Some(v) -> [#("transform", r4_valuesets.maptransform_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case list_rule_id {
@@ -106344,7 +106421,7 @@ pub fn structuremap_group_rule_target_to_json(
     _ -> [
       #(
         "listMode",
-        json.array(list_mode, r4valuesets.maptargetlistmode_to_json),
+        json.array(list_mode, r4_valuesets.maptargetlistmode_to_json),
       ),
       ..fields
     ]
@@ -106359,7 +106436,7 @@ pub fn structuremap_group_rule_target_to_json(
   }
   let fields = case context_type {
     Some(v) -> [
-      #("contextType", r4valuesets.mapcontexttype_to_json(v)),
+      #("contextType", r4_valuesets.mapcontexttype_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -106398,7 +106475,7 @@ pub fn structuremap_group_rule_target_decoder() -> Decoder(
   use transform <- decode.optional_field(
     "transform",
     None,
-    decode.optional(r4valuesets.maptransform_decoder()),
+    decode.optional(r4_valuesets.maptransform_decoder()),
   )
   use list_rule_id <- decode.optional_field(
     "listRuleId",
@@ -106408,7 +106485,7 @@ pub fn structuremap_group_rule_target_decoder() -> Decoder(
   use list_mode <- decode.optional_field(
     "listMode",
     [],
-    decode.list(r4valuesets.maptargetlistmode_decoder()),
+    decode.list(r4_valuesets.maptargetlistmode_decoder()),
   )
   use variable <- decode.optional_field(
     "variable",
@@ -106423,7 +106500,7 @@ pub fn structuremap_group_rule_target_decoder() -> Decoder(
   use context_type <- decode.optional_field(
     "contextType",
     None,
-    decode.optional(r4valuesets.mapcontexttype_decoder()),
+    decode.optional(r4_valuesets.mapcontexttype_decoder()),
   )
   use context <- decode.optional_field(
     "context",
@@ -106496,7 +106573,7 @@ pub fn structuremap_group_rule_source_to_json(
   }
   let fields = case list_mode {
     Some(v) -> [
-      #("listMode", r4valuesets.mapsourcelistmode_to_json(v)),
+      #("listMode", r4_valuesets.mapsourcelistmode_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -106633,7 +106710,7 @@ pub fn structuremap_group_rule_source_decoder() -> Decoder(
   use list_mode <- decode.optional_field(
     "listMode",
     None,
-    decode.optional(r4valuesets.mapsourcelistmode_decoder()),
+    decode.optional(r4_valuesets.mapsourcelistmode_decoder()),
   )
   use element <- decode.optional_field(
     "element",
@@ -106815,7 +106892,7 @@ pub fn structuremap_group_input_to_json(
     id:,
   ) = structuremap_group_input
   let fields = [
-    #("mode", r4valuesets.mapinputmode_to_json(mode)),
+    #("mode", r4_valuesets.mapinputmode_to_json(mode)),
     #("name", json.string(name)),
   ]
   let fields = case documentation {
@@ -106851,7 +106928,7 @@ pub fn structuremap_group_input_decoder() -> Decoder(StructuremapGroupInput) {
     None,
     decode.optional(decode.string),
   )
-  use mode <- decode.field("mode", r4valuesets.mapinputmode_decoder())
+  use mode <- decode.field("mode", r4_valuesets.mapinputmode_decoder())
   use type_ <- decode.optional_field(
     "type",
     None,
@@ -106893,7 +106970,7 @@ pub fn structuremap_group_to_json(structuremap_group: StructuremapGroup) -> Json
     id:,
   ) = structuremap_group
   let fields = [
-    #("typeMode", r4valuesets.mapgrouptypemode_to_json(type_mode)),
+    #("typeMode", r4_valuesets.mapgrouptypemode_to_json(type_mode)),
     #("name", json.string(name)),
   ]
   let fields = case rule {
@@ -106955,7 +107032,7 @@ pub fn structuremap_group_decoder() -> Decoder(StructuremapGroup) {
   )
   use type_mode <- decode.field(
     "typeMode",
-    r4valuesets.mapgrouptypemode_decoder(),
+    r4_valuesets.mapgrouptypemode_decoder(),
   )
   use extends <- decode.optional_field(
     "extends",
@@ -107000,7 +107077,7 @@ pub fn structuremap_structure_to_json(
     id:,
   ) = structuremap_structure
   let fields = [
-    #("mode", r4valuesets.mapmodelmode_to_json(mode)),
+    #("mode", r4_valuesets.mapmodelmode_to_json(mode)),
     #("url", json.string(url)),
   ]
   let fields = case documentation {
@@ -107041,7 +107118,7 @@ pub fn structuremap_structure_decoder() -> Decoder(StructuremapStructure) {
     None,
     decode.optional(decode.string),
   )
-  use mode <- decode.field("mode", r4valuesets.mapmodelmode_decoder())
+  use mode <- decode.field("mode", r4_valuesets.mapmodelmode_decoder())
   use url <- decode.field("url", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -107095,7 +107172,7 @@ pub fn structuremap_to_json(structuremap: Structuremap) -> Json {
     id:,
   ) = structuremap
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
     #("url", json.string(url)),
   ]
@@ -107265,7 +107342,7 @@ pub fn structuremap_decoder() -> Decoder(Structuremap) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -107366,7 +107443,7 @@ pub type Subscription {
     contained: List(Resource),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    status: r4valuesets.Subscriptionstatus,
+    status: r4_valuesets.Subscriptionstatus,
     contact: List(Contactpoint),
     end: Option(String),
     reason: String,
@@ -107380,7 +107457,7 @@ pub fn subscription_new(
   channel channel: SubscriptionChannel,
   criteria criteria: String,
   reason reason: String,
-  status status: r4valuesets.Subscriptionstatus,
+  status status: r4_valuesets.Subscriptionstatus,
 ) -> Subscription {
   Subscription(
     channel:,
@@ -107407,7 +107484,7 @@ pub type SubscriptionChannel {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Subscriptionchanneltype,
+    type_: r4_valuesets.Subscriptionchanneltype,
     endpoint: Option(String),
     payload: Option(String),
     header: List(String),
@@ -107415,7 +107492,7 @@ pub type SubscriptionChannel {
 }
 
 pub fn subscription_channel_new(
-  type_ type_: r4valuesets.Subscriptionchanneltype,
+  type_ type_: r4_valuesets.Subscriptionchanneltype,
 ) -> SubscriptionChannel {
   SubscriptionChannel(
     header: [],
@@ -107441,7 +107518,7 @@ pub fn subscription_channel_to_json(
     id:,
   ) = subscription_channel
   let fields = [
-    #("type", r4valuesets.subscriptionchanneltype_to_json(type_)),
+    #("type", r4_valuesets.subscriptionchanneltype_to_json(type_)),
   ]
   let fields = case header {
     [] -> fields
@@ -107488,7 +107565,7 @@ pub fn subscription_channel_decoder() -> Decoder(SubscriptionChannel) {
   )
   use type_ <- decode.field(
     "type",
-    r4valuesets.subscriptionchanneltype_decoder(),
+    r4_valuesets.subscriptionchanneltype_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -107534,7 +107611,7 @@ pub fn subscription_to_json(subscription: Subscription) -> Json {
     #("channel", subscription_channel_to_json(channel)),
     #("criteria", json.string(criteria)),
     #("reason", json.string(reason)),
-    #("status", r4valuesets.subscriptionstatus_to_json(status)),
+    #("status", r4_valuesets.subscriptionstatus_to_json(status)),
   ]
   let fields = case error {
     Some(v) -> [#("error", json.string(v)), ..fields]
@@ -107603,7 +107680,10 @@ pub fn subscription_decoder() -> Decoder(Subscription) {
     [],
     decode.list(contactpoint_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.subscriptionstatus_decoder())
+  use status <- decode.field(
+    "status",
+    r4_valuesets.subscriptionstatus_decoder(),
+  )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -107680,7 +107760,7 @@ pub type Substance {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: Option(r4valuesets.Substancestatus),
+    status: Option(r4_valuesets.Substancestatus),
     category: List(Codeableconcept),
     code: Codeableconcept,
     description: Option(String),
@@ -107975,7 +108055,7 @@ pub fn substance_to_json(substance: Substance) -> Json {
     ]
   }
   let fields = case status {
-    Some(v) -> [#("status", r4valuesets.substancestatus_to_json(v)), ..fields]
+    Some(v) -> [#("status", r4_valuesets.substancestatus_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case identifier {
@@ -108047,7 +108127,7 @@ pub fn substance_decoder() -> Decoder(Substance) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.substancestatus_decoder()),
+    decode.optional(r4_valuesets.substancestatus_decoder()),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -113945,7 +114025,7 @@ pub type Supplydelivery {
     identifier: List(Identifier),
     based_on: List(Reference),
     part_of: List(Reference),
-    status: Option(r4valuesets.Supplydeliverystatus),
+    status: Option(r4_valuesets.Supplydeliverystatus),
     patient: Option(Reference),
     type_: Option(Codeableconcept),
     supplied_item: Option(SupplydeliverySupplieditem),
@@ -114208,7 +114288,7 @@ pub fn supplydelivery_to_json(supplydelivery: Supplydelivery) -> Json {
   }
   let fields = case status {
     Some(v) -> [
-      #("status", r4valuesets.supplydeliverystatus_to_json(v)),
+      #("status", r4_valuesets.supplydeliverystatus_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -114302,7 +114382,7 @@ pub fn supplydelivery_decoder() -> Decoder(Supplydelivery) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.supplydeliverystatus_decoder()),
+    decode.optional(r4_valuesets.supplydeliverystatus_decoder()),
   )
   use part_of <- decode.optional_field(
     "partOf",
@@ -114396,9 +114476,9 @@ pub type Supplyrequest {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: Option(r4valuesets.Supplyrequeststatus),
+    status: Option(r4_valuesets.Supplyrequeststatus),
     category: Option(Codeableconcept),
-    priority: Option(r4valuesets.Requestpriority),
+    priority: Option(r4_valuesets.Requestpriority),
     item: SupplyrequestItem,
     quantity: Quantity,
     parameter: List(SupplyrequestParameter),
@@ -114727,7 +114807,10 @@ pub fn supplyrequest_to_json(supplyrequest: Supplyrequest) -> Json {
     ]
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case category {
@@ -114736,7 +114819,7 @@ pub fn supplyrequest_to_json(supplyrequest: Supplyrequest) -> Json {
   }
   let fields = case status {
     Some(v) -> [
-      #("status", r4valuesets.supplyrequeststatus_to_json(v)),
+      #("status", r4_valuesets.supplyrequeststatus_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -114834,7 +114917,7 @@ pub fn supplyrequest_decoder() -> Decoder(Supplyrequest) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
   use category <- decode.optional_field(
     "category",
@@ -114844,7 +114927,7 @@ pub fn supplyrequest_decoder() -> Decoder(Supplyrequest) {
   use status <- decode.optional_field(
     "status",
     None,
-    decode.optional(r4valuesets.supplyrequeststatus_decoder()),
+    decode.optional(r4_valuesets.supplyrequeststatus_decoder()),
   )
   use identifier <- decode.optional_field(
     "identifier",
@@ -114937,11 +115020,11 @@ pub type Task {
     based_on: List(Reference),
     group_identifier: Option(Identifier),
     part_of: List(Reference),
-    status: r4valuesets.Taskstatus,
+    status: r4_valuesets.Taskstatus,
     status_reason: Option(Codeableconcept),
     business_status: Option(Codeableconcept),
-    intent: r4valuesets.Taskintent,
-    priority: Option(r4valuesets.Requestpriority),
+    intent: r4_valuesets.Taskintent,
+    priority: Option(r4_valuesets.Requestpriority),
     code: Option(Codeableconcept),
     description: Option(String),
     focus: Option(Reference),
@@ -114966,8 +115049,8 @@ pub type Task {
 }
 
 pub fn task_new(
-  intent intent: r4valuesets.Taskintent,
-  status status: r4valuesets.Taskstatus,
+  intent intent: r4_valuesets.Taskintent,
+  status status: r4_valuesets.Taskstatus,
 ) -> Task {
   Task(
     output: [],
@@ -115764,8 +115847,8 @@ pub fn task_to_json(task: Task) -> Json {
     id:,
   ) = task
   let fields = [
-    #("intent", r4valuesets.taskintent_to_json(intent)),
-    #("status", r4valuesets.taskstatus_to_json(status)),
+    #("intent", r4_valuesets.taskintent_to_json(intent)),
+    #("status", r4_valuesets.taskstatus_to_json(status)),
   ]
   let fields = case output {
     [] -> fields
@@ -115854,7 +115937,10 @@ pub fn task_to_json(task: Task) -> Json {
     None -> fields
   }
   let fields = case priority {
-    Some(v) -> [#("priority", r4valuesets.requestpriority_to_json(v)), ..fields]
+    Some(v) -> [
+      #("priority", r4_valuesets.requestpriority_to_json(v)),
+      ..fields
+    ]
     None -> fields
   }
   let fields = case business_status {
@@ -116033,9 +116119,9 @@ pub fn task_decoder() -> Decoder(Task) {
   use priority <- decode.optional_field(
     "priority",
     None,
-    decode.optional(r4valuesets.requestpriority_decoder()),
+    decode.optional(r4_valuesets.requestpriority_decoder()),
   )
-  use intent <- decode.field("intent", r4valuesets.taskintent_decoder())
+  use intent <- decode.field("intent", r4_valuesets.taskintent_decoder())
   use business_status <- decode.optional_field(
     "businessStatus",
     None,
@@ -116046,7 +116132,7 @@ pub fn task_decoder() -> Decoder(Task) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status <- decode.field("status", r4valuesets.taskstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.taskstatus_decoder())
   use part_of <- decode.optional_field(
     "partOf",
     [],
@@ -116177,7 +116263,7 @@ pub type Terminologycapabilities {
     version: Option(String),
     name: Option(String),
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: String,
     publisher: Option(String),
@@ -116187,13 +116273,13 @@ pub type Terminologycapabilities {
     jurisdiction: List(Codeableconcept),
     purpose: Option(String),
     copyright: Option(String),
-    kind: r4valuesets.Capabilitystatementkind,
+    kind: r4_valuesets.Capabilitystatementkind,
     software: Option(TerminologycapabilitiesSoftware),
     implementation: Option(TerminologycapabilitiesImplementation),
     locked_date: Option(Bool),
     code_system: List(TerminologycapabilitiesCodesystem),
     expansion: Option(TerminologycapabilitiesExpansion),
-    code_search: Option(r4valuesets.Codesearchsupport),
+    code_search: Option(r4_valuesets.Codesearchsupport),
     validate_code: Option(TerminologycapabilitiesValidatecode),
     translation: Option(TerminologycapabilitiesTranslation),
     closure: Option(TerminologycapabilitiesClosure),
@@ -116201,9 +116287,9 @@ pub type Terminologycapabilities {
 }
 
 pub fn terminologycapabilities_new(
-  kind kind: r4valuesets.Capabilitystatementkind,
+  kind kind: r4_valuesets.Capabilitystatementkind,
   date date: String,
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
 ) -> Terminologycapabilities {
   Terminologycapabilities(
     closure: None,
@@ -117252,9 +117338,9 @@ pub fn terminologycapabilities_to_json(
     id:,
   ) = terminologycapabilities
   let fields = [
-    #("kind", r4valuesets.capabilitystatementkind_to_json(kind)),
+    #("kind", r4_valuesets.capabilitystatementkind_to_json(kind)),
     #("date", json.string(date)),
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case closure {
     Some(v) -> [
@@ -117279,7 +117365,7 @@ pub fn terminologycapabilities_to_json(
   }
   let fields = case code_search {
     Some(v) -> [
-      #("codeSearch", r4valuesets.codesearchsupport_to_json(v)),
+      #("codeSearch", r4_valuesets.codesearchsupport_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -117435,7 +117521,7 @@ pub fn terminologycapabilities_decoder() -> Decoder(Terminologycapabilities) {
   use code_search <- decode.optional_field(
     "codeSearch",
     None,
-    decode.optional(r4valuesets.codesearchsupport_decoder()),
+    decode.optional(r4_valuesets.codesearchsupport_decoder()),
   )
   use expansion <- decode.optional_field(
     "expansion",
@@ -117464,7 +117550,7 @@ pub fn terminologycapabilities_decoder() -> Decoder(Terminologycapabilities) {
   )
   use kind <- decode.field(
     "kind",
-    r4valuesets.capabilitystatementkind_decoder(),
+    r4_valuesets.capabilitystatementkind_decoder(),
   )
   use copyright <- decode.optional_field(
     "copyright",
@@ -117507,7 +117593,7 @@ pub fn terminologycapabilities_decoder() -> Decoder(Terminologycapabilities) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -117618,9 +117704,9 @@ pub type Testreport {
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
     name: Option(String),
-    status: r4valuesets.Reportstatuscodes,
+    status: r4_valuesets.Reportstatuscodes,
     test_script: Reference,
-    result: r4valuesets.Reportresultcodes,
+    result: r4_valuesets.Reportresultcodes,
     score: Option(Float),
     tester: Option(String),
     issued: Option(String),
@@ -117632,9 +117718,9 @@ pub type Testreport {
 }
 
 pub fn testreport_new(
-  result result: r4valuesets.Reportresultcodes,
+  result result: r4_valuesets.Reportresultcodes,
   test_script test_script: Reference,
-  status status: r4valuesets.Reportstatuscodes,
+  status status: r4_valuesets.Reportstatuscodes,
 ) -> Testreport {
   Testreport(
     teardown: None,
@@ -117666,7 +117752,7 @@ pub type TestreportParticipant {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    type_: r4valuesets.Reportparticipanttype,
+    type_: r4_valuesets.Reportparticipanttype,
     uri: String,
     display: Option(String),
   )
@@ -117674,7 +117760,7 @@ pub type TestreportParticipant {
 
 pub fn testreport_participant_new(
   uri uri: String,
-  type_ type_: r4valuesets.Reportparticipanttype,
+  type_ type_: r4_valuesets.Reportparticipanttype,
 ) -> TestreportParticipant {
   TestreportParticipant(
     display: None,
@@ -117727,14 +117813,14 @@ pub type TestreportSetupActionOperation {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    result: r4valuesets.Reportactionresultcodes,
+    result: r4_valuesets.Reportactionresultcodes,
     message: Option(String),
     detail: Option(String),
   )
 }
 
 pub fn testreport_setup_action_operation_new(
-  result result: r4valuesets.Reportactionresultcodes,
+  result result: r4_valuesets.Reportactionresultcodes,
 ) -> TestreportSetupActionOperation {
   TestreportSetupActionOperation(
     detail: None,
@@ -117752,14 +117838,14 @@ pub type TestreportSetupActionAssert {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    result: r4valuesets.Reportactionresultcodes,
+    result: r4_valuesets.Reportactionresultcodes,
     message: Option(String),
     detail: Option(String),
   )
 }
 
 pub fn testreport_setup_action_assert_new(
-  result result: r4valuesets.Reportactionresultcodes,
+  result result: r4_valuesets.Reportactionresultcodes,
 ) -> TestreportSetupActionAssert {
   TestreportSetupActionAssert(
     detail: None,
@@ -118131,7 +118217,7 @@ pub fn testreport_setup_action_assert_to_json(
     id:,
   ) = testreport_setup_action_assert
   let fields = [
-    #("result", r4valuesets.reportactionresultcodes_to_json(result)),
+    #("result", r4_valuesets.reportactionresultcodes_to_json(result)),
   ]
   let fields = case detail {
     Some(v) -> [#("detail", json.string(v)), ..fields]
@@ -118175,7 +118261,7 @@ pub fn testreport_setup_action_assert_decoder() -> Decoder(
   )
   use result <- decode.field(
     "result",
-    r4valuesets.reportactionresultcodes_decoder(),
+    r4_valuesets.reportactionresultcodes_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -118210,7 +118296,7 @@ pub fn testreport_setup_action_operation_to_json(
     id:,
   ) = testreport_setup_action_operation
   let fields = [
-    #("result", r4valuesets.reportactionresultcodes_to_json(result)),
+    #("result", r4_valuesets.reportactionresultcodes_to_json(result)),
   ]
   let fields = case detail {
     Some(v) -> [#("detail", json.string(v)), ..fields]
@@ -118254,7 +118340,7 @@ pub fn testreport_setup_action_operation_decoder() -> Decoder(
   )
   use result <- decode.field(
     "result",
-    r4valuesets.reportactionresultcodes_decoder(),
+    r4_valuesets.reportactionresultcodes_decoder(),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -118415,7 +118501,7 @@ pub fn testreport_participant_to_json(
   ) = testreport_participant
   let fields = [
     #("uri", json.string(uri)),
-    #("type", r4valuesets.reportparticipanttype_to_json(type_)),
+    #("type", r4_valuesets.reportparticipanttype_to_json(type_)),
   ]
   let fields = case display {
     Some(v) -> [#("display", json.string(v)), ..fields]
@@ -118447,7 +118533,10 @@ pub fn testreport_participant_decoder() -> Decoder(TestreportParticipant) {
     decode.optional(decode.string),
   )
   use uri <- decode.field("uri", decode.string)
-  use type_ <- decode.field("type", r4valuesets.reportparticipanttype_decoder())
+  use type_ <- decode.field(
+    "type",
+    r4_valuesets.reportparticipanttype_decoder(),
+  )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -118493,9 +118582,9 @@ pub fn testreport_to_json(testreport: Testreport) -> Json {
     id:,
   ) = testreport
   let fields = [
-    #("result", r4valuesets.reportresultcodes_to_json(result)),
+    #("result", r4_valuesets.reportresultcodes_to_json(result)),
     #("testScript", reference_to_json(test_script)),
-    #("status", r4valuesets.reportstatuscodes_to_json(status)),
+    #("status", r4_valuesets.reportstatuscodes_to_json(status)),
   ]
   let fields = case teardown {
     Some(v) -> [#("teardown", testreport_teardown_to_json(v)), ..fields]
@@ -118612,9 +118701,9 @@ pub fn testreport_decoder() -> Decoder(Testreport) {
     None,
     decode.optional(decode_number()),
   )
-  use result <- decode.field("result", r4valuesets.reportresultcodes_decoder())
+  use result <- decode.field("result", r4_valuesets.reportresultcodes_decoder())
   use test_script <- decode.field("testScript", reference_decoder())
-  use status <- decode.field("status", r4valuesets.reportstatuscodes_decoder())
+  use status <- decode.field("status", r4_valuesets.reportstatuscodes_decoder())
   use name <- decode.optional_field(
     "name",
     None,
@@ -118710,7 +118799,7 @@ pub type Testscript {
     version: Option(String),
     name: String,
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -118733,7 +118822,7 @@ pub type Testscript {
 }
 
 pub fn testscript_new(
-  status status: r4valuesets.Publicationstatus,
+  status status: r4_valuesets.Publicationstatus,
   name name: String,
   url url: String,
 ) -> Testscript {
@@ -118999,14 +119088,14 @@ pub type TestscriptSetupActionOperation {
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Coding),
-    resource: Option(r4valuesets.Definedtypes),
+    resource: Option(r4_valuesets.Definedtypes),
     label: Option(String),
     description: Option(String),
     accept: Option(String),
     content_type: Option(String),
     destination: Option(Int),
     encode_request_url: Bool,
-    method: Option(r4valuesets.Httpoperations),
+    method: Option(r4_valuesets.Httpoperations),
     origin: Option(Int),
     params: Option(String),
     request_header: List(TestscriptSetupActionOperationRequestheader),
@@ -119077,7 +119166,7 @@ pub type TestscriptSetupActionAssert {
     modifier_extension: List(Extension),
     label: Option(String),
     description: Option(String),
-    direction: Option(r4valuesets.Assertdirectioncodes),
+    direction: Option(r4_valuesets.Assertdirectioncodes),
     compare_to_source_id: Option(String),
     compare_to_source_expression: Option(String),
     compare_to_source_path: Option(String),
@@ -119086,12 +119175,12 @@ pub type TestscriptSetupActionAssert {
     header_field: Option(String),
     minimum_id: Option(String),
     navigation_links: Option(Bool),
-    operator: Option(r4valuesets.Assertoperatorcodes),
+    operator: Option(r4_valuesets.Assertoperatorcodes),
     path: Option(String),
-    request_method: Option(r4valuesets.Httpoperations),
+    request_method: Option(r4_valuesets.Httpoperations),
     request_url: Option(String),
-    resource: Option(r4valuesets.Definedtypes),
-    response: Option(r4valuesets.Assertresponsecodetypes),
+    resource: Option(r4_valuesets.Definedtypes),
+    response: Option(r4_valuesets.Assertresponsecodetypes),
     response_code: Option(String),
     source_id: Option(String),
     validate_profile_id: Option(String),
@@ -119531,13 +119620,13 @@ pub fn testscript_setup_action_assert_to_json(
   }
   let fields = case response {
     Some(v) -> [
-      #("response", r4valuesets.assertresponsecodetypes_to_json(v)),
+      #("response", r4_valuesets.assertresponsecodetypes_to_json(v)),
       ..fields
     ]
     None -> fields
   }
   let fields = case resource {
-    Some(v) -> [#("resource", r4valuesets.definedtypes_to_json(v)), ..fields]
+    Some(v) -> [#("resource", r4_valuesets.definedtypes_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case request_url {
@@ -119546,7 +119635,7 @@ pub fn testscript_setup_action_assert_to_json(
   }
   let fields = case request_method {
     Some(v) -> [
-      #("requestMethod", r4valuesets.httpoperations_to_json(v)),
+      #("requestMethod", r4_valuesets.httpoperations_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -119557,7 +119646,7 @@ pub fn testscript_setup_action_assert_to_json(
   }
   let fields = case operator {
     Some(v) -> [
-      #("operator", r4valuesets.assertoperatorcodes_to_json(v)),
+      #("operator", r4_valuesets.assertoperatorcodes_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -119596,7 +119685,7 @@ pub fn testscript_setup_action_assert_to_json(
   }
   let fields = case direction {
     Some(v) -> [
-      #("direction", r4valuesets.assertdirectioncodes_to_json(v)),
+      #("direction", r4_valuesets.assertdirectioncodes_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -119655,12 +119744,12 @@ pub fn testscript_setup_action_assert_decoder() -> Decoder(
   use response <- decode.optional_field(
     "response",
     None,
-    decode.optional(r4valuesets.assertresponsecodetypes_decoder()),
+    decode.optional(r4_valuesets.assertresponsecodetypes_decoder()),
   )
   use resource <- decode.optional_field(
     "resource",
     None,
-    decode.optional(r4valuesets.definedtypes_decoder()),
+    decode.optional(r4_valuesets.definedtypes_decoder()),
   )
   use request_url <- decode.optional_field(
     "requestURL",
@@ -119670,7 +119759,7 @@ pub fn testscript_setup_action_assert_decoder() -> Decoder(
   use request_method <- decode.optional_field(
     "requestMethod",
     None,
-    decode.optional(r4valuesets.httpoperations_decoder()),
+    decode.optional(r4_valuesets.httpoperations_decoder()),
   )
   use path <- decode.optional_field(
     "path",
@@ -119680,7 +119769,7 @@ pub fn testscript_setup_action_assert_decoder() -> Decoder(
   use operator <- decode.optional_field(
     "operator",
     None,
-    decode.optional(r4valuesets.assertoperatorcodes_decoder()),
+    decode.optional(r4_valuesets.assertoperatorcodes_decoder()),
   )
   use navigation_links <- decode.optional_field(
     "navigationLinks",
@@ -119725,7 +119814,7 @@ pub fn testscript_setup_action_assert_decoder() -> Decoder(
   use direction <- decode.optional_field(
     "direction",
     None,
-    decode.optional(r4valuesets.assertdirectioncodes_decoder()),
+    decode.optional(r4_valuesets.assertdirectioncodes_decoder()),
   )
   use description <- decode.optional_field(
     "description",
@@ -119905,7 +119994,7 @@ pub fn testscript_setup_action_operation_to_json(
     None -> fields
   }
   let fields = case method {
-    Some(v) -> [#("method", r4valuesets.httpoperations_to_json(v)), ..fields]
+    Some(v) -> [#("method", r4_valuesets.httpoperations_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case destination {
@@ -119929,7 +120018,7 @@ pub fn testscript_setup_action_operation_to_json(
     None -> fields
   }
   let fields = case resource {
-    Some(v) -> [#("resource", r4valuesets.definedtypes_to_json(v)), ..fields]
+    Some(v) -> [#("resource", r4_valuesets.definedtypes_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case type_ {
@@ -119997,7 +120086,7 @@ pub fn testscript_setup_action_operation_decoder() -> Decoder(
   use method <- decode.optional_field(
     "method",
     None,
-    decode.optional(r4valuesets.httpoperations_decoder()),
+    decode.optional(r4_valuesets.httpoperations_decoder()),
   )
   use encode_request_url <- decode.field("encodeRequestUrl", decode.bool)
   use destination <- decode.optional_field(
@@ -120028,7 +120117,7 @@ pub fn testscript_setup_action_operation_decoder() -> Decoder(
   use resource <- decode.optional_field(
     "resource",
     None,
-    decode.optional(r4valuesets.definedtypes_decoder()),
+    decode.optional(r4_valuesets.definedtypes_decoder()),
   )
   use type_ <- decode.optional_field(
     "type",
@@ -120769,7 +120858,7 @@ pub fn testscript_to_json(testscript: Testscript) -> Json {
     id:,
   ) = testscript
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
     #("url", json.string(url)),
   ]
@@ -121003,7 +121092,7 @@ pub fn testscript_decoder() -> Decoder(Testscript) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -121115,7 +121204,7 @@ pub type Valueset {
     version: Option(String),
     name: Option(String),
     title: Option(String),
-    status: r4valuesets.Publicationstatus,
+    status: r4_valuesets.Publicationstatus,
     experimental: Option(Bool),
     date: Option(String),
     publisher: Option(String),
@@ -121131,7 +121220,7 @@ pub type Valueset {
   )
 }
 
-pub fn valueset_new(status status: r4valuesets.Publicationstatus) -> Valueset {
+pub fn valueset_new(status status: r4_valuesets.Publicationstatus) -> Valueset {
   Valueset(
     expansion: None,
     compose: None,
@@ -121271,14 +121360,14 @@ pub type ValuesetComposeIncludeFilter {
     extension: List(Extension),
     modifier_extension: List(Extension),
     property: String,
-    op: r4valuesets.Filteroperator,
+    op: r4_valuesets.Filteroperator,
     value: String,
   )
 }
 
 pub fn valueset_compose_include_filter_new(
   value value: String,
-  op op: r4valuesets.Filteroperator,
+  op op: r4_valuesets.Filteroperator,
   property property: String,
 ) -> ValuesetComposeIncludeFilter {
   ValuesetComposeIncludeFilter(
@@ -121774,7 +121863,7 @@ pub fn valueset_compose_include_filter_to_json(
   ) = valueset_compose_include_filter
   let fields = [
     #("value", json.string(value)),
-    #("op", r4valuesets.filteroperator_to_json(op)),
+    #("op", r4_valuesets.filteroperator_to_json(op)),
     #("property", json.string(property)),
   ]
   let fields = case modifier_extension {
@@ -121800,7 +121889,7 @@ pub fn valueset_compose_include_filter_decoder() -> Decoder(
 ) {
   use <- decode.recursive
   use value <- decode.field("value", decode.string)
-  use op <- decode.field("op", r4valuesets.filteroperator_decoder())
+  use op <- decode.field("op", r4_valuesets.filteroperator_decoder())
   use property <- decode.field("property", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -122220,7 +122309,7 @@ pub fn valueset_to_json(valueset: Valueset) -> Json {
     id:,
   ) = valueset
   let fields = [
-    #("status", r4valuesets.publicationstatus_to_json(status)),
+    #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case expansion {
     Some(v) -> [#("expansion", valueset_expansion_to_json(v)), ..fields]
@@ -122397,7 +122486,7 @@ pub fn valueset_decoder() -> Decoder(Valueset) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", r4valuesets.publicationstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.publicationstatus_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -122505,7 +122594,7 @@ pub type Verificationresult {
     target: List(Reference),
     target_location: List(String),
     need: Option(Codeableconcept),
-    status: r4valuesets.Verificationresultstatus,
+    status: r4_valuesets.Verificationresultstatus,
     status_date: Option(String),
     validation_type: Option(Codeableconcept),
     validation_process: List(Codeableconcept),
@@ -122520,7 +122609,7 @@ pub type Verificationresult {
 }
 
 pub fn verificationresult_new(
-  status status: r4valuesets.Verificationresultstatus,
+  status status: r4_valuesets.Verificationresultstatus,
 ) -> Verificationresult {
   Verificationresult(
     validator: [],
@@ -123016,7 +123105,7 @@ pub fn verificationresult_to_json(
     id:,
   ) = verificationresult
   let fields = [
-    #("status", r4valuesets.verificationresultstatus_to_json(status)),
+    #("status", r4_valuesets.verificationresultstatus_to_json(status)),
   ]
   let fields = case validator {
     [] -> fields
@@ -123187,7 +123276,7 @@ pub fn verificationresult_decoder() -> Decoder(Verificationresult) {
   )
   use status <- decode.field(
     "status",
-    r4valuesets.verificationresultstatus_decoder(),
+    r4_valuesets.verificationresultstatus_decoder(),
   )
   use need <- decode.optional_field(
     "need",
@@ -123284,7 +123373,7 @@ pub type Visionprescription {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
-    status: r4valuesets.Fmstatus,
+    status: r4_valuesets.Fmstatus,
     created: String,
     patient: Reference,
     encounter: Option(Reference),
@@ -123299,7 +123388,7 @@ pub fn visionprescription_new(
   date_written date_written: String,
   patient patient: Reference,
   created created: String,
-  status status: r4valuesets.Fmstatus,
+  status status: r4_valuesets.Fmstatus,
 ) -> Visionprescription {
   Visionprescription(
     lens_specification: [],
@@ -123328,7 +123417,7 @@ pub type VisionprescriptionLensspecification {
     extension: List(Extension),
     modifier_extension: List(Extension),
     product: Codeableconcept,
-    eye: r4valuesets.Visioneyecodes,
+    eye: r4_valuesets.Visioneyecodes,
     sphere: Option(Float),
     cylinder: Option(Float),
     axis: Option(Int),
@@ -123345,7 +123434,7 @@ pub type VisionprescriptionLensspecification {
 }
 
 pub fn visionprescription_lensspecification_new(
-  eye eye: r4valuesets.Visioneyecodes,
+  eye eye: r4_valuesets.Visioneyecodes,
   product product: Codeableconcept,
 ) -> VisionprescriptionLensspecification {
   VisionprescriptionLensspecification(
@@ -123376,12 +123465,12 @@ pub type VisionprescriptionLensspecificationPrism {
     extension: List(Extension),
     modifier_extension: List(Extension),
     amount: Float,
-    base: r4valuesets.Visionbasecodes,
+    base: r4_valuesets.Visionbasecodes,
   )
 }
 
 pub fn visionprescription_lensspecification_prism_new(
-  base base: r4valuesets.Visionbasecodes,
+  base base: r4_valuesets.Visionbasecodes,
   amount amount: Float,
 ) -> VisionprescriptionLensspecificationPrism {
   VisionprescriptionLensspecificationPrism(
@@ -123404,7 +123493,7 @@ pub fn visionprescription_lensspecification_prism_to_json(
     id:,
   ) = visionprescription_lensspecification_prism
   let fields = [
-    #("base", r4valuesets.visionbasecodes_to_json(base)),
+    #("base", r4_valuesets.visionbasecodes_to_json(base)),
     #("amount", json.float(amount)),
   ]
   let fields = case modifier_extension {
@@ -123429,7 +123518,7 @@ pub fn visionprescription_lensspecification_prism_decoder() -> Decoder(
   VisionprescriptionLensspecificationPrism,
 ) {
   use <- decode.recursive
-  use base <- decode.field("base", r4valuesets.visionbasecodes_decoder())
+  use base <- decode.field("base", r4_valuesets.visionbasecodes_decoder())
   use amount <- decode.field("amount", decode_number())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -123474,7 +123563,7 @@ pub fn visionprescription_lensspecification_to_json(
     id:,
   ) = visionprescription_lensspecification
   let fields = [
-    #("eye", r4valuesets.visioneyecodes_to_json(eye)),
+    #("eye", r4_valuesets.visioneyecodes_to_json(eye)),
     #("product", codeableconcept_to_json(product)),
   ]
   let fields = case note {
@@ -123609,7 +123698,7 @@ pub fn visionprescription_lensspecification_decoder() -> Decoder(
     None,
     decode.optional(decode_number()),
   )
-  use eye <- decode.field("eye", r4valuesets.visioneyecodes_decoder())
+  use eye <- decode.field("eye", r4_valuesets.visioneyecodes_decoder())
   use product <- decode.field("product", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -123669,7 +123758,7 @@ pub fn visionprescription_to_json(
     #("dateWritten", json.string(date_written)),
     #("patient", reference_to_json(patient)),
     #("created", json.string(created)),
-    #("status", r4valuesets.fmstatus_to_json(status)),
+    #("status", r4_valuesets.fmstatus_to_json(status)),
   ]
   let fields = case lens_specification {
     [] -> fields
@@ -123747,7 +123836,7 @@ pub fn visionprescription_decoder() -> Decoder(Visionprescription) {
   )
   use patient <- decode.field("patient", reference_decoder())
   use created <- decode.field("created", decode.string)
-  use status <- decode.field("status", r4valuesets.fmstatus_decoder())
+  use status <- decode.field("status", r4_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     [],
