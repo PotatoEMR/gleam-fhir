@@ -1,0 +1,87 @@
+import fhir/FHIRVERSION
+import fhir/FHIRVERSION_sansio
+import gleam/dynamic/decode.{type Decoder}
+import gleam/http/request.{type Request}
+import gleam/httpc
+import gleam/json.{type Json}
+import gleam/option.{type Option}
+
+pub type FhirClient =
+  r4_sansio.FhirClient
+
+pub fn fhirclient_new(baseurl: String) -> FhirClient {
+  r4_sansio.fhirclient_new(baseurl)
+}
+
+pub type ReqError {
+  ReqErrOperationcome(r4.Operationoutcome)
+  ReqErrDecode(json.DecodeError)
+  ReqErrHttp(httpc.HttpError)
+  ReqErrNoId
+}
+
+fn any_create(
+  resource: Json,
+  res_type: String,
+  resource_dec: Decoder(r),
+  client: FhirClient,
+) -> Result(r, ReqError) {
+  let req = r4_sansio.any_create_req(resource, res_type, client)
+  sendreq_parseresource(req, resource_dec)
+}
+
+fn any_read(
+  id: String,
+  client: FhirClient,
+  res_type: String,
+  resource_dec: Decoder(a),
+) -> Result(a, ReqError) {
+  let req = r4_sansio.any_read_req(id, res_type, client)
+  sendreq_parseresource(req, resource_dec)
+}
+
+fn any_update(
+  id: Option(String),
+  resource: Json,
+  res_type: String,
+  res_dec: Decoder(r),
+  client: FhirClient,
+) -> Result(r, ReqError) {
+  let req = r4_sansio.any_update_req(id, resource, res_type, client)
+  case req {
+    Ok(req) -> sendreq_parseresource(req, res_dec)
+    Error(r4_sansio.ErrNoId) -> Error(ReqErrNoId)
+    Error(_) ->
+      panic as "should never get any errors besides NoId before making request"
+  }
+}
+
+fn any_delete(
+  id: Option(String),
+  res_type: String,
+  client: FhirClient,
+) -> Result(r4.Operationoutcome, ReqError) {
+  let req = r4_sansio.any_delete_req(id, res_type, client)
+  case req {
+    Ok(req) -> sendreq_parseresource(req, r4.operationoutcome_decoder())
+    Error(r4_sansio.ErrNoId) -> Error(ReqErrNoId)
+    Error(_) ->
+      panic as "should never get any errors besides NoId before making request"
+  }
+}
+
+fn sendreq_parseresource(
+  req: Request(String),
+  res_dec: Decoder(r),
+) -> Result(r, ReqError) {
+  case httpc.send(req) {
+    Error(err) -> Error(ReqErrHttp(err))
+    Ok(resp) ->
+      case r4_sansio.any_resp(resp, res_dec) {
+        Ok(resource) -> Ok(resource)
+        Error(r4_sansio.ErrOperationcome(oo)) -> Error(ReqErrOperationcome(oo))
+        Error(r4_sansio.ErrDecode(dec_err)) -> Error(ReqErrDecode(dec_err))
+        Error(r4_sansio.ErrNoId) -> Error(ReqErrNoId)
+      }
+  }
+}

@@ -38,7 +38,7 @@ fn resource_decoder() -> decode.Decoder(Resource) {
   decode.success(Resource(name:, kind:))
 }
 
-pub fn gen_sansio(spec_file spec_file: String, fv fhir_version: String) {
+pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
   // you could use generated bundle decoder here
@@ -61,46 +61,109 @@ pub fn gen_sansio(spec_file spec_file: String, fv fhir_version: String) {
         _, _ -> False
       }
     })
+
   let res_specific_fns =
-    list.map(entries, fn(entry) {
-      let name = entry.resource.name
-      let #(name_lower, name_capital) = case name {
-        "List" -> #("listfhir", "Listfhir")
-        _ -> #(string.lowercase(name), string.capitalise(name))
-      }
-
+    gen_specific_fns(
+      entries,
       "
-            pub fn NAMELOWER_create_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Request(String) {
-              any_create_req(FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
-            }
+          pub fn NAMELOWER_create_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Request(String) {
+            any_create_req(FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
+          }
 
-            pub fn NAMELOWER_read_req(id: String, client: FhirClient) -> Request(String) {
-              any_read_req(id, \"NAMEUPPER\", client)
-            }
+          pub fn NAMELOWER_read_req(id: String, client: FhirClient) -> Request(String) {
+            any_read_req(id, \"NAMEUPPER\", client)
+          }
 
-            pub fn NAMELOWER_update_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Result(Request(String), Err) {
-              any_update_req(resource.id, FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
-            }
+          pub fn NAMELOWER_update_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Result(Request(String), Err) {
+            any_update_req(resource.id, FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
+          }
 
-            pub fn NAMELOWER_delete_req(id: Option(String), client: FhirClient) -> Result(Request(String), Err) {
-              any_delete_req(id, \"NAMEUPPER\", client)
-            }
+          pub fn NAMELOWER_delete_req(id: Option(String), client: FhirClient) -> Result(Request(String), Err) {
+            any_delete_req(id, \"NAMEUPPER\", client)
+          }
 
-            pub fn NAMELOWER_resp(resp: Response(String)) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
-              any_resp(resp, FHIRVERSION.NAMELOWER_decoder())
-            }
-            "
-      |> string.replace("NAMELOWER", name_lower)
-      |> string.replace("NAMEUPPER", name)
-      |> string.replace("NAMECAPITAL", name_capital)
-    })
-  // most of the client stuff is generic so you can just write it in codegen_client.txt
-  // only the wrappers are resource specific, to be type safe rather than strings, and need to be generated
-  let assert Ok(codegen_client_txt) =
+          pub fn NAMELOWER_resp(resp: Response(String)) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
+            any_resp(resp, FHIRVERSION.NAMELOWER_decoder())
+          }
+          ",
+    )
+  let assert Ok(file_text) =
     "src"
     |> filepath.join("internal")
-    |> filepath.join("codegen_client.txt")
+    |> filepath.join("codegen_client_sansio.txt")
     |> simplifile.read
-  string.concat([codegen_client_txt, ..res_specific_fns])
-  |> string.replace("FHIRVERSION", fhir_version)
+  let sansio =
+    string.concat([file_text, ..res_specific_fns])
+    |> string.replace("FHIRVERSION", fhir_version)
+
+  let res_specific_fns =
+    gen_specific_fns(
+      entries,
+      "
+            pub fn NAMELOWER_create(
+              resource: FHIRVERSION.NAMECAPITAL,
+              client: FhirClient,
+            ) -> Result(FHIRVERSION.NAMECAPITAL, ReqError) {
+              any_create(
+                FHIRVERSION.NAMELOWER_to_json(resource),
+                \"NAMEUPPER\",
+                FHIRVERSION.NAMELOWER_decoder(),
+                client,
+              )
+            }
+            
+            pub fn NAMELOWER_read(
+              id: String,
+              client: FhirClient,
+            ) -> Result(FHIRVERSION.NAMECAPITAL, ReqError) {
+              any_read(id, client, \"NAMEUPPER\", FHIRVERSION.NAMELOWER_decoder())
+            }
+            
+            pub fn NAMELOWER_update(
+              resource: FHIRVERSION.NAMECAPITAL,
+              client: FhirClient,
+            ) -> Result(FHIRVERSION.NAMECAPITAL, ReqError) {
+              any_update(
+                resource.id,
+                FHIRVERSION.NAMELOWER_to_json(resource),
+                \"NAMEUPPER\",
+                FHIRVERSION.NAMELOWER_decoder(),
+                client,
+              )
+            }
+  
+            pub fn NAMELOWER_delete(
+              resource: FHIRVERSION.NAMECAPITAL,
+              client: FhirClient,
+            ) -> Result(FHIRVERSION.Operationoutcome, ReqError) {
+              any_delete(resource.id, \"NAMEUPPER\", client)
+            }
+            ",
+    )
+  let assert Ok(file_text) =
+    "src"
+    |> filepath.join("internal")
+    |> filepath.join("codegen_client_httpc.txt")
+    |> simplifile.read
+  let httpc_layer =
+    string.concat([file_text, ..res_specific_fns])
+    |> string.replace("FHIRVERSION", fhir_version)
+
+  #(sansio, httpc_layer)
+}
+
+// most of the client stuff is generic so you can just write it in codegen_client.txt
+// only the wrappers are resource specific, to be type safe rather than strings, and need to be generated
+fn gen_specific_fns(entries: List(Entry), template: String) -> List(String) {
+  list.map(entries, fn(entry) {
+    let name = entry.resource.name
+    let #(name_lower, name_capital) = case name {
+      "List" -> #("listfhir", "Listfhir")
+      _ -> #(string.lowercase(name), string.capitalise(name))
+    }
+    template
+    |> string.replace("NAMELOWER", name_lower)
+    |> string.replace("NAMEUPPER", name)
+    |> string.replace("NAMECAPITAL", name_capital)
+  })
 }
