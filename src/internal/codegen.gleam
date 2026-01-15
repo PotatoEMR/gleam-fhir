@@ -345,8 +345,12 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
 
-  let f_sansio = gen_into_dir |> filepath.join(fhir_version <> "_sansio")
-  let sansio = codegen_client.gen_sansio(fhir_version)
+  let f_sansio = gen_into_dir |> filepath.join(fhir_version <> "_sansio.gleam")
+  let sansio =
+    codegen_client.gen_sansio(
+      spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
+      fv: fhir_version,
+    )
   let assert Ok(_) = simplifile.write(to: f_sansio, contents: sansio)
   io.println("generated " <> f_sansio)
 }

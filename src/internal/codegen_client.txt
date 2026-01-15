@@ -1,0 +1,115 @@
+import fhir/FHIRVERSION
+import gleam/dynamic/decode
+import gleam/http
+import gleam/http/request.{type Request}
+import gleam/http/response.{type Response}
+import gleam/json.{type Json}
+import gleam/option.{type Option, Some, None}
+import gleam/string
+import gleam/uri
+
+
+pub type FhirClient {
+  FhirClient(baseurl: uri.Uri)
+}
+
+//todo some tests to make sure no reasonable base url will panic
+pub fn fhirclient_new(baseurl: String) {
+  let assert Ok(b) = uri.parse(baseurl)
+  FhirClient(b)
+}
+
+pub type Err {
+    //could not make a delete or update request because resource has no id
+  ErrNoId
+  //could not decode resource json
+  ErrDecode(json.DecodeError)
+  //got operationoutcome error from fhir server
+  ErrOperationcome(FHIRVERSION.Operationoutcome)
+}
+
+pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient) {
+  let assert Ok(req) =
+    request.to(string.join([client.baseurl |> uri.to_string, res_type], "/"))
+  req
+  |> request.set_header("Accept", "application/fhir+json")
+  |> request.set_header("Content-Type", "application/fhir+json")
+  |> request.set_header("Prefer", "return=representation")
+  |> request.set_body(resource_json |> json.to_string)
+  |> request.set_method(http.Post)
+}
+
+pub fn any_read_req(id: String, res_type: String, client: FhirClient) {
+  let assert Ok(req) =
+    request.to(string.join([client.baseurl |> uri.to_string, res_type, id], "/"))
+  req
+  |> request.set_header("Accept", "application/fhir+json")
+  |> request.set_header("Prefer", "return=representation")
+}
+
+pub fn any_update_req(
+  id: Option(String),
+  resource_json: Json,
+  res_type: String,
+  client: FhirClient,
+) -> Result(Request(String), Err) {
+  case id {
+    None -> Error(ErrNoId)
+    Some(id) -> {
+      let assert Ok(req) =
+        request.to(string.join(
+          [client.baseurl |> uri.to_string, res_type, id],
+          "/",
+        ))
+      Ok(
+        req
+        |> request.set_header("Accept", "application/fhir+json")
+        |> request.set_header("Content-Type", "application/fhir+json")
+        |> request.set_header("Prefer", "return=representation")
+        |> request.set_body(resource_json |> json.to_string)
+        |> request.set_method(http.Put),
+      )
+    }
+  }
+}
+
+pub fn any_delete_req(
+  id: Option(String),
+  res_type: String,
+  client: FhirClient,
+) -> Result(Request(String), Err) {
+  case id {
+    None -> Error(ErrNoId)
+    Some(id) -> {
+      let assert Ok(req) =
+        request.to(string.join(
+          [client.baseurl |> uri.to_string, res_type, id],
+          "/",
+        ))
+      Ok(
+        req
+        |> request.set_header("Accept", "application/fhir+json")
+        |> request.set_header("Prefer", "return=representation")
+        |> request.set_method(http.Delete),
+      )
+    }
+  }
+}
+
+//decodes a resource (with type based on given decoder) or operationoutcome
+pub fn any_resp(
+  resp: Response(String),
+  resource_dec: decode.Decoder(a),
+) {
+  let decoded_resource =
+    resp.body
+    |> json.parse(case resp.status >= 300 {
+      False -> resource_dec |> decode.map(fn(x) { Ok(x) })
+      True -> FHIRVERSION.operationoutcome_decoder() |> decode.map(fn(x) { Error(x) })
+    })
+  case decoded_resource {
+    Ok(Ok(resource)) -> Ok(resource)
+    Ok(Error(op_outcome)) -> Error(ErrOperationcome(op_outcome))
+    Error(dec_err) -> Error(ErrDecode(dec_err))
+  }
+}
