@@ -7,7 +7,7 @@ import gleam/json.{type Json}
 import gleam/option.{type Option, Some, None}
 import gleam/string
 import gleam/uri
-
+import gleam/list
 
 pub type FhirClient {
   FhirClient(baseurl: uri.Uri)
@@ -44,7 +44,6 @@ pub fn any_read_req(id: String, res_type: String, client: FhirClient) {
     request.to(string.join([client.baseurl |> uri.to_string, res_type, id], "/"))
   req
   |> request.set_header("Accept", "application/fhir+json")
-  |> request.set_header("Prefer", "return=representation")
 }
 
 pub fn any_update_req(
@@ -89,7 +88,6 @@ pub fn any_delete_req(
       Ok(
         req
         |> request.set_header("Accept", "application/fhir+json")
-        |> request.set_header("Prefer", "return=representation")
         |> request.set_method(http.Delete),
       )
     }

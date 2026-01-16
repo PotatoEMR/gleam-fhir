@@ -102,7 +102,6 @@ fn entry_decoder() -> decode.Decoder(Entry) {
 
 type Resource {
   Resource(
-    rest: List(Rest),
     snapshot: Option(Snapshot),
     resource_type: String,
     name: String,
@@ -113,7 +112,6 @@ type Resource {
 }
 
 fn resource_decoder() -> decode.Decoder(Resource) {
-  use rest <- decode.optional_field("rest", [], decode.list(rest_decoder()))
   use snapshot <- decode.optional_field(
     "snapshot",
     None,
@@ -134,7 +132,6 @@ fn resource_decoder() -> decode.Decoder(Resource) {
   )
 
   decode.success(Resource(
-    rest:,
     snapshot:,
     resource_type:,
     name:,
@@ -142,62 +139,6 @@ fn resource_decoder() -> decode.Decoder(Resource) {
     kind:,
     base_definition:,
   ))
-}
-
-type Rest {
-  Rest(resource: List(RestResource))
-}
-
-fn rest_decoder() -> decode.Decoder(Rest) {
-  use resource <- decode.optional_field(
-    "resource",
-    [],
-    decode.list(rest_resource_decoder()),
-  )
-  decode.success(Rest(resource:))
-}
-
-type RestResource {
-  RestResource(
-    type_: String,
-    search_include: List(String),
-    search_rev_include: List(String),
-    search_param: List(SearchParam),
-  )
-}
-
-fn rest_resource_decoder() -> decode.Decoder(RestResource) {
-  use type_ <- decode.field("type", decode.string)
-  use search_include <- decode.optional_field(
-    "searchInclude",
-    [],
-    decode.list(decode.string),
-  )
-  use search_rev_include <- decode.optional_field(
-    "searchRevInclude",
-    [],
-    decode.list(decode.string),
-  )
-  use search_param <- decode.optional_field(
-    "searchParam",
-    [],
-    decode.list(search_param_decoder()),
-  )
-  decode.success(RestResource(
-    type_:,
-    search_include:,
-    search_rev_include:,
-    search_param:,
-  ))
-}
-
-type SearchParam {
-  SearchParam(name: String)
-}
-
-fn search_param_decoder() -> decode.Decoder(SearchParam) {
-  use name <- decode.field("name", decode.string)
-  decode.success(SearchParam(name:))
 }
 
 type Snapshot {
