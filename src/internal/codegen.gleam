@@ -1,6 +1,6 @@
 import argv
 import filepath
-import gleam/dict.{type Dict}
+import gleam/dict
 import gleam/dynamic/decode
 import gleam/http/request
 import gleam/httpc
@@ -1077,10 +1077,11 @@ fn string_to_type(
                         True -> "String"
                         //idk whats going on here, probably i dont understand valueset composition
                         False -> {
-                          simplifile.append(
-                            to: gen_vsfile,
-                            contents: url <> "\n",
-                          )
+                          let assert Ok(Nil) =
+                            simplifile.append(
+                              to: gen_vsfile,
+                              contents: url <> "\n",
+                            )
                           fhir_version
                           <> "_valuesets."
                           <> concept_name_from_url(Some(url))

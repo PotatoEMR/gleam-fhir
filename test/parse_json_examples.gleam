@@ -2,7 +2,8 @@ import fhir/r4
 import fhir/r4b
 import fhir/r5
 import filepath
-import gleam/dynamic/decode
+
+//import gleam/dynamic/decode
 import gleam/json
 import gleam/list
 import simplifile
@@ -21,15 +22,15 @@ pub fn json_examples_test_() {
   parse_json_in_dir("r5", r5.resource_decoder(), r5.resource_to_json)
 }
 
-pub fn parse_json_in_dir(fv, res_decoder, res_to_json) {
+pub fn parse_json_in_dir(fv, res_decoder, _res_to_json) {
   let fv_json_examples_dir = filepath.join("test", fv <> "-examples-json")
   let assert Ok(files) = simplifile.read_directory(fv_json_examples_dir)
     as "could not read json_examples directory"
   list.each(files, fn(file) {
     let fp = filepath.join(fv_json_examples_dir, file)
     let assert Ok(f_str) = simplifile.read(fp) as { "read " <> fp }
-    let assert Ok(parsed_resource) = json.parse(f_str, res_decoder)
-      as { "decode " <> fp }
+    let assert Ok(_) = json.parse(f_str, res_decoder) as { "decode " <> fp }
+    // need decimal to work to try parsed_resource roundtrip
     // let assert Ok(dynamic_resource) = json.parse(f_str, decode.dynamic)
     // let assert Ok(dynamic_roundtrip_resource) =
     //   parsed_resource
