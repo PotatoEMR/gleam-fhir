@@ -6,7 +6,7 @@ version = "0.0.0"
 #
 description = "Type-safe FHIR resources and client"
 licences = ["MIT"]
-# repository = { type = "github", user = "", repo = "" }
+repository = { type = "github", user = "PotatoEMR", repo = "https://github.com/PotatoEMR/gleam-fhir" }
 # links = [{ title = "Website", href = "" }]
 #
 # For a full reference of all the available options, you can have a look at
