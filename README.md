@@ -7,7 +7,7 @@
 gleam add fhir
 ```
 ```gleam
-import fhir
+import fhir/r4
 
 pub fn main() {
   let myallergy =
