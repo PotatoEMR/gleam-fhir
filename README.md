@@ -9,7 +9,7 @@ gleam add fhir
 ```gleam
 import fhir
 
-pub fn main() -> Nil {
+pub fn main() {
   let myallergy =
     fhirversion.Allergyintolerance(
       ..fhirversion.allergyintolerance_new(patient: fhirversion.reference_new()),
