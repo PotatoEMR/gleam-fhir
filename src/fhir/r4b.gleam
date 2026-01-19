@@ -126403,7 +126403,6 @@ pub type Resource {
   ResourceDiagnosticreport(Diagnosticreport)
   ResourceDocumentmanifest(Documentmanifest)
   ResourceDocumentreference(Documentreference)
-  ResourceDomainresource(Domainresource)
   ResourceEncounter(Encounter)
   ResourceEndpoint(Endpoint)
   ResourceEnrollmentrequest(Enrollmentrequest)
@@ -126553,7 +126552,6 @@ pub fn resource_to_json(res: Resource) {
     ResourceDiagnosticreport(r) -> diagnosticreport_to_json(r)
     ResourceDocumentmanifest(r) -> documentmanifest_to_json(r)
     ResourceDocumentreference(r) -> documentreference_to_json(r)
-    ResourceDomainresource(r) -> domainresource_to_json(r)
     ResourceEncounter(r) -> encounter_to_json(r)
     ResourceEndpoint(r) -> endpoint_to_json(r)
     ResourceEnrollmentrequest(r) -> enrollmentrequest_to_json(r)
@@ -126733,8 +126731,6 @@ pub fn resource_decoder() -> Decoder(Resource) {
       documentmanifest_decoder() |> decode.map(ResourceDocumentmanifest)
     "DocumentReference" ->
       documentreference_decoder() |> decode.map(ResourceDocumentreference)
-    "DomainResource" ->
-      domainresource_decoder() |> decode.map(ResourceDomainresource)
     "Encounter" -> encounter_decoder() |> decode.map(ResourceEncounter)
     "Endpoint" -> endpoint_decoder() |> decode.map(ResourceEndpoint)
     "EnrollmentRequest" ->

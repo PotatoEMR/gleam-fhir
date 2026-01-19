@@ -1,22 +1,26 @@
 import fhir/r5
-import fhir/r5_sansio
+import fhir/r5_sansio.{type FhirClient}
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
+import gleam/http/response.{type Response}
 import gleam/httpc
 import gleam/json.{type Json}
 import gleam/option.{type Option}
-
-pub type FhirClient =
-  r5_sansio.FhirClient
 
 pub fn fhirclient_new(baseurl: String) -> FhirClient {
   r5_sansio.fhirclient_new(baseurl)
 }
 
 pub type ReqError {
-  ReqErrOperationcome(r5.Operationoutcome)
-  ReqErrDecode(json.DecodeError)
+  //httpc layer error (only non sansio error)
   ReqErrHttp(httpc.HttpError)
+  //got operationoutcome error from fhir server
+  ReqErrOperationcome(r5.Operationoutcome)
+  //got json but could not parse it, probably a missing required field
+  ReqErrParseJson(json.DecodeError)
+  //did not get resource json, often server eg nginx gives basic html response
+  ReqErrNotJson(Response(String))
+  //could not make a delete or update request because resource has no id
   ReqErrNoId
 }
 
@@ -80,7 +84,8 @@ fn sendreq_parseresource(
       case r5_sansio.any_resp(resp, res_dec) {
         Ok(resource) -> Ok(resource)
         Error(r5_sansio.ErrOperationcome(oo)) -> Error(ReqErrOperationcome(oo))
-        Error(r5_sansio.ErrDecode(dec_err)) -> Error(ReqErrDecode(dec_err))
+        Error(r5_sansio.ErrNotJson(err)) -> Error(ReqErrNotJson(err))
+        Error(r5_sansio.ErrParseJson(err)) -> Error(ReqErrParseJson(err))
         Error(r5_sansio.ErrNoId) -> Error(ReqErrNoId)
       }
   }
@@ -125,6 +130,11 @@ pub fn account_delete(
   any_delete(resource.id, "Account", client)
 }
 
+pub fn account_search(sp: r5_sansio.SpAccount, client: FhirClient) {
+  let req = r5_sansio.account_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn activitydefinition_create(
   resource: r5.Activitydefinition,
   client: FhirClient,
@@ -164,6 +174,14 @@ pub fn activitydefinition_delete(
   any_delete(resource.id, "ActivityDefinition", client)
 }
 
+pub fn activitydefinition_search(
+  sp: r5_sansio.SpActivitydefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.activitydefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn actordefinition_create(
   resource: r5.Actordefinition,
   client: FhirClient,
@@ -201,6 +219,14 @@ pub fn actordefinition_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "ActorDefinition", client)
+}
+
+pub fn actordefinition_search(
+  sp: r5_sansio.SpActordefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.actordefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn administrableproductdefinition_create(
@@ -247,6 +273,14 @@ pub fn administrableproductdefinition_delete(
   any_delete(resource.id, "AdministrableProductDefinition", client)
 }
 
+pub fn administrableproductdefinition_search(
+  sp: r5_sansio.SpAdministrableproductdefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.administrableproductdefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn adverseevent_create(
   resource: r5.Adverseevent,
   client: FhirClient,
@@ -284,6 +318,11 @@ pub fn adverseevent_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "AdverseEvent", client)
+}
+
+pub fn adverseevent_search(sp: r5_sansio.SpAdverseevent, client: FhirClient) {
+  let req = r5_sansio.adverseevent_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn allergyintolerance_create(
@@ -325,6 +364,14 @@ pub fn allergyintolerance_delete(
   any_delete(resource.id, "AllergyIntolerance", client)
 }
 
+pub fn allergyintolerance_search(
+  sp: r5_sansio.SpAllergyintolerance,
+  client: FhirClient,
+) {
+  let req = r5_sansio.allergyintolerance_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn appointment_create(
   resource: r5.Appointment,
   client: FhirClient,
@@ -362,6 +409,11 @@ pub fn appointment_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Appointment", client)
+}
+
+pub fn appointment_search(sp: r5_sansio.SpAppointment, client: FhirClient) {
+  let req = r5_sansio.appointment_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn appointmentresponse_create(
@@ -403,6 +455,14 @@ pub fn appointmentresponse_delete(
   any_delete(resource.id, "AppointmentResponse", client)
 }
 
+pub fn appointmentresponse_search(
+  sp: r5_sansio.SpAppointmentresponse,
+  client: FhirClient,
+) {
+  let req = r5_sansio.appointmentresponse_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn artifactassessment_create(
   resource: r5.Artifactassessment,
   client: FhirClient,
@@ -440,6 +500,14 @@ pub fn artifactassessment_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "ArtifactAssessment", client)
+}
+
+pub fn artifactassessment_search(
+  sp: r5_sansio.SpArtifactassessment,
+  client: FhirClient,
+) {
+  let req = r5_sansio.artifactassessment_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn auditevent_create(
@@ -481,6 +549,11 @@ pub fn auditevent_delete(
   any_delete(resource.id, "AuditEvent", client)
 }
 
+pub fn auditevent_search(sp: r5_sansio.SpAuditevent, client: FhirClient) {
+  let req = r5_sansio.auditevent_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn basic_create(
   resource: r5.Basic,
   client: FhirClient,
@@ -510,6 +583,11 @@ pub fn basic_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Basic", client)
+}
+
+pub fn basic_search(sp: r5_sansio.SpBasic, client: FhirClient) {
+  let req = r5_sansio.basic_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn binary_create(
@@ -544,6 +622,11 @@ pub fn binary_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Binary", client)
+}
+
+pub fn binary_search(sp: r5_sansio.SpBinary, client: FhirClient) {
+  let req = r5_sansio.binary_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn biologicallyderivedproduct_create(
@@ -590,6 +673,14 @@ pub fn biologicallyderivedproduct_delete(
   any_delete(resource.id, "BiologicallyDerivedProduct", client)
 }
 
+pub fn biologicallyderivedproduct_search(
+  sp: r5_sansio.SpBiologicallyderivedproduct,
+  client: FhirClient,
+) {
+  let req = r5_sansio.biologicallyderivedproduct_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn biologicallyderivedproductdispense_create(
   resource: r5.Biologicallyderivedproductdispense,
   client: FhirClient,
@@ -634,6 +725,14 @@ pub fn biologicallyderivedproductdispense_delete(
   any_delete(resource.id, "BiologicallyDerivedProductDispense", client)
 }
 
+pub fn biologicallyderivedproductdispense_search(
+  sp: r5_sansio.SpBiologicallyderivedproductdispense,
+  client: FhirClient,
+) {
+  let req = r5_sansio.biologicallyderivedproductdispense_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn bodystructure_create(
   resource: r5.Bodystructure,
   client: FhirClient,
@@ -673,6 +772,11 @@ pub fn bodystructure_delete(
   any_delete(resource.id, "BodyStructure", client)
 }
 
+pub fn bodystructure_search(sp: r5_sansio.SpBodystructure, client: FhirClient) {
+  let req = r5_sansio.bodystructure_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn bundle_create(
   resource: r5.Bundle,
   client: FhirClient,
@@ -707,43 +811,9 @@ pub fn bundle_delete(
   any_delete(resource.id, "Bundle", client)
 }
 
-pub fn canonicalresource_create(
-  resource: r5.Canonicalresource,
-  client: FhirClient,
-) -> Result(r5.Canonicalresource, ReqError) {
-  any_create(
-    r5.canonicalresource_to_json(resource),
-    "CanonicalResource",
-    r5.canonicalresource_decoder(),
-    client,
-  )
-}
-
-pub fn canonicalresource_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r5.Canonicalresource, ReqError) {
-  any_read(id, client, "CanonicalResource", r5.canonicalresource_decoder())
-}
-
-pub fn canonicalresource_update(
-  resource: r5.Canonicalresource,
-  client: FhirClient,
-) -> Result(r5.Canonicalresource, ReqError) {
-  any_update(
-    resource.id,
-    r5.canonicalresource_to_json(resource),
-    "CanonicalResource",
-    r5.canonicalresource_decoder(),
-    client,
-  )
-}
-
-pub fn canonicalresource_delete(
-  resource: r5.Canonicalresource,
-  client: FhirClient,
-) -> Result(r5.Operationoutcome, ReqError) {
-  any_delete(resource.id, "CanonicalResource", client)
+pub fn bundle_search(sp: r5_sansio.SpBundle, client: FhirClient) {
+  let req = r5_sansio.bundle_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn capabilitystatement_create(
@@ -785,6 +855,14 @@ pub fn capabilitystatement_delete(
   any_delete(resource.id, "CapabilityStatement", client)
 }
 
+pub fn capabilitystatement_search(
+  sp: r5_sansio.SpCapabilitystatement,
+  client: FhirClient,
+) {
+  let req = r5_sansio.capabilitystatement_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn careplan_create(
   resource: r5.Careplan,
   client: FhirClient,
@@ -822,6 +900,11 @@ pub fn careplan_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "CarePlan", client)
+}
+
+pub fn careplan_search(sp: r5_sansio.SpCareplan, client: FhirClient) {
+  let req = r5_sansio.careplan_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn careteam_create(
@@ -863,6 +946,11 @@ pub fn careteam_delete(
   any_delete(resource.id, "CareTeam", client)
 }
 
+pub fn careteam_search(sp: r5_sansio.SpCareteam, client: FhirClient) {
+  let req = r5_sansio.careteam_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn chargeitem_create(
   resource: r5.Chargeitem,
   client: FhirClient,
@@ -900,6 +988,11 @@ pub fn chargeitem_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "ChargeItem", client)
+}
+
+pub fn chargeitem_search(sp: r5_sansio.SpChargeitem, client: FhirClient) {
+  let req = r5_sansio.chargeitem_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn chargeitemdefinition_create(
@@ -946,6 +1039,14 @@ pub fn chargeitemdefinition_delete(
   any_delete(resource.id, "ChargeItemDefinition", client)
 }
 
+pub fn chargeitemdefinition_search(
+  sp: r5_sansio.SpChargeitemdefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.chargeitemdefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn citation_create(
   resource: r5.Citation,
   client: FhirClient,
@@ -985,6 +1086,11 @@ pub fn citation_delete(
   any_delete(resource.id, "Citation", client)
 }
 
+pub fn citation_search(sp: r5_sansio.SpCitation, client: FhirClient) {
+  let req = r5_sansio.citation_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn claim_create(
   resource: r5.Claim,
   client: FhirClient,
@@ -1014,6 +1120,11 @@ pub fn claim_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Claim", client)
+}
+
+pub fn claim_search(sp: r5_sansio.SpClaim, client: FhirClient) {
+  let req = r5_sansio.claim_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn claimresponse_create(
@@ -1055,6 +1166,11 @@ pub fn claimresponse_delete(
   any_delete(resource.id, "ClaimResponse", client)
 }
 
+pub fn claimresponse_search(sp: r5_sansio.SpClaimresponse, client: FhirClient) {
+  let req = r5_sansio.claimresponse_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn clinicalimpression_create(
   resource: r5.Clinicalimpression,
   client: FhirClient,
@@ -1092,6 +1208,14 @@ pub fn clinicalimpression_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "ClinicalImpression", client)
+}
+
+pub fn clinicalimpression_search(
+  sp: r5_sansio.SpClinicalimpression,
+  client: FhirClient,
+) {
+  let req = r5_sansio.clinicalimpression_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn clinicalusedefinition_create(
@@ -1138,6 +1262,14 @@ pub fn clinicalusedefinition_delete(
   any_delete(resource.id, "ClinicalUseDefinition", client)
 }
 
+pub fn clinicalusedefinition_search(
+  sp: r5_sansio.SpClinicalusedefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.clinicalusedefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn codesystem_create(
   resource: r5.Codesystem,
   client: FhirClient,
@@ -1177,6 +1309,11 @@ pub fn codesystem_delete(
   any_delete(resource.id, "CodeSystem", client)
 }
 
+pub fn codesystem_search(sp: r5_sansio.SpCodesystem, client: FhirClient) {
+  let req = r5_sansio.codesystem_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn communication_create(
   resource: r5.Communication,
   client: FhirClient,
@@ -1214,6 +1351,11 @@ pub fn communication_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Communication", client)
+}
+
+pub fn communication_search(sp: r5_sansio.SpCommunication, client: FhirClient) {
+  let req = r5_sansio.communication_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn communicationrequest_create(
@@ -1260,6 +1402,14 @@ pub fn communicationrequest_delete(
   any_delete(resource.id, "CommunicationRequest", client)
 }
 
+pub fn communicationrequest_search(
+  sp: r5_sansio.SpCommunicationrequest,
+  client: FhirClient,
+) {
+  let req = r5_sansio.communicationrequest_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn compartmentdefinition_create(
   resource: r5.Compartmentdefinition,
   client: FhirClient,
@@ -1304,6 +1454,14 @@ pub fn compartmentdefinition_delete(
   any_delete(resource.id, "CompartmentDefinition", client)
 }
 
+pub fn compartmentdefinition_search(
+  sp: r5_sansio.SpCompartmentdefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.compartmentdefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn composition_create(
   resource: r5.Composition,
   client: FhirClient,
@@ -1341,6 +1499,11 @@ pub fn composition_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Composition", client)
+}
+
+pub fn composition_search(sp: r5_sansio.SpComposition, client: FhirClient) {
+  let req = r5_sansio.composition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn conceptmap_create(
@@ -1382,6 +1545,11 @@ pub fn conceptmap_delete(
   any_delete(resource.id, "ConceptMap", client)
 }
 
+pub fn conceptmap_search(sp: r5_sansio.SpConceptmap, client: FhirClient) {
+  let req = r5_sansio.conceptmap_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn condition_create(
   resource: r5.Condition,
   client: FhirClient,
@@ -1419,6 +1587,11 @@ pub fn condition_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Condition", client)
+}
+
+pub fn condition_search(sp: r5_sansio.SpCondition, client: FhirClient) {
+  let req = r5_sansio.condition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn conditiondefinition_create(
@@ -1460,6 +1633,14 @@ pub fn conditiondefinition_delete(
   any_delete(resource.id, "ConditionDefinition", client)
 }
 
+pub fn conditiondefinition_search(
+  sp: r5_sansio.SpConditiondefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.conditiondefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn consent_create(
   resource: r5.Consent,
   client: FhirClient,
@@ -1497,6 +1678,11 @@ pub fn consent_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Consent", client)
+}
+
+pub fn consent_search(sp: r5_sansio.SpConsent, client: FhirClient) {
+  let req = r5_sansio.consent_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn contract_create(
@@ -1538,6 +1724,11 @@ pub fn contract_delete(
   any_delete(resource.id, "Contract", client)
 }
 
+pub fn contract_search(sp: r5_sansio.SpContract, client: FhirClient) {
+  let req = r5_sansio.contract_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn coverage_create(
   resource: r5.Coverage,
   client: FhirClient,
@@ -1575,6 +1766,11 @@ pub fn coverage_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Coverage", client)
+}
+
+pub fn coverage_search(sp: r5_sansio.SpCoverage, client: FhirClient) {
+  let req = r5_sansio.coverage_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn coverageeligibilityrequest_create(
@@ -1621,6 +1817,14 @@ pub fn coverageeligibilityrequest_delete(
   any_delete(resource.id, "CoverageEligibilityRequest", client)
 }
 
+pub fn coverageeligibilityrequest_search(
+  sp: r5_sansio.SpCoverageeligibilityrequest,
+  client: FhirClient,
+) {
+  let req = r5_sansio.coverageeligibilityrequest_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn coverageeligibilityresponse_create(
   resource: r5.Coverageeligibilityresponse,
   client: FhirClient,
@@ -1665,6 +1869,14 @@ pub fn coverageeligibilityresponse_delete(
   any_delete(resource.id, "CoverageEligibilityResponse", client)
 }
 
+pub fn coverageeligibilityresponse_search(
+  sp: r5_sansio.SpCoverageeligibilityresponse,
+  client: FhirClient,
+) {
+  let req = r5_sansio.coverageeligibilityresponse_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn detectedissue_create(
   resource: r5.Detectedissue,
   client: FhirClient,
@@ -1704,6 +1916,11 @@ pub fn detectedissue_delete(
   any_delete(resource.id, "DetectedIssue", client)
 }
 
+pub fn detectedissue_search(sp: r5_sansio.SpDetectedissue, client: FhirClient) {
+  let req = r5_sansio.detectedissue_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn device_create(
   resource: r5.Device,
   client: FhirClient,
@@ -1736,6 +1953,11 @@ pub fn device_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Device", client)
+}
+
+pub fn device_search(sp: r5_sansio.SpDevice, client: FhirClient) {
+  let req = r5_sansio.device_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn deviceassociation_create(
@@ -1777,6 +1999,14 @@ pub fn deviceassociation_delete(
   any_delete(resource.id, "DeviceAssociation", client)
 }
 
+pub fn deviceassociation_search(
+  sp: r5_sansio.SpDeviceassociation,
+  client: FhirClient,
+) {
+  let req = r5_sansio.deviceassociation_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn devicedefinition_create(
   resource: r5.Devicedefinition,
   client: FhirClient,
@@ -1814,6 +2044,14 @@ pub fn devicedefinition_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "DeviceDefinition", client)
+}
+
+pub fn devicedefinition_search(
+  sp: r5_sansio.SpDevicedefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.devicedefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn devicedispense_create(
@@ -1855,6 +2093,11 @@ pub fn devicedispense_delete(
   any_delete(resource.id, "DeviceDispense", client)
 }
 
+pub fn devicedispense_search(sp: r5_sansio.SpDevicedispense, client: FhirClient) {
+  let req = r5_sansio.devicedispense_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn devicemetric_create(
   resource: r5.Devicemetric,
   client: FhirClient,
@@ -1892,6 +2135,11 @@ pub fn devicemetric_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "DeviceMetric", client)
+}
+
+pub fn devicemetric_search(sp: r5_sansio.SpDevicemetric, client: FhirClient) {
+  let req = r5_sansio.devicemetric_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn devicerequest_create(
@@ -1933,6 +2181,11 @@ pub fn devicerequest_delete(
   any_delete(resource.id, "DeviceRequest", client)
 }
 
+pub fn devicerequest_search(sp: r5_sansio.SpDevicerequest, client: FhirClient) {
+  let req = r5_sansio.devicerequest_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn deviceusage_create(
   resource: r5.Deviceusage,
   client: FhirClient,
@@ -1970,6 +2223,11 @@ pub fn deviceusage_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "DeviceUsage", client)
+}
+
+pub fn deviceusage_search(sp: r5_sansio.SpDeviceusage, client: FhirClient) {
+  let req = r5_sansio.deviceusage_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn diagnosticreport_create(
@@ -2011,6 +2269,14 @@ pub fn diagnosticreport_delete(
   any_delete(resource.id, "DiagnosticReport", client)
 }
 
+pub fn diagnosticreport_search(
+  sp: r5_sansio.SpDiagnosticreport,
+  client: FhirClient,
+) {
+  let req = r5_sansio.diagnosticreport_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn documentreference_create(
   resource: r5.Documentreference,
   client: FhirClient,
@@ -2050,43 +2316,12 @@ pub fn documentreference_delete(
   any_delete(resource.id, "DocumentReference", client)
 }
 
-pub fn domainresource_create(
-  resource: r5.Domainresource,
+pub fn documentreference_search(
+  sp: r5_sansio.SpDocumentreference,
   client: FhirClient,
-) -> Result(r5.Domainresource, ReqError) {
-  any_create(
-    r5.domainresource_to_json(resource),
-    "DomainResource",
-    r5.domainresource_decoder(),
-    client,
-  )
-}
-
-pub fn domainresource_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r5.Domainresource, ReqError) {
-  any_read(id, client, "DomainResource", r5.domainresource_decoder())
-}
-
-pub fn domainresource_update(
-  resource: r5.Domainresource,
-  client: FhirClient,
-) -> Result(r5.Domainresource, ReqError) {
-  any_update(
-    resource.id,
-    r5.domainresource_to_json(resource),
-    "DomainResource",
-    r5.domainresource_decoder(),
-    client,
-  )
-}
-
-pub fn domainresource_delete(
-  resource: r5.Domainresource,
-  client: FhirClient,
-) -> Result(r5.Operationoutcome, ReqError) {
-  any_delete(resource.id, "DomainResource", client)
+) {
+  let req = r5_sansio.documentreference_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn encounter_create(
@@ -2128,6 +2363,11 @@ pub fn encounter_delete(
   any_delete(resource.id, "Encounter", client)
 }
 
+pub fn encounter_search(sp: r5_sansio.SpEncounter, client: FhirClient) {
+  let req = r5_sansio.encounter_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn encounterhistory_create(
   resource: r5.Encounterhistory,
   client: FhirClient,
@@ -2165,6 +2405,14 @@ pub fn encounterhistory_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "EncounterHistory", client)
+}
+
+pub fn encounterhistory_search(
+  sp: r5_sansio.SpEncounterhistory,
+  client: FhirClient,
+) {
+  let req = r5_sansio.encounterhistory_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn endpoint_create(
@@ -2206,6 +2454,11 @@ pub fn endpoint_delete(
   any_delete(resource.id, "Endpoint", client)
 }
 
+pub fn endpoint_search(sp: r5_sansio.SpEndpoint, client: FhirClient) {
+  let req = r5_sansio.endpoint_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn enrollmentrequest_create(
   resource: r5.Enrollmentrequest,
   client: FhirClient,
@@ -2243,6 +2496,14 @@ pub fn enrollmentrequest_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "EnrollmentRequest", client)
+}
+
+pub fn enrollmentrequest_search(
+  sp: r5_sansio.SpEnrollmentrequest,
+  client: FhirClient,
+) {
+  let req = r5_sansio.enrollmentrequest_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn enrollmentresponse_create(
@@ -2284,6 +2545,14 @@ pub fn enrollmentresponse_delete(
   any_delete(resource.id, "EnrollmentResponse", client)
 }
 
+pub fn enrollmentresponse_search(
+  sp: r5_sansio.SpEnrollmentresponse,
+  client: FhirClient,
+) {
+  let req = r5_sansio.enrollmentresponse_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn episodeofcare_create(
   resource: r5.Episodeofcare,
   client: FhirClient,
@@ -2321,6 +2590,11 @@ pub fn episodeofcare_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "EpisodeOfCare", client)
+}
+
+pub fn episodeofcare_search(sp: r5_sansio.SpEpisodeofcare, client: FhirClient) {
+  let req = r5_sansio.episodeofcare_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn eventdefinition_create(
@@ -2362,6 +2636,14 @@ pub fn eventdefinition_delete(
   any_delete(resource.id, "EventDefinition", client)
 }
 
+pub fn eventdefinition_search(
+  sp: r5_sansio.SpEventdefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.eventdefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn evidence_create(
   resource: r5.Evidence,
   client: FhirClient,
@@ -2399,6 +2681,11 @@ pub fn evidence_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Evidence", client)
+}
+
+pub fn evidence_search(sp: r5_sansio.SpEvidence, client: FhirClient) {
+  let req = r5_sansio.evidence_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn evidencereport_create(
@@ -2440,6 +2727,11 @@ pub fn evidencereport_delete(
   any_delete(resource.id, "EvidenceReport", client)
 }
 
+pub fn evidencereport_search(sp: r5_sansio.SpEvidencereport, client: FhirClient) {
+  let req = r5_sansio.evidencereport_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn evidencevariable_create(
   resource: r5.Evidencevariable,
   client: FhirClient,
@@ -2479,6 +2771,14 @@ pub fn evidencevariable_delete(
   any_delete(resource.id, "EvidenceVariable", client)
 }
 
+pub fn evidencevariable_search(
+  sp: r5_sansio.SpEvidencevariable,
+  client: FhirClient,
+) {
+  let req = r5_sansio.evidencevariable_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn examplescenario_create(
   resource: r5.Examplescenario,
   client: FhirClient,
@@ -2516,6 +2816,14 @@ pub fn examplescenario_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "ExampleScenario", client)
+}
+
+pub fn examplescenario_search(
+  sp: r5_sansio.SpExamplescenario,
+  client: FhirClient,
+) {
+  let req = r5_sansio.examplescenario_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn explanationofbenefit_create(
@@ -2562,6 +2870,14 @@ pub fn explanationofbenefit_delete(
   any_delete(resource.id, "ExplanationOfBenefit", client)
 }
 
+pub fn explanationofbenefit_search(
+  sp: r5_sansio.SpExplanationofbenefit,
+  client: FhirClient,
+) {
+  let req = r5_sansio.explanationofbenefit_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn familymemberhistory_create(
   resource: r5.Familymemberhistory,
   client: FhirClient,
@@ -2601,6 +2917,14 @@ pub fn familymemberhistory_delete(
   any_delete(resource.id, "FamilyMemberHistory", client)
 }
 
+pub fn familymemberhistory_search(
+  sp: r5_sansio.SpFamilymemberhistory,
+  client: FhirClient,
+) {
+  let req = r5_sansio.familymemberhistory_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn flag_create(
   resource: r5.Flag,
   client: FhirClient,
@@ -2630,6 +2954,11 @@ pub fn flag_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Flag", client)
+}
+
+pub fn flag_search(sp: r5_sansio.SpFlag, client: FhirClient) {
+  let req = r5_sansio.flag_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn formularyitem_create(
@@ -2671,6 +3000,11 @@ pub fn formularyitem_delete(
   any_delete(resource.id, "FormularyItem", client)
 }
 
+pub fn formularyitem_search(sp: r5_sansio.SpFormularyitem, client: FhirClient) {
+  let req = r5_sansio.formularyitem_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn genomicstudy_create(
   resource: r5.Genomicstudy,
   client: FhirClient,
@@ -2710,6 +3044,11 @@ pub fn genomicstudy_delete(
   any_delete(resource.id, "GenomicStudy", client)
 }
 
+pub fn genomicstudy_search(sp: r5_sansio.SpGenomicstudy, client: FhirClient) {
+  let req = r5_sansio.genomicstudy_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn goal_create(
   resource: r5.Goal,
   client: FhirClient,
@@ -2739,6 +3078,11 @@ pub fn goal_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Goal", client)
+}
+
+pub fn goal_search(sp: r5_sansio.SpGoal, client: FhirClient) {
+  let req = r5_sansio.goal_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn graphdefinition_create(
@@ -2780,6 +3124,14 @@ pub fn graphdefinition_delete(
   any_delete(resource.id, "GraphDefinition", client)
 }
 
+pub fn graphdefinition_search(
+  sp: r5_sansio.SpGraphdefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.graphdefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn group_create(
   resource: r5.Group,
   client: FhirClient,
@@ -2809,6 +3161,11 @@ pub fn group_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Group", client)
+}
+
+pub fn group_search(sp: r5_sansio.SpGroup, client: FhirClient) {
+  let req = r5_sansio.group_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn guidanceresponse_create(
@@ -2850,6 +3207,14 @@ pub fn guidanceresponse_delete(
   any_delete(resource.id, "GuidanceResponse", client)
 }
 
+pub fn guidanceresponse_search(
+  sp: r5_sansio.SpGuidanceresponse,
+  client: FhirClient,
+) {
+  let req = r5_sansio.guidanceresponse_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn healthcareservice_create(
   resource: r5.Healthcareservice,
   client: FhirClient,
@@ -2887,6 +3252,14 @@ pub fn healthcareservice_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "HealthcareService", client)
+}
+
+pub fn healthcareservice_search(
+  sp: r5_sansio.SpHealthcareservice,
+  client: FhirClient,
+) {
+  let req = r5_sansio.healthcareservice_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn imagingselection_create(
@@ -2928,6 +3301,14 @@ pub fn imagingselection_delete(
   any_delete(resource.id, "ImagingSelection", client)
 }
 
+pub fn imagingselection_search(
+  sp: r5_sansio.SpImagingselection,
+  client: FhirClient,
+) {
+  let req = r5_sansio.imagingselection_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn imagingstudy_create(
   resource: r5.Imagingstudy,
   client: FhirClient,
@@ -2967,6 +3348,11 @@ pub fn imagingstudy_delete(
   any_delete(resource.id, "ImagingStudy", client)
 }
 
+pub fn imagingstudy_search(sp: r5_sansio.SpImagingstudy, client: FhirClient) {
+  let req = r5_sansio.imagingstudy_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn immunization_create(
   resource: r5.Immunization,
   client: FhirClient,
@@ -3004,6 +3390,11 @@ pub fn immunization_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Immunization", client)
+}
+
+pub fn immunization_search(sp: r5_sansio.SpImmunization, client: FhirClient) {
+  let req = r5_sansio.immunization_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn immunizationevaluation_create(
@@ -3050,6 +3441,14 @@ pub fn immunizationevaluation_delete(
   any_delete(resource.id, "ImmunizationEvaluation", client)
 }
 
+pub fn immunizationevaluation_search(
+  sp: r5_sansio.SpImmunizationevaluation,
+  client: FhirClient,
+) {
+  let req = r5_sansio.immunizationevaluation_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn immunizationrecommendation_create(
   resource: r5.Immunizationrecommendation,
   client: FhirClient,
@@ -3094,6 +3493,14 @@ pub fn immunizationrecommendation_delete(
   any_delete(resource.id, "ImmunizationRecommendation", client)
 }
 
+pub fn immunizationrecommendation_search(
+  sp: r5_sansio.SpImmunizationrecommendation,
+  client: FhirClient,
+) {
+  let req = r5_sansio.immunizationrecommendation_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn implementationguide_create(
   resource: r5.Implementationguide,
   client: FhirClient,
@@ -3131,6 +3538,14 @@ pub fn implementationguide_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "ImplementationGuide", client)
+}
+
+pub fn implementationguide_search(
+  sp: r5_sansio.SpImplementationguide,
+  client: FhirClient,
+) {
+  let req = r5_sansio.implementationguide_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn ingredient_create(
@@ -3172,6 +3587,11 @@ pub fn ingredient_delete(
   any_delete(resource.id, "Ingredient", client)
 }
 
+pub fn ingredient_search(sp: r5_sansio.SpIngredient, client: FhirClient) {
+  let req = r5_sansio.ingredient_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn insuranceplan_create(
   resource: r5.Insuranceplan,
   client: FhirClient,
@@ -3209,6 +3629,11 @@ pub fn insuranceplan_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "InsurancePlan", client)
+}
+
+pub fn insuranceplan_search(sp: r5_sansio.SpInsuranceplan, client: FhirClient) {
+  let req = r5_sansio.insuranceplan_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn inventoryitem_create(
@@ -3250,6 +3675,11 @@ pub fn inventoryitem_delete(
   any_delete(resource.id, "InventoryItem", client)
 }
 
+pub fn inventoryitem_search(sp: r5_sansio.SpInventoryitem, client: FhirClient) {
+  let req = r5_sansio.inventoryitem_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn inventoryreport_create(
   resource: r5.Inventoryreport,
   client: FhirClient,
@@ -3287,6 +3717,14 @@ pub fn inventoryreport_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "InventoryReport", client)
+}
+
+pub fn inventoryreport_search(
+  sp: r5_sansio.SpInventoryreport,
+  client: FhirClient,
+) {
+  let req = r5_sansio.inventoryreport_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn invoice_create(
@@ -3328,6 +3766,11 @@ pub fn invoice_delete(
   any_delete(resource.id, "Invoice", client)
 }
 
+pub fn invoice_search(sp: r5_sansio.SpInvoice, client: FhirClient) {
+  let req = r5_sansio.invoice_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn library_create(
   resource: r5.Library,
   client: FhirClient,
@@ -3365,6 +3808,11 @@ pub fn library_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Library", client)
+}
+
+pub fn library_search(sp: r5_sansio.SpLibrary, client: FhirClient) {
+  let req = r5_sansio.library_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn linkage_create(
@@ -3406,6 +3854,11 @@ pub fn linkage_delete(
   any_delete(resource.id, "Linkage", client)
 }
 
+pub fn linkage_search(sp: r5_sansio.SpLinkage, client: FhirClient) {
+  let req = r5_sansio.linkage_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn listfhir_create(
   resource: r5.Listfhir,
   client: FhirClient,
@@ -3445,6 +3898,11 @@ pub fn listfhir_delete(
   any_delete(resource.id, "List", client)
 }
 
+pub fn listfhir_search(sp: r5_sansio.SpListfhir, client: FhirClient) {
+  let req = r5_sansio.listfhir_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn location_create(
   resource: r5.Location,
   client: FhirClient,
@@ -3482,6 +3940,11 @@ pub fn location_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Location", client)
+}
+
+pub fn location_search(sp: r5_sansio.SpLocation, client: FhirClient) {
+  let req = r5_sansio.location_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn manufactureditemdefinition_create(
@@ -3528,6 +3991,14 @@ pub fn manufactureditemdefinition_delete(
   any_delete(resource.id, "ManufacturedItemDefinition", client)
 }
 
+pub fn manufactureditemdefinition_search(
+  sp: r5_sansio.SpManufactureditemdefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.manufactureditemdefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn measure_create(
   resource: r5.Measure,
   client: FhirClient,
@@ -3565,6 +4036,11 @@ pub fn measure_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Measure", client)
+}
+
+pub fn measure_search(sp: r5_sansio.SpMeasure, client: FhirClient) {
+  let req = r5_sansio.measure_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn measurereport_create(
@@ -3606,6 +4082,11 @@ pub fn measurereport_delete(
   any_delete(resource.id, "MeasureReport", client)
 }
 
+pub fn measurereport_search(sp: r5_sansio.SpMeasurereport, client: FhirClient) {
+  let req = r5_sansio.measurereport_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn medication_create(
   resource: r5.Medication,
   client: FhirClient,
@@ -3643,6 +4124,11 @@ pub fn medication_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Medication", client)
+}
+
+pub fn medication_search(sp: r5_sansio.SpMedication, client: FhirClient) {
+  let req = r5_sansio.medication_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn medicationadministration_create(
@@ -3689,6 +4175,14 @@ pub fn medicationadministration_delete(
   any_delete(resource.id, "MedicationAdministration", client)
 }
 
+pub fn medicationadministration_search(
+  sp: r5_sansio.SpMedicationadministration,
+  client: FhirClient,
+) {
+  let req = r5_sansio.medicationadministration_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn medicationdispense_create(
   resource: r5.Medicationdispense,
   client: FhirClient,
@@ -3726,6 +4220,14 @@ pub fn medicationdispense_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "MedicationDispense", client)
+}
+
+pub fn medicationdispense_search(
+  sp: r5_sansio.SpMedicationdispense,
+  client: FhirClient,
+) {
+  let req = r5_sansio.medicationdispense_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn medicationknowledge_create(
@@ -3767,6 +4269,14 @@ pub fn medicationknowledge_delete(
   any_delete(resource.id, "MedicationKnowledge", client)
 }
 
+pub fn medicationknowledge_search(
+  sp: r5_sansio.SpMedicationknowledge,
+  client: FhirClient,
+) {
+  let req = r5_sansio.medicationknowledge_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn medicationrequest_create(
   resource: r5.Medicationrequest,
   client: FhirClient,
@@ -3806,6 +4316,14 @@ pub fn medicationrequest_delete(
   any_delete(resource.id, "MedicationRequest", client)
 }
 
+pub fn medicationrequest_search(
+  sp: r5_sansio.SpMedicationrequest,
+  client: FhirClient,
+) {
+  let req = r5_sansio.medicationrequest_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn medicationstatement_create(
   resource: r5.Medicationstatement,
   client: FhirClient,
@@ -3843,6 +4361,14 @@ pub fn medicationstatement_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "MedicationStatement", client)
+}
+
+pub fn medicationstatement_search(
+  sp: r5_sansio.SpMedicationstatement,
+  client: FhirClient,
+) {
+  let req = r5_sansio.medicationstatement_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn medicinalproductdefinition_create(
@@ -3889,6 +4415,14 @@ pub fn medicinalproductdefinition_delete(
   any_delete(resource.id, "MedicinalProductDefinition", client)
 }
 
+pub fn medicinalproductdefinition_search(
+  sp: r5_sansio.SpMedicinalproductdefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.medicinalproductdefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn messagedefinition_create(
   resource: r5.Messagedefinition,
   client: FhirClient,
@@ -3926,6 +4460,14 @@ pub fn messagedefinition_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "MessageDefinition", client)
+}
+
+pub fn messagedefinition_search(
+  sp: r5_sansio.SpMessagedefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.messagedefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn messageheader_create(
@@ -3967,43 +4509,9 @@ pub fn messageheader_delete(
   any_delete(resource.id, "MessageHeader", client)
 }
 
-pub fn metadataresource_create(
-  resource: r5.Metadataresource,
-  client: FhirClient,
-) -> Result(r5.Metadataresource, ReqError) {
-  any_create(
-    r5.metadataresource_to_json(resource),
-    "MetadataResource",
-    r5.metadataresource_decoder(),
-    client,
-  )
-}
-
-pub fn metadataresource_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r5.Metadataresource, ReqError) {
-  any_read(id, client, "MetadataResource", r5.metadataresource_decoder())
-}
-
-pub fn metadataresource_update(
-  resource: r5.Metadataresource,
-  client: FhirClient,
-) -> Result(r5.Metadataresource, ReqError) {
-  any_update(
-    resource.id,
-    r5.metadataresource_to_json(resource),
-    "MetadataResource",
-    r5.metadataresource_decoder(),
-    client,
-  )
-}
-
-pub fn metadataresource_delete(
-  resource: r5.Metadataresource,
-  client: FhirClient,
-) -> Result(r5.Operationoutcome, ReqError) {
-  any_delete(resource.id, "MetadataResource", client)
+pub fn messageheader_search(sp: r5_sansio.SpMessageheader, client: FhirClient) {
+  let req = r5_sansio.messageheader_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn molecularsequence_create(
@@ -4045,6 +4553,14 @@ pub fn molecularsequence_delete(
   any_delete(resource.id, "MolecularSequence", client)
 }
 
+pub fn molecularsequence_search(
+  sp: r5_sansio.SpMolecularsequence,
+  client: FhirClient,
+) {
+  let req = r5_sansio.molecularsequence_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn namingsystem_create(
   resource: r5.Namingsystem,
   client: FhirClient,
@@ -4082,6 +4598,11 @@ pub fn namingsystem_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "NamingSystem", client)
+}
+
+pub fn namingsystem_search(sp: r5_sansio.SpNamingsystem, client: FhirClient) {
+  let req = r5_sansio.namingsystem_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn nutritionintake_create(
@@ -4123,6 +4644,14 @@ pub fn nutritionintake_delete(
   any_delete(resource.id, "NutritionIntake", client)
 }
 
+pub fn nutritionintake_search(
+  sp: r5_sansio.SpNutritionintake,
+  client: FhirClient,
+) {
+  let req = r5_sansio.nutritionintake_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn nutritionorder_create(
   resource: r5.Nutritionorder,
   client: FhirClient,
@@ -4160,6 +4689,11 @@ pub fn nutritionorder_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "NutritionOrder", client)
+}
+
+pub fn nutritionorder_search(sp: r5_sansio.SpNutritionorder, client: FhirClient) {
+  let req = r5_sansio.nutritionorder_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn nutritionproduct_create(
@@ -4201,6 +4735,14 @@ pub fn nutritionproduct_delete(
   any_delete(resource.id, "NutritionProduct", client)
 }
 
+pub fn nutritionproduct_search(
+  sp: r5_sansio.SpNutritionproduct,
+  client: FhirClient,
+) {
+  let req = r5_sansio.nutritionproduct_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn observation_create(
   resource: r5.Observation,
   client: FhirClient,
@@ -4238,6 +4780,11 @@ pub fn observation_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Observation", client)
+}
+
+pub fn observation_search(sp: r5_sansio.SpObservation, client: FhirClient) {
+  let req = r5_sansio.observation_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn observationdefinition_create(
@@ -4284,6 +4831,14 @@ pub fn observationdefinition_delete(
   any_delete(resource.id, "ObservationDefinition", client)
 }
 
+pub fn observationdefinition_search(
+  sp: r5_sansio.SpObservationdefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.observationdefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn operationdefinition_create(
   resource: r5.Operationdefinition,
   client: FhirClient,
@@ -4321,6 +4876,14 @@ pub fn operationdefinition_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "OperationDefinition", client)
+}
+
+pub fn operationdefinition_search(
+  sp: r5_sansio.SpOperationdefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.operationdefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn operationoutcome_create(
@@ -4362,6 +4925,14 @@ pub fn operationoutcome_delete(
   any_delete(resource.id, "OperationOutcome", client)
 }
 
+pub fn operationoutcome_search(
+  sp: r5_sansio.SpOperationoutcome,
+  client: FhirClient,
+) {
+  let req = r5_sansio.operationoutcome_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn organization_create(
   resource: r5.Organization,
   client: FhirClient,
@@ -4399,6 +4970,11 @@ pub fn organization_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Organization", client)
+}
+
+pub fn organization_search(sp: r5_sansio.SpOrganization, client: FhirClient) {
+  let req = r5_sansio.organization_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn organizationaffiliation_create(
@@ -4445,6 +5021,14 @@ pub fn organizationaffiliation_delete(
   any_delete(resource.id, "OrganizationAffiliation", client)
 }
 
+pub fn organizationaffiliation_search(
+  sp: r5_sansio.SpOrganizationaffiliation,
+  client: FhirClient,
+) {
+  let req = r5_sansio.organizationaffiliation_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn packagedproductdefinition_create(
   resource: r5.Packagedproductdefinition,
   client: FhirClient,
@@ -4489,43 +5073,12 @@ pub fn packagedproductdefinition_delete(
   any_delete(resource.id, "PackagedProductDefinition", client)
 }
 
-pub fn parameters_create(
-  resource: r5.Parameters,
+pub fn packagedproductdefinition_search(
+  sp: r5_sansio.SpPackagedproductdefinition,
   client: FhirClient,
-) -> Result(r5.Parameters, ReqError) {
-  any_create(
-    r5.parameters_to_json(resource),
-    "Parameters",
-    r5.parameters_decoder(),
-    client,
-  )
-}
-
-pub fn parameters_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r5.Parameters, ReqError) {
-  any_read(id, client, "Parameters", r5.parameters_decoder())
-}
-
-pub fn parameters_update(
-  resource: r5.Parameters,
-  client: FhirClient,
-) -> Result(r5.Parameters, ReqError) {
-  any_update(
-    resource.id,
-    r5.parameters_to_json(resource),
-    "Parameters",
-    r5.parameters_decoder(),
-    client,
-  )
-}
-
-pub fn parameters_delete(
-  resource: r5.Parameters,
-  client: FhirClient,
-) -> Result(r5.Operationoutcome, ReqError) {
-  any_delete(resource.id, "Parameters", client)
+) {
+  let req = r5_sansio.packagedproductdefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn patient_create(
@@ -4567,6 +5120,11 @@ pub fn patient_delete(
   any_delete(resource.id, "Patient", client)
 }
 
+pub fn patient_search(sp: r5_sansio.SpPatient, client: FhirClient) {
+  let req = r5_sansio.patient_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn paymentnotice_create(
   resource: r5.Paymentnotice,
   client: FhirClient,
@@ -4604,6 +5162,11 @@ pub fn paymentnotice_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "PaymentNotice", client)
+}
+
+pub fn paymentnotice_search(sp: r5_sansio.SpPaymentnotice, client: FhirClient) {
+  let req = r5_sansio.paymentnotice_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn paymentreconciliation_create(
@@ -4650,6 +5213,14 @@ pub fn paymentreconciliation_delete(
   any_delete(resource.id, "PaymentReconciliation", client)
 }
 
+pub fn paymentreconciliation_search(
+  sp: r5_sansio.SpPaymentreconciliation,
+  client: FhirClient,
+) {
+  let req = r5_sansio.paymentreconciliation_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn permission_create(
   resource: r5.Permission,
   client: FhirClient,
@@ -4689,6 +5260,11 @@ pub fn permission_delete(
   any_delete(resource.id, "Permission", client)
 }
 
+pub fn permission_search(sp: r5_sansio.SpPermission, client: FhirClient) {
+  let req = r5_sansio.permission_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn person_create(
   resource: r5.Person,
   client: FhirClient,
@@ -4721,6 +5297,11 @@ pub fn person_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Person", client)
+}
+
+pub fn person_search(sp: r5_sansio.SpPerson, client: FhirClient) {
+  let req = r5_sansio.person_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn plandefinition_create(
@@ -4762,6 +5343,11 @@ pub fn plandefinition_delete(
   any_delete(resource.id, "PlanDefinition", client)
 }
 
+pub fn plandefinition_search(sp: r5_sansio.SpPlandefinition, client: FhirClient) {
+  let req = r5_sansio.plandefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn practitioner_create(
   resource: r5.Practitioner,
   client: FhirClient,
@@ -4799,6 +5385,11 @@ pub fn practitioner_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Practitioner", client)
+}
+
+pub fn practitioner_search(sp: r5_sansio.SpPractitioner, client: FhirClient) {
+  let req = r5_sansio.practitioner_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn practitionerrole_create(
@@ -4840,6 +5431,14 @@ pub fn practitionerrole_delete(
   any_delete(resource.id, "PractitionerRole", client)
 }
 
+pub fn practitionerrole_search(
+  sp: r5_sansio.SpPractitionerrole,
+  client: FhirClient,
+) {
+  let req = r5_sansio.practitionerrole_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn procedure_create(
   resource: r5.Procedure,
   client: FhirClient,
@@ -4877,6 +5476,11 @@ pub fn procedure_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Procedure", client)
+}
+
+pub fn procedure_search(sp: r5_sansio.SpProcedure, client: FhirClient) {
+  let req = r5_sansio.procedure_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn provenance_create(
@@ -4918,6 +5522,11 @@ pub fn provenance_delete(
   any_delete(resource.id, "Provenance", client)
 }
 
+pub fn provenance_search(sp: r5_sansio.SpProvenance, client: FhirClient) {
+  let req = r5_sansio.provenance_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn questionnaire_create(
   resource: r5.Questionnaire,
   client: FhirClient,
@@ -4955,6 +5564,11 @@ pub fn questionnaire_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Questionnaire", client)
+}
+
+pub fn questionnaire_search(sp: r5_sansio.SpQuestionnaire, client: FhirClient) {
+  let req = r5_sansio.questionnaire_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn questionnaireresponse_create(
@@ -5001,6 +5615,14 @@ pub fn questionnaireresponse_delete(
   any_delete(resource.id, "QuestionnaireResponse", client)
 }
 
+pub fn questionnaireresponse_search(
+  sp: r5_sansio.SpQuestionnaireresponse,
+  client: FhirClient,
+) {
+  let req = r5_sansio.questionnaireresponse_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn regulatedauthorization_create(
   resource: r5.Regulatedauthorization,
   client: FhirClient,
@@ -5045,6 +5667,14 @@ pub fn regulatedauthorization_delete(
   any_delete(resource.id, "RegulatedAuthorization", client)
 }
 
+pub fn regulatedauthorization_search(
+  sp: r5_sansio.SpRegulatedauthorization,
+  client: FhirClient,
+) {
+  let req = r5_sansio.regulatedauthorization_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn relatedperson_create(
   resource: r5.Relatedperson,
   client: FhirClient,
@@ -5082,6 +5712,11 @@ pub fn relatedperson_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "RelatedPerson", client)
+}
+
+pub fn relatedperson_search(sp: r5_sansio.SpRelatedperson, client: FhirClient) {
+  let req = r5_sansio.relatedperson_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn requestorchestration_create(
@@ -5128,6 +5763,14 @@ pub fn requestorchestration_delete(
   any_delete(resource.id, "RequestOrchestration", client)
 }
 
+pub fn requestorchestration_search(
+  sp: r5_sansio.SpRequestorchestration,
+  client: FhirClient,
+) {
+  let req = r5_sansio.requestorchestration_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn requirements_create(
   resource: r5.Requirements,
   client: FhirClient,
@@ -5165,6 +5808,11 @@ pub fn requirements_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Requirements", client)
+}
+
+pub fn requirements_search(sp: r5_sansio.SpRequirements, client: FhirClient) {
+  let req = r5_sansio.requirements_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn researchstudy_create(
@@ -5206,6 +5854,11 @@ pub fn researchstudy_delete(
   any_delete(resource.id, "ResearchStudy", client)
 }
 
+pub fn researchstudy_search(sp: r5_sansio.SpResearchstudy, client: FhirClient) {
+  let req = r5_sansio.researchstudy_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn researchsubject_create(
   resource: r5.Researchsubject,
   client: FhirClient,
@@ -5243,6 +5896,14 @@ pub fn researchsubject_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "ResearchSubject", client)
+}
+
+pub fn researchsubject_search(
+  sp: r5_sansio.SpResearchsubject,
+  client: FhirClient,
+) {
+  let req = r5_sansio.researchsubject_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn riskassessment_create(
@@ -5284,6 +5945,11 @@ pub fn riskassessment_delete(
   any_delete(resource.id, "RiskAssessment", client)
 }
 
+pub fn riskassessment_search(sp: r5_sansio.SpRiskassessment, client: FhirClient) {
+  let req = r5_sansio.riskassessment_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn schedule_create(
   resource: r5.Schedule,
   client: FhirClient,
@@ -5321,6 +5987,11 @@ pub fn schedule_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Schedule", client)
+}
+
+pub fn schedule_search(sp: r5_sansio.SpSchedule, client: FhirClient) {
+  let req = r5_sansio.schedule_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn searchparameter_create(
@@ -5362,6 +6033,14 @@ pub fn searchparameter_delete(
   any_delete(resource.id, "SearchParameter", client)
 }
 
+pub fn searchparameter_search(
+  sp: r5_sansio.SpSearchparameter,
+  client: FhirClient,
+) {
+  let req = r5_sansio.searchparameter_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn servicerequest_create(
   resource: r5.Servicerequest,
   client: FhirClient,
@@ -5401,6 +6080,11 @@ pub fn servicerequest_delete(
   any_delete(resource.id, "ServiceRequest", client)
 }
 
+pub fn servicerequest_search(sp: r5_sansio.SpServicerequest, client: FhirClient) {
+  let req = r5_sansio.servicerequest_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn slot_create(
   resource: r5.Slot,
   client: FhirClient,
@@ -5430,6 +6114,11 @@ pub fn slot_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Slot", client)
+}
+
+pub fn slot_search(sp: r5_sansio.SpSlot, client: FhirClient) {
+  let req = r5_sansio.slot_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn specimen_create(
@@ -5471,6 +6160,11 @@ pub fn specimen_delete(
   any_delete(resource.id, "Specimen", client)
 }
 
+pub fn specimen_search(sp: r5_sansio.SpSpecimen, client: FhirClient) {
+  let req = r5_sansio.specimen_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn specimendefinition_create(
   resource: r5.Specimendefinition,
   client: FhirClient,
@@ -5508,6 +6202,14 @@ pub fn specimendefinition_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "SpecimenDefinition", client)
+}
+
+pub fn specimendefinition_search(
+  sp: r5_sansio.SpSpecimendefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.specimendefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn structuredefinition_create(
@@ -5549,6 +6251,14 @@ pub fn structuredefinition_delete(
   any_delete(resource.id, "StructureDefinition", client)
 }
 
+pub fn structuredefinition_search(
+  sp: r5_sansio.SpStructuredefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.structuredefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn structuremap_create(
   resource: r5.Structuremap,
   client: FhirClient,
@@ -5586,6 +6296,11 @@ pub fn structuremap_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "StructureMap", client)
+}
+
+pub fn structuremap_search(sp: r5_sansio.SpStructuremap, client: FhirClient) {
+  let req = r5_sansio.structuremap_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn subscription_create(
@@ -5627,6 +6342,11 @@ pub fn subscription_delete(
   any_delete(resource.id, "Subscription", client)
 }
 
+pub fn subscription_search(sp: r5_sansio.SpSubscription, client: FhirClient) {
+  let req = r5_sansio.subscription_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn subscriptionstatus_create(
   resource: r5.Subscriptionstatus,
   client: FhirClient,
@@ -5664,6 +6384,14 @@ pub fn subscriptionstatus_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "SubscriptionStatus", client)
+}
+
+pub fn subscriptionstatus_search(
+  sp: r5_sansio.SpSubscriptionstatus,
+  client: FhirClient,
+) {
+  let req = r5_sansio.subscriptionstatus_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn subscriptiontopic_create(
@@ -5705,6 +6433,14 @@ pub fn subscriptiontopic_delete(
   any_delete(resource.id, "SubscriptionTopic", client)
 }
 
+pub fn subscriptiontopic_search(
+  sp: r5_sansio.SpSubscriptiontopic,
+  client: FhirClient,
+) {
+  let req = r5_sansio.subscriptiontopic_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn substance_create(
   resource: r5.Substance,
   client: FhirClient,
@@ -5744,6 +6480,11 @@ pub fn substance_delete(
   any_delete(resource.id, "Substance", client)
 }
 
+pub fn substance_search(sp: r5_sansio.SpSubstance, client: FhirClient) {
+  let req = r5_sansio.substance_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn substancedefinition_create(
   resource: r5.Substancedefinition,
   client: FhirClient,
@@ -5781,6 +6522,14 @@ pub fn substancedefinition_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "SubstanceDefinition", client)
+}
+
+pub fn substancedefinition_search(
+  sp: r5_sansio.SpSubstancedefinition,
+  client: FhirClient,
+) {
+  let req = r5_sansio.substancedefinition_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn substancenucleicacid_create(
@@ -5827,6 +6576,14 @@ pub fn substancenucleicacid_delete(
   any_delete(resource.id, "SubstanceNucleicAcid", client)
 }
 
+pub fn substancenucleicacid_search(
+  sp: r5_sansio.SpSubstancenucleicacid,
+  client: FhirClient,
+) {
+  let req = r5_sansio.substancenucleicacid_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn substancepolymer_create(
   resource: r5.Substancepolymer,
   client: FhirClient,
@@ -5866,6 +6623,14 @@ pub fn substancepolymer_delete(
   any_delete(resource.id, "SubstancePolymer", client)
 }
 
+pub fn substancepolymer_search(
+  sp: r5_sansio.SpSubstancepolymer,
+  client: FhirClient,
+) {
+  let req = r5_sansio.substancepolymer_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn substanceprotein_create(
   resource: r5.Substanceprotein,
   client: FhirClient,
@@ -5903,6 +6668,14 @@ pub fn substanceprotein_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "SubstanceProtein", client)
+}
+
+pub fn substanceprotein_search(
+  sp: r5_sansio.SpSubstanceprotein,
+  client: FhirClient,
+) {
+  let req = r5_sansio.substanceprotein_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn substancereferenceinformation_create(
@@ -5949,6 +6722,14 @@ pub fn substancereferenceinformation_delete(
   any_delete(resource.id, "SubstanceReferenceInformation", client)
 }
 
+pub fn substancereferenceinformation_search(
+  sp: r5_sansio.SpSubstancereferenceinformation,
+  client: FhirClient,
+) {
+  let req = r5_sansio.substancereferenceinformation_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn substancesourcematerial_create(
   resource: r5.Substancesourcematerial,
   client: FhirClient,
@@ -5993,6 +6774,14 @@ pub fn substancesourcematerial_delete(
   any_delete(resource.id, "SubstanceSourceMaterial", client)
 }
 
+pub fn substancesourcematerial_search(
+  sp: r5_sansio.SpSubstancesourcematerial,
+  client: FhirClient,
+) {
+  let req = r5_sansio.substancesourcematerial_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn supplydelivery_create(
   resource: r5.Supplydelivery,
   client: FhirClient,
@@ -6030,6 +6819,11 @@ pub fn supplydelivery_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "SupplyDelivery", client)
+}
+
+pub fn supplydelivery_search(sp: r5_sansio.SpSupplydelivery, client: FhirClient) {
+  let req = r5_sansio.supplydelivery_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn supplyrequest_create(
@@ -6071,6 +6865,11 @@ pub fn supplyrequest_delete(
   any_delete(resource.id, "SupplyRequest", client)
 }
 
+pub fn supplyrequest_search(sp: r5_sansio.SpSupplyrequest, client: FhirClient) {
+  let req = r5_sansio.supplyrequest_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn task_create(
   resource: r5.Task,
   client: FhirClient,
@@ -6100,6 +6899,11 @@ pub fn task_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "Task", client)
+}
+
+pub fn task_search(sp: r5_sansio.SpTask, client: FhirClient) {
+  let req = r5_sansio.task_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn terminologycapabilities_create(
@@ -6146,6 +6950,14 @@ pub fn terminologycapabilities_delete(
   any_delete(resource.id, "TerminologyCapabilities", client)
 }
 
+pub fn terminologycapabilities_search(
+  sp: r5_sansio.SpTerminologycapabilities,
+  client: FhirClient,
+) {
+  let req = r5_sansio.terminologycapabilities_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn testplan_create(
   resource: r5.Testplan,
   client: FhirClient,
@@ -6183,6 +6995,11 @@ pub fn testplan_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "TestPlan", client)
+}
+
+pub fn testplan_search(sp: r5_sansio.SpTestplan, client: FhirClient) {
+  let req = r5_sansio.testplan_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn testreport_create(
@@ -6224,6 +7041,11 @@ pub fn testreport_delete(
   any_delete(resource.id, "TestReport", client)
 }
 
+pub fn testreport_search(sp: r5_sansio.SpTestreport, client: FhirClient) {
+  let req = r5_sansio.testreport_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn testscript_create(
   resource: r5.Testscript,
   client: FhirClient,
@@ -6261,6 +7083,11 @@ pub fn testscript_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "TestScript", client)
+}
+
+pub fn testscript_search(sp: r5_sansio.SpTestscript, client: FhirClient) {
+  let req = r5_sansio.testscript_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn transport_create(
@@ -6302,6 +7129,11 @@ pub fn transport_delete(
   any_delete(resource.id, "Transport", client)
 }
 
+pub fn transport_search(sp: r5_sansio.SpTransport, client: FhirClient) {
+  let req = r5_sansio.transport_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn valueset_create(
   resource: r5.Valueset,
   client: FhirClient,
@@ -6339,6 +7171,11 @@ pub fn valueset_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "ValueSet", client)
+}
+
+pub fn valueset_search(sp: r5_sansio.SpValueset, client: FhirClient) {
+  let req = r5_sansio.valueset_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }
 
 pub fn verificationresult_create(
@@ -6380,6 +7217,14 @@ pub fn verificationresult_delete(
   any_delete(resource.id, "VerificationResult", client)
 }
 
+pub fn verificationresult_search(
+  sp: r5_sansio.SpVerificationresult,
+  client: FhirClient,
+) {
+  let req = r5_sansio.verificationresult_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
+}
+
 pub fn visionprescription_create(
   resource: r5.Visionprescription,
   client: FhirClient,
@@ -6417,4 +7262,12 @@ pub fn visionprescription_delete(
   client: FhirClient,
 ) -> Result(r5.Operationoutcome, ReqError) {
   any_delete(resource.id, "VisionPrescription", client)
+}
+
+pub fn visionprescription_search(
+  sp: r5_sansio.SpVisionprescription,
+  client: FhirClient,
+) {
+  let req = r5_sansio.visionprescription_search_req(sp, client)
+  sendreq_parseresource(req, r5.bundle_decoder())
 }

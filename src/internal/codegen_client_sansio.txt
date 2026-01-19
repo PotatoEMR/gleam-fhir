@@ -4,10 +4,10 @@ import gleam/http
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
 import gleam/json.{type Json}
-import gleam/option.{type Option, Some, None}
+import gleam/list
+import gleam/option.{type Option, None, Some}
 import gleam/string
 import gleam/uri
-import gleam/list
 
 pub type FhirClient {
   FhirClient(baseurl: uri.Uri)
@@ -20,10 +20,12 @@ pub fn fhirclient_new(baseurl: String) {
 }
 
 pub type Err {
-    //could not make a delete or update request because resource has no id
+  //could not make a delete or update request because resource has no id
   ErrNoId
-  //could not decode resource json
-  ErrDecode(json.DecodeError)
+  //got json but could not parse it, probably a missing required field
+  ErrParseJson(json.DecodeError)
+  //did not get resource json, often server eg nginx gives basic html response
+  ErrNotJson(Response(String))
   //got operationoutcome error from fhir server
   ErrOperationcome(FHIRVERSION.Operationoutcome)
 }
@@ -94,11 +96,42 @@ pub fn any_delete_req(
   }
 }
 
+pub fn any_search_req(
+  search_string: String,
+  res_type: String,
+  client: FhirClient,
+) -> Request(String) {
+  let assert Ok(req) =
+    request.to(
+      string.concat([
+        client.baseurl |> uri.to_string,
+        "/",
+        res_type,
+        "?",
+        search_string,
+      ]),
+    )
+  echo req.path
+  req
+  |> request.set_header("Accept", "application/fhir+json")
+}
+
+fn using_params(params) {
+  list.fold(
+    from: [],
+    over: params,
+    with: fn(acc, param: #(String, Option(String))) {
+      case param.1 {
+        None -> acc
+        Some(p) -> [param.0 <> "=" <> p, ..acc]
+      }
+    },
+  )
+  |> string.join("&")
+}
+
 //decodes a resource (with type based on given decoder) or operationoutcome
-pub fn any_resp(
-  resp: Response(String),
-  resource_dec: decode.Decoder(a),
-) {
+pub fn any_resp(resp: Response(String), resource_dec: decode.Decoder(a)) {
   let decoded_resource =
     resp.body
     |> json.parse(case resp.status >= 300 {
@@ -108,6 +141,10 @@ pub fn any_resp(
   case decoded_resource {
     Ok(Ok(resource)) -> Ok(resource)
     Ok(Error(op_outcome)) -> Error(ErrOperationcome(op_outcome))
-    Error(dec_err) -> Error(ErrDecode(dec_err))
+    Error(dec_err) ->
+      case dec_err {
+        json.UnableToDecode(_) -> Error(ErrParseJson(dec_err))
+        _ -> Error(ErrNotJson(resp))
+      }
   }
 }

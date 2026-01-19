@@ -156759,7 +156759,6 @@ pub type Resource {
   ResourceDeviceusage(Deviceusage)
   ResourceDiagnosticreport(Diagnosticreport)
   ResourceDocumentreference(Documentreference)
-  ResourceDomainresource(Domainresource)
   ResourceEncounter(Encounter)
   ResourceEncounterhistory(Encounterhistory)
   ResourceEndpoint(Endpoint)
@@ -156929,7 +156928,6 @@ pub fn resource_to_json(res: Resource) {
     ResourceDeviceusage(r) -> deviceusage_to_json(r)
     ResourceDiagnosticreport(r) -> diagnosticreport_to_json(r)
     ResourceDocumentreference(r) -> documentreference_to_json(r)
-    ResourceDomainresource(r) -> domainresource_to_json(r)
     ResourceEncounter(r) -> encounter_to_json(r)
     ResourceEncounterhistory(r) -> encounterhistory_to_json(r)
     ResourceEndpoint(r) -> endpoint_to_json(r)
@@ -157135,8 +157133,6 @@ pub fn resource_decoder() -> Decoder(Resource) {
       diagnosticreport_decoder() |> decode.map(ResourceDiagnosticreport)
     "DocumentReference" ->
       documentreference_decoder() |> decode.map(ResourceDocumentreference)
-    "DomainResource" ->
-      domainresource_decoder() |> decode.map(ResourceDomainresource)
     "Encounter" -> encounter_decoder() |> decode.map(ResourceEncounter)
     "EncounterHistory" ->
       encounterhistory_decoder() |> decode.map(ResourceEncounterhistory)

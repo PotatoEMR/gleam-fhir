@@ -1,22 +1,26 @@
 import fhir/FHIRVERSION
-import fhir/FHIRVERSION_sansio
+import fhir/FHIRVERSION_sansio.{type FhirClient}
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
+import gleam/http/response.{type Response}
 import gleam/httpc
 import gleam/json.{type Json}
 import gleam/option.{type Option}
-
-pub type FhirClient =
-  FHIRVERSION_sansio.FhirClient
 
 pub fn fhirclient_new(baseurl: String) -> FhirClient {
   FHIRVERSION_sansio.fhirclient_new(baseurl)
 }
 
 pub type ReqError {
-  ReqErrOperationcome(FHIRVERSION.Operationoutcome)
-  ReqErrDecode(json.DecodeError)
+  //httpc layer error (only non sansio error)
   ReqErrHttp(httpc.HttpError)
+  //got operationoutcome error from fhir server
+  ReqErrOperationcome(FHIRVERSION.Operationoutcome)
+  //got json but could not parse it, probably a missing required field
+  ReqErrParseJson(json.DecodeError)
+  //did not get resource json, often server eg nginx gives basic html response
+  ReqErrNotJson(Response(String))
+  //could not make a delete or update request because resource has no id
   ReqErrNoId
 }
 
@@ -80,7 +84,8 @@ fn sendreq_parseresource(
       case FHIRVERSION_sansio.any_resp(resp, res_dec) {
         Ok(resource) -> Ok(resource)
         Error(FHIRVERSION_sansio.ErrOperationcome(oo)) -> Error(ReqErrOperationcome(oo))
-        Error(FHIRVERSION_sansio.ErrDecode(dec_err)) -> Error(ReqErrDecode(dec_err))
+        Error(FHIRVERSION_sansio.ErrNotJson(err)) -> Error(ReqErrNotJson(err))
+        Error(FHIRVERSION_sansio.ErrParseJson(err)) -> Error(ReqErrParseJson(err))
         Error(FHIRVERSION_sansio.ErrNoId) -> Error(ReqErrNoId)
       }
   }

@@ -63,6 +63,10 @@ type RestResource {
 
 fn rest_resource_decoder() -> decode.Decoder(RestResource) {
   use type_ <- decode.field("type", decode.string)
+  let type_ = case type_ {
+    "List" -> "Listfhir"
+    _ -> type_
+  }
   use search_include <- decode.optional_field(
     "searchInclude",
     [],
@@ -105,6 +109,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
   let assert Ok(bundle) = json.parse(from: spec, using: bundle_decoder())
   let entries =
     list.filter(bundle.entry, fn(e) {
+      echo e.resource.name
       case e.resource.kind, e.resource.name {
         // _, "AllergyIntolerance" -> True
         // _, _ -> False
@@ -112,6 +117,10 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
         _, "Base" -> False
         _, "BackboneElement" -> False
         _, "Resource" -> False
+        _, "CanonicalResource" -> False
+        _, "MetadataResource" -> False
+        _, "DomainResource" -> False
+        _, "Parameters" -> False
         _, "Element" -> False
         Some("complex-type"), _ -> True
         Some("resource"), _ -> True
@@ -156,22 +165,27 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
   let search_encode =
     list.map(first_entry.resource.rest, fn(rest) {
       list.map(rest.resource, fn(res) {
-        string.concat([
-          "Sp",
+        let #(name_lower, name_capital) = #(
+          string.lowercase(res.type_),
           string.capitalise(res.type_),
-          "(",
-          string.concat(
-            list.map(res.search_param, fn(sp) { escape_spname(sp.name) <> "," }),
-          ),
-          ") -> #(\"",
-          res.type_,
-          "\", using_params([",
+        )
+        string.concat([
+          "pub fn ",
+          name_lower,
+          "_search_req(sp: Sp",
+          name_capital,
+          ", client: FhirClient) {
+            let params = using_params([",
           string.concat(
             list.map(res.search_param, fn(sp) {
-              "#(\"" <> sp.name <> "\"," <> escape_spname(sp.name) <> "),"
+              "#(\"" <> sp.name <> "\", sp." <> escape_spname(sp.name) <> "),"
             }),
           ),
-          "]))\n",
+          "])
+            any_search_req(params, \"",
+          res.type_,
+          "\", client)
+          }",
         ])
       })
       |> string.concat
@@ -181,56 +195,145 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
   let search_type =
     list.map(first_entry.resource.rest, fn(rest) {
       list.map(rest.resource, fn(res) {
-        "Sp"
-        <> string.capitalise(res.type_)
+        let name_capital = string.capitalise(res.type_)
+        "pub type Sp"
+        <> name_capital
+        <> "{"
+        <> "Sp"
+        <> name_capital
         <> "("
+        <> "include: Option(SpInclude),"
         <> string.concat(
           list.map(res.search_param, fn(sp) {
             escape_spname(sp.name) <> ": Option(String),"
           }),
         )
-        <> ")"
+        <> ")}"
       })
       |> string.concat
     })
     |> string.concat
 
+  let search_type_new =
+    list.map(first_entry.resource.rest, fn(rest) {
+      list.map(rest.resource, fn(res) {
+        let #(name_lower, name_capital) = #(
+          string.lowercase(res.type_),
+          string.capitalise(res.type_),
+        )
+        "pub fn sp_"
+        <> name_lower
+        <> "_new(){Sp"
+        <> name_capital
+        <> "("
+        //+1 because search params has each res specific param, plus includes
+        <> string.concat(list.repeat("None,", 1 + list.length(res.search_param)))
+        <> ")}"
+      })
+      |> string.concat
+    })
+    |> string.concat
+
+  let include_type =
+    string.concat(
+      list.map(first_entry.resource.rest, fn(rest) {
+        string.concat(
+          list.map(rest.resource, fn(res) {
+            string.concat([
+              "inc_",
+              string.lowercase(res.type_),
+              ": Option(SpInclude),revinc_",
+              string.lowercase(res.type_),
+              ": Option(SpInclude),",
+            ])
+          }),
+        )
+      }),
+    )
+  let include_type = "pub type SpInclude {SpInclude(" <> include_type <> ")}"
+
+  let grouped_type =
+    string.concat(
+      list.map(first_entry.resource.rest, fn(rest) {
+        string.concat(
+          list.map(rest.resource, fn(res) {
+            let #(name_lower, name_capital) = #(
+              string.lowercase(res.type_),
+              string.capitalise(res.type_),
+            )
+            name_lower <> ": List(FHIRVERSION." <> name_capital <> "),"
+          }),
+        )
+      }),
+    )
+  let grouped_type = "
+  pub type GroupedResources{
+    GroupedResources(" <> grouped_type <> ")
+  }"
+
+  let grouped_type_new =
+    string.concat(
+      list.map(first_entry.resource.rest, fn(rest) {
+        string.concat(
+          list.map(rest.resource, fn(res) {
+            let name_lower = string.lowercase(res.type_)
+            name_lower <> ": [],"
+          }),
+        )
+      }),
+    )
+  let grouped_type_new =
+    "pub fn groupedresources_new(){GroupedResources("
+    <> grouped_type_new
+    <> ")}"
+
+  let bundle_to_gt =
+    string.concat(
+      list.map(first_entry.resource.rest, fn(rest) {
+        string.concat(
+          list.map(rest.resource, fn(res) {
+            let #(name_lower, name_capital) = #(
+              string.lowercase(res.type_),
+              string.capitalise(res.type_),
+            )
+            "FHIRVERSION.Resource"
+            <> name_capital
+            <> "(r) -> GroupedResources(..acc, "
+            <> name_lower
+            <> ": [r, ..acc. "
+            <> name_lower
+            <> "])"
+          }),
+        )
+      }),
+    )
+
+  // "r4.ResourceAccount(r) ->
+  //   GroupedResources(..acc, account: [r, ..acc.account])"
+  let bundle_to_gt =
+    "pub fn bundle_to_groupedresources(from bundle: FHIRVERSION.Bundle) {
+      list.fold(from: groupedresources_new(), over: bundle.entry, with: fn(acc, entry) {
+        case entry.resource {
+          None -> acc
+          Some(res) ->
+            case res {" <> bundle_to_gt <> "
+            _ -> acc
+            }
+        }
+      })
+    }"
+
   let sansio =
     string.concat([
       file_text,
       res_specific_crud,
-      "pub type SearchParams {",
       search_type,
-      "}",
-      "pub fn any_search_req(sp: SearchParams, client: FhirClient) -> Request(String) {
-        let #(res_type, params_to_encode) = case sp {",
+      search_type_new,
+      include_type,
+      grouped_type,
+      grouped_type_new,
       search_encode,
-      "  }
-        let assert Ok(req) =
-          request.to(
-            string.concat([
-              client.baseurl |> uri.to_string,
-              \"/\",
-              res_type,
-              \"?\",
-              string.join(params_to_encode, \"&\"),
-            ]),
-          )
-        req
-        |> request.set_header(\"Accept\", \"application/fhir+json\")}
-        
-        fn using_params(params) {
-          list.fold(
-            from: [],
-            over: params,
-            with: fn(acc, param: #(String, Option(String))) {
-              case param.1 {
-                None -> acc
-                Some(p) -> [param.0 <> \":\" <> p, ..acc]
-              }
-            },
-          )
-        }",
+      bundle_to_gt,
     ])
     |> string.replace("FHIRVERSION", fhir_version)
 
@@ -276,6 +379,11 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
               client: FhirClient,
             ) -> Result(FHIRVERSION.Operationoutcome, ReqError) {
               any_delete(resource.id, \"NAMEUPPER\", client)
+            }
+
+            pub fn NAMELOWER_search(sp: FHIRVERSION_sansio.SpNAMECAPITAL, client: FhirClient) {
+              let req = FHIRVERSION_sansio.NAMELOWER_search_req(sp, client)
+              sendreq_parseresource(req, FHIRVERSION.bundle_decoder())
             }
             ",
     )

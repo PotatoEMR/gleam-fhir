@@ -904,7 +904,10 @@ fn file_to_types(
     True -> {
       let res_entries =
         entries
-        |> list.filter(fn(entry) { entry.resource.kind == Some("resource") })
+        |> list.filter(fn(entry) {
+          entry.resource.kind == Some("resource")
+          && entry.resource.name != "DomainResource"
+        })
         |> list.map(fn(entry) {
           let camel_type = entry.resource.name |> to_camel_case
           #(entry, case camel_type {

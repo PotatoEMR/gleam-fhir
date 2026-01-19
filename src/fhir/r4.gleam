@@ -123956,7 +123956,6 @@ pub type Resource {
   ResourceDiagnosticreport(Diagnosticreport)
   ResourceDocumentmanifest(Documentmanifest)
   ResourceDocumentreference(Documentreference)
-  ResourceDomainresource(Domainresource)
   ResourceEffectevidencesynthesis(Effectevidencesynthesis)
   ResourceEncounter(Encounter)
   ResourceEndpoint(Endpoint)
@@ -124110,7 +124109,6 @@ pub fn resource_to_json(res: Resource) {
     ResourceDiagnosticreport(r) -> diagnosticreport_to_json(r)
     ResourceDocumentmanifest(r) -> documentmanifest_to_json(r)
     ResourceDocumentreference(r) -> documentreference_to_json(r)
-    ResourceDomainresource(r) -> domainresource_to_json(r)
     ResourceEffectevidencesynthesis(r) -> effectevidencesynthesis_to_json(r)
     ResourceEncounter(r) -> encounter_to_json(r)
     ResourceEndpoint(r) -> endpoint_to_json(r)
@@ -124298,8 +124296,6 @@ pub fn resource_decoder() -> Decoder(Resource) {
       documentmanifest_decoder() |> decode.map(ResourceDocumentmanifest)
     "DocumentReference" ->
       documentreference_decoder() |> decode.map(ResourceDocumentreference)
-    "DomainResource" ->
-      domainresource_decoder() |> decode.map(ResourceDomainresource)
     "EffectEvidenceSynthesis" ->
       effectevidencesynthesis_decoder()
       |> decode.map(ResourceEffectevidencesynthesis)

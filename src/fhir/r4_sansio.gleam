@@ -22,8 +22,10 @@ pub fn fhirclient_new(baseurl: String) {
 pub type Err {
   //could not make a delete or update request because resource has no id
   ErrNoId
-  //could not decode resource json
-  ErrDecode(json.DecodeError)
+  //got json but could not parse it, probably a missing required field
+  ErrParseJson(json.DecodeError)
+  //did not get resource json, often server eg nginx gives basic html response
+  ErrNotJson(Response(String))
   //got operationoutcome error from fhir server
   ErrOperationcome(r4.Operationoutcome)
 }
@@ -94,6 +96,40 @@ pub fn any_delete_req(
   }
 }
 
+pub fn any_search_req(
+  search_string: String,
+  res_type: String,
+  client: FhirClient,
+) -> Request(String) {
+  let assert Ok(req) =
+    request.to(
+      string.concat([
+        client.baseurl |> uri.to_string,
+        "/",
+        res_type,
+        "?",
+        search_string,
+      ]),
+    )
+  echo req.path
+  req
+  |> request.set_header("Accept", "application/fhir+json")
+}
+
+fn using_params(params) {
+  list.fold(
+    from: [],
+    over: params,
+    with: fn(acc, param: #(String, Option(String))) {
+      case param.1 {
+        None -> acc
+        Some(p) -> [param.0 <> "=" <> p, ..acc]
+      }
+    },
+  )
+  |> string.join("&")
+}
+
 //decodes a resource (with type based on given decoder) or operationoutcome
 pub fn any_resp(resp: Response(String), resource_dec: decode.Decoder(a)) {
   let decoded_resource =
@@ -105,7 +141,11 @@ pub fn any_resp(resp: Response(String), resource_dec: decode.Decoder(a)) {
   case decoded_resource {
     Ok(Ok(resource)) -> Ok(resource)
     Ok(Error(op_outcome)) -> Error(ErrOperationcome(op_outcome))
-    Error(dec_err) -> Error(ErrDecode(dec_err))
+    Error(dec_err) ->
+      case dec_err {
+        json.UnableToDecode(_) -> Error(ErrParseJson(dec_err))
+        _ -> Error(ErrNotJson(resp))
+      }
   }
 }
 
@@ -1634,45 +1674,6 @@ pub fn documentreference_resp(
   resp: Response(String),
 ) -> Result(r4.Documentreference, Err) {
   any_resp(resp, r4.documentreference_decoder())
-}
-
-pub fn domainresource_create_req(
-  resource: r4.Domainresource,
-  client: FhirClient,
-) -> Request(String) {
-  any_create_req(r4.domainresource_to_json(resource), "DomainResource", client)
-}
-
-pub fn domainresource_read_req(
-  id: String,
-  client: FhirClient,
-) -> Request(String) {
-  any_read_req(id, "DomainResource", client)
-}
-
-pub fn domainresource_update_req(
-  resource: r4.Domainresource,
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id,
-    r4.domainresource_to_json(resource),
-    "DomainResource",
-    client,
-  )
-}
-
-pub fn domainresource_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "DomainResource", client)
-}
-
-pub fn domainresource_resp(
-  resp: Response(String),
-) -> Result(r4.Domainresource, Err) {
-  any_resp(resp, r4.domainresource_decoder())
 }
 
 pub fn effectevidencesynthesis_create_req(
@@ -3943,40 +3944,6 @@ pub fn organizationaffiliation_resp(
   any_resp(resp, r4.organizationaffiliation_decoder())
 }
 
-pub fn parameters_create_req(
-  resource: r4.Parameters,
-  client: FhirClient,
-) -> Request(String) {
-  any_create_req(r4.parameters_to_json(resource), "Parameters", client)
-}
-
-pub fn parameters_read_req(id: String, client: FhirClient) -> Request(String) {
-  any_read_req(id, "Parameters", client)
-}
-
-pub fn parameters_update_req(
-  resource: r4.Parameters,
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id,
-    r4.parameters_to_json(resource),
-    "Parameters",
-    client,
-  )
-}
-
-pub fn parameters_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Parameters", client)
-}
-
-pub fn parameters_resp(resp: Response(String)) -> Result(r4.Parameters, Err) {
-  any_resp(resp, r4.parameters_decoder())
-}
-
 pub fn patient_create_req(
   resource: r4.Patient,
   client: FhirClient,
@@ -5633,8 +5600,9 @@ pub fn visionprescription_resp(
   any_resp(resp, r4.visionprescription_decoder())
 }
 
-pub type SearchParams {
+pub type SpAccount {
   SpAccount(
+    include: Option(SpInclude),
     owner: Option(String),
     identifier: Option(String),
     period: Option(String),
@@ -5644,7 +5612,11 @@ pub type SearchParams {
     type_: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpActivitydefinition {
   SpActivitydefinition(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -5668,7 +5640,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpAdverseevent {
   SpAdverseevent(
+    include: Option(SpInclude),
     date: Option(String),
     severity: Option(String),
     recorder: Option(String),
@@ -5682,7 +5658,11 @@ pub type SearchParams {
     category: Option(String),
     event: Option(String),
   )
+}
+
+pub type SpAllergyintolerance {
   SpAllergyintolerance(
+    include: Option(SpInclude),
     severity: Option(String),
     date: Option(String),
     identifier: Option(String),
@@ -5700,7 +5680,11 @@ pub type SearchParams {
     category: Option(String),
     last_date: Option(String),
   )
+}
+
+pub type SpAppointment {
   SpAppointment(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     specialty: Option(String),
@@ -5719,7 +5703,11 @@ pub type SearchParams {
     location: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpAppointmentresponse {
   SpAppointmentresponse(
+    include: Option(SpInclude),
     actor: Option(String),
     identifier: Option(String),
     practitioner: Option(String),
@@ -5728,7 +5716,11 @@ pub type SearchParams {
     appointment: Option(String),
     location: Option(String),
   )
+}
+
+pub type SpAuditevent {
   SpAuditevent(
+    include: Option(SpInclude),
     date: Option(String),
     entity_type: Option(String),
     agent: Option(String),
@@ -5748,7 +5740,11 @@ pub type SearchParams {
     outcome: Option(String),
     policy: Option(String),
   )
+}
+
+pub type SpBasic {
   SpBasic(
+    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     subject: Option(String),
@@ -5756,22 +5752,40 @@ pub type SearchParams {
     patient: Option(String),
     author: Option(String),
   )
-  SpBinary
-  SpBiologicallyderivedproduct
+}
+
+pub type SpBinary {
+  SpBinary(include: Option(SpInclude))
+}
+
+pub type SpBiologicallyderivedproduct {
+  SpBiologicallyderivedproduct(include: Option(SpInclude))
+}
+
+pub type SpBodystructure {
   SpBodystructure(
+    include: Option(SpInclude),
     identifier: Option(String),
     morphology: Option(String),
     patient: Option(String),
     location: Option(String),
   )
+}
+
+pub type SpBundle {
   SpBundle(
+    include: Option(SpInclude),
     identifier: Option(String),
     composition: Option(String),
     type_: Option(String),
     message: Option(String),
     timestamp: Option(String),
   )
+}
+
+pub type SpCapabilitystatement {
   SpCapabilitystatement(
+    include: Option(SpInclude),
     date: Option(String),
     resource_profile: Option(String),
     context_type_value: Option(String),
@@ -5796,7 +5810,11 @@ pub type SearchParams {
     guide: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpCareplan {
   SpCareplan(
+    include: Option(SpInclude),
     date: Option(String),
     care_team: Option(String),
     identifier: Option(String),
@@ -5818,7 +5836,11 @@ pub type SearchParams {
     activity_code: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpCareteam {
   SpCareteam(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     patient: Option(String),
@@ -5828,8 +5850,15 @@ pub type SearchParams {
     participant: Option(String),
     status: Option(String),
   )
-  SpCatalogentry
+}
+
+pub type SpCatalogentry {
+  SpCatalogentry(include: Option(SpInclude))
+}
+
+pub type SpChargeitem {
   SpChargeitem(
+    include: Option(SpInclude),
     identifier: Option(String),
     performing_organization: Option(String),
     code: Option(String),
@@ -5848,7 +5877,11 @@ pub type SearchParams {
     account: Option(String),
     requesting_organization: Option(String),
   )
+}
+
+pub type SpChargeitemdefinition {
   SpChargeitemdefinition(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -5865,7 +5898,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpClaim {
   SpClaim(
+    include: Option(SpInclude),
     care_team: Option(String),
     identifier: Option(String),
     use_: Option(String),
@@ -5884,7 +5921,11 @@ pub type SearchParams {
     item_udi: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpClaimresponse {
   SpClaimresponse(
+    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     disposition: Option(String),
@@ -5897,7 +5938,11 @@ pub type SearchParams {
     requestor: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpClinicalimpression {
   SpClinicalimpression(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     previous: Option(String),
@@ -5912,7 +5957,11 @@ pub type SearchParams {
     investigation: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpCodesystem {
   SpCodesystem(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -5934,7 +5983,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpCommunication {
   SpCommunication(
+    include: Option(SpInclude),
     identifier: Option(String),
     subject: Option(String),
     instantiates_canonical: Option(String),
@@ -5951,7 +6004,11 @@ pub type SearchParams {
     category: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpCommunicationrequest {
   SpCommunicationrequest(
+    include: Option(SpInclude),
     requester: Option(String),
     authored: Option(String),
     identifier: Option(String),
@@ -5969,7 +6026,11 @@ pub type SearchParams {
     category: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpCompartmentdefinition {
   SpCompartmentdefinition(
+    include: Option(SpInclude),
     date: Option(String),
     code: Option(String),
     context_type_value: Option(String),
@@ -5985,7 +6046,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpComposition {
   SpComposition(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     period: Option(String),
@@ -6005,7 +6070,11 @@ pub type SearchParams {
     category: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpConceptmap {
   SpConceptmap(
+    include: Option(SpInclude),
     date: Option(String),
     other: Option(String),
     context_type_value: Option(String),
@@ -6033,7 +6102,11 @@ pub type SearchParams {
     publisher: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpCondition {
   SpCondition(
+    include: Option(SpInclude),
     severity: Option(String),
     evidence_detail: Option(String),
     identifier: Option(String),
@@ -6056,7 +6129,11 @@ pub type SearchParams {
     category: Option(String),
     body_site: Option(String),
   )
+}
+
+pub type SpConsent {
   SpConsent(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     period: Option(String),
@@ -6073,7 +6150,11 @@ pub type SearchParams {
     category: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpContract {
   SpContract(
+    include: Option(SpInclude),
     identifier: Option(String),
     instantiates: Option(String),
     patient: Option(String),
@@ -6085,7 +6166,11 @@ pub type SearchParams {
     signer: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpCoverage {
   SpCoverage(
+    include: Option(SpInclude),
     identifier: Option(String),
     payor: Option(String),
     subscriber: Option(String),
@@ -6098,7 +6183,11 @@ pub type SearchParams {
     policy_holder: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpCoverageeligibilityrequest {
   SpCoverageeligibilityrequest(
+    include: Option(SpInclude),
     identifier: Option(String),
     provider: Option(String),
     patient: Option(String),
@@ -6107,7 +6196,11 @@ pub type SearchParams {
     facility: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpCoverageeligibilityresponse {
   SpCoverageeligibilityresponse(
+    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     disposition: Option(String),
@@ -6118,7 +6211,11 @@ pub type SearchParams {
     requestor: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpDetectedissue {
   SpDetectedissue(
+    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     identified: Option(String),
@@ -6126,7 +6223,11 @@ pub type SearchParams {
     author: Option(String),
     implicated: Option(String),
   )
+}
+
+pub type SpDevice {
   SpDevice(
+    include: Option(SpInclude),
     udi_di: Option(String),
     identifier: Option(String),
     udi_carrier: Option(String),
@@ -6140,19 +6241,31 @@ pub type SearchParams {
     manufacturer: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpDevicedefinition {
   SpDevicedefinition(
+    include: Option(SpInclude),
     parent: Option(String),
     identifier: Option(String),
     type_: Option(String),
   )
+}
+
+pub type SpDevicemetric {
   SpDevicemetric(
+    include: Option(SpInclude),
     parent: Option(String),
     identifier: Option(String),
     source: Option(String),
     type_: Option(String),
     category: Option(String),
   )
+}
+
+pub type SpDevicerequest {
   SpDevicerequest(
+    include: Option(SpInclude),
     requester: Option(String),
     insurance: Option(String),
     identifier: Option(String),
@@ -6172,13 +6285,21 @@ pub type SearchParams {
     device: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpDeviceusestatement {
   SpDeviceusestatement(
+    include: Option(SpInclude),
     identifier: Option(String),
     subject: Option(String),
     patient: Option(String),
     device: Option(String),
   )
+}
+
+pub type SpDiagnosticreport {
   SpDiagnosticreport(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     performer: Option(String),
@@ -6196,7 +6317,11 @@ pub type SearchParams {
     results_interpreter: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpDocumentmanifest {
   SpDocumentmanifest(
+    include: Option(SpInclude),
     identifier: Option(String),
     item: Option(String),
     related_id: Option(String),
@@ -6211,7 +6336,11 @@ pub type SearchParams {
     recipient: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpDocumentreference {
   SpDocumentreference(
+    include: Option(SpInclude),
     date: Option(String),
     subject: Option(String),
     description: Option(String),
@@ -6238,7 +6367,11 @@ pub type SearchParams {
     facility: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpEffectevidencesynthesis {
   SpEffectevidencesynthesis(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -6256,7 +6389,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpEncounter {
   SpEncounter(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     participant_type: Option(String),
@@ -6281,7 +6418,11 @@ pub type SearchParams {
     account: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpEndpoint {
   SpEndpoint(
+    include: Option(SpInclude),
     payload_type: Option(String),
     identifier: Option(String),
     organization: Option(String),
@@ -6289,18 +6430,30 @@ pub type SearchParams {
     name: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpEnrollmentrequest {
   SpEnrollmentrequest(
+    include: Option(SpInclude),
     identifier: Option(String),
     subject: Option(String),
     patient: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpEnrollmentresponse {
   SpEnrollmentresponse(
+    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpEpisodeofcare {
   SpEpisodeofcare(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     condition: Option(String),
@@ -6311,7 +6464,11 @@ pub type SearchParams {
     status: Option(String),
     incoming_referral: Option(String),
   )
+}
+
+pub type SpEventdefinition {
   SpEventdefinition(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -6335,7 +6492,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpEvidence {
   SpEvidence(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -6359,7 +6520,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpEvidencevariable {
   SpEvidencevariable(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -6383,7 +6548,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpExamplescenario {
   SpExamplescenario(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -6398,7 +6567,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpExplanationofbenefit {
   SpExplanationofbenefit(
+    include: Option(SpInclude),
     coverage: Option(String),
     care_team: Option(String),
     identifier: Option(String),
@@ -6417,7 +6590,11 @@ pub type SearchParams {
     item_udi: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpFamilymemberhistory {
   SpFamilymemberhistory(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -6428,7 +6605,11 @@ pub type SearchParams {
     relationship: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpFlag {
   SpFlag(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     subject: Option(String),
@@ -6436,7 +6617,11 @@ pub type SearchParams {
     author: Option(String),
     encounter: Option(String),
   )
+}
+
+pub type SpGoal {
   SpGoal(
+    include: Option(SpInclude),
     identifier: Option(String),
     lifecycle_status: Option(String),
     achievement_status: Option(String),
@@ -6446,7 +6631,11 @@ pub type SearchParams {
     category: Option(String),
     target_date: Option(String),
   )
+}
+
+pub type SpGraphdefinition {
   SpGraphdefinition(
+    include: Option(SpInclude),
     date: Option(String),
     context_type_value: Option(String),
     jurisdiction: Option(String),
@@ -6462,7 +6651,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpGroup {
   SpGroup(
+    include: Option(SpInclude),
     actual: Option(String),
     identifier: Option(String),
     characteristic_value: Option(String),
@@ -6474,13 +6667,21 @@ pub type SearchParams {
     value: Option(String),
     characteristic: Option(String),
   )
+}
+
+pub type SpGuidanceresponse {
   SpGuidanceresponse(
+    include: Option(SpInclude),
     request: Option(String),
     identifier: Option(String),
     patient: Option(String),
     subject: Option(String),
   )
+}
+
+pub type SpHealthcareservice {
   SpHealthcareservice(
+    include: Option(SpInclude),
     identifier: Option(String),
     specialty: Option(String),
     endpoint: Option(String),
@@ -6494,7 +6695,11 @@ pub type SearchParams {
     program: Option(String),
     characteristic: Option(String),
   )
+}
+
+pub type SpImagingstudy {
   SpImagingstudy(
+    include: Option(SpInclude),
     identifier: Option(String),
     reason: Option(String),
     dicom_class: Option(String),
@@ -6513,7 +6718,11 @@ pub type SearchParams {
     basedon: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpImmunization {
   SpImmunization(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     performer: Option(String),
@@ -6531,7 +6740,11 @@ pub type SearchParams {
     status: Option(String),
     reaction_date: Option(String),
   )
+}
+
+pub type SpImmunizationevaluation {
   SpImmunizationevaluation(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     target_disease: Option(String),
@@ -6540,7 +6753,11 @@ pub type SearchParams {
     immunization_event: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpImmunizationrecommendation {
   SpImmunizationrecommendation(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     target_disease: Option(String),
@@ -6550,7 +6767,11 @@ pub type SearchParams {
     support: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpImplementationguide {
   SpImplementationguide(
+    include: Option(SpInclude),
     date: Option(String),
     context_type_value: Option(String),
     resource: Option(String),
@@ -6570,7 +6791,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpInsuranceplan {
   SpInsuranceplan(
+    include: Option(SpInclude),
     identifier: Option(String),
     address: Option(String),
     address_state: Option(String),
@@ -6586,7 +6811,11 @@ pub type SearchParams {
     address_city: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpInvoice {
   SpInvoice(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     totalgross: Option(String),
@@ -6601,7 +6830,11 @@ pub type SearchParams {
     account: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpLibrary {
   SpLibrary(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -6627,12 +6860,20 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpLinkage {
   SpLinkage(
+    include: Option(SpInclude),
     item: Option(String),
     author: Option(String),
     source: Option(String),
   )
-  SpList(
+}
+
+pub type SpListfhir {
+  SpListfhir(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     item: Option(String),
@@ -6646,7 +6887,11 @@ pub type SearchParams {
     title: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpLocation {
   SpLocation(
+    include: Option(SpInclude),
     identifier: Option(String),
     partof: Option(String),
     address: Option(String),
@@ -6663,7 +6908,11 @@ pub type SearchParams {
     address_city: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpMeasure {
   SpMeasure(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -6687,7 +6936,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpMeasurereport {
   SpMeasurereport(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     period: Option(String),
@@ -6698,7 +6951,11 @@ pub type SearchParams {
     status: Option(String),
     evaluated_resource: Option(String),
   )
+}
+
+pub type SpMedia {
   SpMedia(
+    include: Option(SpInclude),
     identifier: Option(String),
     modality: Option(String),
     subject: Option(String),
@@ -6713,7 +6970,11 @@ pub type SearchParams {
     device: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpMedication {
   SpMedication(
+    include: Option(SpInclude),
     ingredient_code: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -6724,7 +6985,11 @@ pub type SearchParams {
     manufacturer: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpMedicationadministration {
   SpMedicationadministration(
+    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     code: Option(String),
@@ -6739,7 +7004,11 @@ pub type SearchParams {
     device: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpMedicationdispense {
   SpMedicationdispense(
+    include: Option(SpInclude),
     identifier: Option(String),
     performer: Option(String),
     code: Option(String),
@@ -6756,7 +7025,11 @@ pub type SearchParams {
     context: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpMedicationknowledge {
   SpMedicationknowledge(
+    include: Option(SpInclude),
     code: Option(String),
     ingredient: Option(String),
     doseform: Option(String),
@@ -6771,7 +7044,11 @@ pub type SearchParams {
     monitoring_program_type: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpMedicationrequest {
   SpMedicationrequest(
+    include: Option(SpInclude),
     requester: Option(String),
     date: Option(String),
     identifier: Option(String),
@@ -6789,7 +7066,11 @@ pub type SearchParams {
     category: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpMedicationstatement {
   SpMedicationstatement(
+    include: Option(SpInclude),
     identifier: Option(String),
     effective: Option(String),
     code: Option(String),
@@ -6802,34 +7083,84 @@ pub type SearchParams {
     category: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpMedicinalproduct {
   SpMedicinalproduct(
+    include: Option(SpInclude),
     identifier: Option(String),
     name: Option(String),
     name_language: Option(String),
   )
+}
+
+pub type SpMedicinalproductauthorization {
   SpMedicinalproductauthorization(
+    include: Option(SpInclude),
     identifier: Option(String),
     country: Option(String),
     subject: Option(String),
     holder: Option(String),
     status: Option(String),
   )
-  SpMedicinalproductcontraindication(subject: Option(String))
-  SpMedicinalproductindication(subject: Option(String))
-  SpMedicinalproductingredient
-  SpMedicinalproductinteraction(subject: Option(String))
-  SpMedicinalproductmanufactured
+}
+
+pub type SpMedicinalproductcontraindication {
+  SpMedicinalproductcontraindication(
+    include: Option(SpInclude),
+    subject: Option(String),
+  )
+}
+
+pub type SpMedicinalproductindication {
+  SpMedicinalproductindication(
+    include: Option(SpInclude),
+    subject: Option(String),
+  )
+}
+
+pub type SpMedicinalproductingredient {
+  SpMedicinalproductingredient(include: Option(SpInclude))
+}
+
+pub type SpMedicinalproductinteraction {
+  SpMedicinalproductinteraction(
+    include: Option(SpInclude),
+    subject: Option(String),
+  )
+}
+
+pub type SpMedicinalproductmanufactured {
+  SpMedicinalproductmanufactured(include: Option(SpInclude))
+}
+
+pub type SpMedicinalproductpackaged {
   SpMedicinalproductpackaged(
+    include: Option(SpInclude),
     identifier: Option(String),
     subject: Option(String),
   )
+}
+
+pub type SpMedicinalproductpharmaceutical {
   SpMedicinalproductpharmaceutical(
+    include: Option(SpInclude),
     identifier: Option(String),
     route: Option(String),
     target_species: Option(String),
   )
-  SpMedicinalproductundesirableeffect(subject: Option(String))
+}
+
+pub type SpMedicinalproductundesirableeffect {
+  SpMedicinalproductundesirableeffect(
+    include: Option(SpInclude),
+    subject: Option(String),
+  )
+}
+
+pub type SpMessagedefinition {
   SpMessagedefinition(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     parent: Option(String),
@@ -6850,7 +7181,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpMessageheader {
   SpMessageheader(
+    include: Option(SpInclude),
     code: Option(String),
     receiver: Option(String),
     author: Option(String),
@@ -6866,7 +7201,11 @@ pub type SearchParams {
     response_id: Option(String),
     event: Option(String),
   )
+}
+
+pub type SpMolecularsequence {
   SpMolecularsequence(
+    include: Option(SpInclude),
     identifier: Option(String),
     referenceseqid_variant_coordinate: Option(String),
     chromosome: Option(String),
@@ -6881,7 +7220,11 @@ pub type SearchParams {
     referenceseqid_window_coordinate: Option(String),
     referenceseqid: Option(String),
   )
+}
+
+pub type SpNamingsystem {
   SpNamingsystem(
+    include: Option(SpInclude),
     date: Option(String),
     period: Option(String),
     context_type_value: Option(String),
@@ -6902,7 +7245,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpNutritionorder {
   SpNutritionorder(
+    include: Option(SpInclude),
     identifier: Option(String),
     datetime: Option(String),
     provider: Option(String),
@@ -6916,7 +7263,11 @@ pub type SearchParams {
     status: Option(String),
     additive: Option(String),
   )
+}
+
+pub type SpObservation {
   SpObservation(
+    include: Option(SpInclude),
     date: Option(String),
     combo_data_absent_reason: Option(String),
     code: Option(String),
@@ -6956,8 +7307,15 @@ pub type SearchParams {
     combo_value_concept: Option(String),
     status: Option(String),
   )
-  SpObservationdefinition
+}
+
+pub type SpObservationdefinition {
+  SpObservationdefinition(include: Option(SpInclude))
+}
+
+pub type SpOperationdefinition {
   SpOperationdefinition(
+    include: Option(SpInclude),
     date: Option(String),
     code: Option(String),
     instance: Option(String),
@@ -6981,8 +7339,15 @@ pub type SearchParams {
     status: Option(String),
     base: Option(String),
   )
-  SpOperationoutcome
+}
+
+pub type SpOperationoutcome {
+  SpOperationoutcome(include: Option(SpInclude))
+}
+
+pub type SpOrganization {
   SpOrganization(
+    include: Option(SpInclude),
     identifier: Option(String),
     partof: Option(String),
     address: Option(String),
@@ -6997,7 +7362,11 @@ pub type SearchParams {
     address_use: Option(String),
     address_city: Option(String),
   )
+}
+
+pub type SpOrganizationaffiliation {
   SpOrganizationaffiliation(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     specialty: Option(String),
@@ -7013,7 +7382,11 @@ pub type SearchParams {
     location: Option(String),
     email: Option(String),
   )
+}
+
+pub type SpPatient {
   SpPatient(
+    include: Option(SpInclude),
     identifier: Option(String),
     given: Option(String),
     address: Option(String),
@@ -7038,7 +7411,11 @@ pub type SearchParams {
     address_city: Option(String),
     email: Option(String),
   )
+}
+
+pub type SpPaymentnotice {
   SpPaymentnotice(
+    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     provider: Option(String),
@@ -7047,7 +7424,11 @@ pub type SearchParams {
     payment_status: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpPaymentreconciliation {
   SpPaymentreconciliation(
+    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     disposition: Option(String),
@@ -7057,7 +7438,11 @@ pub type SearchParams {
     requestor: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpPerson {
   SpPerson(
+    include: Option(SpInclude),
     identifier: Option(String),
     address: Option(String),
     birthdate: Option(String),
@@ -7078,7 +7463,11 @@ pub type SearchParams {
     address_city: Option(String),
     email: Option(String),
   )
+}
+
+pub type SpPlandefinition {
   SpPlandefinition(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -7104,7 +7493,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpPractitioner {
   SpPractitioner(
+    include: Option(SpInclude),
     identifier: Option(String),
     given: Option(String),
     address: Option(String),
@@ -7123,7 +7516,11 @@ pub type SearchParams {
     communication: Option(String),
     email: Option(String),
   )
+}
+
+pub type SpPractitionerrole {
   SpPractitionerrole(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     specialty: Option(String),
@@ -7138,7 +7535,11 @@ pub type SearchParams {
     location: Option(String),
     email: Option(String),
   )
+}
+
+pub type SpProcedure {
   SpProcedure(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -7156,7 +7557,11 @@ pub type SearchParams {
     category: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpProvenance {
   SpProvenance(
+    include: Option(SpInclude),
     agent_type: Option(String),
     agent: Option(String),
     signature_type: Option(String),
@@ -7168,7 +7573,11 @@ pub type SearchParams {
     entity: Option(String),
     target: Option(String),
   )
+}
+
+pub type SpQuestionnaire {
   SpQuestionnaire(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -7189,7 +7598,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpQuestionnaireresponse {
   SpQuestionnaireresponse(
+    include: Option(SpInclude),
     authored: Option(String),
     identifier: Option(String),
     questionnaire: Option(String),
@@ -7202,7 +7615,11 @@ pub type SearchParams {
     source: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpRelatedperson {
   SpRelatedperson(
+    include: Option(SpInclude),
     identifier: Option(String),
     address: Option(String),
     birthdate: Option(String),
@@ -7221,7 +7638,11 @@ pub type SearchParams {
     relationship: Option(String),
     email: Option(String),
   )
+}
+
+pub type SpRequestgroup {
   SpRequestgroup(
+    include: Option(SpInclude),
     authored: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -7237,7 +7658,11 @@ pub type SearchParams {
     instantiates_uri: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpResearchdefinition {
   SpResearchdefinition(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -7261,7 +7686,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpResearchelementdefinition {
   SpResearchelementdefinition(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -7285,7 +7714,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpResearchstudy {
   SpResearchstudy(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     partof: Option(String),
@@ -7300,7 +7733,11 @@ pub type SearchParams {
     keyword: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpResearchsubject {
   SpResearchsubject(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     study: Option(String),
@@ -7308,7 +7745,11 @@ pub type SearchParams {
     patient: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpRiskassessment {
   SpRiskassessment(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     condition: Option(String),
@@ -7320,7 +7761,11 @@ pub type SearchParams {
     risk: Option(String),
     encounter: Option(String),
   )
+}
+
+pub type SpRiskevidencesynthesis {
   SpRiskevidencesynthesis(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -7338,7 +7783,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpSchedule {
   SpSchedule(
+    include: Option(SpInclude),
     actor: Option(String),
     date: Option(String),
     identifier: Option(String),
@@ -7347,7 +7796,11 @@ pub type SearchParams {
     service_type: Option(String),
     active: Option(String),
   )
+}
+
+pub type SpSearchparameter {
   SpSearchparameter(
+    include: Option(SpInclude),
     date: Option(String),
     code: Option(String),
     context_type_value: Option(String),
@@ -7368,7 +7821,11 @@ pub type SearchParams {
     status: Option(String),
     base: Option(String),
   )
+}
+
+pub type SpServicerequest {
   SpServicerequest(
+    include: Option(SpInclude),
     authored: Option(String),
     requester: Option(String),
     identifier: Option(String),
@@ -7391,7 +7848,11 @@ pub type SearchParams {
     category: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpSlot {
   SpSlot(
+    include: Option(SpInclude),
     schedule: Option(String),
     identifier: Option(String),
     specialty: Option(String),
@@ -7401,7 +7862,11 @@ pub type SearchParams {
     start: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpSpecimen {
   SpSpecimen(
+    include: Option(SpInclude),
     container: Option(String),
     identifier: Option(String),
     parent: Option(String),
@@ -7415,12 +7880,20 @@ pub type SearchParams {
     collector: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpSpecimendefinition {
   SpSpecimendefinition(
+    include: Option(SpInclude),
     container: Option(String),
     identifier: Option(String),
     type_: Option(String),
   )
+}
+
+pub type SpStructuredefinition {
   SpStructuredefinition(
+    include: Option(SpInclude),
     date: Option(String),
     context_type_value: Option(String),
     jurisdiction: Option(String),
@@ -7448,7 +7921,11 @@ pub type SearchParams {
     status: Option(String),
     base: Option(String),
   )
+}
+
+pub type SpStructuremap {
   SpStructuremap(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -7465,7 +7942,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpSubscription {
   SpSubscription(
+    include: Option(SpInclude),
     payload: Option(String),
     criteria: Option(String),
     contact: Option(String),
@@ -7473,7 +7954,11 @@ pub type SearchParams {
     url: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpSubstance {
   SpSubstance(
+    include: Option(SpInclude),
     identifier: Option(String),
     container_identifier: Option(String),
     code: Option(String),
@@ -7483,20 +7968,46 @@ pub type SearchParams {
     category: Option(String),
     status: Option(String),
   )
-  SpSubstancenucleicacid
-  SpSubstancepolymer
-  SpSubstanceprotein
-  SpSubstancereferenceinformation
-  SpSubstancesourcematerial
-  SpSubstancespecification(code: Option(String))
+}
+
+pub type SpSubstancenucleicacid {
+  SpSubstancenucleicacid(include: Option(SpInclude))
+}
+
+pub type SpSubstancepolymer {
+  SpSubstancepolymer(include: Option(SpInclude))
+}
+
+pub type SpSubstanceprotein {
+  SpSubstanceprotein(include: Option(SpInclude))
+}
+
+pub type SpSubstancereferenceinformation {
+  SpSubstancereferenceinformation(include: Option(SpInclude))
+}
+
+pub type SpSubstancesourcematerial {
+  SpSubstancesourcematerial(include: Option(SpInclude))
+}
+
+pub type SpSubstancespecification {
+  SpSubstancespecification(include: Option(SpInclude), code: Option(String))
+}
+
+pub type SpSupplydelivery {
   SpSupplydelivery(
+    include: Option(SpInclude),
     identifier: Option(String),
     receiver: Option(String),
     patient: Option(String),
     supplier: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpSupplyrequest {
   SpSupplyrequest(
+    include: Option(SpInclude),
     requester: Option(String),
     date: Option(String),
     identifier: Option(String),
@@ -7505,7 +8016,11 @@ pub type SearchParams {
     category: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpTask {
   SpTask(
+    include: Option(SpInclude),
     owner: Option(String),
     requester: Option(String),
     identifier: Option(String),
@@ -7526,7 +8041,11 @@ pub type SearchParams {
     modified: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpTerminologycapabilities {
   SpTerminologycapabilities(
+    include: Option(SpInclude),
     date: Option(String),
     context_type_value: Option(String),
     jurisdiction: Option(String),
@@ -7542,7 +8061,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpTestreport {
   SpTestreport(
+    include: Option(SpInclude),
     result: Option(String),
     identifier: Option(String),
     tester: Option(String),
@@ -7550,7 +8073,11 @@ pub type SearchParams {
     issued: Option(String),
     participant: Option(String),
   )
+}
+
+pub type SpTestscript {
   SpTestscript(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -7568,7 +8095,11 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
+}
+
+pub type SpValueset {
   SpValueset(
+    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -7588,8 +8119,15 @@ pub type SearchParams {
     context_type_quantity: Option(String),
     status: Option(String),
   )
-  SpVerificationresult(target: Option(String))
+}
+
+pub type SpVerificationresult {
+  SpVerificationresult(include: Option(SpInclude), target: Option(String))
+}
+
+pub type SpVisionprescription {
   SpVisionprescription(
+    include: Option(SpInclude),
     prescriber: Option(String),
     identifier: Option(String),
     patient: Option(String),
@@ -7599,4122 +8137,6140 @@ pub type SearchParams {
   )
 }
 
-pub fn any_search_req(sp: SearchParams, client: FhirClient) -> Request(String) {
-  let #(res_type, params_to_encode) = case sp {
-    SpAccount(owner, identifier, period, subject, patient, name, type_, status) -> #(
-      "Account",
-      using_params([
-        #("owner", owner),
-        #("identifier", identifier),
-        #("period", period),
-        #("subject", subject),
-        #("patient", patient),
-        #("name", name),
-        #("type", type_),
-        #("status", status),
-      ]),
-    )
-    SpActivitydefinition(
-      date,
-      identifier,
-      successor,
-      context_type_value,
-      jurisdiction,
-      description,
-      derived_from,
-      context_type,
-      predecessor,
-      title,
-      composed_of,
-      version,
-      url,
-      context_quantity,
-      effective,
-      depends_on,
-      name,
-      context,
-      publisher,
-      topic,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "ActivityDefinition",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("successor", successor),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("derived-from", derived_from),
-        #("context-type", context_type),
-        #("predecessor", predecessor),
-        #("title", title),
-        #("composed-of", composed_of),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("depends-on", depends_on),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("topic", topic),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpAdverseevent(
-      date,
-      severity,
-      recorder,
-      study,
-      actuality,
-      seriousness,
-      subject,
-      resultingcondition,
-      substance,
-      location,
-      category,
-      event,
-    ) -> #(
-      "AdverseEvent",
-      using_params([
-        #("date", date),
-        #("severity", severity),
-        #("recorder", recorder),
-        #("study", study),
-        #("actuality", actuality),
-        #("seriousness", seriousness),
-        #("subject", subject),
-        #("resultingcondition", resultingcondition),
-        #("substance", substance),
-        #("location", location),
-        #("category", category),
-        #("event", event),
-      ]),
-    )
-    SpAllergyintolerance(
-      severity,
-      date,
-      identifier,
-      manifestation,
-      recorder,
-      code,
-      verification_status,
-      criticality,
-      clinical_status,
-      type_,
-      onset,
-      route,
-      asserter,
-      patient,
-      category,
-      last_date,
-    ) -> #(
-      "AllergyIntolerance",
-      using_params([
-        #("severity", severity),
-        #("date", date),
-        #("identifier", identifier),
-        #("manifestation", manifestation),
-        #("recorder", recorder),
-        #("code", code),
-        #("verification-status", verification_status),
-        #("criticality", criticality),
-        #("clinical-status", clinical_status),
-        #("type", type_),
-        #("onset", onset),
-        #("route", route),
-        #("asserter", asserter),
-        #("patient", patient),
-        #("category", category),
-        #("last-date", last_date),
-      ]),
-    )
-    SpAppointment(
-      date,
-      identifier,
-      specialty,
-      service_category,
-      practitioner,
-      part_status,
-      appointment_type,
-      service_type,
-      slot,
-      reason_code,
-      actor,
-      based_on,
-      patient,
-      reason_reference,
-      supporting_info,
-      location,
-      status,
-    ) -> #(
-      "Appointment",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("specialty", specialty),
-        #("service-category", service_category),
-        #("practitioner", practitioner),
-        #("part-status", part_status),
-        #("appointment-type", appointment_type),
-        #("service-type", service_type),
-        #("slot", slot),
-        #("reason-code", reason_code),
-        #("actor", actor),
-        #("based-on", based_on),
-        #("patient", patient),
-        #("reason-reference", reason_reference),
-        #("supporting-info", supporting_info),
-        #("location", location),
-        #("status", status),
-      ]),
-    )
-    SpAppointmentresponse(
-      actor,
-      identifier,
-      practitioner,
-      part_status,
-      patient,
-      appointment,
-      location,
-    ) -> #(
-      "AppointmentResponse",
-      using_params([
-        #("actor", actor),
-        #("identifier", identifier),
-        #("practitioner", practitioner),
-        #("part-status", part_status),
-        #("patient", patient),
-        #("appointment", appointment),
-        #("location", location),
-      ]),
-    )
-    SpAuditevent(
-      date,
-      entity_type,
-      agent,
-      address,
-      entity_role,
-      source,
-      type_,
-      altid,
-      site,
-      agent_name,
-      entity_name,
-      subtype,
-      patient,
-      action,
-      agent_role,
-      entity,
-      outcome,
-      policy,
-    ) -> #(
-      "AuditEvent",
-      using_params([
-        #("date", date),
-        #("entity-type", entity_type),
-        #("agent", agent),
-        #("address", address),
-        #("entity-role", entity_role),
-        #("source", source),
-        #("type", type_),
-        #("altid", altid),
-        #("site", site),
-        #("agent-name", agent_name),
-        #("entity-name", entity_name),
-        #("subtype", subtype),
-        #("patient", patient),
-        #("action", action),
-        #("agent-role", agent_role),
-        #("entity", entity),
-        #("outcome", outcome),
-        #("policy", policy),
-      ]),
-    )
-    SpBasic(identifier, code, subject, created, patient, author) -> #(
-      "Basic",
-      using_params([
-        #("identifier", identifier),
-        #("code", code),
-        #("subject", subject),
-        #("created", created),
-        #("patient", patient),
-        #("author", author),
-      ]),
-    )
-    SpBinary -> #("Binary", using_params([]))
-    SpBiologicallyderivedproduct -> #(
-      "BiologicallyDerivedProduct",
-      using_params([]),
-    )
-    SpBodystructure(identifier, morphology, patient, location) -> #(
-      "BodyStructure",
-      using_params([
-        #("identifier", identifier),
-        #("morphology", morphology),
-        #("patient", patient),
-        #("location", location),
-      ]),
-    )
-    SpBundle(identifier, composition, type_, message, timestamp) -> #(
-      "Bundle",
-      using_params([
-        #("identifier", identifier),
-        #("composition", composition),
-        #("type", type_),
-        #("message", message),
-        #("timestamp", timestamp),
-      ]),
-    )
-    SpCapabilitystatement(
-      date,
-      resource_profile,
-      context_type_value,
-      software,
-      resource,
-      jurisdiction,
-      format,
-      description,
-      context_type,
-      title,
-      fhirversion,
-      version,
-      url,
-      supported_profile,
-      mode,
-      context_quantity,
-      security_service,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      guide,
-      status,
-    ) -> #(
-      "CapabilityStatement",
-      using_params([
-        #("date", date),
-        #("resource-profile", resource_profile),
-        #("context-type-value", context_type_value),
-        #("software", software),
-        #("resource", resource),
-        #("jurisdiction", jurisdiction),
-        #("format", format),
-        #("description", description),
-        #("context-type", context_type),
-        #("title", title),
-        #("fhirversion", fhirversion),
-        #("version", version),
-        #("url", url),
-        #("supported-profile", supported_profile),
-        #("mode", mode),
-        #("context-quantity", context_quantity),
-        #("security-service", security_service),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("guide", guide),
-        #("status", status),
-      ]),
-    )
-    SpCareplan(
-      date,
-      care_team,
-      identifier,
-      performer,
-      goal,
-      subject,
-      replaces,
-      instantiates_canonical,
-      part_of,
-      encounter,
-      intent,
-      activity_reference,
-      condition,
-      based_on,
-      patient,
-      activity_date,
-      instantiates_uri,
-      category,
-      activity_code,
-      status,
-    ) -> #(
-      "CarePlan",
-      using_params([
-        #("date", date),
-        #("care-team", care_team),
-        #("identifier", identifier),
-        #("performer", performer),
-        #("goal", goal),
-        #("subject", subject),
-        #("replaces", replaces),
-        #("instantiates-canonical", instantiates_canonical),
-        #("part-of", part_of),
-        #("encounter", encounter),
-        #("intent", intent),
-        #("activity-reference", activity_reference),
-        #("condition", condition),
-        #("based-on", based_on),
-        #("patient", patient),
-        #("activity-date", activity_date),
-        #("instantiates-uri", instantiates_uri),
-        #("category", category),
-        #("activity-code", activity_code),
-        #("status", status),
-      ]),
-    )
-    SpCareteam(
-      date,
-      identifier,
-      patient,
-      subject,
-      encounter,
-      category,
-      participant,
-      status,
-    ) -> #(
-      "CareTeam",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("patient", patient),
-        #("subject", subject),
-        #("encounter", encounter),
-        #("category", category),
-        #("participant", participant),
-        #("status", status),
-      ]),
-    )
-    SpCatalogentry -> #("CatalogEntry", using_params([]))
-    SpChargeitem(
-      identifier,
-      performing_organization,
-      code,
-      quantity,
-      subject,
-      occurrence,
-      entered_date,
-      performer_function,
-      patient,
-      factor_override,
-      service,
-      price_override,
-      context,
-      enterer,
-      performer_actor,
-      account,
-      requesting_organization,
-    ) -> #(
-      "ChargeItem",
-      using_params([
-        #("identifier", identifier),
-        #("performing-organization", performing_organization),
-        #("code", code),
-        #("quantity", quantity),
-        #("subject", subject),
-        #("occurrence", occurrence),
-        #("entered-date", entered_date),
-        #("performer-function", performer_function),
-        #("patient", patient),
-        #("factor-override", factor_override),
-        #("service", service),
-        #("price-override", price_override),
-        #("context", context),
-        #("enterer", enterer),
-        #("performer-actor", performer_actor),
-        #("account", account),
-        #("requesting-organization", requesting_organization),
-      ]),
-    )
-    SpChargeitemdefinition(
-      date,
-      identifier,
-      context_type_value,
-      jurisdiction,
-      description,
-      context_type,
-      title,
-      version,
-      url,
-      context_quantity,
-      effective,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "ChargeItemDefinition",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpClaim(
-      care_team,
-      identifier,
-      use_,
-      created,
-      encounter,
-      priority,
-      payee,
-      provider,
-      patient,
-      insurer,
-      detail_udi,
-      enterer,
-      procedure_udi,
-      subdetail_udi,
-      facility,
-      item_udi,
-      status,
-    ) -> #(
-      "Claim",
-      using_params([
-        #("care-team", care_team),
-        #("identifier", identifier),
-        #("use", use_),
-        #("created", created),
-        #("encounter", encounter),
-        #("priority", priority),
-        #("payee", payee),
-        #("provider", provider),
-        #("patient", patient),
-        #("insurer", insurer),
-        #("detail-udi", detail_udi),
-        #("enterer", enterer),
-        #("procedure-udi", procedure_udi),
-        #("subdetail-udi", subdetail_udi),
-        #("facility", facility),
-        #("item-udi", item_udi),
-        #("status", status),
-      ]),
-    )
-    SpClaimresponse(
-      identifier,
-      request,
-      disposition,
-      insurer,
-      created,
-      patient,
-      use_,
-      payment_date,
-      outcome,
-      requestor,
-      status,
-    ) -> #(
-      "ClaimResponse",
-      using_params([
-        #("identifier", identifier),
-        #("request", request),
-        #("disposition", disposition),
-        #("insurer", insurer),
-        #("created", created),
-        #("patient", patient),
-        #("use", use_),
-        #("payment-date", payment_date),
-        #("outcome", outcome),
-        #("requestor", requestor),
-        #("status", status),
-      ]),
-    )
-    SpClinicalimpression(
-      date,
-      identifier,
-      previous,
-      finding_code,
-      assessor,
-      subject,
-      encounter,
-      finding_ref,
-      problem,
-      patient,
-      supporting_info,
-      investigation,
-      status,
-    ) -> #(
-      "ClinicalImpression",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("previous", previous),
-        #("finding-code", finding_code),
-        #("assessor", assessor),
-        #("subject", subject),
-        #("encounter", encounter),
-        #("finding-ref", finding_ref),
-        #("problem", problem),
-        #("patient", patient),
-        #("supporting-info", supporting_info),
-        #("investigation", investigation),
-        #("status", status),
-      ]),
-    )
-    SpCodesystem(
-      date,
-      identifier,
-      code,
-      context_type_value,
-      content_mode,
-      jurisdiction,
-      description,
-      context_type,
-      language,
-      title,
-      version,
-      url,
-      context_quantity,
-      supplements,
-      system,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "CodeSystem",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("code", code),
-        #("context-type-value", context_type_value),
-        #("content-mode", content_mode),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("language", language),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("supplements", supplements),
-        #("system", system),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpCommunication(
-      identifier,
-      subject,
-      instantiates_canonical,
-      received,
-      part_of,
-      medium,
-      encounter,
-      sent,
-      based_on,
-      sender,
-      patient,
-      recipient,
-      instantiates_uri,
-      category,
-      status,
-    ) -> #(
-      "Communication",
-      using_params([
-        #("identifier", identifier),
-        #("subject", subject),
-        #("instantiates-canonical", instantiates_canonical),
-        #("received", received),
-        #("part-of", part_of),
-        #("medium", medium),
-        #("encounter", encounter),
-        #("sent", sent),
-        #("based-on", based_on),
-        #("sender", sender),
-        #("patient", patient),
-        #("recipient", recipient),
-        #("instantiates-uri", instantiates_uri),
-        #("category", category),
-        #("status", status),
-      ]),
-    )
-    SpCommunicationrequest(
-      requester,
-      authored,
-      identifier,
-      subject,
-      replaces,
-      medium,
-      encounter,
-      occurrence,
-      priority,
-      group_identifier,
-      based_on,
-      sender,
-      patient,
-      recipient,
-      category,
-      status,
-    ) -> #(
-      "CommunicationRequest",
-      using_params([
-        #("requester", requester),
-        #("authored", authored),
-        #("identifier", identifier),
-        #("subject", subject),
-        #("replaces", replaces),
-        #("medium", medium),
-        #("encounter", encounter),
-        #("occurrence", occurrence),
-        #("priority", priority),
-        #("group-identifier", group_identifier),
-        #("based-on", based_on),
-        #("sender", sender),
-        #("patient", patient),
-        #("recipient", recipient),
-        #("category", category),
-        #("status", status),
-      ]),
-    )
-    SpCompartmentdefinition(
-      date,
-      code,
-      context_type_value,
-      resource,
-      description,
-      context_type,
-      version,
-      url,
-      context_quantity,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "CompartmentDefinition",
-      using_params([
-        #("date", date),
-        #("code", code),
-        #("context-type-value", context_type_value),
-        #("resource", resource),
-        #("description", description),
-        #("context-type", context_type),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpComposition(
-      date,
-      identifier,
-      period,
-      related_id,
-      subject,
-      author,
-      confidentiality,
-      section,
-      encounter,
-      type_,
-      title,
-      attester,
-      entry,
-      related_ref,
-      patient,
-      context,
-      category,
-      status,
-    ) -> #(
-      "Composition",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("period", period),
-        #("related-id", related_id),
-        #("subject", subject),
-        #("author", author),
-        #("confidentiality", confidentiality),
-        #("section", section),
-        #("encounter", encounter),
-        #("type", type_),
-        #("title", title),
-        #("attester", attester),
-        #("entry", entry),
-        #("related-ref", related_ref),
-        #("patient", patient),
-        #("context", context),
-        #("category", category),
-        #("status", status),
-      ]),
-    )
-    SpConceptmap(
-      date,
-      other,
-      context_type_value,
-      target_system,
-      dependson,
-      jurisdiction,
-      description,
-      context_type,
-      source,
-      title,
-      context_quantity,
-      source_uri,
-      context,
-      context_type_quantity,
-      source_system,
-      target_code,
-      target_uri,
-      identifier,
-      product,
-      version,
-      url,
-      target,
-      source_code,
-      name,
-      publisher,
-      status,
-    ) -> #(
-      "ConceptMap",
-      using_params([
-        #("date", date),
-        #("other", other),
-        #("context-type-value", context_type_value),
-        #("target-system", target_system),
-        #("dependson", dependson),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("source", source),
-        #("title", title),
-        #("context-quantity", context_quantity),
-        #("source-uri", source_uri),
-        #("context", context),
-        #("context-type-quantity", context_type_quantity),
-        #("source-system", source_system),
-        #("target-code", target_code),
-        #("target-uri", target_uri),
-        #("identifier", identifier),
-        #("product", product),
-        #("version", version),
-        #("url", url),
-        #("target", target),
-        #("source-code", source_code),
-        #("name", name),
-        #("publisher", publisher),
-        #("status", status),
-      ]),
-    )
-    SpCondition(
-      severity,
-      evidence_detail,
-      identifier,
-      onset_info,
-      recorded_date,
-      code,
-      evidence,
-      subject,
-      verification_status,
-      clinical_status,
-      encounter,
-      onset_date,
-      abatement_date,
-      asserter,
-      stage,
-      abatement_string,
-      patient,
-      onset_age,
-      abatement_age,
-      category,
-      body_site,
-    ) -> #(
-      "Condition",
-      using_params([
-        #("severity", severity),
-        #("evidence-detail", evidence_detail),
-        #("identifier", identifier),
-        #("onset-info", onset_info),
-        #("recorded-date", recorded_date),
-        #("code", code),
-        #("evidence", evidence),
-        #("subject", subject),
-        #("verification-status", verification_status),
-        #("clinical-status", clinical_status),
-        #("encounter", encounter),
-        #("onset-date", onset_date),
-        #("abatement-date", abatement_date),
-        #("asserter", asserter),
-        #("stage", stage),
-        #("abatement-string", abatement_string),
-        #("patient", patient),
-        #("onset-age", onset_age),
-        #("abatement-age", abatement_age),
-        #("category", category),
-        #("body-site", body_site),
-      ]),
-    )
-    SpConsent(
-      date,
-      identifier,
-      period,
-      data,
-      purpose,
-      source_reference,
-      actor,
-      security_label,
-      patient,
-      organization,
-      scope,
-      action,
-      consentor,
-      category,
-      status,
-    ) -> #(
-      "Consent",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("period", period),
-        #("data", data),
-        #("purpose", purpose),
-        #("source-reference", source_reference),
-        #("actor", actor),
-        #("security-label", security_label),
-        #("patient", patient),
-        #("organization", organization),
-        #("scope", scope),
-        #("action", action),
-        #("consentor", consentor),
-        #("category", category),
-        #("status", status),
-      ]),
-    )
-    SpContract(
-      identifier,
-      instantiates,
-      patient,
-      subject,
-      authority,
-      domain,
-      issued,
-      url,
-      signer,
-      status,
-    ) -> #(
-      "Contract",
-      using_params([
-        #("identifier", identifier),
-        #("instantiates", instantiates),
-        #("patient", patient),
-        #("subject", subject),
-        #("authority", authority),
-        #("domain", domain),
-        #("issued", issued),
-        #("url", url),
-        #("signer", signer),
-        #("status", status),
-      ]),
-    )
-    SpCoverage(
-      identifier,
-      payor,
-      subscriber,
-      beneficiary,
-      patient,
-      class_value,
-      type_,
-      dependent,
-      class_type,
-      policy_holder,
-      status,
-    ) -> #(
-      "Coverage",
-      using_params([
-        #("identifier", identifier),
-        #("payor", payor),
-        #("subscriber", subscriber),
-        #("beneficiary", beneficiary),
-        #("patient", patient),
-        #("class-value", class_value),
-        #("type", type_),
-        #("dependent", dependent),
-        #("class-type", class_type),
-        #("policy-holder", policy_holder),
-        #("status", status),
-      ]),
-    )
-    SpCoverageeligibilityrequest(
-      identifier,
-      provider,
-      patient,
-      created,
-      enterer,
-      facility,
-      status,
-    ) -> #(
-      "CoverageEligibilityRequest",
-      using_params([
-        #("identifier", identifier),
-        #("provider", provider),
-        #("patient", patient),
-        #("created", created),
-        #("enterer", enterer),
-        #("facility", facility),
-        #("status", status),
-      ]),
-    )
-    SpCoverageeligibilityresponse(
-      identifier,
-      request,
-      disposition,
-      patient,
-      insurer,
-      created,
-      outcome,
-      requestor,
-      status,
-    ) -> #(
-      "CoverageEligibilityResponse",
-      using_params([
-        #("identifier", identifier),
-        #("request", request),
-        #("disposition", disposition),
-        #("patient", patient),
-        #("insurer", insurer),
-        #("created", created),
-        #("outcome", outcome),
-        #("requestor", requestor),
-        #("status", status),
-      ]),
-    )
-    SpDetectedissue(identifier, code, identified, patient, author, implicated) -> #(
-      "DetectedIssue",
-      using_params([
-        #("identifier", identifier),
-        #("code", code),
-        #("identified", identified),
-        #("patient", patient),
-        #("author", author),
-        #("implicated", implicated),
-      ]),
-    )
-    SpDevice(
-      udi_di,
-      identifier,
-      udi_carrier,
-      device_name,
-      patient,
-      organization,
-      model,
-      location,
-      type_,
-      url,
-      manufacturer,
-      status,
-    ) -> #(
-      "Device",
-      using_params([
-        #("udi-di", udi_di),
-        #("identifier", identifier),
-        #("udi-carrier", udi_carrier),
-        #("device-name", device_name),
-        #("patient", patient),
-        #("organization", organization),
-        #("model", model),
-        #("location", location),
-        #("type", type_),
-        #("url", url),
-        #("manufacturer", manufacturer),
-        #("status", status),
-      ]),
-    )
-    SpDevicedefinition(parent, identifier, type_) -> #(
-      "DeviceDefinition",
-      using_params([
-        #("parent", parent),
-        #("identifier", identifier),
-        #("type", type_),
-      ]),
-    )
-    SpDevicemetric(parent, identifier, source, type_, category) -> #(
-      "DeviceMetric",
-      using_params([
-        #("parent", parent),
-        #("identifier", identifier),
-        #("source", source),
-        #("type", type_),
-        #("category", category),
-      ]),
-    )
-    SpDevicerequest(
-      requester,
-      insurance,
-      identifier,
-      code,
-      performer,
-      event_date,
-      subject,
-      instantiates_canonical,
-      encounter,
-      authored_on,
-      intent,
-      group_identifier,
-      based_on,
-      patient,
-      instantiates_uri,
-      prior_request,
-      device,
-      status,
-    ) -> #(
-      "DeviceRequest",
-      using_params([
-        #("requester", requester),
-        #("insurance", insurance),
-        #("identifier", identifier),
-        #("code", code),
-        #("performer", performer),
-        #("event-date", event_date),
-        #("subject", subject),
-        #("instantiates-canonical", instantiates_canonical),
-        #("encounter", encounter),
-        #("authored-on", authored_on),
-        #("intent", intent),
-        #("group-identifier", group_identifier),
-        #("based-on", based_on),
-        #("patient", patient),
-        #("instantiates-uri", instantiates_uri),
-        #("prior-request", prior_request),
-        #("device", device),
-        #("status", status),
-      ]),
-    )
-    SpDeviceusestatement(identifier, subject, patient, device) -> #(
-      "DeviceUseStatement",
-      using_params([
-        #("identifier", identifier),
-        #("subject", subject),
-        #("patient", patient),
-        #("device", device),
-      ]),
-    )
-    SpDiagnosticreport(
-      date,
-      identifier,
-      performer,
-      code,
-      subject,
-      media,
-      encounter,
-      result,
-      conclusion,
-      based_on,
-      patient,
-      specimen,
-      issued,
-      category,
-      results_interpreter,
-      status,
-    ) -> #(
-      "DiagnosticReport",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("performer", performer),
-        #("code", code),
-        #("subject", subject),
-        #("media", media),
-        #("encounter", encounter),
-        #("result", result),
-        #("conclusion", conclusion),
-        #("based-on", based_on),
-        #("patient", patient),
-        #("specimen", specimen),
-        #("issued", issued),
-        #("category", category),
-        #("results-interpreter", results_interpreter),
-        #("status", status),
-      ]),
-    )
-    SpDocumentmanifest(
-      identifier,
-      item,
-      related_id,
-      subject,
-      author,
-      created,
-      description,
-      source,
-      type_,
-      related_ref,
-      patient,
-      recipient,
-      status,
-    ) -> #(
-      "DocumentManifest",
-      using_params([
-        #("identifier", identifier),
-        #("item", item),
-        #("related-id", related_id),
-        #("subject", subject),
-        #("author", author),
-        #("created", created),
-        #("description", description),
-        #("source", source),
-        #("type", type_),
-        #("related-ref", related_ref),
-        #("patient", patient),
-        #("recipient", recipient),
-        #("status", status),
-      ]),
-    )
-    SpDocumentreference(
-      date,
-      subject,
-      description,
-      language,
-      type_,
-      relation,
-      setting,
-      related,
-      patient,
-      relationship,
-      event,
-      authenticator,
-      identifier,
-      period,
-      custodian,
-      author,
-      format,
-      encounter,
-      contenttype,
-      security_label,
-      location,
-      category,
-      relatesto,
-      facility,
-      status,
-    ) -> #(
-      "DocumentReference",
-      using_params([
-        #("date", date),
-        #("subject", subject),
-        #("description", description),
-        #("language", language),
-        #("type", type_),
-        #("relation", relation),
-        #("setting", setting),
-        #("related", related),
-        #("patient", patient),
-        #("relationship", relationship),
-        #("event", event),
-        #("authenticator", authenticator),
-        #("identifier", identifier),
-        #("period", period),
-        #("custodian", custodian),
-        #("author", author),
-        #("format", format),
-        #("encounter", encounter),
-        #("contenttype", contenttype),
-        #("security-label", security_label),
-        #("location", location),
-        #("category", category),
-        #("relatesto", relatesto),
-        #("facility", facility),
-        #("status", status),
-      ]),
-    )
-    SpEffectevidencesynthesis(
-      date,
-      identifier,
-      context_type_value,
-      jurisdiction,
-      description,
-      context_type,
-      title,
-      version,
-      url,
-      context_quantity,
-      effective,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "EffectEvidenceSynthesis",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpEncounter(
-      date,
-      identifier,
-      participant_type,
-      practitioner,
-      subject,
-      length,
-      episode_of_care,
-      diagnosis,
-      appointment,
-      part_of,
-      type_,
-      reason_code,
-      participant,
-      based_on,
-      patient,
-      reason_reference,
-      location_period,
-      location,
-      service_provider,
-      special_arrangement,
-      class,
-      account,
-      status,
-    ) -> #(
-      "Encounter",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("participant-type", participant_type),
-        #("practitioner", practitioner),
-        #("subject", subject),
-        #("length", length),
-        #("episode-of-care", episode_of_care),
-        #("diagnosis", diagnosis),
-        #("appointment", appointment),
-        #("part-of", part_of),
-        #("type", type_),
-        #("reason-code", reason_code),
-        #("participant", participant),
-        #("based-on", based_on),
-        #("patient", patient),
-        #("reason-reference", reason_reference),
-        #("location-period", location_period),
-        #("location", location),
-        #("service-provider", service_provider),
-        #("special-arrangement", special_arrangement),
-        #("class", class),
-        #("account", account),
-        #("status", status),
-      ]),
-    )
-    SpEndpoint(
-      payload_type,
-      identifier,
-      organization,
-      connection_type,
-      name,
-      status,
-    ) -> #(
-      "Endpoint",
-      using_params([
-        #("payload-type", payload_type),
-        #("identifier", identifier),
-        #("organization", organization),
-        #("connection-type", connection_type),
-        #("name", name),
-        #("status", status),
-      ]),
-    )
-    SpEnrollmentrequest(identifier, subject, patient, status) -> #(
-      "EnrollmentRequest",
-      using_params([
-        #("identifier", identifier),
-        #("subject", subject),
-        #("patient", patient),
-        #("status", status),
-      ]),
-    )
-    SpEnrollmentresponse(identifier, request, status) -> #(
-      "EnrollmentResponse",
-      using_params([
-        #("identifier", identifier),
-        #("request", request),
-        #("status", status),
-      ]),
-    )
-    SpEpisodeofcare(
-      date,
-      identifier,
-      condition,
-      patient,
-      organization,
-      type_,
-      care_manager,
-      status,
-      incoming_referral,
-    ) -> #(
-      "EpisodeOfCare",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("condition", condition),
-        #("patient", patient),
-        #("organization", organization),
-        #("type", type_),
-        #("care-manager", care_manager),
-        #("status", status),
-        #("incoming-referral", incoming_referral),
-      ]),
-    )
-    SpEventdefinition(
-      date,
-      identifier,
-      successor,
-      context_type_value,
-      jurisdiction,
-      description,
-      derived_from,
-      context_type,
-      predecessor,
-      title,
-      composed_of,
-      version,
-      url,
-      context_quantity,
-      effective,
-      depends_on,
-      name,
-      context,
-      publisher,
-      topic,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "EventDefinition",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("successor", successor),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("derived-from", derived_from),
-        #("context-type", context_type),
-        #("predecessor", predecessor),
-        #("title", title),
-        #("composed-of", composed_of),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("depends-on", depends_on),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("topic", topic),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpEvidence(
-      date,
-      identifier,
-      successor,
-      context_type_value,
-      jurisdiction,
-      description,
-      derived_from,
-      context_type,
-      predecessor,
-      title,
-      composed_of,
-      version,
-      url,
-      context_quantity,
-      effective,
-      depends_on,
-      name,
-      context,
-      publisher,
-      topic,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "Evidence",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("successor", successor),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("derived-from", derived_from),
-        #("context-type", context_type),
-        #("predecessor", predecessor),
-        #("title", title),
-        #("composed-of", composed_of),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("depends-on", depends_on),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("topic", topic),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpEvidencevariable(
-      date,
-      identifier,
-      successor,
-      context_type_value,
-      jurisdiction,
-      description,
-      derived_from,
-      context_type,
-      predecessor,
-      title,
-      composed_of,
-      version,
-      url,
-      context_quantity,
-      effective,
-      depends_on,
-      name,
-      context,
-      publisher,
-      topic,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "EvidenceVariable",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("successor", successor),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("derived-from", derived_from),
-        #("context-type", context_type),
-        #("predecessor", predecessor),
-        #("title", title),
-        #("composed-of", composed_of),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("depends-on", depends_on),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("topic", topic),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpExamplescenario(
-      date,
-      identifier,
-      context_type_value,
-      jurisdiction,
-      context_type,
-      version,
-      url,
-      context_quantity,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "ExampleScenario",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("context-type", context_type),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpExplanationofbenefit(
-      coverage,
-      care_team,
-      identifier,
-      created,
-      encounter,
-      payee,
-      disposition,
-      provider,
-      patient,
-      detail_udi,
-      claim,
-      enterer,
-      procedure_udi,
-      subdetail_udi,
-      facility,
-      item_udi,
-      status,
-    ) -> #(
-      "ExplanationOfBenefit",
-      using_params([
-        #("coverage", coverage),
-        #("care-team", care_team),
-        #("identifier", identifier),
-        #("created", created),
-        #("encounter", encounter),
-        #("payee", payee),
-        #("disposition", disposition),
-        #("provider", provider),
-        #("patient", patient),
-        #("detail-udi", detail_udi),
-        #("claim", claim),
-        #("enterer", enterer),
-        #("procedure-udi", procedure_udi),
-        #("subdetail-udi", subdetail_udi),
-        #("facility", facility),
-        #("item-udi", item_udi),
-        #("status", status),
-      ]),
-    )
-    SpFamilymemberhistory(
-      date,
-      identifier,
-      code,
-      patient,
-      sex,
-      instantiates_canonical,
-      instantiates_uri,
-      relationship,
-      status,
-    ) -> #(
-      "FamilyMemberHistory",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("code", code),
-        #("patient", patient),
-        #("sex", sex),
-        #("instantiates-canonical", instantiates_canonical),
-        #("instantiates-uri", instantiates_uri),
-        #("relationship", relationship),
-        #("status", status),
-      ]),
-    )
-    SpFlag(date, identifier, subject, patient, author, encounter) -> #(
-      "Flag",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("subject", subject),
-        #("patient", patient),
-        #("author", author),
-        #("encounter", encounter),
-      ]),
-    )
-    SpGoal(
-      identifier,
-      lifecycle_status,
-      achievement_status,
-      patient,
-      subject,
-      start_date,
-      category,
-      target_date,
-    ) -> #(
-      "Goal",
-      using_params([
-        #("identifier", identifier),
-        #("lifecycle-status", lifecycle_status),
-        #("achievement-status", achievement_status),
-        #("patient", patient),
-        #("subject", subject),
-        #("start-date", start_date),
-        #("category", category),
-        #("target-date", target_date),
-      ]),
-    )
-    SpGraphdefinition(
-      date,
-      context_type_value,
-      jurisdiction,
-      start,
-      description,
-      context_type,
-      version,
-      url,
-      context_quantity,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "GraphDefinition",
-      using_params([
-        #("date", date),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("start", start),
-        #("description", description),
-        #("context-type", context_type),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpGroup(
-      actual,
-      identifier,
-      characteristic_value,
-      managing_entity,
-      code,
-      member,
-      exclude,
-      type_,
-      value,
-      characteristic,
-    ) -> #(
-      "Group",
-      using_params([
-        #("actual", actual),
-        #("identifier", identifier),
-        #("characteristic-value", characteristic_value),
-        #("managing-entity", managing_entity),
-        #("code", code),
-        #("member", member),
-        #("exclude", exclude),
-        #("type", type_),
-        #("value", value),
-        #("characteristic", characteristic),
-      ]),
-    )
-    SpGuidanceresponse(request, identifier, patient, subject) -> #(
-      "GuidanceResponse",
-      using_params([
-        #("request", request),
-        #("identifier", identifier),
-        #("patient", patient),
-        #("subject", subject),
-      ]),
-    )
-    SpHealthcareservice(
-      identifier,
-      specialty,
-      endpoint,
-      service_category,
-      coverage_area,
-      service_type,
-      organization,
-      name,
-      active,
-      location,
-      program,
-      characteristic,
-    ) -> #(
-      "HealthcareService",
-      using_params([
-        #("identifier", identifier),
-        #("specialty", specialty),
-        #("endpoint", endpoint),
-        #("service-category", service_category),
-        #("coverage-area", coverage_area),
-        #("service-type", service_type),
-        #("organization", organization),
-        #("name", name),
-        #("active", active),
-        #("location", location),
-        #("program", program),
-        #("characteristic", characteristic),
-      ]),
-    )
-    SpImagingstudy(
-      identifier,
-      reason,
-      dicom_class,
-      modality,
-      bodysite,
-      instance,
-      performer,
-      subject,
-      started,
-      interpreter,
-      encounter,
-      referrer,
-      endpoint,
-      patient,
-      series,
-      basedon,
-      status,
-    ) -> #(
-      "ImagingStudy",
-      using_params([
-        #("identifier", identifier),
-        #("reason", reason),
-        #("dicom-class", dicom_class),
-        #("modality", modality),
-        #("bodysite", bodysite),
-        #("instance", instance),
-        #("performer", performer),
-        #("subject", subject),
-        #("started", started),
-        #("interpreter", interpreter),
-        #("encounter", encounter),
-        #("referrer", referrer),
-        #("endpoint", endpoint),
-        #("patient", patient),
-        #("series", series),
-        #("basedon", basedon),
-        #("status", status),
-      ]),
-    )
-    SpImmunization(
-      date,
-      identifier,
-      performer,
-      reaction,
-      lot_number,
-      status_reason,
-      reason_code,
-      manufacturer,
-      target_disease,
-      patient,
-      series,
-      vaccine_code,
-      reason_reference,
-      location,
-      status,
-      reaction_date,
-    ) -> #(
-      "Immunization",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("performer", performer),
-        #("reaction", reaction),
-        #("lot-number", lot_number),
-        #("status-reason", status_reason),
-        #("reason-code", reason_code),
-        #("manufacturer", manufacturer),
-        #("target-disease", target_disease),
-        #("patient", patient),
-        #("series", series),
-        #("vaccine-code", vaccine_code),
-        #("reason-reference", reason_reference),
-        #("location", location),
-        #("status", status),
-        #("reaction-date", reaction_date),
-      ]),
-    )
-    SpImmunizationevaluation(
-      date,
-      identifier,
-      target_disease,
-      patient,
-      dose_status,
-      immunization_event,
-      status,
-    ) -> #(
-      "ImmunizationEvaluation",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("target-disease", target_disease),
-        #("patient", patient),
-        #("dose-status", dose_status),
-        #("immunization-event", immunization_event),
-        #("status", status),
-      ]),
-    )
-    SpImmunizationrecommendation(
-      date,
-      identifier,
-      target_disease,
-      patient,
-      vaccine_type,
-      information,
-      support,
-      status,
-    ) -> #(
-      "ImmunizationRecommendation",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("target-disease", target_disease),
-        #("patient", patient),
-        #("vaccine-type", vaccine_type),
-        #("information", information),
-        #("support", support),
-        #("status", status),
-      ]),
-    )
-    SpImplementationguide(
-      date,
-      context_type_value,
-      resource,
-      jurisdiction,
-      description,
-      context_type,
-      experimental,
-      global,
-      title,
-      version,
-      url,
-      context_quantity,
-      depends_on,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "ImplementationGuide",
-      using_params([
-        #("date", date),
-        #("context-type-value", context_type_value),
-        #("resource", resource),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("experimental", experimental),
-        #("global", global),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("depends-on", depends_on),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpInsuranceplan(
-      identifier,
-      address,
-      address_state,
-      owned_by,
-      type_,
-      address_postalcode,
-      administered_by,
-      address_country,
-      endpoint,
-      phonetic,
-      name,
-      address_use,
-      address_city,
-      status,
-    ) -> #(
-      "InsurancePlan",
-      using_params([
-        #("identifier", identifier),
-        #("address", address),
-        #("address-state", address_state),
-        #("owned-by", owned_by),
-        #("type", type_),
-        #("address-postalcode", address_postalcode),
-        #("administered-by", administered_by),
-        #("address-country", address_country),
-        #("endpoint", endpoint),
-        #("phonetic", phonetic),
-        #("name", name),
-        #("address-use", address_use),
-        #("address-city", address_city),
-        #("status", status),
-      ]),
-    )
-    SpInvoice(
-      date,
-      identifier,
-      totalgross,
-      subject,
-      participant_role,
-      type_,
-      issuer,
-      participant,
-      totalnet,
-      patient,
-      recipient,
-      account,
-      status,
-    ) -> #(
-      "Invoice",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("totalgross", totalgross),
-        #("subject", subject),
-        #("participant-role", participant_role),
-        #("type", type_),
-        #("issuer", issuer),
-        #("participant", participant),
-        #("totalnet", totalnet),
-        #("patient", patient),
-        #("recipient", recipient),
-        #("account", account),
-        #("status", status),
-      ]),
-    )
-    SpLibrary(
-      date,
-      identifier,
-      successor,
-      context_type_value,
-      jurisdiction,
-      description,
-      derived_from,
-      context_type,
-      predecessor,
-      title,
-      composed_of,
-      type_,
-      version,
-      url,
-      context_quantity,
-      effective,
-      depends_on,
-      name,
-      context,
-      publisher,
-      topic,
-      content_type,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "Library",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("successor", successor),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("derived-from", derived_from),
-        #("context-type", context_type),
-        #("predecessor", predecessor),
-        #("title", title),
-        #("composed-of", composed_of),
-        #("type", type_),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("depends-on", depends_on),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("topic", topic),
-        #("content-type", content_type),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpLinkage(item, author, source) -> #(
-      "Linkage",
-      using_params([
-        #("item", item),
-        #("author", author),
-        #("source", source),
-      ]),
-    )
-    SpList(
-      date,
-      identifier,
-      item,
-      empty_reason,
-      code,
-      notes,
-      subject,
-      patient,
-      source,
-      encounter,
-      title,
-      status,
-    ) -> #(
-      "List",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("item", item),
-        #("empty-reason", empty_reason),
-        #("code", code),
-        #("notes", notes),
-        #("subject", subject),
-        #("patient", patient),
-        #("source", source),
-        #("encounter", encounter),
-        #("title", title),
-        #("status", status),
-      ]),
-    )
-    SpLocation(
-      identifier,
-      partof,
-      address,
-      address_state,
-      operational_status,
-      type_,
-      address_postalcode,
-      address_country,
-      endpoint,
-      organization,
-      name,
-      address_use,
-      near,
-      address_city,
-      status,
-    ) -> #(
-      "Location",
-      using_params([
-        #("identifier", identifier),
-        #("partof", partof),
-        #("address", address),
-        #("address-state", address_state),
-        #("operational-status", operational_status),
-        #("type", type_),
-        #("address-postalcode", address_postalcode),
-        #("address-country", address_country),
-        #("endpoint", endpoint),
-        #("organization", organization),
-        #("name", name),
-        #("address-use", address_use),
-        #("near", near),
-        #("address-city", address_city),
-        #("status", status),
-      ]),
-    )
-    SpMeasure(
-      date,
-      identifier,
-      successor,
-      context_type_value,
-      jurisdiction,
-      description,
-      derived_from,
-      context_type,
-      predecessor,
-      title,
-      composed_of,
-      version,
-      url,
-      context_quantity,
-      effective,
-      depends_on,
-      name,
-      context,
-      publisher,
-      topic,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "Measure",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("successor", successor),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("derived-from", derived_from),
-        #("context-type", context_type),
-        #("predecessor", predecessor),
-        #("title", title),
-        #("composed-of", composed_of),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("depends-on", depends_on),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("topic", topic),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpMeasurereport(
-      date,
-      identifier,
-      period,
-      measure,
-      patient,
-      subject,
-      reporter,
-      status,
-      evaluated_resource,
-    ) -> #(
-      "MeasureReport",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("period", period),
-        #("measure", measure),
-        #("patient", patient),
-        #("subject", subject),
-        #("reporter", reporter),
-        #("status", status),
-        #("evaluated-resource", evaluated_resource),
-      ]),
-    )
-    SpMedia(
-      identifier,
-      modality,
-      subject,
-      created,
-      encounter,
-      type_,
-      operator,
-      view,
-      site,
-      based_on,
-      patient,
-      device,
-      status,
-    ) -> #(
-      "Media",
-      using_params([
-        #("identifier", identifier),
-        #("modality", modality),
-        #("subject", subject),
-        #("created", created),
-        #("encounter", encounter),
-        #("type", type_),
-        #("operator", operator),
-        #("view", view),
-        #("site", site),
-        #("based-on", based_on),
-        #("patient", patient),
-        #("device", device),
-        #("status", status),
-      ]),
-    )
-    SpMedication(
-      ingredient_code,
-      identifier,
-      code,
-      ingredient,
-      form,
-      lot_number,
-      expiration_date,
-      manufacturer,
-      status,
-    ) -> #(
-      "Medication",
-      using_params([
-        #("ingredient-code", ingredient_code),
-        #("identifier", identifier),
-        #("code", code),
-        #("ingredient", ingredient),
-        #("form", form),
-        #("lot-number", lot_number),
-        #("expiration-date", expiration_date),
-        #("manufacturer", manufacturer),
-        #("status", status),
-      ]),
-    )
-    SpMedicationadministration(
-      identifier,
-      request,
-      code,
-      performer,
-      subject,
-      medication,
-      reason_given,
-      patient,
-      effective_time,
-      context,
-      reason_not_given,
-      device,
-      status,
-    ) -> #(
-      "MedicationAdministration",
-      using_params([
-        #("identifier", identifier),
-        #("request", request),
-        #("code", code),
-        #("performer", performer),
-        #("subject", subject),
-        #("medication", medication),
-        #("reason-given", reason_given),
-        #("patient", patient),
-        #("effective-time", effective_time),
-        #("context", context),
-        #("reason-not-given", reason_not_given),
-        #("device", device),
-        #("status", status),
-      ]),
-    )
-    SpMedicationdispense(
-      identifier,
-      performer,
-      code,
-      receiver,
-      subject,
-      destination,
-      medication,
-      responsibleparty,
-      type_,
-      whenhandedover,
-      whenprepared,
-      prescription,
-      patient,
-      context,
-      status,
-    ) -> #(
-      "MedicationDispense",
-      using_params([
-        #("identifier", identifier),
-        #("performer", performer),
-        #("code", code),
-        #("receiver", receiver),
-        #("subject", subject),
-        #("destination", destination),
-        #("medication", medication),
-        #("responsibleparty", responsibleparty),
-        #("type", type_),
-        #("whenhandedover", whenhandedover),
-        #("whenprepared", whenprepared),
-        #("prescription", prescription),
-        #("patient", patient),
-        #("context", context),
-        #("status", status),
-      ]),
-    )
-    SpMedicationknowledge(
-      code,
-      ingredient,
-      doseform,
-      classification_type,
-      monograph_type,
-      classification,
-      manufacturer,
-      ingredient_code,
-      source_cost,
-      monograph,
-      monitoring_program_name,
-      monitoring_program_type,
-      status,
-    ) -> #(
-      "MedicationKnowledge",
-      using_params([
-        #("code", code),
-        #("ingredient", ingredient),
-        #("doseform", doseform),
-        #("classification-type", classification_type),
-        #("monograph-type", monograph_type),
-        #("classification", classification),
-        #("manufacturer", manufacturer),
-        #("ingredient-code", ingredient_code),
-        #("source-cost", source_cost),
-        #("monograph", monograph),
-        #("monitoring-program-name", monitoring_program_name),
-        #("monitoring-program-type", monitoring_program_type),
-        #("status", status),
-      ]),
-    )
-    SpMedicationrequest(
-      requester,
-      date,
-      identifier,
-      intended_dispenser,
-      authoredon,
-      code,
-      subject,
-      medication,
-      encounter,
-      priority,
-      intent,
-      patient,
-      intended_performer,
-      intended_performertype,
-      category,
-      status,
-    ) -> #(
-      "MedicationRequest",
-      using_params([
-        #("requester", requester),
-        #("date", date),
-        #("identifier", identifier),
-        #("intended-dispenser", intended_dispenser),
-        #("authoredon", authoredon),
-        #("code", code),
-        #("subject", subject),
-        #("medication", medication),
-        #("encounter", encounter),
-        #("priority", priority),
-        #("intent", intent),
-        #("patient", patient),
-        #("intended-performer", intended_performer),
-        #("intended-performertype", intended_performertype),
-        #("category", category),
-        #("status", status),
-      ]),
-    )
-    SpMedicationstatement(
-      identifier,
-      effective,
-      code,
-      subject,
-      patient,
-      context,
-      medication,
-      part_of,
-      source,
-      category,
-      status,
-    ) -> #(
-      "MedicationStatement",
-      using_params([
-        #("identifier", identifier),
-        #("effective", effective),
-        #("code", code),
-        #("subject", subject),
-        #("patient", patient),
-        #("context", context),
-        #("medication", medication),
-        #("part-of", part_of),
-        #("source", source),
-        #("category", category),
-        #("status", status),
-      ]),
-    )
-    SpMedicinalproduct(identifier, name, name_language) -> #(
-      "MedicinalProduct",
-      using_params([
-        #("identifier", identifier),
-        #("name", name),
-        #("name-language", name_language),
-      ]),
-    )
-    SpMedicinalproductauthorization(
-      identifier,
-      country,
-      subject,
-      holder,
-      status,
-    ) -> #(
-      "MedicinalProductAuthorization",
-      using_params([
-        #("identifier", identifier),
-        #("country", country),
-        #("subject", subject),
-        #("holder", holder),
-        #("status", status),
-      ]),
-    )
-    SpMedicinalproductcontraindication(subject) -> #(
-      "MedicinalProductContraindication",
-      using_params([
-        #("subject", subject),
-      ]),
-    )
-    SpMedicinalproductindication(subject) -> #(
-      "MedicinalProductIndication",
-      using_params([
-        #("subject", subject),
-      ]),
-    )
-    SpMedicinalproductingredient -> #(
-      "MedicinalProductIngredient",
-      using_params([]),
-    )
-    SpMedicinalproductinteraction(subject) -> #(
-      "MedicinalProductInteraction",
-      using_params([
-        #("subject", subject),
-      ]),
-    )
-    SpMedicinalproductmanufactured -> #(
-      "MedicinalProductManufactured",
-      using_params([]),
-    )
-    SpMedicinalproductpackaged(identifier, subject) -> #(
-      "MedicinalProductPackaged",
-      using_params([
-        #("identifier", identifier),
-        #("subject", subject),
-      ]),
-    )
-    SpMedicinalproductpharmaceutical(identifier, route, target_species) -> #(
-      "MedicinalProductPharmaceutical",
-      using_params([
-        #("identifier", identifier),
-        #("route", route),
-        #("target-species", target_species),
-      ]),
-    )
-    SpMedicinalproductundesirableeffect(subject) -> #(
-      "MedicinalProductUndesirableEffect",
-      using_params([
-        #("subject", subject),
-      ]),
-    )
-    SpMessagedefinition(
-      date,
-      identifier,
-      parent,
-      context_type_value,
-      jurisdiction,
-      description,
-      focus,
-      context_type,
-      title,
-      version,
-      url,
-      context_quantity,
-      name,
-      context,
-      publisher,
-      event,
-      category,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "MessageDefinition",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("parent", parent),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("focus", focus),
-        #("context-type", context_type),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("event", event),
-        #("category", category),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpMessageheader(
-      code,
-      receiver,
-      author,
-      destination,
-      focus,
-      source,
-      target,
-      destination_uri,
-      source_uri,
-      sender,
-      responsible,
-      enterer,
-      response_id,
-      event,
-    ) -> #(
-      "MessageHeader",
-      using_params([
-        #("code", code),
-        #("receiver", receiver),
-        #("author", author),
-        #("destination", destination),
-        #("focus", focus),
-        #("source", source),
-        #("target", target),
-        #("destination-uri", destination_uri),
-        #("source-uri", source_uri),
-        #("sender", sender),
-        #("responsible", responsible),
-        #("enterer", enterer),
-        #("response-id", response_id),
-        #("event", event),
-      ]),
-    )
-    SpMolecularsequence(
-      identifier,
-      referenceseqid_variant_coordinate,
-      chromosome,
-      window_end,
-      type_,
-      window_start,
-      variant_end,
-      chromosome_variant_coordinate,
-      patient,
-      variant_start,
-      chromosome_window_coordinate,
-      referenceseqid_window_coordinate,
-      referenceseqid,
-    ) -> #(
-      "MolecularSequence",
-      using_params([
-        #("identifier", identifier),
-        #(
-          "referenceseqid-variant-coordinate",
-          referenceseqid_variant_coordinate,
-        ),
-        #("chromosome", chromosome),
-        #("window-end", window_end),
-        #("type", type_),
-        #("window-start", window_start),
-        #("variant-end", variant_end),
-        #("chromosome-variant-coordinate", chromosome_variant_coordinate),
-        #("patient", patient),
-        #("variant-start", variant_start),
-        #("chromosome-window-coordinate", chromosome_window_coordinate),
-        #("referenceseqid-window-coordinate", referenceseqid_window_coordinate),
-        #("referenceseqid", referenceseqid),
-      ]),
-    )
-    SpNamingsystem(
-      date,
-      period,
-      context_type_value,
-      kind,
-      jurisdiction,
-      description,
-      context_type,
-      type_,
-      id_type,
-      context_quantity,
-      responsible,
-      contact,
-      name,
-      context,
-      publisher,
-      telecom,
-      value,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "NamingSystem",
-      using_params([
-        #("date", date),
-        #("period", period),
-        #("context-type-value", context_type_value),
-        #("kind", kind),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("type", type_),
-        #("id-type", id_type),
-        #("context-quantity", context_quantity),
-        #("responsible", responsible),
-        #("contact", contact),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("telecom", telecom),
-        #("value", value),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpNutritionorder(
-      identifier,
-      datetime,
-      provider,
-      patient,
-      supplement,
-      formula,
-      instantiates_canonical,
-      instantiates_uri,
-      encounter,
-      oraldiet,
-      status,
-      additive,
-    ) -> #(
-      "NutritionOrder",
-      using_params([
-        #("identifier", identifier),
-        #("datetime", datetime),
-        #("provider", provider),
-        #("patient", patient),
-        #("supplement", supplement),
-        #("formula", formula),
-        #("instantiates-canonical", instantiates_canonical),
-        #("instantiates-uri", instantiates_uri),
-        #("encounter", encounter),
-        #("oraldiet", oraldiet),
-        #("status", status),
-        #("additive", additive),
-      ]),
-    )
-    SpObservation(
-      date,
-      combo_data_absent_reason,
-      code,
-      combo_code_value_quantity,
-      subject,
-      component_data_absent_reason,
-      value_concept,
-      value_date,
-      focus,
-      derived_from,
-      part_of,
-      has_member,
-      code_value_string,
-      component_code_value_quantity,
-      based_on,
-      code_value_date,
-      patient,
-      specimen,
-      component_code,
-      code_value_quantity,
-      combo_code_value_concept,
-      value_string,
-      identifier,
-      performer,
-      combo_code,
-      method,
-      value_quantity,
-      component_value_quantity,
-      data_absent_reason,
-      combo_value_quantity,
-      encounter,
-      code_value_concept,
-      component_code_value_concept,
-      component_value_concept,
-      category,
-      device,
-      combo_value_concept,
-      status,
-    ) -> #(
-      "Observation",
-      using_params([
-        #("date", date),
-        #("combo-data-absent-reason", combo_data_absent_reason),
-        #("code", code),
-        #("combo-code-value-quantity", combo_code_value_quantity),
-        #("subject", subject),
-        #("component-data-absent-reason", component_data_absent_reason),
-        #("value-concept", value_concept),
-        #("value-date", value_date),
-        #("focus", focus),
-        #("derived-from", derived_from),
-        #("part-of", part_of),
-        #("has-member", has_member),
-        #("code-value-string", code_value_string),
-        #("component-code-value-quantity", component_code_value_quantity),
-        #("based-on", based_on),
-        #("code-value-date", code_value_date),
-        #("patient", patient),
-        #("specimen", specimen),
-        #("component-code", component_code),
-        #("code-value-quantity", code_value_quantity),
-        #("combo-code-value-concept", combo_code_value_concept),
-        #("value-string", value_string),
-        #("identifier", identifier),
-        #("performer", performer),
-        #("combo-code", combo_code),
-        #("method", method),
-        #("value-quantity", value_quantity),
-        #("component-value-quantity", component_value_quantity),
-        #("data-absent-reason", data_absent_reason),
-        #("combo-value-quantity", combo_value_quantity),
-        #("encounter", encounter),
-        #("code-value-concept", code_value_concept),
-        #("component-code-value-concept", component_code_value_concept),
-        #("component-value-concept", component_value_concept),
-        #("category", category),
-        #("device", device),
-        #("combo-value-concept", combo_value_concept),
-        #("status", status),
-      ]),
-    )
-    SpObservationdefinition -> #("ObservationDefinition", using_params([]))
-    SpOperationdefinition(
-      date,
-      code,
-      instance,
-      context_type_value,
-      kind,
-      jurisdiction,
-      description,
-      context_type,
-      title,
-      type_,
-      version,
-      url,
-      context_quantity,
-      input_profile,
-      output_profile,
-      system,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-      base,
-    ) -> #(
-      "OperationDefinition",
-      using_params([
-        #("date", date),
-        #("code", code),
-        #("instance", instance),
-        #("context-type-value", context_type_value),
-        #("kind", kind),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("title", title),
-        #("type", type_),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("input-profile", input_profile),
-        #("output-profile", output_profile),
-        #("system", system),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-        #("base", base),
-      ]),
-    )
-    SpOperationoutcome -> #("OperationOutcome", using_params([]))
-    SpOrganization(
-      identifier,
-      partof,
-      address,
-      address_state,
-      active,
-      type_,
-      address_postalcode,
-      address_country,
-      endpoint,
-      phonetic,
-      name,
-      address_use,
-      address_city,
-    ) -> #(
-      "Organization",
-      using_params([
-        #("identifier", identifier),
-        #("partof", partof),
-        #("address", address),
-        #("address-state", address_state),
-        #("active", active),
-        #("type", type_),
-        #("address-postalcode", address_postalcode),
-        #("address-country", address_country),
-        #("endpoint", endpoint),
-        #("phonetic", phonetic),
-        #("name", name),
-        #("address-use", address_use),
-        #("address-city", address_city),
-      ]),
-    )
-    SpOrganizationaffiliation(
-      date,
-      identifier,
-      specialty,
-      role,
-      active,
-      primary_organization,
-      network,
-      endpoint,
-      phone,
-      service,
-      participating_organization,
-      telecom,
-      location,
-      email,
-    ) -> #(
-      "OrganizationAffiliation",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("specialty", specialty),
-        #("role", role),
-        #("active", active),
-        #("primary-organization", primary_organization),
-        #("network", network),
-        #("endpoint", endpoint),
-        #("phone", phone),
-        #("service", service),
-        #("participating-organization", participating_organization),
-        #("telecom", telecom),
-        #("location", location),
-        #("email", email),
-      ]),
-    )
-    SpPatient(
-      identifier,
-      given,
-      address,
-      birthdate,
-      deceased,
-      address_state,
-      gender,
-      general_practitioner,
-      link,
-      active,
-      language,
-      address_postalcode,
-      address_country,
-      death_date,
-      phonetic,
-      phone,
-      organization,
-      name,
-      address_use,
-      telecom,
-      family,
-      address_city,
-      email,
-    ) -> #(
-      "Patient",
-      using_params([
-        #("identifier", identifier),
-        #("given", given),
-        #("address", address),
-        #("birthdate", birthdate),
-        #("deceased", deceased),
-        #("address-state", address_state),
-        #("gender", gender),
-        #("general-practitioner", general_practitioner),
-        #("link", link),
-        #("active", active),
-        #("language", language),
-        #("address-postalcode", address_postalcode),
-        #("address-country", address_country),
-        #("death-date", death_date),
-        #("phonetic", phonetic),
-        #("phone", phone),
-        #("organization", organization),
-        #("name", name),
-        #("address-use", address_use),
-        #("telecom", telecom),
-        #("family", family),
-        #("address-city", address_city),
-        #("email", email),
-      ]),
-    )
-    SpPaymentnotice(
-      identifier,
-      request,
-      provider,
-      created,
-      response,
-      payment_status,
-      status,
-    ) -> #(
-      "PaymentNotice",
-      using_params([
-        #("identifier", identifier),
-        #("request", request),
-        #("provider", provider),
-        #("created", created),
-        #("response", response),
-        #("payment-status", payment_status),
-        #("status", status),
-      ]),
-    )
-    SpPaymentreconciliation(
-      identifier,
-      request,
-      disposition,
-      created,
-      payment_issuer,
-      outcome,
-      requestor,
-      status,
-    ) -> #(
-      "PaymentReconciliation",
-      using_params([
-        #("identifier", identifier),
-        #("request", request),
-        #("disposition", disposition),
-        #("created", created),
-        #("payment-issuer", payment_issuer),
-        #("outcome", outcome),
-        #("requestor", requestor),
-        #("status", status),
-      ]),
-    )
-    SpPerson(
-      identifier,
-      address,
-      birthdate,
-      address_state,
-      gender,
-      practitioner,
-      link,
-      relatedperson,
-      address_postalcode,
-      address_country,
-      phonetic,
-      phone,
-      patient,
-      organization,
-      name,
-      address_use,
-      telecom,
-      address_city,
-      email,
-    ) -> #(
-      "Person",
-      using_params([
-        #("identifier", identifier),
-        #("address", address),
-        #("birthdate", birthdate),
-        #("address-state", address_state),
-        #("gender", gender),
-        #("practitioner", practitioner),
-        #("link", link),
-        #("relatedperson", relatedperson),
-        #("address-postalcode", address_postalcode),
-        #("address-country", address_country),
-        #("phonetic", phonetic),
-        #("phone", phone),
-        #("patient", patient),
-        #("organization", organization),
-        #("name", name),
-        #("address-use", address_use),
-        #("telecom", telecom),
-        #("address-city", address_city),
-        #("email", email),
-      ]),
-    )
-    SpPlandefinition(
-      date,
-      identifier,
-      successor,
-      context_type_value,
-      jurisdiction,
-      description,
-      derived_from,
-      context_type,
-      predecessor,
-      title,
-      composed_of,
-      type_,
-      version,
-      url,
-      context_quantity,
-      effective,
-      depends_on,
-      name,
-      context,
-      publisher,
-      topic,
-      definition,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "PlanDefinition",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("successor", successor),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("derived-from", derived_from),
-        #("context-type", context_type),
-        #("predecessor", predecessor),
-        #("title", title),
-        #("composed-of", composed_of),
-        #("type", type_),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("depends-on", depends_on),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("topic", topic),
-        #("definition", definition),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpPractitioner(
-      identifier,
-      given,
-      address,
-      address_state,
-      gender,
-      active,
-      address_postalcode,
-      address_country,
-      phonetic,
-      phone,
-      name,
-      address_use,
-      telecom,
-      family,
-      address_city,
-      communication,
-      email,
-    ) -> #(
-      "Practitioner",
-      using_params([
-        #("identifier", identifier),
-        #("given", given),
-        #("address", address),
-        #("address-state", address_state),
-        #("gender", gender),
-        #("active", active),
-        #("address-postalcode", address_postalcode),
-        #("address-country", address_country),
-        #("phonetic", phonetic),
-        #("phone", phone),
-        #("name", name),
-        #("address-use", address_use),
-        #("telecom", telecom),
-        #("family", family),
-        #("address-city", address_city),
-        #("communication", communication),
-        #("email", email),
-      ]),
-    )
-    SpPractitionerrole(
-      date,
-      identifier,
-      specialty,
-      role,
-      practitioner,
-      active,
-      endpoint,
-      phone,
-      service,
-      organization,
-      telecom,
-      location,
-      email,
-    ) -> #(
-      "PractitionerRole",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("specialty", specialty),
-        #("role", role),
-        #("practitioner", practitioner),
-        #("active", active),
-        #("endpoint", endpoint),
-        #("phone", phone),
-        #("service", service),
-        #("organization", organization),
-        #("telecom", telecom),
-        #("location", location),
-        #("email", email),
-      ]),
-    )
-    SpProcedure(
-      date,
-      identifier,
-      code,
-      performer,
-      subject,
-      instantiates_canonical,
-      part_of,
-      encounter,
-      reason_code,
-      based_on,
-      patient,
-      reason_reference,
-      location,
-      instantiates_uri,
-      category,
-      status,
-    ) -> #(
-      "Procedure",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("code", code),
-        #("performer", performer),
-        #("subject", subject),
-        #("instantiates-canonical", instantiates_canonical),
-        #("part-of", part_of),
-        #("encounter", encounter),
-        #("reason-code", reason_code),
-        #("based-on", based_on),
-        #("patient", patient),
-        #("reason-reference", reason_reference),
-        #("location", location),
-        #("instantiates-uri", instantiates_uri),
-        #("category", category),
-        #("status", status),
-      ]),
-    )
-    SpProvenance(
-      agent_type,
-      agent,
-      signature_type,
-      patient,
-      location,
-      recorded,
-      agent_role,
-      when,
-      entity,
-      target,
-    ) -> #(
-      "Provenance",
-      using_params([
-        #("agent-type", agent_type),
-        #("agent", agent),
-        #("signature-type", signature_type),
-        #("patient", patient),
-        #("location", location),
-        #("recorded", recorded),
-        #("agent-role", agent_role),
-        #("when", when),
-        #("entity", entity),
-        #("target", target),
-      ]),
-    )
-    SpQuestionnaire(
-      date,
-      identifier,
-      code,
-      context_type_value,
-      jurisdiction,
-      description,
-      context_type,
-      title,
-      version,
-      url,
-      context_quantity,
-      effective,
-      subject_type,
-      name,
-      context,
-      publisher,
-      definition,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "Questionnaire",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("code", code),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("subject-type", subject_type),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("definition", definition),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpQuestionnaireresponse(
-      authored,
-      identifier,
-      questionnaire,
-      based_on,
-      subject,
-      author,
-      patient,
-      part_of,
-      encounter,
-      source,
-      status,
-    ) -> #(
-      "QuestionnaireResponse",
-      using_params([
-        #("authored", authored),
-        #("identifier", identifier),
-        #("questionnaire", questionnaire),
-        #("based-on", based_on),
-        #("subject", subject),
-        #("author", author),
-        #("patient", patient),
-        #("part-of", part_of),
-        #("encounter", encounter),
-        #("source", source),
-        #("status", status),
-      ]),
-    )
-    SpRelatedperson(
-      identifier,
-      address,
-      birthdate,
-      address_state,
-      gender,
-      active,
-      address_postalcode,
-      address_country,
-      phonetic,
-      phone,
-      patient,
-      name,
-      address_use,
-      telecom,
-      address_city,
-      relationship,
-      email,
-    ) -> #(
-      "RelatedPerson",
-      using_params([
-        #("identifier", identifier),
-        #("address", address),
-        #("birthdate", birthdate),
-        #("address-state", address_state),
-        #("gender", gender),
-        #("active", active),
-        #("address-postalcode", address_postalcode),
-        #("address-country", address_country),
-        #("phonetic", phonetic),
-        #("phone", phone),
-        #("patient", patient),
-        #("name", name),
-        #("address-use", address_use),
-        #("telecom", telecom),
-        #("address-city", address_city),
-        #("relationship", relationship),
-        #("email", email),
-      ]),
-    )
-    SpRequestgroup(
-      authored,
-      identifier,
-      code,
-      subject,
-      author,
-      instantiates_canonical,
-      encounter,
-      priority,
-      intent,
-      participant,
-      group_identifier,
-      patient,
-      instantiates_uri,
-      status,
-    ) -> #(
-      "RequestGroup",
-      using_params([
-        #("authored", authored),
-        #("identifier", identifier),
-        #("code", code),
-        #("subject", subject),
-        #("author", author),
-        #("instantiates-canonical", instantiates_canonical),
-        #("encounter", encounter),
-        #("priority", priority),
-        #("intent", intent),
-        #("participant", participant),
-        #("group-identifier", group_identifier),
-        #("patient", patient),
-        #("instantiates-uri", instantiates_uri),
-        #("status", status),
-      ]),
-    )
-    SpResearchdefinition(
-      date,
-      identifier,
-      successor,
-      context_type_value,
-      jurisdiction,
-      description,
-      derived_from,
-      context_type,
-      predecessor,
-      title,
-      composed_of,
-      version,
-      url,
-      context_quantity,
-      effective,
-      depends_on,
-      name,
-      context,
-      publisher,
-      topic,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "ResearchDefinition",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("successor", successor),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("derived-from", derived_from),
-        #("context-type", context_type),
-        #("predecessor", predecessor),
-        #("title", title),
-        #("composed-of", composed_of),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("depends-on", depends_on),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("topic", topic),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpResearchelementdefinition(
-      date,
-      identifier,
-      successor,
-      context_type_value,
-      jurisdiction,
-      description,
-      derived_from,
-      context_type,
-      predecessor,
-      title,
-      composed_of,
-      version,
-      url,
-      context_quantity,
-      effective,
-      depends_on,
-      name,
-      context,
-      publisher,
-      topic,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "ResearchElementDefinition",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("successor", successor),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("derived-from", derived_from),
-        #("context-type", context_type),
-        #("predecessor", predecessor),
-        #("title", title),
-        #("composed-of", composed_of),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("depends-on", depends_on),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("topic", topic),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpResearchstudy(
-      date,
-      identifier,
-      partof,
-      sponsor,
-      focus,
-      principalinvestigator,
-      title,
-      protocol,
-      site,
-      location,
-      category,
-      keyword,
-      status,
-    ) -> #(
-      "ResearchStudy",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("partof", partof),
-        #("sponsor", sponsor),
-        #("focus", focus),
-        #("principalinvestigator", principalinvestigator),
-        #("title", title),
-        #("protocol", protocol),
-        #("site", site),
-        #("location", location),
-        #("category", category),
-        #("keyword", keyword),
-        #("status", status),
-      ]),
-    )
-    SpResearchsubject(date, identifier, study, individual, patient, status) -> #(
-      "ResearchSubject",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("study", study),
-        #("individual", individual),
-        #("patient", patient),
-        #("status", status),
-      ]),
-    )
-    SpRiskassessment(
-      date,
-      identifier,
-      condition,
-      performer,
-      method,
-      subject,
-      patient,
-      probability,
-      risk,
-      encounter,
-    ) -> #(
-      "RiskAssessment",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("condition", condition),
-        #("performer", performer),
-        #("method", method),
-        #("subject", subject),
-        #("patient", patient),
-        #("probability", probability),
-        #("risk", risk),
-        #("encounter", encounter),
-      ]),
-    )
-    SpRiskevidencesynthesis(
-      date,
-      identifier,
-      context_type_value,
-      jurisdiction,
-      description,
-      context_type,
-      title,
-      version,
-      url,
-      context_quantity,
-      effective,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "RiskEvidenceSynthesis",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("effective", effective),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpSchedule(
-      actor,
-      date,
-      identifier,
-      specialty,
-      service_category,
-      service_type,
-      active,
-    ) -> #(
-      "Schedule",
-      using_params([
-        #("actor", actor),
-        #("date", date),
-        #("identifier", identifier),
-        #("specialty", specialty),
-        #("service-category", service_category),
-        #("service-type", service_type),
-        #("active", active),
-      ]),
-    )
-    SpSearchparameter(
-      date,
-      code,
-      context_type_value,
-      jurisdiction,
-      description,
-      derived_from,
-      context_type,
-      type_,
-      version,
-      url,
-      target,
-      context_quantity,
-      component,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-      base,
-    ) -> #(
-      "SearchParameter",
-      using_params([
-        #("date", date),
-        #("code", code),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("derived-from", derived_from),
-        #("context-type", context_type),
-        #("type", type_),
-        #("version", version),
-        #("url", url),
-        #("target", target),
-        #("context-quantity", context_quantity),
-        #("component", component),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-        #("base", base),
-      ]),
-    )
-    SpServicerequest(
-      authored,
-      requester,
-      identifier,
-      code,
-      performer,
-      requisition,
-      replaces,
-      subject,
-      instantiates_canonical,
-      encounter,
-      occurrence,
-      priority,
-      intent,
-      performer_type,
-      based_on,
-      patient,
-      specimen,
-      instantiates_uri,
-      body_site,
-      category,
-      status,
-    ) -> #(
-      "ServiceRequest",
-      using_params([
-        #("authored", authored),
-        #("requester", requester),
-        #("identifier", identifier),
-        #("code", code),
-        #("performer", performer),
-        #("requisition", requisition),
-        #("replaces", replaces),
-        #("subject", subject),
-        #("instantiates-canonical", instantiates_canonical),
-        #("encounter", encounter),
-        #("occurrence", occurrence),
-        #("priority", priority),
-        #("intent", intent),
-        #("performer-type", performer_type),
-        #("based-on", based_on),
-        #("patient", patient),
-        #("specimen", specimen),
-        #("instantiates-uri", instantiates_uri),
-        #("body-site", body_site),
-        #("category", category),
-        #("status", status),
-      ]),
-    )
-    SpSlot(
-      schedule,
-      identifier,
-      specialty,
-      service_category,
-      appointment_type,
-      service_type,
-      start,
-      status,
-    ) -> #(
-      "Slot",
-      using_params([
-        #("schedule", schedule),
-        #("identifier", identifier),
-        #("specialty", specialty),
-        #("service-category", service_category),
-        #("appointment-type", appointment_type),
-        #("service-type", service_type),
-        #("start", start),
-        #("status", status),
-      ]),
-    )
-    SpSpecimen(
-      container,
-      identifier,
-      parent,
-      container_id,
-      bodysite,
-      subject,
-      patient,
-      collected,
-      accession,
-      type_,
-      collector,
-      status,
-    ) -> #(
-      "Specimen",
-      using_params([
-        #("container", container),
-        #("identifier", identifier),
-        #("parent", parent),
-        #("container-id", container_id),
-        #("bodysite", bodysite),
-        #("subject", subject),
-        #("patient", patient),
-        #("collected", collected),
-        #("accession", accession),
-        #("type", type_),
-        #("collector", collector),
-        #("status", status),
-      ]),
-    )
-    SpSpecimendefinition(container, identifier, type_) -> #(
-      "SpecimenDefinition",
-      using_params([
-        #("container", container),
-        #("identifier", identifier),
-        #("type", type_),
-      ]),
-    )
-    SpStructuredefinition(
-      date,
-      context_type_value,
-      jurisdiction,
-      description,
-      context_type,
-      experimental,
-      title,
-      type_,
-      context_quantity,
-      path,
-      context,
-      base_path,
-      keyword,
-      context_type_quantity,
-      identifier,
-      valueset,
-      kind,
-      abstract,
-      version,
-      url,
-      ext_context,
-      name,
-      publisher,
-      derivation,
-      status,
-      base,
-    ) -> #(
-      "StructureDefinition",
-      using_params([
-        #("date", date),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("experimental", experimental),
-        #("title", title),
-        #("type", type_),
-        #("context-quantity", context_quantity),
-        #("path", path),
-        #("context", context),
-        #("base-path", base_path),
-        #("keyword", keyword),
-        #("context-type-quantity", context_type_quantity),
-        #("identifier", identifier),
-        #("valueset", valueset),
-        #("kind", kind),
-        #("abstract", abstract),
-        #("version", version),
-        #("url", url),
-        #("ext-context", ext_context),
-        #("name", name),
-        #("publisher", publisher),
-        #("derivation", derivation),
-        #("status", status),
-        #("base", base),
-      ]),
-    )
-    SpStructuremap(
-      date,
-      identifier,
-      context_type_value,
-      jurisdiction,
-      description,
-      context_type,
-      title,
-      version,
-      url,
-      context_quantity,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "StructureMap",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpSubscription(payload, criteria, contact, type_, url, status) -> #(
-      "Subscription",
-      using_params([
-        #("payload", payload),
-        #("criteria", criteria),
-        #("contact", contact),
-        #("type", type_),
-        #("url", url),
-        #("status", status),
-      ]),
-    )
-    SpSubstance(
-      identifier,
-      container_identifier,
-      code,
-      quantity,
-      substance_reference,
-      expiry,
-      category,
-      status,
-    ) -> #(
-      "Substance",
-      using_params([
-        #("identifier", identifier),
-        #("container-identifier", container_identifier),
-        #("code", code),
-        #("quantity", quantity),
-        #("substance-reference", substance_reference),
-        #("expiry", expiry),
-        #("category", category),
-        #("status", status),
-      ]),
-    )
-    SpSubstancenucleicacid -> #("SubstanceNucleicAcid", using_params([]))
-    SpSubstancepolymer -> #("SubstancePolymer", using_params([]))
-    SpSubstanceprotein -> #("SubstanceProtein", using_params([]))
-    SpSubstancereferenceinformation -> #(
-      "SubstanceReferenceInformation",
-      using_params([]),
-    )
-    SpSubstancesourcematerial -> #("SubstanceSourceMaterial", using_params([]))
-    SpSubstancespecification(code) -> #(
-      "SubstanceSpecification",
-      using_params([
-        #("code", code),
-      ]),
-    )
-    SpSupplydelivery(identifier, receiver, patient, supplier, status) -> #(
-      "SupplyDelivery",
-      using_params([
-        #("identifier", identifier),
-        #("receiver", receiver),
-        #("patient", patient),
-        #("supplier", supplier),
-        #("status", status),
-      ]),
-    )
-    SpSupplyrequest(
-      requester,
-      date,
-      identifier,
-      subject,
-      supplier,
-      category,
-      status,
-    ) -> #(
-      "SupplyRequest",
-      using_params([
-        #("requester", requester),
-        #("date", date),
-        #("identifier", identifier),
-        #("subject", subject),
-        #("supplier", supplier),
-        #("category", category),
-        #("status", status),
-      ]),
-    )
-    SpTask(
-      owner,
-      requester,
-      identifier,
-      business_status,
-      period,
-      code,
-      performer,
-      subject,
-      focus,
-      part_of,
-      encounter,
-      priority,
-      authored_on,
-      intent,
-      group_identifier,
-      based_on,
-      patient,
-      modified,
-      status,
-    ) -> #(
-      "Task",
-      using_params([
-        #("owner", owner),
-        #("requester", requester),
-        #("identifier", identifier),
-        #("business-status", business_status),
-        #("period", period),
-        #("code", code),
-        #("performer", performer),
-        #("subject", subject),
-        #("focus", focus),
-        #("part-of", part_of),
-        #("encounter", encounter),
-        #("priority", priority),
-        #("authored-on", authored_on),
-        #("intent", intent),
-        #("group-identifier", group_identifier),
-        #("based-on", based_on),
-        #("patient", patient),
-        #("modified", modified),
-        #("status", status),
-      ]),
-    )
-    SpTerminologycapabilities(
-      date,
-      context_type_value,
-      jurisdiction,
-      description,
-      context_type,
-      title,
-      version,
-      url,
-      context_quantity,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "TerminologyCapabilities",
-      using_params([
-        #("date", date),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpTestreport(result, identifier, tester, testscript, issued, participant) -> #(
-      "TestReport",
-      using_params([
-        #("result", result),
-        #("identifier", identifier),
-        #("tester", tester),
-        #("testscript", testscript),
-        #("issued", issued),
-        #("participant", participant),
-      ]),
-    )
-    SpTestscript(
-      date,
-      identifier,
-      context_type_value,
-      jurisdiction,
-      description,
-      testscript_capability,
-      context_type,
-      title,
-      version,
-      url,
-      context_quantity,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "TestScript",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("testscript-capability", testscript_capability),
-        #("context-type", context_type),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("context-quantity", context_quantity),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpValueset(
-      date,
-      identifier,
-      code,
-      context_type_value,
-      jurisdiction,
-      description,
-      context_type,
-      title,
-      version,
-      url,
-      expansion,
-      reference,
-      context_quantity,
-      name,
-      context,
-      publisher,
-      context_type_quantity,
-      status,
-    ) -> #(
-      "ValueSet",
-      using_params([
-        #("date", date),
-        #("identifier", identifier),
-        #("code", code),
-        #("context-type-value", context_type_value),
-        #("jurisdiction", jurisdiction),
-        #("description", description),
-        #("context-type", context_type),
-        #("title", title),
-        #("version", version),
-        #("url", url),
-        #("expansion", expansion),
-        #("reference", reference),
-        #("context-quantity", context_quantity),
-        #("name", name),
-        #("context", context),
-        #("publisher", publisher),
-        #("context-type-quantity", context_type_quantity),
-        #("status", status),
-      ]),
-    )
-    SpVerificationresult(target) -> #(
-      "VerificationResult",
-      using_params([
-        #("target", target),
-      ]),
-    )
-    SpVisionprescription(
-      prescriber,
-      identifier,
-      patient,
-      datewritten,
-      encounter,
-      status,
-    ) -> #(
-      "VisionPrescription",
-      using_params([
-        #("prescriber", prescriber),
-        #("identifier", identifier),
-        #("patient", patient),
-        #("datewritten", datewritten),
-        #("encounter", encounter),
-        #("status", status),
-      ]),
-    )
-  }
-  let assert Ok(req) =
-    request.to(
-      string.concat([
-        client.baseurl |> uri.to_string,
-        "/",
-        res_type,
-        "?",
-        string.join(params_to_encode, "&"),
-      ]),
-    )
-  req
-  |> request.set_header("Accept", "application/fhir+json")
+pub fn sp_account_new() {
+  SpAccount(None, None, None, None, None, None, None, None, None)
 }
 
-fn using_params(params) {
+pub fn sp_activitydefinition_new() {
+  SpActivitydefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_adverseevent_new() {
+  SpAdverseevent(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_allergyintolerance_new() {
+  SpAllergyintolerance(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_appointment_new() {
+  SpAppointment(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_appointmentresponse_new() {
+  SpAppointmentresponse(None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_auditevent_new() {
+  SpAuditevent(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_basic_new() {
+  SpBasic(None, None, None, None, None, None, None)
+}
+
+pub fn sp_binary_new() {
+  SpBinary(None)
+}
+
+pub fn sp_biologicallyderivedproduct_new() {
+  SpBiologicallyderivedproduct(None)
+}
+
+pub fn sp_bodystructure_new() {
+  SpBodystructure(None, None, None, None, None)
+}
+
+pub fn sp_bundle_new() {
+  SpBundle(None, None, None, None, None, None)
+}
+
+pub fn sp_capabilitystatement_new() {
+  SpCapabilitystatement(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_careplan_new() {
+  SpCareplan(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_careteam_new() {
+  SpCareteam(None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_catalogentry_new() {
+  SpCatalogentry(None)
+}
+
+pub fn sp_chargeitem_new() {
+  SpChargeitem(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_chargeitemdefinition_new() {
+  SpChargeitemdefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_claim_new() {
+  SpClaim(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_claimresponse_new() {
+  SpClaimresponse(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_clinicalimpression_new() {
+  SpClinicalimpression(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_codesystem_new() {
+  SpCodesystem(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_communication_new() {
+  SpCommunication(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_communicationrequest_new() {
+  SpCommunicationrequest(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_compartmentdefinition_new() {
+  SpCompartmentdefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_composition_new() {
+  SpComposition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_conceptmap_new() {
+  SpConceptmap(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_condition_new() {
+  SpCondition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_consent_new() {
+  SpConsent(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_contract_new() {
+  SpContract(None, None, None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_coverage_new() {
+  SpCoverage(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_coverageeligibilityrequest_new() {
+  SpCoverageeligibilityrequest(None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_coverageeligibilityresponse_new() {
+  SpCoverageeligibilityresponse(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_detectedissue_new() {
+  SpDetectedissue(None, None, None, None, None, None, None)
+}
+
+pub fn sp_device_new() {
+  SpDevice(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_devicedefinition_new() {
+  SpDevicedefinition(None, None, None, None)
+}
+
+pub fn sp_devicemetric_new() {
+  SpDevicemetric(None, None, None, None, None, None)
+}
+
+pub fn sp_devicerequest_new() {
+  SpDevicerequest(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_deviceusestatement_new() {
+  SpDeviceusestatement(None, None, None, None, None)
+}
+
+pub fn sp_diagnosticreport_new() {
+  SpDiagnosticreport(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_documentmanifest_new() {
+  SpDocumentmanifest(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_documentreference_new() {
+  SpDocumentreference(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_effectevidencesynthesis_new() {
+  SpEffectevidencesynthesis(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_encounter_new() {
+  SpEncounter(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_endpoint_new() {
+  SpEndpoint(None, None, None, None, None, None, None)
+}
+
+pub fn sp_enrollmentrequest_new() {
+  SpEnrollmentrequest(None, None, None, None, None)
+}
+
+pub fn sp_enrollmentresponse_new() {
+  SpEnrollmentresponse(None, None, None, None)
+}
+
+pub fn sp_episodeofcare_new() {
+  SpEpisodeofcare(None, None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_eventdefinition_new() {
+  SpEventdefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_evidence_new() {
+  SpEvidence(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_evidencevariable_new() {
+  SpEvidencevariable(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_examplescenario_new() {
+  SpExamplescenario(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_explanationofbenefit_new() {
+  SpExplanationofbenefit(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_familymemberhistory_new() {
+  SpFamilymemberhistory(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_flag_new() {
+  SpFlag(None, None, None, None, None, None, None)
+}
+
+pub fn sp_goal_new() {
+  SpGoal(None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_graphdefinition_new() {
+  SpGraphdefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_group_new() {
+  SpGroup(None, None, None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_guidanceresponse_new() {
+  SpGuidanceresponse(None, None, None, None, None)
+}
+
+pub fn sp_healthcareservice_new() {
+  SpHealthcareservice(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_imagingstudy_new() {
+  SpImagingstudy(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_immunization_new() {
+  SpImmunization(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_immunizationevaluation_new() {
+  SpImmunizationevaluation(None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_immunizationrecommendation_new() {
+  SpImmunizationrecommendation(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_implementationguide_new() {
+  SpImplementationguide(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_insuranceplan_new() {
+  SpInsuranceplan(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_invoice_new() {
+  SpInvoice(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_library_new() {
+  SpLibrary(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_linkage_new() {
+  SpLinkage(None, None, None, None)
+}
+
+pub fn sp_listfhir_new() {
+  SpListfhir(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_location_new() {
+  SpLocation(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_measure_new() {
+  SpMeasure(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_measurereport_new() {
+  SpMeasurereport(None, None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_media_new() {
+  SpMedia(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_medication_new() {
+  SpMedication(None, None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_medicationadministration_new() {
+  SpMedicationadministration(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_medicationdispense_new() {
+  SpMedicationdispense(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_medicationknowledge_new() {
+  SpMedicationknowledge(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_medicationrequest_new() {
+  SpMedicationrequest(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_medicationstatement_new() {
+  SpMedicationstatement(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_medicinalproduct_new() {
+  SpMedicinalproduct(None, None, None, None)
+}
+
+pub fn sp_medicinalproductauthorization_new() {
+  SpMedicinalproductauthorization(None, None, None, None, None, None)
+}
+
+pub fn sp_medicinalproductcontraindication_new() {
+  SpMedicinalproductcontraindication(None, None)
+}
+
+pub fn sp_medicinalproductindication_new() {
+  SpMedicinalproductindication(None, None)
+}
+
+pub fn sp_medicinalproductingredient_new() {
+  SpMedicinalproductingredient(None)
+}
+
+pub fn sp_medicinalproductinteraction_new() {
+  SpMedicinalproductinteraction(None, None)
+}
+
+pub fn sp_medicinalproductmanufactured_new() {
+  SpMedicinalproductmanufactured(None)
+}
+
+pub fn sp_medicinalproductpackaged_new() {
+  SpMedicinalproductpackaged(None, None, None)
+}
+
+pub fn sp_medicinalproductpharmaceutical_new() {
+  SpMedicinalproductpharmaceutical(None, None, None, None)
+}
+
+pub fn sp_medicinalproductundesirableeffect_new() {
+  SpMedicinalproductundesirableeffect(None, None)
+}
+
+pub fn sp_messagedefinition_new() {
+  SpMessagedefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_messageheader_new() {
+  SpMessageheader(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_molecularsequence_new() {
+  SpMolecularsequence(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_namingsystem_new() {
+  SpNamingsystem(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_nutritionorder_new() {
+  SpNutritionorder(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_observation_new() {
+  SpObservation(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_observationdefinition_new() {
+  SpObservationdefinition(None)
+}
+
+pub fn sp_operationdefinition_new() {
+  SpOperationdefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_operationoutcome_new() {
+  SpOperationoutcome(None)
+}
+
+pub fn sp_organization_new() {
+  SpOrganization(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_organizationaffiliation_new() {
+  SpOrganizationaffiliation(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_patient_new() {
+  SpPatient(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_paymentnotice_new() {
+  SpPaymentnotice(None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_paymentreconciliation_new() {
+  SpPaymentreconciliation(None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_person_new() {
+  SpPerson(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_plandefinition_new() {
+  SpPlandefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_practitioner_new() {
+  SpPractitioner(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_practitionerrole_new() {
+  SpPractitionerrole(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_procedure_new() {
+  SpProcedure(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_provenance_new() {
+  SpProvenance(None, None, None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_questionnaire_new() {
+  SpQuestionnaire(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_questionnaireresponse_new() {
+  SpQuestionnaireresponse(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_relatedperson_new() {
+  SpRelatedperson(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_requestgroup_new() {
+  SpRequestgroup(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_researchdefinition_new() {
+  SpResearchdefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_researchelementdefinition_new() {
+  SpResearchelementdefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_researchstudy_new() {
+  SpResearchstudy(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_researchsubject_new() {
+  SpResearchsubject(None, None, None, None, None, None, None)
+}
+
+pub fn sp_riskassessment_new() {
+  SpRiskassessment(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_riskevidencesynthesis_new() {
+  SpRiskevidencesynthesis(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_schedule_new() {
+  SpSchedule(None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_searchparameter_new() {
+  SpSearchparameter(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_servicerequest_new() {
+  SpServicerequest(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_slot_new() {
+  SpSlot(None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_specimen_new() {
+  SpSpecimen(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_specimendefinition_new() {
+  SpSpecimendefinition(None, None, None, None)
+}
+
+pub fn sp_structuredefinition_new() {
+  SpStructuredefinition(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_structuremap_new() {
+  SpStructuremap(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_subscription_new() {
+  SpSubscription(None, None, None, None, None, None, None)
+}
+
+pub fn sp_substance_new() {
+  SpSubstance(None, None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_substancenucleicacid_new() {
+  SpSubstancenucleicacid(None)
+}
+
+pub fn sp_substancepolymer_new() {
+  SpSubstancepolymer(None)
+}
+
+pub fn sp_substanceprotein_new() {
+  SpSubstanceprotein(None)
+}
+
+pub fn sp_substancereferenceinformation_new() {
+  SpSubstancereferenceinformation(None)
+}
+
+pub fn sp_substancesourcematerial_new() {
+  SpSubstancesourcematerial(None)
+}
+
+pub fn sp_substancespecification_new() {
+  SpSubstancespecification(None, None)
+}
+
+pub fn sp_supplydelivery_new() {
+  SpSupplydelivery(None, None, None, None, None, None)
+}
+
+pub fn sp_supplyrequest_new() {
+  SpSupplyrequest(None, None, None, None, None, None, None, None)
+}
+
+pub fn sp_task_new() {
+  SpTask(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_terminologycapabilities_new() {
+  SpTerminologycapabilities(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_testreport_new() {
+  SpTestreport(None, None, None, None, None, None, None)
+}
+
+pub fn sp_testscript_new() {
+  SpTestscript(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_valueset_new() {
+  SpValueset(
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+    None,
+  )
+}
+
+pub fn sp_verificationresult_new() {
+  SpVerificationresult(None, None)
+}
+
+pub fn sp_visionprescription_new() {
+  SpVisionprescription(None, None, None, None, None, None, None)
+}
+
+pub type SpInclude {
+  SpInclude(
+    inc_account: Option(SpInclude),
+    revinc_account: Option(SpInclude),
+    inc_activitydefinition: Option(SpInclude),
+    revinc_activitydefinition: Option(SpInclude),
+    inc_adverseevent: Option(SpInclude),
+    revinc_adverseevent: Option(SpInclude),
+    inc_allergyintolerance: Option(SpInclude),
+    revinc_allergyintolerance: Option(SpInclude),
+    inc_appointment: Option(SpInclude),
+    revinc_appointment: Option(SpInclude),
+    inc_appointmentresponse: Option(SpInclude),
+    revinc_appointmentresponse: Option(SpInclude),
+    inc_auditevent: Option(SpInclude),
+    revinc_auditevent: Option(SpInclude),
+    inc_basic: Option(SpInclude),
+    revinc_basic: Option(SpInclude),
+    inc_binary: Option(SpInclude),
+    revinc_binary: Option(SpInclude),
+    inc_biologicallyderivedproduct: Option(SpInclude),
+    revinc_biologicallyderivedproduct: Option(SpInclude),
+    inc_bodystructure: Option(SpInclude),
+    revinc_bodystructure: Option(SpInclude),
+    inc_bundle: Option(SpInclude),
+    revinc_bundle: Option(SpInclude),
+    inc_capabilitystatement: Option(SpInclude),
+    revinc_capabilitystatement: Option(SpInclude),
+    inc_careplan: Option(SpInclude),
+    revinc_careplan: Option(SpInclude),
+    inc_careteam: Option(SpInclude),
+    revinc_careteam: Option(SpInclude),
+    inc_catalogentry: Option(SpInclude),
+    revinc_catalogentry: Option(SpInclude),
+    inc_chargeitem: Option(SpInclude),
+    revinc_chargeitem: Option(SpInclude),
+    inc_chargeitemdefinition: Option(SpInclude),
+    revinc_chargeitemdefinition: Option(SpInclude),
+    inc_claim: Option(SpInclude),
+    revinc_claim: Option(SpInclude),
+    inc_claimresponse: Option(SpInclude),
+    revinc_claimresponse: Option(SpInclude),
+    inc_clinicalimpression: Option(SpInclude),
+    revinc_clinicalimpression: Option(SpInclude),
+    inc_codesystem: Option(SpInclude),
+    revinc_codesystem: Option(SpInclude),
+    inc_communication: Option(SpInclude),
+    revinc_communication: Option(SpInclude),
+    inc_communicationrequest: Option(SpInclude),
+    revinc_communicationrequest: Option(SpInclude),
+    inc_compartmentdefinition: Option(SpInclude),
+    revinc_compartmentdefinition: Option(SpInclude),
+    inc_composition: Option(SpInclude),
+    revinc_composition: Option(SpInclude),
+    inc_conceptmap: Option(SpInclude),
+    revinc_conceptmap: Option(SpInclude),
+    inc_condition: Option(SpInclude),
+    revinc_condition: Option(SpInclude),
+    inc_consent: Option(SpInclude),
+    revinc_consent: Option(SpInclude),
+    inc_contract: Option(SpInclude),
+    revinc_contract: Option(SpInclude),
+    inc_coverage: Option(SpInclude),
+    revinc_coverage: Option(SpInclude),
+    inc_coverageeligibilityrequest: Option(SpInclude),
+    revinc_coverageeligibilityrequest: Option(SpInclude),
+    inc_coverageeligibilityresponse: Option(SpInclude),
+    revinc_coverageeligibilityresponse: Option(SpInclude),
+    inc_detectedissue: Option(SpInclude),
+    revinc_detectedissue: Option(SpInclude),
+    inc_device: Option(SpInclude),
+    revinc_device: Option(SpInclude),
+    inc_devicedefinition: Option(SpInclude),
+    revinc_devicedefinition: Option(SpInclude),
+    inc_devicemetric: Option(SpInclude),
+    revinc_devicemetric: Option(SpInclude),
+    inc_devicerequest: Option(SpInclude),
+    revinc_devicerequest: Option(SpInclude),
+    inc_deviceusestatement: Option(SpInclude),
+    revinc_deviceusestatement: Option(SpInclude),
+    inc_diagnosticreport: Option(SpInclude),
+    revinc_diagnosticreport: Option(SpInclude),
+    inc_documentmanifest: Option(SpInclude),
+    revinc_documentmanifest: Option(SpInclude),
+    inc_documentreference: Option(SpInclude),
+    revinc_documentreference: Option(SpInclude),
+    inc_effectevidencesynthesis: Option(SpInclude),
+    revinc_effectevidencesynthesis: Option(SpInclude),
+    inc_encounter: Option(SpInclude),
+    revinc_encounter: Option(SpInclude),
+    inc_endpoint: Option(SpInclude),
+    revinc_endpoint: Option(SpInclude),
+    inc_enrollmentrequest: Option(SpInclude),
+    revinc_enrollmentrequest: Option(SpInclude),
+    inc_enrollmentresponse: Option(SpInclude),
+    revinc_enrollmentresponse: Option(SpInclude),
+    inc_episodeofcare: Option(SpInclude),
+    revinc_episodeofcare: Option(SpInclude),
+    inc_eventdefinition: Option(SpInclude),
+    revinc_eventdefinition: Option(SpInclude),
+    inc_evidence: Option(SpInclude),
+    revinc_evidence: Option(SpInclude),
+    inc_evidencevariable: Option(SpInclude),
+    revinc_evidencevariable: Option(SpInclude),
+    inc_examplescenario: Option(SpInclude),
+    revinc_examplescenario: Option(SpInclude),
+    inc_explanationofbenefit: Option(SpInclude),
+    revinc_explanationofbenefit: Option(SpInclude),
+    inc_familymemberhistory: Option(SpInclude),
+    revinc_familymemberhistory: Option(SpInclude),
+    inc_flag: Option(SpInclude),
+    revinc_flag: Option(SpInclude),
+    inc_goal: Option(SpInclude),
+    revinc_goal: Option(SpInclude),
+    inc_graphdefinition: Option(SpInclude),
+    revinc_graphdefinition: Option(SpInclude),
+    inc_group: Option(SpInclude),
+    revinc_group: Option(SpInclude),
+    inc_guidanceresponse: Option(SpInclude),
+    revinc_guidanceresponse: Option(SpInclude),
+    inc_healthcareservice: Option(SpInclude),
+    revinc_healthcareservice: Option(SpInclude),
+    inc_imagingstudy: Option(SpInclude),
+    revinc_imagingstudy: Option(SpInclude),
+    inc_immunization: Option(SpInclude),
+    revinc_immunization: Option(SpInclude),
+    inc_immunizationevaluation: Option(SpInclude),
+    revinc_immunizationevaluation: Option(SpInclude),
+    inc_immunizationrecommendation: Option(SpInclude),
+    revinc_immunizationrecommendation: Option(SpInclude),
+    inc_implementationguide: Option(SpInclude),
+    revinc_implementationguide: Option(SpInclude),
+    inc_insuranceplan: Option(SpInclude),
+    revinc_insuranceplan: Option(SpInclude),
+    inc_invoice: Option(SpInclude),
+    revinc_invoice: Option(SpInclude),
+    inc_library: Option(SpInclude),
+    revinc_library: Option(SpInclude),
+    inc_linkage: Option(SpInclude),
+    revinc_linkage: Option(SpInclude),
+    inc_listfhir: Option(SpInclude),
+    revinc_listfhir: Option(SpInclude),
+    inc_location: Option(SpInclude),
+    revinc_location: Option(SpInclude),
+    inc_measure: Option(SpInclude),
+    revinc_measure: Option(SpInclude),
+    inc_measurereport: Option(SpInclude),
+    revinc_measurereport: Option(SpInclude),
+    inc_media: Option(SpInclude),
+    revinc_media: Option(SpInclude),
+    inc_medication: Option(SpInclude),
+    revinc_medication: Option(SpInclude),
+    inc_medicationadministration: Option(SpInclude),
+    revinc_medicationadministration: Option(SpInclude),
+    inc_medicationdispense: Option(SpInclude),
+    revinc_medicationdispense: Option(SpInclude),
+    inc_medicationknowledge: Option(SpInclude),
+    revinc_medicationknowledge: Option(SpInclude),
+    inc_medicationrequest: Option(SpInclude),
+    revinc_medicationrequest: Option(SpInclude),
+    inc_medicationstatement: Option(SpInclude),
+    revinc_medicationstatement: Option(SpInclude),
+    inc_medicinalproduct: Option(SpInclude),
+    revinc_medicinalproduct: Option(SpInclude),
+    inc_medicinalproductauthorization: Option(SpInclude),
+    revinc_medicinalproductauthorization: Option(SpInclude),
+    inc_medicinalproductcontraindication: Option(SpInclude),
+    revinc_medicinalproductcontraindication: Option(SpInclude),
+    inc_medicinalproductindication: Option(SpInclude),
+    revinc_medicinalproductindication: Option(SpInclude),
+    inc_medicinalproductingredient: Option(SpInclude),
+    revinc_medicinalproductingredient: Option(SpInclude),
+    inc_medicinalproductinteraction: Option(SpInclude),
+    revinc_medicinalproductinteraction: Option(SpInclude),
+    inc_medicinalproductmanufactured: Option(SpInclude),
+    revinc_medicinalproductmanufactured: Option(SpInclude),
+    inc_medicinalproductpackaged: Option(SpInclude),
+    revinc_medicinalproductpackaged: Option(SpInclude),
+    inc_medicinalproductpharmaceutical: Option(SpInclude),
+    revinc_medicinalproductpharmaceutical: Option(SpInclude),
+    inc_medicinalproductundesirableeffect: Option(SpInclude),
+    revinc_medicinalproductundesirableeffect: Option(SpInclude),
+    inc_messagedefinition: Option(SpInclude),
+    revinc_messagedefinition: Option(SpInclude),
+    inc_messageheader: Option(SpInclude),
+    revinc_messageheader: Option(SpInclude),
+    inc_molecularsequence: Option(SpInclude),
+    revinc_molecularsequence: Option(SpInclude),
+    inc_namingsystem: Option(SpInclude),
+    revinc_namingsystem: Option(SpInclude),
+    inc_nutritionorder: Option(SpInclude),
+    revinc_nutritionorder: Option(SpInclude),
+    inc_observation: Option(SpInclude),
+    revinc_observation: Option(SpInclude),
+    inc_observationdefinition: Option(SpInclude),
+    revinc_observationdefinition: Option(SpInclude),
+    inc_operationdefinition: Option(SpInclude),
+    revinc_operationdefinition: Option(SpInclude),
+    inc_operationoutcome: Option(SpInclude),
+    revinc_operationoutcome: Option(SpInclude),
+    inc_organization: Option(SpInclude),
+    revinc_organization: Option(SpInclude),
+    inc_organizationaffiliation: Option(SpInclude),
+    revinc_organizationaffiliation: Option(SpInclude),
+    inc_patient: Option(SpInclude),
+    revinc_patient: Option(SpInclude),
+    inc_paymentnotice: Option(SpInclude),
+    revinc_paymentnotice: Option(SpInclude),
+    inc_paymentreconciliation: Option(SpInclude),
+    revinc_paymentreconciliation: Option(SpInclude),
+    inc_person: Option(SpInclude),
+    revinc_person: Option(SpInclude),
+    inc_plandefinition: Option(SpInclude),
+    revinc_plandefinition: Option(SpInclude),
+    inc_practitioner: Option(SpInclude),
+    revinc_practitioner: Option(SpInclude),
+    inc_practitionerrole: Option(SpInclude),
+    revinc_practitionerrole: Option(SpInclude),
+    inc_procedure: Option(SpInclude),
+    revinc_procedure: Option(SpInclude),
+    inc_provenance: Option(SpInclude),
+    revinc_provenance: Option(SpInclude),
+    inc_questionnaire: Option(SpInclude),
+    revinc_questionnaire: Option(SpInclude),
+    inc_questionnaireresponse: Option(SpInclude),
+    revinc_questionnaireresponse: Option(SpInclude),
+    inc_relatedperson: Option(SpInclude),
+    revinc_relatedperson: Option(SpInclude),
+    inc_requestgroup: Option(SpInclude),
+    revinc_requestgroup: Option(SpInclude),
+    inc_researchdefinition: Option(SpInclude),
+    revinc_researchdefinition: Option(SpInclude),
+    inc_researchelementdefinition: Option(SpInclude),
+    revinc_researchelementdefinition: Option(SpInclude),
+    inc_researchstudy: Option(SpInclude),
+    revinc_researchstudy: Option(SpInclude),
+    inc_researchsubject: Option(SpInclude),
+    revinc_researchsubject: Option(SpInclude),
+    inc_riskassessment: Option(SpInclude),
+    revinc_riskassessment: Option(SpInclude),
+    inc_riskevidencesynthesis: Option(SpInclude),
+    revinc_riskevidencesynthesis: Option(SpInclude),
+    inc_schedule: Option(SpInclude),
+    revinc_schedule: Option(SpInclude),
+    inc_searchparameter: Option(SpInclude),
+    revinc_searchparameter: Option(SpInclude),
+    inc_servicerequest: Option(SpInclude),
+    revinc_servicerequest: Option(SpInclude),
+    inc_slot: Option(SpInclude),
+    revinc_slot: Option(SpInclude),
+    inc_specimen: Option(SpInclude),
+    revinc_specimen: Option(SpInclude),
+    inc_specimendefinition: Option(SpInclude),
+    revinc_specimendefinition: Option(SpInclude),
+    inc_structuredefinition: Option(SpInclude),
+    revinc_structuredefinition: Option(SpInclude),
+    inc_structuremap: Option(SpInclude),
+    revinc_structuremap: Option(SpInclude),
+    inc_subscription: Option(SpInclude),
+    revinc_subscription: Option(SpInclude),
+    inc_substance: Option(SpInclude),
+    revinc_substance: Option(SpInclude),
+    inc_substancenucleicacid: Option(SpInclude),
+    revinc_substancenucleicacid: Option(SpInclude),
+    inc_substancepolymer: Option(SpInclude),
+    revinc_substancepolymer: Option(SpInclude),
+    inc_substanceprotein: Option(SpInclude),
+    revinc_substanceprotein: Option(SpInclude),
+    inc_substancereferenceinformation: Option(SpInclude),
+    revinc_substancereferenceinformation: Option(SpInclude),
+    inc_substancesourcematerial: Option(SpInclude),
+    revinc_substancesourcematerial: Option(SpInclude),
+    inc_substancespecification: Option(SpInclude),
+    revinc_substancespecification: Option(SpInclude),
+    inc_supplydelivery: Option(SpInclude),
+    revinc_supplydelivery: Option(SpInclude),
+    inc_supplyrequest: Option(SpInclude),
+    revinc_supplyrequest: Option(SpInclude),
+    inc_task: Option(SpInclude),
+    revinc_task: Option(SpInclude),
+    inc_terminologycapabilities: Option(SpInclude),
+    revinc_terminologycapabilities: Option(SpInclude),
+    inc_testreport: Option(SpInclude),
+    revinc_testreport: Option(SpInclude),
+    inc_testscript: Option(SpInclude),
+    revinc_testscript: Option(SpInclude),
+    inc_valueset: Option(SpInclude),
+    revinc_valueset: Option(SpInclude),
+    inc_verificationresult: Option(SpInclude),
+    revinc_verificationresult: Option(SpInclude),
+    inc_visionprescription: Option(SpInclude),
+    revinc_visionprescription: Option(SpInclude),
+  )
+}
+
+pub type GroupedResources {
+  GroupedResources(
+    account: List(r4.Account),
+    activitydefinition: List(r4.Activitydefinition),
+    adverseevent: List(r4.Adverseevent),
+    allergyintolerance: List(r4.Allergyintolerance),
+    appointment: List(r4.Appointment),
+    appointmentresponse: List(r4.Appointmentresponse),
+    auditevent: List(r4.Auditevent),
+    basic: List(r4.Basic),
+    binary: List(r4.Binary),
+    biologicallyderivedproduct: List(r4.Biologicallyderivedproduct),
+    bodystructure: List(r4.Bodystructure),
+    bundle: List(r4.Bundle),
+    capabilitystatement: List(r4.Capabilitystatement),
+    careplan: List(r4.Careplan),
+    careteam: List(r4.Careteam),
+    catalogentry: List(r4.Catalogentry),
+    chargeitem: List(r4.Chargeitem),
+    chargeitemdefinition: List(r4.Chargeitemdefinition),
+    claim: List(r4.Claim),
+    claimresponse: List(r4.Claimresponse),
+    clinicalimpression: List(r4.Clinicalimpression),
+    codesystem: List(r4.Codesystem),
+    communication: List(r4.Communication),
+    communicationrequest: List(r4.Communicationrequest),
+    compartmentdefinition: List(r4.Compartmentdefinition),
+    composition: List(r4.Composition),
+    conceptmap: List(r4.Conceptmap),
+    condition: List(r4.Condition),
+    consent: List(r4.Consent),
+    contract: List(r4.Contract),
+    coverage: List(r4.Coverage),
+    coverageeligibilityrequest: List(r4.Coverageeligibilityrequest),
+    coverageeligibilityresponse: List(r4.Coverageeligibilityresponse),
+    detectedissue: List(r4.Detectedissue),
+    device: List(r4.Device),
+    devicedefinition: List(r4.Devicedefinition),
+    devicemetric: List(r4.Devicemetric),
+    devicerequest: List(r4.Devicerequest),
+    deviceusestatement: List(r4.Deviceusestatement),
+    diagnosticreport: List(r4.Diagnosticreport),
+    documentmanifest: List(r4.Documentmanifest),
+    documentreference: List(r4.Documentreference),
+    effectevidencesynthesis: List(r4.Effectevidencesynthesis),
+    encounter: List(r4.Encounter),
+    endpoint: List(r4.Endpoint),
+    enrollmentrequest: List(r4.Enrollmentrequest),
+    enrollmentresponse: List(r4.Enrollmentresponse),
+    episodeofcare: List(r4.Episodeofcare),
+    eventdefinition: List(r4.Eventdefinition),
+    evidence: List(r4.Evidence),
+    evidencevariable: List(r4.Evidencevariable),
+    examplescenario: List(r4.Examplescenario),
+    explanationofbenefit: List(r4.Explanationofbenefit),
+    familymemberhistory: List(r4.Familymemberhistory),
+    flag: List(r4.Flag),
+    goal: List(r4.Goal),
+    graphdefinition: List(r4.Graphdefinition),
+    group: List(r4.Group),
+    guidanceresponse: List(r4.Guidanceresponse),
+    healthcareservice: List(r4.Healthcareservice),
+    imagingstudy: List(r4.Imagingstudy),
+    immunization: List(r4.Immunization),
+    immunizationevaluation: List(r4.Immunizationevaluation),
+    immunizationrecommendation: List(r4.Immunizationrecommendation),
+    implementationguide: List(r4.Implementationguide),
+    insuranceplan: List(r4.Insuranceplan),
+    invoice: List(r4.Invoice),
+    library: List(r4.Library),
+    linkage: List(r4.Linkage),
+    listfhir: List(r4.Listfhir),
+    location: List(r4.Location),
+    measure: List(r4.Measure),
+    measurereport: List(r4.Measurereport),
+    media: List(r4.Media),
+    medication: List(r4.Medication),
+    medicationadministration: List(r4.Medicationadministration),
+    medicationdispense: List(r4.Medicationdispense),
+    medicationknowledge: List(r4.Medicationknowledge),
+    medicationrequest: List(r4.Medicationrequest),
+    medicationstatement: List(r4.Medicationstatement),
+    medicinalproduct: List(r4.Medicinalproduct),
+    medicinalproductauthorization: List(r4.Medicinalproductauthorization),
+    medicinalproductcontraindication: List(r4.Medicinalproductcontraindication),
+    medicinalproductindication: List(r4.Medicinalproductindication),
+    medicinalproductingredient: List(r4.Medicinalproductingredient),
+    medicinalproductinteraction: List(r4.Medicinalproductinteraction),
+    medicinalproductmanufactured: List(r4.Medicinalproductmanufactured),
+    medicinalproductpackaged: List(r4.Medicinalproductpackaged),
+    medicinalproductpharmaceutical: List(r4.Medicinalproductpharmaceutical),
+    medicinalproductundesirableeffect: List(
+      r4.Medicinalproductundesirableeffect,
+    ),
+    messagedefinition: List(r4.Messagedefinition),
+    messageheader: List(r4.Messageheader),
+    molecularsequence: List(r4.Molecularsequence),
+    namingsystem: List(r4.Namingsystem),
+    nutritionorder: List(r4.Nutritionorder),
+    observation: List(r4.Observation),
+    observationdefinition: List(r4.Observationdefinition),
+    operationdefinition: List(r4.Operationdefinition),
+    operationoutcome: List(r4.Operationoutcome),
+    organization: List(r4.Organization),
+    organizationaffiliation: List(r4.Organizationaffiliation),
+    patient: List(r4.Patient),
+    paymentnotice: List(r4.Paymentnotice),
+    paymentreconciliation: List(r4.Paymentreconciliation),
+    person: List(r4.Person),
+    plandefinition: List(r4.Plandefinition),
+    practitioner: List(r4.Practitioner),
+    practitionerrole: List(r4.Practitionerrole),
+    procedure: List(r4.Procedure),
+    provenance: List(r4.Provenance),
+    questionnaire: List(r4.Questionnaire),
+    questionnaireresponse: List(r4.Questionnaireresponse),
+    relatedperson: List(r4.Relatedperson),
+    requestgroup: List(r4.Requestgroup),
+    researchdefinition: List(r4.Researchdefinition),
+    researchelementdefinition: List(r4.Researchelementdefinition),
+    researchstudy: List(r4.Researchstudy),
+    researchsubject: List(r4.Researchsubject),
+    riskassessment: List(r4.Riskassessment),
+    riskevidencesynthesis: List(r4.Riskevidencesynthesis),
+    schedule: List(r4.Schedule),
+    searchparameter: List(r4.Searchparameter),
+    servicerequest: List(r4.Servicerequest),
+    slot: List(r4.Slot),
+    specimen: List(r4.Specimen),
+    specimendefinition: List(r4.Specimendefinition),
+    structuredefinition: List(r4.Structuredefinition),
+    structuremap: List(r4.Structuremap),
+    subscription: List(r4.Subscription),
+    substance: List(r4.Substance),
+    substancenucleicacid: List(r4.Substancenucleicacid),
+    substancepolymer: List(r4.Substancepolymer),
+    substanceprotein: List(r4.Substanceprotein),
+    substancereferenceinformation: List(r4.Substancereferenceinformation),
+    substancesourcematerial: List(r4.Substancesourcematerial),
+    substancespecification: List(r4.Substancespecification),
+    supplydelivery: List(r4.Supplydelivery),
+    supplyrequest: List(r4.Supplyrequest),
+    task: List(r4.Task),
+    terminologycapabilities: List(r4.Terminologycapabilities),
+    testreport: List(r4.Testreport),
+    testscript: List(r4.Testscript),
+    valueset: List(r4.Valueset),
+    verificationresult: List(r4.Verificationresult),
+    visionprescription: List(r4.Visionprescription),
+  )
+}
+
+pub fn groupedresources_new() {
+  GroupedResources(
+    account: [],
+    activitydefinition: [],
+    adverseevent: [],
+    allergyintolerance: [],
+    appointment: [],
+    appointmentresponse: [],
+    auditevent: [],
+    basic: [],
+    binary: [],
+    biologicallyderivedproduct: [],
+    bodystructure: [],
+    bundle: [],
+    capabilitystatement: [],
+    careplan: [],
+    careteam: [],
+    catalogentry: [],
+    chargeitem: [],
+    chargeitemdefinition: [],
+    claim: [],
+    claimresponse: [],
+    clinicalimpression: [],
+    codesystem: [],
+    communication: [],
+    communicationrequest: [],
+    compartmentdefinition: [],
+    composition: [],
+    conceptmap: [],
+    condition: [],
+    consent: [],
+    contract: [],
+    coverage: [],
+    coverageeligibilityrequest: [],
+    coverageeligibilityresponse: [],
+    detectedissue: [],
+    device: [],
+    devicedefinition: [],
+    devicemetric: [],
+    devicerequest: [],
+    deviceusestatement: [],
+    diagnosticreport: [],
+    documentmanifest: [],
+    documentreference: [],
+    effectevidencesynthesis: [],
+    encounter: [],
+    endpoint: [],
+    enrollmentrequest: [],
+    enrollmentresponse: [],
+    episodeofcare: [],
+    eventdefinition: [],
+    evidence: [],
+    evidencevariable: [],
+    examplescenario: [],
+    explanationofbenefit: [],
+    familymemberhistory: [],
+    flag: [],
+    goal: [],
+    graphdefinition: [],
+    group: [],
+    guidanceresponse: [],
+    healthcareservice: [],
+    imagingstudy: [],
+    immunization: [],
+    immunizationevaluation: [],
+    immunizationrecommendation: [],
+    implementationguide: [],
+    insuranceplan: [],
+    invoice: [],
+    library: [],
+    linkage: [],
+    listfhir: [],
+    location: [],
+    measure: [],
+    measurereport: [],
+    media: [],
+    medication: [],
+    medicationadministration: [],
+    medicationdispense: [],
+    medicationknowledge: [],
+    medicationrequest: [],
+    medicationstatement: [],
+    medicinalproduct: [],
+    medicinalproductauthorization: [],
+    medicinalproductcontraindication: [],
+    medicinalproductindication: [],
+    medicinalproductingredient: [],
+    medicinalproductinteraction: [],
+    medicinalproductmanufactured: [],
+    medicinalproductpackaged: [],
+    medicinalproductpharmaceutical: [],
+    medicinalproductundesirableeffect: [],
+    messagedefinition: [],
+    messageheader: [],
+    molecularsequence: [],
+    namingsystem: [],
+    nutritionorder: [],
+    observation: [],
+    observationdefinition: [],
+    operationdefinition: [],
+    operationoutcome: [],
+    organization: [],
+    organizationaffiliation: [],
+    patient: [],
+    paymentnotice: [],
+    paymentreconciliation: [],
+    person: [],
+    plandefinition: [],
+    practitioner: [],
+    practitionerrole: [],
+    procedure: [],
+    provenance: [],
+    questionnaire: [],
+    questionnaireresponse: [],
+    relatedperson: [],
+    requestgroup: [],
+    researchdefinition: [],
+    researchelementdefinition: [],
+    researchstudy: [],
+    researchsubject: [],
+    riskassessment: [],
+    riskevidencesynthesis: [],
+    schedule: [],
+    searchparameter: [],
+    servicerequest: [],
+    slot: [],
+    specimen: [],
+    specimendefinition: [],
+    structuredefinition: [],
+    structuremap: [],
+    subscription: [],
+    substance: [],
+    substancenucleicacid: [],
+    substancepolymer: [],
+    substanceprotein: [],
+    substancereferenceinformation: [],
+    substancesourcematerial: [],
+    substancespecification: [],
+    supplydelivery: [],
+    supplyrequest: [],
+    task: [],
+    terminologycapabilities: [],
+    testreport: [],
+    testscript: [],
+    valueset: [],
+    verificationresult: [],
+    visionprescription: [],
+  )
+}
+
+pub fn account_search_req(sp: SpAccount, client: FhirClient) {
+  let params =
+    using_params([
+      #("owner", sp.owner),
+      #("identifier", sp.identifier),
+      #("period", sp.period),
+      #("subject", sp.subject),
+      #("patient", sp.patient),
+      #("name", sp.name),
+      #("type", sp.type_),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Account", client)
+}
+
+pub fn activitydefinition_search_req(
+  sp: SpActivitydefinition,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("successor", sp.successor),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("derived-from", sp.derived_from),
+      #("context-type", sp.context_type),
+      #("predecessor", sp.predecessor),
+      #("title", sp.title),
+      #("composed-of", sp.composed_of),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("depends-on", sp.depends_on),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("topic", sp.topic),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ActivityDefinition", client)
+}
+
+pub fn adverseevent_search_req(sp: SpAdverseevent, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("severity", sp.severity),
+      #("recorder", sp.recorder),
+      #("study", sp.study),
+      #("actuality", sp.actuality),
+      #("seriousness", sp.seriousness),
+      #("subject", sp.subject),
+      #("resultingcondition", sp.resultingcondition),
+      #("substance", sp.substance),
+      #("location", sp.location),
+      #("category", sp.category),
+      #("event", sp.event),
+    ])
+  any_search_req(params, "AdverseEvent", client)
+}
+
+pub fn allergyintolerance_search_req(
+  sp: SpAllergyintolerance,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("severity", sp.severity),
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("manifestation", sp.manifestation),
+      #("recorder", sp.recorder),
+      #("code", sp.code),
+      #("verification-status", sp.verification_status),
+      #("criticality", sp.criticality),
+      #("clinical-status", sp.clinical_status),
+      #("type", sp.type_),
+      #("onset", sp.onset),
+      #("route", sp.route),
+      #("asserter", sp.asserter),
+      #("patient", sp.patient),
+      #("category", sp.category),
+      #("last-date", sp.last_date),
+    ])
+  any_search_req(params, "AllergyIntolerance", client)
+}
+
+pub fn appointment_search_req(sp: SpAppointment, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("specialty", sp.specialty),
+      #("service-category", sp.service_category),
+      #("practitioner", sp.practitioner),
+      #("part-status", sp.part_status),
+      #("appointment-type", sp.appointment_type),
+      #("service-type", sp.service_type),
+      #("slot", sp.slot),
+      #("reason-code", sp.reason_code),
+      #("actor", sp.actor),
+      #("based-on", sp.based_on),
+      #("patient", sp.patient),
+      #("reason-reference", sp.reason_reference),
+      #("supporting-info", sp.supporting_info),
+      #("location", sp.location),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Appointment", client)
+}
+
+pub fn appointmentresponse_search_req(
+  sp: SpAppointmentresponse,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("actor", sp.actor),
+      #("identifier", sp.identifier),
+      #("practitioner", sp.practitioner),
+      #("part-status", sp.part_status),
+      #("patient", sp.patient),
+      #("appointment", sp.appointment),
+      #("location", sp.location),
+    ])
+  any_search_req(params, "AppointmentResponse", client)
+}
+
+pub fn auditevent_search_req(sp: SpAuditevent, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("entity-type", sp.entity_type),
+      #("agent", sp.agent),
+      #("address", sp.address),
+      #("entity-role", sp.entity_role),
+      #("source", sp.source),
+      #("type", sp.type_),
+      #("altid", sp.altid),
+      #("site", sp.site),
+      #("agent-name", sp.agent_name),
+      #("entity-name", sp.entity_name),
+      #("subtype", sp.subtype),
+      #("patient", sp.patient),
+      #("action", sp.action),
+      #("agent-role", sp.agent_role),
+      #("entity", sp.entity),
+      #("outcome", sp.outcome),
+      #("policy", sp.policy),
+    ])
+  any_search_req(params, "AuditEvent", client)
+}
+
+pub fn basic_search_req(sp: SpBasic, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("subject", sp.subject),
+      #("created", sp.created),
+      #("patient", sp.patient),
+      #("author", sp.author),
+    ])
+  any_search_req(params, "Basic", client)
+}
+
+pub fn binary_search_req(sp: SpBinary, client: FhirClient) {
+  let params = using_params([])
+  any_search_req(params, "Binary", client)
+}
+
+pub fn biologicallyderivedproduct_search_req(
+  sp: SpBiologicallyderivedproduct,
+  client: FhirClient,
+) {
+  let params = using_params([])
+  any_search_req(params, "BiologicallyDerivedProduct", client)
+}
+
+pub fn bodystructure_search_req(sp: SpBodystructure, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("morphology", sp.morphology),
+      #("patient", sp.patient),
+      #("location", sp.location),
+    ])
+  any_search_req(params, "BodyStructure", client)
+}
+
+pub fn bundle_search_req(sp: SpBundle, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("composition", sp.composition),
+      #("type", sp.type_),
+      #("message", sp.message),
+      #("timestamp", sp.timestamp),
+    ])
+  any_search_req(params, "Bundle", client)
+}
+
+pub fn capabilitystatement_search_req(
+  sp: SpCapabilitystatement,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("resource-profile", sp.resource_profile),
+      #("context-type-value", sp.context_type_value),
+      #("software", sp.software),
+      #("resource", sp.resource),
+      #("jurisdiction", sp.jurisdiction),
+      #("format", sp.format),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("fhirversion", sp.fhirversion),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("supported-profile", sp.supported_profile),
+      #("mode", sp.mode),
+      #("context-quantity", sp.context_quantity),
+      #("security-service", sp.security_service),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("guide", sp.guide),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "CapabilityStatement", client)
+}
+
+pub fn careplan_search_req(sp: SpCareplan, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("care-team", sp.care_team),
+      #("identifier", sp.identifier),
+      #("performer", sp.performer),
+      #("goal", sp.goal),
+      #("subject", sp.subject),
+      #("replaces", sp.replaces),
+      #("instantiates-canonical", sp.instantiates_canonical),
+      #("part-of", sp.part_of),
+      #("encounter", sp.encounter),
+      #("intent", sp.intent),
+      #("activity-reference", sp.activity_reference),
+      #("condition", sp.condition),
+      #("based-on", sp.based_on),
+      #("patient", sp.patient),
+      #("activity-date", sp.activity_date),
+      #("instantiates-uri", sp.instantiates_uri),
+      #("category", sp.category),
+      #("activity-code", sp.activity_code),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "CarePlan", client)
+}
+
+pub fn careteam_search_req(sp: SpCareteam, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("patient", sp.patient),
+      #("subject", sp.subject),
+      #("encounter", sp.encounter),
+      #("category", sp.category),
+      #("participant", sp.participant),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "CareTeam", client)
+}
+
+pub fn catalogentry_search_req(sp: SpCatalogentry, client: FhirClient) {
+  let params = using_params([])
+  any_search_req(params, "CatalogEntry", client)
+}
+
+pub fn chargeitem_search_req(sp: SpChargeitem, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("performing-organization", sp.performing_organization),
+      #("code", sp.code),
+      #("quantity", sp.quantity),
+      #("subject", sp.subject),
+      #("occurrence", sp.occurrence),
+      #("entered-date", sp.entered_date),
+      #("performer-function", sp.performer_function),
+      #("patient", sp.patient),
+      #("factor-override", sp.factor_override),
+      #("service", sp.service),
+      #("price-override", sp.price_override),
+      #("context", sp.context),
+      #("enterer", sp.enterer),
+      #("performer-actor", sp.performer_actor),
+      #("account", sp.account),
+      #("requesting-organization", sp.requesting_organization),
+    ])
+  any_search_req(params, "ChargeItem", client)
+}
+
+pub fn chargeitemdefinition_search_req(
+  sp: SpChargeitemdefinition,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ChargeItemDefinition", client)
+}
+
+pub fn claim_search_req(sp: SpClaim, client: FhirClient) {
+  let params =
+    using_params([
+      #("care-team", sp.care_team),
+      #("identifier", sp.identifier),
+      #("use", sp.use_),
+      #("created", sp.created),
+      #("encounter", sp.encounter),
+      #("priority", sp.priority),
+      #("payee", sp.payee),
+      #("provider", sp.provider),
+      #("patient", sp.patient),
+      #("insurer", sp.insurer),
+      #("detail-udi", sp.detail_udi),
+      #("enterer", sp.enterer),
+      #("procedure-udi", sp.procedure_udi),
+      #("subdetail-udi", sp.subdetail_udi),
+      #("facility", sp.facility),
+      #("item-udi", sp.item_udi),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Claim", client)
+}
+
+pub fn claimresponse_search_req(sp: SpClaimresponse, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("request", sp.request),
+      #("disposition", sp.disposition),
+      #("insurer", sp.insurer),
+      #("created", sp.created),
+      #("patient", sp.patient),
+      #("use", sp.use_),
+      #("payment-date", sp.payment_date),
+      #("outcome", sp.outcome),
+      #("requestor", sp.requestor),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ClaimResponse", client)
+}
+
+pub fn clinicalimpression_search_req(
+  sp: SpClinicalimpression,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("previous", sp.previous),
+      #("finding-code", sp.finding_code),
+      #("assessor", sp.assessor),
+      #("subject", sp.subject),
+      #("encounter", sp.encounter),
+      #("finding-ref", sp.finding_ref),
+      #("problem", sp.problem),
+      #("patient", sp.patient),
+      #("supporting-info", sp.supporting_info),
+      #("investigation", sp.investigation),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ClinicalImpression", client)
+}
+
+pub fn codesystem_search_req(sp: SpCodesystem, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("context-type-value", sp.context_type_value),
+      #("content-mode", sp.content_mode),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("language", sp.language),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("supplements", sp.supplements),
+      #("system", sp.system),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "CodeSystem", client)
+}
+
+pub fn communication_search_req(sp: SpCommunication, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("subject", sp.subject),
+      #("instantiates-canonical", sp.instantiates_canonical),
+      #("received", sp.received),
+      #("part-of", sp.part_of),
+      #("medium", sp.medium),
+      #("encounter", sp.encounter),
+      #("sent", sp.sent),
+      #("based-on", sp.based_on),
+      #("sender", sp.sender),
+      #("patient", sp.patient),
+      #("recipient", sp.recipient),
+      #("instantiates-uri", sp.instantiates_uri),
+      #("category", sp.category),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Communication", client)
+}
+
+pub fn communicationrequest_search_req(
+  sp: SpCommunicationrequest,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("requester", sp.requester),
+      #("authored", sp.authored),
+      #("identifier", sp.identifier),
+      #("subject", sp.subject),
+      #("replaces", sp.replaces),
+      #("medium", sp.medium),
+      #("encounter", sp.encounter),
+      #("occurrence", sp.occurrence),
+      #("priority", sp.priority),
+      #("group-identifier", sp.group_identifier),
+      #("based-on", sp.based_on),
+      #("sender", sp.sender),
+      #("patient", sp.patient),
+      #("recipient", sp.recipient),
+      #("category", sp.category),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "CommunicationRequest", client)
+}
+
+pub fn compartmentdefinition_search_req(
+  sp: SpCompartmentdefinition,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("code", sp.code),
+      #("context-type-value", sp.context_type_value),
+      #("resource", sp.resource),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "CompartmentDefinition", client)
+}
+
+pub fn composition_search_req(sp: SpComposition, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("period", sp.period),
+      #("related-id", sp.related_id),
+      #("subject", sp.subject),
+      #("author", sp.author),
+      #("confidentiality", sp.confidentiality),
+      #("section", sp.section),
+      #("encounter", sp.encounter),
+      #("type", sp.type_),
+      #("title", sp.title),
+      #("attester", sp.attester),
+      #("entry", sp.entry),
+      #("related-ref", sp.related_ref),
+      #("patient", sp.patient),
+      #("context", sp.context),
+      #("category", sp.category),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Composition", client)
+}
+
+pub fn conceptmap_search_req(sp: SpConceptmap, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("other", sp.other),
+      #("context-type-value", sp.context_type_value),
+      #("target-system", sp.target_system),
+      #("dependson", sp.dependson),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("source", sp.source),
+      #("title", sp.title),
+      #("context-quantity", sp.context_quantity),
+      #("source-uri", sp.source_uri),
+      #("context", sp.context),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("source-system", sp.source_system),
+      #("target-code", sp.target_code),
+      #("target-uri", sp.target_uri),
+      #("identifier", sp.identifier),
+      #("product", sp.product),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("target", sp.target),
+      #("source-code", sp.source_code),
+      #("name", sp.name),
+      #("publisher", sp.publisher),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ConceptMap", client)
+}
+
+pub fn condition_search_req(sp: SpCondition, client: FhirClient) {
+  let params =
+    using_params([
+      #("severity", sp.severity),
+      #("evidence-detail", sp.evidence_detail),
+      #("identifier", sp.identifier),
+      #("onset-info", sp.onset_info),
+      #("recorded-date", sp.recorded_date),
+      #("code", sp.code),
+      #("evidence", sp.evidence),
+      #("subject", sp.subject),
+      #("verification-status", sp.verification_status),
+      #("clinical-status", sp.clinical_status),
+      #("encounter", sp.encounter),
+      #("onset-date", sp.onset_date),
+      #("abatement-date", sp.abatement_date),
+      #("asserter", sp.asserter),
+      #("stage", sp.stage),
+      #("abatement-string", sp.abatement_string),
+      #("patient", sp.patient),
+      #("onset-age", sp.onset_age),
+      #("abatement-age", sp.abatement_age),
+      #("category", sp.category),
+      #("body-site", sp.body_site),
+    ])
+  any_search_req(params, "Condition", client)
+}
+
+pub fn consent_search_req(sp: SpConsent, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("period", sp.period),
+      #("data", sp.data),
+      #("purpose", sp.purpose),
+      #("source-reference", sp.source_reference),
+      #("actor", sp.actor),
+      #("security-label", sp.security_label),
+      #("patient", sp.patient),
+      #("organization", sp.organization),
+      #("scope", sp.scope),
+      #("action", sp.action),
+      #("consentor", sp.consentor),
+      #("category", sp.category),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Consent", client)
+}
+
+pub fn contract_search_req(sp: SpContract, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("instantiates", sp.instantiates),
+      #("patient", sp.patient),
+      #("subject", sp.subject),
+      #("authority", sp.authority),
+      #("domain", sp.domain),
+      #("issued", sp.issued),
+      #("url", sp.url),
+      #("signer", sp.signer),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Contract", client)
+}
+
+pub fn coverage_search_req(sp: SpCoverage, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("payor", sp.payor),
+      #("subscriber", sp.subscriber),
+      #("beneficiary", sp.beneficiary),
+      #("patient", sp.patient),
+      #("class-value", sp.class_value),
+      #("type", sp.type_),
+      #("dependent", sp.dependent),
+      #("class-type", sp.class_type),
+      #("policy-holder", sp.policy_holder),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Coverage", client)
+}
+
+pub fn coverageeligibilityrequest_search_req(
+  sp: SpCoverageeligibilityrequest,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("provider", sp.provider),
+      #("patient", sp.patient),
+      #("created", sp.created),
+      #("enterer", sp.enterer),
+      #("facility", sp.facility),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "CoverageEligibilityRequest", client)
+}
+
+pub fn coverageeligibilityresponse_search_req(
+  sp: SpCoverageeligibilityresponse,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("request", sp.request),
+      #("disposition", sp.disposition),
+      #("patient", sp.patient),
+      #("insurer", sp.insurer),
+      #("created", sp.created),
+      #("outcome", sp.outcome),
+      #("requestor", sp.requestor),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "CoverageEligibilityResponse", client)
+}
+
+pub fn detectedissue_search_req(sp: SpDetectedissue, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("identified", sp.identified),
+      #("patient", sp.patient),
+      #("author", sp.author),
+      #("implicated", sp.implicated),
+    ])
+  any_search_req(params, "DetectedIssue", client)
+}
+
+pub fn device_search_req(sp: SpDevice, client: FhirClient) {
+  let params =
+    using_params([
+      #("udi-di", sp.udi_di),
+      #("identifier", sp.identifier),
+      #("udi-carrier", sp.udi_carrier),
+      #("device-name", sp.device_name),
+      #("patient", sp.patient),
+      #("organization", sp.organization),
+      #("model", sp.model),
+      #("location", sp.location),
+      #("type", sp.type_),
+      #("url", sp.url),
+      #("manufacturer", sp.manufacturer),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Device", client)
+}
+
+pub fn devicedefinition_search_req(sp: SpDevicedefinition, client: FhirClient) {
+  let params =
+    using_params([
+      #("parent", sp.parent),
+      #("identifier", sp.identifier),
+      #("type", sp.type_),
+    ])
+  any_search_req(params, "DeviceDefinition", client)
+}
+
+pub fn devicemetric_search_req(sp: SpDevicemetric, client: FhirClient) {
+  let params =
+    using_params([
+      #("parent", sp.parent),
+      #("identifier", sp.identifier),
+      #("source", sp.source),
+      #("type", sp.type_),
+      #("category", sp.category),
+    ])
+  any_search_req(params, "DeviceMetric", client)
+}
+
+pub fn devicerequest_search_req(sp: SpDevicerequest, client: FhirClient) {
+  let params =
+    using_params([
+      #("requester", sp.requester),
+      #("insurance", sp.insurance),
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("performer", sp.performer),
+      #("event-date", sp.event_date),
+      #("subject", sp.subject),
+      #("instantiates-canonical", sp.instantiates_canonical),
+      #("encounter", sp.encounter),
+      #("authored-on", sp.authored_on),
+      #("intent", sp.intent),
+      #("group-identifier", sp.group_identifier),
+      #("based-on", sp.based_on),
+      #("patient", sp.patient),
+      #("instantiates-uri", sp.instantiates_uri),
+      #("prior-request", sp.prior_request),
+      #("device", sp.device),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "DeviceRequest", client)
+}
+
+pub fn deviceusestatement_search_req(
+  sp: SpDeviceusestatement,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("subject", sp.subject),
+      #("patient", sp.patient),
+      #("device", sp.device),
+    ])
+  any_search_req(params, "DeviceUseStatement", client)
+}
+
+pub fn diagnosticreport_search_req(sp: SpDiagnosticreport, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("performer", sp.performer),
+      #("code", sp.code),
+      #("subject", sp.subject),
+      #("media", sp.media),
+      #("encounter", sp.encounter),
+      #("result", sp.result),
+      #("conclusion", sp.conclusion),
+      #("based-on", sp.based_on),
+      #("patient", sp.patient),
+      #("specimen", sp.specimen),
+      #("issued", sp.issued),
+      #("category", sp.category),
+      #("results-interpreter", sp.results_interpreter),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "DiagnosticReport", client)
+}
+
+pub fn documentmanifest_search_req(sp: SpDocumentmanifest, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("item", sp.item),
+      #("related-id", sp.related_id),
+      #("subject", sp.subject),
+      #("author", sp.author),
+      #("created", sp.created),
+      #("description", sp.description),
+      #("source", sp.source),
+      #("type", sp.type_),
+      #("related-ref", sp.related_ref),
+      #("patient", sp.patient),
+      #("recipient", sp.recipient),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "DocumentManifest", client)
+}
+
+pub fn documentreference_search_req(sp: SpDocumentreference, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("subject", sp.subject),
+      #("description", sp.description),
+      #("language", sp.language),
+      #("type", sp.type_),
+      #("relation", sp.relation),
+      #("setting", sp.setting),
+      #("related", sp.related),
+      #("patient", sp.patient),
+      #("relationship", sp.relationship),
+      #("event", sp.event),
+      #("authenticator", sp.authenticator),
+      #("identifier", sp.identifier),
+      #("period", sp.period),
+      #("custodian", sp.custodian),
+      #("author", sp.author),
+      #("format", sp.format),
+      #("encounter", sp.encounter),
+      #("contenttype", sp.contenttype),
+      #("security-label", sp.security_label),
+      #("location", sp.location),
+      #("category", sp.category),
+      #("relatesto", sp.relatesto),
+      #("facility", sp.facility),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "DocumentReference", client)
+}
+
+pub fn effectevidencesynthesis_search_req(
+  sp: SpEffectevidencesynthesis,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "EffectEvidenceSynthesis", client)
+}
+
+pub fn encounter_search_req(sp: SpEncounter, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("participant-type", sp.participant_type),
+      #("practitioner", sp.practitioner),
+      #("subject", sp.subject),
+      #("length", sp.length),
+      #("episode-of-care", sp.episode_of_care),
+      #("diagnosis", sp.diagnosis),
+      #("appointment", sp.appointment),
+      #("part-of", sp.part_of),
+      #("type", sp.type_),
+      #("reason-code", sp.reason_code),
+      #("participant", sp.participant),
+      #("based-on", sp.based_on),
+      #("patient", sp.patient),
+      #("reason-reference", sp.reason_reference),
+      #("location-period", sp.location_period),
+      #("location", sp.location),
+      #("service-provider", sp.service_provider),
+      #("special-arrangement", sp.special_arrangement),
+      #("class", sp.class),
+      #("account", sp.account),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Encounter", client)
+}
+
+pub fn endpoint_search_req(sp: SpEndpoint, client: FhirClient) {
+  let params =
+    using_params([
+      #("payload-type", sp.payload_type),
+      #("identifier", sp.identifier),
+      #("organization", sp.organization),
+      #("connection-type", sp.connection_type),
+      #("name", sp.name),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Endpoint", client)
+}
+
+pub fn enrollmentrequest_search_req(sp: SpEnrollmentrequest, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("subject", sp.subject),
+      #("patient", sp.patient),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "EnrollmentRequest", client)
+}
+
+pub fn enrollmentresponse_search_req(
+  sp: SpEnrollmentresponse,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("request", sp.request),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "EnrollmentResponse", client)
+}
+
+pub fn episodeofcare_search_req(sp: SpEpisodeofcare, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("condition", sp.condition),
+      #("patient", sp.patient),
+      #("organization", sp.organization),
+      #("type", sp.type_),
+      #("care-manager", sp.care_manager),
+      #("status", sp.status),
+      #("incoming-referral", sp.incoming_referral),
+    ])
+  any_search_req(params, "EpisodeOfCare", client)
+}
+
+pub fn eventdefinition_search_req(sp: SpEventdefinition, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("successor", sp.successor),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("derived-from", sp.derived_from),
+      #("context-type", sp.context_type),
+      #("predecessor", sp.predecessor),
+      #("title", sp.title),
+      #("composed-of", sp.composed_of),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("depends-on", sp.depends_on),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("topic", sp.topic),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "EventDefinition", client)
+}
+
+pub fn evidence_search_req(sp: SpEvidence, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("successor", sp.successor),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("derived-from", sp.derived_from),
+      #("context-type", sp.context_type),
+      #("predecessor", sp.predecessor),
+      #("title", sp.title),
+      #("composed-of", sp.composed_of),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("depends-on", sp.depends_on),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("topic", sp.topic),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Evidence", client)
+}
+
+pub fn evidencevariable_search_req(sp: SpEvidencevariable, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("successor", sp.successor),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("derived-from", sp.derived_from),
+      #("context-type", sp.context_type),
+      #("predecessor", sp.predecessor),
+      #("title", sp.title),
+      #("composed-of", sp.composed_of),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("depends-on", sp.depends_on),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("topic", sp.topic),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "EvidenceVariable", client)
+}
+
+pub fn examplescenario_search_req(sp: SpExamplescenario, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("context-type", sp.context_type),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ExampleScenario", client)
+}
+
+pub fn explanationofbenefit_search_req(
+  sp: SpExplanationofbenefit,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("coverage", sp.coverage),
+      #("care-team", sp.care_team),
+      #("identifier", sp.identifier),
+      #("created", sp.created),
+      #("encounter", sp.encounter),
+      #("payee", sp.payee),
+      #("disposition", sp.disposition),
+      #("provider", sp.provider),
+      #("patient", sp.patient),
+      #("detail-udi", sp.detail_udi),
+      #("claim", sp.claim),
+      #("enterer", sp.enterer),
+      #("procedure-udi", sp.procedure_udi),
+      #("subdetail-udi", sp.subdetail_udi),
+      #("facility", sp.facility),
+      #("item-udi", sp.item_udi),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ExplanationOfBenefit", client)
+}
+
+pub fn familymemberhistory_search_req(
+  sp: SpFamilymemberhistory,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("patient", sp.patient),
+      #("sex", sp.sex),
+      #("instantiates-canonical", sp.instantiates_canonical),
+      #("instantiates-uri", sp.instantiates_uri),
+      #("relationship", sp.relationship),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "FamilyMemberHistory", client)
+}
+
+pub fn flag_search_req(sp: SpFlag, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("subject", sp.subject),
+      #("patient", sp.patient),
+      #("author", sp.author),
+      #("encounter", sp.encounter),
+    ])
+  any_search_req(params, "Flag", client)
+}
+
+pub fn goal_search_req(sp: SpGoal, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("lifecycle-status", sp.lifecycle_status),
+      #("achievement-status", sp.achievement_status),
+      #("patient", sp.patient),
+      #("subject", sp.subject),
+      #("start-date", sp.start_date),
+      #("category", sp.category),
+      #("target-date", sp.target_date),
+    ])
+  any_search_req(params, "Goal", client)
+}
+
+pub fn graphdefinition_search_req(sp: SpGraphdefinition, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("start", sp.start),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "GraphDefinition", client)
+}
+
+pub fn group_search_req(sp: SpGroup, client: FhirClient) {
+  let params =
+    using_params([
+      #("actual", sp.actual),
+      #("identifier", sp.identifier),
+      #("characteristic-value", sp.characteristic_value),
+      #("managing-entity", sp.managing_entity),
+      #("code", sp.code),
+      #("member", sp.member),
+      #("exclude", sp.exclude),
+      #("type", sp.type_),
+      #("value", sp.value),
+      #("characteristic", sp.characteristic),
+    ])
+  any_search_req(params, "Group", client)
+}
+
+pub fn guidanceresponse_search_req(sp: SpGuidanceresponse, client: FhirClient) {
+  let params =
+    using_params([
+      #("request", sp.request),
+      #("identifier", sp.identifier),
+      #("patient", sp.patient),
+      #("subject", sp.subject),
+    ])
+  any_search_req(params, "GuidanceResponse", client)
+}
+
+pub fn healthcareservice_search_req(sp: SpHealthcareservice, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("specialty", sp.specialty),
+      #("endpoint", sp.endpoint),
+      #("service-category", sp.service_category),
+      #("coverage-area", sp.coverage_area),
+      #("service-type", sp.service_type),
+      #("organization", sp.organization),
+      #("name", sp.name),
+      #("active", sp.active),
+      #("location", sp.location),
+      #("program", sp.program),
+      #("characteristic", sp.characteristic),
+    ])
+  any_search_req(params, "HealthcareService", client)
+}
+
+pub fn imagingstudy_search_req(sp: SpImagingstudy, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("reason", sp.reason),
+      #("dicom-class", sp.dicom_class),
+      #("modality", sp.modality),
+      #("bodysite", sp.bodysite),
+      #("instance", sp.instance),
+      #("performer", sp.performer),
+      #("subject", sp.subject),
+      #("started", sp.started),
+      #("interpreter", sp.interpreter),
+      #("encounter", sp.encounter),
+      #("referrer", sp.referrer),
+      #("endpoint", sp.endpoint),
+      #("patient", sp.patient),
+      #("series", sp.series),
+      #("basedon", sp.basedon),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ImagingStudy", client)
+}
+
+pub fn immunization_search_req(sp: SpImmunization, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("performer", sp.performer),
+      #("reaction", sp.reaction),
+      #("lot-number", sp.lot_number),
+      #("status-reason", sp.status_reason),
+      #("reason-code", sp.reason_code),
+      #("manufacturer", sp.manufacturer),
+      #("target-disease", sp.target_disease),
+      #("patient", sp.patient),
+      #("series", sp.series),
+      #("vaccine-code", sp.vaccine_code),
+      #("reason-reference", sp.reason_reference),
+      #("location", sp.location),
+      #("status", sp.status),
+      #("reaction-date", sp.reaction_date),
+    ])
+  any_search_req(params, "Immunization", client)
+}
+
+pub fn immunizationevaluation_search_req(
+  sp: SpImmunizationevaluation,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("target-disease", sp.target_disease),
+      #("patient", sp.patient),
+      #("dose-status", sp.dose_status),
+      #("immunization-event", sp.immunization_event),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ImmunizationEvaluation", client)
+}
+
+pub fn immunizationrecommendation_search_req(
+  sp: SpImmunizationrecommendation,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("target-disease", sp.target_disease),
+      #("patient", sp.patient),
+      #("vaccine-type", sp.vaccine_type),
+      #("information", sp.information),
+      #("support", sp.support),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ImmunizationRecommendation", client)
+}
+
+pub fn implementationguide_search_req(
+  sp: SpImplementationguide,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("context-type-value", sp.context_type_value),
+      #("resource", sp.resource),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("experimental", sp.experimental),
+      #("global", sp.global),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("depends-on", sp.depends_on),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ImplementationGuide", client)
+}
+
+pub fn insuranceplan_search_req(sp: SpInsuranceplan, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("address", sp.address),
+      #("address-state", sp.address_state),
+      #("owned-by", sp.owned_by),
+      #("type", sp.type_),
+      #("address-postalcode", sp.address_postalcode),
+      #("administered-by", sp.administered_by),
+      #("address-country", sp.address_country),
+      #("endpoint", sp.endpoint),
+      #("phonetic", sp.phonetic),
+      #("name", sp.name),
+      #("address-use", sp.address_use),
+      #("address-city", sp.address_city),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "InsurancePlan", client)
+}
+
+pub fn invoice_search_req(sp: SpInvoice, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("totalgross", sp.totalgross),
+      #("subject", sp.subject),
+      #("participant-role", sp.participant_role),
+      #("type", sp.type_),
+      #("issuer", sp.issuer),
+      #("participant", sp.participant),
+      #("totalnet", sp.totalnet),
+      #("patient", sp.patient),
+      #("recipient", sp.recipient),
+      #("account", sp.account),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Invoice", client)
+}
+
+pub fn library_search_req(sp: SpLibrary, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("successor", sp.successor),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("derived-from", sp.derived_from),
+      #("context-type", sp.context_type),
+      #("predecessor", sp.predecessor),
+      #("title", sp.title),
+      #("composed-of", sp.composed_of),
+      #("type", sp.type_),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("depends-on", sp.depends_on),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("topic", sp.topic),
+      #("content-type", sp.content_type),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Library", client)
+}
+
+pub fn linkage_search_req(sp: SpLinkage, client: FhirClient) {
+  let params =
+    using_params([
+      #("item", sp.item),
+      #("author", sp.author),
+      #("source", sp.source),
+    ])
+  any_search_req(params, "Linkage", client)
+}
+
+pub fn listfhir_search_req(sp: SpListfhir, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("item", sp.item),
+      #("empty-reason", sp.empty_reason),
+      #("code", sp.code),
+      #("notes", sp.notes),
+      #("subject", sp.subject),
+      #("patient", sp.patient),
+      #("source", sp.source),
+      #("encounter", sp.encounter),
+      #("title", sp.title),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Listfhir", client)
+}
+
+pub fn location_search_req(sp: SpLocation, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("partof", sp.partof),
+      #("address", sp.address),
+      #("address-state", sp.address_state),
+      #("operational-status", sp.operational_status),
+      #("type", sp.type_),
+      #("address-postalcode", sp.address_postalcode),
+      #("address-country", sp.address_country),
+      #("endpoint", sp.endpoint),
+      #("organization", sp.organization),
+      #("name", sp.name),
+      #("address-use", sp.address_use),
+      #("near", sp.near),
+      #("address-city", sp.address_city),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Location", client)
+}
+
+pub fn measure_search_req(sp: SpMeasure, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("successor", sp.successor),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("derived-from", sp.derived_from),
+      #("context-type", sp.context_type),
+      #("predecessor", sp.predecessor),
+      #("title", sp.title),
+      #("composed-of", sp.composed_of),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("depends-on", sp.depends_on),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("topic", sp.topic),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Measure", client)
+}
+
+pub fn measurereport_search_req(sp: SpMeasurereport, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("period", sp.period),
+      #("measure", sp.measure),
+      #("patient", sp.patient),
+      #("subject", sp.subject),
+      #("reporter", sp.reporter),
+      #("status", sp.status),
+      #("evaluated-resource", sp.evaluated_resource),
+    ])
+  any_search_req(params, "MeasureReport", client)
+}
+
+pub fn media_search_req(sp: SpMedia, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("modality", sp.modality),
+      #("subject", sp.subject),
+      #("created", sp.created),
+      #("encounter", sp.encounter),
+      #("type", sp.type_),
+      #("operator", sp.operator),
+      #("view", sp.view),
+      #("site", sp.site),
+      #("based-on", sp.based_on),
+      #("patient", sp.patient),
+      #("device", sp.device),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Media", client)
+}
+
+pub fn medication_search_req(sp: SpMedication, client: FhirClient) {
+  let params =
+    using_params([
+      #("ingredient-code", sp.ingredient_code),
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("ingredient", sp.ingredient),
+      #("form", sp.form),
+      #("lot-number", sp.lot_number),
+      #("expiration-date", sp.expiration_date),
+      #("manufacturer", sp.manufacturer),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Medication", client)
+}
+
+pub fn medicationadministration_search_req(
+  sp: SpMedicationadministration,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("request", sp.request),
+      #("code", sp.code),
+      #("performer", sp.performer),
+      #("subject", sp.subject),
+      #("medication", sp.medication),
+      #("reason-given", sp.reason_given),
+      #("patient", sp.patient),
+      #("effective-time", sp.effective_time),
+      #("context", sp.context),
+      #("reason-not-given", sp.reason_not_given),
+      #("device", sp.device),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "MedicationAdministration", client)
+}
+
+pub fn medicationdispense_search_req(
+  sp: SpMedicationdispense,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("performer", sp.performer),
+      #("code", sp.code),
+      #("receiver", sp.receiver),
+      #("subject", sp.subject),
+      #("destination", sp.destination),
+      #("medication", sp.medication),
+      #("responsibleparty", sp.responsibleparty),
+      #("type", sp.type_),
+      #("whenhandedover", sp.whenhandedover),
+      #("whenprepared", sp.whenprepared),
+      #("prescription", sp.prescription),
+      #("patient", sp.patient),
+      #("context", sp.context),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "MedicationDispense", client)
+}
+
+pub fn medicationknowledge_search_req(
+  sp: SpMedicationknowledge,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("code", sp.code),
+      #("ingredient", sp.ingredient),
+      #("doseform", sp.doseform),
+      #("classification-type", sp.classification_type),
+      #("monograph-type", sp.monograph_type),
+      #("classification", sp.classification),
+      #("manufacturer", sp.manufacturer),
+      #("ingredient-code", sp.ingredient_code),
+      #("source-cost", sp.source_cost),
+      #("monograph", sp.monograph),
+      #("monitoring-program-name", sp.monitoring_program_name),
+      #("monitoring-program-type", sp.monitoring_program_type),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "MedicationKnowledge", client)
+}
+
+pub fn medicationrequest_search_req(sp: SpMedicationrequest, client: FhirClient) {
+  let params =
+    using_params([
+      #("requester", sp.requester),
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("intended-dispenser", sp.intended_dispenser),
+      #("authoredon", sp.authoredon),
+      #("code", sp.code),
+      #("subject", sp.subject),
+      #("medication", sp.medication),
+      #("encounter", sp.encounter),
+      #("priority", sp.priority),
+      #("intent", sp.intent),
+      #("patient", sp.patient),
+      #("intended-performer", sp.intended_performer),
+      #("intended-performertype", sp.intended_performertype),
+      #("category", sp.category),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "MedicationRequest", client)
+}
+
+pub fn medicationstatement_search_req(
+  sp: SpMedicationstatement,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("effective", sp.effective),
+      #("code", sp.code),
+      #("subject", sp.subject),
+      #("patient", sp.patient),
+      #("context", sp.context),
+      #("medication", sp.medication),
+      #("part-of", sp.part_of),
+      #("source", sp.source),
+      #("category", sp.category),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "MedicationStatement", client)
+}
+
+pub fn medicinalproduct_search_req(sp: SpMedicinalproduct, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("name", sp.name),
+      #("name-language", sp.name_language),
+    ])
+  any_search_req(params, "MedicinalProduct", client)
+}
+
+pub fn medicinalproductauthorization_search_req(
+  sp: SpMedicinalproductauthorization,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("country", sp.country),
+      #("subject", sp.subject),
+      #("holder", sp.holder),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "MedicinalProductAuthorization", client)
+}
+
+pub fn medicinalproductcontraindication_search_req(
+  sp: SpMedicinalproductcontraindication,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("subject", sp.subject),
+    ])
+  any_search_req(params, "MedicinalProductContraindication", client)
+}
+
+pub fn medicinalproductindication_search_req(
+  sp: SpMedicinalproductindication,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("subject", sp.subject),
+    ])
+  any_search_req(params, "MedicinalProductIndication", client)
+}
+
+pub fn medicinalproductingredient_search_req(
+  sp: SpMedicinalproductingredient,
+  client: FhirClient,
+) {
+  let params = using_params([])
+  any_search_req(params, "MedicinalProductIngredient", client)
+}
+
+pub fn medicinalproductinteraction_search_req(
+  sp: SpMedicinalproductinteraction,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("subject", sp.subject),
+    ])
+  any_search_req(params, "MedicinalProductInteraction", client)
+}
+
+pub fn medicinalproductmanufactured_search_req(
+  sp: SpMedicinalproductmanufactured,
+  client: FhirClient,
+) {
+  let params = using_params([])
+  any_search_req(params, "MedicinalProductManufactured", client)
+}
+
+pub fn medicinalproductpackaged_search_req(
+  sp: SpMedicinalproductpackaged,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("subject", sp.subject),
+    ])
+  any_search_req(params, "MedicinalProductPackaged", client)
+}
+
+pub fn medicinalproductpharmaceutical_search_req(
+  sp: SpMedicinalproductpharmaceutical,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("route", sp.route),
+      #("target-species", sp.target_species),
+    ])
+  any_search_req(params, "MedicinalProductPharmaceutical", client)
+}
+
+pub fn medicinalproductundesirableeffect_search_req(
+  sp: SpMedicinalproductundesirableeffect,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("subject", sp.subject),
+    ])
+  any_search_req(params, "MedicinalProductUndesirableEffect", client)
+}
+
+pub fn messagedefinition_search_req(sp: SpMessagedefinition, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("parent", sp.parent),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("focus", sp.focus),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("event", sp.event),
+      #("category", sp.category),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "MessageDefinition", client)
+}
+
+pub fn messageheader_search_req(sp: SpMessageheader, client: FhirClient) {
+  let params =
+    using_params([
+      #("code", sp.code),
+      #("receiver", sp.receiver),
+      #("author", sp.author),
+      #("destination", sp.destination),
+      #("focus", sp.focus),
+      #("source", sp.source),
+      #("target", sp.target),
+      #("destination-uri", sp.destination_uri),
+      #("source-uri", sp.source_uri),
+      #("sender", sp.sender),
+      #("responsible", sp.responsible),
+      #("enterer", sp.enterer),
+      #("response-id", sp.response_id),
+      #("event", sp.event),
+    ])
+  any_search_req(params, "MessageHeader", client)
+}
+
+pub fn molecularsequence_search_req(sp: SpMolecularsequence, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #(
+        "referenceseqid-variant-coordinate",
+        sp.referenceseqid_variant_coordinate,
+      ),
+      #("chromosome", sp.chromosome),
+      #("window-end", sp.window_end),
+      #("type", sp.type_),
+      #("window-start", sp.window_start),
+      #("variant-end", sp.variant_end),
+      #("chromosome-variant-coordinate", sp.chromosome_variant_coordinate),
+      #("patient", sp.patient),
+      #("variant-start", sp.variant_start),
+      #("chromosome-window-coordinate", sp.chromosome_window_coordinate),
+      #("referenceseqid-window-coordinate", sp.referenceseqid_window_coordinate),
+      #("referenceseqid", sp.referenceseqid),
+    ])
+  any_search_req(params, "MolecularSequence", client)
+}
+
+pub fn namingsystem_search_req(sp: SpNamingsystem, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("period", sp.period),
+      #("context-type-value", sp.context_type_value),
+      #("kind", sp.kind),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("type", sp.type_),
+      #("id-type", sp.id_type),
+      #("context-quantity", sp.context_quantity),
+      #("responsible", sp.responsible),
+      #("contact", sp.contact),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("telecom", sp.telecom),
+      #("value", sp.value),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "NamingSystem", client)
+}
+
+pub fn nutritionorder_search_req(sp: SpNutritionorder, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("datetime", sp.datetime),
+      #("provider", sp.provider),
+      #("patient", sp.patient),
+      #("supplement", sp.supplement),
+      #("formula", sp.formula),
+      #("instantiates-canonical", sp.instantiates_canonical),
+      #("instantiates-uri", sp.instantiates_uri),
+      #("encounter", sp.encounter),
+      #("oraldiet", sp.oraldiet),
+      #("status", sp.status),
+      #("additive", sp.additive),
+    ])
+  any_search_req(params, "NutritionOrder", client)
+}
+
+pub fn observation_search_req(sp: SpObservation, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("combo-data-absent-reason", sp.combo_data_absent_reason),
+      #("code", sp.code),
+      #("combo-code-value-quantity", sp.combo_code_value_quantity),
+      #("subject", sp.subject),
+      #("component-data-absent-reason", sp.component_data_absent_reason),
+      #("value-concept", sp.value_concept),
+      #("value-date", sp.value_date),
+      #("focus", sp.focus),
+      #("derived-from", sp.derived_from),
+      #("part-of", sp.part_of),
+      #("has-member", sp.has_member),
+      #("code-value-string", sp.code_value_string),
+      #("component-code-value-quantity", sp.component_code_value_quantity),
+      #("based-on", sp.based_on),
+      #("code-value-date", sp.code_value_date),
+      #("patient", sp.patient),
+      #("specimen", sp.specimen),
+      #("component-code", sp.component_code),
+      #("code-value-quantity", sp.code_value_quantity),
+      #("combo-code-value-concept", sp.combo_code_value_concept),
+      #("value-string", sp.value_string),
+      #("identifier", sp.identifier),
+      #("performer", sp.performer),
+      #("combo-code", sp.combo_code),
+      #("method", sp.method),
+      #("value-quantity", sp.value_quantity),
+      #("component-value-quantity", sp.component_value_quantity),
+      #("data-absent-reason", sp.data_absent_reason),
+      #("combo-value-quantity", sp.combo_value_quantity),
+      #("encounter", sp.encounter),
+      #("code-value-concept", sp.code_value_concept),
+      #("component-code-value-concept", sp.component_code_value_concept),
+      #("component-value-concept", sp.component_value_concept),
+      #("category", sp.category),
+      #("device", sp.device),
+      #("combo-value-concept", sp.combo_value_concept),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Observation", client)
+}
+
+pub fn observationdefinition_search_req(
+  sp: SpObservationdefinition,
+  client: FhirClient,
+) {
+  let params = using_params([])
+  any_search_req(params, "ObservationDefinition", client)
+}
+
+pub fn operationdefinition_search_req(
+  sp: SpOperationdefinition,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("code", sp.code),
+      #("instance", sp.instance),
+      #("context-type-value", sp.context_type_value),
+      #("kind", sp.kind),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("type", sp.type_),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("input-profile", sp.input_profile),
+      #("output-profile", sp.output_profile),
+      #("system", sp.system),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+      #("base", sp.base),
+    ])
+  any_search_req(params, "OperationDefinition", client)
+}
+
+pub fn operationoutcome_search_req(sp: SpOperationoutcome, client: FhirClient) {
+  let params = using_params([])
+  any_search_req(params, "OperationOutcome", client)
+}
+
+pub fn organization_search_req(sp: SpOrganization, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("partof", sp.partof),
+      #("address", sp.address),
+      #("address-state", sp.address_state),
+      #("active", sp.active),
+      #("type", sp.type_),
+      #("address-postalcode", sp.address_postalcode),
+      #("address-country", sp.address_country),
+      #("endpoint", sp.endpoint),
+      #("phonetic", sp.phonetic),
+      #("name", sp.name),
+      #("address-use", sp.address_use),
+      #("address-city", sp.address_city),
+    ])
+  any_search_req(params, "Organization", client)
+}
+
+pub fn organizationaffiliation_search_req(
+  sp: SpOrganizationaffiliation,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("specialty", sp.specialty),
+      #("role", sp.role),
+      #("active", sp.active),
+      #("primary-organization", sp.primary_organization),
+      #("network", sp.network),
+      #("endpoint", sp.endpoint),
+      #("phone", sp.phone),
+      #("service", sp.service),
+      #("participating-organization", sp.participating_organization),
+      #("telecom", sp.telecom),
+      #("location", sp.location),
+      #("email", sp.email),
+    ])
+  any_search_req(params, "OrganizationAffiliation", client)
+}
+
+pub fn patient_search_req(sp: SpPatient, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("given", sp.given),
+      #("address", sp.address),
+      #("birthdate", sp.birthdate),
+      #("deceased", sp.deceased),
+      #("address-state", sp.address_state),
+      #("gender", sp.gender),
+      #("general-practitioner", sp.general_practitioner),
+      #("link", sp.link),
+      #("active", sp.active),
+      #("language", sp.language),
+      #("address-postalcode", sp.address_postalcode),
+      #("address-country", sp.address_country),
+      #("death-date", sp.death_date),
+      #("phonetic", sp.phonetic),
+      #("phone", sp.phone),
+      #("organization", sp.organization),
+      #("name", sp.name),
+      #("address-use", sp.address_use),
+      #("telecom", sp.telecom),
+      #("family", sp.family),
+      #("address-city", sp.address_city),
+      #("email", sp.email),
+    ])
+  any_search_req(params, "Patient", client)
+}
+
+pub fn paymentnotice_search_req(sp: SpPaymentnotice, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("request", sp.request),
+      #("provider", sp.provider),
+      #("created", sp.created),
+      #("response", sp.response),
+      #("payment-status", sp.payment_status),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "PaymentNotice", client)
+}
+
+pub fn paymentreconciliation_search_req(
+  sp: SpPaymentreconciliation,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("request", sp.request),
+      #("disposition", sp.disposition),
+      #("created", sp.created),
+      #("payment-issuer", sp.payment_issuer),
+      #("outcome", sp.outcome),
+      #("requestor", sp.requestor),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "PaymentReconciliation", client)
+}
+
+pub fn person_search_req(sp: SpPerson, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("address", sp.address),
+      #("birthdate", sp.birthdate),
+      #("address-state", sp.address_state),
+      #("gender", sp.gender),
+      #("practitioner", sp.practitioner),
+      #("link", sp.link),
+      #("relatedperson", sp.relatedperson),
+      #("address-postalcode", sp.address_postalcode),
+      #("address-country", sp.address_country),
+      #("phonetic", sp.phonetic),
+      #("phone", sp.phone),
+      #("patient", sp.patient),
+      #("organization", sp.organization),
+      #("name", sp.name),
+      #("address-use", sp.address_use),
+      #("telecom", sp.telecom),
+      #("address-city", sp.address_city),
+      #("email", sp.email),
+    ])
+  any_search_req(params, "Person", client)
+}
+
+pub fn plandefinition_search_req(sp: SpPlandefinition, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("successor", sp.successor),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("derived-from", sp.derived_from),
+      #("context-type", sp.context_type),
+      #("predecessor", sp.predecessor),
+      #("title", sp.title),
+      #("composed-of", sp.composed_of),
+      #("type", sp.type_),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("depends-on", sp.depends_on),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("topic", sp.topic),
+      #("definition", sp.definition),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "PlanDefinition", client)
+}
+
+pub fn practitioner_search_req(sp: SpPractitioner, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("given", sp.given),
+      #("address", sp.address),
+      #("address-state", sp.address_state),
+      #("gender", sp.gender),
+      #("active", sp.active),
+      #("address-postalcode", sp.address_postalcode),
+      #("address-country", sp.address_country),
+      #("phonetic", sp.phonetic),
+      #("phone", sp.phone),
+      #("name", sp.name),
+      #("address-use", sp.address_use),
+      #("telecom", sp.telecom),
+      #("family", sp.family),
+      #("address-city", sp.address_city),
+      #("communication", sp.communication),
+      #("email", sp.email),
+    ])
+  any_search_req(params, "Practitioner", client)
+}
+
+pub fn practitionerrole_search_req(sp: SpPractitionerrole, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("specialty", sp.specialty),
+      #("role", sp.role),
+      #("practitioner", sp.practitioner),
+      #("active", sp.active),
+      #("endpoint", sp.endpoint),
+      #("phone", sp.phone),
+      #("service", sp.service),
+      #("organization", sp.organization),
+      #("telecom", sp.telecom),
+      #("location", sp.location),
+      #("email", sp.email),
+    ])
+  any_search_req(params, "PractitionerRole", client)
+}
+
+pub fn procedure_search_req(sp: SpProcedure, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("performer", sp.performer),
+      #("subject", sp.subject),
+      #("instantiates-canonical", sp.instantiates_canonical),
+      #("part-of", sp.part_of),
+      #("encounter", sp.encounter),
+      #("reason-code", sp.reason_code),
+      #("based-on", sp.based_on),
+      #("patient", sp.patient),
+      #("reason-reference", sp.reason_reference),
+      #("location", sp.location),
+      #("instantiates-uri", sp.instantiates_uri),
+      #("category", sp.category),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Procedure", client)
+}
+
+pub fn provenance_search_req(sp: SpProvenance, client: FhirClient) {
+  let params =
+    using_params([
+      #("agent-type", sp.agent_type),
+      #("agent", sp.agent),
+      #("signature-type", sp.signature_type),
+      #("patient", sp.patient),
+      #("location", sp.location),
+      #("recorded", sp.recorded),
+      #("agent-role", sp.agent_role),
+      #("when", sp.when),
+      #("entity", sp.entity),
+      #("target", sp.target),
+    ])
+  any_search_req(params, "Provenance", client)
+}
+
+pub fn questionnaire_search_req(sp: SpQuestionnaire, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("subject-type", sp.subject_type),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("definition", sp.definition),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Questionnaire", client)
+}
+
+pub fn questionnaireresponse_search_req(
+  sp: SpQuestionnaireresponse,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("authored", sp.authored),
+      #("identifier", sp.identifier),
+      #("questionnaire", sp.questionnaire),
+      #("based-on", sp.based_on),
+      #("subject", sp.subject),
+      #("author", sp.author),
+      #("patient", sp.patient),
+      #("part-of", sp.part_of),
+      #("encounter", sp.encounter),
+      #("source", sp.source),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "QuestionnaireResponse", client)
+}
+
+pub fn relatedperson_search_req(sp: SpRelatedperson, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("address", sp.address),
+      #("birthdate", sp.birthdate),
+      #("address-state", sp.address_state),
+      #("gender", sp.gender),
+      #("active", sp.active),
+      #("address-postalcode", sp.address_postalcode),
+      #("address-country", sp.address_country),
+      #("phonetic", sp.phonetic),
+      #("phone", sp.phone),
+      #("patient", sp.patient),
+      #("name", sp.name),
+      #("address-use", sp.address_use),
+      #("telecom", sp.telecom),
+      #("address-city", sp.address_city),
+      #("relationship", sp.relationship),
+      #("email", sp.email),
+    ])
+  any_search_req(params, "RelatedPerson", client)
+}
+
+pub fn requestgroup_search_req(sp: SpRequestgroup, client: FhirClient) {
+  let params =
+    using_params([
+      #("authored", sp.authored),
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("subject", sp.subject),
+      #("author", sp.author),
+      #("instantiates-canonical", sp.instantiates_canonical),
+      #("encounter", sp.encounter),
+      #("priority", sp.priority),
+      #("intent", sp.intent),
+      #("participant", sp.participant),
+      #("group-identifier", sp.group_identifier),
+      #("patient", sp.patient),
+      #("instantiates-uri", sp.instantiates_uri),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "RequestGroup", client)
+}
+
+pub fn researchdefinition_search_req(
+  sp: SpResearchdefinition,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("successor", sp.successor),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("derived-from", sp.derived_from),
+      #("context-type", sp.context_type),
+      #("predecessor", sp.predecessor),
+      #("title", sp.title),
+      #("composed-of", sp.composed_of),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("depends-on", sp.depends_on),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("topic", sp.topic),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ResearchDefinition", client)
+}
+
+pub fn researchelementdefinition_search_req(
+  sp: SpResearchelementdefinition,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("successor", sp.successor),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("derived-from", sp.derived_from),
+      #("context-type", sp.context_type),
+      #("predecessor", sp.predecessor),
+      #("title", sp.title),
+      #("composed-of", sp.composed_of),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("depends-on", sp.depends_on),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("topic", sp.topic),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ResearchElementDefinition", client)
+}
+
+pub fn researchstudy_search_req(sp: SpResearchstudy, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("partof", sp.partof),
+      #("sponsor", sp.sponsor),
+      #("focus", sp.focus),
+      #("principalinvestigator", sp.principalinvestigator),
+      #("title", sp.title),
+      #("protocol", sp.protocol),
+      #("site", sp.site),
+      #("location", sp.location),
+      #("category", sp.category),
+      #("keyword", sp.keyword),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ResearchStudy", client)
+}
+
+pub fn researchsubject_search_req(sp: SpResearchsubject, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("study", sp.study),
+      #("individual", sp.individual),
+      #("patient", sp.patient),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ResearchSubject", client)
+}
+
+pub fn riskassessment_search_req(sp: SpRiskassessment, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("condition", sp.condition),
+      #("performer", sp.performer),
+      #("method", sp.method),
+      #("subject", sp.subject),
+      #("patient", sp.patient),
+      #("probability", sp.probability),
+      #("risk", sp.risk),
+      #("encounter", sp.encounter),
+    ])
+  any_search_req(params, "RiskAssessment", client)
+}
+
+pub fn riskevidencesynthesis_search_req(
+  sp: SpRiskevidencesynthesis,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("effective", sp.effective),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "RiskEvidenceSynthesis", client)
+}
+
+pub fn schedule_search_req(sp: SpSchedule, client: FhirClient) {
+  let params =
+    using_params([
+      #("actor", sp.actor),
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("specialty", sp.specialty),
+      #("service-category", sp.service_category),
+      #("service-type", sp.service_type),
+      #("active", sp.active),
+    ])
+  any_search_req(params, "Schedule", client)
+}
+
+pub fn searchparameter_search_req(sp: SpSearchparameter, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("code", sp.code),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("derived-from", sp.derived_from),
+      #("context-type", sp.context_type),
+      #("type", sp.type_),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("target", sp.target),
+      #("context-quantity", sp.context_quantity),
+      #("component", sp.component),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+      #("base", sp.base),
+    ])
+  any_search_req(params, "SearchParameter", client)
+}
+
+pub fn servicerequest_search_req(sp: SpServicerequest, client: FhirClient) {
+  let params =
+    using_params([
+      #("authored", sp.authored),
+      #("requester", sp.requester),
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("performer", sp.performer),
+      #("requisition", sp.requisition),
+      #("replaces", sp.replaces),
+      #("subject", sp.subject),
+      #("instantiates-canonical", sp.instantiates_canonical),
+      #("encounter", sp.encounter),
+      #("occurrence", sp.occurrence),
+      #("priority", sp.priority),
+      #("intent", sp.intent),
+      #("performer-type", sp.performer_type),
+      #("based-on", sp.based_on),
+      #("patient", sp.patient),
+      #("specimen", sp.specimen),
+      #("instantiates-uri", sp.instantiates_uri),
+      #("body-site", sp.body_site),
+      #("category", sp.category),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ServiceRequest", client)
+}
+
+pub fn slot_search_req(sp: SpSlot, client: FhirClient) {
+  let params =
+    using_params([
+      #("schedule", sp.schedule),
+      #("identifier", sp.identifier),
+      #("specialty", sp.specialty),
+      #("service-category", sp.service_category),
+      #("appointment-type", sp.appointment_type),
+      #("service-type", sp.service_type),
+      #("start", sp.start),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Slot", client)
+}
+
+pub fn specimen_search_req(sp: SpSpecimen, client: FhirClient) {
+  let params =
+    using_params([
+      #("container", sp.container),
+      #("identifier", sp.identifier),
+      #("parent", sp.parent),
+      #("container-id", sp.container_id),
+      #("bodysite", sp.bodysite),
+      #("subject", sp.subject),
+      #("patient", sp.patient),
+      #("collected", sp.collected),
+      #("accession", sp.accession),
+      #("type", sp.type_),
+      #("collector", sp.collector),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Specimen", client)
+}
+
+pub fn specimendefinition_search_req(
+  sp: SpSpecimendefinition,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("container", sp.container),
+      #("identifier", sp.identifier),
+      #("type", sp.type_),
+    ])
+  any_search_req(params, "SpecimenDefinition", client)
+}
+
+pub fn structuredefinition_search_req(
+  sp: SpStructuredefinition,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("experimental", sp.experimental),
+      #("title", sp.title),
+      #("type", sp.type_),
+      #("context-quantity", sp.context_quantity),
+      #("path", sp.path),
+      #("context", sp.context),
+      #("base-path", sp.base_path),
+      #("keyword", sp.keyword),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("identifier", sp.identifier),
+      #("valueset", sp.valueset),
+      #("kind", sp.kind),
+      #("abstract", sp.abstract),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("ext-context", sp.ext_context),
+      #("name", sp.name),
+      #("publisher", sp.publisher),
+      #("derivation", sp.derivation),
+      #("status", sp.status),
+      #("base", sp.base),
+    ])
+  any_search_req(params, "StructureDefinition", client)
+}
+
+pub fn structuremap_search_req(sp: SpStructuremap, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "StructureMap", client)
+}
+
+pub fn subscription_search_req(sp: SpSubscription, client: FhirClient) {
+  let params =
+    using_params([
+      #("payload", sp.payload),
+      #("criteria", sp.criteria),
+      #("contact", sp.contact),
+      #("type", sp.type_),
+      #("url", sp.url),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Subscription", client)
+}
+
+pub fn substance_search_req(sp: SpSubstance, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("container-identifier", sp.container_identifier),
+      #("code", sp.code),
+      #("quantity", sp.quantity),
+      #("substance-reference", sp.substance_reference),
+      #("expiry", sp.expiry),
+      #("category", sp.category),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Substance", client)
+}
+
+pub fn substancenucleicacid_search_req(
+  sp: SpSubstancenucleicacid,
+  client: FhirClient,
+) {
+  let params = using_params([])
+  any_search_req(params, "SubstanceNucleicAcid", client)
+}
+
+pub fn substancepolymer_search_req(sp: SpSubstancepolymer, client: FhirClient) {
+  let params = using_params([])
+  any_search_req(params, "SubstancePolymer", client)
+}
+
+pub fn substanceprotein_search_req(sp: SpSubstanceprotein, client: FhirClient) {
+  let params = using_params([])
+  any_search_req(params, "SubstanceProtein", client)
+}
+
+pub fn substancereferenceinformation_search_req(
+  sp: SpSubstancereferenceinformation,
+  client: FhirClient,
+) {
+  let params = using_params([])
+  any_search_req(params, "SubstanceReferenceInformation", client)
+}
+
+pub fn substancesourcematerial_search_req(
+  sp: SpSubstancesourcematerial,
+  client: FhirClient,
+) {
+  let params = using_params([])
+  any_search_req(params, "SubstanceSourceMaterial", client)
+}
+
+pub fn substancespecification_search_req(
+  sp: SpSubstancespecification,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("code", sp.code),
+    ])
+  any_search_req(params, "SubstanceSpecification", client)
+}
+
+pub fn supplydelivery_search_req(sp: SpSupplydelivery, client: FhirClient) {
+  let params =
+    using_params([
+      #("identifier", sp.identifier),
+      #("receiver", sp.receiver),
+      #("patient", sp.patient),
+      #("supplier", sp.supplier),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "SupplyDelivery", client)
+}
+
+pub fn supplyrequest_search_req(sp: SpSupplyrequest, client: FhirClient) {
+  let params =
+    using_params([
+      #("requester", sp.requester),
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("subject", sp.subject),
+      #("supplier", sp.supplier),
+      #("category", sp.category),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "SupplyRequest", client)
+}
+
+pub fn task_search_req(sp: SpTask, client: FhirClient) {
+  let params =
+    using_params([
+      #("owner", sp.owner),
+      #("requester", sp.requester),
+      #("identifier", sp.identifier),
+      #("business-status", sp.business_status),
+      #("period", sp.period),
+      #("code", sp.code),
+      #("performer", sp.performer),
+      #("subject", sp.subject),
+      #("focus", sp.focus),
+      #("part-of", sp.part_of),
+      #("encounter", sp.encounter),
+      #("priority", sp.priority),
+      #("authored-on", sp.authored_on),
+      #("intent", sp.intent),
+      #("group-identifier", sp.group_identifier),
+      #("based-on", sp.based_on),
+      #("patient", sp.patient),
+      #("modified", sp.modified),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "Task", client)
+}
+
+pub fn terminologycapabilities_search_req(
+  sp: SpTerminologycapabilities,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "TerminologyCapabilities", client)
+}
+
+pub fn testreport_search_req(sp: SpTestreport, client: FhirClient) {
+  let params =
+    using_params([
+      #("result", sp.result),
+      #("identifier", sp.identifier),
+      #("tester", sp.tester),
+      #("testscript", sp.testscript),
+      #("issued", sp.issued),
+      #("participant", sp.participant),
+    ])
+  any_search_req(params, "TestReport", client)
+}
+
+pub fn testscript_search_req(sp: SpTestscript, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("testscript-capability", sp.testscript_capability),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("context-quantity", sp.context_quantity),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "TestScript", client)
+}
+
+pub fn valueset_search_req(sp: SpValueset, client: FhirClient) {
+  let params =
+    using_params([
+      #("date", sp.date),
+      #("identifier", sp.identifier),
+      #("code", sp.code),
+      #("context-type-value", sp.context_type_value),
+      #("jurisdiction", sp.jurisdiction),
+      #("description", sp.description),
+      #("context-type", sp.context_type),
+      #("title", sp.title),
+      #("version", sp.version),
+      #("url", sp.url),
+      #("expansion", sp.expansion),
+      #("reference", sp.reference),
+      #("context-quantity", sp.context_quantity),
+      #("name", sp.name),
+      #("context", sp.context),
+      #("publisher", sp.publisher),
+      #("context-type-quantity", sp.context_type_quantity),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "ValueSet", client)
+}
+
+pub fn verificationresult_search_req(
+  sp: SpVerificationresult,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("target", sp.target),
+    ])
+  any_search_req(params, "VerificationResult", client)
+}
+
+pub fn visionprescription_search_req(
+  sp: SpVisionprescription,
+  client: FhirClient,
+) {
+  let params =
+    using_params([
+      #("prescriber", sp.prescriber),
+      #("identifier", sp.identifier),
+      #("patient", sp.patient),
+      #("datewritten", sp.datewritten),
+      #("encounter", sp.encounter),
+      #("status", sp.status),
+    ])
+  any_search_req(params, "VisionPrescription", client)
+}
+
+pub fn bundle_to_groupedresources(from bundle: r4.Bundle) {
   list.fold(
-    from: [],
-    over: params,
-    with: fn(acc, param: #(String, Option(String))) {
-      case param.1 {
+    from: groupedresources_new(),
+    over: bundle.entry,
+    with: fn(acc, entry) {
+      case entry.resource {
         None -> acc
-        Some(p) -> [param.0 <> ":" <> p, ..acc]
+        Some(res) ->
+          case res {
+            r4.ResourceAccount(r) ->
+              GroupedResources(..acc, account: [r, ..acc.account])
+            r4.ResourceActivitydefinition(r) ->
+              GroupedResources(..acc, activitydefinition: [
+                r,
+                ..acc.activitydefinition
+              ])
+            r4.ResourceAdverseevent(r) ->
+              GroupedResources(..acc, adverseevent: [r, ..acc.adverseevent])
+            r4.ResourceAllergyintolerance(r) ->
+              GroupedResources(..acc, allergyintolerance: [
+                r,
+                ..acc.allergyintolerance
+              ])
+            r4.ResourceAppointment(r) ->
+              GroupedResources(..acc, appointment: [r, ..acc.appointment])
+            r4.ResourceAppointmentresponse(r) ->
+              GroupedResources(..acc, appointmentresponse: [
+                r,
+                ..acc.appointmentresponse
+              ])
+            r4.ResourceAuditevent(r) ->
+              GroupedResources(..acc, auditevent: [r, ..acc.auditevent])
+            r4.ResourceBasic(r) ->
+              GroupedResources(..acc, basic: [r, ..acc.basic])
+            r4.ResourceBinary(r) ->
+              GroupedResources(..acc, binary: [r, ..acc.binary])
+            r4.ResourceBiologicallyderivedproduct(r) ->
+              GroupedResources(..acc, biologicallyderivedproduct: [
+                r,
+                ..acc.biologicallyderivedproduct
+              ])
+            r4.ResourceBodystructure(r) ->
+              GroupedResources(..acc, bodystructure: [r, ..acc.bodystructure])
+            r4.ResourceBundle(r) ->
+              GroupedResources(..acc, bundle: [r, ..acc.bundle])
+            r4.ResourceCapabilitystatement(r) ->
+              GroupedResources(..acc, capabilitystatement: [
+                r,
+                ..acc.capabilitystatement
+              ])
+            r4.ResourceCareplan(r) ->
+              GroupedResources(..acc, careplan: [r, ..acc.careplan])
+            r4.ResourceCareteam(r) ->
+              GroupedResources(..acc, careteam: [r, ..acc.careteam])
+            r4.ResourceCatalogentry(r) ->
+              GroupedResources(..acc, catalogentry: [r, ..acc.catalogentry])
+            r4.ResourceChargeitem(r) ->
+              GroupedResources(..acc, chargeitem: [r, ..acc.chargeitem])
+            r4.ResourceChargeitemdefinition(r) ->
+              GroupedResources(..acc, chargeitemdefinition: [
+                r,
+                ..acc.chargeitemdefinition
+              ])
+            r4.ResourceClaim(r) ->
+              GroupedResources(..acc, claim: [r, ..acc.claim])
+            r4.ResourceClaimresponse(r) ->
+              GroupedResources(..acc, claimresponse: [r, ..acc.claimresponse])
+            r4.ResourceClinicalimpression(r) ->
+              GroupedResources(..acc, clinicalimpression: [
+                r,
+                ..acc.clinicalimpression
+              ])
+            r4.ResourceCodesystem(r) ->
+              GroupedResources(..acc, codesystem: [r, ..acc.codesystem])
+            r4.ResourceCommunication(r) ->
+              GroupedResources(..acc, communication: [r, ..acc.communication])
+            r4.ResourceCommunicationrequest(r) ->
+              GroupedResources(..acc, communicationrequest: [
+                r,
+                ..acc.communicationrequest
+              ])
+            r4.ResourceCompartmentdefinition(r) ->
+              GroupedResources(..acc, compartmentdefinition: [
+                r,
+                ..acc.compartmentdefinition
+              ])
+            r4.ResourceComposition(r) ->
+              GroupedResources(..acc, composition: [r, ..acc.composition])
+            r4.ResourceConceptmap(r) ->
+              GroupedResources(..acc, conceptmap: [r, ..acc.conceptmap])
+            r4.ResourceCondition(r) ->
+              GroupedResources(..acc, condition: [r, ..acc.condition])
+            r4.ResourceConsent(r) ->
+              GroupedResources(..acc, consent: [r, ..acc.consent])
+            r4.ResourceContract(r) ->
+              GroupedResources(..acc, contract: [r, ..acc.contract])
+            r4.ResourceCoverage(r) ->
+              GroupedResources(..acc, coverage: [r, ..acc.coverage])
+            r4.ResourceCoverageeligibilityrequest(r) ->
+              GroupedResources(..acc, coverageeligibilityrequest: [
+                r,
+                ..acc.coverageeligibilityrequest
+              ])
+            r4.ResourceCoverageeligibilityresponse(r) ->
+              GroupedResources(..acc, coverageeligibilityresponse: [
+                r,
+                ..acc.coverageeligibilityresponse
+              ])
+            r4.ResourceDetectedissue(r) ->
+              GroupedResources(..acc, detectedissue: [r, ..acc.detectedissue])
+            r4.ResourceDevice(r) ->
+              GroupedResources(..acc, device: [r, ..acc.device])
+            r4.ResourceDevicedefinition(r) ->
+              GroupedResources(..acc, devicedefinition: [
+                r,
+                ..acc.devicedefinition
+              ])
+            r4.ResourceDevicemetric(r) ->
+              GroupedResources(..acc, devicemetric: [r, ..acc.devicemetric])
+            r4.ResourceDevicerequest(r) ->
+              GroupedResources(..acc, devicerequest: [r, ..acc.devicerequest])
+            r4.ResourceDeviceusestatement(r) ->
+              GroupedResources(..acc, deviceusestatement: [
+                r,
+                ..acc.deviceusestatement
+              ])
+            r4.ResourceDiagnosticreport(r) ->
+              GroupedResources(..acc, diagnosticreport: [
+                r,
+                ..acc.diagnosticreport
+              ])
+            r4.ResourceDocumentmanifest(r) ->
+              GroupedResources(..acc, documentmanifest: [
+                r,
+                ..acc.documentmanifest
+              ])
+            r4.ResourceDocumentreference(r) ->
+              GroupedResources(..acc, documentreference: [
+                r,
+                ..acc.documentreference
+              ])
+            r4.ResourceEffectevidencesynthesis(r) ->
+              GroupedResources(..acc, effectevidencesynthesis: [
+                r,
+                ..acc.effectevidencesynthesis
+              ])
+            r4.ResourceEncounter(r) ->
+              GroupedResources(..acc, encounter: [r, ..acc.encounter])
+            r4.ResourceEndpoint(r) ->
+              GroupedResources(..acc, endpoint: [r, ..acc.endpoint])
+            r4.ResourceEnrollmentrequest(r) ->
+              GroupedResources(..acc, enrollmentrequest: [
+                r,
+                ..acc.enrollmentrequest
+              ])
+            r4.ResourceEnrollmentresponse(r) ->
+              GroupedResources(..acc, enrollmentresponse: [
+                r,
+                ..acc.enrollmentresponse
+              ])
+            r4.ResourceEpisodeofcare(r) ->
+              GroupedResources(..acc, episodeofcare: [r, ..acc.episodeofcare])
+            r4.ResourceEventdefinition(r) ->
+              GroupedResources(..acc, eventdefinition: [
+                r,
+                ..acc.eventdefinition
+              ])
+            r4.ResourceEvidence(r) ->
+              GroupedResources(..acc, evidence: [r, ..acc.evidence])
+            r4.ResourceEvidencevariable(r) ->
+              GroupedResources(..acc, evidencevariable: [
+                r,
+                ..acc.evidencevariable
+              ])
+            r4.ResourceExamplescenario(r) ->
+              GroupedResources(..acc, examplescenario: [
+                r,
+                ..acc.examplescenario
+              ])
+            r4.ResourceExplanationofbenefit(r) ->
+              GroupedResources(..acc, explanationofbenefit: [
+                r,
+                ..acc.explanationofbenefit
+              ])
+            r4.ResourceFamilymemberhistory(r) ->
+              GroupedResources(..acc, familymemberhistory: [
+                r,
+                ..acc.familymemberhistory
+              ])
+            r4.ResourceFlag(r) -> GroupedResources(..acc, flag: [r, ..acc.flag])
+            r4.ResourceGoal(r) -> GroupedResources(..acc, goal: [r, ..acc.goal])
+            r4.ResourceGraphdefinition(r) ->
+              GroupedResources(..acc, graphdefinition: [
+                r,
+                ..acc.graphdefinition
+              ])
+            r4.ResourceGroup(r) ->
+              GroupedResources(..acc, group: [r, ..acc.group])
+            r4.ResourceGuidanceresponse(r) ->
+              GroupedResources(..acc, guidanceresponse: [
+                r,
+                ..acc.guidanceresponse
+              ])
+            r4.ResourceHealthcareservice(r) ->
+              GroupedResources(..acc, healthcareservice: [
+                r,
+                ..acc.healthcareservice
+              ])
+            r4.ResourceImagingstudy(r) ->
+              GroupedResources(..acc, imagingstudy: [r, ..acc.imagingstudy])
+            r4.ResourceImmunization(r) ->
+              GroupedResources(..acc, immunization: [r, ..acc.immunization])
+            r4.ResourceImmunizationevaluation(r) ->
+              GroupedResources(..acc, immunizationevaluation: [
+                r,
+                ..acc.immunizationevaluation
+              ])
+            r4.ResourceImmunizationrecommendation(r) ->
+              GroupedResources(..acc, immunizationrecommendation: [
+                r,
+                ..acc.immunizationrecommendation
+              ])
+            r4.ResourceImplementationguide(r) ->
+              GroupedResources(..acc, implementationguide: [
+                r,
+                ..acc.implementationguide
+              ])
+            r4.ResourceInsuranceplan(r) ->
+              GroupedResources(..acc, insuranceplan: [r, ..acc.insuranceplan])
+            r4.ResourceInvoice(r) ->
+              GroupedResources(..acc, invoice: [r, ..acc.invoice])
+            r4.ResourceLibrary(r) ->
+              GroupedResources(..acc, library: [r, ..acc.library])
+            r4.ResourceLinkage(r) ->
+              GroupedResources(..acc, linkage: [r, ..acc.linkage])
+            r4.ResourceListfhir(r) ->
+              GroupedResources(..acc, listfhir: [r, ..acc.listfhir])
+            r4.ResourceLocation(r) ->
+              GroupedResources(..acc, location: [r, ..acc.location])
+            r4.ResourceMeasure(r) ->
+              GroupedResources(..acc, measure: [r, ..acc.measure])
+            r4.ResourceMeasurereport(r) ->
+              GroupedResources(..acc, measurereport: [r, ..acc.measurereport])
+            r4.ResourceMedia(r) ->
+              GroupedResources(..acc, media: [r, ..acc.media])
+            r4.ResourceMedication(r) ->
+              GroupedResources(..acc, medication: [r, ..acc.medication])
+            r4.ResourceMedicationadministration(r) ->
+              GroupedResources(..acc, medicationadministration: [
+                r,
+                ..acc.medicationadministration
+              ])
+            r4.ResourceMedicationdispense(r) ->
+              GroupedResources(..acc, medicationdispense: [
+                r,
+                ..acc.medicationdispense
+              ])
+            r4.ResourceMedicationknowledge(r) ->
+              GroupedResources(..acc, medicationknowledge: [
+                r,
+                ..acc.medicationknowledge
+              ])
+            r4.ResourceMedicationrequest(r) ->
+              GroupedResources(..acc, medicationrequest: [
+                r,
+                ..acc.medicationrequest
+              ])
+            r4.ResourceMedicationstatement(r) ->
+              GroupedResources(..acc, medicationstatement: [
+                r,
+                ..acc.medicationstatement
+              ])
+            r4.ResourceMedicinalproduct(r) ->
+              GroupedResources(..acc, medicinalproduct: [
+                r,
+                ..acc.medicinalproduct
+              ])
+            r4.ResourceMedicinalproductauthorization(r) ->
+              GroupedResources(..acc, medicinalproductauthorization: [
+                r,
+                ..acc.medicinalproductauthorization
+              ])
+            r4.ResourceMedicinalproductcontraindication(r) ->
+              GroupedResources(..acc, medicinalproductcontraindication: [
+                r,
+                ..acc.medicinalproductcontraindication
+              ])
+            r4.ResourceMedicinalproductindication(r) ->
+              GroupedResources(..acc, medicinalproductindication: [
+                r,
+                ..acc.medicinalproductindication
+              ])
+            r4.ResourceMedicinalproductingredient(r) ->
+              GroupedResources(..acc, medicinalproductingredient: [
+                r,
+                ..acc.medicinalproductingredient
+              ])
+            r4.ResourceMedicinalproductinteraction(r) ->
+              GroupedResources(..acc, medicinalproductinteraction: [
+                r,
+                ..acc.medicinalproductinteraction
+              ])
+            r4.ResourceMedicinalproductmanufactured(r) ->
+              GroupedResources(..acc, medicinalproductmanufactured: [
+                r,
+                ..acc.medicinalproductmanufactured
+              ])
+            r4.ResourceMedicinalproductpackaged(r) ->
+              GroupedResources(..acc, medicinalproductpackaged: [
+                r,
+                ..acc.medicinalproductpackaged
+              ])
+            r4.ResourceMedicinalproductpharmaceutical(r) ->
+              GroupedResources(..acc, medicinalproductpharmaceutical: [
+                r,
+                ..acc.medicinalproductpharmaceutical
+              ])
+            r4.ResourceMedicinalproductundesirableeffect(r) ->
+              GroupedResources(..acc, medicinalproductundesirableeffect: [
+                r,
+                ..acc.medicinalproductundesirableeffect
+              ])
+            r4.ResourceMessagedefinition(r) ->
+              GroupedResources(..acc, messagedefinition: [
+                r,
+                ..acc.messagedefinition
+              ])
+            r4.ResourceMessageheader(r) ->
+              GroupedResources(..acc, messageheader: [r, ..acc.messageheader])
+            r4.ResourceMolecularsequence(r) ->
+              GroupedResources(..acc, molecularsequence: [
+                r,
+                ..acc.molecularsequence
+              ])
+            r4.ResourceNamingsystem(r) ->
+              GroupedResources(..acc, namingsystem: [r, ..acc.namingsystem])
+            r4.ResourceNutritionorder(r) ->
+              GroupedResources(..acc, nutritionorder: [r, ..acc.nutritionorder])
+            r4.ResourceObservation(r) ->
+              GroupedResources(..acc, observation: [r, ..acc.observation])
+            r4.ResourceObservationdefinition(r) ->
+              GroupedResources(..acc, observationdefinition: [
+                r,
+                ..acc.observationdefinition
+              ])
+            r4.ResourceOperationdefinition(r) ->
+              GroupedResources(..acc, operationdefinition: [
+                r,
+                ..acc.operationdefinition
+              ])
+            r4.ResourceOperationoutcome(r) ->
+              GroupedResources(..acc, operationoutcome: [
+                r,
+                ..acc.operationoutcome
+              ])
+            r4.ResourceOrganization(r) ->
+              GroupedResources(..acc, organization: [r, ..acc.organization])
+            r4.ResourceOrganizationaffiliation(r) ->
+              GroupedResources(..acc, organizationaffiliation: [
+                r,
+                ..acc.organizationaffiliation
+              ])
+            r4.ResourcePatient(r) ->
+              GroupedResources(..acc, patient: [r, ..acc.patient])
+            r4.ResourcePaymentnotice(r) ->
+              GroupedResources(..acc, paymentnotice: [r, ..acc.paymentnotice])
+            r4.ResourcePaymentreconciliation(r) ->
+              GroupedResources(..acc, paymentreconciliation: [
+                r,
+                ..acc.paymentreconciliation
+              ])
+            r4.ResourcePerson(r) ->
+              GroupedResources(..acc, person: [r, ..acc.person])
+            r4.ResourcePlandefinition(r) ->
+              GroupedResources(..acc, plandefinition: [r, ..acc.plandefinition])
+            r4.ResourcePractitioner(r) ->
+              GroupedResources(..acc, practitioner: [r, ..acc.practitioner])
+            r4.ResourcePractitionerrole(r) ->
+              GroupedResources(..acc, practitionerrole: [
+                r,
+                ..acc.practitionerrole
+              ])
+            r4.ResourceProcedure(r) ->
+              GroupedResources(..acc, procedure: [r, ..acc.procedure])
+            r4.ResourceProvenance(r) ->
+              GroupedResources(..acc, provenance: [r, ..acc.provenance])
+            r4.ResourceQuestionnaire(r) ->
+              GroupedResources(..acc, questionnaire: [r, ..acc.questionnaire])
+            r4.ResourceQuestionnaireresponse(r) ->
+              GroupedResources(..acc, questionnaireresponse: [
+                r,
+                ..acc.questionnaireresponse
+              ])
+            r4.ResourceRelatedperson(r) ->
+              GroupedResources(..acc, relatedperson: [r, ..acc.relatedperson])
+            r4.ResourceRequestgroup(r) ->
+              GroupedResources(..acc, requestgroup: [r, ..acc.requestgroup])
+            r4.ResourceResearchdefinition(r) ->
+              GroupedResources(..acc, researchdefinition: [
+                r,
+                ..acc.researchdefinition
+              ])
+            r4.ResourceResearchelementdefinition(r) ->
+              GroupedResources(..acc, researchelementdefinition: [
+                r,
+                ..acc.researchelementdefinition
+              ])
+            r4.ResourceResearchstudy(r) ->
+              GroupedResources(..acc, researchstudy: [r, ..acc.researchstudy])
+            r4.ResourceResearchsubject(r) ->
+              GroupedResources(..acc, researchsubject: [
+                r,
+                ..acc.researchsubject
+              ])
+            r4.ResourceRiskassessment(r) ->
+              GroupedResources(..acc, riskassessment: [r, ..acc.riskassessment])
+            r4.ResourceRiskevidencesynthesis(r) ->
+              GroupedResources(..acc, riskevidencesynthesis: [
+                r,
+                ..acc.riskevidencesynthesis
+              ])
+            r4.ResourceSchedule(r) ->
+              GroupedResources(..acc, schedule: [r, ..acc.schedule])
+            r4.ResourceSearchparameter(r) ->
+              GroupedResources(..acc, searchparameter: [
+                r,
+                ..acc.searchparameter
+              ])
+            r4.ResourceServicerequest(r) ->
+              GroupedResources(..acc, servicerequest: [r, ..acc.servicerequest])
+            r4.ResourceSlot(r) -> GroupedResources(..acc, slot: [r, ..acc.slot])
+            r4.ResourceSpecimen(r) ->
+              GroupedResources(..acc, specimen: [r, ..acc.specimen])
+            r4.ResourceSpecimendefinition(r) ->
+              GroupedResources(..acc, specimendefinition: [
+                r,
+                ..acc.specimendefinition
+              ])
+            r4.ResourceStructuredefinition(r) ->
+              GroupedResources(..acc, structuredefinition: [
+                r,
+                ..acc.structuredefinition
+              ])
+            r4.ResourceStructuremap(r) ->
+              GroupedResources(..acc, structuremap: [r, ..acc.structuremap])
+            r4.ResourceSubscription(r) ->
+              GroupedResources(..acc, subscription: [r, ..acc.subscription])
+            r4.ResourceSubstance(r) ->
+              GroupedResources(..acc, substance: [r, ..acc.substance])
+            r4.ResourceSubstancenucleicacid(r) ->
+              GroupedResources(..acc, substancenucleicacid: [
+                r,
+                ..acc.substancenucleicacid
+              ])
+            r4.ResourceSubstancepolymer(r) ->
+              GroupedResources(..acc, substancepolymer: [
+                r,
+                ..acc.substancepolymer
+              ])
+            r4.ResourceSubstanceprotein(r) ->
+              GroupedResources(..acc, substanceprotein: [
+                r,
+                ..acc.substanceprotein
+              ])
+            r4.ResourceSubstancereferenceinformation(r) ->
+              GroupedResources(..acc, substancereferenceinformation: [
+                r,
+                ..acc.substancereferenceinformation
+              ])
+            r4.ResourceSubstancesourcematerial(r) ->
+              GroupedResources(..acc, substancesourcematerial: [
+                r,
+                ..acc.substancesourcematerial
+              ])
+            r4.ResourceSubstancespecification(r) ->
+              GroupedResources(..acc, substancespecification: [
+                r,
+                ..acc.substancespecification
+              ])
+            r4.ResourceSupplydelivery(r) ->
+              GroupedResources(..acc, supplydelivery: [r, ..acc.supplydelivery])
+            r4.ResourceSupplyrequest(r) ->
+              GroupedResources(..acc, supplyrequest: [r, ..acc.supplyrequest])
+            r4.ResourceTask(r) -> GroupedResources(..acc, task: [r, ..acc.task])
+            r4.ResourceTerminologycapabilities(r) ->
+              GroupedResources(..acc, terminologycapabilities: [
+                r,
+                ..acc.terminologycapabilities
+              ])
+            r4.ResourceTestreport(r) ->
+              GroupedResources(..acc, testreport: [r, ..acc.testreport])
+            r4.ResourceTestscript(r) ->
+              GroupedResources(..acc, testscript: [r, ..acc.testscript])
+            r4.ResourceValueset(r) ->
+              GroupedResources(..acc, valueset: [r, ..acc.valueset])
+            r4.ResourceVerificationresult(r) ->
+              GroupedResources(..acc, verificationresult: [
+                r,
+                ..acc.verificationresult
+              ])
+            r4.ResourceVisionprescription(r) ->
+              GroupedResources(..acc, visionprescription: [
+                r,
+                ..acc.visionprescription
+              ])
+            _ -> acc
+          }
       }
     },
   )
