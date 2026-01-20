@@ -109,7 +109,6 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
   let assert Ok(bundle) = json.parse(from: spec, using: bundle_decoder())
   let entries =
     list.filter(bundle.entry, fn(e) {
-      echo e.resource.name
       case e.resource.kind, e.resource.name {
         // _, "AllergyIntolerance" -> True
         // _, _ -> False
@@ -397,7 +396,9 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
     string.concat([file_text, res_specific_crud])
     |> string.replace("FHIRVERSION", fhir_version)
 
-  #(sansio, httpc_layer)
+  let rsvp_layer = ""
+
+  #(sansio, httpc_layer, rsvp_layer)
 }
 
 // most of the client stuff is generic so you can just write it in codegen_client.txt

@@ -286,7 +286,7 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
 
-  let #(sansio, httpc_layer) =
+  let #(sansio, httpc_layer, rsvp_layer) =
     codegen_client.gen(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
       fv: fhir_version,
@@ -297,6 +297,9 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
   let f_httpc = gen_into_dir |> filepath.join(fhir_version <> "_httpc.gleam")
   let assert Ok(_) = simplifile.write(to: f_httpc, contents: httpc_layer)
   io.println("generated " <> f_httpc)
+  let f_rsvp = gen_into_dir |> filepath.join(fhir_version <> "_rsvp.gleam")
+  let assert Ok(_) = simplifile.write(to: f_rsvp, contents: rsvp_layer)
+  io.println("generated " <> f_rsvp)
 }
 
 fn file_to_types(
