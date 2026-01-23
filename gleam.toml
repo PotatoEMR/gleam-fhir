@@ -4,9 +4,18 @@ version = "0.0.0"
 description = "Type-safe FHIR resources and client"
 licences = ["MIT"]
 repository = { type = "github", user = "PotatoEMR", repo = "https://github.com/PotatoEMR/gleam-fhir" }
-# links = [{ title = "Website", href = "" }]
 
 internal_modules = ["internal/*",]
+
+[documentation]
+pages = [
+  { title = "Release Notes", path = "releasenotes.html", source = "./ReleaseNotes.md" },
+  { title = " ", path = "#", source = "" },
+  { title = "Documentation", path = "documentation.html", source = "./docs/Documentation.md" },
+  { title = "Working with resources", path = "resources.html", source = "./docs/Resources.md" },
+  { title = "Parsing JSON", path = "serialization.html", source = "./docs/Serialization.md" },
+  { title = "REST clients", path = "clients.html", source = "./docs/Clients.md" },
+]
 
 [dependencies]
 gleam_stdlib = ">= 0.44.0 and < 2.0.0"

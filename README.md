@@ -3,66 +3,45 @@
 [![Package Version](https://img.shields.io/hexpm/v/fhir)](https://hex.pm/packages/fhir)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
 
+## Type-safe FHIR resources and client, in simple Gleam
+
+## [Full Docs](https://hexdocs.pm/fhir/documentation.html)
+
+## Quick Start
+
 ```sh
 gleam add fhir
 ```
 ```gleam
 import fhir/r4
+import fhir/r4_httpc
+import fhir/r4_valuesets
+import gleam/option.{Some}
 
 pub fn main() {
-  let myallergy =
+  let fc = r4_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
+  let allergy =
     r4.Allergyintolerance(
-      ..r4.allergyintolerance_new(patient: r4.reference_new()),
-      id: Some("abc"),
-      criticality: Some(r4valuesets.AllergyintolerancecriticalityHigh),
-      code: Some(
-        r4.Codeableconcept(
-          ..r4.codeableconcept_new(),
-          coding: [
-            r4.Coding(
-              ..r4.coding_new(),
-              system: Some("http://snomed.info/sct"),
-              code: Some("91930004"),
-              display: Some("Allergy to eggs"),
-            ),
-          ],
-        ),
+      ..r4.allergyintolerance_new(
+        r4.Reference(..r4.reference_new(), reference: Some("Patient/7011747")),
       ),
-      onset: Some(r4.AllergyintoleranceOnsetAge(
-        r4.Age(
-          ..r4.age_new(),
-          value: Some(4.0),
-          unit: Some("year"),
-          system: Some("http://unitsofmeasure.org"),
-        ),
-      )),
-      reaction: [
-        r4.AllergyintoleranceReaction(
-          ..r4.allergyintolerance_reaction_new(),
-          manifestation: [
-            r4.Codeableconcept(
-              ..r4.codeableconcept_new(),
-              coding: [
-                r4.Coding(
-                  ..r4.coding_new(),
-                  system: Some("http://snomed.info/sct"),
-                  code: Some("247472004"),
-                  display: Some("Hives"),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
+      criticality: Some(r4_valuesets.AllergyintolerancecriticalityHigh),
+      id: Some("abc"),
     )
-  let json =
-    myallergy |> r4.allergyintolerance_to_json() |> json.to_string()
-  let assert Ok(parsed_allergy) =
-    json |> json.parse(r4.allergyintolerance_decoder())
-  assert parsed_allergy.id == myallergy.id
+
+  let assert Ok(created) = r4_httpc.allergyintolerance_create(allergy, fc)
+  echo created
+  let assert Some(id) = created.id
+  let assert Ok(read) = r4_httpc.allergyintolerance_read(id, fc)
+  assert created == read
+  let changed =
+    r4.Allergyintolerance(
+      ..created,
+      criticality: Some(r4_valuesets.AllergyintolerancecriticalityLow),
+    )
+  let assert Ok(updated) = r4_httpc.allergyintolerance_update(changed, fc)
+  echo updated
+  let assert Ok(_) = r4_httpc.allergyintolerance_delete(updated, fc)
+  let assert Error(_) = r4_httpc.allergyintolerance_read(id, fc)
 }
 ```
-
-<https://hexdocs.pm/fhir>
-
-https://github.com/PotatoEMR/gleam-fhir/issues
