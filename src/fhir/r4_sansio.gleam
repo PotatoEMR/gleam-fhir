@@ -1,3 +1,5 @@
+////[https://hl7.org/fhir/r4](https://hl7.org/fhir/r4) r4 sans-io request/response helpers suitable for building clients on top of, such as r4_httpc.gleam and r4_rsvp.gleam
+
 import fhir/r4
 import gleam/dynamic/decode
 import gleam/http

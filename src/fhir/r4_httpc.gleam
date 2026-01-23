@@ -1,3 +1,5 @@
+////[https://hl7.org/fhir/r4](https://hl7.org/fhir/r4) r4 client using httpc
+
 import fhir/r4
 import fhir/r4_sansio.{type FhirClient}
 import gleam/dynamic/decode.{type Decoder}

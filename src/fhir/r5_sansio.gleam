@@ -1,3 +1,5 @@
+////[https://hl7.org/fhir/r5](https://hl7.org/fhir/r5) r5 sans-io request/response helpers suitable for building clients on top of, such as r5_httpc.gleam and r5_rsvp.gleam
+
 import fhir/r5
 import gleam/dynamic/decode
 import gleam/http

@@ -248,11 +248,11 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
     filepath.join(gen_into_dir, fhir_version) <> "_valuesets.gleam"
   let all_types =
     string.concat([
-      "////FHIR ",
+      "////[https://hl7.org/fhir/",
       fhir_version,
-      " types\n////https://hl7.org/fhir/",
+      "](https://hl7.org/fhir/",
       fhir_version,
-      "\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport gleam/bool\nimport gleam/int\nimport fhir/",
+      ") resources\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport gleam/bool\nimport gleam/int\nimport fhir/",
       fhir_version,
       "_valuesets\n",
       file_to_types(
@@ -389,16 +389,18 @@ fn file_to_types(
             over: type_order,
             from: "",
             with: fn(old_type_acc, new_type) {
-              let new_doc_link =
-                string.concat([
-                  "///",
-                  string.replace(
-                    entry.resource.url,
-                    "hl7.org/fhir",
-                    "hl7.org/fhir/" <> fhir_version,
-                  ),
-                  "#resource",
-                ])
+              let new_doc_link = {
+                let link =
+                  string.concat([
+                    string.replace(
+                      entry.resource.url,
+                      "hl7.org/fhir",
+                      "hl7.org/fhir/" <> fhir_version,
+                    ),
+                    "#resource",
+                  ])
+                "///[" <> link <> "](" <> link <> ")"
+              }
 
               let camel_type = new_type |> to_camel_case
               //conflict gleam list
@@ -1404,8 +1406,13 @@ fn valueset_to_types(vsfile: String, fhir_version: String) {
     |> set.delete("http://hl7.org/fhir/ValueSet/color-codes")
 
   let vs_imports =
-    "import gleam/dynamic/decode.{type Decoder}
-  import gleam/json.{type Json}\n"
+    string.concat([
+      "////[https://hl7.org/fhir/",
+      fhir_version,
+      "](https://hl7.org/fhir/",
+      fhir_version,
+      ") valuesets\n\nimport gleam/dynamic/decode.{type Decoder}\n  import gleam/json.{type Json}\n",
+    ])
   let expansion_dir =
     "src"
     |> filepath.join("internal")

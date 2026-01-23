@@ -1,3 +1,5 @@
+////[https://hl7.org/fhir/r4b](https://hl7.org/fhir/r4b) r4b sans-io request/response helpers suitable for building clients on top of, such as r4b_httpc.gleam and r4b_rsvp.gleam
+
 import fhir/r4b
 import gleam/dynamic/decode
 import gleam/http

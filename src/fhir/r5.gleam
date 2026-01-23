@@ -1,5 +1,4 @@
-////FHIR r5 types
-////https://hl7.org/fhir/r5
+////[https://hl7.org/fhir/r5](https://hl7.org/fhir/r5) resources
 
 import fhir/r5_valuesets
 import gleam/bool
@@ -8,7 +7,7 @@ import gleam/int
 import gleam/json.{type Json}
 import gleam/option.{type Option, None, Some}
 
-///http://hl7.org/fhir/r5/StructureDefinition/Address#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Address#resource](http://hl7.org/fhir/r5/StructureDefinition/Address#resource)
 pub type Address {
   Address(
     id: Option(String),
@@ -180,7 +179,7 @@ pub fn address_decoder() -> Decoder(Address) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Age#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Age#resource](http://hl7.org/fhir/r5/StructureDefinition/Age#resource)
 pub type Age {
   Age(
     id: Option(String),
@@ -286,7 +285,7 @@ pub fn age_decoder() -> Decoder(Age) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Annotation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Annotation#resource](http://hl7.org/fhir/r5/StructureDefinition/Annotation#resource)
 pub type Annotation {
   Annotation(
     id: Option(String),
@@ -297,7 +296,7 @@ pub type Annotation {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Annotation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Annotation#resource](http://hl7.org/fhir/r5/StructureDefinition/Annotation#resource)
 pub type AnnotationAuthor {
   AnnotationAuthorReference(author: Reference)
   AnnotationAuthorString(author: String)
@@ -377,7 +376,7 @@ pub fn annotation_decoder() -> Decoder(Annotation) {
   decode.success(Annotation(text:, time:, author:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Attachment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Attachment#resource](http://hl7.org/fhir/r5/StructureDefinition/Attachment#resource)
 pub type Attachment {
   Attachment(
     id: Option(String),
@@ -576,7 +575,7 @@ pub fn attachment_decoder() -> Decoder(Attachment) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Availability#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Availability#resource](http://hl7.org/fhir/r5/StructureDefinition/Availability#resource)
 pub type Availability {
   Availability(
     id: Option(String),
@@ -595,7 +594,7 @@ pub fn availability_new() -> Availability {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Availability#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Availability#resource](http://hl7.org/fhir/r5/StructureDefinition/Availability#resource)
 pub type AvailabilityAvailabletime {
   AvailabilityAvailabletime(
     id: Option(String),
@@ -618,7 +617,7 @@ pub fn availability_availabletime_new() -> AvailabilityAvailabletime {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Availability#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Availability#resource](http://hl7.org/fhir/r5/StructureDefinition/Availability#resource)
 pub type AvailabilityNotavailabletime {
   AvailabilityNotavailabletime(
     id: Option(String),
@@ -833,7 +832,7 @@ pub fn availability_decoder() -> Decoder(Availability) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BackboneType#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BackboneType#resource](http://hl7.org/fhir/r5/StructureDefinition/BackboneType#resource)
 pub type Backbonetype {
   Backbonetype(
     id: Option(String),
@@ -883,7 +882,7 @@ pub fn backbonetype_decoder() -> Decoder(Backbonetype) {
   decode.success(Backbonetype(modifier_extension:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CodeableConcept#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CodeableConcept#resource](http://hl7.org/fhir/r5/StructureDefinition/CodeableConcept#resource)
 pub type Codeableconcept {
   Codeableconcept(
     id: Option(String),
@@ -940,7 +939,7 @@ pub fn codeableconcept_decoder() -> Decoder(Codeableconcept) {
   decode.success(Codeableconcept(text:, coding:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CodeableReference#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CodeableReference#resource](http://hl7.org/fhir/r5/StructureDefinition/CodeableReference#resource)
 pub type Codeablereference {
   Codeablereference(
     id: Option(String),
@@ -998,7 +997,7 @@ pub fn codeablereference_decoder() -> Decoder(Codeablereference) {
   decode.success(Codeablereference(reference:, concept:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Coding#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Coding#resource](http://hl7.org/fhir/r5/StructureDefinition/Coding#resource)
 pub type Coding {
   Coding(
     id: Option(String),
@@ -1109,7 +1108,7 @@ pub fn coding_decoder() -> Decoder(Coding) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ContactDetail#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ContactDetail#resource](http://hl7.org/fhir/r5/StructureDefinition/ContactDetail#resource)
 pub type Contactdetail {
   Contactdetail(
     id: Option(String),
@@ -1166,7 +1165,7 @@ pub fn contactdetail_decoder() -> Decoder(Contactdetail) {
   decode.success(Contactdetail(telecom:, name:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ContactPoint#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ContactPoint#resource](http://hl7.org/fhir/r5/StructureDefinition/ContactPoint#resource)
 pub type Contactpoint {
   Contactpoint(
     id: Option(String),
@@ -1269,7 +1268,7 @@ pub fn contactpoint_decoder() -> Decoder(Contactpoint) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contributor#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contributor#resource](http://hl7.org/fhir/r5/StructureDefinition/Contributor#resource)
 pub type Contributor {
   Contributor(
     id: Option(String),
@@ -1326,7 +1325,7 @@ pub fn contributor_decoder() -> Decoder(Contributor) {
   decode.success(Contributor(contact:, name:, type_:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Count#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Count#resource](http://hl7.org/fhir/r5/StructureDefinition/Count#resource)
 pub type Count {
   Count(
     id: Option(String),
@@ -1432,7 +1431,7 @@ pub fn count_decoder() -> Decoder(Count) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource)
 pub type Datarequirement {
   Datarequirement(
     id: Option(String),
@@ -1449,7 +1448,7 @@ pub type Datarequirement {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementSubject {
   DatarequirementSubjectCodeableconcept(subject: Codeableconcept)
   DatarequirementSubjectReference(subject: Reference)
@@ -1495,7 +1494,7 @@ pub fn datarequirement_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementCodefilter {
   DatarequirementCodefilter(
     id: Option(String),
@@ -1518,7 +1517,7 @@ pub fn datarequirement_codefilter_new() -> DatarequirementCodefilter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementDatefilter {
   DatarequirementDatefilter(
     id: Option(String),
@@ -1529,7 +1528,7 @@ pub type DatarequirementDatefilter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementDatefilterValue {
   DatarequirementDatefilterValueDatetime(value: String)
   DatarequirementDatefilterValuePeriod(value: Period)
@@ -1571,7 +1570,7 @@ pub fn datarequirement_datefilter_new() -> DatarequirementDatefilter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementValuefilter {
   DatarequirementValuefilter(
     id: Option(String),
@@ -1583,7 +1582,7 @@ pub type DatarequirementValuefilter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementValuefilterValue {
   DatarequirementValuefilterValueDatetime(value: String)
   DatarequirementValuefilterValuePeriod(value: Period)
@@ -1626,7 +1625,7 @@ pub fn datarequirement_valuefilter_new() -> DatarequirementValuefilter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r5/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementSort {
   DatarequirementSort(
     id: Option(String),
@@ -2061,7 +2060,7 @@ pub fn datarequirement_decoder() -> Decoder(Datarequirement) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DataType#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DataType#resource](http://hl7.org/fhir/r5/StructureDefinition/DataType#resource)
 pub type Datatype {
   Datatype(id: Option(String), extension: List(Extension))
 }
@@ -2095,7 +2094,7 @@ pub fn datatype_decoder() -> Decoder(Datatype) {
   decode.success(Datatype(extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Distance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Distance#resource](http://hl7.org/fhir/r5/StructureDefinition/Distance#resource)
 pub type Distance {
   Distance(
     id: Option(String),
@@ -2202,7 +2201,7 @@ pub fn distance_decoder() -> Decoder(Distance) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource](http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource)
 pub type Dosage {
   Dosage(
     id: Option(String),
@@ -2247,7 +2246,7 @@ pub fn dosage_new() -> Dosage {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource](http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource)
 pub type DosageDoseandrate {
   DosageDoseandrate(
     id: Option(String),
@@ -2258,7 +2257,7 @@ pub type DosageDoseandrate {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource](http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource)
 pub type DosageDoseandrateDose {
   DosageDoseandrateDoseRange(dose: Range)
   DosageDoseandrateDoseQuantity(dose: Quantity)
@@ -2282,7 +2281,7 @@ pub fn dosage_doseandrate_dose_decoder() -> Decoder(DosageDoseandrateDose) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource](http://hl7.org/fhir/r5/StructureDefinition/Dosage#resource)
 pub type DosageDoseandrateRate {
   DosageDoseandrateRateRatio(rate: Ratio)
   DosageDoseandrateRateRange(rate: Range)
@@ -2600,7 +2599,7 @@ pub fn dosage_decoder() -> Decoder(Dosage) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Duration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Duration#resource](http://hl7.org/fhir/r5/StructureDefinition/Duration#resource)
 pub type Duration {
   Duration(
     id: Option(String),
@@ -2707,7 +2706,7 @@ pub fn duration_decoder() -> Decoder(Duration) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type Elementdefinition {
   Elementdefinition(
     id: Option(String),
@@ -2752,7 +2751,7 @@ pub type Elementdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionDefaultvalue {
   ElementdefinitionDefaultvalueBase64binary(default_value: String)
   ElementdefinitionDefaultvalueBoolean(default_value: Bool)
@@ -3071,7 +3070,7 @@ pub fn elementdefinition_defaultvalue_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionFixed {
   ElementdefinitionFixedBase64binary(fixed: String)
   ElementdefinitionFixedBoolean(fixed: Bool)
@@ -3337,7 +3336,7 @@ pub fn elementdefinition_fixed_decoder() -> Decoder(ElementdefinitionFixed) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionPattern {
   ElementdefinitionPatternBase64binary(pattern: String)
   ElementdefinitionPatternBoolean(pattern: Bool)
@@ -3615,7 +3614,7 @@ pub fn elementdefinition_pattern_decoder() -> Decoder(ElementdefinitionPattern) 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionMinvalue {
   ElementdefinitionMinvalueDate(min_value: String)
   ElementdefinitionMinvalueDatetime(min_value: String)
@@ -3675,7 +3674,7 @@ pub fn elementdefinition_minvalue_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionMaxvalue {
   ElementdefinitionMaxvalueDate(max_value: String)
   ElementdefinitionMaxvalueDatetime(max_value: String)
@@ -3779,7 +3778,7 @@ pub fn elementdefinition_new(path path: String) -> Elementdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionSlicing {
   ElementdefinitionSlicing(
     id: Option(String),
@@ -3804,7 +3803,7 @@ pub fn elementdefinition_slicing_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionSlicingDiscriminator {
   ElementdefinitionSlicingDiscriminator(
     id: Option(String),
@@ -3821,7 +3820,7 @@ pub fn elementdefinition_slicing_discriminator_new(
   ElementdefinitionSlicingDiscriminator(path:, type_:, extension: [], id: None)
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionBase {
   ElementdefinitionBase(
     id: Option(String),
@@ -3840,7 +3839,7 @@ pub fn elementdefinition_base_new(
   ElementdefinitionBase(max:, min:, path:, extension: [], id: None)
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionType {
   ElementdefinitionType(
     id: Option(String),
@@ -3865,7 +3864,7 @@ pub fn elementdefinition_type_new(code code: String) -> ElementdefinitionType {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionExample {
   ElementdefinitionExample(
     id: Option(String),
@@ -3875,7 +3874,7 @@ pub type ElementdefinitionExample {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionExampleValue {
   ElementdefinitionExampleValueBase64binary(value: String)
   ElementdefinitionExampleValueBoolean(value: Bool)
@@ -4159,7 +4158,7 @@ pub fn elementdefinition_example_new(
   ElementdefinitionExample(value:, label:, extension: [], id: None)
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionConstraint {
   ElementdefinitionConstraint(
     id: Option(String),
@@ -4192,7 +4191,7 @@ pub fn elementdefinition_constraint_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionBinding {
   ElementdefinitionBinding(
     id: Option(String),
@@ -4217,7 +4216,7 @@ pub fn elementdefinition_binding_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionBindingAdditional {
   ElementdefinitionBindingAdditional(
     id: Option(String),
@@ -4247,7 +4246,7 @@ pub fn elementdefinition_binding_additional_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionMapping {
   ElementdefinitionMapping(
     id: Option(String),
@@ -5541,7 +5540,7 @@ pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Expression#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Expression#resource](http://hl7.org/fhir/r5/StructureDefinition/Expression#resource)
 pub type Expression {
   Expression(
     id: Option(String),
@@ -5652,7 +5651,7 @@ pub fn expression_decoder() -> Decoder(Expression) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExtendedContactDetail#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExtendedContactDetail#resource](http://hl7.org/fhir/r5/StructureDefinition/ExtendedContactDetail#resource)
 pub type Extendedcontactdetail {
   Extendedcontactdetail(
     id: Option(String),
@@ -5778,7 +5777,7 @@ pub fn extendedcontactdetail_decoder() -> Decoder(Extendedcontactdetail) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Extension#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Extension#resource](http://hl7.org/fhir/r5/StructureDefinition/Extension#resource)
 pub type Extension {
   Extension(
     id: Option(String),
@@ -5788,7 +5787,7 @@ pub type Extension {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Extension#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Extension#resource](http://hl7.org/fhir/r5/StructureDefinition/Extension#resource)
 pub type ExtensionValue {
   ExtensionValueBase64binary(value: String)
   ExtensionValueBoolean(value: Bool)
@@ -6151,7 +6150,7 @@ pub fn extension_decoder() -> Decoder(Extension) {
   decode.success(Extension(value:, url:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/HumanName#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/HumanName#resource](http://hl7.org/fhir/r5/StructureDefinition/HumanName#resource)
 pub type Humanname {
   Humanname(
     id: Option(String),
@@ -6276,7 +6275,7 @@ pub fn humanname_decoder() -> Decoder(Humanname) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Identifier#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Identifier#resource](http://hl7.org/fhir/r5/StructureDefinition/Identifier#resource)
 pub type Identifier {
   Identifier(
     id: Option(String),
@@ -6400,7 +6399,7 @@ pub fn identifier_decoder() -> Decoder(Identifier) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MarketingStatus#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MarketingStatus#resource](http://hl7.org/fhir/r5/StructureDefinition/MarketingStatus#resource)
 pub type Marketingstatus {
   Marketingstatus(
     id: Option(String),
@@ -6521,7 +6520,7 @@ pub fn marketingstatus_decoder() -> Decoder(Marketingstatus) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Meta#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Meta#resource](http://hl7.org/fhir/r5/StructureDefinition/Meta#resource)
 pub type Meta {
   Meta(
     id: Option(String),
@@ -6641,7 +6640,7 @@ pub fn meta_decoder() -> Decoder(Meta) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MonetaryComponent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MonetaryComponent#resource](http://hl7.org/fhir/r5/StructureDefinition/MonetaryComponent#resource)
 pub type Monetarycomponent {
   Monetarycomponent(
     id: Option(String),
@@ -6729,7 +6728,7 @@ pub fn monetarycomponent_decoder() -> Decoder(Monetarycomponent) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Money#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Money#resource](http://hl7.org/fhir/r5/StructureDefinition/Money#resource)
 pub type Money {
   Money(
     id: Option(String),
@@ -6786,7 +6785,7 @@ pub fn money_decoder() -> Decoder(Money) {
   decode.success(Money(currency:, value:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Narrative#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Narrative#resource](http://hl7.org/fhir/r5/StructureDefinition/Narrative#resource)
 pub type Narrative {
   Narrative(
     id: Option(String),
@@ -6833,7 +6832,7 @@ pub fn narrative_decoder() -> Decoder(Narrative) {
   decode.success(Narrative(div:, status:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ParameterDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ParameterDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ParameterDefinition#resource)
 pub type Parameterdefinition {
   Parameterdefinition(
     id: Option(String),
@@ -6954,7 +6953,7 @@ pub fn parameterdefinition_decoder() -> Decoder(Parameterdefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Period#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Period#resource](http://hl7.org/fhir/r5/StructureDefinition/Period#resource)
 pub type Period {
   Period(
     id: Option(String),
@@ -7007,7 +7006,7 @@ pub fn period_decoder() -> Decoder(Period) {
   decode.success(Period(end:, start:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PrimitiveType#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PrimitiveType#resource](http://hl7.org/fhir/r5/StructureDefinition/PrimitiveType#resource)
 pub type Primitivetype {
   Primitivetype(id: Option(String), extension: List(Extension))
 }
@@ -7041,7 +7040,7 @@ pub fn primitivetype_decoder() -> Decoder(Primitivetype) {
   decode.success(Primitivetype(extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ProductShelfLife#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ProductShelfLife#resource](http://hl7.org/fhir/r5/StructureDefinition/ProductShelfLife#resource)
 pub type Productshelflife {
   Productshelflife(
     id: Option(String),
@@ -7053,7 +7052,7 @@ pub type Productshelflife {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ProductShelfLife#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ProductShelfLife#resource](http://hl7.org/fhir/r5/StructureDefinition/ProductShelfLife#resource)
 pub type ProductshelflifePeriod {
   ProductshelflifePeriodDuration(period: Duration)
   ProductshelflifePeriodString(period: String)
@@ -7178,7 +7177,7 @@ pub fn productshelflife_decoder() -> Decoder(Productshelflife) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Quantity#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Quantity#resource](http://hl7.org/fhir/r5/StructureDefinition/Quantity#resource)
 pub type Quantity {
   Quantity(
     id: Option(String),
@@ -7285,7 +7284,7 @@ pub fn quantity_decoder() -> Decoder(Quantity) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Range#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Range#resource](http://hl7.org/fhir/r5/StructureDefinition/Range#resource)
 pub type Range {
   Range(
     id: Option(String),
@@ -7342,7 +7341,7 @@ pub fn range_decoder() -> Decoder(Range) {
   decode.success(Range(high:, low:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Ratio#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Ratio#resource](http://hl7.org/fhir/r5/StructureDefinition/Ratio#resource)
 pub type Ratio {
   Ratio(
     id: Option(String),
@@ -7399,7 +7398,7 @@ pub fn ratio_decoder() -> Decoder(Ratio) {
   decode.success(Ratio(denominator:, numerator:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RatioRange#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RatioRange#resource](http://hl7.org/fhir/r5/StructureDefinition/RatioRange#resource)
 pub type Ratiorange {
   Ratiorange(
     id: Option(String),
@@ -7479,7 +7478,7 @@ pub fn ratiorange_decoder() -> Decoder(Ratiorange) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Reference#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Reference#resource](http://hl7.org/fhir/r5/StructureDefinition/Reference#resource)
 pub type Reference {
   Reference(
     id: Option(String),
@@ -7571,7 +7570,7 @@ pub fn reference_decoder() -> Decoder(Reference) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RelatedArtifact#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RelatedArtifact#resource](http://hl7.org/fhir/r5/StructureDefinition/RelatedArtifact#resource)
 pub type Relatedartifact {
   Relatedartifact(
     id: Option(String),
@@ -7749,7 +7748,7 @@ pub fn relatedartifact_decoder() -> Decoder(Relatedartifact) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SampledData#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SampledData#resource](http://hl7.org/fhir/r5/StructureDefinition/SampledData#resource)
 pub type Sampleddata {
   Sampleddata(
     id: Option(String),
@@ -7909,7 +7908,7 @@ pub fn sampleddata_decoder() -> Decoder(Sampleddata) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Signature#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Signature#resource](http://hl7.org/fhir/r5/StructureDefinition/Signature#resource)
 pub type Signature {
   Signature(
     id: Option(String),
@@ -8042,7 +8041,7 @@ pub fn signature_decoder() -> Decoder(Signature) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Timing#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Timing#resource](http://hl7.org/fhir/r5/StructureDefinition/Timing#resource)
 pub type Timing {
   Timing(
     id: Option(String),
@@ -8065,7 +8064,7 @@ pub fn timing_new() -> Timing {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Timing#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Timing#resource](http://hl7.org/fhir/r5/StructureDefinition/Timing#resource)
 pub type TimingRepeat {
   TimingRepeat(
     id: Option(String),
@@ -8088,7 +8087,7 @@ pub type TimingRepeat {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Timing#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Timing#resource](http://hl7.org/fhir/r5/StructureDefinition/Timing#resource)
 pub type TimingRepeatBounds {
   TimingRepeatBoundsDuration(bounds: Duration)
   TimingRepeatBoundsRange(bounds: Range)
@@ -8414,7 +8413,7 @@ pub fn timing_decoder() -> Decoder(Timing) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TriggerDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TriggerDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/TriggerDefinition#resource)
 pub type Triggerdefinition {
   Triggerdefinition(
     id: Option(String),
@@ -8429,7 +8428,7 @@ pub type Triggerdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TriggerDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TriggerDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/TriggerDefinition#resource)
 pub type TriggerdefinitionTiming {
   TriggerdefinitionTimingTiming(timing: Timing)
   TriggerdefinitionTimingReference(timing: Reference)
@@ -8587,7 +8586,7 @@ pub fn triggerdefinition_decoder() -> Decoder(Triggerdefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/UsageContext#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/UsageContext#resource](http://hl7.org/fhir/r5/StructureDefinition/UsageContext#resource)
 pub type Usagecontext {
   Usagecontext(
     id: Option(String),
@@ -8597,7 +8596,7 @@ pub type Usagecontext {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/UsageContext#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/UsageContext#resource](http://hl7.org/fhir/r5/StructureDefinition/UsageContext#resource)
 pub type UsagecontextValue {
   UsagecontextValueCodeableconcept(value: Codeableconcept)
   UsagecontextValueQuantity(value: Quantity)
@@ -8670,7 +8669,7 @@ pub fn usagecontext_decoder() -> Decoder(Usagecontext) {
   decode.success(Usagecontext(value:, code:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/VirtualServiceDetail#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/VirtualServiceDetail#resource](http://hl7.org/fhir/r5/StructureDefinition/VirtualServiceDetail#resource)
 pub type Virtualservicedetail {
   Virtualservicedetail(
     id: Option(String),
@@ -8683,7 +8682,7 @@ pub type Virtualservicedetail {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/VirtualServiceDetail#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/VirtualServiceDetail#resource](http://hl7.org/fhir/r5/StructureDefinition/VirtualServiceDetail#resource)
 pub type VirtualservicedetailAddress {
   VirtualservicedetailAddressUrl(address: String)
   VirtualservicedetailAddressString(address: String)
@@ -8844,7 +8843,7 @@ pub fn virtualservicedetail_decoder() -> Decoder(Virtualservicedetail) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MoneyQuantity#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MoneyQuantity#resource](http://hl7.org/fhir/r5/StructureDefinition/MoneyQuantity#resource)
 pub type Moneyquantity {
   Moneyquantity(
     id: Option(String),
@@ -8951,7 +8950,7 @@ pub fn moneyquantity_decoder() -> Decoder(Moneyquantity) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SimpleQuantity#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SimpleQuantity#resource](http://hl7.org/fhir/r5/StructureDefinition/SimpleQuantity#resource)
 pub type Simplequantity {
   Simplequantity(
     id: Option(String),
@@ -9036,7 +9035,7 @@ pub fn simplequantity_decoder() -> Decoder(Simplequantity) {
   decode.success(Simplequantity(code:, system:, unit:, value:, extension:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Account#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Account#resource](http://hl7.org/fhir/r5/StructureDefinition/Account#resource)
 pub type Account {
   Account(
     id: Option(String),
@@ -9097,7 +9096,7 @@ pub fn account_new(status status: r5_valuesets.Accountstatus) -> Account {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Account#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Account#resource](http://hl7.org/fhir/r5/StructureDefinition/Account#resource)
 pub type AccountCoverage {
   AccountCoverage(
     id: Option(String),
@@ -9118,7 +9117,7 @@ pub fn account_coverage_new(coverage coverage: Reference) -> AccountCoverage {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Account#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Account#resource](http://hl7.org/fhir/r5/StructureDefinition/Account#resource)
 pub type AccountGuarantor {
   AccountGuarantor(
     id: Option(String),
@@ -9141,7 +9140,7 @@ pub fn account_guarantor_new(party party: Reference) -> AccountGuarantor {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Account#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Account#resource](http://hl7.org/fhir/r5/StructureDefinition/Account#resource)
 pub type AccountDiagnosis {
   AccountDiagnosis(
     id: Option(String),
@@ -9172,7 +9171,7 @@ pub fn account_diagnosis_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Account#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Account#resource](http://hl7.org/fhir/r5/StructureDefinition/Account#resource)
 pub type AccountProcedure {
   AccountProcedure(
     id: Option(String),
@@ -9201,7 +9200,7 @@ pub fn account_procedure_new(code code: Codeablereference) -> AccountProcedure {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Account#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Account#resource](http://hl7.org/fhir/r5/StructureDefinition/Account#resource)
 pub type AccountRelatedaccount {
   AccountRelatedaccount(
     id: Option(String),
@@ -9224,7 +9223,7 @@ pub fn account_relatedaccount_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Account#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Account#resource](http://hl7.org/fhir/r5/StructureDefinition/Account#resource)
 pub type AccountBalance {
   AccountBalance(
     id: Option(String),
@@ -10050,7 +10049,7 @@ pub fn account_decoder() -> Decoder(Account) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource)
 pub type Activitydefinition {
   Activitydefinition(
     id: Option(String),
@@ -10113,7 +10112,7 @@ pub type Activitydefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource)
 pub type ActivitydefinitionVersionalgorithm {
   ActivitydefinitionVersionalgorithmString(version_algorithm: String)
   ActivitydefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -10141,7 +10140,7 @@ pub fn activitydefinition_versionalgorithm_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource)
 pub type ActivitydefinitionSubject {
   ActivitydefinitionSubjectCodeableconcept(subject: Codeableconcept)
   ActivitydefinitionSubjectReference(subject: Reference)
@@ -10177,7 +10176,7 @@ pub fn activitydefinition_subject_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource)
 pub type ActivitydefinitionTiming {
   ActivitydefinitionTimingTiming(timing: Timing)
   ActivitydefinitionTimingAge(timing: Age)
@@ -10209,7 +10208,7 @@ pub fn activitydefinition_timing_decoder() -> Decoder(ActivitydefinitionTiming) 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource)
 pub type ActivitydefinitionAsneeded {
   ActivitydefinitionAsneededBoolean(as_needed: Bool)
   ActivitydefinitionAsneededCodeableconcept(as_needed: Codeableconcept)
@@ -10241,7 +10240,7 @@ pub fn activitydefinition_asneeded_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource)
 pub type ActivitydefinitionProduct {
   ActivitydefinitionProductReference(product: Reference)
   ActivitydefinitionProductCodeableconcept(product: Codeableconcept)
@@ -10337,7 +10336,7 @@ pub fn activitydefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource)
 pub type ActivitydefinitionParticipant {
   ActivitydefinitionParticipant(
     id: Option(String),
@@ -10364,7 +10363,7 @@ pub fn activitydefinition_participant_new() -> ActivitydefinitionParticipant {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ActivityDefinition#resource)
 pub type ActivitydefinitionDynamicvalue {
   ActivitydefinitionDynamicvalue(
     id: Option(String),
@@ -11282,7 +11281,7 @@ pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ActorDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ActorDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ActorDefinition#resource)
 pub type Actordefinition {
   Actordefinition(
     id: Option(String),
@@ -11318,7 +11317,7 @@ pub type Actordefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ActorDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ActorDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ActorDefinition#resource)
 pub type ActordefinitionVersionalgorithm {
   ActordefinitionVersionalgorithmString(version_algorithm: String)
   ActordefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -11733,7 +11732,7 @@ pub fn actordefinition_decoder() -> Decoder(Actordefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource)
 pub type Administrableproductdefinition {
   Administrableproductdefinition(
     id: Option(String),
@@ -11786,7 +11785,7 @@ pub fn administrableproductdefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource)
 pub type AdministrableproductdefinitionProperty {
   AdministrableproductdefinitionProperty(
     id: Option(String),
@@ -11798,7 +11797,7 @@ pub type AdministrableproductdefinitionProperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource)
 pub type AdministrableproductdefinitionPropertyValue {
   AdministrableproductdefinitionPropertyValueCodeableconcept(
     value: Codeableconcept,
@@ -11869,7 +11868,7 @@ pub fn administrableproductdefinition_property_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource)
 pub type AdministrableproductdefinitionRouteofadministration {
   AdministrableproductdefinitionRouteofadministration(
     id: Option(String),
@@ -11904,7 +11903,7 @@ pub fn administrableproductdefinition_routeofadministration_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource)
 pub type AdministrableproductdefinitionRouteofadministrationTargetspecies {
   AdministrableproductdefinitionRouteofadministrationTargetspecies(
     id: Option(String),
@@ -11929,7 +11928,7 @@ pub fn administrableproductdefinition_routeofadministration_targetspecies_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/AdministrableProductDefinition#resource)
 pub type AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdrawalperiod {
   AdministrableproductdefinitionRouteofadministrationTargetspeciesWithdrawalperiod(
     id: Option(String),
@@ -12580,7 +12579,7 @@ pub fn administrableproductdefinition_decoder() -> Decoder(
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type Adverseevent {
   Adverseevent(
     id: Option(String),
@@ -12618,7 +12617,7 @@ pub type Adverseevent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventOccurrence {
   AdverseeventOccurrenceDatetime(occurrence: String)
   AdverseeventOccurrencePeriod(occurrence: Period)
@@ -12687,7 +12686,7 @@ pub fn adverseevent_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventParticipant {
   AdverseeventParticipant(
     id: Option(String),
@@ -12710,7 +12709,7 @@ pub fn adverseevent_participant_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventSuspectentity {
   AdverseeventSuspectentity(
     id: Option(String),
@@ -12721,7 +12720,7 @@ pub type AdverseeventSuspectentity {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventSuspectentityInstance {
   AdverseeventSuspectentityInstanceCodeableconcept(instance: Codeableconcept)
   AdverseeventSuspectentityInstanceReference(instance: Reference)
@@ -12766,7 +12765,7 @@ pub fn adverseevent_suspectentity_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventSuspectentityCausality {
   AdverseeventSuspectentityCausality(
     id: Option(String),
@@ -12789,7 +12788,7 @@ pub fn adverseevent_suspectentity_causality_new() -> AdverseeventSuspectentityCa
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventContributingfactor {
   AdverseeventContributingfactor(
     id: Option(String),
@@ -12799,7 +12798,7 @@ pub type AdverseeventContributingfactor {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventContributingfactorItem {
   AdverseeventContributingfactorItemReference(item: Reference)
   AdverseeventContributingfactorItemCodeableconcept(item: Codeableconcept)
@@ -12843,7 +12842,7 @@ pub fn adverseevent_contributingfactor_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventPreventiveaction {
   AdverseeventPreventiveaction(
     id: Option(String),
@@ -12853,7 +12852,7 @@ pub type AdverseeventPreventiveaction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventPreventiveactionItem {
   AdverseeventPreventiveactionItemReference(item: Reference)
   AdverseeventPreventiveactionItemCodeableconcept(item: Codeableconcept)
@@ -12897,7 +12896,7 @@ pub fn adverseevent_preventiveaction_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventMitigatingaction {
   AdverseeventMitigatingaction(
     id: Option(String),
@@ -12907,7 +12906,7 @@ pub type AdverseeventMitigatingaction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventMitigatingactionItem {
   AdverseeventMitigatingactionItemReference(item: Reference)
   AdverseeventMitigatingactionItemCodeableconcept(item: Codeableconcept)
@@ -12951,7 +12950,7 @@ pub fn adverseevent_mitigatingaction_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventSupportinginfo {
   AdverseeventSupportinginfo(
     id: Option(String),
@@ -12961,7 +12960,7 @@ pub type AdverseeventSupportinginfo {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventSupportinginfoItem {
   AdverseeventSupportinginfoItemReference(item: Reference)
   AdverseeventSupportinginfoItemCodeableconcept(item: Codeableconcept)
@@ -13833,7 +13832,7 @@ pub fn adverseevent_decoder() -> Decoder(Adverseevent) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource](http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource)
 pub type Allergyintolerance {
   Allergyintolerance(
     id: Option(String),
@@ -13862,7 +13861,7 @@ pub type Allergyintolerance {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource](http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource)
 pub type AllergyintoleranceOnset {
   AllergyintoleranceOnsetDatetime(onset: String)
   AllergyintoleranceOnsetAge(onset: Age)
@@ -13926,7 +13925,7 @@ pub fn allergyintolerance_new(patient patient: Reference) -> Allergyintolerance 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource](http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource)
 pub type AllergyintoleranceParticipant {
   AllergyintoleranceParticipant(
     id: Option(String),
@@ -13949,7 +13948,7 @@ pub fn allergyintolerance_participant_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource](http://hl7.org/fhir/r5/StructureDefinition/AllergyIntolerance#resource)
 pub type AllergyintoleranceReaction {
   AllergyintoleranceReaction(
     id: Option(String),
@@ -14472,7 +14471,7 @@ pub fn allergyintolerance_decoder() -> Decoder(Allergyintolerance) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource](http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource)
 pub type Appointment {
   Appointment(
     id: Option(String),
@@ -14565,7 +14564,7 @@ pub fn appointment_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource](http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource)
 pub type AppointmentParticipant {
   AppointmentParticipant(
     id: Option(String),
@@ -14594,7 +14593,7 @@ pub fn appointment_participant_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource](http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource)
 pub type AppointmentRecurrencetemplate {
   AppointmentRecurrencetemplate(
     id: Option(String),
@@ -14633,7 +14632,7 @@ pub fn appointment_recurrencetemplate_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource](http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource)
 pub type AppointmentRecurrencetemplateWeeklytemplate {
   AppointmentRecurrencetemplateWeeklytemplate(
     id: Option(String),
@@ -14666,7 +14665,7 @@ pub fn appointment_recurrencetemplate_weeklytemplate_new() -> AppointmentRecurre
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource](http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource)
 pub type AppointmentRecurrencetemplateMonthlytemplate {
   AppointmentRecurrencetemplateMonthlytemplate(
     id: Option(String),
@@ -14693,7 +14692,7 @@ pub fn appointment_recurrencetemplate_monthlytemplate_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource](http://hl7.org/fhir/r5/StructureDefinition/Appointment#resource)
 pub type AppointmentRecurrencetemplateYearlytemplate {
   AppointmentRecurrencetemplateYearlytemplate(
     id: Option(String),
@@ -15762,7 +15761,7 @@ pub fn appointment_decoder() -> Decoder(Appointment) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AppointmentResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AppointmentResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/AppointmentResponse#resource)
 pub type Appointmentresponse {
   Appointmentresponse(
     id: Option(String),
@@ -16055,7 +16054,7 @@ pub fn appointmentresponse_decoder() -> Decoder(Appointmentresponse) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource](http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource)
 pub type Artifactassessment {
   Artifactassessment(
     id: Option(String),
@@ -16080,7 +16079,7 @@ pub type Artifactassessment {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource](http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource)
 pub type ArtifactassessmentCiteas {
   ArtifactassessmentCiteasReference(cite_as: Reference)
   ArtifactassessmentCiteasMarkdown(cite_as: String)
@@ -16104,7 +16103,7 @@ pub fn artifactassessment_citeas_decoder() -> Decoder(ArtifactassessmentCiteas) 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource](http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource)
 pub type ArtifactassessmentArtifact {
   ArtifactassessmentArtifactReference(artifact: Reference)
   ArtifactassessmentArtifactCanonical(artifact: String)
@@ -16162,7 +16161,7 @@ pub fn artifactassessment_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource](http://hl7.org/fhir/r5/StructureDefinition/ArtifactAssessment#resource)
 pub type ArtifactassessmentContent {
   ArtifactassessmentContent(
     id: Option(String),
@@ -16616,7 +16615,7 @@ pub fn artifactassessment_decoder() -> Decoder(Artifactassessment) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource)
 pub type Auditevent {
   Auditevent(
     id: Option(String),
@@ -16644,7 +16643,7 @@ pub type Auditevent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource)
 pub type AuditeventOccurred {
   AuditeventOccurredPeriod(occurred: Period)
   AuditeventOccurredDatetime(occurred: String)
@@ -16699,7 +16698,7 @@ pub fn auditevent_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource)
 pub type AuditeventOutcome {
   AuditeventOutcome(
     id: Option(String),
@@ -16720,7 +16719,7 @@ pub fn auditevent_outcome_new(code code: Coding) -> AuditeventOutcome {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource)
 pub type AuditeventAgent {
   AuditeventAgent(
     id: Option(String),
@@ -16737,7 +16736,7 @@ pub type AuditeventAgent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource)
 pub type AuditeventAgentNetwork {
   AuditeventAgentNetworkReference(network: Reference)
   AuditeventAgentNetworkUri(network: String)
@@ -16781,7 +16780,7 @@ pub fn auditevent_agent_new(who who: Reference) -> AuditeventAgent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource)
 pub type AuditeventSource {
   AuditeventSource(
     id: Option(String),
@@ -16804,7 +16803,7 @@ pub fn auditevent_source_new(observer observer: Reference) -> AuditeventSource {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource)
 pub type AuditeventEntity {
   AuditeventEntity(
     id: Option(String),
@@ -16833,7 +16832,7 @@ pub fn auditevent_entity_new() -> AuditeventEntity {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource)
 pub type AuditeventEntityDetail {
   AuditeventEntityDetail(
     id: Option(String),
@@ -16844,7 +16843,7 @@ pub type AuditeventEntityDetail {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r5/StructureDefinition/AuditEvent#resource)
 pub type AuditeventEntityDetailValue {
   AuditeventEntityDetailValueQuantity(value: Quantity)
   AuditeventEntityDetailValueCodeableconcept(value: Codeableconcept)
@@ -17617,7 +17616,7 @@ pub fn auditevent_decoder() -> Decoder(Auditevent) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Basic#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Basic#resource](http://hl7.org/fhir/r5/StructureDefinition/Basic#resource)
 pub type Basic {
   Basic(
     id: Option(String),
@@ -17810,7 +17809,7 @@ pub fn basic_decoder() -> Decoder(Basic) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Binary#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Binary#resource](http://hl7.org/fhir/r5/StructureDefinition/Binary#resource)
 pub type Binary {
   Binary(
     id: Option(String),
@@ -17922,7 +17921,7 @@ pub fn binary_decoder() -> Decoder(Binary) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type Biologicallyderivedproduct {
   Biologicallyderivedproduct(
     id: Option(String),
@@ -17975,7 +17974,7 @@ pub fn biologicallyderivedproduct_new() -> Biologicallyderivedproduct {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductCollection {
   BiologicallyderivedproductCollection(
     id: Option(String),
@@ -17987,7 +17986,7 @@ pub type BiologicallyderivedproductCollection {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductCollectionCollected {
   BiologicallyderivedproductCollectionCollectedDatetime(collected: String)
   BiologicallyderivedproductCollectionCollectedPeriod(collected: Period)
@@ -18026,7 +18025,7 @@ pub fn biologicallyderivedproduct_collection_new() -> Biologicallyderivedproduct
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductProperty {
   BiologicallyderivedproductProperty(
     id: Option(String),
@@ -18037,7 +18036,7 @@ pub type BiologicallyderivedproductProperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductPropertyValue {
   BiologicallyderivedproductPropertyValueBoolean(value: Bool)
   BiologicallyderivedproductPropertyValueInteger(value: Int)
@@ -18532,7 +18531,7 @@ pub fn biologicallyderivedproduct_decoder() -> Decoder(
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProductDispense#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProductDispense#resource](http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProductDispense#resource)
 pub type Biologicallyderivedproductdispense {
   Biologicallyderivedproductdispense(
     id: Option(String),
@@ -18595,7 +18594,7 @@ pub fn biologicallyderivedproductdispense_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProductDispense#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProductDispense#resource](http://hl7.org/fhir/r5/StructureDefinition/BiologicallyDerivedProductDispense#resource)
 pub type BiologicallyderivedproductdispensePerformer {
   BiologicallyderivedproductdispensePerformer(
     id: Option(String),
@@ -18974,7 +18973,7 @@ pub fn biologicallyderivedproductdispense_decoder() -> Decoder(
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource](http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource)
 pub type Bodystructure {
   Bodystructure(
     id: Option(String),
@@ -19017,7 +19016,7 @@ pub fn bodystructure_new(patient patient: Reference) -> Bodystructure {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource](http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource)
 pub type BodystructureIncludedstructure {
   BodystructureIncludedstructure(
     id: Option(String),
@@ -19048,7 +19047,7 @@ pub fn bodystructure_includedstructure_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource](http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource)
 pub type BodystructureIncludedstructureBodylandmarkorientation {
   BodystructureIncludedstructureBodylandmarkorientation(
     id: Option(String),
@@ -19075,7 +19074,7 @@ pub fn bodystructure_includedstructure_bodylandmarkorientation_new() -> Bodystru
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource](http://hl7.org/fhir/r5/StructureDefinition/BodyStructure#resource)
 pub type BodystructureIncludedstructureBodylandmarkorientationDistancefromlandmark {
   BodystructureIncludedstructureBodylandmarkorientationDistancefromlandmark(
     id: Option(String),
@@ -19608,7 +19607,7 @@ pub fn bodystructure_decoder() -> Decoder(Bodystructure) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource)
 pub type Bundle {
   Bundle(
     id: Option(String),
@@ -19643,7 +19642,7 @@ pub fn bundle_new(type_ type_: r5_valuesets.Bundletype) -> Bundle {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource)
 pub type BundleLink {
   BundleLink(
     id: Option(String),
@@ -19661,7 +19660,7 @@ pub fn bundle_link_new(
   BundleLink(url:, relation:, modifier_extension: [], extension: [], id: None)
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource)
 pub type BundleEntry {
   BundleEntry(
     id: Option(String),
@@ -19690,7 +19689,7 @@ pub fn bundle_entry_new() -> BundleEntry {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource)
 pub type BundleEntrySearch {
   BundleEntrySearch(
     id: Option(String),
@@ -19711,7 +19710,7 @@ pub fn bundle_entry_search_new() -> BundleEntrySearch {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource)
 pub type BundleEntryRequest {
   BundleEntryRequest(
     id: Option(String),
@@ -19743,7 +19742,7 @@ pub fn bundle_entry_request_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r5/StructureDefinition/Bundle#resource)
 pub type BundleEntryResponse {
   BundleEntryResponse(
     id: Option(String),
@@ -20331,7 +20330,7 @@ pub fn bundle_decoder() -> Decoder(Bundle) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CanonicalResource#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CanonicalResource#resource](http://hl7.org/fhir/r5/StructureDefinition/CanonicalResource#resource)
 pub type Canonicalresource {
   Canonicalresource(
     id: Option(String),
@@ -20362,7 +20361,7 @@ pub type Canonicalresource {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CanonicalResource#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CanonicalResource#resource](http://hl7.org/fhir/r5/StructureDefinition/CanonicalResource#resource)
 pub type CanonicalresourceVersionalgorithm {
   CanonicalresourceVersionalgorithmString(version_algorithm: String)
   CanonicalresourceVersionalgorithmCoding(version_algorithm: Coding)
@@ -20720,7 +20719,7 @@ pub fn canonicalresource_decoder() -> Decoder(Canonicalresource) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type Capabilitystatement {
   Capabilitystatement(
     id: Option(String),
@@ -20764,7 +20763,7 @@ pub type Capabilitystatement {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementVersionalgorithm {
   CapabilitystatementVersionalgorithmString(version_algorithm: String)
   CapabilitystatementVersionalgorithmCoding(version_algorithm: Coding)
@@ -20840,7 +20839,7 @@ pub fn capabilitystatement_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementSoftware {
   CapabilitystatementSoftware(
     id: Option(String),
@@ -20865,7 +20864,7 @@ pub fn capabilitystatement_software_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementImplementation {
   CapabilitystatementImplementation(
     id: Option(String),
@@ -20890,7 +20889,7 @@ pub fn capabilitystatement_implementation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRest {
   CapabilitystatementRest(
     id: Option(String),
@@ -20925,7 +20924,7 @@ pub fn capabilitystatement_rest_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestSecurity {
   CapabilitystatementRestSecurity(
     id: Option(String),
@@ -20948,7 +20947,7 @@ pub fn capabilitystatement_rest_security_new() -> CapabilitystatementRestSecurit
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestResource {
   CapabilitystatementRestResource(
     id: Option(String),
@@ -21003,7 +21002,7 @@ pub fn capabilitystatement_rest_resource_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestResourceInteraction {
   CapabilitystatementRestResourceInteraction(
     id: Option(String),
@@ -21026,7 +21025,7 @@ pub fn capabilitystatement_rest_resource_interaction_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestResourceSearchparam {
   CapabilitystatementRestResourceSearchparam(
     id: Option(String),
@@ -21054,7 +21053,7 @@ pub fn capabilitystatement_rest_resource_searchparam_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestResourceOperation {
   CapabilitystatementRestResourceOperation(
     id: Option(String),
@@ -21080,7 +21079,7 @@ pub fn capabilitystatement_rest_resource_operation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestInteraction {
   CapabilitystatementRestInteraction(
     id: Option(String),
@@ -21103,7 +21102,7 @@ pub fn capabilitystatement_rest_interaction_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementMessaging {
   CapabilitystatementMessaging(
     id: Option(String),
@@ -21128,7 +21127,7 @@ pub fn capabilitystatement_messaging_new() -> CapabilitystatementMessaging {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementMessagingEndpoint {
   CapabilitystatementMessagingEndpoint(
     id: Option(String),
@@ -21152,7 +21151,7 @@ pub fn capabilitystatement_messaging_endpoint_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementMessagingSupportedmessage {
   CapabilitystatementMessagingSupportedmessage(
     id: Option(String),
@@ -21176,7 +21175,7 @@ pub fn capabilitystatement_messaging_supportedmessage_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementDocument {
   CapabilitystatementDocument(
     id: Option(String),
@@ -22911,7 +22910,7 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CarePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CarePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/CarePlan#resource)
 pub type Careplan {
   Careplan(
     id: Option(String),
@@ -22988,7 +22987,7 @@ pub fn careplan_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CarePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CarePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/CarePlan#resource)
 pub type CareplanActivity {
   CareplanActivity(
     id: Option(String),
@@ -23459,7 +23458,7 @@ pub fn careplan_decoder() -> Decoder(Careplan) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CareTeam#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CareTeam#resource](http://hl7.org/fhir/r5/StructureDefinition/CareTeam#resource)
 pub type Careteam {
   Careteam(
     id: Option(String),
@@ -23508,7 +23507,7 @@ pub fn careteam_new() -> Careteam {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CareTeam#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CareTeam#resource](http://hl7.org/fhir/r5/StructureDefinition/CareTeam#resource)
 pub type CareteamParticipant {
   CareteamParticipant(
     id: Option(String),
@@ -23521,7 +23520,7 @@ pub type CareteamParticipant {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CareTeam#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CareTeam#resource](http://hl7.org/fhir/r5/StructureDefinition/CareTeam#resource)
 pub type CareteamParticipantCoverage {
   CareteamParticipantCoveragePeriod(coverage: Period)
   CareteamParticipantCoverageTiming(coverage: Timing)
@@ -23900,7 +23899,7 @@ pub fn careteam_decoder() -> Decoder(Careteam) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ChargeItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ChargeItem#resource](http://hl7.org/fhir/r5/StructureDefinition/ChargeItem#resource)
 pub type Chargeitem {
   Chargeitem(
     id: Option(String),
@@ -23940,7 +23939,7 @@ pub type Chargeitem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ChargeItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ChargeItem#resource](http://hl7.org/fhir/r5/StructureDefinition/ChargeItem#resource)
 pub type ChargeitemOccurrence {
   ChargeitemOccurrenceDatetime(occurrence: String)
   ChargeitemOccurrencePeriod(occurrence: Period)
@@ -24011,7 +24010,7 @@ pub fn chargeitem_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ChargeItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ChargeItem#resource](http://hl7.org/fhir/r5/StructureDefinition/ChargeItem#resource)
 pub type ChargeitemPerformer {
   ChargeitemPerformer(
     id: Option(String),
@@ -24501,7 +24500,7 @@ pub fn chargeitem_decoder() -> Decoder(Chargeitem) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource)
 pub type Chargeitemdefinition {
   Chargeitemdefinition(
     id: Option(String),
@@ -24541,7 +24540,7 @@ pub type Chargeitemdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource)
 pub type ChargeitemdefinitionVersionalgorithm {
   ChargeitemdefinitionVersionalgorithmString(version_algorithm: String)
   ChargeitemdefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -24610,7 +24609,7 @@ pub fn chargeitemdefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource)
 pub type ChargeitemdefinitionApplicability {
   ChargeitemdefinitionApplicability(
     id: Option(String),
@@ -24633,7 +24632,7 @@ pub fn chargeitemdefinition_applicability_new() -> ChargeitemdefinitionApplicabi
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ChargeItemDefinition#resource)
 pub type ChargeitemdefinitionPropertygroup {
   ChargeitemdefinitionPropertygroup(
     id: Option(String),
@@ -25232,7 +25231,7 @@ pub fn chargeitemdefinition_decoder() -> Decoder(Chargeitemdefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type Citation {
   Citation(
     id: Option(String),
@@ -25277,7 +25276,7 @@ pub type Citation {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationVersionalgorithm {
   CitationVersionalgorithmString(version_algorithm: String)
   CitationVersionalgorithmCoding(version_algorithm: Coding)
@@ -25345,7 +25344,7 @@ pub fn citation_new(status status: r5_valuesets.Publicationstatus) -> Citation {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationSummary {
   CitationSummary(
     id: Option(String),
@@ -25366,7 +25365,7 @@ pub fn citation_summary_new(text text: String) -> CitationSummary {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationClassification {
   CitationClassification(
     id: Option(String),
@@ -25387,7 +25386,7 @@ pub fn citation_classification_new() -> CitationClassification {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationStatusdate {
   CitationStatusdate(
     id: Option(String),
@@ -25413,7 +25412,7 @@ pub fn citation_statusdate_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifact {
   CitationCitedartifact(
     id: Option(String),
@@ -25460,7 +25459,7 @@ pub fn citation_citedartifact_new() -> CitationCitedartifact {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactVersion {
   CitationCitedartifactVersion(
     id: Option(String),
@@ -25483,7 +25482,7 @@ pub fn citation_citedartifact_version_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactStatusdate {
   CitationCitedartifactStatusdate(
     id: Option(String),
@@ -25509,7 +25508,7 @@ pub fn citation_citedartifact_statusdate_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactTitle {
   CitationCitedartifactTitle(
     id: Option(String),
@@ -25534,7 +25533,7 @@ pub fn citation_citedartifact_title_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactAbstract {
   CitationCitedartifactAbstract(
     id: Option(String),
@@ -25561,7 +25560,7 @@ pub fn citation_citedartifact_abstract_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactPart {
   CitationCitedartifactPart(
     id: Option(String),
@@ -25584,7 +25583,7 @@ pub fn citation_citedartifact_part_new() -> CitationCitedartifactPart {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactRelatesto {
   CitationCitedartifactRelatesto(
     id: Option(String),
@@ -25619,7 +25618,7 @@ pub fn citation_citedartifact_relatesto_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactPublicationform {
   CitationCitedartifactPublicationform(
     id: Option(String),
@@ -25666,7 +25665,7 @@ pub fn citation_citedartifact_publicationform_new() -> CitationCitedartifactPubl
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactPublicationformPublishedin {
   CitationCitedartifactPublicationformPublishedin(
     id: Option(String),
@@ -25693,7 +25692,7 @@ pub fn citation_citedartifact_publicationform_publishedin_new() -> CitationCited
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactWeblocation {
   CitationCitedartifactWeblocation(
     id: Option(String),
@@ -25714,7 +25713,7 @@ pub fn citation_citedartifact_weblocation_new() -> CitationCitedartifactWeblocat
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactClassification {
   CitationCitedartifactClassification(
     id: Option(String),
@@ -25737,7 +25736,7 @@ pub fn citation_citedartifact_classification_new() -> CitationCitedartifactClass
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactContributorship {
   CitationCitedartifactContributorship(
     id: Option(String),
@@ -25760,7 +25759,7 @@ pub fn citation_citedartifact_contributorship_new() -> CitationCitedartifactCont
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactContributorshipEntry {
   CitationCitedartifactContributorshipEntry(
     id: Option(String),
@@ -25797,7 +25796,7 @@ pub fn citation_citedartifact_contributorship_entry_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactContributorshipEntryContributioninstance {
   CitationCitedartifactContributorshipEntryContributioninstance(
     id: Option(String),
@@ -25820,7 +25819,7 @@ pub fn citation_citedartifact_contributorship_entry_contributioninstance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Citation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Citation#resource](http://hl7.org/fhir/r5/StructureDefinition/Citation#resource)
 pub type CitationCitedartifactContributorshipSummary {
   CitationCitedartifactContributorshipSummary(
     id: Option(String),
@@ -28187,7 +28186,7 @@ pub fn citation_decoder() -> Decoder(Citation) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type Claim {
   Claim(
     id: Option(String),
@@ -28284,7 +28283,7 @@ pub fn claim_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimRelated {
   ClaimRelated(
     id: Option(String),
@@ -28307,7 +28306,7 @@ pub fn claim_related_new() -> ClaimRelated {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimPayee {
   ClaimPayee(
     id: Option(String),
@@ -28328,7 +28327,7 @@ pub fn claim_payee_new(type_ type_: Codeableconcept) -> ClaimPayee {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimEvent {
   ClaimEvent(
     id: Option(String),
@@ -28339,7 +28338,7 @@ pub type ClaimEvent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimEventWhen {
   ClaimEventWhenDatetime(when: String)
   ClaimEventWhenPeriod(when: Period)
@@ -28370,7 +28369,7 @@ pub fn claim_event_new(
   ClaimEvent(when:, type_:, modifier_extension: [], extension: [], id: None)
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimCareteam {
   ClaimCareteam(
     id: Option(String),
@@ -28400,7 +28399,7 @@ pub fn claim_careteam_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimSupportinginfo {
   ClaimSupportinginfo(
     id: Option(String),
@@ -28415,7 +28414,7 @@ pub type ClaimSupportinginfo {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimSupportinginfoTiming {
   ClaimSupportinginfoTimingDate(timing: String)
   ClaimSupportinginfoTimingPeriod(timing: Period)
@@ -28443,7 +28442,7 @@ pub fn claim_supportinginfo_timing_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimSupportinginfoValue {
   ClaimSupportinginfoValueBoolean(value: Bool)
   ClaimSupportinginfoValueString(value: String)
@@ -28500,7 +28499,7 @@ pub fn claim_supportinginfo_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimDiagnosis {
   ClaimDiagnosis(
     id: Option(String),
@@ -28513,7 +28512,7 @@ pub type ClaimDiagnosis {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimDiagnosisDiagnosis {
   ClaimDiagnosisDiagnosisCodeableconcept(diagnosis: Codeableconcept)
   ClaimDiagnosisDiagnosisReference(diagnosis: Reference)
@@ -28556,7 +28555,7 @@ pub fn claim_diagnosis_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimProcedure {
   ClaimProcedure(
     id: Option(String),
@@ -28570,7 +28569,7 @@ pub type ClaimProcedure {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimProcedureProcedure {
   ClaimProcedureProcedureCodeableconcept(procedure: Codeableconcept)
   ClaimProcedureProcedureReference(procedure: Reference)
@@ -28614,7 +28613,7 @@ pub fn claim_procedure_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimInsurance {
   ClaimInsurance(
     id: Option(String),
@@ -28649,7 +28648,7 @@ pub fn claim_insurance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimAccident {
   ClaimAccident(
     id: Option(String),
@@ -28661,7 +28660,7 @@ pub type ClaimAccident {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimAccidentLocation {
   ClaimAccidentLocationAddress(location: Address)
   ClaimAccidentLocationReference(location: Reference)
@@ -28696,7 +28695,7 @@ pub fn claim_accident_new(date date: String) -> ClaimAccident {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimItem {
   ClaimItem(
     id: Option(String),
@@ -28730,7 +28729,7 @@ pub type ClaimItem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimItemServiced {
   ClaimItemServicedDate(serviced: String)
   ClaimItemServicedPeriod(serviced: Period)
@@ -28754,7 +28753,7 @@ pub fn claim_item_serviced_decoder() -> Decoder(ClaimItemServiced) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimItemLocation {
   ClaimItemLocationCodeableconcept(location: Codeableconcept)
   ClaimItemLocationAddress(location: Address)
@@ -28819,7 +28818,7 @@ pub fn claim_item_new(sequence sequence: Int) -> ClaimItem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimItemBodysite {
   ClaimItemBodysite(
     id: Option(String),
@@ -28840,7 +28839,7 @@ pub fn claim_item_bodysite_new() -> ClaimItemBodysite {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimItemDetail {
   ClaimItemDetail(
     id: Option(String),
@@ -28889,7 +28888,7 @@ pub fn claim_item_detail_new(sequence sequence: Int) -> ClaimItemDetail {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Claim#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Claim#resource](http://hl7.org/fhir/r5/StructureDefinition/Claim#resource)
 pub type ClaimItemDetailSubdetail {
   ClaimItemDetailSubdetail(
     id: Option(String),
@@ -30965,7 +30964,7 @@ pub fn claim_decoder() -> Decoder(Claim) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type Claimresponse {
   Claimresponse(
     id: Option(String),
@@ -31063,7 +31062,7 @@ pub fn claimresponse_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseEvent {
   ClaimresponseEvent(
     id: Option(String),
@@ -31074,7 +31073,7 @@ pub type ClaimresponseEvent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseEventWhen {
   ClaimresponseEventWhenDatetime(when: String)
   ClaimresponseEventWhenPeriod(when: Period)
@@ -31111,7 +31110,7 @@ pub fn claimresponse_event_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseItem {
   ClaimresponseItem(
     id: Option(String),
@@ -31142,7 +31141,7 @@ pub fn claimresponse_item_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseItemReviewoutcome {
   ClaimresponseItemReviewoutcome(
     id: Option(String),
@@ -31167,7 +31166,7 @@ pub fn claimresponse_item_reviewoutcome_new() -> ClaimresponseItemReviewoutcome 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseItemAdjudication {
   ClaimresponseItemAdjudication(
     id: Option(String),
@@ -31194,7 +31193,7 @@ pub fn claimresponse_item_adjudication_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseItemDetail {
   ClaimresponseItemDetail(
     id: Option(String),
@@ -31225,7 +31224,7 @@ pub fn claimresponse_item_detail_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseItemDetailSubdetail {
   ClaimresponseItemDetailSubdetail(
     id: Option(String),
@@ -31254,7 +31253,7 @@ pub fn claimresponse_item_detail_subdetail_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseAdditem {
   ClaimresponseAdditem(
     id: Option(String),
@@ -31286,7 +31285,7 @@ pub type ClaimresponseAdditem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseAdditemServiced {
   ClaimresponseAdditemServicedDate(serviced: String)
   ClaimresponseAdditemServicedPeriod(serviced: Period)
@@ -31314,7 +31313,7 @@ pub fn claimresponse_additem_serviced_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseAdditemLocation {
   ClaimresponseAdditemLocationCodeableconcept(location: Codeableconcept)
   ClaimresponseAdditemLocationAddress(location: Address)
@@ -31381,7 +31380,7 @@ pub fn claimresponse_additem_new() -> ClaimresponseAdditem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseAdditemBodysite {
   ClaimresponseAdditemBodysite(
     id: Option(String),
@@ -31402,7 +31401,7 @@ pub fn claimresponse_additem_bodysite_new() -> ClaimresponseAdditemBodysite {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseAdditemDetail {
   ClaimresponseAdditemDetail(
     id: Option(String),
@@ -31447,7 +31446,7 @@ pub fn claimresponse_additem_detail_new() -> ClaimresponseAdditemDetail {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseAdditemDetailSubdetail {
   ClaimresponseAdditemDetailSubdetail(
     id: Option(String),
@@ -31490,7 +31489,7 @@ pub fn claimresponse_additem_detail_subdetail_new() -> ClaimresponseAdditemDetai
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseTotal {
   ClaimresponseTotal(
     id: Option(String),
@@ -31514,7 +31513,7 @@ pub fn claimresponse_total_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponsePayment {
   ClaimresponsePayment(
     id: Option(String),
@@ -31546,7 +31545,7 @@ pub fn claimresponse_payment_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseProcessnote {
   ClaimresponseProcessnote(
     id: Option(String),
@@ -31573,7 +31572,7 @@ pub fn claimresponse_processnote_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseInsurance {
   ClaimresponseInsurance(
     id: Option(String),
@@ -31604,7 +31603,7 @@ pub fn claimresponse_insurance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseError {
   ClaimresponseError(
     id: Option(String),
@@ -33936,7 +33935,7 @@ pub fn claimresponse_decoder() -> Decoder(Claimresponse) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalImpression#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalImpression#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalImpression#resource)
 pub type Clinicalimpression {
   Clinicalimpression(
     id: Option(String),
@@ -33969,7 +33968,7 @@ pub type Clinicalimpression {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalImpression#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalImpression#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalImpression#resource)
 pub type ClinicalimpressionEffective {
   ClinicalimpressionEffectiveDatetime(effective: String)
   ClinicalimpressionEffectivePeriod(effective: Period)
@@ -34032,7 +34031,7 @@ pub fn clinicalimpression_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalImpression#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalImpression#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalImpression#resource)
 pub type ClinicalimpressionFinding {
   ClinicalimpressionFinding(
     id: Option(String),
@@ -34455,7 +34454,7 @@ pub fn clinicalimpression_decoder() -> Decoder(Clinicalimpression) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource)
 pub type Clinicalusedefinition {
   Clinicalusedefinition(
     id: Option(String),
@@ -34508,7 +34507,7 @@ pub fn clinicalusedefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource)
 pub type ClinicalusedefinitionContraindication {
   ClinicalusedefinitionContraindication(
     id: Option(String),
@@ -34537,7 +34536,7 @@ pub fn clinicalusedefinition_contraindication_new() -> ClinicalusedefinitionCont
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource)
 pub type ClinicalusedefinitionContraindicationOthertherapy {
   ClinicalusedefinitionContraindicationOthertherapy(
     id: Option(String),
@@ -34561,7 +34560,7 @@ pub fn clinicalusedefinition_contraindication_othertherapy_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource)
 pub type ClinicalusedefinitionIndication {
   ClinicalusedefinitionIndication(
     id: Option(String),
@@ -34578,7 +34577,7 @@ pub type ClinicalusedefinitionIndication {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource)
 pub type ClinicalusedefinitionIndicationDuration {
   ClinicalusedefinitionIndicationDurationRange(duration: Range)
   ClinicalusedefinitionIndicationDurationString(duration: String)
@@ -34622,7 +34621,7 @@ pub fn clinicalusedefinition_indication_new() -> ClinicalusedefinitionIndication
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource)
 pub type ClinicalusedefinitionInteraction {
   ClinicalusedefinitionInteraction(
     id: Option(String),
@@ -34649,7 +34648,7 @@ pub fn clinicalusedefinition_interaction_new() -> ClinicalusedefinitionInteracti
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource)
 pub type ClinicalusedefinitionInteractionInteractant {
   ClinicalusedefinitionInteractionInteractant(
     id: Option(String),
@@ -34659,7 +34658,7 @@ pub type ClinicalusedefinitionInteractionInteractant {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource)
 pub type ClinicalusedefinitionInteractionInteractantItem {
   ClinicalusedefinitionInteractionInteractantItemReference(item: Reference)
   ClinicalusedefinitionInteractionInteractantItemCodeableconcept(
@@ -34708,7 +34707,7 @@ pub fn clinicalusedefinition_interaction_interactant_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource)
 pub type ClinicalusedefinitionUndesirableeffect {
   ClinicalusedefinitionUndesirableeffect(
     id: Option(String),
@@ -34731,7 +34730,7 @@ pub fn clinicalusedefinition_undesirableeffect_new() -> ClinicalusedefinitionUnd
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ClinicalUseDefinition#resource)
 pub type ClinicalusedefinitionWarning {
   ClinicalusedefinitionWarning(
     id: Option(String),
@@ -35696,7 +35695,7 @@ pub fn clinicalusedefinition_decoder() -> Decoder(Clinicalusedefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource)
 pub type Codesystem {
   Codesystem(
     id: Option(String),
@@ -35747,7 +35746,7 @@ pub type Codesystem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource)
 pub type CodesystemVersionalgorithm {
   CodesystemVersionalgorithmString(version_algorithm: String)
   CodesystemVersionalgorithmCoding(version_algorithm: Coding)
@@ -35828,7 +35827,7 @@ pub fn codesystem_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource)
 pub type CodesystemFilter {
   CodesystemFilter(
     id: Option(String),
@@ -35856,7 +35855,7 @@ pub fn codesystem_filter_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource)
 pub type CodesystemProperty {
   CodesystemProperty(
     id: Option(String),
@@ -35884,7 +35883,7 @@ pub fn codesystem_property_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource)
 pub type CodesystemConcept {
   CodesystemConcept(
     id: Option(String),
@@ -35913,7 +35912,7 @@ pub fn codesystem_concept_new(code code: String) -> CodesystemConcept {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource)
 pub type CodesystemConceptDesignation {
   CodesystemConceptDesignation(
     id: Option(String),
@@ -35940,7 +35939,7 @@ pub fn codesystem_concept_designation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource)
 pub type CodesystemConceptProperty {
   CodesystemConceptProperty(
     id: Option(String),
@@ -35951,7 +35950,7 @@ pub type CodesystemConceptProperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/CodeSystem#resource)
 pub type CodesystemConceptPropertyValue {
   CodesystemConceptPropertyValueCode(value: String)
   CodesystemConceptPropertyValueCoding(value: Coding)
@@ -36955,7 +36954,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Communication#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Communication#resource](http://hl7.org/fhir/r5/StructureDefinition/Communication#resource)
 pub type Communication {
   Communication(
     id: Option(String),
@@ -37028,7 +37027,7 @@ pub fn communication_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Communication#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Communication#resource](http://hl7.org/fhir/r5/StructureDefinition/Communication#resource)
 pub type CommunicationPayload {
   CommunicationPayload(
     id: Option(String),
@@ -37038,7 +37037,7 @@ pub type CommunicationPayload {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Communication#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Communication#resource](http://hl7.org/fhir/r5/StructureDefinition/Communication#resource)
 pub type CommunicationPayloadContent {
   CommunicationPayloadContentAttachment(content: Attachment)
   CommunicationPayloadContentReference(content: Reference)
@@ -37497,7 +37496,7 @@ pub fn communication_decoder() -> Decoder(Communication) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource)
 pub type Communicationrequest {
   Communicationrequest(
     id: Option(String),
@@ -37533,7 +37532,7 @@ pub type Communicationrequest {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource)
 pub type CommunicationrequestOccurrence {
   CommunicationrequestOccurrenceDatetime(occurrence: String)
   CommunicationrequestOccurrencePeriod(occurrence: Period)
@@ -37599,7 +37598,7 @@ pub fn communicationrequest_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource)
 pub type CommunicationrequestPayload {
   CommunicationrequestPayload(
     id: Option(String),
@@ -37609,7 +37608,7 @@ pub type CommunicationrequestPayload {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CommunicationRequest#resource)
 pub type CommunicationrequestPayloadContent {
   CommunicationrequestPayloadContentAttachment(content: Attachment)
   CommunicationrequestPayloadContentReference(content: Reference)
@@ -38075,7 +38074,7 @@ pub fn communicationrequest_decoder() -> Decoder(Communicationrequest) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CompartmentDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CompartmentDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/CompartmentDefinition#resource)
 pub type Compartmentdefinition {
   Compartmentdefinition(
     id: Option(String),
@@ -38105,7 +38104,7 @@ pub type Compartmentdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CompartmentDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CompartmentDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/CompartmentDefinition#resource)
 pub type CompartmentdefinitionVersionalgorithm {
   CompartmentdefinitionVersionalgorithmString(version_algorithm: String)
   CompartmentdefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -38168,7 +38167,7 @@ pub fn compartmentdefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CompartmentDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CompartmentDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/CompartmentDefinition#resource)
 pub type CompartmentdefinitionResource {
   CompartmentdefinitionResource(
     id: Option(String),
@@ -38565,7 +38564,7 @@ pub fn compartmentdefinition_decoder() -> Decoder(Compartmentdefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Composition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Composition#resource](http://hl7.org/fhir/r5/StructureDefinition/Composition#resource)
 pub type Composition {
   Composition(
     id: Option(String),
@@ -38635,7 +38634,7 @@ pub fn composition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Composition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Composition#resource](http://hl7.org/fhir/r5/StructureDefinition/Composition#resource)
 pub type CompositionAttester {
   CompositionAttester(
     id: Option(String),
@@ -38660,7 +38659,7 @@ pub fn composition_attester_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Composition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Composition#resource](http://hl7.org/fhir/r5/StructureDefinition/Composition#resource)
 pub type CompositionEvent {
   CompositionEvent(
     id: Option(String),
@@ -38681,7 +38680,7 @@ pub fn composition_event_new() -> CompositionEvent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Composition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Composition#resource](http://hl7.org/fhir/r5/StructureDefinition/Composition#resource)
 pub type CompositionSection {
   CompositionSection(
     id: Option(String),
@@ -39304,7 +39303,7 @@ pub fn composition_decoder() -> Decoder(Composition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type Conceptmap {
   Conceptmap(
     id: Option(String),
@@ -39349,7 +39348,7 @@ pub type Conceptmap {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapVersionalgorithm {
   ConceptmapVersionalgorithmString(version_algorithm: String)
   ConceptmapVersionalgorithmCoding(version_algorithm: Coding)
@@ -39377,7 +39376,7 @@ pub fn conceptmap_versionalgorithm_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapSourcescope {
   ConceptmapSourcescopeUri(source_scope: String)
   ConceptmapSourcescopeCanonical(source_scope: String)
@@ -39401,7 +39400,7 @@ pub fn conceptmap_sourcescope_decoder() -> Decoder(ConceptmapSourcescope) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapTargetscope {
   ConceptmapTargetscopeUri(target_scope: String)
   ConceptmapTargetscopeCanonical(target_scope: String)
@@ -39471,7 +39470,7 @@ pub fn conceptmap_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapProperty {
   ConceptmapProperty(
     id: Option(String),
@@ -39501,7 +39500,7 @@ pub fn conceptmap_property_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapAdditionalattribute {
   ConceptmapAdditionalattribute(
     id: Option(String),
@@ -39529,7 +39528,7 @@ pub fn conceptmap_additionalattribute_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroup {
   ConceptmapGroup(
     id: Option(String),
@@ -39554,7 +39553,7 @@ pub fn conceptmap_group_new() -> ConceptmapGroup {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupElement {
   ConceptmapGroupElement(
     id: Option(String),
@@ -39581,7 +39580,7 @@ pub fn conceptmap_group_element_new() -> ConceptmapGroupElement {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupElementTarget {
   ConceptmapGroupElementTarget(
     id: Option(String),
@@ -39616,7 +39615,7 @@ pub fn conceptmap_group_element_target_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupElementTargetProperty {
   ConceptmapGroupElementTargetProperty(
     id: Option(String),
@@ -39627,7 +39626,7 @@ pub type ConceptmapGroupElementTargetProperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupElementTargetPropertyValue {
   ConceptmapGroupElementTargetPropertyValueCoding(value: Coding)
   ConceptmapGroupElementTargetPropertyValueString(value: String)
@@ -39688,7 +39687,7 @@ pub fn conceptmap_group_element_target_property_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupElementTargetDependson {
   ConceptmapGroupElementTargetDependson(
     id: Option(String),
@@ -39700,7 +39699,7 @@ pub type ConceptmapGroupElementTargetDependson {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupElementTargetDependsonValue {
   ConceptmapGroupElementTargetDependsonValueCode(value: String)
   ConceptmapGroupElementTargetDependsonValueCoding(value: Coding)
@@ -39753,7 +39752,7 @@ pub fn conceptmap_group_element_target_dependson_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r5/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupUnmapped {
   ConceptmapGroupUnmapped(
     id: Option(String),
@@ -41046,7 +41045,7 @@ pub fn conceptmap_decoder() -> Decoder(Conceptmap) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Condition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Condition#resource](http://hl7.org/fhir/r5/StructureDefinition/Condition#resource)
 pub type Condition {
   Condition(
     id: Option(String),
@@ -41076,7 +41075,7 @@ pub type Condition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Condition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Condition#resource](http://hl7.org/fhir/r5/StructureDefinition/Condition#resource)
 pub type ConditionOnset {
   ConditionOnsetDatetime(onset: String)
   ConditionOnsetAge(onset: Age)
@@ -41112,7 +41111,7 @@ pub fn condition_onset_decoder() -> Decoder(ConditionOnset) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Condition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Condition#resource](http://hl7.org/fhir/r5/StructureDefinition/Condition#resource)
 pub type ConditionAbatement {
   ConditionAbatementDatetime(abatement: String)
   ConditionAbatementAge(abatement: Age)
@@ -41180,7 +41179,7 @@ pub fn condition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Condition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Condition#resource](http://hl7.org/fhir/r5/StructureDefinition/Condition#resource)
 pub type ConditionParticipant {
   ConditionParticipant(
     id: Option(String),
@@ -41201,7 +41200,7 @@ pub fn condition_participant_new(actor actor: Reference) -> ConditionParticipant
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Condition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Condition#resource](http://hl7.org/fhir/r5/StructureDefinition/Condition#resource)
 pub type ConditionStage {
   ConditionStage(
     id: Option(String),
@@ -41668,7 +41667,7 @@ pub fn condition_decoder() -> Decoder(Condition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource)
 pub type Conditiondefinition {
   Conditiondefinition(
     id: Option(String),
@@ -41711,7 +41710,7 @@ pub type Conditiondefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource)
 pub type ConditiondefinitionVersionalgorithm {
   ConditiondefinitionVersionalgorithmString(version_algorithm: String)
   ConditiondefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -41784,7 +41783,7 @@ pub fn conditiondefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource)
 pub type ConditiondefinitionObservation {
   ConditiondefinitionObservation(
     id: Option(String),
@@ -41805,7 +41804,7 @@ pub fn conditiondefinition_observation_new() -> ConditiondefinitionObservation {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource)
 pub type ConditiondefinitionMedication {
   ConditiondefinitionMedication(
     id: Option(String),
@@ -41826,7 +41825,7 @@ pub fn conditiondefinition_medication_new() -> ConditiondefinitionMedication {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource)
 pub type ConditiondefinitionPrecondition {
   ConditiondefinitionPrecondition(
     id: Option(String),
@@ -41838,7 +41837,7 @@ pub type ConditiondefinitionPrecondition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource)
 pub type ConditiondefinitionPreconditionValue {
   ConditiondefinitionPreconditionValueCodeableconcept(value: Codeableconcept)
   ConditiondefinitionPreconditionValueQuantity(value: Quantity)
@@ -41885,7 +41884,7 @@ pub fn conditiondefinition_precondition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource)
 pub type ConditiondefinitionQuestionnaire {
   ConditiondefinitionQuestionnaire(
     id: Option(String),
@@ -41909,7 +41908,7 @@ pub fn conditiondefinition_questionnaire_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ConditionDefinition#resource)
 pub type ConditiondefinitionPlan {
   ConditiondefinitionPlan(
     id: Option(String),
@@ -42731,7 +42730,7 @@ pub fn conditiondefinition_decoder() -> Decoder(Conditiondefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Consent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Consent#resource](http://hl7.org/fhir/r5/StructureDefinition/Consent#resource)
 pub type Consent {
   Consent(
     id: Option(String),
@@ -42794,7 +42793,7 @@ pub fn consent_new(status status: r5_valuesets.Consentstatecodes) -> Consent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Consent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Consent#resource](http://hl7.org/fhir/r5/StructureDefinition/Consent#resource)
 pub type ConsentPolicybasis {
   ConsentPolicybasis(
     id: Option(String),
@@ -42815,7 +42814,7 @@ pub fn consent_policybasis_new() -> ConsentPolicybasis {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Consent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Consent#resource](http://hl7.org/fhir/r5/StructureDefinition/Consent#resource)
 pub type ConsentVerification {
   ConsentVerification(
     id: Option(String),
@@ -42842,7 +42841,7 @@ pub fn consent_verification_new(verified verified: Bool) -> ConsentVerification 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Consent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Consent#resource](http://hl7.org/fhir/r5/StructureDefinition/Consent#resource)
 pub type ConsentProvision {
   ConsentProvision(
     id: Option(String),
@@ -42883,7 +42882,7 @@ pub fn consent_provision_new() -> ConsentProvision {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Consent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Consent#resource](http://hl7.org/fhir/r5/StructureDefinition/Consent#resource)
 pub type ConsentProvisionActor {
   ConsentProvisionActor(
     id: Option(String),
@@ -42904,7 +42903,7 @@ pub fn consent_provision_actor_new() -> ConsentProvisionActor {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Consent#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Consent#resource](http://hl7.org/fhir/r5/StructureDefinition/Consent#resource)
 pub type ConsentProvisionData {
   ConsentProvisionData(
     id: Option(String),
@@ -43730,7 +43729,7 @@ pub fn consent_decoder() -> Decoder(Consent) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type Contract {
   Contract(
     id: Option(String),
@@ -43777,7 +43776,7 @@ pub type Contract {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTopic {
   ContractTopicCodeableconcept(topic: Codeableconcept)
   ContractTopicReference(topic: Reference)
@@ -43805,7 +43804,7 @@ pub fn contract_topic_decoder() -> Decoder(ContractTopic) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractLegallybinding {
   ContractLegallybindingAttachment(legally_binding: Attachment)
   ContractLegallybindingReference(legally_binding: Reference)
@@ -43883,7 +43882,7 @@ pub fn contract_new() -> Contract {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractContentdefinition {
   ContractContentdefinition(
     id: Option(String),
@@ -43915,7 +43914,7 @@ pub fn contract_contentdefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTerm {
   ContractTerm(
     id: Option(String),
@@ -43936,7 +43935,7 @@ pub type ContractTerm {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermTopic {
   ContractTermTopicCodeableconcept(topic: Codeableconcept)
   ContractTermTopicReference(topic: Reference)
@@ -43984,7 +43983,7 @@ pub fn contract_term_new(offer offer: ContractTermOffer) -> ContractTerm {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermSecuritylabel {
   ContractTermSecuritylabel(
     id: Option(String),
@@ -44011,7 +44010,7 @@ pub fn contract_term_securitylabel_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermOffer {
   ContractTermOffer(
     id: Option(String),
@@ -44048,7 +44047,7 @@ pub fn contract_term_offer_new() -> ContractTermOffer {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermOfferParty {
   ContractTermOfferParty(
     id: Option(String),
@@ -44071,7 +44070,7 @@ pub fn contract_term_offer_party_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermOfferAnswer {
   ContractTermOfferAnswer(
     id: Option(String),
@@ -44081,7 +44080,7 @@ pub type ContractTermOfferAnswer {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermOfferAnswerValue {
   ContractTermOfferAnswerValueBoolean(value: Bool)
   ContractTermOfferAnswerValueDecimal(value: Float)
@@ -44160,7 +44159,7 @@ pub fn contract_term_offer_answer_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermAsset {
   ContractTermAsset(
     id: Option(String),
@@ -44207,7 +44206,7 @@ pub fn contract_term_asset_new() -> ContractTermAsset {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermAssetContext {
   ContractTermAssetContext(
     id: Option(String),
@@ -44230,7 +44229,7 @@ pub fn contract_term_asset_context_new() -> ContractTermAssetContext {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermAssetValueditem {
   ContractTermAssetValueditem(
     id: Option(String),
@@ -44253,7 +44252,7 @@ pub type ContractTermAssetValueditem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermAssetValueditemEntity {
   ContractTermAssetValueditemEntityCodeableconcept(entity: Codeableconcept)
   ContractTermAssetValueditemEntityReference(entity: Reference)
@@ -44308,7 +44307,7 @@ pub fn contract_term_asset_valueditem_new() -> ContractTermAssetValueditem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermAction {
   ContractTermAction(
     id: Option(String),
@@ -44336,7 +44335,7 @@ pub type ContractTermAction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermActionOccurrence {
   ContractTermActionOccurrenceDatetime(occurrence: String)
   ContractTermActionOccurrencePeriod(occurrence: Period)
@@ -44399,7 +44398,7 @@ pub fn contract_term_action_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractTermActionSubject {
   ContractTermActionSubject(
     id: Option(String),
@@ -44420,7 +44419,7 @@ pub fn contract_term_action_subject_new() -> ContractTermActionSubject {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractSigner {
   ContractSigner(
     id: Option(String),
@@ -44446,7 +44445,7 @@ pub fn contract_signer_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractFriendly {
   ContractFriendly(
     id: Option(String),
@@ -44456,7 +44455,7 @@ pub type ContractFriendly {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractFriendlyContent {
   ContractFriendlyContentAttachment(content: Attachment)
   ContractFriendlyContentReference(content: Reference)
@@ -44486,7 +44485,7 @@ pub fn contract_friendly_new(
   ContractFriendly(content:, modifier_extension: [], extension: [], id: None)
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractLegal {
   ContractLegal(
     id: Option(String),
@@ -44496,7 +44495,7 @@ pub type ContractLegal {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractLegalContent {
   ContractLegalContentAttachment(content: Attachment)
   ContractLegalContentReference(content: Reference)
@@ -44526,7 +44525,7 @@ pub fn contract_legal_new(
   ContractLegal(content:, modifier_extension: [], extension: [], id: None)
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractRule {
   ContractRule(
     id: Option(String),
@@ -44536,7 +44535,7 @@ pub type ContractRule {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Contract#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Contract#resource](http://hl7.org/fhir/r5/StructureDefinition/Contract#resource)
 pub type ContractRuleContent {
   ContractRuleContentAttachment(content: Attachment)
   ContractRuleContentReference(content: Reference)
@@ -46750,7 +46749,7 @@ pub fn contract_decoder() -> Decoder(Contract) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource](http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource)
 pub type Coverage {
   Coverage(
     id: Option(String),
@@ -46821,7 +46820,7 @@ pub fn coverage_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource](http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource)
 pub type CoveragePaymentby {
   CoveragePaymentby(
     id: Option(String),
@@ -46842,7 +46841,7 @@ pub fn coverage_paymentby_new(party party: Reference) -> CoveragePaymentby {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource](http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource)
 pub type CoverageClass {
   CoverageClass(
     id: Option(String),
@@ -46868,7 +46867,7 @@ pub fn coverage_class_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource](http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource)
 pub type CoverageCosttobeneficiary {
   CoverageCosttobeneficiary(
     id: Option(String),
@@ -46884,7 +46883,7 @@ pub type CoverageCosttobeneficiary {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource](http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource)
 pub type CoverageCosttobeneficiaryValue {
   CoverageCosttobeneficiaryValueQuantity(value: Quantity)
   CoverageCosttobeneficiaryValueMoney(value: Money)
@@ -46927,7 +46926,7 @@ pub fn coverage_costtobeneficiary_new() -> CoverageCosttobeneficiary {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource](http://hl7.org/fhir/r5/StructureDefinition/Coverage#resource)
 pub type CoverageCosttobeneficiaryException {
   CoverageCosttobeneficiaryException(
     id: Option(String),
@@ -47590,7 +47589,7 @@ pub fn coverage_decoder() -> Decoder(Coverage) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type Coverageeligibilityrequest {
   Coverageeligibilityrequest(
     id: Option(String),
@@ -47619,7 +47618,7 @@ pub type Coverageeligibilityrequest {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestServiced {
   CoverageeligibilityrequestServicedDate(serviced: String)
   CoverageeligibilityrequestServicedPeriod(serviced: Period)
@@ -47680,7 +47679,7 @@ pub fn coverageeligibilityrequest_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestEvent {
   CoverageeligibilityrequestEvent(
     id: Option(String),
@@ -47691,7 +47690,7 @@ pub type CoverageeligibilityrequestEvent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestEventWhen {
   CoverageeligibilityrequestEventWhenDatetime(when: String)
   CoverageeligibilityrequestEventWhenPeriod(when: Period)
@@ -47732,7 +47731,7 @@ pub fn coverageeligibilityrequest_event_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestSupportinginfo {
   CoverageeligibilityrequestSupportinginfo(
     id: Option(String),
@@ -47758,7 +47757,7 @@ pub fn coverageeligibilityrequest_supportinginfo_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestInsurance {
   CoverageeligibilityrequestInsurance(
     id: Option(String),
@@ -47783,7 +47782,7 @@ pub fn coverageeligibilityrequest_insurance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestItem {
   CoverageeligibilityrequestItem(
     id: Option(String),
@@ -47820,7 +47819,7 @@ pub fn coverageeligibilityrequest_item_new() -> CoverageeligibilityrequestItem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestItemDiagnosis {
   CoverageeligibilityrequestItemDiagnosis(
     id: Option(String),
@@ -47830,7 +47829,7 @@ pub type CoverageeligibilityrequestItemDiagnosis {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestItemDiagnosisDiagnosis {
   CoverageeligibilityrequestItemDiagnosisDiagnosisCodeableconcept(
     diagnosis: Codeableconcept,
@@ -48618,7 +48617,7 @@ pub fn coverageeligibilityrequest_decoder() -> Decoder(
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type Coverageeligibilityresponse {
   Coverageeligibilityresponse(
     id: Option(String),
@@ -48648,7 +48647,7 @@ pub type Coverageeligibilityresponse {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseServiced {
   CoverageeligibilityresponseServicedDate(serviced: String)
   CoverageeligibilityresponseServicedPeriod(serviced: Period)
@@ -48712,7 +48711,7 @@ pub fn coverageeligibilityresponse_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseEvent {
   CoverageeligibilityresponseEvent(
     id: Option(String),
@@ -48723,7 +48722,7 @@ pub type CoverageeligibilityresponseEvent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseEventWhen {
   CoverageeligibilityresponseEventWhenDatetime(when: String)
   CoverageeligibilityresponseEventWhenPeriod(when: Period)
@@ -48764,7 +48763,7 @@ pub fn coverageeligibilityresponse_event_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseInsurance {
   CoverageeligibilityresponseInsurance(
     id: Option(String),
@@ -48791,7 +48790,7 @@ pub fn coverageeligibilityresponse_insurance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseInsuranceItem {
   CoverageeligibilityresponseInsuranceItem(
     id: Option(String),
@@ -48836,7 +48835,7 @@ pub fn coverageeligibilityresponse_insurance_item_new() -> Coverageeligibilityre
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseInsuranceItemBenefit {
   CoverageeligibilityresponseInsuranceItemBenefit(
     id: Option(String),
@@ -48848,7 +48847,7 @@ pub type CoverageeligibilityresponseInsuranceItemBenefit {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseInsuranceItemBenefitAllowed {
   CoverageeligibilityresponseInsuranceItemBenefitAllowedUnsignedint(
     allowed: Int,
@@ -48891,7 +48890,7 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_allowed_decoder() -> D
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseInsuranceItemBenefitUsed {
   CoverageeligibilityresponseInsuranceItemBenefitUsedUnsignedint(used: Int)
   CoverageeligibilityresponseInsuranceItemBenefitUsedString(used: String)
@@ -48941,7 +48940,7 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseError {
   CoverageeligibilityresponseError(
     id: Option(String),
@@ -49792,7 +49791,7 @@ pub fn coverageeligibilityresponse_decoder() -> Decoder(
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource](http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource)
 pub type Detectedissue {
   Detectedissue(
     id: Option(String),
@@ -49820,7 +49819,7 @@ pub type Detectedissue {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource](http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource)
 pub type DetectedissueIdentified {
   DetectedissueIdentifiedDatetime(identified: String)
   DetectedissueIdentifiedPeriod(identified: Period)
@@ -49873,7 +49872,7 @@ pub fn detectedissue_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource](http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource)
 pub type DetectedissueEvidence {
   DetectedissueEvidence(
     id: Option(String),
@@ -49894,7 +49893,7 @@ pub fn detectedissue_evidence_new() -> DetectedissueEvidence {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource](http://hl7.org/fhir/r5/StructureDefinition/DetectedIssue#resource)
 pub type DetectedissueMitigation {
   DetectedissueMitigation(
     id: Option(String),
@@ -50353,7 +50352,7 @@ pub fn detectedissue_decoder() -> Decoder(Detectedissue) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Device#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Device#resource](http://hl7.org/fhir/r5/StructureDefinition/Device#resource)
 pub type Device {
   Device(
     id: Option(String),
@@ -50444,7 +50443,7 @@ pub fn device_new() -> Device {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Device#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Device#resource](http://hl7.org/fhir/r5/StructureDefinition/Device#resource)
 pub type DeviceUdicarrier {
   DeviceUdicarrier(
     id: Option(String),
@@ -50476,7 +50475,7 @@ pub fn device_udicarrier_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Device#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Device#resource](http://hl7.org/fhir/r5/StructureDefinition/Device#resource)
 pub type DeviceName {
   DeviceName(
     id: Option(String),
@@ -50502,7 +50501,7 @@ pub fn device_name_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Device#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Device#resource](http://hl7.org/fhir/r5/StructureDefinition/Device#resource)
 pub type DeviceVersion {
   DeviceVersion(
     id: Option(String),
@@ -50527,7 +50526,7 @@ pub fn device_version_new(value value: String) -> DeviceVersion {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Device#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Device#resource](http://hl7.org/fhir/r5/StructureDefinition/Device#resource)
 pub type DeviceConformsto {
   DeviceConformsto(
     id: Option(String),
@@ -50552,7 +50551,7 @@ pub fn device_conformsto_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Device#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Device#resource](http://hl7.org/fhir/r5/StructureDefinition/Device#resource)
 pub type DeviceProperty {
   DeviceProperty(
     id: Option(String),
@@ -50563,7 +50562,7 @@ pub type DeviceProperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Device#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Device#resource](http://hl7.org/fhir/r5/StructureDefinition/Device#resource)
 pub type DevicePropertyValue {
   DevicePropertyValueQuantity(value: Quantity)
   DevicePropertyValueCodeableconcept(value: Codeableconcept)
@@ -51455,7 +51454,7 @@ pub fn device_decoder() -> Decoder(Device) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceAssociation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceAssociation#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceAssociation#resource)
 pub type Deviceassociation {
   Deviceassociation(
     id: Option(String),
@@ -51503,7 +51502,7 @@ pub fn deviceassociation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceAssociation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceAssociation#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceAssociation#resource)
 pub type DeviceassociationOperation {
   DeviceassociationOperation(
     id: Option(String),
@@ -51806,7 +51805,7 @@ pub fn deviceassociation_decoder() -> Decoder(Deviceassociation) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type Devicedefinition {
   Devicedefinition(
     id: Option(String),
@@ -51887,7 +51886,7 @@ pub fn devicedefinition_new() -> Devicedefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionUdideviceidentifier {
   DevicedefinitionUdideviceidentifier(
     id: Option(String),
@@ -51918,7 +51917,7 @@ pub fn devicedefinition_udideviceidentifier_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionUdideviceidentifierMarketdistribution {
   DevicedefinitionUdideviceidentifierMarketdistribution(
     id: Option(String),
@@ -51942,7 +51941,7 @@ pub fn devicedefinition_udideviceidentifier_marketdistribution_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionRegulatoryidentifier {
   DevicedefinitionRegulatoryidentifier(
     id: Option(String),
@@ -51972,7 +51971,7 @@ pub fn devicedefinition_regulatoryidentifier_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionDevicename {
   DevicedefinitionDevicename(
     id: Option(String),
@@ -51996,7 +51995,7 @@ pub fn devicedefinition_devicename_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionClassification {
   DevicedefinitionClassification(
     id: Option(String),
@@ -52019,7 +52018,7 @@ pub fn devicedefinition_classification_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionConformsto {
   DevicedefinitionConformsto(
     id: Option(String),
@@ -52046,7 +52045,7 @@ pub fn devicedefinition_conformsto_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionHaspart {
   DevicedefinitionHaspart(
     id: Option(String),
@@ -52069,7 +52068,7 @@ pub fn devicedefinition_haspart_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionPackaging {
   DevicedefinitionPackaging(
     id: Option(String),
@@ -52098,7 +52097,7 @@ pub fn devicedefinition_packaging_new() -> DevicedefinitionPackaging {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionPackagingDistributor {
   DevicedefinitionPackagingDistributor(
     id: Option(String),
@@ -52119,7 +52118,7 @@ pub fn devicedefinition_packaging_distributor_new() -> DevicedefinitionPackaging
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionVersion {
   DevicedefinitionVersion(
     id: Option(String),
@@ -52144,7 +52143,7 @@ pub fn devicedefinition_version_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionProperty {
   DevicedefinitionProperty(
     id: Option(String),
@@ -52155,7 +52154,7 @@ pub type DevicedefinitionProperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionPropertyValue {
   DevicedefinitionPropertyValueQuantity(value: Quantity)
   DevicedefinitionPropertyValueCodeableconcept(value: Codeableconcept)
@@ -52221,7 +52220,7 @@ pub fn devicedefinition_property_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionLink {
   DevicedefinitionLink(
     id: Option(String),
@@ -52245,7 +52244,7 @@ pub fn devicedefinition_link_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionMaterial {
   DevicedefinitionMaterial(
     id: Option(String),
@@ -52270,7 +52269,7 @@ pub fn devicedefinition_material_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionGuideline {
   DevicedefinitionGuideline(
     id: Option(String),
@@ -52301,7 +52300,7 @@ pub fn devicedefinition_guideline_new() -> DevicedefinitionGuideline {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionCorrectiveaction {
   DevicedefinitionCorrectiveaction(
     id: Option(String),
@@ -52327,7 +52326,7 @@ pub fn devicedefinition_correctiveaction_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionChargeitem {
   DevicedefinitionChargeitem(
     id: Option(String),
@@ -54083,7 +54082,7 @@ pub fn devicedefinition_decoder() -> Decoder(Devicedefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDispense#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDispense#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDispense#resource)
 pub type Devicedispense {
   Devicedispense(
     id: Option(String),
@@ -54156,7 +54155,7 @@ pub fn devicedispense_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceDispense#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceDispense#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceDispense#resource)
 pub type DevicedispensePerformer {
   DevicedispensePerformer(
     id: Option(String),
@@ -54581,7 +54580,7 @@ pub fn devicedispense_decoder() -> Decoder(Devicedispense) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceMetric#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceMetric#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceMetric#resource)
 pub type Devicemetric {
   Devicemetric(
     id: Option(String),
@@ -54630,7 +54629,7 @@ pub fn devicemetric_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceMetric#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceMetric#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceMetric#resource)
 pub type DevicemetricCalibration {
   DevicemetricCalibration(
     id: Option(String),
@@ -54937,7 +54936,7 @@ pub fn devicemetric_decoder() -> Decoder(Devicemetric) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource)
 pub type Devicerequest {
   Devicerequest(
     id: Option(String),
@@ -54977,7 +54976,7 @@ pub type Devicerequest {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource)
 pub type DevicerequestOccurrence {
   DevicerequestOccurrenceDatetime(occurrence: String)
   DevicerequestOccurrencePeriod(occurrence: Period)
@@ -55048,7 +55047,7 @@ pub fn devicerequest_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource)
 pub type DevicerequestParameter {
   DevicerequestParameter(
     id: Option(String),
@@ -55059,7 +55058,7 @@ pub type DevicerequestParameter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceRequest#resource)
 pub type DevicerequestParameterValue {
   DevicerequestParameterValueCodeableconcept(value: Codeableconcept)
   DevicerequestParameterValueQuantity(value: Quantity)
@@ -55591,7 +55590,7 @@ pub fn devicerequest_decoder() -> Decoder(Devicerequest) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceUsage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceUsage#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceUsage#resource)
 pub type Deviceusage {
   Deviceusage(
     id: Option(String),
@@ -55622,7 +55621,7 @@ pub type Deviceusage {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceUsage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceUsage#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceUsage#resource)
 pub type DeviceusageTiming {
   DeviceusageTimingTiming(timing: Timing)
   DeviceusageTimingPeriod(timing: Period)
@@ -55684,7 +55683,7 @@ pub fn deviceusage_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DeviceUsage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DeviceUsage#resource](http://hl7.org/fhir/r5/StructureDefinition/DeviceUsage#resource)
 pub type DeviceusageAdherence {
   DeviceusageAdherence(
     id: Option(String),
@@ -56055,7 +56054,7 @@ pub fn deviceusage_decoder() -> Decoder(Deviceusage) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource](http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource)
 pub type Diagnosticreport {
   Diagnosticreport(
     id: Option(String),
@@ -56090,7 +56089,7 @@ pub type Diagnosticreport {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource](http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource)
 pub type DiagnosticreportEffective {
   DiagnosticreportEffectiveDatetime(effective: String)
   DiagnosticreportEffectivePeriod(effective: Period)
@@ -56155,7 +56154,7 @@ pub fn diagnosticreport_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource](http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource)
 pub type DiagnosticreportSupportinginfo {
   DiagnosticreportSupportinginfo(
     id: Option(String),
@@ -56179,7 +56178,7 @@ pub fn diagnosticreport_supportinginfo_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource](http://hl7.org/fhir/r5/StructureDefinition/DiagnosticReport#resource)
 pub type DiagnosticreportMedia {
   DiagnosticreportMedia(
     id: Option(String),
@@ -56681,7 +56680,7 @@ pub fn diagnosticreport_decoder() -> Decoder(Diagnosticreport) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource](http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource)
 pub type Documentreference {
   Documentreference(
     id: Option(String),
@@ -56756,7 +56755,7 @@ pub fn documentreference_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource](http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource)
 pub type DocumentreferenceAttester {
   DocumentreferenceAttester(
     id: Option(String),
@@ -56781,7 +56780,7 @@ pub fn documentreference_attester_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource](http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource)
 pub type DocumentreferenceRelatesto {
   DocumentreferenceRelatesto(
     id: Option(String),
@@ -56805,7 +56804,7 @@ pub fn documentreference_relatesto_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource](http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource)
 pub type DocumentreferenceContent {
   DocumentreferenceContent(
     id: Option(String),
@@ -56828,7 +56827,7 @@ pub fn documentreference_content_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource](http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource)
 pub type DocumentreferenceContentProfile {
   DocumentreferenceContentProfile(
     id: Option(String),
@@ -56838,7 +56837,7 @@ pub type DocumentreferenceContentProfile {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource](http://hl7.org/fhir/r5/StructureDefinition/DocumentReference#resource)
 pub type DocumentreferenceContentProfileValue {
   DocumentreferenceContentProfileValueCoding(value: Coding)
   DocumentreferenceContentProfileValueUri(value: String)
@@ -57522,7 +57521,7 @@ pub fn documentreference_decoder() -> Decoder(Documentreference) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/DomainResource#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/DomainResource#resource](http://hl7.org/fhir/r5/StructureDefinition/DomainResource#resource)
 pub type Domainresource {
   Domainresource(
     id: Option(String),
@@ -57656,7 +57655,7 @@ pub fn domainresource_decoder() -> Decoder(Domainresource) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource)
 pub type Encounter {
   Encounter(
     id: Option(String),
@@ -57739,7 +57738,7 @@ pub fn encounter_new(status status: r5_valuesets.Encounterstatus) -> Encounter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource)
 pub type EncounterParticipant {
   EncounterParticipant(
     id: Option(String),
@@ -57762,7 +57761,7 @@ pub fn encounter_participant_new() -> EncounterParticipant {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource)
 pub type EncounterReason {
   EncounterReason(
     id: Option(String),
@@ -57783,7 +57782,7 @@ pub fn encounter_reason_new() -> EncounterReason {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource)
 pub type EncounterDiagnosis {
   EncounterDiagnosis(
     id: Option(String),
@@ -57804,7 +57803,7 @@ pub fn encounter_diagnosis_new() -> EncounterDiagnosis {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource)
 pub type EncounterAdmission {
   EncounterAdmission(
     id: Option(String),
@@ -57833,7 +57832,7 @@ pub fn encounter_admission_new() -> EncounterAdmission {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r5/StructureDefinition/Encounter#resource)
 pub type EncounterLocation {
   EncounterLocation(
     id: Option(String),
@@ -58719,7 +58718,7 @@ pub fn encounter_decoder() -> Decoder(Encounter) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EncounterHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EncounterHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/EncounterHistory#resource)
 pub type Encounterhistory {
   Encounterhistory(
     id: Option(String),
@@ -58775,7 +58774,7 @@ pub fn encounterhistory_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EncounterHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EncounterHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/EncounterHistory#resource)
 pub type EncounterhistoryLocation {
   EncounterhistoryLocation(
     id: Option(String),
@@ -59104,7 +59103,7 @@ pub fn encounterhistory_decoder() -> Decoder(Encounterhistory) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Endpoint#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Endpoint#resource](http://hl7.org/fhir/r5/StructureDefinition/Endpoint#resource)
 pub type Endpoint {
   Endpoint(
     id: Option(String),
@@ -59158,7 +59157,7 @@ pub fn endpoint_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Endpoint#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Endpoint#resource](http://hl7.org/fhir/r5/StructureDefinition/Endpoint#resource)
 pub type EndpointPayload {
   EndpointPayload(
     id: Option(String),
@@ -59472,7 +59471,7 @@ pub fn endpoint_decoder() -> Decoder(Endpoint) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EnrollmentRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EnrollmentRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/EnrollmentRequest#resource)
 pub type Enrollmentrequest {
   Enrollmentrequest(
     id: Option(String),
@@ -59697,7 +59696,7 @@ pub fn enrollmentrequest_decoder() -> Decoder(Enrollmentrequest) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EnrollmentResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EnrollmentResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/EnrollmentResponse#resource)
 pub type Enrollmentresponse {
   Enrollmentresponse(
     id: Option(String),
@@ -59940,7 +59939,7 @@ pub fn enrollmentresponse_decoder() -> Decoder(Enrollmentresponse) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource](http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource)
 pub type Episodeofcare {
   Episodeofcare(
     id: Option(String),
@@ -59996,7 +59995,7 @@ pub fn episodeofcare_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource](http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource)
 pub type EpisodeofcareStatushistory {
   EpisodeofcareStatushistory(
     id: Option(String),
@@ -60020,7 +60019,7 @@ pub fn episodeofcare_statushistory_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource](http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource)
 pub type EpisodeofcareReason {
   EpisodeofcareReason(
     id: Option(String),
@@ -60041,7 +60040,7 @@ pub fn episodeofcare_reason_new() -> EpisodeofcareReason {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource](http://hl7.org/fhir/r5/StructureDefinition/EpisodeOfCare#resource)
 pub type EpisodeofcareDiagnosis {
   EpisodeofcareDiagnosis(
     id: Option(String),
@@ -60514,7 +60513,7 @@ pub fn episodeofcare_decoder() -> Decoder(Episodeofcare) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EventDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EventDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/EventDefinition#resource)
 pub type Eventdefinition {
   Eventdefinition(
     id: Option(String),
@@ -60558,7 +60557,7 @@ pub type Eventdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EventDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EventDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/EventDefinition#resource)
 pub type EventdefinitionVersionalgorithm {
   EventdefinitionVersionalgorithmString(version_algorithm: String)
   EventdefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -60586,7 +60585,7 @@ pub fn eventdefinition_versionalgorithm_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EventDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EventDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/EventDefinition#resource)
 pub type EventdefinitionSubject {
   EventdefinitionSubjectCodeableconcept(subject: Codeableconcept)
   EventdefinitionSubjectReference(subject: Reference)
@@ -61115,7 +61114,7 @@ pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource)
 pub type Evidence {
   Evidence(
     id: Option(String),
@@ -61160,7 +61159,7 @@ pub type Evidence {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource)
 pub type EvidenceVersionalgorithm {
   EvidenceVersionalgorithmString(version_algorithm: String)
   EvidenceVersionalgorithmCoding(version_algorithm: Coding)
@@ -61184,7 +61183,7 @@ pub fn evidence_versionalgorithm_decoder() -> Decoder(EvidenceVersionalgorithm) 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource)
 pub type EvidenceCiteas {
   EvidenceCiteasReference(cite_as: Reference)
   EvidenceCiteasMarkdown(cite_as: String)
@@ -61252,7 +61251,7 @@ pub fn evidence_new(status status: r5_valuesets.Publicationstatus) -> Evidence {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource)
 pub type EvidenceVariabledefinition {
   EvidenceVariabledefinition(
     id: Option(String),
@@ -61283,7 +61282,7 @@ pub fn evidence_variabledefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource)
 pub type EvidenceStatistic {
   EvidenceStatistic(
     id: Option(String),
@@ -61320,7 +61319,7 @@ pub fn evidence_statistic_new() -> EvidenceStatistic {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource)
 pub type EvidenceStatisticSamplesize {
   EvidenceStatisticSamplesize(
     id: Option(String),
@@ -61347,7 +61346,7 @@ pub fn evidence_statistic_samplesize_new() -> EvidenceStatisticSamplesize {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource)
 pub type EvidenceStatisticAttributeestimate {
   EvidenceStatisticAttributeestimate(
     id: Option(String),
@@ -61378,7 +61377,7 @@ pub fn evidence_statistic_attributeestimate_new() -> EvidenceStatisticAttributee
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource)
 pub type EvidenceStatisticModelcharacteristic {
   EvidenceStatisticModelcharacteristic(
     id: Option(String),
@@ -61405,7 +61404,7 @@ pub fn evidence_statistic_modelcharacteristic_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource)
 pub type EvidenceStatisticModelcharacteristicVariable {
   EvidenceStatisticModelcharacteristicVariable(
     id: Option(String),
@@ -61434,7 +61433,7 @@ pub fn evidence_statistic_modelcharacteristic_variable_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r5/StructureDefinition/Evidence#resource)
 pub type EvidenceCertainty {
   EvidenceCertainty(
     id: Option(String),
@@ -62792,7 +62791,7 @@ pub fn evidence_decoder() -> Decoder(Evidence) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource)
 pub type Evidencereport {
   Evidencereport(
     id: Option(String),
@@ -62824,7 +62823,7 @@ pub type Evidencereport {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource)
 pub type EvidencereportCiteas {
   EvidencereportCiteasReference(cite_as: Reference)
   EvidencereportCiteasMarkdown(cite_as: String)
@@ -62882,7 +62881,7 @@ pub fn evidencereport_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource)
 pub type EvidencereportSubject {
   EvidencereportSubject(
     id: Option(String),
@@ -62903,7 +62902,7 @@ pub fn evidencereport_subject_new() -> EvidencereportSubject {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource)
 pub type EvidencereportSubjectCharacteristic {
   EvidencereportSubjectCharacteristic(
     id: Option(String),
@@ -62916,7 +62915,7 @@ pub type EvidencereportSubjectCharacteristic {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource)
 pub type EvidencereportSubjectCharacteristicValue {
   EvidencereportSubjectCharacteristicValueReference(value: Reference)
   EvidencereportSubjectCharacteristicValueCodeableconcept(
@@ -62978,7 +62977,7 @@ pub fn evidencereport_subject_characteristic_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource)
 pub type EvidencereportRelatesto {
   EvidencereportRelatesto(
     id: Option(String),
@@ -63002,7 +63001,7 @@ pub fn evidencereport_relatesto_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource)
 pub type EvidencereportRelatestoTarget {
   EvidencereportRelatestoTarget(
     id: Option(String),
@@ -63027,7 +63026,7 @@ pub fn evidencereport_relatesto_target_new() -> EvidencereportRelatestoTarget {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceReport#resource)
 pub type EvidencereportSection {
   EvidencereportSection(
     id: Option(String),
@@ -63882,7 +63881,7 @@ pub fn evidencereport_decoder() -> Decoder(Evidencereport) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type Evidencevariable {
   Evidencevariable(
     id: Option(String),
@@ -63926,7 +63925,7 @@ pub type Evidencevariable {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableVersionalgorithm {
   EvidencevariableVersionalgorithmString(version_algorithm: String)
   EvidencevariableVersionalgorithmCoding(version_algorithm: Coding)
@@ -63999,7 +63998,7 @@ pub fn evidencevariable_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCharacteristic {
   EvidencevariableCharacteristic(
     id: Option(String),
@@ -64026,7 +64025,7 @@ pub type EvidencevariableCharacteristic {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCharacteristicInstances {
   EvidencevariableCharacteristicInstancesQuantity(instances: Quantity)
   EvidencevariableCharacteristicInstancesRange(instances: Range)
@@ -64054,7 +64053,7 @@ pub fn evidencevariable_characteristic_instances_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCharacteristicDuration {
   EvidencevariableCharacteristicDurationQuantity(duration: Quantity)
   EvidencevariableCharacteristicDurationRange(duration: Range)
@@ -64104,7 +64103,7 @@ pub fn evidencevariable_characteristic_new() -> EvidencevariableCharacteristic {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCharacteristicDefinitionbytypeandvalue {
   EvidencevariableCharacteristicDefinitionbytypeandvalue(
     id: Option(String),
@@ -64118,7 +64117,7 @@ pub type EvidencevariableCharacteristicDefinitionbytypeandvalue {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCharacteristicDefinitionbytypeandvalueValue {
   EvidencevariableCharacteristicDefinitionbytypeandvalueValueCodeableconcept(
     value: Codeableconcept,
@@ -64209,7 +64208,7 @@ pub fn evidencevariable_characteristic_definitionbytypeandvalue_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCharacteristicDefinitionbycombination {
   EvidencevariableCharacteristicDefinitionbycombination(
     id: Option(String),
@@ -64234,7 +64233,7 @@ pub fn evidencevariable_characteristic_definitionbycombination_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCharacteristicTimefromevent {
   EvidencevariableCharacteristicTimefromevent(
     id: Option(String),
@@ -64248,7 +64247,7 @@ pub type EvidencevariableCharacteristicTimefromevent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCharacteristicTimefromeventEvent {
   EvidencevariableCharacteristicTimefromeventEventCodeableconcept(
     event: Codeableconcept,
@@ -64308,7 +64307,7 @@ pub fn evidencevariable_characteristic_timefromevent_new() -> EvidencevariableCh
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCategory {
   EvidencevariableCategory(
     id: Option(String),
@@ -64319,7 +64318,7 @@ pub type EvidencevariableCategory {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r5/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCategoryValue {
   EvidencevariableCategoryValueCodeableconcept(value: Codeableconcept)
   EvidencevariableCategoryValueQuantity(value: Quantity)
@@ -65449,7 +65448,7 @@ pub fn evidencevariable_decoder() -> Decoder(Evidencevariable) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type Examplescenario {
   Examplescenario(
     id: Option(String),
@@ -65483,7 +65482,7 @@ pub type Examplescenario {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioVersionalgorithm {
   ExamplescenarioVersionalgorithmString(version_algorithm: String)
   ExamplescenarioVersionalgorithmCoding(version_algorithm: Coding)
@@ -65546,7 +65545,7 @@ pub fn examplescenario_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioActor {
   ExamplescenarioActor(
     id: Option(String),
@@ -65575,7 +65574,7 @@ pub fn examplescenario_actor_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioInstance {
   ExamplescenarioInstance(
     id: Option(String),
@@ -65593,7 +65592,7 @@ pub type ExamplescenarioInstance {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioInstanceStructureprofile {
   ExamplescenarioInstanceStructureprofileCanonical(structure_profile: String)
   ExamplescenarioInstanceStructureprofileUri(structure_profile: String)
@@ -65642,7 +65641,7 @@ pub fn examplescenario_instance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioInstanceVersion {
   ExamplescenarioInstanceVersion(
     id: Option(String),
@@ -65670,7 +65669,7 @@ pub fn examplescenario_instance_version_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioInstanceContainedinstance {
   ExamplescenarioInstanceContainedinstance(
     id: Option(String),
@@ -65693,7 +65692,7 @@ pub fn examplescenario_instance_containedinstance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioProcess {
   ExamplescenarioProcess(
     id: Option(String),
@@ -65722,7 +65721,7 @@ pub fn examplescenario_process_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioProcessStep {
   ExamplescenarioProcessStep(
     id: Option(String),
@@ -65751,7 +65750,7 @@ pub fn examplescenario_process_step_new() -> ExamplescenarioProcessStep {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioProcessStepOperation {
   ExamplescenarioProcessStepOperation(
     id: Option(String),
@@ -65788,7 +65787,7 @@ pub fn examplescenario_process_step_operation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r5/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioProcessStepAlternative {
   ExamplescenarioProcessStepAlternative(
     id: Option(String),
@@ -66974,7 +66973,7 @@ pub fn examplescenario_decoder() -> Decoder(Examplescenario) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type Explanationofbenefit {
   Explanationofbenefit(
     id: Option(String),
@@ -67106,7 +67105,7 @@ pub fn explanationofbenefit_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitRelated {
   ExplanationofbenefitRelated(
     id: Option(String),
@@ -67129,7 +67128,7 @@ pub fn explanationofbenefit_related_new() -> ExplanationofbenefitRelated {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitEvent {
   ExplanationofbenefitEvent(
     id: Option(String),
@@ -67140,7 +67139,7 @@ pub type ExplanationofbenefitEvent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitEventWhen {
   ExplanationofbenefitEventWhenDatetime(when: String)
   ExplanationofbenefitEventWhenPeriod(when: Period)
@@ -67181,7 +67180,7 @@ pub fn explanationofbenefit_event_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitPayee {
   ExplanationofbenefitPayee(
     id: Option(String),
@@ -67202,7 +67201,7 @@ pub fn explanationofbenefit_payee_new() -> ExplanationofbenefitPayee {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitCareteam {
   ExplanationofbenefitCareteam(
     id: Option(String),
@@ -67232,7 +67231,7 @@ pub fn explanationofbenefit_careteam_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitSupportinginfo {
   ExplanationofbenefitSupportinginfo(
     id: Option(String),
@@ -67247,7 +67246,7 @@ pub type ExplanationofbenefitSupportinginfo {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitSupportinginfoTiming {
   ExplanationofbenefitSupportinginfoTimingDate(timing: String)
   ExplanationofbenefitSupportinginfoTimingPeriod(timing: Period)
@@ -67275,7 +67274,7 @@ pub fn explanationofbenefit_supportinginfo_timing_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitSupportinginfoValue {
   ExplanationofbenefitSupportinginfoValueBoolean(value: Bool)
   ExplanationofbenefitSupportinginfoValueString(value: String)
@@ -67338,7 +67337,7 @@ pub fn explanationofbenefit_supportinginfo_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitDiagnosis {
   ExplanationofbenefitDiagnosis(
     id: Option(String),
@@ -67351,7 +67350,7 @@ pub type ExplanationofbenefitDiagnosis {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitDiagnosisDiagnosis {
   ExplanationofbenefitDiagnosisDiagnosisCodeableconcept(
     diagnosis: Codeableconcept,
@@ -67401,7 +67400,7 @@ pub fn explanationofbenefit_diagnosis_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitProcedure {
   ExplanationofbenefitProcedure(
     id: Option(String),
@@ -67415,7 +67414,7 @@ pub type ExplanationofbenefitProcedure {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitProcedureProcedure {
   ExplanationofbenefitProcedureProcedureCodeableconcept(
     procedure: Codeableconcept,
@@ -67466,7 +67465,7 @@ pub fn explanationofbenefit_procedure_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitInsurance {
   ExplanationofbenefitInsurance(
     id: Option(String),
@@ -67492,7 +67491,7 @@ pub fn explanationofbenefit_insurance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAccident {
   ExplanationofbenefitAccident(
     id: Option(String),
@@ -67504,7 +67503,7 @@ pub type ExplanationofbenefitAccident {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAccidentLocation {
   ExplanationofbenefitAccidentLocationAddress(location: Address)
   ExplanationofbenefitAccidentLocationReference(location: Reference)
@@ -67543,7 +67542,7 @@ pub fn explanationofbenefit_accident_new() -> ExplanationofbenefitAccident {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItem {
   ExplanationofbenefitItem(
     id: Option(String),
@@ -67580,7 +67579,7 @@ pub type ExplanationofbenefitItem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemServiced {
   ExplanationofbenefitItemServicedDate(serviced: String)
   ExplanationofbenefitItemServicedPeriod(serviced: Period)
@@ -67608,7 +67607,7 @@ pub fn explanationofbenefit_item_serviced_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemLocation {
   ExplanationofbenefitItemLocationCodeableconcept(location: Codeableconcept)
   ExplanationofbenefitItemLocationAddress(location: Address)
@@ -67683,7 +67682,7 @@ pub fn explanationofbenefit_item_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemBodysite {
   ExplanationofbenefitItemBodysite(
     id: Option(String),
@@ -67704,7 +67703,7 @@ pub fn explanationofbenefit_item_bodysite_new() -> ExplanationofbenefitItemBodys
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemReviewoutcome {
   ExplanationofbenefitItemReviewoutcome(
     id: Option(String),
@@ -67729,7 +67728,7 @@ pub fn explanationofbenefit_item_reviewoutcome_new() -> ExplanationofbenefitItem
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemAdjudication {
   ExplanationofbenefitItemAdjudication(
     id: Option(String),
@@ -67756,7 +67755,7 @@ pub fn explanationofbenefit_item_adjudication_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemDetail {
   ExplanationofbenefitItemDetail(
     id: Option(String),
@@ -67813,7 +67812,7 @@ pub fn explanationofbenefit_item_detail_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemDetailSubdetail {
   ExplanationofbenefitItemDetailSubdetail(
     id: Option(String),
@@ -67868,7 +67867,7 @@ pub fn explanationofbenefit_item_detail_subdetail_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAdditem {
   ExplanationofbenefitAdditem(
     id: Option(String),
@@ -67901,7 +67900,7 @@ pub type ExplanationofbenefitAdditem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAdditemServiced {
   ExplanationofbenefitAdditemServicedDate(serviced: String)
   ExplanationofbenefitAdditemServicedPeriod(serviced: Period)
@@ -67929,7 +67928,7 @@ pub fn explanationofbenefit_additem_serviced_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAdditemLocation {
   ExplanationofbenefitAdditemLocationCodeableconcept(location: Codeableconcept)
   ExplanationofbenefitAdditemLocationAddress(location: Address)
@@ -67998,7 +67997,7 @@ pub fn explanationofbenefit_additem_new() -> ExplanationofbenefitAdditem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAdditemBodysite {
   ExplanationofbenefitAdditemBodysite(
     id: Option(String),
@@ -68019,7 +68018,7 @@ pub fn explanationofbenefit_additem_bodysite_new() -> ExplanationofbenefitAddite
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAdditemDetail {
   ExplanationofbenefitAdditemDetail(
     id: Option(String),
@@ -68066,7 +68065,7 @@ pub fn explanationofbenefit_additem_detail_new() -> ExplanationofbenefitAdditemD
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAdditemDetailSubdetail {
   ExplanationofbenefitAdditemDetailSubdetail(
     id: Option(String),
@@ -68111,7 +68110,7 @@ pub fn explanationofbenefit_additem_detail_subdetail_new() -> Explanationofbenef
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitTotal {
   ExplanationofbenefitTotal(
     id: Option(String),
@@ -68135,7 +68134,7 @@ pub fn explanationofbenefit_total_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitPayment {
   ExplanationofbenefitPayment(
     id: Option(String),
@@ -68164,7 +68163,7 @@ pub fn explanationofbenefit_payment_new() -> ExplanationofbenefitPayment {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitProcessnote {
   ExplanationofbenefitProcessnote(
     id: Option(String),
@@ -68189,7 +68188,7 @@ pub fn explanationofbenefit_processnote_new() -> ExplanationofbenefitProcessnote
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitBenefitbalance {
   ExplanationofbenefitBenefitbalance(
     id: Option(String),
@@ -68224,7 +68223,7 @@ pub fn explanationofbenefit_benefitbalance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitBenefitbalanceFinancial {
   ExplanationofbenefitBenefitbalanceFinancial(
     id: Option(String),
@@ -68236,7 +68235,7 @@ pub type ExplanationofbenefitBenefitbalanceFinancial {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitBenefitbalanceFinancialAllowed {
   ExplanationofbenefitBenefitbalanceFinancialAllowedUnsignedint(allowed: Int)
   ExplanationofbenefitBenefitbalanceFinancialAllowedString(allowed: String)
@@ -68273,7 +68272,7 @@ pub fn explanationofbenefit_benefitbalance_financial_allowed_decoder() -> Decode
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r5/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitBenefitbalanceFinancialUsed {
   ExplanationofbenefitBenefitbalanceFinancialUsedUnsignedint(used: Int)
   ExplanationofbenefitBenefitbalanceFinancialUsedMoney(used: Money)
@@ -72349,7 +72348,7 @@ pub fn explanationofbenefit_decoder() -> Decoder(Explanationofbenefit) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource)
 pub type Familymemberhistory {
   Familymemberhistory(
     id: Option(String),
@@ -72382,7 +72381,7 @@ pub type Familymemberhistory {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource)
 pub type FamilymemberhistoryBorn {
   FamilymemberhistoryBornPeriod(born: Period)
   FamilymemberhistoryBornDate(born: String)
@@ -72410,7 +72409,7 @@ pub fn familymemberhistory_born_decoder() -> Decoder(FamilymemberhistoryBorn) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource)
 pub type FamilymemberhistoryAge {
   FamilymemberhistoryAgeAge(age: Age)
   FamilymemberhistoryAgeRange(age: Range)
@@ -72438,7 +72437,7 @@ pub fn familymemberhistory_age_decoder() -> Decoder(FamilymemberhistoryAge) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource)
 pub type FamilymemberhistoryDeceased {
   FamilymemberhistoryDeceasedBoolean(deceased: Bool)
   FamilymemberhistoryDeceasedAge(deceased: Age)
@@ -72514,7 +72513,7 @@ pub fn familymemberhistory_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource)
 pub type FamilymemberhistoryParticipant {
   FamilymemberhistoryParticipant(
     id: Option(String),
@@ -72537,7 +72536,7 @@ pub fn familymemberhistory_participant_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource)
 pub type FamilymemberhistoryCondition {
   FamilymemberhistoryCondition(
     id: Option(String),
@@ -72551,7 +72550,7 @@ pub type FamilymemberhistoryCondition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource)
 pub type FamilymemberhistoryConditionOnset {
   FamilymemberhistoryConditionOnsetAge(onset: Age)
   FamilymemberhistoryConditionOnsetRange(onset: Range)
@@ -72602,7 +72601,7 @@ pub fn familymemberhistory_condition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource)
 pub type FamilymemberhistoryProcedure {
   FamilymemberhistoryProcedure(
     id: Option(String),
@@ -72616,7 +72615,7 @@ pub type FamilymemberhistoryProcedure {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r5/StructureDefinition/FamilyMemberHistory#resource)
 pub type FamilymemberhistoryProcedurePerformed {
   FamilymemberhistoryProcedurePerformedAge(performed: Age)
   FamilymemberhistoryProcedurePerformedRange(performed: Range)
@@ -73306,7 +73305,7 @@ pub fn familymemberhistory_decoder() -> Decoder(Familymemberhistory) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Flag#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Flag#resource](http://hl7.org/fhir/r5/StructureDefinition/Flag#resource)
 pub type Flag {
   Flag(
     id: Option(String),
@@ -73531,7 +73530,7 @@ pub fn flag_decoder() -> Decoder(Flag) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/FormularyItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/FormularyItem#resource](http://hl7.org/fhir/r5/StructureDefinition/FormularyItem#resource)
 pub type Formularyitem {
   Formularyitem(
     id: Option(String),
@@ -73707,7 +73706,7 @@ pub fn formularyitem_decoder() -> Decoder(Formularyitem) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource)
 pub type Genomicstudy {
   Genomicstudy(
     id: Option(String),
@@ -73767,7 +73766,7 @@ pub fn genomicstudy_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource)
 pub type GenomicstudyAnalysis {
   GenomicstudyAnalysis(
     id: Option(String),
@@ -73820,7 +73819,7 @@ pub fn genomicstudy_analysis_new() -> GenomicstudyAnalysis {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource)
 pub type GenomicstudyAnalysisInput {
   GenomicstudyAnalysisInput(
     id: Option(String),
@@ -73832,7 +73831,7 @@ pub type GenomicstudyAnalysisInput {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource)
 pub type GenomicstudyAnalysisInputGeneratedby {
   GenomicstudyAnalysisInputGeneratedbyIdentifier(generated_by: Identifier)
   GenomicstudyAnalysisInputGeneratedbyReference(generated_by: Reference)
@@ -73871,7 +73870,7 @@ pub fn genomicstudy_analysis_input_new() -> GenomicstudyAnalysisInput {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource)
 pub type GenomicstudyAnalysisOutput {
   GenomicstudyAnalysisOutput(
     id: Option(String),
@@ -73892,7 +73891,7 @@ pub fn genomicstudy_analysis_output_new() -> GenomicstudyAnalysisOutput {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource)
 pub type GenomicstudyAnalysisPerformer {
   GenomicstudyAnalysisPerformer(
     id: Option(String),
@@ -73913,7 +73912,7 @@ pub fn genomicstudy_analysis_performer_new() -> GenomicstudyAnalysisPerformer {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/GenomicStudy#resource)
 pub type GenomicstudyAnalysisDevice {
   GenomicstudyAnalysisDevice(
     id: Option(String),
@@ -74777,7 +74776,7 @@ pub fn genomicstudy_decoder() -> Decoder(Genomicstudy) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Goal#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Goal#resource](http://hl7.org/fhir/r5/StructureDefinition/Goal#resource)
 pub type Goal {
   Goal(
     id: Option(String),
@@ -74807,7 +74806,7 @@ pub type Goal {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Goal#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Goal#resource](http://hl7.org/fhir/r5/StructureDefinition/Goal#resource)
 pub type GoalStart {
   GoalStartDate(start: String)
   GoalStartCodeableconcept(start: Codeableconcept)
@@ -74868,7 +74867,7 @@ pub fn goal_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Goal#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Goal#resource](http://hl7.org/fhir/r5/StructureDefinition/Goal#resource)
 pub type GoalTarget {
   GoalTarget(
     id: Option(String),
@@ -74880,7 +74879,7 @@ pub type GoalTarget {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Goal#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Goal#resource](http://hl7.org/fhir/r5/StructureDefinition/Goal#resource)
 pub type GoalTargetDetail {
   GoalTargetDetailQuantity(detail: Quantity)
   GoalTargetDetailRange(detail: Range)
@@ -74928,7 +74927,7 @@ pub fn goal_target_detail_decoder() -> Decoder(GoalTargetDetail) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Goal#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Goal#resource](http://hl7.org/fhir/r5/StructureDefinition/Goal#resource)
 pub type GoalTargetDue {
   GoalTargetDueDate(due: String)
   GoalTargetDueDuration(due: Duration)
@@ -75333,7 +75332,7 @@ pub fn goal_decoder() -> Decoder(Goal) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource)
 pub type Graphdefinition {
   Graphdefinition(
     id: Option(String),
@@ -75367,7 +75366,7 @@ pub type Graphdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource)
 pub type GraphdefinitionVersionalgorithm {
   GraphdefinitionVersionalgorithmString(version_algorithm: String)
   GraphdefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -75431,7 +75430,7 @@ pub fn graphdefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource)
 pub type GraphdefinitionNode {
   GraphdefinitionNode(
     id: Option(String),
@@ -75459,7 +75458,7 @@ pub fn graphdefinition_node_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource)
 pub type GraphdefinitionLink {
   GraphdefinitionLink(
     id: Option(String),
@@ -75497,7 +75496,7 @@ pub fn graphdefinition_link_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/GraphDefinition#resource)
 pub type GraphdefinitionLinkCompartment {
   GraphdefinitionLinkCompartment(
     id: Option(String),
@@ -76148,7 +76147,7 @@ pub fn graphdefinition_decoder() -> Decoder(Graphdefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Group#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Group#resource](http://hl7.org/fhir/r5/StructureDefinition/Group#resource)
 pub type Group {
   Group(
     id: Option(String),
@@ -76200,7 +76199,7 @@ pub fn group_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Group#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Group#resource](http://hl7.org/fhir/r5/StructureDefinition/Group#resource)
 pub type GroupCharacteristic {
   GroupCharacteristic(
     id: Option(String),
@@ -76213,7 +76212,7 @@ pub type GroupCharacteristic {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Group#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Group#resource](http://hl7.org/fhir/r5/StructureDefinition/Group#resource)
 pub type GroupCharacteristicValue {
   GroupCharacteristicValueCodeableconcept(value: Codeableconcept)
   GroupCharacteristicValueBoolean(value: Bool)
@@ -76269,7 +76268,7 @@ pub fn group_characteristic_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Group#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Group#resource](http://hl7.org/fhir/r5/StructureDefinition/Group#resource)
 pub type GroupMember {
   GroupMember(
     id: Option(String),
@@ -76659,7 +76658,7 @@ pub fn group_decoder() -> Decoder(Group) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GuidanceResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GuidanceResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/GuidanceResponse#resource)
 pub type Guidanceresponse {
   Guidanceresponse(
     id: Option(String),
@@ -76687,7 +76686,7 @@ pub type Guidanceresponse {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/GuidanceResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/GuidanceResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/GuidanceResponse#resource)
 pub type GuidanceresponseModule {
   GuidanceresponseModuleUri(module: String)
   GuidanceresponseModuleCanonical(module: String)
@@ -77006,7 +77005,7 @@ pub fn guidanceresponse_decoder() -> Decoder(Guidanceresponse) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/HealthcareService#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/HealthcareService#resource](http://hl7.org/fhir/r5/StructureDefinition/HealthcareService#resource)
 pub type Healthcareservice {
   Healthcareservice(
     id: Option(String),
@@ -77079,7 +77078,7 @@ pub fn healthcareservice_new() -> Healthcareservice {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/HealthcareService#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/HealthcareService#resource](http://hl7.org/fhir/r5/StructureDefinition/HealthcareService#resource)
 pub type HealthcareserviceEligibility {
   HealthcareserviceEligibility(
     id: Option(String),
@@ -77567,7 +77566,7 @@ pub fn healthcareservice_decoder() -> Decoder(Healthcareservice) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource](http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource)
 pub type Imagingselection {
   Imagingselection(
     id: Option(String),
@@ -77631,7 +77630,7 @@ pub fn imagingselection_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource](http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource)
 pub type ImagingselectionPerformer {
   ImagingselectionPerformer(
     id: Option(String),
@@ -77652,7 +77651,7 @@ pub fn imagingselection_performer_new() -> ImagingselectionPerformer {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource](http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource)
 pub type ImagingselectionInstance {
   ImagingselectionInstance(
     id: Option(String),
@@ -77683,7 +77682,7 @@ pub fn imagingselection_instance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource](http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource)
 pub type ImagingselectionInstanceImageregion2d {
   ImagingselectionInstanceImageregion2d(
     id: Option(String),
@@ -77706,7 +77705,7 @@ pub fn imagingselection_instance_imageregion2d_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource](http://hl7.org/fhir/r5/StructureDefinition/ImagingSelection#resource)
 pub type ImagingselectionInstanceImageregion3d {
   ImagingselectionInstanceImageregion3d(
     id: Option(String),
@@ -78359,7 +78358,7 @@ pub fn imagingselection_decoder() -> Decoder(Imagingselection) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource)
 pub type Imagingstudy {
   Imagingstudy(
     id: Option(String),
@@ -78425,7 +78424,7 @@ pub fn imagingstudy_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource)
 pub type ImagingstudySeries {
   ImagingstudySeries(
     id: Option(String),
@@ -78469,7 +78468,7 @@ pub fn imagingstudy_series_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource)
 pub type ImagingstudySeriesPerformer {
   ImagingstudySeriesPerformer(
     id: Option(String),
@@ -78492,7 +78491,7 @@ pub fn imagingstudy_series_performer_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ImagingStudy#resource)
 pub type ImagingstudySeriesInstance {
   ImagingstudySeriesInstance(
     id: Option(String),
@@ -79144,7 +79143,7 @@ pub fn imagingstudy_decoder() -> Decoder(Imagingstudy) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource)
 pub type Immunization {
   Immunization(
     id: Option(String),
@@ -79186,7 +79185,7 @@ pub type Immunization {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource)
 pub type ImmunizationOccurrence {
   ImmunizationOccurrenceDatetime(occurrence: String)
   ImmunizationOccurrenceString(occurrence: String)
@@ -79256,7 +79255,7 @@ pub fn immunization_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource)
 pub type ImmunizationPerformer {
   ImmunizationPerformer(
     id: Option(String),
@@ -79279,7 +79278,7 @@ pub fn immunization_performer_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource)
 pub type ImmunizationProgrameligibility {
   ImmunizationProgrameligibility(
     id: Option(String),
@@ -79303,7 +79302,7 @@ pub fn immunization_programeligibility_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource)
 pub type ImmunizationReaction {
   ImmunizationReaction(
     id: Option(String),
@@ -79326,7 +79325,7 @@ pub fn immunization_reaction_new() -> ImmunizationReaction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r5/StructureDefinition/Immunization#resource)
 pub type ImmunizationProtocolapplied {
   ImmunizationProtocolapplied(
     id: Option(String),
@@ -80084,7 +80083,7 @@ pub fn immunization_decoder() -> Decoder(Immunization) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImmunizationEvaluation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImmunizationEvaluation#resource](http://hl7.org/fhir/r5/StructureDefinition/ImmunizationEvaluation#resource)
 pub type Immunizationevaluation {
   Immunizationevaluation(
     id: Option(String),
@@ -80385,7 +80384,7 @@ pub fn immunizationevaluation_decoder() -> Decoder(Immunizationevaluation) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImmunizationRecommendation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImmunizationRecommendation#resource](http://hl7.org/fhir/r5/StructureDefinition/ImmunizationRecommendation#resource)
 pub type Immunizationrecommendation {
   Immunizationrecommendation(
     id: Option(String),
@@ -80425,7 +80424,7 @@ pub fn immunizationrecommendation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImmunizationRecommendation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImmunizationRecommendation#resource](http://hl7.org/fhir/r5/StructureDefinition/ImmunizationRecommendation#resource)
 pub type ImmunizationrecommendationRecommendation {
   ImmunizationrecommendationRecommendation(
     id: Option(String),
@@ -80468,7 +80467,7 @@ pub fn immunizationrecommendation_recommendation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImmunizationRecommendation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImmunizationRecommendation#resource](http://hl7.org/fhir/r5/StructureDefinition/ImmunizationRecommendation#resource)
 pub type ImmunizationrecommendationRecommendationDatecriterion {
   ImmunizationrecommendationRecommendationDatecriterion(
     id: Option(String),
@@ -80934,7 +80933,7 @@ pub fn immunizationrecommendation_decoder() -> Decoder(
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type Implementationguide {
   Implementationguide(
     id: Option(String),
@@ -80972,7 +80971,7 @@ pub type Implementationguide {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideVersionalgorithm {
   ImplementationguideVersionalgorithmString(version_algorithm: String)
   ImplementationguideVersionalgorithmCoding(version_algorithm: Coding)
@@ -81042,7 +81041,7 @@ pub fn implementationguide_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDependson {
   ImplementationguideDependson(
     id: Option(String),
@@ -81069,7 +81068,7 @@ pub fn implementationguide_dependson_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideGlobal {
   ImplementationguideGlobal(
     id: Option(String),
@@ -81093,7 +81092,7 @@ pub fn implementationguide_global_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinition {
   ImplementationguideDefinition(
     id: Option(String),
@@ -81120,7 +81119,7 @@ pub fn implementationguide_definition_new() -> ImplementationguideDefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionGrouping {
   ImplementationguideDefinitionGrouping(
     id: Option(String),
@@ -81143,7 +81142,7 @@ pub fn implementationguide_definition_grouping_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionResource {
   ImplementationguideDefinitionResource(
     id: Option(String),
@@ -81176,7 +81175,7 @@ pub fn implementationguide_definition_resource_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionPage {
   ImplementationguideDefinitionPage(
     id: Option(String),
@@ -81190,7 +81189,7 @@ pub type ImplementationguideDefinitionPage {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionPageSource {
   ImplementationguideDefinitionPageSourceUrl(source: String)
   ImplementationguideDefinitionPageSourceString(source: String)
@@ -81239,7 +81238,7 @@ pub fn implementationguide_definition_page_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionParameter {
   ImplementationguideDefinitionParameter(
     id: Option(String),
@@ -81263,7 +81262,7 @@ pub fn implementationguide_definition_parameter_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionTemplate {
   ImplementationguideDefinitionTemplate(
     id: Option(String),
@@ -81289,7 +81288,7 @@ pub fn implementationguide_definition_template_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideManifest {
   ImplementationguideManifest(
     id: Option(String),
@@ -81316,7 +81315,7 @@ pub fn implementationguide_manifest_new() -> ImplementationguideManifest {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideManifestResource {
   ImplementationguideManifestResource(
     id: Option(String),
@@ -81343,7 +81342,7 @@ pub fn implementationguide_manifest_resource_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r5/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideManifestPage {
   ImplementationguideManifestPage(
     id: Option(String),
@@ -82709,7 +82708,7 @@ pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource](http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource)
 pub type Ingredient {
   Ingredient(
     id: Option(String),
@@ -82760,7 +82759,7 @@ pub fn ingredient_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource](http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource)
 pub type IngredientManufacturer {
   IngredientManufacturer(
     id: Option(String),
@@ -82783,7 +82782,7 @@ pub fn ingredient_manufacturer_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource](http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource)
 pub type IngredientSubstance {
   IngredientSubstance(
     id: Option(String),
@@ -82806,7 +82805,7 @@ pub fn ingredient_substance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource](http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource)
 pub type IngredientSubstanceStrength {
   IngredientSubstanceStrength(
     id: Option(String),
@@ -82823,7 +82822,7 @@ pub type IngredientSubstanceStrength {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource](http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource)
 pub type IngredientSubstanceStrengthPresentation {
   IngredientSubstanceStrengthPresentationRatio(presentation: Ratio)
   IngredientSubstanceStrengthPresentationRatiorange(presentation: Ratiorange)
@@ -82871,7 +82870,7 @@ pub fn ingredient_substance_strength_presentation_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource](http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource)
 pub type IngredientSubstanceStrengthConcentration {
   IngredientSubstanceStrengthConcentrationRatio(concentration: Ratio)
   IngredientSubstanceStrengthConcentrationRatiorange(concentration: Ratiorange)
@@ -82935,7 +82934,7 @@ pub fn ingredient_substance_strength_new() -> IngredientSubstanceStrength {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource](http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource)
 pub type IngredientSubstanceStrengthReferencestrength {
   IngredientSubstanceStrengthReferencestrength(
     id: Option(String),
@@ -82948,7 +82947,7 @@ pub type IngredientSubstanceStrengthReferencestrength {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource](http://hl7.org/fhir/r5/StructureDefinition/Ingredient#resource)
 pub type IngredientSubstanceStrengthReferencestrengthStrength {
   IngredientSubstanceStrengthReferencestrengthStrengthRatio(strength: Ratio)
   IngredientSubstanceStrengthReferencestrengthStrengthRatiorange(
@@ -83593,7 +83592,7 @@ pub fn ingredient_decoder() -> Decoder(Ingredient) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource)
 pub type Insuranceplan {
   Insuranceplan(
     id: Option(String),
@@ -83648,7 +83647,7 @@ pub fn insuranceplan_new() -> Insuranceplan {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanCoverage {
   InsuranceplanCoverage(
     id: Option(String),
@@ -83673,7 +83672,7 @@ pub fn insuranceplan_coverage_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanCoverageBenefit {
   InsuranceplanCoverageBenefit(
     id: Option(String),
@@ -83698,7 +83697,7 @@ pub fn insuranceplan_coverage_benefit_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanCoverageBenefitLimit {
   InsuranceplanCoverageBenefitLimit(
     id: Option(String),
@@ -83719,7 +83718,7 @@ pub fn insuranceplan_coverage_benefit_limit_new() -> InsuranceplanCoverageBenefi
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanPlan {
   InsuranceplanPlan(
     id: Option(String),
@@ -83748,7 +83747,7 @@ pub fn insuranceplan_plan_new() -> InsuranceplanPlan {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanPlanGeneralcost {
   InsuranceplanPlanGeneralcost(
     id: Option(String),
@@ -83773,7 +83772,7 @@ pub fn insuranceplan_plan_generalcost_new() -> InsuranceplanPlanGeneralcost {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanPlanSpecificcost {
   InsuranceplanPlanSpecificcost(
     id: Option(String),
@@ -83796,7 +83795,7 @@ pub fn insuranceplan_plan_specificcost_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanPlanSpecificcostBenefit {
   InsuranceplanPlanSpecificcostBenefit(
     id: Option(String),
@@ -83819,7 +83818,7 @@ pub fn insuranceplan_plan_specificcost_benefit_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r5/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanPlanSpecificcostBenefitCost {
   InsuranceplanPlanSpecificcostBenefitCost(
     id: Option(String),
@@ -84796,7 +84795,7 @@ pub fn insuranceplan_decoder() -> Decoder(Insuranceplan) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource)
 pub type Inventoryitem {
   Inventoryitem(
     id: Option(String),
@@ -84853,7 +84852,7 @@ pub fn inventoryitem_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource)
 pub type InventoryitemName {
   InventoryitemName(
     id: Option(String),
@@ -84880,7 +84879,7 @@ pub fn inventoryitem_name_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource)
 pub type InventoryitemResponsibleorganization {
   InventoryitemResponsibleorganization(
     id: Option(String),
@@ -84904,7 +84903,7 @@ pub fn inventoryitem_responsibleorganization_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource)
 pub type InventoryitemDescription {
   InventoryitemDescription(
     id: Option(String),
@@ -84925,7 +84924,7 @@ pub fn inventoryitem_description_new() -> InventoryitemDescription {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource)
 pub type InventoryitemAssociation {
   InventoryitemAssociation(
     id: Option(String),
@@ -84952,7 +84951,7 @@ pub fn inventoryitem_association_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource)
 pub type InventoryitemCharacteristic {
   InventoryitemCharacteristic(
     id: Option(String),
@@ -84963,7 +84962,7 @@ pub type InventoryitemCharacteristic {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource)
 pub type InventoryitemCharacteristicValue {
   InventoryitemCharacteristicValueString(value: String)
   InventoryitemCharacteristicValueInteger(value: Int)
@@ -85053,7 +85052,7 @@ pub fn inventoryitem_characteristic_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryItem#resource)
 pub type InventoryitemInstance {
   InventoryitemInstance(
     id: Option(String),
@@ -85782,7 +85781,7 @@ pub fn inventoryitem_decoder() -> Decoder(Inventoryitem) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryReport#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryReport#resource)
 pub type Inventoryreport {
   Inventoryreport(
     id: Option(String),
@@ -85833,7 +85832,7 @@ pub fn inventoryreport_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryReport#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryReport#resource)
 pub type InventoryreportInventorylisting {
   InventoryreportInventorylisting(
     id: Option(String),
@@ -85858,7 +85857,7 @@ pub fn inventoryreport_inventorylisting_new() -> InventoryreportInventorylisting
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/InventoryReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/InventoryReport#resource](http://hl7.org/fhir/r5/StructureDefinition/InventoryReport#resource)
 pub type InventoryreportInventorylistingItem {
   InventoryreportInventorylistingItem(
     id: Option(String),
@@ -86261,7 +86260,7 @@ pub fn inventoryreport_decoder() -> Decoder(Inventoryreport) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource](http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource)
 pub type Invoice {
   Invoice(
     id: Option(String),
@@ -86293,7 +86292,7 @@ pub type Invoice {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource](http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource)
 pub type InvoicePeriod {
   InvoicePeriodDate(period: String)
   InvoicePeriodPeriod(period: Period)
@@ -86348,7 +86347,7 @@ pub fn invoice_new(status status: r5_valuesets.Invoicestatus) -> Invoice {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource](http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource)
 pub type InvoiceParticipant {
   InvoiceParticipant(
     id: Option(String),
@@ -86369,7 +86368,7 @@ pub fn invoice_participant_new(actor actor: Reference) -> InvoiceParticipant {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource](http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource)
 pub type InvoiceLineitem {
   InvoiceLineitem(
     id: Option(String),
@@ -86382,7 +86381,7 @@ pub type InvoiceLineitem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource](http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource)
 pub type InvoiceLineitemServiced {
   InvoiceLineitemServicedDate(serviced: String)
   InvoiceLineitemServicedPeriod(serviced: Period)
@@ -86406,7 +86405,7 @@ pub fn invoice_lineitem_serviced_decoder() -> Decoder(InvoiceLineitemServiced) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource](http://hl7.org/fhir/r5/StructureDefinition/Invoice#resource)
 pub type InvoiceLineitemChargeitem {
   InvoiceLineitemChargeitemReference(charge_item: Reference)
   InvoiceLineitemChargeitemCodeableconcept(charge_item: Codeableconcept)
@@ -86924,7 +86923,7 @@ pub fn invoice_decoder() -> Decoder(Invoice) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Library#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Library#resource](http://hl7.org/fhir/r5/StructureDefinition/Library#resource)
 pub type Library {
   Library(
     id: Option(String),
@@ -86971,7 +86970,7 @@ pub type Library {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Library#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Library#resource](http://hl7.org/fhir/r5/StructureDefinition/Library#resource)
 pub type LibraryVersionalgorithm {
   LibraryVersionalgorithmString(version_algorithm: String)
   LibraryVersionalgorithmCoding(version_algorithm: Coding)
@@ -86995,7 +86994,7 @@ pub fn library_versionalgorithm_decoder() -> Decoder(LibraryVersionalgorithm) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Library#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Library#resource](http://hl7.org/fhir/r5/StructureDefinition/Library#resource)
 pub type LibrarySubject {
   LibrarySubjectCodeableconcept(subject: Codeableconcept)
   LibrarySubjectReference(subject: Reference)
@@ -87560,7 +87559,7 @@ pub fn library_decoder() -> Decoder(Library) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Linkage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Linkage#resource](http://hl7.org/fhir/r5/StructureDefinition/Linkage#resource)
 pub type Linkage {
   Linkage(
     id: Option(String),
@@ -87593,7 +87592,7 @@ pub fn linkage_new() -> Linkage {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Linkage#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Linkage#resource](http://hl7.org/fhir/r5/StructureDefinition/Linkage#resource)
 pub type LinkageItem {
   LinkageItem(
     id: Option(String),
@@ -87806,7 +87805,7 @@ pub fn linkage_decoder() -> Decoder(Linkage) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/List#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/List#resource](http://hl7.org/fhir/r5/StructureDefinition/List#resource)
 pub type Listfhir {
   Listfhir(
     id: Option(String),
@@ -87862,7 +87861,7 @@ pub fn listfhir_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/List#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/List#resource](http://hl7.org/fhir/r5/StructureDefinition/List#resource)
 pub type ListEntry {
   ListEntry(
     id: Option(String),
@@ -88207,7 +88206,7 @@ pub fn listfhir_decoder() -> Decoder(Listfhir) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Location#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Location#resource](http://hl7.org/fhir/r5/StructureDefinition/Location#resource)
 pub type Location {
   Location(
     id: Option(String),
@@ -88270,7 +88269,7 @@ pub fn location_new() -> Location {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Location#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Location#resource](http://hl7.org/fhir/r5/StructureDefinition/Location#resource)
 pub type LocationPosition {
   LocationPosition(
     id: Option(String),
@@ -88680,7 +88679,7 @@ pub fn location_decoder() -> Decoder(Location) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource)
 pub type Manufactureditemdefinition {
   Manufactureditemdefinition(
     id: Option(String),
@@ -88730,7 +88729,7 @@ pub fn manufactureditemdefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource)
 pub type ManufactureditemdefinitionProperty {
   ManufactureditemdefinitionProperty(
     id: Option(String),
@@ -88741,7 +88740,7 @@ pub type ManufactureditemdefinitionProperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource)
 pub type ManufactureditemdefinitionPropertyValue {
   ManufactureditemdefinitionPropertyValueCodeableconcept(value: Codeableconcept)
   ManufactureditemdefinitionPropertyValueQuantity(value: Quantity)
@@ -88807,7 +88806,7 @@ pub fn manufactureditemdefinition_property_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource)
 pub type ManufactureditemdefinitionComponent {
   ManufactureditemdefinitionComponent(
     id: Option(String),
@@ -88838,7 +88837,7 @@ pub fn manufactureditemdefinition_component_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ManufacturedItemDefinition#resource)
 pub type ManufactureditemdefinitionComponentConstituent {
   ManufactureditemdefinitionComponentConstituent(
     id: Option(String),
@@ -89418,7 +89417,7 @@ pub fn manufactureditemdefinition_decoder() -> Decoder(
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Measure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Measure#resource](http://hl7.org/fhir/r5/StructureDefinition/Measure#resource)
 pub type Measure {
   Measure(
     id: Option(String),
@@ -89477,7 +89476,7 @@ pub type Measure {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Measure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Measure#resource](http://hl7.org/fhir/r5/StructureDefinition/Measure#resource)
 pub type MeasureVersionalgorithm {
   MeasureVersionalgorithmString(version_algorithm: String)
   MeasureVersionalgorithmCoding(version_algorithm: Coding)
@@ -89501,7 +89500,7 @@ pub fn measure_versionalgorithm_decoder() -> Decoder(MeasureVersionalgorithm) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Measure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Measure#resource](http://hl7.org/fhir/r5/StructureDefinition/Measure#resource)
 pub type MeasureSubject {
   MeasureSubjectCodeableconcept(subject: Codeableconcept)
   MeasureSubjectReference(subject: Reference)
@@ -89587,7 +89586,7 @@ pub fn measure_new(status status: r5_valuesets.Publicationstatus) -> Measure {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Measure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Measure#resource](http://hl7.org/fhir/r5/StructureDefinition/Measure#resource)
 pub type MeasureTerm {
   MeasureTerm(
     id: Option(String),
@@ -89608,7 +89607,7 @@ pub fn measure_term_new() -> MeasureTerm {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Measure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Measure#resource](http://hl7.org/fhir/r5/StructureDefinition/Measure#resource)
 pub type MeasureGroup {
   MeasureGroup(
     id: Option(String),
@@ -89630,7 +89629,7 @@ pub type MeasureGroup {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Measure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Measure#resource](http://hl7.org/fhir/r5/StructureDefinition/Measure#resource)
 pub type MeasureGroupSubject {
   MeasureGroupSubjectCodeableconcept(subject: Codeableconcept)
   MeasureGroupSubjectReference(subject: Reference)
@@ -89679,7 +89678,7 @@ pub fn measure_group_new() -> MeasureGroup {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Measure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Measure#resource](http://hl7.org/fhir/r5/StructureDefinition/Measure#resource)
 pub type MeasureGroupPopulation {
   MeasureGroupPopulation(
     id: Option(String),
@@ -89710,7 +89709,7 @@ pub fn measure_group_population_new() -> MeasureGroupPopulation {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Measure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Measure#resource](http://hl7.org/fhir/r5/StructureDefinition/Measure#resource)
 pub type MeasureGroupStratifier {
   MeasureGroupStratifier(
     id: Option(String),
@@ -89739,7 +89738,7 @@ pub fn measure_group_stratifier_new() -> MeasureGroupStratifier {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Measure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Measure#resource](http://hl7.org/fhir/r5/StructureDefinition/Measure#resource)
 pub type MeasureGroupStratifierComponent {
   MeasureGroupStratifierComponent(
     id: Option(String),
@@ -89766,7 +89765,7 @@ pub fn measure_group_stratifier_component_new() -> MeasureGroupStratifierCompone
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Measure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Measure#resource](http://hl7.org/fhir/r5/StructureDefinition/Measure#resource)
 pub type MeasureSupplementaldata {
   MeasureSupplementaldata(
     id: Option(String),
@@ -91124,7 +91123,7 @@ pub fn measure_decoder() -> Decoder(Measure) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type Measurereport {
   Measurereport(
     id: Option(String),
@@ -91189,7 +91188,7 @@ pub fn measurereport_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroup {
   MeasurereportGroup(
     id: Option(String),
@@ -91204,7 +91203,7 @@ pub type MeasurereportGroup {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupMeasurescore {
   MeasurereportGroupMeasurescoreQuantity(measure_score: Quantity)
   MeasurereportGroupMeasurescoreDatetime(measure_score: String)
@@ -91267,7 +91266,7 @@ pub fn measurereport_group_new() -> MeasurereportGroup {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupPopulation {
   MeasurereportGroupPopulation(
     id: Option(String),
@@ -91296,7 +91295,7 @@ pub fn measurereport_group_population_new() -> MeasurereportGroupPopulation {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifier {
   MeasurereportGroupStratifier(
     id: Option(String),
@@ -91319,7 +91318,7 @@ pub fn measurereport_group_stratifier_new() -> MeasurereportGroupStratifier {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifierStratum {
   MeasurereportGroupStratifierStratum(
     id: Option(String),
@@ -91332,7 +91331,7 @@ pub type MeasurereportGroupStratifierStratum {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifierStratumValue {
   MeasurereportGroupStratifierStratumValueCodeableconcept(
     value: Codeableconcept,
@@ -91379,7 +91378,7 @@ pub fn measurereport_group_stratifier_stratum_value_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifierStratumMeasurescore {
   MeasurereportGroupStratifierStratumMeasurescoreQuantity(
     measure_score: Quantity,
@@ -91451,7 +91450,7 @@ pub fn measurereport_group_stratifier_stratum_new() -> MeasurereportGroupStratif
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifierStratumComponent {
   MeasurereportGroupStratifierStratumComponent(
     id: Option(String),
@@ -91463,7 +91462,7 @@ pub type MeasurereportGroupStratifierStratumComponent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifierStratumComponentValue {
   MeasurereportGroupStratifierStratumComponentValueCodeableconcept(
     value: Codeableconcept,
@@ -91531,7 +91530,7 @@ pub fn measurereport_group_stratifier_stratum_component_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r5/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifierStratumPopulation {
   MeasurereportGroupStratifierStratumPopulation(
     id: Option(String),
@@ -92514,7 +92513,7 @@ pub fn measurereport_decoder() -> Decoder(Measurereport) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Medication#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Medication#resource](http://hl7.org/fhir/r5/StructureDefinition/Medication#resource)
 pub type Medication {
   Medication(
     id: Option(String),
@@ -92559,7 +92558,7 @@ pub fn medication_new() -> Medication {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Medication#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Medication#resource](http://hl7.org/fhir/r5/StructureDefinition/Medication#resource)
 pub type MedicationIngredient {
   MedicationIngredient(
     id: Option(String),
@@ -92571,7 +92570,7 @@ pub type MedicationIngredient {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Medication#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Medication#resource](http://hl7.org/fhir/r5/StructureDefinition/Medication#resource)
 pub type MedicationIngredientStrength {
   MedicationIngredientStrengthRatio(strength: Ratio)
   MedicationIngredientStrengthCodeableconcept(strength: Codeableconcept)
@@ -92620,7 +92619,7 @@ pub fn medication_ingredient_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Medication#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Medication#resource](http://hl7.org/fhir/r5/StructureDefinition/Medication#resource)
 pub type MedicationBatch {
   MedicationBatch(
     id: Option(String),
@@ -93003,7 +93002,7 @@ pub fn medication_decoder() -> Decoder(Medication) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource)
 pub type Medicationadministration {
   Medicationadministration(
     id: Option(String),
@@ -93038,7 +93037,7 @@ pub type Medicationadministration {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource)
 pub type MedicationadministrationOccurence {
   MedicationadministrationOccurenceDatetime(occurence: String)
   MedicationadministrationOccurencePeriod(occurence: Period)
@@ -93109,7 +93108,7 @@ pub fn medicationadministration_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource)
 pub type MedicationadministrationPerformer {
   MedicationadministrationPerformer(
     id: Option(String),
@@ -93132,7 +93131,7 @@ pub fn medicationadministration_performer_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource)
 pub type MedicationadministrationDosage {
   MedicationadministrationDosage(
     id: Option(String),
@@ -93147,7 +93146,7 @@ pub type MedicationadministrationDosage {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationAdministration#resource)
 pub type MedicationadministrationDosageRate {
   MedicationadministrationDosageRateRatio(rate: Ratio)
   MedicationadministrationDosageRateQuantity(rate: Quantity)
@@ -93729,7 +93728,7 @@ pub fn medicationadministration_decoder() -> Decoder(Medicationadministration) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationDispense#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationDispense#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationDispense#resource)
 pub type Medicationdispense {
   Medicationdispense(
     id: Option(String),
@@ -93814,7 +93813,7 @@ pub fn medicationdispense_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationDispense#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationDispense#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationDispense#resource)
 pub type MedicationdispensePerformer {
   MedicationdispensePerformer(
     id: Option(String),
@@ -93837,7 +93836,7 @@ pub fn medicationdispense_performer_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationDispense#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationDispense#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationDispense#resource)
 pub type MedicationdispenseSubstitution {
   MedicationdispenseSubstitution(
     id: Option(String),
@@ -94438,7 +94437,7 @@ pub fn medicationdispense_decoder() -> Decoder(Medicationdispense) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type Medicationknowledge {
   Medicationknowledge(
     id: Option(String),
@@ -94507,7 +94506,7 @@ pub fn medicationknowledge_new() -> Medicationknowledge {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeRelatedmedicationknowledge {
   MedicationknowledgeRelatedmedicationknowledge(
     id: Option(String),
@@ -94530,7 +94529,7 @@ pub fn medicationknowledge_relatedmedicationknowledge_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeMonograph {
   MedicationknowledgeMonograph(
     id: Option(String),
@@ -94551,7 +94550,7 @@ pub fn medicationknowledge_monograph_new() -> MedicationknowledgeMonograph {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeCost {
   MedicationknowledgeCost(
     id: Option(String),
@@ -94564,7 +94563,7 @@ pub type MedicationknowledgeCost {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeCostCost {
   MedicationknowledgeCostCostMoney(cost: Money)
   MedicationknowledgeCostCostCodeableconcept(cost: Codeableconcept)
@@ -94611,7 +94610,7 @@ pub fn medicationknowledge_cost_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeMonitoringprogram {
   MedicationknowledgeMonitoringprogram(
     id: Option(String),
@@ -94632,7 +94631,7 @@ pub fn medicationknowledge_monitoringprogram_new() -> MedicationknowledgeMonitor
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeIndicationguideline {
   MedicationknowledgeIndicationguideline(
     id: Option(String),
@@ -94655,7 +94654,7 @@ pub fn medicationknowledge_indicationguideline_new() -> MedicationknowledgeIndic
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeIndicationguidelineDosingguideline {
   MedicationknowledgeIndicationguidelineDosingguideline(
     id: Option(String),
@@ -94682,7 +94681,7 @@ pub fn medicationknowledge_indicationguideline_dosingguideline_new() -> Medicati
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeIndicationguidelineDosingguidelineDosage {
   MedicationknowledgeIndicationguidelineDosingguidelineDosage(
     id: Option(String),
@@ -94705,7 +94704,7 @@ pub fn medicationknowledge_indicationguideline_dosingguideline_dosage_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeIndicationguidelineDosingguidelinePatientcharacteristic {
   MedicationknowledgeIndicationguidelineDosingguidelinePatientcharacteristic(
     id: Option(String),
@@ -94718,7 +94717,7 @@ pub type MedicationknowledgeIndicationguidelineDosingguidelinePatientcharacteris
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeIndicationguidelineDosingguidelinePatientcharacteristicValue {
   MedicationknowledgeIndicationguidelineDosingguidelinePatientcharacteristicValueCodeableconcept(
     value: Codeableconcept,
@@ -94784,7 +94783,7 @@ pub fn medicationknowledge_indicationguideline_dosingguideline_patientcharacteri
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeMedicineclassification {
   MedicationknowledgeMedicineclassification(
     id: Option(String),
@@ -94796,7 +94795,7 @@ pub type MedicationknowledgeMedicineclassification {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeMedicineclassificationSource {
   MedicationknowledgeMedicineclassificationSourceString(source: String)
   MedicationknowledgeMedicineclassificationSourceUri(source: String)
@@ -94837,7 +94836,7 @@ pub fn medicationknowledge_medicineclassification_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgePackaging {
   MedicationknowledgePackaging(
     id: Option(String),
@@ -94858,7 +94857,7 @@ pub fn medicationknowledge_packaging_new() -> MedicationknowledgePackaging {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeStorageguideline {
   MedicationknowledgeStorageguideline(
     id: Option(String),
@@ -94885,7 +94884,7 @@ pub fn medicationknowledge_storageguideline_new() -> MedicationknowledgeStorageg
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeStorageguidelineEnvironmentalsetting {
   MedicationknowledgeStorageguidelineEnvironmentalsetting(
     id: Option(String),
@@ -94896,7 +94895,7 @@ pub type MedicationknowledgeStorageguidelineEnvironmentalsetting {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeStorageguidelineEnvironmentalsettingValue {
   MedicationknowledgeStorageguidelineEnvironmentalsettingValueQuantity(
     value: Quantity,
@@ -94961,7 +94960,7 @@ pub fn medicationknowledge_storageguideline_environmentalsetting_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeRegulatory {
   MedicationknowledgeRegulatory(
     id: Option(String),
@@ -94988,7 +94987,7 @@ pub fn medicationknowledge_regulatory_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeRegulatorySubstitution {
   MedicationknowledgeRegulatorySubstitution(
     id: Option(String),
@@ -95012,7 +95011,7 @@ pub fn medicationknowledge_regulatory_substitution_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeRegulatoryMaxdispense {
   MedicationknowledgeRegulatoryMaxdispense(
     id: Option(String),
@@ -95035,7 +95034,7 @@ pub fn medicationknowledge_regulatory_maxdispense_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeDefinitional {
   MedicationknowledgeDefinitional(
     id: Option(String),
@@ -95062,7 +95061,7 @@ pub fn medicationknowledge_definitional_new() -> MedicationknowledgeDefinitional
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeDefinitionalIngredient {
   MedicationknowledgeDefinitionalIngredient(
     id: Option(String),
@@ -95074,7 +95073,7 @@ pub type MedicationknowledgeDefinitionalIngredient {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeDefinitionalIngredientStrength {
   MedicationknowledgeDefinitionalIngredientStrengthRatio(strength: Ratio)
   MedicationknowledgeDefinitionalIngredientStrengthCodeableconcept(
@@ -95130,7 +95129,7 @@ pub fn medicationknowledge_definitional_ingredient_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeDefinitionalDrugcharacteristic {
   MedicationknowledgeDefinitionalDrugcharacteristic(
     id: Option(String),
@@ -95141,7 +95140,7 @@ pub type MedicationknowledgeDefinitionalDrugcharacteristic {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeDefinitionalDrugcharacteristicValue {
   MedicationknowledgeDefinitionalDrugcharacteristicValueCodeableconcept(
     value: Codeableconcept,
@@ -97138,7 +97137,7 @@ pub fn medicationknowledge_decoder() -> Decoder(Medicationknowledge) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource)
 pub type Medicationrequest {
   Medicationrequest(
     id: Option(String),
@@ -97236,7 +97235,7 @@ pub fn medicationrequest_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource)
 pub type MedicationrequestDispenserequest {
   MedicationrequestDispenserequest(
     id: Option(String),
@@ -97271,7 +97270,7 @@ pub fn medicationrequest_dispenserequest_new() -> MedicationrequestDispensereque
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource)
 pub type MedicationrequestDispenserequestInitialfill {
   MedicationrequestDispenserequestInitialfill(
     id: Option(String),
@@ -97292,7 +97291,7 @@ pub fn medicationrequest_dispenserequest_initialfill_new() -> MedicationrequestD
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource)
 pub type MedicationrequestSubstitution {
   MedicationrequestSubstitution(
     id: Option(String),
@@ -97303,7 +97302,7 @@ pub type MedicationrequestSubstitution {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationRequest#resource)
 pub type MedicationrequestSubstitutionAllowed {
   MedicationrequestSubstitutionAllowedBoolean(allowed: Bool)
   MedicationrequestSubstitutionAllowedCodeableconcept(allowed: Codeableconcept)
@@ -98123,7 +98122,7 @@ pub fn medicationrequest_decoder() -> Decoder(Medicationrequest) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationStatement#resource)
 pub type Medicationstatement {
   Medicationstatement(
     id: Option(String),
@@ -98154,7 +98153,7 @@ pub type Medicationstatement {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationStatement#resource)
 pub type MedicationstatementEffective {
   MedicationstatementEffectiveDatetime(effective: String)
   MedicationstatementEffectivePeriod(effective: Period)
@@ -98220,7 +98219,7 @@ pub fn medicationstatement_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicationStatement#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicationStatement#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicationStatement#resource)
 pub type MedicationstatementAdherence {
   MedicationstatementAdherence(
     id: Option(String),
@@ -98617,7 +98616,7 @@ pub fn medicationstatement_decoder() -> Decoder(Medicationstatement) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource)
 pub type Medicinalproductdefinition {
   Medicinalproductdefinition(
     id: Option(String),
@@ -98702,7 +98701,7 @@ pub fn medicinalproductdefinition_new() -> Medicinalproductdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource)
 pub type MedicinalproductdefinitionContact {
   MedicinalproductdefinitionContact(
     id: Option(String),
@@ -98725,7 +98724,7 @@ pub fn medicinalproductdefinition_contact_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource)
 pub type MedicinalproductdefinitionName {
   MedicinalproductdefinitionName(
     id: Option(String),
@@ -98752,7 +98751,7 @@ pub fn medicinalproductdefinition_name_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource)
 pub type MedicinalproductdefinitionNamePart {
   MedicinalproductdefinitionNamePart(
     id: Option(String),
@@ -98776,7 +98775,7 @@ pub fn medicinalproductdefinition_name_part_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource)
 pub type MedicinalproductdefinitionNameUsage {
   MedicinalproductdefinitionNameUsage(
     id: Option(String),
@@ -98802,7 +98801,7 @@ pub fn medicinalproductdefinition_name_usage_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource)
 pub type MedicinalproductdefinitionCrossreference {
   MedicinalproductdefinitionCrossreference(
     id: Option(String),
@@ -98825,7 +98824,7 @@ pub fn medicinalproductdefinition_crossreference_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource)
 pub type MedicinalproductdefinitionOperation {
   MedicinalproductdefinitionOperation(
     id: Option(String),
@@ -98850,7 +98849,7 @@ pub fn medicinalproductdefinition_operation_new() -> MedicinalproductdefinitionO
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource)
 pub type MedicinalproductdefinitionCharacteristic {
   MedicinalproductdefinitionCharacteristic(
     id: Option(String),
@@ -98861,7 +98860,7 @@ pub type MedicinalproductdefinitionCharacteristic {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MedicinalProductDefinition#resource)
 pub type MedicinalproductdefinitionCharacteristicValue {
   MedicinalproductdefinitionCharacteristicValueCodeableconcept(
     value: Codeableconcept,
@@ -99971,7 +99970,7 @@ pub fn medicinalproductdefinition_decoder() -> Decoder(
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource)
 pub type Messagedefinition {
   Messagedefinition(
     id: Option(String),
@@ -100011,7 +100010,7 @@ pub type Messagedefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource)
 pub type MessagedefinitionVersionalgorithm {
   MessagedefinitionVersionalgorithmString(version_algorithm: String)
   MessagedefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -100039,7 +100038,7 @@ pub fn messagedefinition_versionalgorithm_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource)
 pub type MessagedefinitionEvent {
   MessagedefinitionEventCoding(event: Coding)
   MessagedefinitionEventUri(event: String)
@@ -100106,7 +100105,7 @@ pub fn messagedefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource)
 pub type MessagedefinitionFocus {
   MessagedefinitionFocus(
     id: Option(String),
@@ -100134,7 +100133,7 @@ pub fn messagedefinition_focus_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageDefinition#resource)
 pub type MessagedefinitionAllowedresponse {
   MessagedefinitionAllowedresponse(
     id: Option(String),
@@ -100696,7 +100695,7 @@ pub fn messagedefinition_decoder() -> Decoder(Messagedefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource)
 pub type Messageheader {
   Messageheader(
     id: Option(String),
@@ -100720,7 +100719,7 @@ pub type Messageheader {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource)
 pub type MessageheaderEvent {
   MessageheaderEventCoding(event: Coding)
   MessageheaderEventCanonical(event: String)
@@ -100770,7 +100769,7 @@ pub fn messageheader_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource)
 pub type MessageheaderDestination {
   MessageheaderDestination(
     id: Option(String),
@@ -100783,7 +100782,7 @@ pub type MessageheaderDestination {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource)
 pub type MessageheaderDestinationEndpoint {
   MessageheaderDestinationEndpointUrl(endpoint: String)
   MessageheaderDestinationEndpointReference(endpoint: Reference)
@@ -100823,7 +100822,7 @@ pub fn messageheader_destination_new() -> MessageheaderDestination {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource)
 pub type MessageheaderSource {
   MessageheaderSource(
     id: Option(String),
@@ -100837,7 +100836,7 @@ pub type MessageheaderSource {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource)
 pub type MessageheaderSourceEndpoint {
   MessageheaderSourceEndpointUrl(endpoint: String)
   MessageheaderSourceEndpointReference(endpoint: Reference)
@@ -100878,7 +100877,7 @@ pub fn messageheader_source_new() -> MessageheaderSource {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r5/StructureDefinition/MessageHeader#resource)
 pub type MessageheaderResponse {
   MessageheaderResponse(
     id: Option(String),
@@ -101390,7 +101389,7 @@ pub fn messageheader_decoder() -> Decoder(Messageheader) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MetadataResource#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MetadataResource#resource](http://hl7.org/fhir/r5/StructureDefinition/MetadataResource#resource)
 pub type Metadataresource {
   Metadataresource(
     id: Option(String),
@@ -101430,7 +101429,7 @@ pub type Metadataresource {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MetadataResource#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MetadataResource#resource](http://hl7.org/fhir/r5/StructureDefinition/MetadataResource#resource)
 pub type MetadataresourceVersionalgorithm {
   MetadataresourceVersionalgorithmString(version_algorithm: String)
   MetadataresourceVersionalgorithmCoding(version_algorithm: Coding)
@@ -101902,7 +101901,7 @@ pub fn metadataresource_decoder() -> Decoder(Metadataresource) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource)
 pub type Molecularsequence {
   Molecularsequence(
     id: Option(String),
@@ -101949,7 +101948,7 @@ pub fn molecularsequence_new() -> Molecularsequence {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceRelative {
   MolecularsequenceRelative(
     id: Option(String),
@@ -101978,7 +101977,7 @@ pub fn molecularsequence_relative_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceRelativeStartingsequence {
   MolecularsequenceRelativeStartingsequence(
     id: Option(String),
@@ -101994,7 +101993,7 @@ pub type MolecularsequenceRelativeStartingsequence {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceRelativeStartingsequenceSequence {
   MolecularsequenceRelativeStartingsequenceSequenceCodeableconcept(
     sequence: Codeableconcept,
@@ -102055,7 +102054,7 @@ pub fn molecularsequence_relative_startingsequence_new() -> MolecularsequenceRel
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r5/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceRelativeEdit {
   MolecularsequenceRelativeEdit(
     id: Option(String),
@@ -102637,7 +102636,7 @@ pub fn molecularsequence_decoder() -> Decoder(Molecularsequence) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NamingSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NamingSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/NamingSystem#resource)
 pub type Namingsystem {
   Namingsystem(
     id: Option(String),
@@ -102682,7 +102681,7 @@ pub type Namingsystem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NamingSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NamingSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/NamingSystem#resource)
 pub type NamingsystemVersionalgorithm {
   NamingsystemVersionalgorithmString(version_algorithm: String)
   NamingsystemVersionalgorithmCoding(version_algorithm: Coding)
@@ -102759,7 +102758,7 @@ pub fn namingsystem_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NamingSystem#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NamingSystem#resource](http://hl7.org/fhir/r5/StructureDefinition/NamingSystem#resource)
 pub type NamingsystemUniqueid {
   NamingsystemUniqueid(
     id: Option(String),
@@ -103337,7 +103336,7 @@ pub fn namingsystem_decoder() -> Decoder(Namingsystem) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource)
 pub type Nutritionintake {
   Nutritionintake(
     id: Option(String),
@@ -103371,7 +103370,7 @@ pub type Nutritionintake {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource)
 pub type NutritionintakeOccurrence {
   NutritionintakeOccurrenceDatetime(occurrence: String)
   NutritionintakeOccurrencePeriod(occurrence: Period)
@@ -103399,7 +103398,7 @@ pub fn nutritionintake_occurrence_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource)
 pub type NutritionintakeReported {
   NutritionintakeReportedBoolean(reported: Bool)
   NutritionintakeReportedReference(reported: Reference)
@@ -103459,7 +103458,7 @@ pub fn nutritionintake_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource)
 pub type NutritionintakeConsumeditem {
   NutritionintakeConsumeditem(
     id: Option(String),
@@ -103493,7 +103492,7 @@ pub fn nutritionintake_consumeditem_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource)
 pub type NutritionintakeIngredientlabel {
   NutritionintakeIngredientlabel(
     id: Option(String),
@@ -103517,7 +103516,7 @@ pub fn nutritionintake_ingredientlabel_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionIntake#resource)
 pub type NutritionintakePerformer {
   NutritionintakePerformer(
     id: Option(String),
@@ -104137,7 +104136,7 @@ pub fn nutritionintake_decoder() -> Decoder(Nutritionintake) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type Nutritionorder {
   Nutritionorder(
     id: Option(String),
@@ -104215,7 +104214,7 @@ pub fn nutritionorder_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderOraldiet {
   NutritionorderOraldiet(
     id: Option(String),
@@ -104244,7 +104243,7 @@ pub fn nutritionorder_oraldiet_new() -> NutritionorderOraldiet {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderOraldietSchedule {
   NutritionorderOraldietSchedule(
     id: Option(String),
@@ -104267,7 +104266,7 @@ pub fn nutritionorder_oraldiet_schedule_new() -> NutritionorderOraldietSchedule 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderOraldietNutrient {
   NutritionorderOraldietNutrient(
     id: Option(String),
@@ -104288,7 +104287,7 @@ pub fn nutritionorder_oraldiet_nutrient_new() -> NutritionorderOraldietNutrient 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderOraldietTexture {
   NutritionorderOraldietTexture(
     id: Option(String),
@@ -104309,7 +104308,7 @@ pub fn nutritionorder_oraldiet_texture_new() -> NutritionorderOraldietTexture {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderSupplement {
   NutritionorderSupplement(
     id: Option(String),
@@ -104336,7 +104335,7 @@ pub fn nutritionorder_supplement_new() -> NutritionorderSupplement {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderSupplementSchedule {
   NutritionorderSupplementSchedule(
     id: Option(String),
@@ -104359,7 +104358,7 @@ pub fn nutritionorder_supplement_schedule_new() -> NutritionorderSupplementSched
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderEnteralformula {
   NutritionorderEnteralformula(
     id: Option(String),
@@ -104394,7 +104393,7 @@ pub fn nutritionorder_enteralformula_new() -> NutritionorderEnteralformula {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderEnteralformulaAdditive {
   NutritionorderEnteralformulaAdditive(
     id: Option(String),
@@ -104417,7 +104416,7 @@ pub fn nutritionorder_enteralformula_additive_new() -> NutritionorderEnteralform
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderEnteralformulaAdministration {
   NutritionorderEnteralformulaAdministration(
     id: Option(String),
@@ -104429,7 +104428,7 @@ pub type NutritionorderEnteralformulaAdministration {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderEnteralformulaAdministrationRate {
   NutritionorderEnteralformulaAdministrationRateQuantity(rate: Quantity)
   NutritionorderEnteralformulaAdministrationRateRatio(rate: Ratio)
@@ -104469,7 +104468,7 @@ pub fn nutritionorder_enteralformula_administration_new() -> NutritionorderEnter
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderEnteralformulaAdministrationSchedule {
   NutritionorderEnteralformulaAdministrationSchedule(
     id: Option(String),
@@ -105850,7 +105849,7 @@ pub fn nutritionorder_decoder() -> Decoder(Nutritionorder) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource)
 pub type Nutritionproduct {
   Nutritionproduct(
     id: Option(String),
@@ -105899,7 +105898,7 @@ pub fn nutritionproduct_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource)
 pub type NutritionproductNutrient {
   NutritionproductNutrient(
     id: Option(String),
@@ -105920,7 +105919,7 @@ pub fn nutritionproduct_nutrient_new() -> NutritionproductNutrient {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource)
 pub type NutritionproductIngredient {
   NutritionproductIngredient(
     id: Option(String),
@@ -105943,7 +105942,7 @@ pub fn nutritionproduct_ingredient_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource)
 pub type NutritionproductCharacteristic {
   NutritionproductCharacteristic(
     id: Option(String),
@@ -105954,7 +105953,7 @@ pub type NutritionproductCharacteristic {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource)
 pub type NutritionproductCharacteristicValue {
   NutritionproductCharacteristicValueCodeableconcept(value: Codeableconcept)
   NutritionproductCharacteristicValueString(value: String)
@@ -106016,7 +106015,7 @@ pub fn nutritionproduct_characteristic_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource](http://hl7.org/fhir/r5/StructureDefinition/NutritionProduct#resource)
 pub type NutritionproductInstance {
   NutritionproductInstance(
     id: Option(String),
@@ -106604,7 +106603,7 @@ pub fn nutritionproduct_decoder() -> Decoder(Nutritionproduct) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Observation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Observation#resource](http://hl7.org/fhir/r5/StructureDefinition/Observation#resource)
 pub type Observation {
   Observation(
     id: Option(String),
@@ -106645,7 +106644,7 @@ pub type Observation {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Observation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Observation#resource](http://hl7.org/fhir/r5/StructureDefinition/Observation#resource)
 pub type ObservationInstantiates {
   ObservationInstantiatesCanonical(instantiates: String)
   ObservationInstantiatesReference(instantiates: Reference)
@@ -106669,7 +106668,7 @@ pub fn observation_instantiates_decoder() -> Decoder(ObservationInstantiates) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Observation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Observation#resource](http://hl7.org/fhir/r5/StructureDefinition/Observation#resource)
 pub type ObservationEffective {
   ObservationEffectiveDatetime(effective: String)
   ObservationEffectivePeriod(effective: Period)
@@ -106701,7 +106700,7 @@ pub fn observation_effective_decoder() -> Decoder(ObservationEffective) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Observation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Observation#resource](http://hl7.org/fhir/r5/StructureDefinition/Observation#resource)
 pub type ObservationValue {
   ObservationValueQuantity(value: Quantity)
   ObservationValueCodeableconcept(value: Codeableconcept)
@@ -106816,7 +106815,7 @@ pub fn observation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Observation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Observation#resource](http://hl7.org/fhir/r5/StructureDefinition/Observation#resource)
 pub type ObservationTriggeredby {
   ObservationTriggeredby(
     id: Option(String),
@@ -106842,7 +106841,7 @@ pub fn observation_triggeredby_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Observation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Observation#resource](http://hl7.org/fhir/r5/StructureDefinition/Observation#resource)
 pub type ObservationReferencerange {
   ObservationReferencerange(
     id: Option(String),
@@ -106873,7 +106872,7 @@ pub fn observation_referencerange_new() -> ObservationReferencerange {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Observation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Observation#resource](http://hl7.org/fhir/r5/StructureDefinition/Observation#resource)
 pub type ObservationComponent {
   ObservationComponent(
     id: Option(String),
@@ -106887,7 +106886,7 @@ pub type ObservationComponent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Observation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Observation#resource](http://hl7.org/fhir/r5/StructureDefinition/Observation#resource)
 pub type ObservationComponentValue {
   ObservationComponentValueQuantity(value: Quantity)
   ObservationComponentValueCodeableconcept(value: Codeableconcept)
@@ -107749,7 +107748,7 @@ pub fn observation_decoder() -> Decoder(Observation) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource)
 pub type Observationdefinition {
   Observationdefinition(
     id: Option(String),
@@ -107800,7 +107799,7 @@ pub type Observationdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource)
 pub type ObservationdefinitionVersionalgorithm {
   ObservationdefinitionVersionalgorithmString(version_algorithm: String)
   ObservationdefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -107881,7 +107880,7 @@ pub fn observationdefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource)
 pub type ObservationdefinitionQualifiedvalue {
   ObservationdefinitionQualifiedvalue(
     id: Option(String),
@@ -107922,7 +107921,7 @@ pub fn observationdefinition_qualifiedvalue_new() -> ObservationdefinitionQualif
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/ObservationDefinition#resource)
 pub type ObservationdefinitionComponent {
   ObservationdefinitionComponent(
     id: Option(String),
@@ -108793,7 +108792,7 @@ pub fn observationdefinition_decoder() -> Decoder(Observationdefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource)
 pub type Operationdefinition {
   Operationdefinition(
     id: Option(String),
@@ -108837,7 +108836,7 @@ pub type Operationdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource)
 pub type OperationdefinitionVersionalgorithm {
   OperationdefinitionVersionalgorithmString(version_algorithm: String)
   OperationdefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -108916,7 +108915,7 @@ pub fn operationdefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource)
 pub type OperationdefinitionParameter {
   OperationdefinitionParameter(
     id: Option(String),
@@ -108964,7 +108963,7 @@ pub fn operationdefinition_parameter_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource)
 pub type OperationdefinitionParameterBinding {
   OperationdefinitionParameterBinding(
     id: Option(String),
@@ -108988,7 +108987,7 @@ pub fn operationdefinition_parameter_binding_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource)
 pub type OperationdefinitionParameterReferencedfrom {
   OperationdefinitionParameterReferencedfrom(
     id: Option(String),
@@ -109011,7 +109010,7 @@ pub fn operationdefinition_parameter_referencedfrom_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/OperationDefinition#resource)
 pub type OperationdefinitionOverload {
   OperationdefinitionOverload(
     id: Option(String),
@@ -109851,7 +109850,7 @@ pub fn operationdefinition_decoder() -> Decoder(Operationdefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/OperationOutcome#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/OperationOutcome#resource](http://hl7.org/fhir/r5/StructureDefinition/OperationOutcome#resource)
 pub type Operationoutcome {
   Operationoutcome(
     id: Option(String),
@@ -109880,7 +109879,7 @@ pub fn operationoutcome_new() -> Operationoutcome {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/OperationOutcome#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/OperationOutcome#resource](http://hl7.org/fhir/r5/StructureDefinition/OperationOutcome#resource)
 pub type OperationoutcomeIssue {
   OperationoutcomeIssue(
     id: Option(String),
@@ -110133,7 +110132,7 @@ pub fn operationoutcome_decoder() -> Decoder(Operationoutcome) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Organization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Organization#resource](http://hl7.org/fhir/r5/StructureDefinition/Organization#resource)
 pub type Organization {
   Organization(
     id: Option(String),
@@ -110180,7 +110179,7 @@ pub fn organization_new() -> Organization {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Organization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Organization#resource](http://hl7.org/fhir/r5/StructureDefinition/Organization#resource)
 pub type OrganizationQualification {
   OrganizationQualification(
     id: Option(String),
@@ -110516,7 +110515,7 @@ pub fn organization_decoder() -> Decoder(Organization) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/OrganizationAffiliation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/OrganizationAffiliation#resource](http://hl7.org/fhir/r5/StructureDefinition/OrganizationAffiliation#resource)
 pub type Organizationaffiliation {
   Organizationaffiliation(
     id: Option(String),
@@ -110820,7 +110819,7 @@ pub fn organizationaffiliation_decoder() -> Decoder(Organizationaffiliation) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource)
 pub type Packagedproductdefinition {
   Packagedproductdefinition(
     id: Option(String),
@@ -110877,7 +110876,7 @@ pub fn packagedproductdefinition_new() -> Packagedproductdefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource)
 pub type PackagedproductdefinitionLegalstatusofsupply {
   PackagedproductdefinitionLegalstatusofsupply(
     id: Option(String),
@@ -110898,7 +110897,7 @@ pub fn packagedproductdefinition_legalstatusofsupply_new() -> Packagedproductdef
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource)
 pub type PackagedproductdefinitionPackaging {
   PackagedproductdefinitionPackaging(
     id: Option(String),
@@ -110937,7 +110936,7 @@ pub fn packagedproductdefinition_packaging_new() -> PackagedproductdefinitionPac
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource)
 pub type PackagedproductdefinitionPackagingProperty {
   PackagedproductdefinitionPackagingProperty(
     id: Option(String),
@@ -110948,7 +110947,7 @@ pub type PackagedproductdefinitionPackagingProperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource)
 pub type PackagedproductdefinitionPackagingPropertyValue {
   PackagedproductdefinitionPackagingPropertyValueCodeableconcept(
     value: Codeableconcept,
@@ -111011,7 +111010,7 @@ pub fn packagedproductdefinition_packaging_property_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PackagedProductDefinition#resource)
 pub type PackagedproductdefinitionPackagingContaineditem {
   PackagedproductdefinitionPackagingContaineditem(
     id: Option(String),
@@ -111779,7 +111778,7 @@ pub fn packagedproductdefinition_decoder() -> Decoder(Packagedproductdefinition)
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Parameters#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Parameters#resource](http://hl7.org/fhir/r5/StructureDefinition/Parameters#resource)
 pub type Parameters {
   Parameters(
     id: Option(String),
@@ -111800,7 +111799,7 @@ pub fn parameters_new() -> Parameters {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Parameters#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Parameters#resource](http://hl7.org/fhir/r5/StructureDefinition/Parameters#resource)
 pub type ParametersParameter {
   ParametersParameter(
     id: Option(String),
@@ -111813,7 +111812,7 @@ pub type ParametersParameter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Parameters#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Parameters#resource](http://hl7.org/fhir/r5/StructureDefinition/Parameters#resource)
 pub type ParametersParameterValue {
   ParametersParameterValueBase64binary(value: String)
   ParametersParameterValueBoolean(value: Bool)
@@ -112301,7 +112300,7 @@ pub fn parameters_decoder() -> Decoder(Parameters) {
   decode.success(Parameters(parameter:, language:, implicit_rules:, meta:, id:))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Patient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Patient#resource](http://hl7.org/fhir/r5/StructureDefinition/Patient#resource)
 pub type Patient {
   Patient(
     id: Option(String),
@@ -112331,7 +112330,7 @@ pub type Patient {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Patient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Patient#resource](http://hl7.org/fhir/r5/StructureDefinition/Patient#resource)
 pub type PatientDeceased {
   PatientDeceasedBoolean(deceased: Bool)
   PatientDeceasedDatetime(deceased: String)
@@ -112355,7 +112354,7 @@ pub fn patient_deceased_decoder() -> Decoder(PatientDeceased) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Patient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Patient#resource](http://hl7.org/fhir/r5/StructureDefinition/Patient#resource)
 pub type PatientMultiplebirth {
   PatientMultiplebirthBoolean(multiple_birth: Bool)
   PatientMultiplebirthInteger(multiple_birth: Int)
@@ -112408,7 +112407,7 @@ pub fn patient_new() -> Patient {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Patient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Patient#resource](http://hl7.org/fhir/r5/StructureDefinition/Patient#resource)
 pub type PatientContact {
   PatientContact(
     id: Option(String),
@@ -112439,7 +112438,7 @@ pub fn patient_contact_new() -> PatientContact {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Patient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Patient#resource](http://hl7.org/fhir/r5/StructureDefinition/Patient#resource)
 pub type PatientCommunication {
   PatientCommunication(
     id: Option(String),
@@ -112462,7 +112461,7 @@ pub fn patient_communication_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Patient#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Patient#resource](http://hl7.org/fhir/r5/StructureDefinition/Patient#resource)
 pub type PatientLink {
   PatientLink(
     id: Option(String),
@@ -113032,7 +113031,7 @@ pub fn patient_decoder() -> Decoder(Patient) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PaymentNotice#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PaymentNotice#resource](http://hl7.org/fhir/r5/StructureDefinition/PaymentNotice#resource)
 pub type Paymentnotice {
   Paymentnotice(
     id: Option(String),
@@ -113303,7 +113302,7 @@ pub fn paymentnotice_decoder() -> Decoder(Paymentnotice) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource](http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource)
 pub type Paymentreconciliation {
   Paymentreconciliation(
     id: Option(String),
@@ -113394,7 +113393,7 @@ pub fn paymentreconciliation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource](http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource)
 pub type PaymentreconciliationAllocation {
   PaymentreconciliationAllocation(
     id: Option(String),
@@ -113416,7 +113415,7 @@ pub type PaymentreconciliationAllocation {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource](http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource)
 pub type PaymentreconciliationAllocationTargetitem {
   PaymentreconciliationAllocationTargetitemString(target_item: String)
   PaymentreconciliationAllocationTargetitemIdentifier(target_item: Identifier)
@@ -113470,7 +113469,7 @@ pub fn paymentreconciliation_allocation_new() -> PaymentreconciliationAllocation
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource](http://hl7.org/fhir/r5/StructureDefinition/PaymentReconciliation#resource)
 pub type PaymentreconciliationProcessnote {
   PaymentreconciliationProcessnote(
     id: Option(String),
@@ -114176,7 +114175,7 @@ pub fn paymentreconciliation_decoder() -> Decoder(Paymentreconciliation) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Permission#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Permission#resource](http://hl7.org/fhir/r5/StructureDefinition/Permission#resource)
 pub type Permission {
   Permission(
     id: Option(String),
@@ -114220,7 +114219,7 @@ pub fn permission_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Permission#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Permission#resource](http://hl7.org/fhir/r5/StructureDefinition/Permission#resource)
 pub type PermissionJustification {
   PermissionJustification(
     id: Option(String),
@@ -114241,7 +114240,7 @@ pub fn permission_justification_new() -> PermissionJustification {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Permission#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Permission#resource](http://hl7.org/fhir/r5/StructureDefinition/Permission#resource)
 pub type PermissionRule {
   PermissionRule(
     id: Option(String),
@@ -114266,7 +114265,7 @@ pub fn permission_rule_new() -> PermissionRule {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Permission#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Permission#resource](http://hl7.org/fhir/r5/StructureDefinition/Permission#resource)
 pub type PermissionRuleData {
   PermissionRuleData(
     id: Option(String),
@@ -114291,7 +114290,7 @@ pub fn permission_rule_data_new() -> PermissionRuleData {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Permission#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Permission#resource](http://hl7.org/fhir/r5/StructureDefinition/Permission#resource)
 pub type PermissionRuleDataResource {
   PermissionRuleDataResource(
     id: Option(String),
@@ -114315,7 +114314,7 @@ pub fn permission_rule_data_resource_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Permission#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Permission#resource](http://hl7.org/fhir/r5/StructureDefinition/Permission#resource)
 pub type PermissionRuleActivity {
   PermissionRuleActivity(
     id: Option(String),
@@ -114910,7 +114909,7 @@ pub fn permission_decoder() -> Decoder(Permission) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Person#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Person#resource](http://hl7.org/fhir/r5/StructureDefinition/Person#resource)
 pub type Person {
   Person(
     id: Option(String),
@@ -114937,7 +114936,7 @@ pub type Person {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Person#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Person#resource](http://hl7.org/fhir/r5/StructureDefinition/Person#resource)
 pub type PersonDeceased {
   PersonDeceasedBoolean(deceased: Bool)
   PersonDeceasedDatetime(deceased: String)
@@ -114987,7 +114986,7 @@ pub fn person_new() -> Person {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Person#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Person#resource](http://hl7.org/fhir/r5/StructureDefinition/Person#resource)
 pub type PersonCommunication {
   PersonCommunication(
     id: Option(String),
@@ -115010,7 +115009,7 @@ pub fn person_communication_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Person#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Person#resource](http://hl7.org/fhir/r5/StructureDefinition/Person#resource)
 pub type PersonLink {
   PersonLink(
     id: Option(String),
@@ -115418,7 +115417,7 @@ pub fn person_decoder() -> Decoder(Person) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type Plandefinition {
   Plandefinition(
     id: Option(String),
@@ -115467,7 +115466,7 @@ pub type Plandefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionVersionalgorithm {
   PlandefinitionVersionalgorithmString(version_algorithm: String)
   PlandefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -115495,7 +115494,7 @@ pub fn plandefinition_versionalgorithm_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionSubject {
   PlandefinitionSubjectCodeableconcept(subject: Codeableconcept)
   PlandefinitionSubjectReference(subject: Reference)
@@ -115527,7 +115526,7 @@ pub fn plandefinition_subject_decoder() -> Decoder(PlandefinitionSubject) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionAsneeded {
   PlandefinitionAsneededBoolean(as_needed: Bool)
   PlandefinitionAsneededCodeableconcept(as_needed: Codeableconcept)
@@ -115605,7 +115604,7 @@ pub fn plandefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionGoal {
   PlandefinitionGoal(
     id: Option(String),
@@ -115638,7 +115637,7 @@ pub fn plandefinition_goal_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionGoalTarget {
   PlandefinitionGoalTarget(
     id: Option(String),
@@ -115650,7 +115649,7 @@ pub type PlandefinitionGoalTarget {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionGoalTargetDetail {
   PlandefinitionGoalTargetDetailQuantity(detail: Quantity)
   PlandefinitionGoalTargetDetailRange(detail: Range)
@@ -115714,7 +115713,7 @@ pub fn plandefinition_goal_target_new() -> PlandefinitionGoalTarget {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActor {
   PlandefinitionActor(
     id: Option(String),
@@ -115737,7 +115736,7 @@ pub fn plandefinition_actor_new() -> PlandefinitionActor {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActorOption {
   PlandefinitionActorOption(
     id: Option(String),
@@ -115762,7 +115761,7 @@ pub fn plandefinition_actor_option_new() -> PlandefinitionActorOption {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionAction {
   PlandefinitionAction(
     id: Option(String),
@@ -115800,7 +115799,7 @@ pub type PlandefinitionAction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionSubject {
   PlandefinitionActionSubjectCodeableconcept(subject: Codeableconcept)
   PlandefinitionActionSubjectReference(subject: Reference)
@@ -115836,7 +115835,7 @@ pub fn plandefinition_action_subject_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionTiming {
   PlandefinitionActionTimingAge(timing: Age)
   PlandefinitionActionTimingDuration(timing: Duration)
@@ -115872,7 +115871,7 @@ pub fn plandefinition_action_timing_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionDefinition {
   PlandefinitionActionDefinitionCanonical(definition: String)
   PlandefinitionActionDefinitionUri(definition: String)
@@ -115937,7 +115936,7 @@ pub fn plandefinition_action_new() -> PlandefinitionAction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionCondition {
   PlandefinitionActionCondition(
     id: Option(String),
@@ -115960,7 +115959,7 @@ pub fn plandefinition_action_condition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionInput {
   PlandefinitionActionInput(
     id: Option(String),
@@ -115983,7 +115982,7 @@ pub fn plandefinition_action_input_new() -> PlandefinitionActionInput {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionOutput {
   PlandefinitionActionOutput(
     id: Option(String),
@@ -116006,7 +116005,7 @@ pub fn plandefinition_action_output_new() -> PlandefinitionActionOutput {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionRelatedaction {
   PlandefinitionActionRelatedaction(
     id: Option(String),
@@ -116019,7 +116018,7 @@ pub type PlandefinitionActionRelatedaction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionRelatedactionOffset {
   PlandefinitionActionRelatedactionOffsetDuration(offset: Duration)
   PlandefinitionActionRelatedactionOffsetRange(offset: Range)
@@ -116062,7 +116061,7 @@ pub fn plandefinition_action_relatedaction_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionParticipant {
   PlandefinitionActionParticipant(
     id: Option(String),
@@ -116091,7 +116090,7 @@ pub fn plandefinition_action_participant_new() -> PlandefinitionActionParticipan
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionDynamicvalue {
   PlandefinitionActionDynamicvalue(
     id: Option(String),
@@ -117992,7 +117991,7 @@ pub fn plandefinition_decoder() -> Decoder(Plandefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource](http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource)
 pub type Practitioner {
   Practitioner(
     id: Option(String),
@@ -118017,7 +118016,7 @@ pub type Practitioner {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource](http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource)
 pub type PractitionerDeceased {
   PractitionerDeceasedBoolean(deceased: Bool)
   PractitionerDeceasedDatetime(deceased: String)
@@ -118065,7 +118064,7 @@ pub fn practitioner_new() -> Practitioner {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource](http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource)
 pub type PractitionerQualification {
   PractitionerQualification(
     id: Option(String),
@@ -118092,7 +118091,7 @@ pub fn practitioner_qualification_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource](http://hl7.org/fhir/r5/StructureDefinition/Practitioner#resource)
 pub type PractitionerCommunication {
   PractitionerCommunication(
     id: Option(String),
@@ -118516,7 +118515,7 @@ pub fn practitioner_decoder() -> Decoder(Practitioner) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/PractitionerRole#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/PractitionerRole#resource](http://hl7.org/fhir/r5/StructureDefinition/PractitionerRole#resource)
 pub type Practitionerrole {
   Practitionerrole(
     id: Option(String),
@@ -118850,7 +118849,7 @@ pub fn practitionerrole_decoder() -> Decoder(Practitionerrole) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource](http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource)
 pub type Procedure {
   Procedure(
     id: Option(String),
@@ -118892,7 +118891,7 @@ pub type Procedure {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource](http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource)
 pub type ProcedureOccurrence {
   ProcedureOccurrenceDatetime(occurrence: String)
   ProcedureOccurrencePeriod(occurrence: Period)
@@ -118932,7 +118931,7 @@ pub fn procedure_occurrence_decoder() -> Decoder(ProcedureOccurrence) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource](http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource)
 pub type ProcedureReported {
   ProcedureReportedBoolean(reported: Bool)
   ProcedureReportedReference(reported: Reference)
@@ -119000,7 +118999,7 @@ pub fn procedure_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource](http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource)
 pub type ProcedurePerformer {
   ProcedurePerformer(
     id: Option(String),
@@ -119025,7 +119024,7 @@ pub fn procedure_performer_new(actor actor: Reference) -> ProcedurePerformer {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource](http://hl7.org/fhir/r5/StructureDefinition/Procedure#resource)
 pub type ProcedureFocaldevice {
   ProcedureFocaldevice(
     id: Option(String),
@@ -119644,7 +119643,7 @@ pub fn procedure_decoder() -> Decoder(Procedure) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource](http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource)
 pub type Provenance {
   Provenance(
     id: Option(String),
@@ -119671,7 +119670,7 @@ pub type Provenance {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource](http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource)
 pub type ProvenanceOccurred {
   ProvenanceOccurredPeriod(occurred: Period)
   ProvenanceOccurredDatetime(occurred: String)
@@ -119721,7 +119720,7 @@ pub fn provenance_new() -> Provenance {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource](http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource)
 pub type ProvenanceAgent {
   ProvenanceAgent(
     id: Option(String),
@@ -119746,7 +119745,7 @@ pub fn provenance_agent_new(who who: Reference) -> ProvenanceAgent {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource](http://hl7.org/fhir/r5/StructureDefinition/Provenance#resource)
 pub type ProvenanceEntity {
   ProvenanceEntity(
     id: Option(String),
@@ -120175,7 +120174,7 @@ pub fn provenance_decoder() -> Decoder(Provenance) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource)
 pub type Questionnaire {
   Questionnaire(
     id: Option(String),
@@ -120213,7 +120212,7 @@ pub type Questionnaire {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireVersionalgorithm {
   QuestionnaireVersionalgorithmString(version_algorithm: String)
   QuestionnaireVersionalgorithmCoding(version_algorithm: Coding)
@@ -120280,7 +120279,7 @@ pub fn questionnaire_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItem {
   QuestionnaireItem(
     id: Option(String),
@@ -120336,7 +120335,7 @@ pub fn questionnaire_item_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItemEnablewhen {
   QuestionnaireItemEnablewhen(
     id: Option(String),
@@ -120348,7 +120347,7 @@ pub type QuestionnaireItemEnablewhen {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItemEnablewhenAnswer {
   QuestionnaireItemEnablewhenAnswerBoolean(answer: Bool)
   QuestionnaireItemEnablewhenAnswerDecimal(answer: Float)
@@ -120423,7 +120422,7 @@ pub fn questionnaire_item_enablewhen_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItemAnsweroption {
   QuestionnaireItemAnsweroption(
     id: Option(String),
@@ -120434,7 +120433,7 @@ pub type QuestionnaireItemAnsweroption {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItemAnsweroptionValue {
   QuestionnaireItemAnsweroptionValueInteger(value: Int)
   QuestionnaireItemAnsweroptionValueDate(value: String)
@@ -120490,7 +120489,7 @@ pub fn questionnaire_item_answeroption_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItemInitial {
   QuestionnaireItemInitial(
     id: Option(String),
@@ -120500,7 +120499,7 @@ pub type QuestionnaireItemInitial {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r5/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItemInitialValue {
   QuestionnaireItemInitialValueBoolean(value: Bool)
   QuestionnaireItemInitialValueDecimal(value: Float)
@@ -121387,7 +121386,7 @@ pub fn questionnaire_decoder() -> Decoder(Questionnaire) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource)
 pub type Questionnaireresponse {
   Questionnaireresponse(
     id: Option(String),
@@ -121439,7 +121438,7 @@ pub fn questionnaireresponse_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource)
 pub type QuestionnaireresponseItem {
   QuestionnaireresponseItem(
     id: Option(String),
@@ -121468,7 +121467,7 @@ pub fn questionnaireresponse_item_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource)
 pub type QuestionnaireresponseItemAnswer {
   QuestionnaireresponseItemAnswer(
     id: Option(String),
@@ -121479,7 +121478,7 @@ pub type QuestionnaireresponseItemAnswer {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource](http://hl7.org/fhir/r5/StructureDefinition/QuestionnaireResponse#resource)
 pub type QuestionnaireresponseItemAnswerValue {
   QuestionnaireresponseItemAnswerValueBoolean(value: Bool)
   QuestionnaireresponseItemAnswerValueDecimal(value: Float)
@@ -121960,7 +121959,7 @@ pub fn questionnaireresponse_decoder() -> Decoder(Questionnaireresponse) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RegulatedAuthorization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RegulatedAuthorization#resource](http://hl7.org/fhir/r5/StructureDefinition/RegulatedAuthorization#resource)
 pub type Regulatedauthorization {
   Regulatedauthorization(
     id: Option(String),
@@ -122017,7 +122016,7 @@ pub fn regulatedauthorization_new() -> Regulatedauthorization {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RegulatedAuthorization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RegulatedAuthorization#resource](http://hl7.org/fhir/r5/StructureDefinition/RegulatedAuthorization#resource)
 pub type RegulatedauthorizationCase {
   RegulatedauthorizationCase(
     id: Option(String),
@@ -122031,7 +122030,7 @@ pub type RegulatedauthorizationCase {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RegulatedAuthorization#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RegulatedAuthorization#resource](http://hl7.org/fhir/r5/StructureDefinition/RegulatedAuthorization#resource)
 pub type RegulatedauthorizationCaseDate {
   RegulatedauthorizationCaseDatePeriod(date: Period)
   RegulatedauthorizationCaseDateDatetime(date: String)
@@ -122473,7 +122472,7 @@ pub fn regulatedauthorization_decoder() -> Decoder(Regulatedauthorization) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RelatedPerson#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RelatedPerson#resource](http://hl7.org/fhir/r5/StructureDefinition/RelatedPerson#resource)
 pub type Relatedperson {
   Relatedperson(
     id: Option(String),
@@ -122524,7 +122523,7 @@ pub fn relatedperson_new(patient patient: Reference) -> Relatedperson {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RelatedPerson#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RelatedPerson#resource](http://hl7.org/fhir/r5/StructureDefinition/RelatedPerson#resource)
 pub type RelatedpersonCommunication {
   RelatedpersonCommunication(
     id: Option(String),
@@ -122857,7 +122856,7 @@ pub fn relatedperson_decoder() -> Decoder(Relatedperson) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type Requestorchestration {
   Requestorchestration(
     id: Option(String),
@@ -122923,7 +122922,7 @@ pub fn requestorchestration_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationAction {
   RequestorchestrationAction(
     id: Option(String),
@@ -122959,7 +122958,7 @@ pub type RequestorchestrationAction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationActionTiming {
   RequestorchestrationActionTimingDatetime(timing: String)
   RequestorchestrationActionTimingAge(timing: Age)
@@ -123003,7 +123002,7 @@ pub fn requestorchestration_action_timing_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationActionDefinition {
   RequestorchestrationActionDefinitionCanonical(definition: String)
   RequestorchestrationActionDefinitionUri(definition: String)
@@ -123066,7 +123065,7 @@ pub fn requestorchestration_action_new() -> RequestorchestrationAction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationActionCondition {
   RequestorchestrationActionCondition(
     id: Option(String),
@@ -123089,7 +123088,7 @@ pub fn requestorchestration_action_condition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationActionInput {
   RequestorchestrationActionInput(
     id: Option(String),
@@ -123112,7 +123111,7 @@ pub fn requestorchestration_action_input_new() -> RequestorchestrationActionInpu
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationActionOutput {
   RequestorchestrationActionOutput(
     id: Option(String),
@@ -123135,7 +123134,7 @@ pub fn requestorchestration_action_output_new() -> RequestorchestrationActionOut
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationActionRelatedaction {
   RequestorchestrationActionRelatedaction(
     id: Option(String),
@@ -123148,7 +123147,7 @@ pub type RequestorchestrationActionRelatedaction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationActionRelatedactionOffset {
   RequestorchestrationActionRelatedactionOffsetDuration(offset: Duration)
   RequestorchestrationActionRelatedactionOffsetRange(offset: Range)
@@ -123192,7 +123191,7 @@ pub fn requestorchestration_action_relatedaction_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationActionParticipant {
   RequestorchestrationActionParticipant(
     id: Option(String),
@@ -123207,7 +123206,7 @@ pub type RequestorchestrationActionParticipant {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationActionParticipantActor {
   RequestorchestrationActionParticipantActorCanonical(actor: String)
   RequestorchestrationActionParticipantActorReference(actor: Reference)
@@ -123250,7 +123249,7 @@ pub fn requestorchestration_action_participant_new() -> RequestorchestrationActi
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource](http://hl7.org/fhir/r5/StructureDefinition/RequestOrchestration#resource)
 pub type RequestorchestrationActionDynamicvalue {
   RequestorchestrationActionDynamicvalue(
     id: Option(String),
@@ -124535,7 +124534,7 @@ pub fn requestorchestration_decoder() -> Decoder(Requestorchestration) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Requirements#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Requirements#resource](http://hl7.org/fhir/r5/StructureDefinition/Requirements#resource)
 pub type Requirements {
   Requirements(
     id: Option(String),
@@ -124570,7 +124569,7 @@ pub type Requirements {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Requirements#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Requirements#resource](http://hl7.org/fhir/r5/StructureDefinition/Requirements#resource)
 pub type RequirementsVersionalgorithm {
   RequirementsVersionalgorithmString(version_algorithm: String)
   RequirementsVersionalgorithmCoding(version_algorithm: Coding)
@@ -124634,7 +124633,7 @@ pub fn requirements_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Requirements#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Requirements#resource](http://hl7.org/fhir/r5/StructureDefinition/Requirements#resource)
 pub type RequirementsStatement {
   RequirementsStatement(
     id: Option(String),
@@ -125165,7 +125164,7 @@ pub fn requirements_decoder() -> Decoder(Requirements) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource)
 pub type Researchstudy {
   Researchstudy(
     id: Option(String),
@@ -125258,7 +125257,7 @@ pub fn researchstudy_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource)
 pub type ResearchstudyLabel {
   ResearchstudyLabel(
     id: Option(String),
@@ -125279,7 +125278,7 @@ pub fn researchstudy_label_new() -> ResearchstudyLabel {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource)
 pub type ResearchstudyAssociatedparty {
   ResearchstudyAssociatedparty(
     id: Option(String),
@@ -125308,7 +125307,7 @@ pub fn researchstudy_associatedparty_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource)
 pub type ResearchstudyProgressstatus {
   ResearchstudyProgressstatus(
     id: Option(String),
@@ -125333,7 +125332,7 @@ pub fn researchstudy_progressstatus_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource)
 pub type ResearchstudyRecruitment {
   ResearchstudyRecruitment(
     id: Option(String),
@@ -125358,7 +125357,7 @@ pub fn researchstudy_recruitment_new() -> ResearchstudyRecruitment {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource)
 pub type ResearchstudyComparisongroup {
   ResearchstudyComparisongroup(
     id: Option(String),
@@ -125389,7 +125388,7 @@ pub fn researchstudy_comparisongroup_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource)
 pub type ResearchstudyObjective {
   ResearchstudyObjective(
     id: Option(String),
@@ -125412,7 +125411,7 @@ pub fn researchstudy_objective_new() -> ResearchstudyObjective {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r5/StructureDefinition/ResearchStudy#resource)
 pub type ResearchstudyOutcomemeasure {
   ResearchstudyOutcomemeasure(
     id: Option(String),
@@ -126548,7 +126547,7 @@ pub fn researchstudy_decoder() -> Decoder(Researchstudy) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ResearchSubject#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ResearchSubject#resource](http://hl7.org/fhir/r5/StructureDefinition/ResearchSubject#resource)
 pub type Researchsubject {
   Researchsubject(
     id: Option(String),
@@ -126597,7 +126596,7 @@ pub fn researchsubject_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ResearchSubject#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ResearchSubject#resource](http://hl7.org/fhir/r5/StructureDefinition/ResearchSubject#resource)
 pub type ResearchsubjectProgress {
   ResearchsubjectProgress(
     id: Option(String),
@@ -126931,7 +126930,7 @@ pub fn researchsubject_decoder() -> Decoder(Researchsubject) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource](http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource)
 pub type Riskassessment {
   Riskassessment(
     id: Option(String),
@@ -126961,7 +126960,7 @@ pub type Riskassessment {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource](http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource)
 pub type RiskassessmentOccurrence {
   RiskassessmentOccurrenceDatetime(occurrence: String)
   RiskassessmentOccurrencePeriod(occurrence: Period)
@@ -127017,7 +127016,7 @@ pub fn riskassessment_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource](http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource)
 pub type RiskassessmentPrediction {
   RiskassessmentPrediction(
     id: Option(String),
@@ -127032,7 +127031,7 @@ pub type RiskassessmentPrediction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource](http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource)
 pub type RiskassessmentPredictionProbability {
   RiskassessmentPredictionProbabilityDecimal(probability: Float)
   RiskassessmentPredictionProbabilityRange(probability: Range)
@@ -127060,7 +127059,7 @@ pub fn riskassessment_prediction_probability_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource](http://hl7.org/fhir/r5/StructureDefinition/RiskAssessment#resource)
 pub type RiskassessmentPredictionWhen {
   RiskassessmentPredictionWhenPeriod(when: Period)
   RiskassessmentPredictionWhenRange(when: Range)
@@ -127512,7 +127511,7 @@ pub fn riskassessment_decoder() -> Decoder(Riskassessment) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Schedule#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Schedule#resource](http://hl7.org/fhir/r5/StructureDefinition/Schedule#resource)
 pub type Schedule {
   Schedule(
     id: Option(String),
@@ -127775,7 +127774,7 @@ pub fn schedule_decoder() -> Decoder(Schedule) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SearchParameter#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SearchParameter#resource](http://hl7.org/fhir/r5/StructureDefinition/SearchParameter#resource)
 pub type Searchparameter {
   Searchparameter(
     id: Option(String),
@@ -127820,7 +127819,7 @@ pub type Searchparameter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SearchParameter#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SearchParameter#resource](http://hl7.org/fhir/r5/StructureDefinition/SearchParameter#resource)
 pub type SearchparameterVersionalgorithm {
   SearchparameterVersionalgorithmString(version_algorithm: String)
   SearchparameterVersionalgorithmCoding(version_algorithm: Coding)
@@ -127899,7 +127898,7 @@ pub fn searchparameter_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SearchParameter#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SearchParameter#resource](http://hl7.org/fhir/r5/StructureDefinition/SearchParameter#resource)
 pub type SearchparameterComponent {
   SearchparameterComponent(
     id: Option(String),
@@ -128435,7 +128434,7 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource)
 pub type Servicerequest {
   Servicerequest(
     id: Option(String),
@@ -128482,7 +128481,7 @@ pub type Servicerequest {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource)
 pub type ServicerequestQuantity {
   ServicerequestQuantityQuantity(quantity: Quantity)
   ServicerequestQuantityRatio(quantity: Ratio)
@@ -128510,7 +128509,7 @@ pub fn servicerequest_quantity_decoder() -> Decoder(ServicerequestQuantity) {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource)
 pub type ServicerequestOccurrence {
   ServicerequestOccurrenceDatetime(occurrence: String)
   ServicerequestOccurrencePeriod(occurrence: Period)
@@ -128538,7 +128537,7 @@ pub fn servicerequest_occurrence_decoder() -> Decoder(ServicerequestOccurrence) 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource)
 pub type ServicerequestAsneeded {
   ServicerequestAsneededBoolean(as_needed: Bool)
   ServicerequestAsneededCodeableconcept(as_needed: Codeableconcept)
@@ -128616,7 +128615,7 @@ pub fn servicerequest_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource)
 pub type ServicerequestOrderdetail {
   ServicerequestOrderdetail(
     id: Option(String),
@@ -128637,7 +128636,7 @@ pub fn servicerequest_orderdetail_new() -> ServicerequestOrderdetail {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource)
 pub type ServicerequestOrderdetailParameter {
   ServicerequestOrderdetailParameter(
     id: Option(String),
@@ -128648,7 +128647,7 @@ pub type ServicerequestOrderdetailParameter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource)
 pub type ServicerequestOrderdetailParameterValue {
   ServicerequestOrderdetailParameterValueQuantity(value: Quantity)
   ServicerequestOrderdetailParameterValueRatio(value: Ratio)
@@ -128714,7 +128713,7 @@ pub fn servicerequest_orderdetail_parameter_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource)
 pub type ServicerequestPatientinstruction {
   ServicerequestPatientinstruction(
     id: Option(String),
@@ -128724,7 +128723,7 @@ pub type ServicerequestPatientinstruction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/ServiceRequest#resource)
 pub type ServicerequestPatientinstructionInstruction {
   ServicerequestPatientinstructionInstructionMarkdown(instruction: String)
   ServicerequestPatientinstructionInstructionReference(instruction: Reference)
@@ -129489,7 +129488,7 @@ pub fn servicerequest_decoder() -> Decoder(Servicerequest) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Slot#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Slot#resource](http://hl7.org/fhir/r5/StructureDefinition/Slot#resource)
 pub type Slot {
   Slot(
     id: Option(String),
@@ -129762,7 +129761,7 @@ pub fn slot_decoder() -> Decoder(Slot) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource)
 pub type Specimen {
   Specimen(
     id: Option(String),
@@ -129821,7 +129820,7 @@ pub fn specimen_new() -> Specimen {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource)
 pub type SpecimenFeature {
   SpecimenFeature(
     id: Option(String),
@@ -129845,7 +129844,7 @@ pub fn specimen_feature_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource)
 pub type SpecimenCollection {
   SpecimenCollection(
     id: Option(String),
@@ -129863,7 +129862,7 @@ pub type SpecimenCollection {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource)
 pub type SpecimenCollectionCollected {
   SpecimenCollectionCollectedDatetime(collected: String)
   SpecimenCollectionCollectedPeriod(collected: Period)
@@ -129891,7 +129890,7 @@ pub fn specimen_collection_collected_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource)
 pub type SpecimenCollectionFastingstatus {
   SpecimenCollectionFastingstatusCodeableconcept(
     fasting_status: Codeableconcept,
@@ -129943,7 +129942,7 @@ pub fn specimen_collection_new() -> SpecimenCollection {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource)
 pub type SpecimenProcessing {
   SpecimenProcessing(
     id: Option(String),
@@ -129956,7 +129955,7 @@ pub type SpecimenProcessing {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource)
 pub type SpecimenProcessingTime {
   SpecimenProcessingTimeDatetime(time: String)
   SpecimenProcessingTimePeriod(time: Period)
@@ -129992,7 +129991,7 @@ pub fn specimen_processing_new() -> SpecimenProcessing {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r5/StructureDefinition/Specimen#resource)
 pub type SpecimenContainer {
   SpecimenContainer(
     id: Option(String),
@@ -130695,7 +130694,7 @@ pub fn specimen_decoder() -> Decoder(Specimen) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource)
 pub type Specimendefinition {
   Specimendefinition(
     id: Option(String),
@@ -130737,7 +130736,7 @@ pub type Specimendefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionVersionalgorithm {
   SpecimendefinitionVersionalgorithmString(version_algorithm: String)
   SpecimendefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -130765,7 +130764,7 @@ pub fn specimendefinition_versionalgorithm_decoder() -> Decoder(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionSubject {
   SpecimendefinitionSubjectCodeableconcept(subject: Codeableconcept)
   SpecimendefinitionSubjectReference(subject: Reference)
@@ -130840,7 +130839,7 @@ pub fn specimendefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionTypetested {
   SpecimendefinitionTypetested(
     id: Option(String),
@@ -130879,7 +130878,7 @@ pub fn specimendefinition_typetested_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionTypetestedContainer {
   SpecimendefinitionTypetestedContainer(
     id: Option(String),
@@ -130896,7 +130895,7 @@ pub type SpecimendefinitionTypetestedContainer {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionTypetestedContainerMinimumvolume {
   SpecimendefinitionTypetestedContainerMinimumvolumeQuantity(
     minimum_volume: Quantity,
@@ -130946,7 +130945,7 @@ pub fn specimendefinition_typetested_container_new() -> SpecimendefinitionTypete
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionTypetestedContainerAdditive {
   SpecimendefinitionTypetestedContainerAdditive(
     id: Option(String),
@@ -130956,7 +130955,7 @@ pub type SpecimendefinitionTypetestedContainerAdditive {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionTypetestedContainerAdditiveAdditive {
   SpecimendefinitionTypetestedContainerAdditiveAdditiveCodeableconcept(
     additive: Codeableconcept,
@@ -131009,7 +131008,7 @@ pub fn specimendefinition_typetested_container_additive_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionTypetestedHandling {
   SpecimendefinitionTypetestedHandling(
     id: Option(String),
@@ -131976,7 +131975,7 @@ pub fn specimendefinition_decoder() -> Decoder(Specimendefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource)
 pub type Structuredefinition {
   Structuredefinition(
     id: Option(String),
@@ -132019,7 +132018,7 @@ pub type Structuredefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource)
 pub type StructuredefinitionVersionalgorithm {
   StructuredefinitionVersionalgorithmString(version_algorithm: String)
   StructuredefinitionVersionalgorithmCoding(version_algorithm: Coding)
@@ -132096,7 +132095,7 @@ pub fn structuredefinition_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource)
 pub type StructuredefinitionMapping {
   StructuredefinitionMapping(
     id: Option(String),
@@ -132123,7 +132122,7 @@ pub fn structuredefinition_mapping_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource)
 pub type StructuredefinitionContext {
   StructuredefinitionContext(
     id: Option(String),
@@ -132147,7 +132146,7 @@ pub fn structuredefinition_context_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource)
 pub type StructuredefinitionSnapshot {
   StructuredefinitionSnapshot(
     id: Option(String),
@@ -132166,7 +132165,7 @@ pub fn structuredefinition_snapshot_new() -> StructuredefinitionSnapshot {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureDefinition#resource)
 pub type StructuredefinitionDifferential {
   StructuredefinitionDifferential(
     id: Option(String),
@@ -132877,7 +132876,7 @@ pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type Structuremap {
   Structuremap(
     id: Option(String),
@@ -132912,7 +132911,7 @@ pub type Structuremap {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapVersionalgorithm {
   StructuremapVersionalgorithmString(version_algorithm: String)
   StructuremapVersionalgorithmCoding(version_algorithm: Coding)
@@ -132978,7 +132977,7 @@ pub fn structuremap_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapStructure {
   StructuremapStructure(
     id: Option(String),
@@ -133006,7 +133005,7 @@ pub fn structuremap_structure_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapConst {
   StructuremapConst(
     id: Option(String),
@@ -133027,7 +133026,7 @@ pub fn structuremap_const_new() -> StructuremapConst {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroup {
   StructuremapGroup(
     id: Option(String),
@@ -133056,7 +133055,7 @@ pub fn structuremap_group_new(name name: String) -> StructuremapGroup {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupInput {
   StructuremapGroupInput(
     id: Option(String),
@@ -133084,7 +133083,7 @@ pub fn structuremap_group_input_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRule {
   StructuremapGroupRule(
     id: Option(String),
@@ -133113,7 +133112,7 @@ pub fn structuremap_group_rule_new() -> StructuremapGroupRule {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRuleSource {
   StructuremapGroupRuleSource(
     id: Option(String),
@@ -133154,7 +133153,7 @@ pub fn structuremap_group_rule_source_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRuleTarget {
   StructuremapGroupRuleTarget(
     id: Option(String),
@@ -133185,7 +133184,7 @@ pub fn structuremap_group_rule_target_new() -> StructuremapGroupRuleTarget {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRuleTargetParameter {
   StructuremapGroupRuleTargetParameter(
     id: Option(String),
@@ -133195,7 +133194,7 @@ pub type StructuremapGroupRuleTargetParameter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRuleTargetParameterValue {
   StructuremapGroupRuleTargetParameterValueId(value: String)
   StructuremapGroupRuleTargetParameterValueString(value: String)
@@ -133258,7 +133257,7 @@ pub fn structuremap_group_rule_target_parameter_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r5/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRuleDependent {
   StructuremapGroupRuleDependent(
     id: Option(String),
@@ -134496,7 +134495,7 @@ pub fn structuremap_decoder() -> Decoder(Structuremap) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Subscription#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Subscription#resource](http://hl7.org/fhir/r5/StructureDefinition/Subscription#resource)
 pub type Subscription {
   Subscription(
     id: Option(String),
@@ -134561,7 +134560,7 @@ pub fn subscription_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Subscription#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Subscription#resource](http://hl7.org/fhir/r5/StructureDefinition/Subscription#resource)
 pub type SubscriptionFilterby {
   SubscriptionFilterby(
     id: Option(String),
@@ -134591,7 +134590,7 @@ pub fn subscription_filterby_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Subscription#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Subscription#resource](http://hl7.org/fhir/r5/StructureDefinition/Subscription#resource)
 pub type SubscriptionParameter {
   SubscriptionParameter(
     id: Option(String),
@@ -135046,7 +135045,7 @@ pub fn subscription_decoder() -> Decoder(Subscription) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubscriptionStatus#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubscriptionStatus#resource](http://hl7.org/fhir/r5/StructureDefinition/SubscriptionStatus#resource)
 pub type Subscriptionstatus {
   Subscriptionstatus(
     id: Option(String),
@@ -135090,7 +135089,7 @@ pub fn subscriptionstatus_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubscriptionStatus#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubscriptionStatus#resource](http://hl7.org/fhir/r5/StructureDefinition/SubscriptionStatus#resource)
 pub type SubscriptionstatusNotificationevent {
   SubscriptionstatusNotificationevent(
     id: Option(String),
@@ -135398,7 +135397,7 @@ pub fn subscriptionstatus_decoder() -> Decoder(Subscriptionstatus) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource](http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource)
 pub type Subscriptiontopic {
   Subscriptiontopic(
     id: Option(String),
@@ -135437,7 +135436,7 @@ pub type Subscriptiontopic {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource](http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource)
 pub type SubscriptiontopicVersionalgorithm {
   SubscriptiontopicVersionalgorithmString(version_algorithm: String)
   SubscriptiontopicVersionalgorithmCoding(version_algorithm: Coding)
@@ -135506,7 +135505,7 @@ pub fn subscriptiontopic_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource](http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource)
 pub type SubscriptiontopicResourcetrigger {
   SubscriptiontopicResourcetrigger(
     id: Option(String),
@@ -135535,7 +135534,7 @@ pub fn subscriptiontopic_resourcetrigger_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource](http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource)
 pub type SubscriptiontopicResourcetriggerQuerycriteria {
   SubscriptiontopicResourcetriggerQuerycriteria(
     id: Option(String),
@@ -135562,7 +135561,7 @@ pub fn subscriptiontopic_resourcetrigger_querycriteria_new() -> Subscriptiontopi
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource](http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource)
 pub type SubscriptiontopicEventtrigger {
   SubscriptiontopicEventtrigger(
     id: Option(String),
@@ -135588,7 +135587,7 @@ pub fn subscriptiontopic_eventtrigger_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource](http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource)
 pub type SubscriptiontopicCanfilterby {
   SubscriptiontopicCanfilterby(
     id: Option(String),
@@ -135619,7 +135618,7 @@ pub fn subscriptiontopic_canfilterby_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource](http://hl7.org/fhir/r5/StructureDefinition/SubscriptionTopic#resource)
 pub type SubscriptiontopicNotificationshape {
   SubscriptiontopicNotificationshape(
     id: Option(String),
@@ -136543,7 +136542,7 @@ pub fn subscriptiontopic_decoder() -> Decoder(Subscriptiontopic) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Substance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Substance#resource](http://hl7.org/fhir/r5/StructureDefinition/Substance#resource)
 pub type Substance {
   Substance(
     id: Option(String),
@@ -136591,7 +136590,7 @@ pub fn substance_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Substance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Substance#resource](http://hl7.org/fhir/r5/StructureDefinition/Substance#resource)
 pub type SubstanceIngredient {
   SubstanceIngredient(
     id: Option(String),
@@ -136602,7 +136601,7 @@ pub type SubstanceIngredient {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Substance#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Substance#resource](http://hl7.org/fhir/r5/StructureDefinition/Substance#resource)
 pub type SubstanceIngredientSubstance {
   SubstanceIngredientSubstanceCodeableconcept(substance: Codeableconcept)
   SubstanceIngredientSubstanceReference(substance: Reference)
@@ -136908,7 +136907,7 @@ pub fn substance_decoder() -> Decoder(Substance) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type Substancedefinition {
   Substancedefinition(
     id: Option(String),
@@ -136983,7 +136982,7 @@ pub fn substancedefinition_new() -> Substancedefinition {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionMoiety {
   SubstancedefinitionMoiety(
     id: Option(String),
@@ -137000,7 +136999,7 @@ pub type SubstancedefinitionMoiety {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionMoietyAmount {
   SubstancedefinitionMoietyAmountQuantity(amount: Quantity)
   SubstancedefinitionMoietyAmountString(amount: String)
@@ -137044,7 +137043,7 @@ pub fn substancedefinition_moiety_new() -> SubstancedefinitionMoiety {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionCharacterization {
   SubstancedefinitionCharacterization(
     id: Option(String),
@@ -137069,7 +137068,7 @@ pub fn substancedefinition_characterization_new() -> SubstancedefinitionCharacte
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionProperty {
   SubstancedefinitionProperty(
     id: Option(String),
@@ -137080,7 +137079,7 @@ pub type SubstancedefinitionProperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionPropertyValue {
   SubstancedefinitionPropertyValueCodeableconcept(value: Codeableconcept)
   SubstancedefinitionPropertyValueQuantity(value: Quantity)
@@ -137137,7 +137136,7 @@ pub fn substancedefinition_property_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionMolecularweight {
   SubstancedefinitionMolecularweight(
     id: Option(String),
@@ -137162,7 +137161,7 @@ pub fn substancedefinition_molecularweight_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionStructure {
   SubstancedefinitionStructure(
     id: Option(String),
@@ -137195,7 +137194,7 @@ pub fn substancedefinition_structure_new() -> SubstancedefinitionStructure {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionStructureRepresentation {
   SubstancedefinitionStructureRepresentation(
     id: Option(String),
@@ -137220,7 +137219,7 @@ pub fn substancedefinition_structure_representation_new() -> Substancedefinition
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionCode {
   SubstancedefinitionCode(
     id: Option(String),
@@ -137247,7 +137246,7 @@ pub fn substancedefinition_code_new() -> SubstancedefinitionCode {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionName {
   SubstancedefinitionName(
     id: Option(String),
@@ -137288,7 +137287,7 @@ pub fn substancedefinition_name_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionNameOfficial {
   SubstancedefinitionNameOfficial(
     id: Option(String),
@@ -137311,7 +137310,7 @@ pub fn substancedefinition_name_official_new() -> SubstancedefinitionNameOfficia
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionRelationship {
   SubstancedefinitionRelationship(
     id: Option(String),
@@ -137329,7 +137328,7 @@ pub type SubstancedefinitionRelationship {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionRelationshipSubstancedefinition {
   SubstancedefinitionRelationshipSubstancedefinitionReference(
     substance_definition: Reference,
@@ -137373,7 +137372,7 @@ pub fn substancedefinition_relationship_substancedefinition_decoder() -> Decoder
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionRelationshipAmount {
   SubstancedefinitionRelationshipAmountQuantity(amount: Quantity)
   SubstancedefinitionRelationshipAmountRatio(amount: Ratio)
@@ -137422,7 +137421,7 @@ pub fn substancedefinition_relationship_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceDefinition#resource)
 pub type SubstancedefinitionSourcematerial {
   SubstancedefinitionSourcematerial(
     id: Option(String),
@@ -139130,7 +139129,7 @@ pub fn substancedefinition_decoder() -> Decoder(Substancedefinition) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource)
 pub type Substancenucleicacid {
   Substancenucleicacid(
     id: Option(String),
@@ -139167,7 +139166,7 @@ pub fn substancenucleicacid_new() -> Substancenucleicacid {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource)
 pub type SubstancenucleicacidSubunit {
   SubstancenucleicacidSubunit(
     id: Option(String),
@@ -139200,7 +139199,7 @@ pub fn substancenucleicacid_subunit_new() -> SubstancenucleicacidSubunit {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource)
 pub type SubstancenucleicacidSubunitLinkage {
   SubstancenucleicacidSubunitLinkage(
     id: Option(String),
@@ -139225,7 +139224,7 @@ pub fn substancenucleicacid_subunit_linkage_new() -> SubstancenucleicacidSubunit
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceNucleicAcid#resource)
 pub type SubstancenucleicacidSubunitSugar {
   SubstancenucleicacidSubunitSugar(
     id: Option(String),
@@ -139739,7 +139738,7 @@ pub fn substancenucleicacid_decoder() -> Decoder(Substancenucleicacid) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource)
 pub type Substancepolymer {
   Substancepolymer(
     id: Option(String),
@@ -139780,7 +139779,7 @@ pub fn substancepolymer_new() -> Substancepolymer {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerMonomerset {
   SubstancepolymerMonomerset(
     id: Option(String),
@@ -139801,7 +139800,7 @@ pub fn substancepolymer_monomerset_new() -> SubstancepolymerMonomerset {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerMonomersetStartingmaterial {
   SubstancepolymerMonomersetStartingmaterial(
     id: Option(String),
@@ -139826,7 +139825,7 @@ pub fn substancepolymer_monomerset_startingmaterial_new() -> SubstancepolymerMon
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerRepeat {
   SubstancepolymerRepeat(
     id: Option(String),
@@ -139849,7 +139848,7 @@ pub fn substancepolymer_repeat_new() -> SubstancepolymerRepeat {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerRepeatRepeatunit {
   SubstancepolymerRepeatRepeatunit(
     id: Option(String),
@@ -139880,7 +139879,7 @@ pub fn substancepolymer_repeat_repeatunit_new() -> SubstancepolymerRepeatRepeatu
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerRepeatRepeatunitDegreeofpolymerisation {
   SubstancepolymerRepeatRepeatunitDegreeofpolymerisation(
     id: Option(String),
@@ -139905,7 +139904,7 @@ pub fn substancepolymer_repeat_repeatunit_degreeofpolymerisation_new() -> Substa
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerRepeatRepeatunitStructuralrepresentation {
   SubstancepolymerRepeatRepeatunitStructuralrepresentation(
     id: Option(String),
@@ -140692,7 +140691,7 @@ pub fn substancepolymer_decoder() -> Decoder(Substancepolymer) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceProtein#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceProtein#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceProtein#resource)
 pub type Substanceprotein {
   Substanceprotein(
     id: Option(String),
@@ -140727,7 +140726,7 @@ pub fn substanceprotein_new() -> Substanceprotein {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceProtein#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceProtein#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceProtein#resource)
 pub type SubstanceproteinSubunit {
   SubstanceproteinSubunit(
     id: Option(String),
@@ -141052,7 +141051,7 @@ pub fn substanceprotein_decoder() -> Decoder(Substanceprotein) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource)
 pub type Substancereferenceinformation {
   Substancereferenceinformation(
     id: Option(String),
@@ -141087,7 +141086,7 @@ pub fn substancereferenceinformation_new() -> Substancereferenceinformation {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource)
 pub type SubstancereferenceinformationGene {
   SubstancereferenceinformationGene(
     id: Option(String),
@@ -141110,7 +141109,7 @@ pub fn substancereferenceinformation_gene_new() -> Substancereferenceinformation
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource)
 pub type SubstancereferenceinformationGeneelement {
   SubstancereferenceinformationGeneelement(
     id: Option(String),
@@ -141133,7 +141132,7 @@ pub fn substancereferenceinformation_geneelement_new() -> Substancereferenceinfo
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource)
 pub type SubstancereferenceinformationTarget {
   SubstancereferenceinformationTarget(
     id: Option(String),
@@ -141150,7 +141149,7 @@ pub type SubstancereferenceinformationTarget {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceReferenceInformation#resource)
 pub type SubstancereferenceinformationTargetAmount {
   SubstancereferenceinformationTargetAmountQuantity(amount: Quantity)
   SubstancereferenceinformationTargetAmountRange(amount: Range)
@@ -141684,7 +141683,7 @@ pub fn substancereferenceinformation_decoder() -> Decoder(
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type Substancesourcematerial {
   Substancesourcematerial(
     id: Option(String),
@@ -141737,7 +141736,7 @@ pub fn substancesourcematerial_new() -> Substancesourcematerial {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialFractiondescription {
   SubstancesourcematerialFractiondescription(
     id: Option(String),
@@ -141758,7 +141757,7 @@ pub fn substancesourcematerial_fractiondescription_new() -> Substancesourcemater
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialOrganism {
   SubstancesourcematerialOrganism(
     id: Option(String),
@@ -141791,7 +141790,7 @@ pub fn substancesourcematerial_organism_new() -> SubstancesourcematerialOrganism
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialOrganismAuthor {
   SubstancesourcematerialOrganismAuthor(
     id: Option(String),
@@ -141812,7 +141811,7 @@ pub fn substancesourcematerial_organism_author_new() -> SubstancesourcematerialO
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialOrganismHybrid {
   SubstancesourcematerialOrganismHybrid(
     id: Option(String),
@@ -141839,7 +141838,7 @@ pub fn substancesourcematerial_organism_hybrid_new() -> SubstancesourcematerialO
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialOrganismOrganismgeneral {
   SubstancesourcematerialOrganismOrganismgeneral(
     id: Option(String),
@@ -141864,7 +141863,7 @@ pub fn substancesourcematerial_organism_organismgeneral_new() -> Substancesource
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r5/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialPartdescription {
   SubstancesourcematerialPartdescription(
     id: Option(String),
@@ -142741,7 +142740,7 @@ pub fn substancesourcematerial_decoder() -> Decoder(Substancesourcematerial) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource](http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource)
 pub type Supplydelivery {
   Supplydelivery(
     id: Option(String),
@@ -142766,7 +142765,7 @@ pub type Supplydelivery {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource](http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource)
 pub type SupplydeliveryOccurrence {
   SupplydeliveryOccurrenceDatetime(occurrence: String)
   SupplydeliveryOccurrencePeriod(occurrence: Period)
@@ -142818,7 +142817,7 @@ pub fn supplydelivery_new() -> Supplydelivery {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource](http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource)
 pub type SupplydeliverySupplieditem {
   SupplydeliverySupplieditem(
     id: Option(String),
@@ -142829,7 +142828,7 @@ pub type SupplydeliverySupplieditem {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource](http://hl7.org/fhir/r5/StructureDefinition/SupplyDelivery#resource)
 pub type SupplydeliverySupplieditemItem {
   SupplydeliverySupplieditemItemCodeableconcept(item: Codeableconcept)
   SupplydeliverySupplieditemItemReference(item: Reference)
@@ -143197,7 +143196,7 @@ pub fn supplydelivery_decoder() -> Decoder(Supplydelivery) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource)
 pub type Supplyrequest {
   Supplyrequest(
     id: Option(String),
@@ -143227,7 +143226,7 @@ pub type Supplyrequest {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource)
 pub type SupplyrequestOccurrence {
   SupplyrequestOccurrenceDatetime(occurrence: String)
   SupplyrequestOccurrencePeriod(occurrence: Period)
@@ -143287,7 +143286,7 @@ pub fn supplyrequest_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource)
 pub type SupplyrequestParameter {
   SupplyrequestParameter(
     id: Option(String),
@@ -143298,7 +143297,7 @@ pub type SupplyrequestParameter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource](http://hl7.org/fhir/r5/StructureDefinition/SupplyRequest#resource)
 pub type SupplyrequestParameterValue {
   SupplyrequestParameterValueCodeableconcept(value: Codeableconcept)
   SupplyrequestParameterValueQuantity(value: Quantity)
@@ -143715,7 +143714,7 @@ pub fn supplyrequest_decoder() -> Decoder(Supplyrequest) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Task#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Task#resource](http://hl7.org/fhir/r5/StructureDefinition/Task#resource)
 pub type Task {
   Task(
     id: Option(String),
@@ -143811,7 +143810,7 @@ pub fn task_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Task#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Task#resource](http://hl7.org/fhir/r5/StructureDefinition/Task#resource)
 pub type TaskPerformer {
   TaskPerformer(
     id: Option(String),
@@ -143832,7 +143831,7 @@ pub fn task_performer_new(actor actor: Reference) -> TaskPerformer {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Task#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Task#resource](http://hl7.org/fhir/r5/StructureDefinition/Task#resource)
 pub type TaskRestriction {
   TaskRestriction(
     id: Option(String),
@@ -143855,7 +143854,7 @@ pub fn task_restriction_new() -> TaskRestriction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Task#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Task#resource](http://hl7.org/fhir/r5/StructureDefinition/Task#resource)
 pub type TaskInput {
   TaskInput(
     id: Option(String),
@@ -143866,7 +143865,7 @@ pub type TaskInput {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Task#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Task#resource](http://hl7.org/fhir/r5/StructureDefinition/Task#resource)
 pub type TaskInputValue {
   TaskInputValueBase64binary(value: String)
   TaskInputValueBoolean(value: Bool)
@@ -144137,7 +144136,7 @@ pub fn task_input_new(
   TaskInput(value:, type_:, modifier_extension: [], extension: [], id: None)
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Task#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Task#resource](http://hl7.org/fhir/r5/StructureDefinition/Task#resource)
 pub type TaskOutput {
   TaskOutput(
     id: Option(String),
@@ -144148,7 +144147,7 @@ pub type TaskOutput {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Task#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Task#resource](http://hl7.org/fhir/r5/StructureDefinition/Task#resource)
 pub type TaskOutputValue {
   TaskOutputValueBase64binary(value: String)
   TaskOutputValueBoolean(value: Bool)
@@ -145117,7 +145116,7 @@ pub fn task_decoder() -> Decoder(Task) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type Terminologycapabilities {
   Terminologycapabilities(
     id: Option(String),
@@ -145158,7 +145157,7 @@ pub type Terminologycapabilities {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesVersionalgorithm {
   TerminologycapabilitiesVersionalgorithmString(version_algorithm: String)
   TerminologycapabilitiesVersionalgorithmCoding(version_algorithm: Coding)
@@ -145230,7 +145229,7 @@ pub fn terminologycapabilities_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesSoftware {
   TerminologycapabilitiesSoftware(
     id: Option(String),
@@ -145253,7 +145252,7 @@ pub fn terminologycapabilities_software_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesImplementation {
   TerminologycapabilitiesImplementation(
     id: Option(String),
@@ -145276,7 +145275,7 @@ pub fn terminologycapabilities_implementation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesCodesystem {
   TerminologycapabilitiesCodesystem(
     id: Option(String),
@@ -145303,7 +145302,7 @@ pub fn terminologycapabilities_codesystem_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesCodesystemVersion {
   TerminologycapabilitiesCodesystemVersion(
     id: Option(String),
@@ -145332,7 +145331,7 @@ pub fn terminologycapabilities_codesystem_version_new() -> Terminologycapabiliti
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesCodesystemVersionFilter {
   TerminologycapabilitiesCodesystemVersionFilter(
     id: Option(String),
@@ -145355,7 +145354,7 @@ pub fn terminologycapabilities_codesystem_version_filter_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesExpansion {
   TerminologycapabilitiesExpansion(
     id: Option(String),
@@ -145382,7 +145381,7 @@ pub fn terminologycapabilities_expansion_new() -> TerminologycapabilitiesExpansi
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesExpansionParameter {
   TerminologycapabilitiesExpansionParameter(
     id: Option(String),
@@ -145405,7 +145404,7 @@ pub fn terminologycapabilities_expansion_parameter_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesValidatecode {
   TerminologycapabilitiesValidatecode(
     id: Option(String),
@@ -145426,7 +145425,7 @@ pub fn terminologycapabilities_validatecode_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesTranslation {
   TerminologycapabilitiesTranslation(
     id: Option(String),
@@ -145447,7 +145446,7 @@ pub fn terminologycapabilities_translation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r5/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesClosure {
   TerminologycapabilitiesClosure(
     id: Option(String),
@@ -146650,7 +146649,7 @@ pub fn terminologycapabilities_decoder() -> Decoder(Terminologycapabilities) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type Testplan {
   Testplan(
     id: Option(String),
@@ -146687,7 +146686,7 @@ pub type Testplan {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type TestplanVersionalgorithm {
   TestplanVersionalgorithmString(version_algorithm: String)
   TestplanVersionalgorithmCoding(version_algorithm: Coding)
@@ -146747,7 +146746,7 @@ pub fn testplan_new(status status: r5_valuesets.Publicationstatus) -> Testplan {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type TestplanDependency {
   TestplanDependency(
     id: Option(String),
@@ -146768,7 +146767,7 @@ pub fn testplan_dependency_new() -> TestplanDependency {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type TestplanTestcase {
   TestplanTestcase(
     id: Option(String),
@@ -146797,7 +146796,7 @@ pub fn testplan_testcase_new() -> TestplanTestcase {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type TestplanTestcaseDependency {
   TestplanTestcaseDependency(
     id: Option(String),
@@ -146818,7 +146817,7 @@ pub fn testplan_testcase_dependency_new() -> TestplanTestcaseDependency {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type TestplanTestcaseTestrun {
   TestplanTestcaseTestrun(
     id: Option(String),
@@ -146839,7 +146838,7 @@ pub fn testplan_testcase_testrun_new() -> TestplanTestcaseTestrun {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type TestplanTestcaseTestrunScript {
   TestplanTestcaseTestrunScript(
     id: Option(String),
@@ -146850,7 +146849,7 @@ pub type TestplanTestcaseTestrunScript {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type TestplanTestcaseTestrunScriptSource {
   TestplanTestcaseTestrunScriptSourceString(source: String)
   TestplanTestcaseTestrunScriptSourceReference(source: Reference)
@@ -146888,7 +146887,7 @@ pub fn testplan_testcase_testrun_script_new() -> TestplanTestcaseTestrunScript {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type TestplanTestcaseTestdata {
   TestplanTestcaseTestdata(
     id: Option(String),
@@ -146900,7 +146899,7 @@ pub type TestplanTestcaseTestdata {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type TestplanTestcaseTestdataSource {
   TestplanTestcaseTestdataSourceString(source: String)
   TestplanTestcaseTestdataSourceReference(source: Reference)
@@ -146941,7 +146940,7 @@ pub fn testplan_testcase_testdata_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource](http://hl7.org/fhir/r5/StructureDefinition/TestPlan#resource)
 pub type TestplanTestcaseAssertion {
   TestplanTestcaseAssertion(
     id: Option(String),
@@ -147918,7 +147917,7 @@ pub fn testplan_decoder() -> Decoder(Testplan) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type Testreport {
   Testreport(
     id: Option(String),
@@ -147973,7 +147972,7 @@ pub fn testreport_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportParticipant {
   TestreportParticipant(
     id: Option(String),
@@ -147999,7 +147998,7 @@ pub fn testreport_participant_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportSetup {
   TestreportSetup(
     id: Option(String),
@@ -148013,7 +148012,7 @@ pub fn testreport_setup_new() -> TestreportSetup {
   TestreportSetup(action: [], modifier_extension: [], extension: [], id: None)
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportSetupAction {
   TestreportSetupAction(
     id: Option(String),
@@ -148034,7 +148033,7 @@ pub fn testreport_setup_action_new() -> TestreportSetupAction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportSetupActionOperation {
   TestreportSetupActionOperation(
     id: Option(String),
@@ -148059,7 +148058,7 @@ pub fn testreport_setup_action_operation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportSetupActionAssert {
   TestreportSetupActionAssert(
     id: Option(String),
@@ -148086,7 +148085,7 @@ pub fn testreport_setup_action_assert_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportSetupActionAssertRequirement {
   TestreportSetupActionAssertRequirement(
     id: Option(String),
@@ -148096,7 +148095,7 @@ pub type TestreportSetupActionAssertRequirement {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportSetupActionAssertRequirementLink {
   TestreportSetupActionAssertRequirementLinkUri(link: String)
   TestreportSetupActionAssertRequirementLinkCanonical(link: String)
@@ -148133,7 +148132,7 @@ pub fn testreport_setup_action_assert_requirement_new() -> TestreportSetupAction
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportTest {
   TestreportTest(
     id: Option(String),
@@ -148156,7 +148155,7 @@ pub fn testreport_test_new() -> TestreportTest {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportTestAction {
   TestreportTestAction(
     id: Option(String),
@@ -148177,7 +148176,7 @@ pub fn testreport_test_action_new() -> TestreportTestAction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportTeardown {
   TestreportTeardown(
     id: Option(String),
@@ -148196,7 +148195,7 @@ pub fn testreport_teardown_new() -> TestreportTeardown {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
 pub type TestreportTeardownAction {
   TestreportTeardownAction(
     id: Option(String),
@@ -149147,7 +149146,7 @@ pub fn testreport_decoder() -> Decoder(Testreport) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type Testscript {
   Testscript(
     id: Option(String),
@@ -149188,7 +149187,7 @@ pub type Testscript {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptVersionalgorithm {
   TestscriptVersionalgorithmString(version_algorithm: String)
   TestscriptVersionalgorithmCoding(version_algorithm: Coding)
@@ -149259,7 +149258,7 @@ pub fn testscript_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptOrigin {
   TestscriptOrigin(
     id: Option(String),
@@ -149285,7 +149284,7 @@ pub fn testscript_origin_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptDestination {
   TestscriptDestination(
     id: Option(String),
@@ -149311,7 +149310,7 @@ pub fn testscript_destination_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptMetadata {
   TestscriptMetadata(
     id: Option(String),
@@ -149332,7 +149331,7 @@ pub fn testscript_metadata_new() -> TestscriptMetadata {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptMetadataLink {
   TestscriptMetadataLink(
     id: Option(String),
@@ -149353,7 +149352,7 @@ pub fn testscript_metadata_link_new(url url: String) -> TestscriptMetadataLink {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptMetadataCapability {
   TestscriptMetadataCapability(
     id: Option(String),
@@ -149388,7 +149387,7 @@ pub fn testscript_metadata_capability_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptScope {
   TestscriptScope(
     id: Option(String),
@@ -149411,7 +149410,7 @@ pub fn testscript_scope_new(artifact artifact: String) -> TestscriptScope {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptFixture {
   TestscriptFixture(
     id: Option(String),
@@ -149437,7 +149436,7 @@ pub fn testscript_fixture_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptVariable {
   TestscriptVariable(
     id: Option(String),
@@ -149470,7 +149469,7 @@ pub fn testscript_variable_new(name name: String) -> TestscriptVariable {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptSetup {
   TestscriptSetup(
     id: Option(String),
@@ -149484,7 +149483,7 @@ pub fn testscript_setup_new() -> TestscriptSetup {
   TestscriptSetup(action: [], modifier_extension: [], extension: [], id: None)
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptSetupAction {
   TestscriptSetupAction(
     id: Option(String),
@@ -149505,7 +149504,7 @@ pub fn testscript_setup_action_new() -> TestscriptSetupAction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptSetupActionOperation {
   TestscriptSetupActionOperation(
     id: Option(String),
@@ -149558,7 +149557,7 @@ pub fn testscript_setup_action_operation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptSetupActionOperationRequestheader {
   TestscriptSetupActionOperationRequestheader(
     id: Option(String),
@@ -149582,7 +149581,7 @@ pub fn testscript_setup_action_operation_requestheader_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptSetupActionAssert {
   TestscriptSetupActionAssert(
     id: Option(String),
@@ -149652,7 +149651,7 @@ pub fn testscript_setup_action_assert_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptSetupActionAssertRequirement {
   TestscriptSetupActionAssertRequirement(
     id: Option(String),
@@ -149662,7 +149661,7 @@ pub type TestscriptSetupActionAssertRequirement {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptSetupActionAssertRequirementLink {
   TestscriptSetupActionAssertRequirementLinkUri(link: String)
   TestscriptSetupActionAssertRequirementLinkCanonical(link: String)
@@ -149699,7 +149698,7 @@ pub fn testscript_setup_action_assert_requirement_new() -> TestscriptSetupAction
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptTest {
   TestscriptTest(
     id: Option(String),
@@ -149722,7 +149721,7 @@ pub fn testscript_test_new() -> TestscriptTest {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptTestAction {
   TestscriptTestAction(
     id: Option(String),
@@ -149743,7 +149742,7 @@ pub fn testscript_test_action_new() -> TestscriptTestAction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptTeardown {
   TestscriptTeardown(
     id: Option(String),
@@ -149762,7 +149761,7 @@ pub fn testscript_teardown_new() -> TestscriptTeardown {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
 pub type TestscriptTeardownAction {
   TestscriptTeardownAction(
     id: Option(String),
@@ -151910,7 +151909,7 @@ pub fn testscript_decoder() -> Decoder(Testscript) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Transport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Transport#resource](http://hl7.org/fhir/r5/StructureDefinition/Transport#resource)
 pub type Transport {
   Transport(
     id: Option(String),
@@ -152005,7 +152004,7 @@ pub fn transport_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Transport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Transport#resource](http://hl7.org/fhir/r5/StructureDefinition/Transport#resource)
 pub type TransportRestriction {
   TransportRestriction(
     id: Option(String),
@@ -152028,7 +152027,7 @@ pub fn transport_restriction_new() -> TransportRestriction {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Transport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Transport#resource](http://hl7.org/fhir/r5/StructureDefinition/Transport#resource)
 pub type TransportInput {
   TransportInput(
     id: Option(String),
@@ -152039,7 +152038,7 @@ pub type TransportInput {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Transport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Transport#resource](http://hl7.org/fhir/r5/StructureDefinition/Transport#resource)
 pub type TransportInputValue {
   TransportInputValueBase64binary(value: String)
   TransportInputValueBoolean(value: Bool)
@@ -152317,7 +152316,7 @@ pub fn transport_input_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Transport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Transport#resource](http://hl7.org/fhir/r5/StructureDefinition/Transport#resource)
 pub type TransportOutput {
   TransportOutput(
     id: Option(String),
@@ -152328,7 +152327,7 @@ pub type TransportOutput {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/Transport#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/Transport#resource](http://hl7.org/fhir/r5/StructureDefinition/Transport#resource)
 pub type TransportOutputValue {
   TransportOutputValueBase64binary(value: String)
   TransportOutputValueBoolean(value: Bool)
@@ -153238,7 +153237,7 @@ pub fn transport_decoder() -> Decoder(Transport) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type Valueset {
   Valueset(
     id: Option(String),
@@ -153282,7 +153281,7 @@ pub type Valueset {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetVersionalgorithm {
   ValuesetVersionalgorithmString(version_algorithm: String)
   ValuesetVersionalgorithmCoding(version_algorithm: Coding)
@@ -153349,7 +153348,7 @@ pub fn valueset_new(status status: r5_valuesets.Publicationstatus) -> Valueset {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetCompose {
   ValuesetCompose(
     id: Option(String),
@@ -153376,7 +153375,7 @@ pub fn valueset_compose_new() -> ValuesetCompose {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetComposeInclude {
   ValuesetComposeInclude(
     id: Option(String),
@@ -153405,7 +153404,7 @@ pub fn valueset_compose_include_new() -> ValuesetComposeInclude {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetComposeIncludeConcept {
   ValuesetComposeIncludeConcept(
     id: Option(String),
@@ -153430,7 +153429,7 @@ pub fn valueset_compose_include_concept_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetComposeIncludeConceptDesignation {
   ValuesetComposeIncludeConceptDesignation(
     id: Option(String),
@@ -153457,7 +153456,7 @@ pub fn valueset_compose_include_concept_designation_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetComposeIncludeFilter {
   ValuesetComposeIncludeFilter(
     id: Option(String),
@@ -153484,7 +153483,7 @@ pub fn valueset_compose_include_filter_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansion {
   ValuesetExpansion(
     id: Option(String),
@@ -153517,7 +153516,7 @@ pub fn valueset_expansion_new(timestamp timestamp: String) -> ValuesetExpansion 
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansionParameter {
   ValuesetExpansionParameter(
     id: Option(String),
@@ -153528,7 +153527,7 @@ pub type ValuesetExpansionParameter {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansionParameterValue {
   ValuesetExpansionParameterValueString(value: String)
   ValuesetExpansionParameterValueBoolean(value: Bool)
@@ -153588,7 +153587,7 @@ pub fn valueset_expansion_parameter_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansionProperty {
   ValuesetExpansionProperty(
     id: Option(String),
@@ -153611,7 +153610,7 @@ pub fn valueset_expansion_property_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansionContains {
   ValuesetExpansionContains(
     id: Option(String),
@@ -153646,7 +153645,7 @@ pub fn valueset_expansion_contains_new() -> ValuesetExpansionContains {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansionContainsProperty {
   ValuesetExpansionContainsProperty(
     id: Option(String),
@@ -153658,7 +153657,7 @@ pub type ValuesetExpansionContainsProperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansionContainsPropertyValue {
   ValuesetExpansionContainsPropertyValueCode(value: String)
   ValuesetExpansionContainsPropertyValueCoding(value: Coding)
@@ -153720,7 +153719,7 @@ pub fn valueset_expansion_contains_property_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansionContainsPropertySubproperty {
   ValuesetExpansionContainsPropertySubproperty(
     id: Option(String),
@@ -153731,7 +153730,7 @@ pub type ValuesetExpansionContainsPropertySubproperty {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansionContainsPropertySubpropertyValue {
   ValuesetExpansionContainsPropertySubpropertyValueCode(value: String)
   ValuesetExpansionContainsPropertySubpropertyValueCoding(value: Coding)
@@ -153794,7 +153793,7 @@ pub fn valueset_expansion_contains_property_subproperty_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r5/StructureDefinition/ValueSet#resource)
 pub type ValuesetScope {
   ValuesetScope(
     id: Option(String),
@@ -155375,7 +155374,7 @@ pub fn valueset_decoder() -> Decoder(Valueset) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource](http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource)
 pub type Verificationresult {
   Verificationresult(
     id: Option(String),
@@ -155432,7 +155431,7 @@ pub fn verificationresult_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource](http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource)
 pub type VerificationresultPrimarysource {
   VerificationresultPrimarysource(
     id: Option(String),
@@ -155463,7 +155462,7 @@ pub fn verificationresult_primarysource_new() -> VerificationresultPrimarysource
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource](http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource)
 pub type VerificationresultAttestation {
   VerificationresultAttestation(
     id: Option(String),
@@ -155496,7 +155495,7 @@ pub fn verificationresult_attestation_new() -> VerificationresultAttestation {
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource](http://hl7.org/fhir/r5/StructureDefinition/VerificationResult#resource)
 pub type VerificationresultValidator {
   VerificationresultValidator(
     id: Option(String),
@@ -156156,7 +156155,7 @@ pub fn verificationresult_decoder() -> Decoder(Verificationresult) {
   ))
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/VisionPrescription#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/VisionPrescription#resource](http://hl7.org/fhir/r5/StructureDefinition/VisionPrescription#resource)
 pub type Visionprescription {
   Visionprescription(
     id: Option(String),
@@ -156205,7 +156204,7 @@ pub fn visionprescription_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/VisionPrescription#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/VisionPrescription#resource](http://hl7.org/fhir/r5/StructureDefinition/VisionPrescription#resource)
 pub type VisionprescriptionLensspecification {
   VisionprescriptionLensspecification(
     id: Option(String),
@@ -156253,7 +156252,7 @@ pub fn visionprescription_lensspecification_new(
   )
 }
 
-///http://hl7.org/fhir/r5/StructureDefinition/VisionPrescription#resource
+///[http://hl7.org/fhir/r5/StructureDefinition/VisionPrescription#resource](http://hl7.org/fhir/r5/StructureDefinition/VisionPrescription#resource)
 pub type VisionprescriptionLensspecificationPrism {
   VisionprescriptionLensspecificationPrism(
     id: Option(String),

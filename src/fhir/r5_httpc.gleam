@@ -1,3 +1,5 @@
+////[https://hl7.org/fhir/r5](https://hl7.org/fhir/r5) r5 client using httpc
+
 import fhir/r5
 import fhir/r5_sansio.{type FhirClient}
 import gleam/dynamic/decode.{type Decoder}

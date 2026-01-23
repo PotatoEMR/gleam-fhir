@@ -1,3 +1,5 @@
+////[https://hl7.org/fhir/r4](https://hl7.org/fhir/r4) r4 client using rsvp
+
 import fhir/r4
 import fhir/r4_sansio
 import gleam/dynamic/decode.{type Decoder}
