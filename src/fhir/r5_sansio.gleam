@@ -12307,7 +12307,7 @@ pub fn basic_search_req(sp: SpBasic, client: FhirClient) {
   any_search_req(params, "Basic", client)
 }
 
-pub fn binary_search_req(sp: SpBinary, client: FhirClient) {
+pub fn binary_search_req(_sp: SpBinary, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "Binary", client)
 }
@@ -14268,7 +14268,7 @@ pub fn operationdefinition_search_req(
   any_search_req(params, "OperationDefinition", client)
 }
 
-pub fn operationoutcome_search_req(sp: SpOperationoutcome, client: FhirClient) {
+pub fn operationoutcome_search_req(_sp: SpOperationoutcome, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "OperationOutcome", client)
 }
@@ -14978,7 +14978,7 @@ pub fn subscription_search_req(sp: SpSubscription, client: FhirClient) {
 }
 
 pub fn subscriptionstatus_search_req(
-  sp: SpSubscriptionstatus,
+  _sp: SpSubscriptionstatus,
   client: FhirClient,
 ) {
   let params = using_params([])
@@ -15034,25 +15034,25 @@ pub fn substancedefinition_search_req(
 }
 
 pub fn substancenucleicacid_search_req(
-  sp: SpSubstancenucleicacid,
+  _sp: SpSubstancenucleicacid,
   client: FhirClient,
 ) {
   let params = using_params([])
   any_search_req(params, "SubstanceNucleicAcid", client)
 }
 
-pub fn substancepolymer_search_req(sp: SpSubstancepolymer, client: FhirClient) {
+pub fn substancepolymer_search_req(_sp: SpSubstancepolymer, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "SubstancePolymer", client)
 }
 
-pub fn substanceprotein_search_req(sp: SpSubstanceprotein, client: FhirClient) {
+pub fn substanceprotein_search_req(_sp: SpSubstanceprotein, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "SubstanceProtein", client)
 }
 
 pub fn substancereferenceinformation_search_req(
-  sp: SpSubstancereferenceinformation,
+  _sp: SpSubstancereferenceinformation,
   client: FhirClient,
 ) {
   let params = using_params([])
@@ -15060,7 +15060,7 @@ pub fn substancereferenceinformation_search_req(
 }
 
 pub fn substancesourcematerial_search_req(
-  sp: SpSubstancesourcematerial,
+  _sp: SpSubstancesourcematerial,
   client: FhirClient,
 ) {
   let params = using_params([])

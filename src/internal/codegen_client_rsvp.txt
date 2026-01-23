@@ -4,7 +4,7 @@ import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
 import gleam/json.{type Json}
-import gleam/option.{type Option, None, Some}
+import gleam/option.{type Option}
 import lustre/effect.{type Effect}
 import rsvp
 

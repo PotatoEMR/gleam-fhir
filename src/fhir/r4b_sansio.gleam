@@ -10964,13 +10964,13 @@ pub fn basic_search_req(sp: SpBasic, client: FhirClient) {
   any_search_req(params, "Basic", client)
 }
 
-pub fn binary_search_req(sp: SpBinary, client: FhirClient) {
+pub fn binary_search_req(_sp: SpBinary, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "Binary", client)
 }
 
 pub fn biologicallyderivedproduct_search_req(
-  sp: SpBiologicallyderivedproduct,
+  _sp: SpBiologicallyderivedproduct,
   client: FhirClient,
 ) {
   let params = using_params([])
@@ -11075,7 +11075,7 @@ pub fn careteam_search_req(sp: SpCareteam, client: FhirClient) {
   any_search_req(params, "CareTeam", client)
 }
 
-pub fn catalogentry_search_req(sp: SpCatalogentry, client: FhirClient) {
+pub fn catalogentry_search_req(_sp: SpCatalogentry, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "CatalogEntry", client)
 }
@@ -12664,7 +12664,7 @@ pub fn observation_search_req(sp: SpObservation, client: FhirClient) {
 }
 
 pub fn observationdefinition_search_req(
-  sp: SpObservationdefinition,
+  _sp: SpObservationdefinition,
   client: FhirClient,
 ) {
   let params = using_params([])
@@ -12703,7 +12703,7 @@ pub fn operationdefinition_search_req(
   any_search_req(params, "OperationDefinition", client)
 }
 
-pub fn operationoutcome_search_req(sp: SpOperationoutcome, client: FhirClient) {
+pub fn operationoutcome_search_req(_sp: SpOperationoutcome, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "OperationOutcome", client)
 }
@@ -13386,7 +13386,7 @@ pub fn subscription_search_req(sp: SpSubscription, client: FhirClient) {
 }
 
 pub fn subscriptionstatus_search_req(
-  sp: SpSubscriptionstatus,
+  _sp: SpSubscriptionstatus,
   client: FhirClient,
 ) {
   let params = using_params([])

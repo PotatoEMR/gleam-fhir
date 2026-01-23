@@ -168,10 +168,16 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
           string.lowercase(res.type_),
           string.capitalise(res.type_),
         )
+        let sp_arg = case res.search_param {
+          [] -> "_sp"
+          _ -> "sp"
+        }
         string.concat([
           "pub fn ",
           name_lower,
-          "_search_req(sp: Sp",
+          "_search_req(",
+          sp_arg,
+          ": Sp",
           name_capital,
           ", client: FhirClient) {
             let params = using_params([",

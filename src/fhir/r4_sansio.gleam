@@ -11096,13 +11096,13 @@ pub fn basic_search_req(sp: SpBasic, client: FhirClient) {
   any_search_req(params, "Basic", client)
 }
 
-pub fn binary_search_req(sp: SpBinary, client: FhirClient) {
+pub fn binary_search_req(_sp: SpBinary, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "Binary", client)
 }
 
 pub fn biologicallyderivedproduct_search_req(
-  sp: SpBiologicallyderivedproduct,
+  _sp: SpBiologicallyderivedproduct,
   client: FhirClient,
 ) {
   let params = using_params([])
@@ -11207,7 +11207,7 @@ pub fn careteam_search_req(sp: SpCareteam, client: FhirClient) {
   any_search_req(params, "CareTeam", client)
 }
 
-pub fn catalogentry_search_req(sp: SpCatalogentry, client: FhirClient) {
+pub fn catalogentry_search_req(_sp: SpCatalogentry, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "CatalogEntry", client)
 }
@@ -12607,7 +12607,7 @@ pub fn medicinalproductindication_search_req(
 }
 
 pub fn medicinalproductingredient_search_req(
-  sp: SpMedicinalproductingredient,
+  _sp: SpMedicinalproductingredient,
   client: FhirClient,
 ) {
   let params = using_params([])
@@ -12626,7 +12626,7 @@ pub fn medicinalproductinteraction_search_req(
 }
 
 pub fn medicinalproductmanufactured_search_req(
-  sp: SpMedicinalproductmanufactured,
+  _sp: SpMedicinalproductmanufactured,
   client: FhirClient,
 ) {
   let params = using_params([])
@@ -12830,7 +12830,7 @@ pub fn observation_search_req(sp: SpObservation, client: FhirClient) {
 }
 
 pub fn observationdefinition_search_req(
-  sp: SpObservationdefinition,
+  _sp: SpObservationdefinition,
   client: FhirClient,
 ) {
   let params = using_params([])
@@ -12869,7 +12869,7 @@ pub fn operationdefinition_search_req(
   any_search_req(params, "OperationDefinition", client)
 }
 
-pub fn operationoutcome_search_req(sp: SpOperationoutcome, client: FhirClient) {
+pub fn operationoutcome_search_req(_sp: SpOperationoutcome, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "OperationOutcome", client)
 }
@@ -13555,25 +13555,25 @@ pub fn substance_search_req(sp: SpSubstance, client: FhirClient) {
 }
 
 pub fn substancenucleicacid_search_req(
-  sp: SpSubstancenucleicacid,
+  _sp: SpSubstancenucleicacid,
   client: FhirClient,
 ) {
   let params = using_params([])
   any_search_req(params, "SubstanceNucleicAcid", client)
 }
 
-pub fn substancepolymer_search_req(sp: SpSubstancepolymer, client: FhirClient) {
+pub fn substancepolymer_search_req(_sp: SpSubstancepolymer, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "SubstancePolymer", client)
 }
 
-pub fn substanceprotein_search_req(sp: SpSubstanceprotein, client: FhirClient) {
+pub fn substanceprotein_search_req(_sp: SpSubstanceprotein, client: FhirClient) {
   let params = using_params([])
   any_search_req(params, "SubstanceProtein", client)
 }
 
 pub fn substancereferenceinformation_search_req(
-  sp: SpSubstancereferenceinformation,
+  _sp: SpSubstancereferenceinformation,
   client: FhirClient,
 ) {
   let params = using_params([])
@@ -13581,7 +13581,7 @@ pub fn substancereferenceinformation_search_req(
 }
 
 pub fn substancesourcematerial_search_req(
-  sp: SpSubstancesourcematerial,
+  _sp: SpSubstancesourcematerial,
   client: FhirClient,
 ) {
   let params = using_params([])
