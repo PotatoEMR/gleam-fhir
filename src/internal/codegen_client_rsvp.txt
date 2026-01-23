@@ -1,149 +1,116 @@
 import fhir/FHIRVERSION
-import gleam/dynamic/decode
-import gleam/http
+import fhir/FHIRVERSION_sansio
+import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
 import gleam/json.{type Json}
-import gleam/list
 import gleam/option.{type Option, None, Some}
-import gleam/string
-import gleam/uri
+import lustre/effect.{type Effect}
+import rsvp
 
-pub type FhirClient {
-  FhirClient(baseurl: uri.Uri)
+pub type FhirClient =
+  FHIRVERSION_sansio.FhirClient
+
+pub fn fhirclient_new(baseurl: String) -> FhirClient {
+  FHIRVERSION_sansio.fhirclient_new(baseurl)
 }
 
-//todo some tests to make sure no reasonable base url will panic
-pub fn fhirclient_new(baseurl: String) {
-  let assert Ok(b) = uri.parse(baseurl)
-  FhirClient(b)
+pub type ReqErr {
+  ReqErrRsvp(err: rsvp.Error)
+  ReqErrSansio(err: FHIRVERSION_sansio.Err)
 }
 
-pub type Err {
-  //could not make a delete or update request because resource has no id
+/// when using rsvp, if you attempt update or delete a resource with no id
+/// we do not even send the request or give you an effect to use
+/// instead just an Error(ErrNoId)
+pub type ErrNoId {
   ErrNoId
-  //got json but could not parse it, probably a missing required field
-  ErrParseJson(json.DecodeError)
-  //did not get resource json, often server eg nginx gives basic html response
-  ErrNotJson(Response(String))
-  //got operationoutcome error from fhir server
-  ErrOperationcome(FHIRVERSION.Operationoutcome)
 }
 
-pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient) {
-  let assert Ok(req) =
-    request.to(string.join([client.baseurl |> uri.to_string, res_type], "/"))
-  req
-  |> request.set_header("Accept", "application/fhir+json")
-  |> request.set_header("Content-Type", "application/fhir+json")
-  |> request.set_header("Prefer", "return=representation")
-  |> request.set_body(resource_json |> json.to_string)
-  |> request.set_method(http.Post)
-}
-
-pub fn any_read_req(id: String, res_type: String, client: FhirClient) {
-  let assert Ok(req) =
-    request.to(string.join([client.baseurl |> uri.to_string, res_type, id], "/"))
-  req
-  |> request.set_header("Accept", "application/fhir+json")
-}
-
-pub fn any_update_req(
-  id: Option(String),
-  resource_json: Json,
+fn any_create(
+  resource: Json,
   res_type: String,
+  resource_dec: Decoder(r),
   client: FhirClient,
-) -> Result(Request(String), Err) {
-  case id {
-    None -> Error(ErrNoId)
-    Some(id) -> {
-      let assert Ok(req) =
-        request.to(string.join(
-          [client.baseurl |> uri.to_string, res_type, id],
-          "/",
-        ))
-      Ok(
-        req
-        |> request.set_header("Accept", "application/fhir+json")
-        |> request.set_header("Content-Type", "application/fhir+json")
-        |> request.set_header("Prefer", "return=representation")
-        |> request.set_body(resource_json |> json.to_string)
-        |> request.set_method(http.Put),
-      )
-    }
+  handle_response: fn(Result(r, ReqErr)) -> a,
+) -> Effect(a) {
+  let req = FHIRVERSION_sansio.any_create_req(resource, res_type, client)
+  sendreq_handleresponse(req, resource_dec, handle_response)
+}
+
+fn any_read(
+  id: String,
+  res_type: String,
+  resource_dec: Decoder(r),
+  client: FhirClient,
+  handle_response: fn(Result(r, ReqErr)) -> a,
+) -> Effect(a) {
+  let req = FHIRVERSION_sansio.any_read_req(id, res_type, client)
+  sendreq_handleresponse(req, resource_dec, handle_response)
+}
+
+fn any_update(
+  id: Option(String),
+  resource: Json,
+  res_type: String,
+  resource_dec: Decoder(r),
+  client: FhirClient,
+  handle_response: fn(Result(r, ReqErr)) -> a,
+) -> Result(Effect(a), ErrNoId) {
+  let req = FHIRVERSION_sansio.any_update_req(id, resource, res_type, client)
+  case req {
+    Ok(req) -> Ok(sendreq_handleresponse(req, resource_dec, handle_response))
+    Error(FHIRVERSION_sansio.ErrNoId) -> Error(ErrNoId)
+    Error(_) ->
+      panic as "should never get any errors besides NoId before making request"
   }
 }
 
-pub fn any_delete_req(
+fn any_delete(
   id: Option(String),
   res_type: String,
   client: FhirClient,
-) -> Result(Request(String), Err) {
-  case id {
-    None -> Error(ErrNoId)
-    Some(id) -> {
-      let assert Ok(req) =
-        request.to(string.join(
-          [client.baseurl |> uri.to_string, res_type, id],
-          "/",
-        ))
-      Ok(
-        req
-        |> request.set_header("Accept", "application/fhir+json")
-        |> request.set_method(http.Delete),
-      )
-    }
+  handle_response: fn(Result(FHIRVERSION.Operationoutcome, ReqErr)) -> a,
+) -> Result(Effect(a), ErrNoId) {
+  let req = FHIRVERSION_sansio.any_delete_req(id, res_type, client)
+  case req {
+    Ok(req) ->
+      Ok(sendreq_handleresponse(
+        req,
+        FHIRVERSION.operationoutcome_decoder(),
+        handle_response,
+      ))
+    Error(FHIRVERSION_sansio.ErrNoId) -> Error(ErrNoId)
+    Error(_) ->
+      panic as "should never get any errors besides NoId before making request"
   }
 }
 
-pub fn any_search_req(
-  search_string: String,
-  res_type: String,
-  client: FhirClient,
-) -> Request(String) {
-  let assert Ok(req) =
-    request.to(
-      string.concat([
-        client.baseurl |> uri.to_string,
-        "/",
-        res_type,
-        "?",
-        search_string,
-      ]),
-    )
-  req
-  |> request.set_header("Accept", "application/fhir+json")
+fn sendreq_handleresponse(
+  req: Request(String),
+  res_dec: Decoder(r),
+  handle_response: fn(Result(r, ReqErr)) -> a,
+) -> Effect(a) {
+  sendreq_handleresponse_andprocess(req, res_dec, handle_response, fn(a) { a })
 }
 
-fn using_params(params) {
-  list.fold(
-    from: [],
-    over: params,
-    with: fn(acc, param: #(String, Option(String))) {
-      case param.1 {
-        None -> acc
-        Some(p) -> [param.0 <> "=" <> p, ..acc]
+fn sendreq_handleresponse_andprocess(
+  req: Request(String),
+  res_dec: Decoder(r),
+  handle_response,
+  process_res,
+) -> Effect(a) {
+  let handle_read = fn(resp_res: Result(Response(String), rsvp.Error)) {
+    handle_response(case resp_res {
+      Error(err) -> Error(ReqErrRsvp(err))
+      Ok(resp_res) -> {
+        case FHIRVERSION_sansio.any_resp(resp_res, res_dec) {
+          Ok(res) -> Ok(process_res(res))
+          Error(err) -> Error(ReqErrSansio(err))
+        }
       }
-    },
-  )
-  |> string.join("&")
-}
-
-//decodes a resource (with type based on given decoder) or operationoutcome
-pub fn any_resp(resp: Response(String), resource_dec: decode.Decoder(a)) {
-  let decoded_resource =
-    resp.body
-    |> json.parse(case resp.status >= 300 {
-      False -> resource_dec |> decode.map(fn(x) { Ok(x) })
-      True -> FHIRVERSION.operationoutcome_decoder() |> decode.map(fn(x) { Error(x) })
     })
-  case decoded_resource {
-    Ok(Ok(resource)) -> Ok(resource)
-    Ok(Error(op_outcome)) -> Error(ErrOperationcome(op_outcome))
-    Error(dec_err) ->
-      case dec_err {
-        json.UnableToDecode(_) -> Error(ErrParseJson(dec_err))
-        _ -> Error(ErrNotJson(resp))
-      }
   }
+  let handler = rsvp.expect_any_response(handle_read)
+  rsvp.send(req, handler)
 }

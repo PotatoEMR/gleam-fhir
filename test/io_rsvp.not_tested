@@ -6,13 +6,11 @@ pub fn main() {
   patient_test()
 }
 
+// more complicated than httpc to test
+// for now just using httpc to check against server
+// may test implementation of wrapper over rsvp later
 fn patient_test() {
   let fc = r4_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")
 
   let patient = r4.Patient(..r4.patient_new(), active: Some(True))
-
-  echo "hi"
-  // use create_result <- r4_rsvp.patient_create(patient, fc)
-  // let assert Ok(created) = create_result
-  // echo created.id
 }

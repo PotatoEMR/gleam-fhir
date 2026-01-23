@@ -26,7 +26,7 @@ const zip_file_names = [
 const fhir_url = "https://www.hl7.org/fhir"
 
 fn const_gen_into_dir() {
-  "src" |> filepath.join("fhir")
+  "src" |> filepath.join("generated_fhir")
 }
 
 fn const_download_dir() {

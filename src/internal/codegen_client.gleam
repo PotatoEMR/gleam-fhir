@@ -396,7 +396,88 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
     string.concat([file_text, res_specific_crud])
     |> string.replace("FHIRVERSION", fhir_version)
 
-  let rsvp_layer = ""
+  let rsvp_res_specific_crud =
+    gen_specific_crud(
+      entries,
+      "
+            pub fn NAMELOWER_create(
+              resource: FHIRVERSION.NAMECAPITAL,
+              client: FhirClient,
+              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, ReqErr)) -> a,
+            ) -> Effect(a) {
+              any_create(
+                FHIRVERSION.NAMELOWER_to_json(resource),
+                \"NAMEUPPER\",
+                FHIRVERSION.NAMELOWER_decoder(),
+                client,
+                handle_response,
+              )
+            }
+
+            pub fn NAMELOWER_read(
+              id: String,
+              client: FhirClient,
+              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, ReqErr)) -> a,
+            ) -> Effect(a) {
+              any_read(id, \"NAMEUPPER\", FHIRVERSION.NAMELOWER_decoder(), client, handle_response)
+            }
+
+            pub fn NAMELOWER_update(
+              resource: FHIRVERSION.NAMECAPITAL,
+              client: FhirClient,
+              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, ReqErr)) -> a,
+            ) -> Result(Effect(a), ErrNoId) {
+              any_update(
+                resource.id,
+                FHIRVERSION.NAMELOWER_to_json(resource),
+                \"NAMEUPPER\",
+                FHIRVERSION.NAMELOWER_decoder(),
+                client,
+                handle_response,
+              )
+            }
+
+            pub fn NAMELOWER_delete(
+              resource: FHIRVERSION.NAMECAPITAL,
+              client: FhirClient,
+              handle_response: fn(Result(FHIRVERSION.Operationoutcome, ReqErr)) -> a,
+            ) -> Result(Effect(a), ErrNoId) {
+              any_delete(resource.id, \"NAMEUPPER\", client, handle_response)
+            }
+
+            pub fn NAMELOWER_search_bundled(
+              search_for search_args: FHIRVERSION_sansio.SpNAMECAPITAL,
+              with_client client: FhirClient,
+              response_msg handle_response: fn(Result(FHIRVERSION.Bundle, ReqErr)) -> msg,
+            ) -> Effect(msg) {
+              let req = FHIRVERSION_sansio.NAMELOWER_search_req(search_args, client)
+              sendreq_handleresponse(req, FHIRVERSION.bundle_decoder(), handle_response)
+            }
+
+            pub fn NAMELOWER_search(
+              search_for search_args: FHIRVERSION_sansio.SpNAMECAPITAL,
+              with_client client: FhirClient,
+              response_msg handle_response: fn(Result(List(FHIRVERSION.NAMECAPITAL), ReqErr)) -> msg,
+            ) -> Effect(msg) {
+              let req = FHIRVERSION_sansio.NAMELOWER_search_req(search_args, client)
+              sendreq_handleresponse_andprocess(
+                req,
+                FHIRVERSION.bundle_decoder(),
+                handle_response,
+                fn(bundle) { { bundle |> FHIRVERSION_sansio.bundle_to_groupedresources }.NAMELOWER },
+              )
+            }
+            ",
+    )
+
+  let assert Ok(file_text) =
+    "src"
+    |> filepath.join("internal")
+    |> filepath.join("codegen_client_rsvp.txt")
+    |> simplifile.read
+  let rsvp_layer =
+    string.concat([file_text, rsvp_res_specific_crud])
+    |> string.replace("FHIRVERSION", fhir_version)
 
   #(sansio, httpc_layer, rsvp_layer)
 }
