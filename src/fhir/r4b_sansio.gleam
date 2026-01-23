@@ -111,7 +111,6 @@ pub fn any_search_req(
         search_string,
       ]),
     )
-  echo req.path
   req
   |> request.set_header("Accept", "application/fhir+json")
 }
