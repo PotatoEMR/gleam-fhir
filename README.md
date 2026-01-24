@@ -10,9 +10,10 @@
 ## Quick Start
 
 ```sh
-gleam add fhir
+gleam new hello_fhir && cd hello_fhir && gleam add fhir
 ```
 ```gleam
+//In hello_fhir.gleam
 import fhir/r4
 import fhir/r4_httpc
 import fhir/r4_valuesets
@@ -44,4 +45,7 @@ pub fn main() {
   let assert Ok(_) = r4_httpc.allergyintolerance_delete(updated, fc)
   let assert Error(_) = r4_httpc.allergyintolerance_read(id, fc)
 }
+```
+```sh
+gleam run
 ```
