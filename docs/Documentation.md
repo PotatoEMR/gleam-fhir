@@ -27,19 +27,41 @@ gleam run
 
 (for each of r4, r4b, r5)
 
-[r4_valuesets](https://hexdocs.pm/fhir/fhir/r4_valuesets.html) - Enums for valuesets with required binding
+<div style="display:grid;grid-template-columns:1fr;gap:8px;text-align:center;justify-items:center">
+  <div style="background:rgba(0,0,0,.2);padding:6px">
+    <a href="https://hexdocs.pm/fhir/fhir/r4_valuesets.html">r4_valuesets</a><br>
+    Enums for valuesets with required binding
+  </div>
 
-↓
+  <div>↓</div>
 
-[r4](https://hexdocs.pm/fhir/fhir/r4.html) - Resources and their data types, and decoder and to_json fns
+  <div style="background:rgba(0,0,0,.2);padding:6px">
+    <a href="https://hexdocs.pm/fhir/fhir/r4.html">r4</a><br>
+    Resources and their data types, and decoder and to_json fns
+  </div>
 
-↓
+  <div>↓</div>
 
-[r4_sansio](https://hexdocs.pm/fhir/fhir/r4_sansio.html) - Prepare http request and parse http response
+  <div style="background:rgba(0,0,0,.2);padding:6px">
+    <a href="https://hexdocs.pm/fhir/fhir/r4_sansio.html">r4_sansio</a><br>
+    Prepare http request and parse http response
+  </div>
 
-↓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓
+  <div style="display:grid;grid-template-columns:1fr 1fr;width:100%">
+    <div>↓</div><div>↓</div>
+  </div>
 
-[r4_httpc](https://hexdocs.pm/fhir/fhir/r4_httpc.html) &nbsp; [r4_rsvp](https://hexdocs.pm/fhir/fhir/r4_rsvp.html) - Clients for making http requests, using httpc for Erlang target and rsvp for Lustre apps
+  <div style="display:grid;grid-template-columns:1fr 1fr;width:100%">
+    <div style="background:rgba(0,0,0,.2);padding:6px">
+      <a href="https://hexdocs.pm/fhir/fhir/r4_httpc.html">r4_httpc</a><br>
+      Client for httpc (Erlang)
+    </div>
+    <div style="background:rgba(0,0,0,.2);padding:6px">
+      <a href="https://hexdocs.pm/fhir/fhir/r4_rsvp.html">r4_rsvp</a><br>
+      Client for rsvp (Lustre apps)
+    </div>
+  </div>
+</div>
 
 ## [Documentation Pages](#documentationpages)
 
