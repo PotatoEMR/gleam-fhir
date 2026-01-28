@@ -1,10 +1,10 @@
 # Documentation
 
-## [Welcome](#welcome)
+## [Welcome](#welcome){#welcome}
 
 Welcome to the Gleam FHIR documentation! [FHIR](https://hl7.org/fhir/) (Fast Healthcare Interoperability Resources) is a standard for health care data exchange, published by HL7®.
 
-## [Quick Start](#quickstart)
+## [Quick Start](#quickstart){#quickstart}
 
 ```sh
 gleam new mything && cd mything && gleam add fhir
@@ -23,7 +23,7 @@ pub fn main() {
 gleam run
 ```
 
-## [Modules](#modules)
+## [Modules](#modules){#modules}
 
 (for each of r4, r4b, r5)
 
@@ -63,20 +63,10 @@ gleam run
   </div>
 </div>
 
-## [Documentation Pages](#documentationpages)
-
-Documentation - you are here
-
-[Working with resources](https://hexdocs.pm/fhir/fhir/resources.html)
-
-[Parsing JSON](https://hexdocs.pm/fhir/fhir/serialization.html)
-
-[REST clients](https://hexdocs.pm/fhir/fhir/clients.html)
-
-## [Further Reading](#furtherreading)
+## [Further Reading](#furtherreading){#furtherreading}
 
 These pages provide only an intro to FHIR and the Gleam implementation. For comprehensive information, see the FHIR docs, e.g. for [R4 AllergyIntolerance](https://hl7.org/fhir/R4/allergyintolerance.html#resource).
 
-Gleam FHIR is not a mature project. For an application with high stakes, you are probably better off with a mature FHIR SDK such as [https://docs.fire.ly/](https://docs.fire.ly/). These Gleam FHIR pages are modelled on their .NET SDK documentation.
+Gleam FHIR is not a mature project. For an application with real users and regulations, you are probably better off with a mature FHIR SDK such as [https://docs.fire.ly/](https://docs.fire.ly/). These Gleam FHIR pages are modelled on their .NET SDK documentation.
 
 [https://chat.fhir.org/](https://chat.fhir.org/) is a public chatroom with many FHIR implementers. If you have a question, there is a good chance someone has already asked it there.

@@ -1,4 +1,5 @@
 import argv
+import fhir/internal/codegen_client
 import filepath
 import gleam/dict
 import gleam/dynamic/decode
@@ -10,7 +11,6 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/set
 import gleam/string
-import internal/codegen_client
 import simplifile
 
 //dogfood r4 to parse valuesets
@@ -30,7 +30,10 @@ fn const_gen_into_dir() {
 }
 
 fn const_download_dir() {
-  "src" |> filepath.join("internal") |> filepath.join("downloads")
+  "src"
+  |> filepath.join("fhir")
+  |> filepath.join("internal")
+  |> filepath.join("downloads")
 }
 
 pub fn main() {
@@ -45,7 +48,7 @@ pub fn main() {
   {
     False ->
       io.println(
-        "run with args r4 r4b r5 to generate eg gleam run -m internal/codegen r4 r5",
+        "run with args r4 r4b r5 to generate eg gleam run -m fhir/internal/codegen r4 r5",
       )
     True -> Nil
   }
@@ -164,8 +167,6 @@ type Element {
     content_reference: Option(String),
   )
 }
-
-//  use type_ <- decode.field("type_", decode.list(todo as "Decoder for Type"))
 
 fn element_decoder() -> decode.Decoder(Element) {
   use path <- decode.field("path", decode.string)
@@ -308,7 +309,7 @@ fn file_to_types(
   vsfile gen_vsfile: String,
 ) -> String {
   let assert Ok(spec) = simplifile.read(spec_file)
-    as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
+    as "spec files should all be downloaded in src/fhir/internal/downloads/{r4 r4b r5}, run with download arg if not"
   let assert Ok(bundle) = json.parse(from: spec, using: bundle_decoder())
   let entries =
     list.filter(bundle.entry, fn(e) {
@@ -871,34 +872,180 @@ fn file_to_types(
                 Some("resource") -> entry.resource.name == new_type
                 _ -> panic as "????"
               }
-              string.join(
-                [
-                  new_doc_link,
-                  type_newfields,
-                  type_choicetypes,
-                  type_new_newfunc,
-                  old_type_acc,
-                  gen_res_encoder(
-                    entry.resource.name,
-                    camel_type,
-                    snake_type,
-                    encoder_args,
-                    encoder_json_always,
-                    encoder_json_options,
-                    is_domainresource,
-                  ),
-                  gen_res_decoder(
-                    entry.resource.name,
-                    camel_type,
-                    snake_type,
-                    decoder_use,
-                    decoder_success,
-                    is_domainresource,
-                    decoder_always_failure_fordr,
-                  ),
-                ],
-                "\n",
-              )
+
+              case camel_type {
+                "Extension" -> {
+                  let assert [elt, ..] = fields
+                  "///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
+                  pub type Extension {
+                    Extension(id: Option(String), url: String, ext: ExtensionSimpleOrComplex)
+                  }
+
+                  ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
+                  pub type ExtensionSimpleOrComplex {
+                    ExtComplex(children: List(Extension))
+                    ExtSimple(value: ExtensionValue)
+                  }
+
+                  ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
+                  pub type ExtensionValue {
+                    "
+                  <> list.fold(
+                    over: elt.type_,
+                    from: "",
+                    with: fn(acc: String, typ: Type) -> String {
+                      string.concat([
+                        acc,
+                        "ExtensionValue",
+                        string.capitalise(typ.code),
+                        "(value: ",
+                        string_to_type(typ.code, [], "", elt, ""),
+                        ")",
+                        "\n",
+                      ])
+                    },
+                  )
+                  <> "
+                  }
+
+                  pub fn extension_to_json(extension: Extension) -> Json {
+                    let Extension(id:, url:, ext:) = extension
+                    let fields = [#(\"url\", json.string(url))]
+                    let fields = case id {
+                      Some(v) -> [#(\"id\", json.string(v)), ..fields]
+                      None -> fields
+                    }
+                    let fields = [ext_simple_or_complex_to_json(ext), ..fields]
+                    json.object(fields)
+                  }
+
+                  fn ext_simple_or_complex_to_json(ext) {
+                    case ext {
+                      ExtComplex(children) -> #(
+                        \"extension\",
+                        json.array(children, extension_to_json),
+                      )
+                      ExtSimple(val) -> extsimple_to_json(val)
+                    }
+                  }
+
+                  fn extsimple_to_json(v: ExtensionValue) -> #(String, Json) {
+                    #(
+                      \"value\"
+                        <> case v {"
+                  <> list.fold(
+                    over: elt.type_,
+                    from: "",
+                    with: fn(acc: String, typ: Type) -> String {
+                      string.concat([
+                        acc,
+                        "ExtensionValue",
+                        string.capitalise(typ.code),
+                        "(_) -> \"",
+                        {
+                          let assert [fst, ..rest] =
+                            string.to_graphemes(typ.code)
+                          string.uppercase(fst) <> string.concat(rest)
+                        },
+                        "\"",
+                      ])
+                    },
+                  )
+                  <> "},
+                      extension_value_to_json(v),
+                    )
+                  }
+
+                  pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
+                    case elt {
+                      "
+                  <> list.fold(
+                    over: elt.type_,
+                    from: "",
+                    with: fn(acc: String, typ: Type) -> String {
+                      string.concat([
+                        acc,
+                        "ExtensionValue",
+                        string.capitalise(typ.code),
+                        "(v) -> ",
+                        string_to_encoder_type(typ.code, [], "", elt),
+                        "(v)\n",
+                      ])
+                    },
+                  )
+                  <> "
+                  }
+                  }
+
+
+                  pub fn extension_decoder() -> Decoder(Extension) {
+                    use url <- decode.field(\"url\", decode.string)
+                    use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
+                    use ext <- decode.then(ext_simple_or_complex_decoder())
+                    decode.success(Extension(url:, id:, ext:))
+                  }
+
+                  pub fn ext_simple_or_complex_decoder() {
+                    decode.one_of(
+                      decode.field(\"extension\", decode.list(extension_decoder()), decode.success)
+                        |> decode.map(ExtComplex),
+                      ["
+                  <> list.fold(
+                    over: elt.type_,
+                    from: "",
+                    with: fn(acc: String, typ: Type) -> String {
+                      let assert [fst, ..rest] = string.to_graphemes(typ.code)
+                      let first_upper =
+                        string.uppercase(fst) <> string.concat(rest)
+                      string.concat([
+                        acc,
+                        "decode.field(\"value"
+                          <> first_upper
+                          <> "\", "
+                          <> string_to_decoder_type(typ.code, [], "", elt)
+                          <> ", decode.success)
+                           |> decode.map(ExtensionValue"
+                          <> string.capitalise(typ.code)
+                          <> ")
+                           |> decode.map(ExtSimple),",
+                      ])
+                    },
+                  )
+                  <> "],
+                    )
+                  }
+                  "
+                }
+                _ ->
+                  string.join(
+                    [
+                      new_doc_link,
+                      type_newfields,
+                      type_choicetypes,
+                      type_new_newfunc,
+                      old_type_acc,
+                      gen_res_encoder(
+                        entry.resource.name,
+                        camel_type,
+                        snake_type,
+                        encoder_args,
+                        encoder_json_always,
+                        encoder_json_options,
+                        is_domainresource,
+                      ),
+                      gen_res_decoder(
+                        entry.resource.name,
+                        camel_type,
+                        snake_type,
+                        decoder_use,
+                        decoder_success,
+                        is_domainresource,
+                        decoder_always_failure_fordr,
+                      ),
+                    ],
+                    "\n",
+                  )
+              }
             },
           )
         }
@@ -1415,6 +1562,7 @@ fn valueset_to_types(vsfile: String, fhir_version: String) {
     ])
   let expansion_dir =
     "src"
+    |> filepath.join("fhir")
     |> filepath.join("internal")
     |> filepath.join("valueset_expansions")
     |> filepath.join(fhir_version)

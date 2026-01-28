@@ -101,7 +101,7 @@ fn search_param_decoder() -> decode.Decoder(SearchParam) {
 
 pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
   let assert Ok(spec) = simplifile.read(spec_file)
-    as "spec files should all be downloaded in src/internal/downloads/{r4 r4b r5}, run with download arg if not"
+    as "spec files should all be downloaded in src/fhir/internal/downloads/{r4 r4b r5}, run with download arg if not"
   // you could use generated bundle decoder here
   // however actordefinition in r4 but not r5
   // and it is much slower than this
@@ -155,6 +155,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
     )
   let assert Ok(file_text) =
     "src"
+    |> filepath.join("fhir")
     |> filepath.join("internal")
     |> filepath.join("codegen_client_sansio.txt")
     |> simplifile.read
@@ -395,6 +396,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
 
   let assert Ok(file_text) =
     "src"
+    |> filepath.join("fhir")
     |> filepath.join("internal")
     |> filepath.join("codegen_client_httpc.txt")
     |> simplifile.read
@@ -478,6 +480,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
 
   let assert Ok(file_text) =
     "src"
+    |> filepath.join("fhir")
     |> filepath.join("internal")
     |> filepath.join("codegen_client_rsvp.txt")
     |> simplifile.read

@@ -5,15 +5,36 @@ description = "Type-safe FHIR resources and client"
 licences = ["MIT"]
 repository = { type = "github", user = "PotatoEMR", repo = "https://github.com/PotatoEMR/gleam-fhir" }
 
-internal_modules = ["internal/*",]
-
 [documentation]
 pages = [
   { title = "Release Notes", path = "releasenotes.html", source = "./ReleaseNotes.md" },
   { title = " ", path = "#", source = "" },
   { title = "Documentation", path = "documentation.html", source = "./docs/Documentation.md" },
+  { title = "├ Welcome", path = "documentation.html#welcome", source = "" },
+  { title = "├ Quick Start", path = "documentation.html#quickstart", source = "" },
+  { title = "├ Modules", path = "documentation.html#modules", source = "" },
+  { title = "└ Further Reading", path = "documentation.html#furtherreading", source = "" },
   { title = "Working with resources", path = "resources.html", source = "./docs/Resources.md" },
-  { title = "Parsing JSON", path = "serialization.html", source = "./docs/Serialization.md" },
+  { title = "├ Import", path = "resources.html#import", source = "" },
+  { title = "├ Primitive Type", path = "resources.html#primitivetype", source = "" },
+  { title = "├ Complex Type", path = "resources.html#complextype", source = "" },
+  { title = "├ BackboneElement", path = "resources.html#backbone-element", source = "" },
+  { title = "├ Cardinality", path = "resources.html#cardinality", source = "" },
+  { title = "├ Choice Element", path = "resources.html#choice-element", source = "" },
+  { title = "├ id vs Identifier", path = "resources.html#id-vs-identifier", source = "" },
+  { title = "├ Reference", path = "resources.html#reference", source = "" },
+  { title = "├ code", path = "resources.html#code", source = "" },
+  { title = "├ Coding", path = "resources.html#coding", source = "" },
+  { title = "├ CodeableConcept", path = "resources.html#codeableconcept", source = "" },
+  { title = "├ CodeableReference", path = "resources.html#codeablereference", source = "" },
+  { title = "├ Extension", path = "resources.html#extension", source = "" },
+  { title = "├ Bundle", path = "resources.html#bundle", source = "" },
+  { title = "└ Patient Example", path = "resources.html#patient-example", source = "" },
+  { title = "Serialization", path = "serialization.html", source = "./docs/Serialization.md" },
+  { title = "├ JSON", path = "serialization.html#json", source = "" },
+  { title = "├ [resource]_to_json", path = "serialization.html#tojson", source = "" },
+  { title = "├ [resource]_decoder", path = "serialization.html#decoder", source = "" },
+  { title = "└ Any resource", path = "serialization.html#anyresource", source = "" },
   { title = "REST clients", path = "clients.html", source = "./docs/Clients.md" },
 ]
 
