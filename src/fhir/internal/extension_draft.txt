@@ -1,0 +1,41 @@
+  considering sticking all extensions same big array
+  use fake url _family _text _use_ etc
+  ^would not work so well for lists though
+
+  use extension <- primitive_extension("family", extension)
+  use extension <- primitive_extension("text", extension)
+  use extension <- primitive_extension("use_", extension)
+
+
+    // get extensions from primitive fields and add them to main extensions list
+    // feels like there should be a better way or better thing to do instead
+      pub fn primitive_extension(
+        field_name: String,
+        existing_extension: List(Extension),
+        cb: fn(List(Extension)) -> decode.Decoder(a),
+      ) -> decode.Decoder(a) {
+        let field_ext_name = \"_\" <> field_name
+        decode.then(
+          decode.map(
+            decode.optionally_at(
+              [field_ext_name, \"extension\"],
+              [],
+              decode.list(extension_decoder()),
+            ),
+            fn(field_ext) {
+              case field_ext {
+                [] -> existing_extension
+                new_field_ext -> [
+                  Extension(
+                    id: None,
+                    url: field_ext_name,
+                    ext: ExtComplex(new_field_ext),
+                  ),
+                  ..existing_extension
+                ]
+              }
+            },
+          ),
+          cb,
+        )
+      }

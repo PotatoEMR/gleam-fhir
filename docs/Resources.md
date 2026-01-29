@@ -720,6 +720,30 @@ pub type ExtensionValue {
   // valueCodeableReference uses CodeableReference which is not in r4
 ```
 
+Primitive elements can also have extensions! Still figuring out how common this actually is, and how pleasant it will be to use/not interfere with unmodified primitive elements. If you have a good way of handling primitive elements in mind [please create an issue here](https://github.com/PotatoEMR/gleam-fhir/issues/new)
+
+```gleam
+  let name =
+    "
+  {
+      \"use\" : \"official\",
+      \"family\" : \"van Hentenryck\",
+      \"_family\" : {
+        \"extension\" : [{
+          \"url\" : \"http://hl7.org/fhir/StructureDefinition/humanname-own-prefix\",
+          \"valueString\" : \"van\"
+        }, {
+          \"url\" : \"http://hl7.org/fhir/StructureDefinition/humanname-own-name\",
+          \"valueString\" : \"Hentenryck\"
+        }]
+      },
+      \"given\" : [\"Karen\"]
+    }
+  "
+  // r4.humanname_decoder() should check the _family extension,
+  // but where should the decoded extension go?
+```
+
 ## [Bundle](#bundle){#bundle}
 
 FHIR uses [Bundle](https://build.fhir.org/bundle.html#resource) to list resources, so operations that return multiple resources, such as Search, will return a Bundle.  The element Bundle.entry has cardinality `0..*` so in Gleam it is `List(BundleEntry)`, and Bundle.entry.resource can be any resource so in Gleam `Resource` has a variant for each resource type.

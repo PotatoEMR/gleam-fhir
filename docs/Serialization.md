@@ -95,7 +95,11 @@ Parses JSON to Gleam type, and for resources checks resource type such as
 "resourceType" : "AllergyIntolerance"
 ```
 
-The decoder will fail on JSON missing a required element (cardinality `1..1`) or with invalid elements. For example, AllergyIntolerance.patient is a required reference to a Patient resource, so a JSON without that field will fail to parse. Another example is AllergyIntolerance.criticality must come from `low | high | unable-to-assess`, so a JSON with "super-serious" will fail to parse. Any JSON element that does not fit its Gleam type, such as a string for an `Int` or a number for a `String`, will fail to parse. If `allergyintolerance_decoder` succeeds it returns a strongly typed Allergyintolerance resource.
+The decoder will fail on JSON missing a required element (cardinality `1..1`) or with invalid elements. For instance, a JSON might fail to parse because:
+- AllergyIntolerance.patient is missing but required
+- AllergyIntolerance.criticality "super-serious" which is not one of required valueset "low", "high", "unable-to-assess"  
+- AllergyIntolerance.reaction.description exists as the number 7 but must be a string
+If `allergyintolerance_decoder` succeeds it returns a strongly typed Allergyintolerance resource.
 
 
 ```gleam
