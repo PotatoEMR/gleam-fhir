@@ -13,17 +13,9 @@ pub fn fhirclient_new(baseurl: String) -> FhirClient {
   FHIRVERSION_sansio.fhirclient_new(baseurl)
 }
 
-pub type ReqError {
-  //httpc layer error (only non sansio error)
-  ReqErrHttp(httpc.HttpError)
-  //got operationoutcome error from fhir server
-  ReqErrOperationcome(FHIRVERSION.Operationoutcome)
-  //got json but could not parse it, probably a missing required field
-  ReqErrParseJson(json.DecodeError)
-  //did not get resource json, often server eg nginx gives basic html response
-  ReqErrNotJson(Response(String))
-  //could not make a delete or update request because resource has no id
-  ReqErrNoId
+pub type Err {
+  ErrHttpc(httpc.HttpError)
+  ErrSansio(err: FHIRVERSION_sansio.Err)
 }
 
 fn any_create(
@@ -31,7 +23,7 @@ fn any_create(
   res_type: String,
   resource_dec: Decoder(r),
   client: FhirClient,
-) -> Result(r, ReqError) {
+) -> Result(r, Err) {
   let req = FHIRVERSION_sansio.any_create_req(resource, res_type, client)
   sendreq_parseresource(req, resource_dec)
 }
@@ -41,7 +33,7 @@ fn any_read(
   client: FhirClient,
   res_type: String,
   resource_dec: Decoder(a),
-) -> Result(a, ReqError) {
+) -> Result(a, Err) {
   let req = FHIRVERSION_sansio.any_read_req(id, res_type, client)
   sendreq_parseresource(req, resource_dec)
 }
@@ -52,13 +44,12 @@ fn any_update(
   res_type: String,
   res_dec: Decoder(r),
   client: FhirClient,
-) -> Result(r, ReqError) {
+) -> Result(r, Err) {
   let req = FHIRVERSION_sansio.any_update_req(id, resource, res_type, client)
   case req {
     Ok(req) -> sendreq_parseresource(req, res_dec)
-    Error(FHIRVERSION_sansio.ErrNoId) -> Error(ReqErrNoId)
-    Error(_) ->
-      panic as "should never get any errors besides NoId before making request"
+    Error(err) -> Error(ErrSansio(err))
+    //can have error preparing update request if resource has no id
   }
 }
 
@@ -66,29 +57,25 @@ fn any_delete(
   id: Option(String),
   res_type: String,
   client: FhirClient,
-) -> Result(FHIRVERSION.Operationoutcome, ReqError) {
+) -> Result(FHIRVERSION.Operationoutcome, Err) {
   let req = FHIRVERSION_sansio.any_delete_req(id, res_type, client)
   case req {
     Ok(req) -> sendreq_parseresource(req, FHIRVERSION.operationoutcome_decoder())
-    Error(FHIRVERSION_sansio.ErrNoId) -> Error(ReqErrNoId)
-    Error(_) ->
-      panic as "should never get any errors besides NoId before making request"
+    Error(err) -> Error(ErrSansio(err))
+    //can have error preparing delete request if resource has no id
   }
 }
 
 fn sendreq_parseresource(
   req: Request(String),
   res_dec: Decoder(r),
-) -> Result(r, ReqError) {
+) -> Result(r, Err) {
   case httpc.send(req) {
-    Error(err) -> Error(ReqErrHttp(err))
+    Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
       case FHIRVERSION_sansio.any_resp(resp, res_dec) {
         Ok(resource) -> Ok(resource)
-        Error(FHIRVERSION_sansio.ErrOperationcome(oo)) -> Error(ReqErrOperationcome(oo))
-        Error(FHIRVERSION_sansio.ErrNotJson(err)) -> Error(ReqErrNotJson(err))
-        Error(FHIRVERSION_sansio.ErrParseJson(err)) -> Error(ReqErrParseJson(err))
-        Error(FHIRVERSION_sansio.ErrNoId) -> Error(ReqErrNoId)
+        Error(err) -> Error(ErrSansio(err))
       }
   }
 }

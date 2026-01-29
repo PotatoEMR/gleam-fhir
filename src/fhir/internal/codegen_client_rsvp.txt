@@ -17,9 +17,9 @@ pub fn fhirclient_new(baseurl: String) -> FhirClient {
   FHIRVERSION_sansio.fhirclient_new(baseurl)
 }
 
-pub type ReqErr {
-  ReqErrRsvp(err: rsvp.Error)
-  ReqErrSansio(err: FHIRVERSION_sansio.Err)
+pub type Err {
+  ErrRsvp(err: rsvp.Error)
+  ErrSansio(err: FHIRVERSION_sansio.Err)
 }
 
 /// when using rsvp, if you attempt update or delete a resource with no id
@@ -34,7 +34,7 @@ fn any_create(
   res_type: String,
   resource_dec: Decoder(r),
   client: FhirClient,
-  handle_response: fn(Result(r, ReqErr)) -> a,
+  handle_response: fn(Result(r, Err)) -> a,
 ) -> Effect(a) {
   let req = FHIRVERSION_sansio.any_create_req(resource, res_type, client)
   sendreq_handleresponse(req, resource_dec, handle_response)
@@ -45,7 +45,7 @@ fn any_read(
   res_type: String,
   resource_dec: Decoder(r),
   client: FhirClient,
-  handle_response: fn(Result(r, ReqErr)) -> a,
+  handle_response: fn(Result(r, Err)) -> a,
 ) -> Effect(a) {
   let req = FHIRVERSION_sansio.any_read_req(id, res_type, client)
   sendreq_handleresponse(req, resource_dec, handle_response)
@@ -57,7 +57,7 @@ fn any_update(
   res_type: String,
   resource_dec: Decoder(r),
   client: FhirClient,
-  handle_response: fn(Result(r, ReqErr)) -> a,
+  handle_response: fn(Result(r, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   let req = FHIRVERSION_sansio.any_update_req(id, resource, res_type, client)
   case req {
@@ -72,7 +72,7 @@ fn any_delete(
   id: Option(String),
   res_type: String,
   client: FhirClient,
-  handle_response: fn(Result(FHIRVERSION.Operationoutcome, ReqErr)) -> a,
+  handle_response: fn(Result(FHIRVERSION.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   let req = FHIRVERSION_sansio.any_delete_req(id, res_type, client)
   case req {
@@ -91,7 +91,7 @@ fn any_delete(
 fn sendreq_handleresponse(
   req: Request(String),
   res_dec: Decoder(r),
-  handle_response: fn(Result(r, ReqErr)) -> a,
+  handle_response: fn(Result(r, Err)) -> a,
 ) -> Effect(a) {
   sendreq_handleresponse_andprocess(req, res_dec, handle_response, fn(a) { a })
 }
@@ -104,11 +104,11 @@ fn sendreq_handleresponse_andprocess(
 ) -> Effect(a) {
   let handle_read = fn(resp_res: Result(Response(String), rsvp.Error)) {
     handle_response(case resp_res {
-      Error(err) -> Error(ReqErrRsvp(err))
+      Error(err) -> Error(ErrRsvp(err))
       Ok(resp_res) -> {
         case FHIRVERSION_sansio.any_resp(resp_res, res_dec) {
           Ok(res) -> Ok(process_res(res))
-          Error(err) -> Error(ReqErrSansio(err))
+          Error(err) -> Error(ErrSansio(err))
         }
       }
     })

@@ -13,17 +13,9 @@ pub fn fhirclient_new(baseurl: String) -> FhirClient {
   r4b_sansio.fhirclient_new(baseurl)
 }
 
-pub type ReqError {
-  //httpc layer error (only non sansio error)
-  ReqErrHttp(httpc.HttpError)
-  //got operationoutcome error from fhir server
-  ReqErrOperationcome(r4b.Operationoutcome)
-  //got json but could not parse it, probably a missing required field
-  ReqErrParseJson(json.DecodeError)
-  //did not get resource json, often server eg nginx gives basic html response
-  ReqErrNotJson(Response(String))
-  //could not make a delete or update request because resource has no id
-  ReqErrNoId
+pub type Err {
+  ErrHttpc(httpc.HttpError)
+  ErrSansio(err: r4b_sansio.Err)
 }
 
 fn any_create(
@@ -31,7 +23,7 @@ fn any_create(
   res_type: String,
   resource_dec: Decoder(r),
   client: FhirClient,
-) -> Result(r, ReqError) {
+) -> Result(r, Err) {
   let req = r4b_sansio.any_create_req(resource, res_type, client)
   sendreq_parseresource(req, resource_dec)
 }
@@ -41,7 +33,7 @@ fn any_read(
   client: FhirClient,
   res_type: String,
   resource_dec: Decoder(a),
-) -> Result(a, ReqError) {
+) -> Result(a, Err) {
   let req = r4b_sansio.any_read_req(id, res_type, client)
   sendreq_parseresource(req, resource_dec)
 }
@@ -52,13 +44,12 @@ fn any_update(
   res_type: String,
   res_dec: Decoder(r),
   client: FhirClient,
-) -> Result(r, ReqError) {
+) -> Result(r, Err) {
   let req = r4b_sansio.any_update_req(id, resource, res_type, client)
   case req {
     Ok(req) -> sendreq_parseresource(req, res_dec)
-    Error(r4b_sansio.ErrNoId) -> Error(ReqErrNoId)
-    Error(_) ->
-      panic as "should never get any errors besides NoId before making request"
+    Error(err) -> Error(ErrSansio(err))
+    //can have error preparing update request if resource has no id
   }
 }
 
@@ -66,29 +57,25 @@ fn any_delete(
   id: Option(String),
   res_type: String,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   let req = r4b_sansio.any_delete_req(id, res_type, client)
   case req {
     Ok(req) -> sendreq_parseresource(req, r4b.operationoutcome_decoder())
-    Error(r4b_sansio.ErrNoId) -> Error(ReqErrNoId)
-    Error(_) ->
-      panic as "should never get any errors besides NoId before making request"
+    Error(err) -> Error(ErrSansio(err))
+    //can have error preparing delete request if resource has no id
   }
 }
 
 fn sendreq_parseresource(
   req: Request(String),
   res_dec: Decoder(r),
-) -> Result(r, ReqError) {
+) -> Result(r, Err) {
   case httpc.send(req) {
-    Error(err) -> Error(ReqErrHttp(err))
+    Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
       case r4b_sansio.any_resp(resp, res_dec) {
         Ok(resource) -> Ok(resource)
-        Error(r4b_sansio.ErrOperationcome(oo)) -> Error(ReqErrOperationcome(oo))
-        Error(r4b_sansio.ErrNotJson(err)) -> Error(ReqErrNotJson(err))
-        Error(r4b_sansio.ErrParseJson(err)) -> Error(ReqErrParseJson(err))
-        Error(r4b_sansio.ErrNoId) -> Error(ReqErrNoId)
+        Error(err) -> Error(ErrSansio(err))
       }
   }
 }
@@ -96,7 +83,7 @@ fn sendreq_parseresource(
 pub fn account_create(
   resource: r4b.Account,
   client: FhirClient,
-) -> Result(r4b.Account, ReqError) {
+) -> Result(r4b.Account, Err) {
   any_create(
     r4b.account_to_json(resource),
     "Account",
@@ -105,17 +92,14 @@ pub fn account_create(
   )
 }
 
-pub fn account_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Account, ReqError) {
+pub fn account_read(id: String, client: FhirClient) -> Result(r4b.Account, Err) {
   any_read(id, client, "Account", r4b.account_decoder())
 }
 
 pub fn account_update(
   resource: r4b.Account,
   client: FhirClient,
-) -> Result(r4b.Account, ReqError) {
+) -> Result(r4b.Account, Err) {
   any_update(
     resource.id,
     r4b.account_to_json(resource),
@@ -128,7 +112,7 @@ pub fn account_update(
 pub fn account_delete(
   resource: r4b.Account,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Account", client)
 }
 
@@ -140,7 +124,7 @@ pub fn account_search(sp: r4b_sansio.SpAccount, client: FhirClient) {
 pub fn activitydefinition_create(
   resource: r4b.Activitydefinition,
   client: FhirClient,
-) -> Result(r4b.Activitydefinition, ReqError) {
+) -> Result(r4b.Activitydefinition, Err) {
   any_create(
     r4b.activitydefinition_to_json(resource),
     "ActivityDefinition",
@@ -152,14 +136,14 @@ pub fn activitydefinition_create(
 pub fn activitydefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Activitydefinition, ReqError) {
+) -> Result(r4b.Activitydefinition, Err) {
   any_read(id, client, "ActivityDefinition", r4b.activitydefinition_decoder())
 }
 
 pub fn activitydefinition_update(
   resource: r4b.Activitydefinition,
   client: FhirClient,
-) -> Result(r4b.Activitydefinition, ReqError) {
+) -> Result(r4b.Activitydefinition, Err) {
   any_update(
     resource.id,
     r4b.activitydefinition_to_json(resource),
@@ -172,7 +156,7 @@ pub fn activitydefinition_update(
 pub fn activitydefinition_delete(
   resource: r4b.Activitydefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ActivityDefinition", client)
 }
 
@@ -187,7 +171,7 @@ pub fn activitydefinition_search(
 pub fn administrableproductdefinition_create(
   resource: r4b.Administrableproductdefinition,
   client: FhirClient,
-) -> Result(r4b.Administrableproductdefinition, ReqError) {
+) -> Result(r4b.Administrableproductdefinition, Err) {
   any_create(
     r4b.administrableproductdefinition_to_json(resource),
     "AdministrableProductDefinition",
@@ -199,7 +183,7 @@ pub fn administrableproductdefinition_create(
 pub fn administrableproductdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Administrableproductdefinition, ReqError) {
+) -> Result(r4b.Administrableproductdefinition, Err) {
   any_read(
     id,
     client,
@@ -211,7 +195,7 @@ pub fn administrableproductdefinition_read(
 pub fn administrableproductdefinition_update(
   resource: r4b.Administrableproductdefinition,
   client: FhirClient,
-) -> Result(r4b.Administrableproductdefinition, ReqError) {
+) -> Result(r4b.Administrableproductdefinition, Err) {
   any_update(
     resource.id,
     r4b.administrableproductdefinition_to_json(resource),
@@ -224,7 +208,7 @@ pub fn administrableproductdefinition_update(
 pub fn administrableproductdefinition_delete(
   resource: r4b.Administrableproductdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "AdministrableProductDefinition", client)
 }
 
@@ -239,7 +223,7 @@ pub fn administrableproductdefinition_search(
 pub fn adverseevent_create(
   resource: r4b.Adverseevent,
   client: FhirClient,
-) -> Result(r4b.Adverseevent, ReqError) {
+) -> Result(r4b.Adverseevent, Err) {
   any_create(
     r4b.adverseevent_to_json(resource),
     "AdverseEvent",
@@ -251,14 +235,14 @@ pub fn adverseevent_create(
 pub fn adverseevent_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Adverseevent, ReqError) {
+) -> Result(r4b.Adverseevent, Err) {
   any_read(id, client, "AdverseEvent", r4b.adverseevent_decoder())
 }
 
 pub fn adverseevent_update(
   resource: r4b.Adverseevent,
   client: FhirClient,
-) -> Result(r4b.Adverseevent, ReqError) {
+) -> Result(r4b.Adverseevent, Err) {
   any_update(
     resource.id,
     r4b.adverseevent_to_json(resource),
@@ -271,7 +255,7 @@ pub fn adverseevent_update(
 pub fn adverseevent_delete(
   resource: r4b.Adverseevent,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "AdverseEvent", client)
 }
 
@@ -283,7 +267,7 @@ pub fn adverseevent_search(sp: r4b_sansio.SpAdverseevent, client: FhirClient) {
 pub fn allergyintolerance_create(
   resource: r4b.Allergyintolerance,
   client: FhirClient,
-) -> Result(r4b.Allergyintolerance, ReqError) {
+) -> Result(r4b.Allergyintolerance, Err) {
   any_create(
     r4b.allergyintolerance_to_json(resource),
     "AllergyIntolerance",
@@ -295,14 +279,14 @@ pub fn allergyintolerance_create(
 pub fn allergyintolerance_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Allergyintolerance, ReqError) {
+) -> Result(r4b.Allergyintolerance, Err) {
   any_read(id, client, "AllergyIntolerance", r4b.allergyintolerance_decoder())
 }
 
 pub fn allergyintolerance_update(
   resource: r4b.Allergyintolerance,
   client: FhirClient,
-) -> Result(r4b.Allergyintolerance, ReqError) {
+) -> Result(r4b.Allergyintolerance, Err) {
   any_update(
     resource.id,
     r4b.allergyintolerance_to_json(resource),
@@ -315,7 +299,7 @@ pub fn allergyintolerance_update(
 pub fn allergyintolerance_delete(
   resource: r4b.Allergyintolerance,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "AllergyIntolerance", client)
 }
 
@@ -330,7 +314,7 @@ pub fn allergyintolerance_search(
 pub fn appointment_create(
   resource: r4b.Appointment,
   client: FhirClient,
-) -> Result(r4b.Appointment, ReqError) {
+) -> Result(r4b.Appointment, Err) {
   any_create(
     r4b.appointment_to_json(resource),
     "Appointment",
@@ -342,14 +326,14 @@ pub fn appointment_create(
 pub fn appointment_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Appointment, ReqError) {
+) -> Result(r4b.Appointment, Err) {
   any_read(id, client, "Appointment", r4b.appointment_decoder())
 }
 
 pub fn appointment_update(
   resource: r4b.Appointment,
   client: FhirClient,
-) -> Result(r4b.Appointment, ReqError) {
+) -> Result(r4b.Appointment, Err) {
   any_update(
     resource.id,
     r4b.appointment_to_json(resource),
@@ -362,7 +346,7 @@ pub fn appointment_update(
 pub fn appointment_delete(
   resource: r4b.Appointment,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Appointment", client)
 }
 
@@ -374,7 +358,7 @@ pub fn appointment_search(sp: r4b_sansio.SpAppointment, client: FhirClient) {
 pub fn appointmentresponse_create(
   resource: r4b.Appointmentresponse,
   client: FhirClient,
-) -> Result(r4b.Appointmentresponse, ReqError) {
+) -> Result(r4b.Appointmentresponse, Err) {
   any_create(
     r4b.appointmentresponse_to_json(resource),
     "AppointmentResponse",
@@ -386,14 +370,14 @@ pub fn appointmentresponse_create(
 pub fn appointmentresponse_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Appointmentresponse, ReqError) {
+) -> Result(r4b.Appointmentresponse, Err) {
   any_read(id, client, "AppointmentResponse", r4b.appointmentresponse_decoder())
 }
 
 pub fn appointmentresponse_update(
   resource: r4b.Appointmentresponse,
   client: FhirClient,
-) -> Result(r4b.Appointmentresponse, ReqError) {
+) -> Result(r4b.Appointmentresponse, Err) {
   any_update(
     resource.id,
     r4b.appointmentresponse_to_json(resource),
@@ -406,7 +390,7 @@ pub fn appointmentresponse_update(
 pub fn appointmentresponse_delete(
   resource: r4b.Appointmentresponse,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "AppointmentResponse", client)
 }
 
@@ -421,7 +405,7 @@ pub fn appointmentresponse_search(
 pub fn auditevent_create(
   resource: r4b.Auditevent,
   client: FhirClient,
-) -> Result(r4b.Auditevent, ReqError) {
+) -> Result(r4b.Auditevent, Err) {
   any_create(
     r4b.auditevent_to_json(resource),
     "AuditEvent",
@@ -433,14 +417,14 @@ pub fn auditevent_create(
 pub fn auditevent_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Auditevent, ReqError) {
+) -> Result(r4b.Auditevent, Err) {
   any_read(id, client, "AuditEvent", r4b.auditevent_decoder())
 }
 
 pub fn auditevent_update(
   resource: r4b.Auditevent,
   client: FhirClient,
-) -> Result(r4b.Auditevent, ReqError) {
+) -> Result(r4b.Auditevent, Err) {
   any_update(
     resource.id,
     r4b.auditevent_to_json(resource),
@@ -453,7 +437,7 @@ pub fn auditevent_update(
 pub fn auditevent_delete(
   resource: r4b.Auditevent,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "AuditEvent", client)
 }
 
@@ -465,18 +449,18 @@ pub fn auditevent_search(sp: r4b_sansio.SpAuditevent, client: FhirClient) {
 pub fn basic_create(
   resource: r4b.Basic,
   client: FhirClient,
-) -> Result(r4b.Basic, ReqError) {
+) -> Result(r4b.Basic, Err) {
   any_create(r4b.basic_to_json(resource), "Basic", r4b.basic_decoder(), client)
 }
 
-pub fn basic_read(id: String, client: FhirClient) -> Result(r4b.Basic, ReqError) {
+pub fn basic_read(id: String, client: FhirClient) -> Result(r4b.Basic, Err) {
   any_read(id, client, "Basic", r4b.basic_decoder())
 }
 
 pub fn basic_update(
   resource: r4b.Basic,
   client: FhirClient,
-) -> Result(r4b.Basic, ReqError) {
+) -> Result(r4b.Basic, Err) {
   any_update(
     resource.id,
     r4b.basic_to_json(resource),
@@ -489,7 +473,7 @@ pub fn basic_update(
 pub fn basic_delete(
   resource: r4b.Basic,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Basic", client)
 }
 
@@ -501,7 +485,7 @@ pub fn basic_search(sp: r4b_sansio.SpBasic, client: FhirClient) {
 pub fn binary_create(
   resource: r4b.Binary,
   client: FhirClient,
-) -> Result(r4b.Binary, ReqError) {
+) -> Result(r4b.Binary, Err) {
   any_create(
     r4b.binary_to_json(resource),
     "Binary",
@@ -510,17 +494,14 @@ pub fn binary_create(
   )
 }
 
-pub fn binary_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Binary, ReqError) {
+pub fn binary_read(id: String, client: FhirClient) -> Result(r4b.Binary, Err) {
   any_read(id, client, "Binary", r4b.binary_decoder())
 }
 
 pub fn binary_update(
   resource: r4b.Binary,
   client: FhirClient,
-) -> Result(r4b.Binary, ReqError) {
+) -> Result(r4b.Binary, Err) {
   any_update(
     resource.id,
     r4b.binary_to_json(resource),
@@ -533,7 +514,7 @@ pub fn binary_update(
 pub fn binary_delete(
   resource: r4b.Binary,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Binary", client)
 }
 
@@ -545,7 +526,7 @@ pub fn binary_search(sp: r4b_sansio.SpBinary, client: FhirClient) {
 pub fn biologicallyderivedproduct_create(
   resource: r4b.Biologicallyderivedproduct,
   client: FhirClient,
-) -> Result(r4b.Biologicallyderivedproduct, ReqError) {
+) -> Result(r4b.Biologicallyderivedproduct, Err) {
   any_create(
     r4b.biologicallyderivedproduct_to_json(resource),
     "BiologicallyDerivedProduct",
@@ -557,7 +538,7 @@ pub fn biologicallyderivedproduct_create(
 pub fn biologicallyderivedproduct_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Biologicallyderivedproduct, ReqError) {
+) -> Result(r4b.Biologicallyderivedproduct, Err) {
   any_read(
     id,
     client,
@@ -569,7 +550,7 @@ pub fn biologicallyderivedproduct_read(
 pub fn biologicallyderivedproduct_update(
   resource: r4b.Biologicallyderivedproduct,
   client: FhirClient,
-) -> Result(r4b.Biologicallyderivedproduct, ReqError) {
+) -> Result(r4b.Biologicallyderivedproduct, Err) {
   any_update(
     resource.id,
     r4b.biologicallyderivedproduct_to_json(resource),
@@ -582,7 +563,7 @@ pub fn biologicallyderivedproduct_update(
 pub fn biologicallyderivedproduct_delete(
   resource: r4b.Biologicallyderivedproduct,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "BiologicallyDerivedProduct", client)
 }
 
@@ -597,7 +578,7 @@ pub fn biologicallyderivedproduct_search(
 pub fn bodystructure_create(
   resource: r4b.Bodystructure,
   client: FhirClient,
-) -> Result(r4b.Bodystructure, ReqError) {
+) -> Result(r4b.Bodystructure, Err) {
   any_create(
     r4b.bodystructure_to_json(resource),
     "BodyStructure",
@@ -609,14 +590,14 @@ pub fn bodystructure_create(
 pub fn bodystructure_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Bodystructure, ReqError) {
+) -> Result(r4b.Bodystructure, Err) {
   any_read(id, client, "BodyStructure", r4b.bodystructure_decoder())
 }
 
 pub fn bodystructure_update(
   resource: r4b.Bodystructure,
   client: FhirClient,
-) -> Result(r4b.Bodystructure, ReqError) {
+) -> Result(r4b.Bodystructure, Err) {
   any_update(
     resource.id,
     r4b.bodystructure_to_json(resource),
@@ -629,7 +610,7 @@ pub fn bodystructure_update(
 pub fn bodystructure_delete(
   resource: r4b.Bodystructure,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "BodyStructure", client)
 }
 
@@ -641,7 +622,7 @@ pub fn bodystructure_search(sp: r4b_sansio.SpBodystructure, client: FhirClient) 
 pub fn bundle_create(
   resource: r4b.Bundle,
   client: FhirClient,
-) -> Result(r4b.Bundle, ReqError) {
+) -> Result(r4b.Bundle, Err) {
   any_create(
     r4b.bundle_to_json(resource),
     "Bundle",
@@ -650,17 +631,14 @@ pub fn bundle_create(
   )
 }
 
-pub fn bundle_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Bundle, ReqError) {
+pub fn bundle_read(id: String, client: FhirClient) -> Result(r4b.Bundle, Err) {
   any_read(id, client, "Bundle", r4b.bundle_decoder())
 }
 
 pub fn bundle_update(
   resource: r4b.Bundle,
   client: FhirClient,
-) -> Result(r4b.Bundle, ReqError) {
+) -> Result(r4b.Bundle, Err) {
   any_update(
     resource.id,
     r4b.bundle_to_json(resource),
@@ -673,7 +651,7 @@ pub fn bundle_update(
 pub fn bundle_delete(
   resource: r4b.Bundle,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Bundle", client)
 }
 
@@ -685,7 +663,7 @@ pub fn bundle_search(sp: r4b_sansio.SpBundle, client: FhirClient) {
 pub fn capabilitystatement_create(
   resource: r4b.Capabilitystatement,
   client: FhirClient,
-) -> Result(r4b.Capabilitystatement, ReqError) {
+) -> Result(r4b.Capabilitystatement, Err) {
   any_create(
     r4b.capabilitystatement_to_json(resource),
     "CapabilityStatement",
@@ -697,14 +675,14 @@ pub fn capabilitystatement_create(
 pub fn capabilitystatement_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Capabilitystatement, ReqError) {
+) -> Result(r4b.Capabilitystatement, Err) {
   any_read(id, client, "CapabilityStatement", r4b.capabilitystatement_decoder())
 }
 
 pub fn capabilitystatement_update(
   resource: r4b.Capabilitystatement,
   client: FhirClient,
-) -> Result(r4b.Capabilitystatement, ReqError) {
+) -> Result(r4b.Capabilitystatement, Err) {
   any_update(
     resource.id,
     r4b.capabilitystatement_to_json(resource),
@@ -717,7 +695,7 @@ pub fn capabilitystatement_update(
 pub fn capabilitystatement_delete(
   resource: r4b.Capabilitystatement,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "CapabilityStatement", client)
 }
 
@@ -732,7 +710,7 @@ pub fn capabilitystatement_search(
 pub fn careplan_create(
   resource: r4b.Careplan,
   client: FhirClient,
-) -> Result(r4b.Careplan, ReqError) {
+) -> Result(r4b.Careplan, Err) {
   any_create(
     r4b.careplan_to_json(resource),
     "CarePlan",
@@ -744,14 +722,14 @@ pub fn careplan_create(
 pub fn careplan_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Careplan, ReqError) {
+) -> Result(r4b.Careplan, Err) {
   any_read(id, client, "CarePlan", r4b.careplan_decoder())
 }
 
 pub fn careplan_update(
   resource: r4b.Careplan,
   client: FhirClient,
-) -> Result(r4b.Careplan, ReqError) {
+) -> Result(r4b.Careplan, Err) {
   any_update(
     resource.id,
     r4b.careplan_to_json(resource),
@@ -764,7 +742,7 @@ pub fn careplan_update(
 pub fn careplan_delete(
   resource: r4b.Careplan,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "CarePlan", client)
 }
 
@@ -776,7 +754,7 @@ pub fn careplan_search(sp: r4b_sansio.SpCareplan, client: FhirClient) {
 pub fn careteam_create(
   resource: r4b.Careteam,
   client: FhirClient,
-) -> Result(r4b.Careteam, ReqError) {
+) -> Result(r4b.Careteam, Err) {
   any_create(
     r4b.careteam_to_json(resource),
     "CareTeam",
@@ -788,14 +766,14 @@ pub fn careteam_create(
 pub fn careteam_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Careteam, ReqError) {
+) -> Result(r4b.Careteam, Err) {
   any_read(id, client, "CareTeam", r4b.careteam_decoder())
 }
 
 pub fn careteam_update(
   resource: r4b.Careteam,
   client: FhirClient,
-) -> Result(r4b.Careteam, ReqError) {
+) -> Result(r4b.Careteam, Err) {
   any_update(
     resource.id,
     r4b.careteam_to_json(resource),
@@ -808,7 +786,7 @@ pub fn careteam_update(
 pub fn careteam_delete(
   resource: r4b.Careteam,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "CareTeam", client)
 }
 
@@ -820,7 +798,7 @@ pub fn careteam_search(sp: r4b_sansio.SpCareteam, client: FhirClient) {
 pub fn catalogentry_create(
   resource: r4b.Catalogentry,
   client: FhirClient,
-) -> Result(r4b.Catalogentry, ReqError) {
+) -> Result(r4b.Catalogentry, Err) {
   any_create(
     r4b.catalogentry_to_json(resource),
     "CatalogEntry",
@@ -832,14 +810,14 @@ pub fn catalogentry_create(
 pub fn catalogentry_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Catalogentry, ReqError) {
+) -> Result(r4b.Catalogentry, Err) {
   any_read(id, client, "CatalogEntry", r4b.catalogentry_decoder())
 }
 
 pub fn catalogentry_update(
   resource: r4b.Catalogentry,
   client: FhirClient,
-) -> Result(r4b.Catalogentry, ReqError) {
+) -> Result(r4b.Catalogentry, Err) {
   any_update(
     resource.id,
     r4b.catalogentry_to_json(resource),
@@ -852,7 +830,7 @@ pub fn catalogentry_update(
 pub fn catalogentry_delete(
   resource: r4b.Catalogentry,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "CatalogEntry", client)
 }
 
@@ -864,7 +842,7 @@ pub fn catalogentry_search(sp: r4b_sansio.SpCatalogentry, client: FhirClient) {
 pub fn chargeitem_create(
   resource: r4b.Chargeitem,
   client: FhirClient,
-) -> Result(r4b.Chargeitem, ReqError) {
+) -> Result(r4b.Chargeitem, Err) {
   any_create(
     r4b.chargeitem_to_json(resource),
     "ChargeItem",
@@ -876,14 +854,14 @@ pub fn chargeitem_create(
 pub fn chargeitem_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Chargeitem, ReqError) {
+) -> Result(r4b.Chargeitem, Err) {
   any_read(id, client, "ChargeItem", r4b.chargeitem_decoder())
 }
 
 pub fn chargeitem_update(
   resource: r4b.Chargeitem,
   client: FhirClient,
-) -> Result(r4b.Chargeitem, ReqError) {
+) -> Result(r4b.Chargeitem, Err) {
   any_update(
     resource.id,
     r4b.chargeitem_to_json(resource),
@@ -896,7 +874,7 @@ pub fn chargeitem_update(
 pub fn chargeitem_delete(
   resource: r4b.Chargeitem,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ChargeItem", client)
 }
 
@@ -908,7 +886,7 @@ pub fn chargeitem_search(sp: r4b_sansio.SpChargeitem, client: FhirClient) {
 pub fn chargeitemdefinition_create(
   resource: r4b.Chargeitemdefinition,
   client: FhirClient,
-) -> Result(r4b.Chargeitemdefinition, ReqError) {
+) -> Result(r4b.Chargeitemdefinition, Err) {
   any_create(
     r4b.chargeitemdefinition_to_json(resource),
     "ChargeItemDefinition",
@@ -920,7 +898,7 @@ pub fn chargeitemdefinition_create(
 pub fn chargeitemdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Chargeitemdefinition, ReqError) {
+) -> Result(r4b.Chargeitemdefinition, Err) {
   any_read(
     id,
     client,
@@ -932,7 +910,7 @@ pub fn chargeitemdefinition_read(
 pub fn chargeitemdefinition_update(
   resource: r4b.Chargeitemdefinition,
   client: FhirClient,
-) -> Result(r4b.Chargeitemdefinition, ReqError) {
+) -> Result(r4b.Chargeitemdefinition, Err) {
   any_update(
     resource.id,
     r4b.chargeitemdefinition_to_json(resource),
@@ -945,7 +923,7 @@ pub fn chargeitemdefinition_update(
 pub fn chargeitemdefinition_delete(
   resource: r4b.Chargeitemdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ChargeItemDefinition", client)
 }
 
@@ -960,7 +938,7 @@ pub fn chargeitemdefinition_search(
 pub fn citation_create(
   resource: r4b.Citation,
   client: FhirClient,
-) -> Result(r4b.Citation, ReqError) {
+) -> Result(r4b.Citation, Err) {
   any_create(
     r4b.citation_to_json(resource),
     "Citation",
@@ -972,14 +950,14 @@ pub fn citation_create(
 pub fn citation_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Citation, ReqError) {
+) -> Result(r4b.Citation, Err) {
   any_read(id, client, "Citation", r4b.citation_decoder())
 }
 
 pub fn citation_update(
   resource: r4b.Citation,
   client: FhirClient,
-) -> Result(r4b.Citation, ReqError) {
+) -> Result(r4b.Citation, Err) {
   any_update(
     resource.id,
     r4b.citation_to_json(resource),
@@ -992,7 +970,7 @@ pub fn citation_update(
 pub fn citation_delete(
   resource: r4b.Citation,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Citation", client)
 }
 
@@ -1004,18 +982,18 @@ pub fn citation_search(sp: r4b_sansio.SpCitation, client: FhirClient) {
 pub fn claim_create(
   resource: r4b.Claim,
   client: FhirClient,
-) -> Result(r4b.Claim, ReqError) {
+) -> Result(r4b.Claim, Err) {
   any_create(r4b.claim_to_json(resource), "Claim", r4b.claim_decoder(), client)
 }
 
-pub fn claim_read(id: String, client: FhirClient) -> Result(r4b.Claim, ReqError) {
+pub fn claim_read(id: String, client: FhirClient) -> Result(r4b.Claim, Err) {
   any_read(id, client, "Claim", r4b.claim_decoder())
 }
 
 pub fn claim_update(
   resource: r4b.Claim,
   client: FhirClient,
-) -> Result(r4b.Claim, ReqError) {
+) -> Result(r4b.Claim, Err) {
   any_update(
     resource.id,
     r4b.claim_to_json(resource),
@@ -1028,7 +1006,7 @@ pub fn claim_update(
 pub fn claim_delete(
   resource: r4b.Claim,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Claim", client)
 }
 
@@ -1040,7 +1018,7 @@ pub fn claim_search(sp: r4b_sansio.SpClaim, client: FhirClient) {
 pub fn claimresponse_create(
   resource: r4b.Claimresponse,
   client: FhirClient,
-) -> Result(r4b.Claimresponse, ReqError) {
+) -> Result(r4b.Claimresponse, Err) {
   any_create(
     r4b.claimresponse_to_json(resource),
     "ClaimResponse",
@@ -1052,14 +1030,14 @@ pub fn claimresponse_create(
 pub fn claimresponse_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Claimresponse, ReqError) {
+) -> Result(r4b.Claimresponse, Err) {
   any_read(id, client, "ClaimResponse", r4b.claimresponse_decoder())
 }
 
 pub fn claimresponse_update(
   resource: r4b.Claimresponse,
   client: FhirClient,
-) -> Result(r4b.Claimresponse, ReqError) {
+) -> Result(r4b.Claimresponse, Err) {
   any_update(
     resource.id,
     r4b.claimresponse_to_json(resource),
@@ -1072,7 +1050,7 @@ pub fn claimresponse_update(
 pub fn claimresponse_delete(
   resource: r4b.Claimresponse,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ClaimResponse", client)
 }
 
@@ -1084,7 +1062,7 @@ pub fn claimresponse_search(sp: r4b_sansio.SpClaimresponse, client: FhirClient) 
 pub fn clinicalimpression_create(
   resource: r4b.Clinicalimpression,
   client: FhirClient,
-) -> Result(r4b.Clinicalimpression, ReqError) {
+) -> Result(r4b.Clinicalimpression, Err) {
   any_create(
     r4b.clinicalimpression_to_json(resource),
     "ClinicalImpression",
@@ -1096,14 +1074,14 @@ pub fn clinicalimpression_create(
 pub fn clinicalimpression_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Clinicalimpression, ReqError) {
+) -> Result(r4b.Clinicalimpression, Err) {
   any_read(id, client, "ClinicalImpression", r4b.clinicalimpression_decoder())
 }
 
 pub fn clinicalimpression_update(
   resource: r4b.Clinicalimpression,
   client: FhirClient,
-) -> Result(r4b.Clinicalimpression, ReqError) {
+) -> Result(r4b.Clinicalimpression, Err) {
   any_update(
     resource.id,
     r4b.clinicalimpression_to_json(resource),
@@ -1116,7 +1094,7 @@ pub fn clinicalimpression_update(
 pub fn clinicalimpression_delete(
   resource: r4b.Clinicalimpression,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ClinicalImpression", client)
 }
 
@@ -1131,7 +1109,7 @@ pub fn clinicalimpression_search(
 pub fn clinicalusedefinition_create(
   resource: r4b.Clinicalusedefinition,
   client: FhirClient,
-) -> Result(r4b.Clinicalusedefinition, ReqError) {
+) -> Result(r4b.Clinicalusedefinition, Err) {
   any_create(
     r4b.clinicalusedefinition_to_json(resource),
     "ClinicalUseDefinition",
@@ -1143,7 +1121,7 @@ pub fn clinicalusedefinition_create(
 pub fn clinicalusedefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Clinicalusedefinition, ReqError) {
+) -> Result(r4b.Clinicalusedefinition, Err) {
   any_read(
     id,
     client,
@@ -1155,7 +1133,7 @@ pub fn clinicalusedefinition_read(
 pub fn clinicalusedefinition_update(
   resource: r4b.Clinicalusedefinition,
   client: FhirClient,
-) -> Result(r4b.Clinicalusedefinition, ReqError) {
+) -> Result(r4b.Clinicalusedefinition, Err) {
   any_update(
     resource.id,
     r4b.clinicalusedefinition_to_json(resource),
@@ -1168,7 +1146,7 @@ pub fn clinicalusedefinition_update(
 pub fn clinicalusedefinition_delete(
   resource: r4b.Clinicalusedefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ClinicalUseDefinition", client)
 }
 
@@ -1183,7 +1161,7 @@ pub fn clinicalusedefinition_search(
 pub fn codesystem_create(
   resource: r4b.Codesystem,
   client: FhirClient,
-) -> Result(r4b.Codesystem, ReqError) {
+) -> Result(r4b.Codesystem, Err) {
   any_create(
     r4b.codesystem_to_json(resource),
     "CodeSystem",
@@ -1195,14 +1173,14 @@ pub fn codesystem_create(
 pub fn codesystem_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Codesystem, ReqError) {
+) -> Result(r4b.Codesystem, Err) {
   any_read(id, client, "CodeSystem", r4b.codesystem_decoder())
 }
 
 pub fn codesystem_update(
   resource: r4b.Codesystem,
   client: FhirClient,
-) -> Result(r4b.Codesystem, ReqError) {
+) -> Result(r4b.Codesystem, Err) {
   any_update(
     resource.id,
     r4b.codesystem_to_json(resource),
@@ -1215,7 +1193,7 @@ pub fn codesystem_update(
 pub fn codesystem_delete(
   resource: r4b.Codesystem,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "CodeSystem", client)
 }
 
@@ -1227,7 +1205,7 @@ pub fn codesystem_search(sp: r4b_sansio.SpCodesystem, client: FhirClient) {
 pub fn communication_create(
   resource: r4b.Communication,
   client: FhirClient,
-) -> Result(r4b.Communication, ReqError) {
+) -> Result(r4b.Communication, Err) {
   any_create(
     r4b.communication_to_json(resource),
     "Communication",
@@ -1239,14 +1217,14 @@ pub fn communication_create(
 pub fn communication_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Communication, ReqError) {
+) -> Result(r4b.Communication, Err) {
   any_read(id, client, "Communication", r4b.communication_decoder())
 }
 
 pub fn communication_update(
   resource: r4b.Communication,
   client: FhirClient,
-) -> Result(r4b.Communication, ReqError) {
+) -> Result(r4b.Communication, Err) {
   any_update(
     resource.id,
     r4b.communication_to_json(resource),
@@ -1259,7 +1237,7 @@ pub fn communication_update(
 pub fn communication_delete(
   resource: r4b.Communication,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Communication", client)
 }
 
@@ -1271,7 +1249,7 @@ pub fn communication_search(sp: r4b_sansio.SpCommunication, client: FhirClient) 
 pub fn communicationrequest_create(
   resource: r4b.Communicationrequest,
   client: FhirClient,
-) -> Result(r4b.Communicationrequest, ReqError) {
+) -> Result(r4b.Communicationrequest, Err) {
   any_create(
     r4b.communicationrequest_to_json(resource),
     "CommunicationRequest",
@@ -1283,7 +1261,7 @@ pub fn communicationrequest_create(
 pub fn communicationrequest_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Communicationrequest, ReqError) {
+) -> Result(r4b.Communicationrequest, Err) {
   any_read(
     id,
     client,
@@ -1295,7 +1273,7 @@ pub fn communicationrequest_read(
 pub fn communicationrequest_update(
   resource: r4b.Communicationrequest,
   client: FhirClient,
-) -> Result(r4b.Communicationrequest, ReqError) {
+) -> Result(r4b.Communicationrequest, Err) {
   any_update(
     resource.id,
     r4b.communicationrequest_to_json(resource),
@@ -1308,7 +1286,7 @@ pub fn communicationrequest_update(
 pub fn communicationrequest_delete(
   resource: r4b.Communicationrequest,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "CommunicationRequest", client)
 }
 
@@ -1323,7 +1301,7 @@ pub fn communicationrequest_search(
 pub fn compartmentdefinition_create(
   resource: r4b.Compartmentdefinition,
   client: FhirClient,
-) -> Result(r4b.Compartmentdefinition, ReqError) {
+) -> Result(r4b.Compartmentdefinition, Err) {
   any_create(
     r4b.compartmentdefinition_to_json(resource),
     "CompartmentDefinition",
@@ -1335,7 +1313,7 @@ pub fn compartmentdefinition_create(
 pub fn compartmentdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Compartmentdefinition, ReqError) {
+) -> Result(r4b.Compartmentdefinition, Err) {
   any_read(
     id,
     client,
@@ -1347,7 +1325,7 @@ pub fn compartmentdefinition_read(
 pub fn compartmentdefinition_update(
   resource: r4b.Compartmentdefinition,
   client: FhirClient,
-) -> Result(r4b.Compartmentdefinition, ReqError) {
+) -> Result(r4b.Compartmentdefinition, Err) {
   any_update(
     resource.id,
     r4b.compartmentdefinition_to_json(resource),
@@ -1360,7 +1338,7 @@ pub fn compartmentdefinition_update(
 pub fn compartmentdefinition_delete(
   resource: r4b.Compartmentdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "CompartmentDefinition", client)
 }
 
@@ -1375,7 +1353,7 @@ pub fn compartmentdefinition_search(
 pub fn composition_create(
   resource: r4b.Composition,
   client: FhirClient,
-) -> Result(r4b.Composition, ReqError) {
+) -> Result(r4b.Composition, Err) {
   any_create(
     r4b.composition_to_json(resource),
     "Composition",
@@ -1387,14 +1365,14 @@ pub fn composition_create(
 pub fn composition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Composition, ReqError) {
+) -> Result(r4b.Composition, Err) {
   any_read(id, client, "Composition", r4b.composition_decoder())
 }
 
 pub fn composition_update(
   resource: r4b.Composition,
   client: FhirClient,
-) -> Result(r4b.Composition, ReqError) {
+) -> Result(r4b.Composition, Err) {
   any_update(
     resource.id,
     r4b.composition_to_json(resource),
@@ -1407,7 +1385,7 @@ pub fn composition_update(
 pub fn composition_delete(
   resource: r4b.Composition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Composition", client)
 }
 
@@ -1419,7 +1397,7 @@ pub fn composition_search(sp: r4b_sansio.SpComposition, client: FhirClient) {
 pub fn conceptmap_create(
   resource: r4b.Conceptmap,
   client: FhirClient,
-) -> Result(r4b.Conceptmap, ReqError) {
+) -> Result(r4b.Conceptmap, Err) {
   any_create(
     r4b.conceptmap_to_json(resource),
     "ConceptMap",
@@ -1431,14 +1409,14 @@ pub fn conceptmap_create(
 pub fn conceptmap_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Conceptmap, ReqError) {
+) -> Result(r4b.Conceptmap, Err) {
   any_read(id, client, "ConceptMap", r4b.conceptmap_decoder())
 }
 
 pub fn conceptmap_update(
   resource: r4b.Conceptmap,
   client: FhirClient,
-) -> Result(r4b.Conceptmap, ReqError) {
+) -> Result(r4b.Conceptmap, Err) {
   any_update(
     resource.id,
     r4b.conceptmap_to_json(resource),
@@ -1451,7 +1429,7 @@ pub fn conceptmap_update(
 pub fn conceptmap_delete(
   resource: r4b.Conceptmap,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ConceptMap", client)
 }
 
@@ -1463,7 +1441,7 @@ pub fn conceptmap_search(sp: r4b_sansio.SpConceptmap, client: FhirClient) {
 pub fn condition_create(
   resource: r4b.Condition,
   client: FhirClient,
-) -> Result(r4b.Condition, ReqError) {
+) -> Result(r4b.Condition, Err) {
   any_create(
     r4b.condition_to_json(resource),
     "Condition",
@@ -1475,14 +1453,14 @@ pub fn condition_create(
 pub fn condition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Condition, ReqError) {
+) -> Result(r4b.Condition, Err) {
   any_read(id, client, "Condition", r4b.condition_decoder())
 }
 
 pub fn condition_update(
   resource: r4b.Condition,
   client: FhirClient,
-) -> Result(r4b.Condition, ReqError) {
+) -> Result(r4b.Condition, Err) {
   any_update(
     resource.id,
     r4b.condition_to_json(resource),
@@ -1495,7 +1473,7 @@ pub fn condition_update(
 pub fn condition_delete(
   resource: r4b.Condition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Condition", client)
 }
 
@@ -1507,7 +1485,7 @@ pub fn condition_search(sp: r4b_sansio.SpCondition, client: FhirClient) {
 pub fn consent_create(
   resource: r4b.Consent,
   client: FhirClient,
-) -> Result(r4b.Consent, ReqError) {
+) -> Result(r4b.Consent, Err) {
   any_create(
     r4b.consent_to_json(resource),
     "Consent",
@@ -1516,17 +1494,14 @@ pub fn consent_create(
   )
 }
 
-pub fn consent_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Consent, ReqError) {
+pub fn consent_read(id: String, client: FhirClient) -> Result(r4b.Consent, Err) {
   any_read(id, client, "Consent", r4b.consent_decoder())
 }
 
 pub fn consent_update(
   resource: r4b.Consent,
   client: FhirClient,
-) -> Result(r4b.Consent, ReqError) {
+) -> Result(r4b.Consent, Err) {
   any_update(
     resource.id,
     r4b.consent_to_json(resource),
@@ -1539,7 +1514,7 @@ pub fn consent_update(
 pub fn consent_delete(
   resource: r4b.Consent,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Consent", client)
 }
 
@@ -1551,7 +1526,7 @@ pub fn consent_search(sp: r4b_sansio.SpConsent, client: FhirClient) {
 pub fn contract_create(
   resource: r4b.Contract,
   client: FhirClient,
-) -> Result(r4b.Contract, ReqError) {
+) -> Result(r4b.Contract, Err) {
   any_create(
     r4b.contract_to_json(resource),
     "Contract",
@@ -1563,14 +1538,14 @@ pub fn contract_create(
 pub fn contract_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Contract, ReqError) {
+) -> Result(r4b.Contract, Err) {
   any_read(id, client, "Contract", r4b.contract_decoder())
 }
 
 pub fn contract_update(
   resource: r4b.Contract,
   client: FhirClient,
-) -> Result(r4b.Contract, ReqError) {
+) -> Result(r4b.Contract, Err) {
   any_update(
     resource.id,
     r4b.contract_to_json(resource),
@@ -1583,7 +1558,7 @@ pub fn contract_update(
 pub fn contract_delete(
   resource: r4b.Contract,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Contract", client)
 }
 
@@ -1595,7 +1570,7 @@ pub fn contract_search(sp: r4b_sansio.SpContract, client: FhirClient) {
 pub fn coverage_create(
   resource: r4b.Coverage,
   client: FhirClient,
-) -> Result(r4b.Coverage, ReqError) {
+) -> Result(r4b.Coverage, Err) {
   any_create(
     r4b.coverage_to_json(resource),
     "Coverage",
@@ -1607,14 +1582,14 @@ pub fn coverage_create(
 pub fn coverage_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Coverage, ReqError) {
+) -> Result(r4b.Coverage, Err) {
   any_read(id, client, "Coverage", r4b.coverage_decoder())
 }
 
 pub fn coverage_update(
   resource: r4b.Coverage,
   client: FhirClient,
-) -> Result(r4b.Coverage, ReqError) {
+) -> Result(r4b.Coverage, Err) {
   any_update(
     resource.id,
     r4b.coverage_to_json(resource),
@@ -1627,7 +1602,7 @@ pub fn coverage_update(
 pub fn coverage_delete(
   resource: r4b.Coverage,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Coverage", client)
 }
 
@@ -1639,7 +1614,7 @@ pub fn coverage_search(sp: r4b_sansio.SpCoverage, client: FhirClient) {
 pub fn coverageeligibilityrequest_create(
   resource: r4b.Coverageeligibilityrequest,
   client: FhirClient,
-) -> Result(r4b.Coverageeligibilityrequest, ReqError) {
+) -> Result(r4b.Coverageeligibilityrequest, Err) {
   any_create(
     r4b.coverageeligibilityrequest_to_json(resource),
     "CoverageEligibilityRequest",
@@ -1651,7 +1626,7 @@ pub fn coverageeligibilityrequest_create(
 pub fn coverageeligibilityrequest_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Coverageeligibilityrequest, ReqError) {
+) -> Result(r4b.Coverageeligibilityrequest, Err) {
   any_read(
     id,
     client,
@@ -1663,7 +1638,7 @@ pub fn coverageeligibilityrequest_read(
 pub fn coverageeligibilityrequest_update(
   resource: r4b.Coverageeligibilityrequest,
   client: FhirClient,
-) -> Result(r4b.Coverageeligibilityrequest, ReqError) {
+) -> Result(r4b.Coverageeligibilityrequest, Err) {
   any_update(
     resource.id,
     r4b.coverageeligibilityrequest_to_json(resource),
@@ -1676,7 +1651,7 @@ pub fn coverageeligibilityrequest_update(
 pub fn coverageeligibilityrequest_delete(
   resource: r4b.Coverageeligibilityrequest,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "CoverageEligibilityRequest", client)
 }
 
@@ -1691,7 +1666,7 @@ pub fn coverageeligibilityrequest_search(
 pub fn coverageeligibilityresponse_create(
   resource: r4b.Coverageeligibilityresponse,
   client: FhirClient,
-) -> Result(r4b.Coverageeligibilityresponse, ReqError) {
+) -> Result(r4b.Coverageeligibilityresponse, Err) {
   any_create(
     r4b.coverageeligibilityresponse_to_json(resource),
     "CoverageEligibilityResponse",
@@ -1703,7 +1678,7 @@ pub fn coverageeligibilityresponse_create(
 pub fn coverageeligibilityresponse_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Coverageeligibilityresponse, ReqError) {
+) -> Result(r4b.Coverageeligibilityresponse, Err) {
   any_read(
     id,
     client,
@@ -1715,7 +1690,7 @@ pub fn coverageeligibilityresponse_read(
 pub fn coverageeligibilityresponse_update(
   resource: r4b.Coverageeligibilityresponse,
   client: FhirClient,
-) -> Result(r4b.Coverageeligibilityresponse, ReqError) {
+) -> Result(r4b.Coverageeligibilityresponse, Err) {
   any_update(
     resource.id,
     r4b.coverageeligibilityresponse_to_json(resource),
@@ -1728,7 +1703,7 @@ pub fn coverageeligibilityresponse_update(
 pub fn coverageeligibilityresponse_delete(
   resource: r4b.Coverageeligibilityresponse,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "CoverageEligibilityResponse", client)
 }
 
@@ -1743,7 +1718,7 @@ pub fn coverageeligibilityresponse_search(
 pub fn detectedissue_create(
   resource: r4b.Detectedissue,
   client: FhirClient,
-) -> Result(r4b.Detectedissue, ReqError) {
+) -> Result(r4b.Detectedissue, Err) {
   any_create(
     r4b.detectedissue_to_json(resource),
     "DetectedIssue",
@@ -1755,14 +1730,14 @@ pub fn detectedissue_create(
 pub fn detectedissue_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Detectedissue, ReqError) {
+) -> Result(r4b.Detectedissue, Err) {
   any_read(id, client, "DetectedIssue", r4b.detectedissue_decoder())
 }
 
 pub fn detectedissue_update(
   resource: r4b.Detectedissue,
   client: FhirClient,
-) -> Result(r4b.Detectedissue, ReqError) {
+) -> Result(r4b.Detectedissue, Err) {
   any_update(
     resource.id,
     r4b.detectedissue_to_json(resource),
@@ -1775,7 +1750,7 @@ pub fn detectedissue_update(
 pub fn detectedissue_delete(
   resource: r4b.Detectedissue,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "DetectedIssue", client)
 }
 
@@ -1787,7 +1762,7 @@ pub fn detectedissue_search(sp: r4b_sansio.SpDetectedissue, client: FhirClient) 
 pub fn device_create(
   resource: r4b.Device,
   client: FhirClient,
-) -> Result(r4b.Device, ReqError) {
+) -> Result(r4b.Device, Err) {
   any_create(
     r4b.device_to_json(resource),
     "Device",
@@ -1796,17 +1771,14 @@ pub fn device_create(
   )
 }
 
-pub fn device_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Device, ReqError) {
+pub fn device_read(id: String, client: FhirClient) -> Result(r4b.Device, Err) {
   any_read(id, client, "Device", r4b.device_decoder())
 }
 
 pub fn device_update(
   resource: r4b.Device,
   client: FhirClient,
-) -> Result(r4b.Device, ReqError) {
+) -> Result(r4b.Device, Err) {
   any_update(
     resource.id,
     r4b.device_to_json(resource),
@@ -1819,7 +1791,7 @@ pub fn device_update(
 pub fn device_delete(
   resource: r4b.Device,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Device", client)
 }
 
@@ -1831,7 +1803,7 @@ pub fn device_search(sp: r4b_sansio.SpDevice, client: FhirClient) {
 pub fn devicedefinition_create(
   resource: r4b.Devicedefinition,
   client: FhirClient,
-) -> Result(r4b.Devicedefinition, ReqError) {
+) -> Result(r4b.Devicedefinition, Err) {
   any_create(
     r4b.devicedefinition_to_json(resource),
     "DeviceDefinition",
@@ -1843,14 +1815,14 @@ pub fn devicedefinition_create(
 pub fn devicedefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Devicedefinition, ReqError) {
+) -> Result(r4b.Devicedefinition, Err) {
   any_read(id, client, "DeviceDefinition", r4b.devicedefinition_decoder())
 }
 
 pub fn devicedefinition_update(
   resource: r4b.Devicedefinition,
   client: FhirClient,
-) -> Result(r4b.Devicedefinition, ReqError) {
+) -> Result(r4b.Devicedefinition, Err) {
   any_update(
     resource.id,
     r4b.devicedefinition_to_json(resource),
@@ -1863,7 +1835,7 @@ pub fn devicedefinition_update(
 pub fn devicedefinition_delete(
   resource: r4b.Devicedefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "DeviceDefinition", client)
 }
 
@@ -1878,7 +1850,7 @@ pub fn devicedefinition_search(
 pub fn devicemetric_create(
   resource: r4b.Devicemetric,
   client: FhirClient,
-) -> Result(r4b.Devicemetric, ReqError) {
+) -> Result(r4b.Devicemetric, Err) {
   any_create(
     r4b.devicemetric_to_json(resource),
     "DeviceMetric",
@@ -1890,14 +1862,14 @@ pub fn devicemetric_create(
 pub fn devicemetric_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Devicemetric, ReqError) {
+) -> Result(r4b.Devicemetric, Err) {
   any_read(id, client, "DeviceMetric", r4b.devicemetric_decoder())
 }
 
 pub fn devicemetric_update(
   resource: r4b.Devicemetric,
   client: FhirClient,
-) -> Result(r4b.Devicemetric, ReqError) {
+) -> Result(r4b.Devicemetric, Err) {
   any_update(
     resource.id,
     r4b.devicemetric_to_json(resource),
@@ -1910,7 +1882,7 @@ pub fn devicemetric_update(
 pub fn devicemetric_delete(
   resource: r4b.Devicemetric,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "DeviceMetric", client)
 }
 
@@ -1922,7 +1894,7 @@ pub fn devicemetric_search(sp: r4b_sansio.SpDevicemetric, client: FhirClient) {
 pub fn devicerequest_create(
   resource: r4b.Devicerequest,
   client: FhirClient,
-) -> Result(r4b.Devicerequest, ReqError) {
+) -> Result(r4b.Devicerequest, Err) {
   any_create(
     r4b.devicerequest_to_json(resource),
     "DeviceRequest",
@@ -1934,14 +1906,14 @@ pub fn devicerequest_create(
 pub fn devicerequest_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Devicerequest, ReqError) {
+) -> Result(r4b.Devicerequest, Err) {
   any_read(id, client, "DeviceRequest", r4b.devicerequest_decoder())
 }
 
 pub fn devicerequest_update(
   resource: r4b.Devicerequest,
   client: FhirClient,
-) -> Result(r4b.Devicerequest, ReqError) {
+) -> Result(r4b.Devicerequest, Err) {
   any_update(
     resource.id,
     r4b.devicerequest_to_json(resource),
@@ -1954,7 +1926,7 @@ pub fn devicerequest_update(
 pub fn devicerequest_delete(
   resource: r4b.Devicerequest,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "DeviceRequest", client)
 }
 
@@ -1966,7 +1938,7 @@ pub fn devicerequest_search(sp: r4b_sansio.SpDevicerequest, client: FhirClient) 
 pub fn deviceusestatement_create(
   resource: r4b.Deviceusestatement,
   client: FhirClient,
-) -> Result(r4b.Deviceusestatement, ReqError) {
+) -> Result(r4b.Deviceusestatement, Err) {
   any_create(
     r4b.deviceusestatement_to_json(resource),
     "DeviceUseStatement",
@@ -1978,14 +1950,14 @@ pub fn deviceusestatement_create(
 pub fn deviceusestatement_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Deviceusestatement, ReqError) {
+) -> Result(r4b.Deviceusestatement, Err) {
   any_read(id, client, "DeviceUseStatement", r4b.deviceusestatement_decoder())
 }
 
 pub fn deviceusestatement_update(
   resource: r4b.Deviceusestatement,
   client: FhirClient,
-) -> Result(r4b.Deviceusestatement, ReqError) {
+) -> Result(r4b.Deviceusestatement, Err) {
   any_update(
     resource.id,
     r4b.deviceusestatement_to_json(resource),
@@ -1998,7 +1970,7 @@ pub fn deviceusestatement_update(
 pub fn deviceusestatement_delete(
   resource: r4b.Deviceusestatement,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "DeviceUseStatement", client)
 }
 
@@ -2013,7 +1985,7 @@ pub fn deviceusestatement_search(
 pub fn diagnosticreport_create(
   resource: r4b.Diagnosticreport,
   client: FhirClient,
-) -> Result(r4b.Diagnosticreport, ReqError) {
+) -> Result(r4b.Diagnosticreport, Err) {
   any_create(
     r4b.diagnosticreport_to_json(resource),
     "DiagnosticReport",
@@ -2025,14 +1997,14 @@ pub fn diagnosticreport_create(
 pub fn diagnosticreport_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Diagnosticreport, ReqError) {
+) -> Result(r4b.Diagnosticreport, Err) {
   any_read(id, client, "DiagnosticReport", r4b.diagnosticreport_decoder())
 }
 
 pub fn diagnosticreport_update(
   resource: r4b.Diagnosticreport,
   client: FhirClient,
-) -> Result(r4b.Diagnosticreport, ReqError) {
+) -> Result(r4b.Diagnosticreport, Err) {
   any_update(
     resource.id,
     r4b.diagnosticreport_to_json(resource),
@@ -2045,7 +2017,7 @@ pub fn diagnosticreport_update(
 pub fn diagnosticreport_delete(
   resource: r4b.Diagnosticreport,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "DiagnosticReport", client)
 }
 
@@ -2060,7 +2032,7 @@ pub fn diagnosticreport_search(
 pub fn documentmanifest_create(
   resource: r4b.Documentmanifest,
   client: FhirClient,
-) -> Result(r4b.Documentmanifest, ReqError) {
+) -> Result(r4b.Documentmanifest, Err) {
   any_create(
     r4b.documentmanifest_to_json(resource),
     "DocumentManifest",
@@ -2072,14 +2044,14 @@ pub fn documentmanifest_create(
 pub fn documentmanifest_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Documentmanifest, ReqError) {
+) -> Result(r4b.Documentmanifest, Err) {
   any_read(id, client, "DocumentManifest", r4b.documentmanifest_decoder())
 }
 
 pub fn documentmanifest_update(
   resource: r4b.Documentmanifest,
   client: FhirClient,
-) -> Result(r4b.Documentmanifest, ReqError) {
+) -> Result(r4b.Documentmanifest, Err) {
   any_update(
     resource.id,
     r4b.documentmanifest_to_json(resource),
@@ -2092,7 +2064,7 @@ pub fn documentmanifest_update(
 pub fn documentmanifest_delete(
   resource: r4b.Documentmanifest,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "DocumentManifest", client)
 }
 
@@ -2107,7 +2079,7 @@ pub fn documentmanifest_search(
 pub fn documentreference_create(
   resource: r4b.Documentreference,
   client: FhirClient,
-) -> Result(r4b.Documentreference, ReqError) {
+) -> Result(r4b.Documentreference, Err) {
   any_create(
     r4b.documentreference_to_json(resource),
     "DocumentReference",
@@ -2119,14 +2091,14 @@ pub fn documentreference_create(
 pub fn documentreference_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Documentreference, ReqError) {
+) -> Result(r4b.Documentreference, Err) {
   any_read(id, client, "DocumentReference", r4b.documentreference_decoder())
 }
 
 pub fn documentreference_update(
   resource: r4b.Documentreference,
   client: FhirClient,
-) -> Result(r4b.Documentreference, ReqError) {
+) -> Result(r4b.Documentreference, Err) {
   any_update(
     resource.id,
     r4b.documentreference_to_json(resource),
@@ -2139,7 +2111,7 @@ pub fn documentreference_update(
 pub fn documentreference_delete(
   resource: r4b.Documentreference,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "DocumentReference", client)
 }
 
@@ -2154,7 +2126,7 @@ pub fn documentreference_search(
 pub fn encounter_create(
   resource: r4b.Encounter,
   client: FhirClient,
-) -> Result(r4b.Encounter, ReqError) {
+) -> Result(r4b.Encounter, Err) {
   any_create(
     r4b.encounter_to_json(resource),
     "Encounter",
@@ -2166,14 +2138,14 @@ pub fn encounter_create(
 pub fn encounter_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Encounter, ReqError) {
+) -> Result(r4b.Encounter, Err) {
   any_read(id, client, "Encounter", r4b.encounter_decoder())
 }
 
 pub fn encounter_update(
   resource: r4b.Encounter,
   client: FhirClient,
-) -> Result(r4b.Encounter, ReqError) {
+) -> Result(r4b.Encounter, Err) {
   any_update(
     resource.id,
     r4b.encounter_to_json(resource),
@@ -2186,7 +2158,7 @@ pub fn encounter_update(
 pub fn encounter_delete(
   resource: r4b.Encounter,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Encounter", client)
 }
 
@@ -2198,7 +2170,7 @@ pub fn encounter_search(sp: r4b_sansio.SpEncounter, client: FhirClient) {
 pub fn endpoint_create(
   resource: r4b.Endpoint,
   client: FhirClient,
-) -> Result(r4b.Endpoint, ReqError) {
+) -> Result(r4b.Endpoint, Err) {
   any_create(
     r4b.endpoint_to_json(resource),
     "Endpoint",
@@ -2210,14 +2182,14 @@ pub fn endpoint_create(
 pub fn endpoint_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Endpoint, ReqError) {
+) -> Result(r4b.Endpoint, Err) {
   any_read(id, client, "Endpoint", r4b.endpoint_decoder())
 }
 
 pub fn endpoint_update(
   resource: r4b.Endpoint,
   client: FhirClient,
-) -> Result(r4b.Endpoint, ReqError) {
+) -> Result(r4b.Endpoint, Err) {
   any_update(
     resource.id,
     r4b.endpoint_to_json(resource),
@@ -2230,7 +2202,7 @@ pub fn endpoint_update(
 pub fn endpoint_delete(
   resource: r4b.Endpoint,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Endpoint", client)
 }
 
@@ -2242,7 +2214,7 @@ pub fn endpoint_search(sp: r4b_sansio.SpEndpoint, client: FhirClient) {
 pub fn enrollmentrequest_create(
   resource: r4b.Enrollmentrequest,
   client: FhirClient,
-) -> Result(r4b.Enrollmentrequest, ReqError) {
+) -> Result(r4b.Enrollmentrequest, Err) {
   any_create(
     r4b.enrollmentrequest_to_json(resource),
     "EnrollmentRequest",
@@ -2254,14 +2226,14 @@ pub fn enrollmentrequest_create(
 pub fn enrollmentrequest_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Enrollmentrequest, ReqError) {
+) -> Result(r4b.Enrollmentrequest, Err) {
   any_read(id, client, "EnrollmentRequest", r4b.enrollmentrequest_decoder())
 }
 
 pub fn enrollmentrequest_update(
   resource: r4b.Enrollmentrequest,
   client: FhirClient,
-) -> Result(r4b.Enrollmentrequest, ReqError) {
+) -> Result(r4b.Enrollmentrequest, Err) {
   any_update(
     resource.id,
     r4b.enrollmentrequest_to_json(resource),
@@ -2274,7 +2246,7 @@ pub fn enrollmentrequest_update(
 pub fn enrollmentrequest_delete(
   resource: r4b.Enrollmentrequest,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "EnrollmentRequest", client)
 }
 
@@ -2289,7 +2261,7 @@ pub fn enrollmentrequest_search(
 pub fn enrollmentresponse_create(
   resource: r4b.Enrollmentresponse,
   client: FhirClient,
-) -> Result(r4b.Enrollmentresponse, ReqError) {
+) -> Result(r4b.Enrollmentresponse, Err) {
   any_create(
     r4b.enrollmentresponse_to_json(resource),
     "EnrollmentResponse",
@@ -2301,14 +2273,14 @@ pub fn enrollmentresponse_create(
 pub fn enrollmentresponse_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Enrollmentresponse, ReqError) {
+) -> Result(r4b.Enrollmentresponse, Err) {
   any_read(id, client, "EnrollmentResponse", r4b.enrollmentresponse_decoder())
 }
 
 pub fn enrollmentresponse_update(
   resource: r4b.Enrollmentresponse,
   client: FhirClient,
-) -> Result(r4b.Enrollmentresponse, ReqError) {
+) -> Result(r4b.Enrollmentresponse, Err) {
   any_update(
     resource.id,
     r4b.enrollmentresponse_to_json(resource),
@@ -2321,7 +2293,7 @@ pub fn enrollmentresponse_update(
 pub fn enrollmentresponse_delete(
   resource: r4b.Enrollmentresponse,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "EnrollmentResponse", client)
 }
 
@@ -2336,7 +2308,7 @@ pub fn enrollmentresponse_search(
 pub fn episodeofcare_create(
   resource: r4b.Episodeofcare,
   client: FhirClient,
-) -> Result(r4b.Episodeofcare, ReqError) {
+) -> Result(r4b.Episodeofcare, Err) {
   any_create(
     r4b.episodeofcare_to_json(resource),
     "EpisodeOfCare",
@@ -2348,14 +2320,14 @@ pub fn episodeofcare_create(
 pub fn episodeofcare_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Episodeofcare, ReqError) {
+) -> Result(r4b.Episodeofcare, Err) {
   any_read(id, client, "EpisodeOfCare", r4b.episodeofcare_decoder())
 }
 
 pub fn episodeofcare_update(
   resource: r4b.Episodeofcare,
   client: FhirClient,
-) -> Result(r4b.Episodeofcare, ReqError) {
+) -> Result(r4b.Episodeofcare, Err) {
   any_update(
     resource.id,
     r4b.episodeofcare_to_json(resource),
@@ -2368,7 +2340,7 @@ pub fn episodeofcare_update(
 pub fn episodeofcare_delete(
   resource: r4b.Episodeofcare,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "EpisodeOfCare", client)
 }
 
@@ -2380,7 +2352,7 @@ pub fn episodeofcare_search(sp: r4b_sansio.SpEpisodeofcare, client: FhirClient) 
 pub fn eventdefinition_create(
   resource: r4b.Eventdefinition,
   client: FhirClient,
-) -> Result(r4b.Eventdefinition, ReqError) {
+) -> Result(r4b.Eventdefinition, Err) {
   any_create(
     r4b.eventdefinition_to_json(resource),
     "EventDefinition",
@@ -2392,14 +2364,14 @@ pub fn eventdefinition_create(
 pub fn eventdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Eventdefinition, ReqError) {
+) -> Result(r4b.Eventdefinition, Err) {
   any_read(id, client, "EventDefinition", r4b.eventdefinition_decoder())
 }
 
 pub fn eventdefinition_update(
   resource: r4b.Eventdefinition,
   client: FhirClient,
-) -> Result(r4b.Eventdefinition, ReqError) {
+) -> Result(r4b.Eventdefinition, Err) {
   any_update(
     resource.id,
     r4b.eventdefinition_to_json(resource),
@@ -2412,7 +2384,7 @@ pub fn eventdefinition_update(
 pub fn eventdefinition_delete(
   resource: r4b.Eventdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "EventDefinition", client)
 }
 
@@ -2427,7 +2399,7 @@ pub fn eventdefinition_search(
 pub fn evidence_create(
   resource: r4b.Evidence,
   client: FhirClient,
-) -> Result(r4b.Evidence, ReqError) {
+) -> Result(r4b.Evidence, Err) {
   any_create(
     r4b.evidence_to_json(resource),
     "Evidence",
@@ -2439,14 +2411,14 @@ pub fn evidence_create(
 pub fn evidence_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Evidence, ReqError) {
+) -> Result(r4b.Evidence, Err) {
   any_read(id, client, "Evidence", r4b.evidence_decoder())
 }
 
 pub fn evidence_update(
   resource: r4b.Evidence,
   client: FhirClient,
-) -> Result(r4b.Evidence, ReqError) {
+) -> Result(r4b.Evidence, Err) {
   any_update(
     resource.id,
     r4b.evidence_to_json(resource),
@@ -2459,7 +2431,7 @@ pub fn evidence_update(
 pub fn evidence_delete(
   resource: r4b.Evidence,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Evidence", client)
 }
 
@@ -2471,7 +2443,7 @@ pub fn evidence_search(sp: r4b_sansio.SpEvidence, client: FhirClient) {
 pub fn evidencereport_create(
   resource: r4b.Evidencereport,
   client: FhirClient,
-) -> Result(r4b.Evidencereport, ReqError) {
+) -> Result(r4b.Evidencereport, Err) {
   any_create(
     r4b.evidencereport_to_json(resource),
     "EvidenceReport",
@@ -2483,14 +2455,14 @@ pub fn evidencereport_create(
 pub fn evidencereport_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Evidencereport, ReqError) {
+) -> Result(r4b.Evidencereport, Err) {
   any_read(id, client, "EvidenceReport", r4b.evidencereport_decoder())
 }
 
 pub fn evidencereport_update(
   resource: r4b.Evidencereport,
   client: FhirClient,
-) -> Result(r4b.Evidencereport, ReqError) {
+) -> Result(r4b.Evidencereport, Err) {
   any_update(
     resource.id,
     r4b.evidencereport_to_json(resource),
@@ -2503,7 +2475,7 @@ pub fn evidencereport_update(
 pub fn evidencereport_delete(
   resource: r4b.Evidencereport,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "EvidenceReport", client)
 }
 
@@ -2518,7 +2490,7 @@ pub fn evidencereport_search(
 pub fn evidencevariable_create(
   resource: r4b.Evidencevariable,
   client: FhirClient,
-) -> Result(r4b.Evidencevariable, ReqError) {
+) -> Result(r4b.Evidencevariable, Err) {
   any_create(
     r4b.evidencevariable_to_json(resource),
     "EvidenceVariable",
@@ -2530,14 +2502,14 @@ pub fn evidencevariable_create(
 pub fn evidencevariable_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Evidencevariable, ReqError) {
+) -> Result(r4b.Evidencevariable, Err) {
   any_read(id, client, "EvidenceVariable", r4b.evidencevariable_decoder())
 }
 
 pub fn evidencevariable_update(
   resource: r4b.Evidencevariable,
   client: FhirClient,
-) -> Result(r4b.Evidencevariable, ReqError) {
+) -> Result(r4b.Evidencevariable, Err) {
   any_update(
     resource.id,
     r4b.evidencevariable_to_json(resource),
@@ -2550,7 +2522,7 @@ pub fn evidencevariable_update(
 pub fn evidencevariable_delete(
   resource: r4b.Evidencevariable,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "EvidenceVariable", client)
 }
 
@@ -2565,7 +2537,7 @@ pub fn evidencevariable_search(
 pub fn examplescenario_create(
   resource: r4b.Examplescenario,
   client: FhirClient,
-) -> Result(r4b.Examplescenario, ReqError) {
+) -> Result(r4b.Examplescenario, Err) {
   any_create(
     r4b.examplescenario_to_json(resource),
     "ExampleScenario",
@@ -2577,14 +2549,14 @@ pub fn examplescenario_create(
 pub fn examplescenario_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Examplescenario, ReqError) {
+) -> Result(r4b.Examplescenario, Err) {
   any_read(id, client, "ExampleScenario", r4b.examplescenario_decoder())
 }
 
 pub fn examplescenario_update(
   resource: r4b.Examplescenario,
   client: FhirClient,
-) -> Result(r4b.Examplescenario, ReqError) {
+) -> Result(r4b.Examplescenario, Err) {
   any_update(
     resource.id,
     r4b.examplescenario_to_json(resource),
@@ -2597,7 +2569,7 @@ pub fn examplescenario_update(
 pub fn examplescenario_delete(
   resource: r4b.Examplescenario,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ExampleScenario", client)
 }
 
@@ -2612,7 +2584,7 @@ pub fn examplescenario_search(
 pub fn explanationofbenefit_create(
   resource: r4b.Explanationofbenefit,
   client: FhirClient,
-) -> Result(r4b.Explanationofbenefit, ReqError) {
+) -> Result(r4b.Explanationofbenefit, Err) {
   any_create(
     r4b.explanationofbenefit_to_json(resource),
     "ExplanationOfBenefit",
@@ -2624,7 +2596,7 @@ pub fn explanationofbenefit_create(
 pub fn explanationofbenefit_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Explanationofbenefit, ReqError) {
+) -> Result(r4b.Explanationofbenefit, Err) {
   any_read(
     id,
     client,
@@ -2636,7 +2608,7 @@ pub fn explanationofbenefit_read(
 pub fn explanationofbenefit_update(
   resource: r4b.Explanationofbenefit,
   client: FhirClient,
-) -> Result(r4b.Explanationofbenefit, ReqError) {
+) -> Result(r4b.Explanationofbenefit, Err) {
   any_update(
     resource.id,
     r4b.explanationofbenefit_to_json(resource),
@@ -2649,7 +2621,7 @@ pub fn explanationofbenefit_update(
 pub fn explanationofbenefit_delete(
   resource: r4b.Explanationofbenefit,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ExplanationOfBenefit", client)
 }
 
@@ -2664,7 +2636,7 @@ pub fn explanationofbenefit_search(
 pub fn familymemberhistory_create(
   resource: r4b.Familymemberhistory,
   client: FhirClient,
-) -> Result(r4b.Familymemberhistory, ReqError) {
+) -> Result(r4b.Familymemberhistory, Err) {
   any_create(
     r4b.familymemberhistory_to_json(resource),
     "FamilyMemberHistory",
@@ -2676,14 +2648,14 @@ pub fn familymemberhistory_create(
 pub fn familymemberhistory_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Familymemberhistory, ReqError) {
+) -> Result(r4b.Familymemberhistory, Err) {
   any_read(id, client, "FamilyMemberHistory", r4b.familymemberhistory_decoder())
 }
 
 pub fn familymemberhistory_update(
   resource: r4b.Familymemberhistory,
   client: FhirClient,
-) -> Result(r4b.Familymemberhistory, ReqError) {
+) -> Result(r4b.Familymemberhistory, Err) {
   any_update(
     resource.id,
     r4b.familymemberhistory_to_json(resource),
@@ -2696,7 +2668,7 @@ pub fn familymemberhistory_update(
 pub fn familymemberhistory_delete(
   resource: r4b.Familymemberhistory,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "FamilyMemberHistory", client)
 }
 
@@ -2711,18 +2683,18 @@ pub fn familymemberhistory_search(
 pub fn flag_create(
   resource: r4b.Flag,
   client: FhirClient,
-) -> Result(r4b.Flag, ReqError) {
+) -> Result(r4b.Flag, Err) {
   any_create(r4b.flag_to_json(resource), "Flag", r4b.flag_decoder(), client)
 }
 
-pub fn flag_read(id: String, client: FhirClient) -> Result(r4b.Flag, ReqError) {
+pub fn flag_read(id: String, client: FhirClient) -> Result(r4b.Flag, Err) {
   any_read(id, client, "Flag", r4b.flag_decoder())
 }
 
 pub fn flag_update(
   resource: r4b.Flag,
   client: FhirClient,
-) -> Result(r4b.Flag, ReqError) {
+) -> Result(r4b.Flag, Err) {
   any_update(
     resource.id,
     r4b.flag_to_json(resource),
@@ -2735,7 +2707,7 @@ pub fn flag_update(
 pub fn flag_delete(
   resource: r4b.Flag,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Flag", client)
 }
 
@@ -2747,18 +2719,18 @@ pub fn flag_search(sp: r4b_sansio.SpFlag, client: FhirClient) {
 pub fn goal_create(
   resource: r4b.Goal,
   client: FhirClient,
-) -> Result(r4b.Goal, ReqError) {
+) -> Result(r4b.Goal, Err) {
   any_create(r4b.goal_to_json(resource), "Goal", r4b.goal_decoder(), client)
 }
 
-pub fn goal_read(id: String, client: FhirClient) -> Result(r4b.Goal, ReqError) {
+pub fn goal_read(id: String, client: FhirClient) -> Result(r4b.Goal, Err) {
   any_read(id, client, "Goal", r4b.goal_decoder())
 }
 
 pub fn goal_update(
   resource: r4b.Goal,
   client: FhirClient,
-) -> Result(r4b.Goal, ReqError) {
+) -> Result(r4b.Goal, Err) {
   any_update(
     resource.id,
     r4b.goal_to_json(resource),
@@ -2771,7 +2743,7 @@ pub fn goal_update(
 pub fn goal_delete(
   resource: r4b.Goal,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Goal", client)
 }
 
@@ -2783,7 +2755,7 @@ pub fn goal_search(sp: r4b_sansio.SpGoal, client: FhirClient) {
 pub fn graphdefinition_create(
   resource: r4b.Graphdefinition,
   client: FhirClient,
-) -> Result(r4b.Graphdefinition, ReqError) {
+) -> Result(r4b.Graphdefinition, Err) {
   any_create(
     r4b.graphdefinition_to_json(resource),
     "GraphDefinition",
@@ -2795,14 +2767,14 @@ pub fn graphdefinition_create(
 pub fn graphdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Graphdefinition, ReqError) {
+) -> Result(r4b.Graphdefinition, Err) {
   any_read(id, client, "GraphDefinition", r4b.graphdefinition_decoder())
 }
 
 pub fn graphdefinition_update(
   resource: r4b.Graphdefinition,
   client: FhirClient,
-) -> Result(r4b.Graphdefinition, ReqError) {
+) -> Result(r4b.Graphdefinition, Err) {
   any_update(
     resource.id,
     r4b.graphdefinition_to_json(resource),
@@ -2815,7 +2787,7 @@ pub fn graphdefinition_update(
 pub fn graphdefinition_delete(
   resource: r4b.Graphdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "GraphDefinition", client)
 }
 
@@ -2830,18 +2802,18 @@ pub fn graphdefinition_search(
 pub fn group_create(
   resource: r4b.Group,
   client: FhirClient,
-) -> Result(r4b.Group, ReqError) {
+) -> Result(r4b.Group, Err) {
   any_create(r4b.group_to_json(resource), "Group", r4b.group_decoder(), client)
 }
 
-pub fn group_read(id: String, client: FhirClient) -> Result(r4b.Group, ReqError) {
+pub fn group_read(id: String, client: FhirClient) -> Result(r4b.Group, Err) {
   any_read(id, client, "Group", r4b.group_decoder())
 }
 
 pub fn group_update(
   resource: r4b.Group,
   client: FhirClient,
-) -> Result(r4b.Group, ReqError) {
+) -> Result(r4b.Group, Err) {
   any_update(
     resource.id,
     r4b.group_to_json(resource),
@@ -2854,7 +2826,7 @@ pub fn group_update(
 pub fn group_delete(
   resource: r4b.Group,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Group", client)
 }
 
@@ -2866,7 +2838,7 @@ pub fn group_search(sp: r4b_sansio.SpGroup, client: FhirClient) {
 pub fn guidanceresponse_create(
   resource: r4b.Guidanceresponse,
   client: FhirClient,
-) -> Result(r4b.Guidanceresponse, ReqError) {
+) -> Result(r4b.Guidanceresponse, Err) {
   any_create(
     r4b.guidanceresponse_to_json(resource),
     "GuidanceResponse",
@@ -2878,14 +2850,14 @@ pub fn guidanceresponse_create(
 pub fn guidanceresponse_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Guidanceresponse, ReqError) {
+) -> Result(r4b.Guidanceresponse, Err) {
   any_read(id, client, "GuidanceResponse", r4b.guidanceresponse_decoder())
 }
 
 pub fn guidanceresponse_update(
   resource: r4b.Guidanceresponse,
   client: FhirClient,
-) -> Result(r4b.Guidanceresponse, ReqError) {
+) -> Result(r4b.Guidanceresponse, Err) {
   any_update(
     resource.id,
     r4b.guidanceresponse_to_json(resource),
@@ -2898,7 +2870,7 @@ pub fn guidanceresponse_update(
 pub fn guidanceresponse_delete(
   resource: r4b.Guidanceresponse,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "GuidanceResponse", client)
 }
 
@@ -2913,7 +2885,7 @@ pub fn guidanceresponse_search(
 pub fn healthcareservice_create(
   resource: r4b.Healthcareservice,
   client: FhirClient,
-) -> Result(r4b.Healthcareservice, ReqError) {
+) -> Result(r4b.Healthcareservice, Err) {
   any_create(
     r4b.healthcareservice_to_json(resource),
     "HealthcareService",
@@ -2925,14 +2897,14 @@ pub fn healthcareservice_create(
 pub fn healthcareservice_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Healthcareservice, ReqError) {
+) -> Result(r4b.Healthcareservice, Err) {
   any_read(id, client, "HealthcareService", r4b.healthcareservice_decoder())
 }
 
 pub fn healthcareservice_update(
   resource: r4b.Healthcareservice,
   client: FhirClient,
-) -> Result(r4b.Healthcareservice, ReqError) {
+) -> Result(r4b.Healthcareservice, Err) {
   any_update(
     resource.id,
     r4b.healthcareservice_to_json(resource),
@@ -2945,7 +2917,7 @@ pub fn healthcareservice_update(
 pub fn healthcareservice_delete(
   resource: r4b.Healthcareservice,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "HealthcareService", client)
 }
 
@@ -2960,7 +2932,7 @@ pub fn healthcareservice_search(
 pub fn imagingstudy_create(
   resource: r4b.Imagingstudy,
   client: FhirClient,
-) -> Result(r4b.Imagingstudy, ReqError) {
+) -> Result(r4b.Imagingstudy, Err) {
   any_create(
     r4b.imagingstudy_to_json(resource),
     "ImagingStudy",
@@ -2972,14 +2944,14 @@ pub fn imagingstudy_create(
 pub fn imagingstudy_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Imagingstudy, ReqError) {
+) -> Result(r4b.Imagingstudy, Err) {
   any_read(id, client, "ImagingStudy", r4b.imagingstudy_decoder())
 }
 
 pub fn imagingstudy_update(
   resource: r4b.Imagingstudy,
   client: FhirClient,
-) -> Result(r4b.Imagingstudy, ReqError) {
+) -> Result(r4b.Imagingstudy, Err) {
   any_update(
     resource.id,
     r4b.imagingstudy_to_json(resource),
@@ -2992,7 +2964,7 @@ pub fn imagingstudy_update(
 pub fn imagingstudy_delete(
   resource: r4b.Imagingstudy,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ImagingStudy", client)
 }
 
@@ -3004,7 +2976,7 @@ pub fn imagingstudy_search(sp: r4b_sansio.SpImagingstudy, client: FhirClient) {
 pub fn immunization_create(
   resource: r4b.Immunization,
   client: FhirClient,
-) -> Result(r4b.Immunization, ReqError) {
+) -> Result(r4b.Immunization, Err) {
   any_create(
     r4b.immunization_to_json(resource),
     "Immunization",
@@ -3016,14 +2988,14 @@ pub fn immunization_create(
 pub fn immunization_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Immunization, ReqError) {
+) -> Result(r4b.Immunization, Err) {
   any_read(id, client, "Immunization", r4b.immunization_decoder())
 }
 
 pub fn immunization_update(
   resource: r4b.Immunization,
   client: FhirClient,
-) -> Result(r4b.Immunization, ReqError) {
+) -> Result(r4b.Immunization, Err) {
   any_update(
     resource.id,
     r4b.immunization_to_json(resource),
@@ -3036,7 +3008,7 @@ pub fn immunization_update(
 pub fn immunization_delete(
   resource: r4b.Immunization,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Immunization", client)
 }
 
@@ -3048,7 +3020,7 @@ pub fn immunization_search(sp: r4b_sansio.SpImmunization, client: FhirClient) {
 pub fn immunizationevaluation_create(
   resource: r4b.Immunizationevaluation,
   client: FhirClient,
-) -> Result(r4b.Immunizationevaluation, ReqError) {
+) -> Result(r4b.Immunizationevaluation, Err) {
   any_create(
     r4b.immunizationevaluation_to_json(resource),
     "ImmunizationEvaluation",
@@ -3060,7 +3032,7 @@ pub fn immunizationevaluation_create(
 pub fn immunizationevaluation_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Immunizationevaluation, ReqError) {
+) -> Result(r4b.Immunizationevaluation, Err) {
   any_read(
     id,
     client,
@@ -3072,7 +3044,7 @@ pub fn immunizationevaluation_read(
 pub fn immunizationevaluation_update(
   resource: r4b.Immunizationevaluation,
   client: FhirClient,
-) -> Result(r4b.Immunizationevaluation, ReqError) {
+) -> Result(r4b.Immunizationevaluation, Err) {
   any_update(
     resource.id,
     r4b.immunizationevaluation_to_json(resource),
@@ -3085,7 +3057,7 @@ pub fn immunizationevaluation_update(
 pub fn immunizationevaluation_delete(
   resource: r4b.Immunizationevaluation,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ImmunizationEvaluation", client)
 }
 
@@ -3100,7 +3072,7 @@ pub fn immunizationevaluation_search(
 pub fn immunizationrecommendation_create(
   resource: r4b.Immunizationrecommendation,
   client: FhirClient,
-) -> Result(r4b.Immunizationrecommendation, ReqError) {
+) -> Result(r4b.Immunizationrecommendation, Err) {
   any_create(
     r4b.immunizationrecommendation_to_json(resource),
     "ImmunizationRecommendation",
@@ -3112,7 +3084,7 @@ pub fn immunizationrecommendation_create(
 pub fn immunizationrecommendation_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Immunizationrecommendation, ReqError) {
+) -> Result(r4b.Immunizationrecommendation, Err) {
   any_read(
     id,
     client,
@@ -3124,7 +3096,7 @@ pub fn immunizationrecommendation_read(
 pub fn immunizationrecommendation_update(
   resource: r4b.Immunizationrecommendation,
   client: FhirClient,
-) -> Result(r4b.Immunizationrecommendation, ReqError) {
+) -> Result(r4b.Immunizationrecommendation, Err) {
   any_update(
     resource.id,
     r4b.immunizationrecommendation_to_json(resource),
@@ -3137,7 +3109,7 @@ pub fn immunizationrecommendation_update(
 pub fn immunizationrecommendation_delete(
   resource: r4b.Immunizationrecommendation,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ImmunizationRecommendation", client)
 }
 
@@ -3152,7 +3124,7 @@ pub fn immunizationrecommendation_search(
 pub fn implementationguide_create(
   resource: r4b.Implementationguide,
   client: FhirClient,
-) -> Result(r4b.Implementationguide, ReqError) {
+) -> Result(r4b.Implementationguide, Err) {
   any_create(
     r4b.implementationguide_to_json(resource),
     "ImplementationGuide",
@@ -3164,14 +3136,14 @@ pub fn implementationguide_create(
 pub fn implementationguide_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Implementationguide, ReqError) {
+) -> Result(r4b.Implementationguide, Err) {
   any_read(id, client, "ImplementationGuide", r4b.implementationguide_decoder())
 }
 
 pub fn implementationguide_update(
   resource: r4b.Implementationguide,
   client: FhirClient,
-) -> Result(r4b.Implementationguide, ReqError) {
+) -> Result(r4b.Implementationguide, Err) {
   any_update(
     resource.id,
     r4b.implementationguide_to_json(resource),
@@ -3184,7 +3156,7 @@ pub fn implementationguide_update(
 pub fn implementationguide_delete(
   resource: r4b.Implementationguide,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ImplementationGuide", client)
 }
 
@@ -3199,7 +3171,7 @@ pub fn implementationguide_search(
 pub fn ingredient_create(
   resource: r4b.Ingredient,
   client: FhirClient,
-) -> Result(r4b.Ingredient, ReqError) {
+) -> Result(r4b.Ingredient, Err) {
   any_create(
     r4b.ingredient_to_json(resource),
     "Ingredient",
@@ -3211,14 +3183,14 @@ pub fn ingredient_create(
 pub fn ingredient_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Ingredient, ReqError) {
+) -> Result(r4b.Ingredient, Err) {
   any_read(id, client, "Ingredient", r4b.ingredient_decoder())
 }
 
 pub fn ingredient_update(
   resource: r4b.Ingredient,
   client: FhirClient,
-) -> Result(r4b.Ingredient, ReqError) {
+) -> Result(r4b.Ingredient, Err) {
   any_update(
     resource.id,
     r4b.ingredient_to_json(resource),
@@ -3231,7 +3203,7 @@ pub fn ingredient_update(
 pub fn ingredient_delete(
   resource: r4b.Ingredient,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Ingredient", client)
 }
 
@@ -3243,7 +3215,7 @@ pub fn ingredient_search(sp: r4b_sansio.SpIngredient, client: FhirClient) {
 pub fn insuranceplan_create(
   resource: r4b.Insuranceplan,
   client: FhirClient,
-) -> Result(r4b.Insuranceplan, ReqError) {
+) -> Result(r4b.Insuranceplan, Err) {
   any_create(
     r4b.insuranceplan_to_json(resource),
     "InsurancePlan",
@@ -3255,14 +3227,14 @@ pub fn insuranceplan_create(
 pub fn insuranceplan_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Insuranceplan, ReqError) {
+) -> Result(r4b.Insuranceplan, Err) {
   any_read(id, client, "InsurancePlan", r4b.insuranceplan_decoder())
 }
 
 pub fn insuranceplan_update(
   resource: r4b.Insuranceplan,
   client: FhirClient,
-) -> Result(r4b.Insuranceplan, ReqError) {
+) -> Result(r4b.Insuranceplan, Err) {
   any_update(
     resource.id,
     r4b.insuranceplan_to_json(resource),
@@ -3275,7 +3247,7 @@ pub fn insuranceplan_update(
 pub fn insuranceplan_delete(
   resource: r4b.Insuranceplan,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "InsurancePlan", client)
 }
 
@@ -3287,7 +3259,7 @@ pub fn insuranceplan_search(sp: r4b_sansio.SpInsuranceplan, client: FhirClient) 
 pub fn invoice_create(
   resource: r4b.Invoice,
   client: FhirClient,
-) -> Result(r4b.Invoice, ReqError) {
+) -> Result(r4b.Invoice, Err) {
   any_create(
     r4b.invoice_to_json(resource),
     "Invoice",
@@ -3296,17 +3268,14 @@ pub fn invoice_create(
   )
 }
 
-pub fn invoice_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Invoice, ReqError) {
+pub fn invoice_read(id: String, client: FhirClient) -> Result(r4b.Invoice, Err) {
   any_read(id, client, "Invoice", r4b.invoice_decoder())
 }
 
 pub fn invoice_update(
   resource: r4b.Invoice,
   client: FhirClient,
-) -> Result(r4b.Invoice, ReqError) {
+) -> Result(r4b.Invoice, Err) {
   any_update(
     resource.id,
     r4b.invoice_to_json(resource),
@@ -3319,7 +3288,7 @@ pub fn invoice_update(
 pub fn invoice_delete(
   resource: r4b.Invoice,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Invoice", client)
 }
 
@@ -3331,7 +3300,7 @@ pub fn invoice_search(sp: r4b_sansio.SpInvoice, client: FhirClient) {
 pub fn library_create(
   resource: r4b.Library,
   client: FhirClient,
-) -> Result(r4b.Library, ReqError) {
+) -> Result(r4b.Library, Err) {
   any_create(
     r4b.library_to_json(resource),
     "Library",
@@ -3340,17 +3309,14 @@ pub fn library_create(
   )
 }
 
-pub fn library_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Library, ReqError) {
+pub fn library_read(id: String, client: FhirClient) -> Result(r4b.Library, Err) {
   any_read(id, client, "Library", r4b.library_decoder())
 }
 
 pub fn library_update(
   resource: r4b.Library,
   client: FhirClient,
-) -> Result(r4b.Library, ReqError) {
+) -> Result(r4b.Library, Err) {
   any_update(
     resource.id,
     r4b.library_to_json(resource),
@@ -3363,7 +3329,7 @@ pub fn library_update(
 pub fn library_delete(
   resource: r4b.Library,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Library", client)
 }
 
@@ -3375,7 +3341,7 @@ pub fn library_search(sp: r4b_sansio.SpLibrary, client: FhirClient) {
 pub fn linkage_create(
   resource: r4b.Linkage,
   client: FhirClient,
-) -> Result(r4b.Linkage, ReqError) {
+) -> Result(r4b.Linkage, Err) {
   any_create(
     r4b.linkage_to_json(resource),
     "Linkage",
@@ -3384,17 +3350,14 @@ pub fn linkage_create(
   )
 }
 
-pub fn linkage_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Linkage, ReqError) {
+pub fn linkage_read(id: String, client: FhirClient) -> Result(r4b.Linkage, Err) {
   any_read(id, client, "Linkage", r4b.linkage_decoder())
 }
 
 pub fn linkage_update(
   resource: r4b.Linkage,
   client: FhirClient,
-) -> Result(r4b.Linkage, ReqError) {
+) -> Result(r4b.Linkage, Err) {
   any_update(
     resource.id,
     r4b.linkage_to_json(resource),
@@ -3407,7 +3370,7 @@ pub fn linkage_update(
 pub fn linkage_delete(
   resource: r4b.Linkage,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Linkage", client)
 }
 
@@ -3419,7 +3382,7 @@ pub fn linkage_search(sp: r4b_sansio.SpLinkage, client: FhirClient) {
 pub fn listfhir_create(
   resource: r4b.Listfhir,
   client: FhirClient,
-) -> Result(r4b.Listfhir, ReqError) {
+) -> Result(r4b.Listfhir, Err) {
   any_create(
     r4b.listfhir_to_json(resource),
     "List",
@@ -3431,14 +3394,14 @@ pub fn listfhir_create(
 pub fn listfhir_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Listfhir, ReqError) {
+) -> Result(r4b.Listfhir, Err) {
   any_read(id, client, "List", r4b.listfhir_decoder())
 }
 
 pub fn listfhir_update(
   resource: r4b.Listfhir,
   client: FhirClient,
-) -> Result(r4b.Listfhir, ReqError) {
+) -> Result(r4b.Listfhir, Err) {
   any_update(
     resource.id,
     r4b.listfhir_to_json(resource),
@@ -3451,7 +3414,7 @@ pub fn listfhir_update(
 pub fn listfhir_delete(
   resource: r4b.Listfhir,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "List", client)
 }
 
@@ -3463,7 +3426,7 @@ pub fn listfhir_search(sp: r4b_sansio.SpListfhir, client: FhirClient) {
 pub fn location_create(
   resource: r4b.Location,
   client: FhirClient,
-) -> Result(r4b.Location, ReqError) {
+) -> Result(r4b.Location, Err) {
   any_create(
     r4b.location_to_json(resource),
     "Location",
@@ -3475,14 +3438,14 @@ pub fn location_create(
 pub fn location_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Location, ReqError) {
+) -> Result(r4b.Location, Err) {
   any_read(id, client, "Location", r4b.location_decoder())
 }
 
 pub fn location_update(
   resource: r4b.Location,
   client: FhirClient,
-) -> Result(r4b.Location, ReqError) {
+) -> Result(r4b.Location, Err) {
   any_update(
     resource.id,
     r4b.location_to_json(resource),
@@ -3495,7 +3458,7 @@ pub fn location_update(
 pub fn location_delete(
   resource: r4b.Location,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Location", client)
 }
 
@@ -3507,7 +3470,7 @@ pub fn location_search(sp: r4b_sansio.SpLocation, client: FhirClient) {
 pub fn manufactureditemdefinition_create(
   resource: r4b.Manufactureditemdefinition,
   client: FhirClient,
-) -> Result(r4b.Manufactureditemdefinition, ReqError) {
+) -> Result(r4b.Manufactureditemdefinition, Err) {
   any_create(
     r4b.manufactureditemdefinition_to_json(resource),
     "ManufacturedItemDefinition",
@@ -3519,7 +3482,7 @@ pub fn manufactureditemdefinition_create(
 pub fn manufactureditemdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Manufactureditemdefinition, ReqError) {
+) -> Result(r4b.Manufactureditemdefinition, Err) {
   any_read(
     id,
     client,
@@ -3531,7 +3494,7 @@ pub fn manufactureditemdefinition_read(
 pub fn manufactureditemdefinition_update(
   resource: r4b.Manufactureditemdefinition,
   client: FhirClient,
-) -> Result(r4b.Manufactureditemdefinition, ReqError) {
+) -> Result(r4b.Manufactureditemdefinition, Err) {
   any_update(
     resource.id,
     r4b.manufactureditemdefinition_to_json(resource),
@@ -3544,7 +3507,7 @@ pub fn manufactureditemdefinition_update(
 pub fn manufactureditemdefinition_delete(
   resource: r4b.Manufactureditemdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ManufacturedItemDefinition", client)
 }
 
@@ -3559,7 +3522,7 @@ pub fn manufactureditemdefinition_search(
 pub fn measure_create(
   resource: r4b.Measure,
   client: FhirClient,
-) -> Result(r4b.Measure, ReqError) {
+) -> Result(r4b.Measure, Err) {
   any_create(
     r4b.measure_to_json(resource),
     "Measure",
@@ -3568,17 +3531,14 @@ pub fn measure_create(
   )
 }
 
-pub fn measure_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Measure, ReqError) {
+pub fn measure_read(id: String, client: FhirClient) -> Result(r4b.Measure, Err) {
   any_read(id, client, "Measure", r4b.measure_decoder())
 }
 
 pub fn measure_update(
   resource: r4b.Measure,
   client: FhirClient,
-) -> Result(r4b.Measure, ReqError) {
+) -> Result(r4b.Measure, Err) {
   any_update(
     resource.id,
     r4b.measure_to_json(resource),
@@ -3591,7 +3551,7 @@ pub fn measure_update(
 pub fn measure_delete(
   resource: r4b.Measure,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Measure", client)
 }
 
@@ -3603,7 +3563,7 @@ pub fn measure_search(sp: r4b_sansio.SpMeasure, client: FhirClient) {
 pub fn measurereport_create(
   resource: r4b.Measurereport,
   client: FhirClient,
-) -> Result(r4b.Measurereport, ReqError) {
+) -> Result(r4b.Measurereport, Err) {
   any_create(
     r4b.measurereport_to_json(resource),
     "MeasureReport",
@@ -3615,14 +3575,14 @@ pub fn measurereport_create(
 pub fn measurereport_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Measurereport, ReqError) {
+) -> Result(r4b.Measurereport, Err) {
   any_read(id, client, "MeasureReport", r4b.measurereport_decoder())
 }
 
 pub fn measurereport_update(
   resource: r4b.Measurereport,
   client: FhirClient,
-) -> Result(r4b.Measurereport, ReqError) {
+) -> Result(r4b.Measurereport, Err) {
   any_update(
     resource.id,
     r4b.measurereport_to_json(resource),
@@ -3635,7 +3595,7 @@ pub fn measurereport_update(
 pub fn measurereport_delete(
   resource: r4b.Measurereport,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "MeasureReport", client)
 }
 
@@ -3647,18 +3607,18 @@ pub fn measurereport_search(sp: r4b_sansio.SpMeasurereport, client: FhirClient) 
 pub fn media_create(
   resource: r4b.Media,
   client: FhirClient,
-) -> Result(r4b.Media, ReqError) {
+) -> Result(r4b.Media, Err) {
   any_create(r4b.media_to_json(resource), "Media", r4b.media_decoder(), client)
 }
 
-pub fn media_read(id: String, client: FhirClient) -> Result(r4b.Media, ReqError) {
+pub fn media_read(id: String, client: FhirClient) -> Result(r4b.Media, Err) {
   any_read(id, client, "Media", r4b.media_decoder())
 }
 
 pub fn media_update(
   resource: r4b.Media,
   client: FhirClient,
-) -> Result(r4b.Media, ReqError) {
+) -> Result(r4b.Media, Err) {
   any_update(
     resource.id,
     r4b.media_to_json(resource),
@@ -3671,7 +3631,7 @@ pub fn media_update(
 pub fn media_delete(
   resource: r4b.Media,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Media", client)
 }
 
@@ -3683,7 +3643,7 @@ pub fn media_search(sp: r4b_sansio.SpMedia, client: FhirClient) {
 pub fn medication_create(
   resource: r4b.Medication,
   client: FhirClient,
-) -> Result(r4b.Medication, ReqError) {
+) -> Result(r4b.Medication, Err) {
   any_create(
     r4b.medication_to_json(resource),
     "Medication",
@@ -3695,14 +3655,14 @@ pub fn medication_create(
 pub fn medication_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Medication, ReqError) {
+) -> Result(r4b.Medication, Err) {
   any_read(id, client, "Medication", r4b.medication_decoder())
 }
 
 pub fn medication_update(
   resource: r4b.Medication,
   client: FhirClient,
-) -> Result(r4b.Medication, ReqError) {
+) -> Result(r4b.Medication, Err) {
   any_update(
     resource.id,
     r4b.medication_to_json(resource),
@@ -3715,7 +3675,7 @@ pub fn medication_update(
 pub fn medication_delete(
   resource: r4b.Medication,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Medication", client)
 }
 
@@ -3727,7 +3687,7 @@ pub fn medication_search(sp: r4b_sansio.SpMedication, client: FhirClient) {
 pub fn medicationadministration_create(
   resource: r4b.Medicationadministration,
   client: FhirClient,
-) -> Result(r4b.Medicationadministration, ReqError) {
+) -> Result(r4b.Medicationadministration, Err) {
   any_create(
     r4b.medicationadministration_to_json(resource),
     "MedicationAdministration",
@@ -3739,7 +3699,7 @@ pub fn medicationadministration_create(
 pub fn medicationadministration_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Medicationadministration, ReqError) {
+) -> Result(r4b.Medicationadministration, Err) {
   any_read(
     id,
     client,
@@ -3751,7 +3711,7 @@ pub fn medicationadministration_read(
 pub fn medicationadministration_update(
   resource: r4b.Medicationadministration,
   client: FhirClient,
-) -> Result(r4b.Medicationadministration, ReqError) {
+) -> Result(r4b.Medicationadministration, Err) {
   any_update(
     resource.id,
     r4b.medicationadministration_to_json(resource),
@@ -3764,7 +3724,7 @@ pub fn medicationadministration_update(
 pub fn medicationadministration_delete(
   resource: r4b.Medicationadministration,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "MedicationAdministration", client)
 }
 
@@ -3779,7 +3739,7 @@ pub fn medicationadministration_search(
 pub fn medicationdispense_create(
   resource: r4b.Medicationdispense,
   client: FhirClient,
-) -> Result(r4b.Medicationdispense, ReqError) {
+) -> Result(r4b.Medicationdispense, Err) {
   any_create(
     r4b.medicationdispense_to_json(resource),
     "MedicationDispense",
@@ -3791,14 +3751,14 @@ pub fn medicationdispense_create(
 pub fn medicationdispense_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Medicationdispense, ReqError) {
+) -> Result(r4b.Medicationdispense, Err) {
   any_read(id, client, "MedicationDispense", r4b.medicationdispense_decoder())
 }
 
 pub fn medicationdispense_update(
   resource: r4b.Medicationdispense,
   client: FhirClient,
-) -> Result(r4b.Medicationdispense, ReqError) {
+) -> Result(r4b.Medicationdispense, Err) {
   any_update(
     resource.id,
     r4b.medicationdispense_to_json(resource),
@@ -3811,7 +3771,7 @@ pub fn medicationdispense_update(
 pub fn medicationdispense_delete(
   resource: r4b.Medicationdispense,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "MedicationDispense", client)
 }
 
@@ -3826,7 +3786,7 @@ pub fn medicationdispense_search(
 pub fn medicationknowledge_create(
   resource: r4b.Medicationknowledge,
   client: FhirClient,
-) -> Result(r4b.Medicationknowledge, ReqError) {
+) -> Result(r4b.Medicationknowledge, Err) {
   any_create(
     r4b.medicationknowledge_to_json(resource),
     "MedicationKnowledge",
@@ -3838,14 +3798,14 @@ pub fn medicationknowledge_create(
 pub fn medicationknowledge_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Medicationknowledge, ReqError) {
+) -> Result(r4b.Medicationknowledge, Err) {
   any_read(id, client, "MedicationKnowledge", r4b.medicationknowledge_decoder())
 }
 
 pub fn medicationknowledge_update(
   resource: r4b.Medicationknowledge,
   client: FhirClient,
-) -> Result(r4b.Medicationknowledge, ReqError) {
+) -> Result(r4b.Medicationknowledge, Err) {
   any_update(
     resource.id,
     r4b.medicationknowledge_to_json(resource),
@@ -3858,7 +3818,7 @@ pub fn medicationknowledge_update(
 pub fn medicationknowledge_delete(
   resource: r4b.Medicationknowledge,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "MedicationKnowledge", client)
 }
 
@@ -3873,7 +3833,7 @@ pub fn medicationknowledge_search(
 pub fn medicationrequest_create(
   resource: r4b.Medicationrequest,
   client: FhirClient,
-) -> Result(r4b.Medicationrequest, ReqError) {
+) -> Result(r4b.Medicationrequest, Err) {
   any_create(
     r4b.medicationrequest_to_json(resource),
     "MedicationRequest",
@@ -3885,14 +3845,14 @@ pub fn medicationrequest_create(
 pub fn medicationrequest_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Medicationrequest, ReqError) {
+) -> Result(r4b.Medicationrequest, Err) {
   any_read(id, client, "MedicationRequest", r4b.medicationrequest_decoder())
 }
 
 pub fn medicationrequest_update(
   resource: r4b.Medicationrequest,
   client: FhirClient,
-) -> Result(r4b.Medicationrequest, ReqError) {
+) -> Result(r4b.Medicationrequest, Err) {
   any_update(
     resource.id,
     r4b.medicationrequest_to_json(resource),
@@ -3905,7 +3865,7 @@ pub fn medicationrequest_update(
 pub fn medicationrequest_delete(
   resource: r4b.Medicationrequest,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "MedicationRequest", client)
 }
 
@@ -3920,7 +3880,7 @@ pub fn medicationrequest_search(
 pub fn medicationstatement_create(
   resource: r4b.Medicationstatement,
   client: FhirClient,
-) -> Result(r4b.Medicationstatement, ReqError) {
+) -> Result(r4b.Medicationstatement, Err) {
   any_create(
     r4b.medicationstatement_to_json(resource),
     "MedicationStatement",
@@ -3932,14 +3892,14 @@ pub fn medicationstatement_create(
 pub fn medicationstatement_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Medicationstatement, ReqError) {
+) -> Result(r4b.Medicationstatement, Err) {
   any_read(id, client, "MedicationStatement", r4b.medicationstatement_decoder())
 }
 
 pub fn medicationstatement_update(
   resource: r4b.Medicationstatement,
   client: FhirClient,
-) -> Result(r4b.Medicationstatement, ReqError) {
+) -> Result(r4b.Medicationstatement, Err) {
   any_update(
     resource.id,
     r4b.medicationstatement_to_json(resource),
@@ -3952,7 +3912,7 @@ pub fn medicationstatement_update(
 pub fn medicationstatement_delete(
   resource: r4b.Medicationstatement,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "MedicationStatement", client)
 }
 
@@ -3967,7 +3927,7 @@ pub fn medicationstatement_search(
 pub fn medicinalproductdefinition_create(
   resource: r4b.Medicinalproductdefinition,
   client: FhirClient,
-) -> Result(r4b.Medicinalproductdefinition, ReqError) {
+) -> Result(r4b.Medicinalproductdefinition, Err) {
   any_create(
     r4b.medicinalproductdefinition_to_json(resource),
     "MedicinalProductDefinition",
@@ -3979,7 +3939,7 @@ pub fn medicinalproductdefinition_create(
 pub fn medicinalproductdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Medicinalproductdefinition, ReqError) {
+) -> Result(r4b.Medicinalproductdefinition, Err) {
   any_read(
     id,
     client,
@@ -3991,7 +3951,7 @@ pub fn medicinalproductdefinition_read(
 pub fn medicinalproductdefinition_update(
   resource: r4b.Medicinalproductdefinition,
   client: FhirClient,
-) -> Result(r4b.Medicinalproductdefinition, ReqError) {
+) -> Result(r4b.Medicinalproductdefinition, Err) {
   any_update(
     resource.id,
     r4b.medicinalproductdefinition_to_json(resource),
@@ -4004,7 +3964,7 @@ pub fn medicinalproductdefinition_update(
 pub fn medicinalproductdefinition_delete(
   resource: r4b.Medicinalproductdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "MedicinalProductDefinition", client)
 }
 
@@ -4019,7 +3979,7 @@ pub fn medicinalproductdefinition_search(
 pub fn messagedefinition_create(
   resource: r4b.Messagedefinition,
   client: FhirClient,
-) -> Result(r4b.Messagedefinition, ReqError) {
+) -> Result(r4b.Messagedefinition, Err) {
   any_create(
     r4b.messagedefinition_to_json(resource),
     "MessageDefinition",
@@ -4031,14 +3991,14 @@ pub fn messagedefinition_create(
 pub fn messagedefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Messagedefinition, ReqError) {
+) -> Result(r4b.Messagedefinition, Err) {
   any_read(id, client, "MessageDefinition", r4b.messagedefinition_decoder())
 }
 
 pub fn messagedefinition_update(
   resource: r4b.Messagedefinition,
   client: FhirClient,
-) -> Result(r4b.Messagedefinition, ReqError) {
+) -> Result(r4b.Messagedefinition, Err) {
   any_update(
     resource.id,
     r4b.messagedefinition_to_json(resource),
@@ -4051,7 +4011,7 @@ pub fn messagedefinition_update(
 pub fn messagedefinition_delete(
   resource: r4b.Messagedefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "MessageDefinition", client)
 }
 
@@ -4066,7 +4026,7 @@ pub fn messagedefinition_search(
 pub fn messageheader_create(
   resource: r4b.Messageheader,
   client: FhirClient,
-) -> Result(r4b.Messageheader, ReqError) {
+) -> Result(r4b.Messageheader, Err) {
   any_create(
     r4b.messageheader_to_json(resource),
     "MessageHeader",
@@ -4078,14 +4038,14 @@ pub fn messageheader_create(
 pub fn messageheader_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Messageheader, ReqError) {
+) -> Result(r4b.Messageheader, Err) {
   any_read(id, client, "MessageHeader", r4b.messageheader_decoder())
 }
 
 pub fn messageheader_update(
   resource: r4b.Messageheader,
   client: FhirClient,
-) -> Result(r4b.Messageheader, ReqError) {
+) -> Result(r4b.Messageheader, Err) {
   any_update(
     resource.id,
     r4b.messageheader_to_json(resource),
@@ -4098,7 +4058,7 @@ pub fn messageheader_update(
 pub fn messageheader_delete(
   resource: r4b.Messageheader,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "MessageHeader", client)
 }
 
@@ -4110,7 +4070,7 @@ pub fn messageheader_search(sp: r4b_sansio.SpMessageheader, client: FhirClient) 
 pub fn molecularsequence_create(
   resource: r4b.Molecularsequence,
   client: FhirClient,
-) -> Result(r4b.Molecularsequence, ReqError) {
+) -> Result(r4b.Molecularsequence, Err) {
   any_create(
     r4b.molecularsequence_to_json(resource),
     "MolecularSequence",
@@ -4122,14 +4082,14 @@ pub fn molecularsequence_create(
 pub fn molecularsequence_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Molecularsequence, ReqError) {
+) -> Result(r4b.Molecularsequence, Err) {
   any_read(id, client, "MolecularSequence", r4b.molecularsequence_decoder())
 }
 
 pub fn molecularsequence_update(
   resource: r4b.Molecularsequence,
   client: FhirClient,
-) -> Result(r4b.Molecularsequence, ReqError) {
+) -> Result(r4b.Molecularsequence, Err) {
   any_update(
     resource.id,
     r4b.molecularsequence_to_json(resource),
@@ -4142,7 +4102,7 @@ pub fn molecularsequence_update(
 pub fn molecularsequence_delete(
   resource: r4b.Molecularsequence,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "MolecularSequence", client)
 }
 
@@ -4157,7 +4117,7 @@ pub fn molecularsequence_search(
 pub fn namingsystem_create(
   resource: r4b.Namingsystem,
   client: FhirClient,
-) -> Result(r4b.Namingsystem, ReqError) {
+) -> Result(r4b.Namingsystem, Err) {
   any_create(
     r4b.namingsystem_to_json(resource),
     "NamingSystem",
@@ -4169,14 +4129,14 @@ pub fn namingsystem_create(
 pub fn namingsystem_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Namingsystem, ReqError) {
+) -> Result(r4b.Namingsystem, Err) {
   any_read(id, client, "NamingSystem", r4b.namingsystem_decoder())
 }
 
 pub fn namingsystem_update(
   resource: r4b.Namingsystem,
   client: FhirClient,
-) -> Result(r4b.Namingsystem, ReqError) {
+) -> Result(r4b.Namingsystem, Err) {
   any_update(
     resource.id,
     r4b.namingsystem_to_json(resource),
@@ -4189,7 +4149,7 @@ pub fn namingsystem_update(
 pub fn namingsystem_delete(
   resource: r4b.Namingsystem,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "NamingSystem", client)
 }
 
@@ -4201,7 +4161,7 @@ pub fn namingsystem_search(sp: r4b_sansio.SpNamingsystem, client: FhirClient) {
 pub fn nutritionorder_create(
   resource: r4b.Nutritionorder,
   client: FhirClient,
-) -> Result(r4b.Nutritionorder, ReqError) {
+) -> Result(r4b.Nutritionorder, Err) {
   any_create(
     r4b.nutritionorder_to_json(resource),
     "NutritionOrder",
@@ -4213,14 +4173,14 @@ pub fn nutritionorder_create(
 pub fn nutritionorder_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Nutritionorder, ReqError) {
+) -> Result(r4b.Nutritionorder, Err) {
   any_read(id, client, "NutritionOrder", r4b.nutritionorder_decoder())
 }
 
 pub fn nutritionorder_update(
   resource: r4b.Nutritionorder,
   client: FhirClient,
-) -> Result(r4b.Nutritionorder, ReqError) {
+) -> Result(r4b.Nutritionorder, Err) {
   any_update(
     resource.id,
     r4b.nutritionorder_to_json(resource),
@@ -4233,7 +4193,7 @@ pub fn nutritionorder_update(
 pub fn nutritionorder_delete(
   resource: r4b.Nutritionorder,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "NutritionOrder", client)
 }
 
@@ -4248,7 +4208,7 @@ pub fn nutritionorder_search(
 pub fn nutritionproduct_create(
   resource: r4b.Nutritionproduct,
   client: FhirClient,
-) -> Result(r4b.Nutritionproduct, ReqError) {
+) -> Result(r4b.Nutritionproduct, Err) {
   any_create(
     r4b.nutritionproduct_to_json(resource),
     "NutritionProduct",
@@ -4260,14 +4220,14 @@ pub fn nutritionproduct_create(
 pub fn nutritionproduct_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Nutritionproduct, ReqError) {
+) -> Result(r4b.Nutritionproduct, Err) {
   any_read(id, client, "NutritionProduct", r4b.nutritionproduct_decoder())
 }
 
 pub fn nutritionproduct_update(
   resource: r4b.Nutritionproduct,
   client: FhirClient,
-) -> Result(r4b.Nutritionproduct, ReqError) {
+) -> Result(r4b.Nutritionproduct, Err) {
   any_update(
     resource.id,
     r4b.nutritionproduct_to_json(resource),
@@ -4280,7 +4240,7 @@ pub fn nutritionproduct_update(
 pub fn nutritionproduct_delete(
   resource: r4b.Nutritionproduct,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "NutritionProduct", client)
 }
 
@@ -4295,7 +4255,7 @@ pub fn nutritionproduct_search(
 pub fn observation_create(
   resource: r4b.Observation,
   client: FhirClient,
-) -> Result(r4b.Observation, ReqError) {
+) -> Result(r4b.Observation, Err) {
   any_create(
     r4b.observation_to_json(resource),
     "Observation",
@@ -4307,14 +4267,14 @@ pub fn observation_create(
 pub fn observation_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Observation, ReqError) {
+) -> Result(r4b.Observation, Err) {
   any_read(id, client, "Observation", r4b.observation_decoder())
 }
 
 pub fn observation_update(
   resource: r4b.Observation,
   client: FhirClient,
-) -> Result(r4b.Observation, ReqError) {
+) -> Result(r4b.Observation, Err) {
   any_update(
     resource.id,
     r4b.observation_to_json(resource),
@@ -4327,7 +4287,7 @@ pub fn observation_update(
 pub fn observation_delete(
   resource: r4b.Observation,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Observation", client)
 }
 
@@ -4339,7 +4299,7 @@ pub fn observation_search(sp: r4b_sansio.SpObservation, client: FhirClient) {
 pub fn observationdefinition_create(
   resource: r4b.Observationdefinition,
   client: FhirClient,
-) -> Result(r4b.Observationdefinition, ReqError) {
+) -> Result(r4b.Observationdefinition, Err) {
   any_create(
     r4b.observationdefinition_to_json(resource),
     "ObservationDefinition",
@@ -4351,7 +4311,7 @@ pub fn observationdefinition_create(
 pub fn observationdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Observationdefinition, ReqError) {
+) -> Result(r4b.Observationdefinition, Err) {
   any_read(
     id,
     client,
@@ -4363,7 +4323,7 @@ pub fn observationdefinition_read(
 pub fn observationdefinition_update(
   resource: r4b.Observationdefinition,
   client: FhirClient,
-) -> Result(r4b.Observationdefinition, ReqError) {
+) -> Result(r4b.Observationdefinition, Err) {
   any_update(
     resource.id,
     r4b.observationdefinition_to_json(resource),
@@ -4376,7 +4336,7 @@ pub fn observationdefinition_update(
 pub fn observationdefinition_delete(
   resource: r4b.Observationdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ObservationDefinition", client)
 }
 
@@ -4391,7 +4351,7 @@ pub fn observationdefinition_search(
 pub fn operationdefinition_create(
   resource: r4b.Operationdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationdefinition, ReqError) {
+) -> Result(r4b.Operationdefinition, Err) {
   any_create(
     r4b.operationdefinition_to_json(resource),
     "OperationDefinition",
@@ -4403,14 +4363,14 @@ pub fn operationdefinition_create(
 pub fn operationdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Operationdefinition, ReqError) {
+) -> Result(r4b.Operationdefinition, Err) {
   any_read(id, client, "OperationDefinition", r4b.operationdefinition_decoder())
 }
 
 pub fn operationdefinition_update(
   resource: r4b.Operationdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationdefinition, ReqError) {
+) -> Result(r4b.Operationdefinition, Err) {
   any_update(
     resource.id,
     r4b.operationdefinition_to_json(resource),
@@ -4423,7 +4383,7 @@ pub fn operationdefinition_update(
 pub fn operationdefinition_delete(
   resource: r4b.Operationdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "OperationDefinition", client)
 }
 
@@ -4438,7 +4398,7 @@ pub fn operationdefinition_search(
 pub fn operationoutcome_create(
   resource: r4b.Operationoutcome,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_create(
     r4b.operationoutcome_to_json(resource),
     "OperationOutcome",
@@ -4450,14 +4410,14 @@ pub fn operationoutcome_create(
 pub fn operationoutcome_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_read(id, client, "OperationOutcome", r4b.operationoutcome_decoder())
 }
 
 pub fn operationoutcome_update(
   resource: r4b.Operationoutcome,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_update(
     resource.id,
     r4b.operationoutcome_to_json(resource),
@@ -4470,7 +4430,7 @@ pub fn operationoutcome_update(
 pub fn operationoutcome_delete(
   resource: r4b.Operationoutcome,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "OperationOutcome", client)
 }
 
@@ -4485,7 +4445,7 @@ pub fn operationoutcome_search(
 pub fn organization_create(
   resource: r4b.Organization,
   client: FhirClient,
-) -> Result(r4b.Organization, ReqError) {
+) -> Result(r4b.Organization, Err) {
   any_create(
     r4b.organization_to_json(resource),
     "Organization",
@@ -4497,14 +4457,14 @@ pub fn organization_create(
 pub fn organization_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Organization, ReqError) {
+) -> Result(r4b.Organization, Err) {
   any_read(id, client, "Organization", r4b.organization_decoder())
 }
 
 pub fn organization_update(
   resource: r4b.Organization,
   client: FhirClient,
-) -> Result(r4b.Organization, ReqError) {
+) -> Result(r4b.Organization, Err) {
   any_update(
     resource.id,
     r4b.organization_to_json(resource),
@@ -4517,7 +4477,7 @@ pub fn organization_update(
 pub fn organization_delete(
   resource: r4b.Organization,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Organization", client)
 }
 
@@ -4529,7 +4489,7 @@ pub fn organization_search(sp: r4b_sansio.SpOrganization, client: FhirClient) {
 pub fn organizationaffiliation_create(
   resource: r4b.Organizationaffiliation,
   client: FhirClient,
-) -> Result(r4b.Organizationaffiliation, ReqError) {
+) -> Result(r4b.Organizationaffiliation, Err) {
   any_create(
     r4b.organizationaffiliation_to_json(resource),
     "OrganizationAffiliation",
@@ -4541,7 +4501,7 @@ pub fn organizationaffiliation_create(
 pub fn organizationaffiliation_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Organizationaffiliation, ReqError) {
+) -> Result(r4b.Organizationaffiliation, Err) {
   any_read(
     id,
     client,
@@ -4553,7 +4513,7 @@ pub fn organizationaffiliation_read(
 pub fn organizationaffiliation_update(
   resource: r4b.Organizationaffiliation,
   client: FhirClient,
-) -> Result(r4b.Organizationaffiliation, ReqError) {
+) -> Result(r4b.Organizationaffiliation, Err) {
   any_update(
     resource.id,
     r4b.organizationaffiliation_to_json(resource),
@@ -4566,7 +4526,7 @@ pub fn organizationaffiliation_update(
 pub fn organizationaffiliation_delete(
   resource: r4b.Organizationaffiliation,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "OrganizationAffiliation", client)
 }
 
@@ -4581,7 +4541,7 @@ pub fn organizationaffiliation_search(
 pub fn packagedproductdefinition_create(
   resource: r4b.Packagedproductdefinition,
   client: FhirClient,
-) -> Result(r4b.Packagedproductdefinition, ReqError) {
+) -> Result(r4b.Packagedproductdefinition, Err) {
   any_create(
     r4b.packagedproductdefinition_to_json(resource),
     "PackagedProductDefinition",
@@ -4593,7 +4553,7 @@ pub fn packagedproductdefinition_create(
 pub fn packagedproductdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Packagedproductdefinition, ReqError) {
+) -> Result(r4b.Packagedproductdefinition, Err) {
   any_read(
     id,
     client,
@@ -4605,7 +4565,7 @@ pub fn packagedproductdefinition_read(
 pub fn packagedproductdefinition_update(
   resource: r4b.Packagedproductdefinition,
   client: FhirClient,
-) -> Result(r4b.Packagedproductdefinition, ReqError) {
+) -> Result(r4b.Packagedproductdefinition, Err) {
   any_update(
     resource.id,
     r4b.packagedproductdefinition_to_json(resource),
@@ -4618,7 +4578,7 @@ pub fn packagedproductdefinition_update(
 pub fn packagedproductdefinition_delete(
   resource: r4b.Packagedproductdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "PackagedProductDefinition", client)
 }
 
@@ -4633,7 +4593,7 @@ pub fn packagedproductdefinition_search(
 pub fn patient_create(
   resource: r4b.Patient,
   client: FhirClient,
-) -> Result(r4b.Patient, ReqError) {
+) -> Result(r4b.Patient, Err) {
   any_create(
     r4b.patient_to_json(resource),
     "Patient",
@@ -4642,17 +4602,14 @@ pub fn patient_create(
   )
 }
 
-pub fn patient_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Patient, ReqError) {
+pub fn patient_read(id: String, client: FhirClient) -> Result(r4b.Patient, Err) {
   any_read(id, client, "Patient", r4b.patient_decoder())
 }
 
 pub fn patient_update(
   resource: r4b.Patient,
   client: FhirClient,
-) -> Result(r4b.Patient, ReqError) {
+) -> Result(r4b.Patient, Err) {
   any_update(
     resource.id,
     r4b.patient_to_json(resource),
@@ -4665,7 +4622,7 @@ pub fn patient_update(
 pub fn patient_delete(
   resource: r4b.Patient,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Patient", client)
 }
 
@@ -4677,7 +4634,7 @@ pub fn patient_search(sp: r4b_sansio.SpPatient, client: FhirClient) {
 pub fn paymentnotice_create(
   resource: r4b.Paymentnotice,
   client: FhirClient,
-) -> Result(r4b.Paymentnotice, ReqError) {
+) -> Result(r4b.Paymentnotice, Err) {
   any_create(
     r4b.paymentnotice_to_json(resource),
     "PaymentNotice",
@@ -4689,14 +4646,14 @@ pub fn paymentnotice_create(
 pub fn paymentnotice_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Paymentnotice, ReqError) {
+) -> Result(r4b.Paymentnotice, Err) {
   any_read(id, client, "PaymentNotice", r4b.paymentnotice_decoder())
 }
 
 pub fn paymentnotice_update(
   resource: r4b.Paymentnotice,
   client: FhirClient,
-) -> Result(r4b.Paymentnotice, ReqError) {
+) -> Result(r4b.Paymentnotice, Err) {
   any_update(
     resource.id,
     r4b.paymentnotice_to_json(resource),
@@ -4709,7 +4666,7 @@ pub fn paymentnotice_update(
 pub fn paymentnotice_delete(
   resource: r4b.Paymentnotice,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "PaymentNotice", client)
 }
 
@@ -4721,7 +4678,7 @@ pub fn paymentnotice_search(sp: r4b_sansio.SpPaymentnotice, client: FhirClient) 
 pub fn paymentreconciliation_create(
   resource: r4b.Paymentreconciliation,
   client: FhirClient,
-) -> Result(r4b.Paymentreconciliation, ReqError) {
+) -> Result(r4b.Paymentreconciliation, Err) {
   any_create(
     r4b.paymentreconciliation_to_json(resource),
     "PaymentReconciliation",
@@ -4733,7 +4690,7 @@ pub fn paymentreconciliation_create(
 pub fn paymentreconciliation_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Paymentreconciliation, ReqError) {
+) -> Result(r4b.Paymentreconciliation, Err) {
   any_read(
     id,
     client,
@@ -4745,7 +4702,7 @@ pub fn paymentreconciliation_read(
 pub fn paymentreconciliation_update(
   resource: r4b.Paymentreconciliation,
   client: FhirClient,
-) -> Result(r4b.Paymentreconciliation, ReqError) {
+) -> Result(r4b.Paymentreconciliation, Err) {
   any_update(
     resource.id,
     r4b.paymentreconciliation_to_json(resource),
@@ -4758,7 +4715,7 @@ pub fn paymentreconciliation_update(
 pub fn paymentreconciliation_delete(
   resource: r4b.Paymentreconciliation,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "PaymentReconciliation", client)
 }
 
@@ -4773,7 +4730,7 @@ pub fn paymentreconciliation_search(
 pub fn person_create(
   resource: r4b.Person,
   client: FhirClient,
-) -> Result(r4b.Person, ReqError) {
+) -> Result(r4b.Person, Err) {
   any_create(
     r4b.person_to_json(resource),
     "Person",
@@ -4782,17 +4739,14 @@ pub fn person_create(
   )
 }
 
-pub fn person_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4b.Person, ReqError) {
+pub fn person_read(id: String, client: FhirClient) -> Result(r4b.Person, Err) {
   any_read(id, client, "Person", r4b.person_decoder())
 }
 
 pub fn person_update(
   resource: r4b.Person,
   client: FhirClient,
-) -> Result(r4b.Person, ReqError) {
+) -> Result(r4b.Person, Err) {
   any_update(
     resource.id,
     r4b.person_to_json(resource),
@@ -4805,7 +4759,7 @@ pub fn person_update(
 pub fn person_delete(
   resource: r4b.Person,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Person", client)
 }
 
@@ -4817,7 +4771,7 @@ pub fn person_search(sp: r4b_sansio.SpPerson, client: FhirClient) {
 pub fn plandefinition_create(
   resource: r4b.Plandefinition,
   client: FhirClient,
-) -> Result(r4b.Plandefinition, ReqError) {
+) -> Result(r4b.Plandefinition, Err) {
   any_create(
     r4b.plandefinition_to_json(resource),
     "PlanDefinition",
@@ -4829,14 +4783,14 @@ pub fn plandefinition_create(
 pub fn plandefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Plandefinition, ReqError) {
+) -> Result(r4b.Plandefinition, Err) {
   any_read(id, client, "PlanDefinition", r4b.plandefinition_decoder())
 }
 
 pub fn plandefinition_update(
   resource: r4b.Plandefinition,
   client: FhirClient,
-) -> Result(r4b.Plandefinition, ReqError) {
+) -> Result(r4b.Plandefinition, Err) {
   any_update(
     resource.id,
     r4b.plandefinition_to_json(resource),
@@ -4849,7 +4803,7 @@ pub fn plandefinition_update(
 pub fn plandefinition_delete(
   resource: r4b.Plandefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "PlanDefinition", client)
 }
 
@@ -4864,7 +4818,7 @@ pub fn plandefinition_search(
 pub fn practitioner_create(
   resource: r4b.Practitioner,
   client: FhirClient,
-) -> Result(r4b.Practitioner, ReqError) {
+) -> Result(r4b.Practitioner, Err) {
   any_create(
     r4b.practitioner_to_json(resource),
     "Practitioner",
@@ -4876,14 +4830,14 @@ pub fn practitioner_create(
 pub fn practitioner_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Practitioner, ReqError) {
+) -> Result(r4b.Practitioner, Err) {
   any_read(id, client, "Practitioner", r4b.practitioner_decoder())
 }
 
 pub fn practitioner_update(
   resource: r4b.Practitioner,
   client: FhirClient,
-) -> Result(r4b.Practitioner, ReqError) {
+) -> Result(r4b.Practitioner, Err) {
   any_update(
     resource.id,
     r4b.practitioner_to_json(resource),
@@ -4896,7 +4850,7 @@ pub fn practitioner_update(
 pub fn practitioner_delete(
   resource: r4b.Practitioner,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Practitioner", client)
 }
 
@@ -4908,7 +4862,7 @@ pub fn practitioner_search(sp: r4b_sansio.SpPractitioner, client: FhirClient) {
 pub fn practitionerrole_create(
   resource: r4b.Practitionerrole,
   client: FhirClient,
-) -> Result(r4b.Practitionerrole, ReqError) {
+) -> Result(r4b.Practitionerrole, Err) {
   any_create(
     r4b.practitionerrole_to_json(resource),
     "PractitionerRole",
@@ -4920,14 +4874,14 @@ pub fn practitionerrole_create(
 pub fn practitionerrole_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Practitionerrole, ReqError) {
+) -> Result(r4b.Practitionerrole, Err) {
   any_read(id, client, "PractitionerRole", r4b.practitionerrole_decoder())
 }
 
 pub fn practitionerrole_update(
   resource: r4b.Practitionerrole,
   client: FhirClient,
-) -> Result(r4b.Practitionerrole, ReqError) {
+) -> Result(r4b.Practitionerrole, Err) {
   any_update(
     resource.id,
     r4b.practitionerrole_to_json(resource),
@@ -4940,7 +4894,7 @@ pub fn practitionerrole_update(
 pub fn practitionerrole_delete(
   resource: r4b.Practitionerrole,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "PractitionerRole", client)
 }
 
@@ -4955,7 +4909,7 @@ pub fn practitionerrole_search(
 pub fn procedure_create(
   resource: r4b.Procedure,
   client: FhirClient,
-) -> Result(r4b.Procedure, ReqError) {
+) -> Result(r4b.Procedure, Err) {
   any_create(
     r4b.procedure_to_json(resource),
     "Procedure",
@@ -4967,14 +4921,14 @@ pub fn procedure_create(
 pub fn procedure_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Procedure, ReqError) {
+) -> Result(r4b.Procedure, Err) {
   any_read(id, client, "Procedure", r4b.procedure_decoder())
 }
 
 pub fn procedure_update(
   resource: r4b.Procedure,
   client: FhirClient,
-) -> Result(r4b.Procedure, ReqError) {
+) -> Result(r4b.Procedure, Err) {
   any_update(
     resource.id,
     r4b.procedure_to_json(resource),
@@ -4987,7 +4941,7 @@ pub fn procedure_update(
 pub fn procedure_delete(
   resource: r4b.Procedure,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Procedure", client)
 }
 
@@ -4999,7 +4953,7 @@ pub fn procedure_search(sp: r4b_sansio.SpProcedure, client: FhirClient) {
 pub fn provenance_create(
   resource: r4b.Provenance,
   client: FhirClient,
-) -> Result(r4b.Provenance, ReqError) {
+) -> Result(r4b.Provenance, Err) {
   any_create(
     r4b.provenance_to_json(resource),
     "Provenance",
@@ -5011,14 +4965,14 @@ pub fn provenance_create(
 pub fn provenance_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Provenance, ReqError) {
+) -> Result(r4b.Provenance, Err) {
   any_read(id, client, "Provenance", r4b.provenance_decoder())
 }
 
 pub fn provenance_update(
   resource: r4b.Provenance,
   client: FhirClient,
-) -> Result(r4b.Provenance, ReqError) {
+) -> Result(r4b.Provenance, Err) {
   any_update(
     resource.id,
     r4b.provenance_to_json(resource),
@@ -5031,7 +4985,7 @@ pub fn provenance_update(
 pub fn provenance_delete(
   resource: r4b.Provenance,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Provenance", client)
 }
 
@@ -5043,7 +4997,7 @@ pub fn provenance_search(sp: r4b_sansio.SpProvenance, client: FhirClient) {
 pub fn questionnaire_create(
   resource: r4b.Questionnaire,
   client: FhirClient,
-) -> Result(r4b.Questionnaire, ReqError) {
+) -> Result(r4b.Questionnaire, Err) {
   any_create(
     r4b.questionnaire_to_json(resource),
     "Questionnaire",
@@ -5055,14 +5009,14 @@ pub fn questionnaire_create(
 pub fn questionnaire_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Questionnaire, ReqError) {
+) -> Result(r4b.Questionnaire, Err) {
   any_read(id, client, "Questionnaire", r4b.questionnaire_decoder())
 }
 
 pub fn questionnaire_update(
   resource: r4b.Questionnaire,
   client: FhirClient,
-) -> Result(r4b.Questionnaire, ReqError) {
+) -> Result(r4b.Questionnaire, Err) {
   any_update(
     resource.id,
     r4b.questionnaire_to_json(resource),
@@ -5075,7 +5029,7 @@ pub fn questionnaire_update(
 pub fn questionnaire_delete(
   resource: r4b.Questionnaire,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Questionnaire", client)
 }
 
@@ -5087,7 +5041,7 @@ pub fn questionnaire_search(sp: r4b_sansio.SpQuestionnaire, client: FhirClient) 
 pub fn questionnaireresponse_create(
   resource: r4b.Questionnaireresponse,
   client: FhirClient,
-) -> Result(r4b.Questionnaireresponse, ReqError) {
+) -> Result(r4b.Questionnaireresponse, Err) {
   any_create(
     r4b.questionnaireresponse_to_json(resource),
     "QuestionnaireResponse",
@@ -5099,7 +5053,7 @@ pub fn questionnaireresponse_create(
 pub fn questionnaireresponse_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Questionnaireresponse, ReqError) {
+) -> Result(r4b.Questionnaireresponse, Err) {
   any_read(
     id,
     client,
@@ -5111,7 +5065,7 @@ pub fn questionnaireresponse_read(
 pub fn questionnaireresponse_update(
   resource: r4b.Questionnaireresponse,
   client: FhirClient,
-) -> Result(r4b.Questionnaireresponse, ReqError) {
+) -> Result(r4b.Questionnaireresponse, Err) {
   any_update(
     resource.id,
     r4b.questionnaireresponse_to_json(resource),
@@ -5124,7 +5078,7 @@ pub fn questionnaireresponse_update(
 pub fn questionnaireresponse_delete(
   resource: r4b.Questionnaireresponse,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "QuestionnaireResponse", client)
 }
 
@@ -5139,7 +5093,7 @@ pub fn questionnaireresponse_search(
 pub fn regulatedauthorization_create(
   resource: r4b.Regulatedauthorization,
   client: FhirClient,
-) -> Result(r4b.Regulatedauthorization, ReqError) {
+) -> Result(r4b.Regulatedauthorization, Err) {
   any_create(
     r4b.regulatedauthorization_to_json(resource),
     "RegulatedAuthorization",
@@ -5151,7 +5105,7 @@ pub fn regulatedauthorization_create(
 pub fn regulatedauthorization_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Regulatedauthorization, ReqError) {
+) -> Result(r4b.Regulatedauthorization, Err) {
   any_read(
     id,
     client,
@@ -5163,7 +5117,7 @@ pub fn regulatedauthorization_read(
 pub fn regulatedauthorization_update(
   resource: r4b.Regulatedauthorization,
   client: FhirClient,
-) -> Result(r4b.Regulatedauthorization, ReqError) {
+) -> Result(r4b.Regulatedauthorization, Err) {
   any_update(
     resource.id,
     r4b.regulatedauthorization_to_json(resource),
@@ -5176,7 +5130,7 @@ pub fn regulatedauthorization_update(
 pub fn regulatedauthorization_delete(
   resource: r4b.Regulatedauthorization,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "RegulatedAuthorization", client)
 }
 
@@ -5191,7 +5145,7 @@ pub fn regulatedauthorization_search(
 pub fn relatedperson_create(
   resource: r4b.Relatedperson,
   client: FhirClient,
-) -> Result(r4b.Relatedperson, ReqError) {
+) -> Result(r4b.Relatedperson, Err) {
   any_create(
     r4b.relatedperson_to_json(resource),
     "RelatedPerson",
@@ -5203,14 +5157,14 @@ pub fn relatedperson_create(
 pub fn relatedperson_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Relatedperson, ReqError) {
+) -> Result(r4b.Relatedperson, Err) {
   any_read(id, client, "RelatedPerson", r4b.relatedperson_decoder())
 }
 
 pub fn relatedperson_update(
   resource: r4b.Relatedperson,
   client: FhirClient,
-) -> Result(r4b.Relatedperson, ReqError) {
+) -> Result(r4b.Relatedperson, Err) {
   any_update(
     resource.id,
     r4b.relatedperson_to_json(resource),
@@ -5223,7 +5177,7 @@ pub fn relatedperson_update(
 pub fn relatedperson_delete(
   resource: r4b.Relatedperson,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "RelatedPerson", client)
 }
 
@@ -5235,7 +5189,7 @@ pub fn relatedperson_search(sp: r4b_sansio.SpRelatedperson, client: FhirClient) 
 pub fn requestgroup_create(
   resource: r4b.Requestgroup,
   client: FhirClient,
-) -> Result(r4b.Requestgroup, ReqError) {
+) -> Result(r4b.Requestgroup, Err) {
   any_create(
     r4b.requestgroup_to_json(resource),
     "RequestGroup",
@@ -5247,14 +5201,14 @@ pub fn requestgroup_create(
 pub fn requestgroup_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Requestgroup, ReqError) {
+) -> Result(r4b.Requestgroup, Err) {
   any_read(id, client, "RequestGroup", r4b.requestgroup_decoder())
 }
 
 pub fn requestgroup_update(
   resource: r4b.Requestgroup,
   client: FhirClient,
-) -> Result(r4b.Requestgroup, ReqError) {
+) -> Result(r4b.Requestgroup, Err) {
   any_update(
     resource.id,
     r4b.requestgroup_to_json(resource),
@@ -5267,7 +5221,7 @@ pub fn requestgroup_update(
 pub fn requestgroup_delete(
   resource: r4b.Requestgroup,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "RequestGroup", client)
 }
 
@@ -5279,7 +5233,7 @@ pub fn requestgroup_search(sp: r4b_sansio.SpRequestgroup, client: FhirClient) {
 pub fn researchdefinition_create(
   resource: r4b.Researchdefinition,
   client: FhirClient,
-) -> Result(r4b.Researchdefinition, ReqError) {
+) -> Result(r4b.Researchdefinition, Err) {
   any_create(
     r4b.researchdefinition_to_json(resource),
     "ResearchDefinition",
@@ -5291,14 +5245,14 @@ pub fn researchdefinition_create(
 pub fn researchdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Researchdefinition, ReqError) {
+) -> Result(r4b.Researchdefinition, Err) {
   any_read(id, client, "ResearchDefinition", r4b.researchdefinition_decoder())
 }
 
 pub fn researchdefinition_update(
   resource: r4b.Researchdefinition,
   client: FhirClient,
-) -> Result(r4b.Researchdefinition, ReqError) {
+) -> Result(r4b.Researchdefinition, Err) {
   any_update(
     resource.id,
     r4b.researchdefinition_to_json(resource),
@@ -5311,7 +5265,7 @@ pub fn researchdefinition_update(
 pub fn researchdefinition_delete(
   resource: r4b.Researchdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ResearchDefinition", client)
 }
 
@@ -5326,7 +5280,7 @@ pub fn researchdefinition_search(
 pub fn researchelementdefinition_create(
   resource: r4b.Researchelementdefinition,
   client: FhirClient,
-) -> Result(r4b.Researchelementdefinition, ReqError) {
+) -> Result(r4b.Researchelementdefinition, Err) {
   any_create(
     r4b.researchelementdefinition_to_json(resource),
     "ResearchElementDefinition",
@@ -5338,7 +5292,7 @@ pub fn researchelementdefinition_create(
 pub fn researchelementdefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Researchelementdefinition, ReqError) {
+) -> Result(r4b.Researchelementdefinition, Err) {
   any_read(
     id,
     client,
@@ -5350,7 +5304,7 @@ pub fn researchelementdefinition_read(
 pub fn researchelementdefinition_update(
   resource: r4b.Researchelementdefinition,
   client: FhirClient,
-) -> Result(r4b.Researchelementdefinition, ReqError) {
+) -> Result(r4b.Researchelementdefinition, Err) {
   any_update(
     resource.id,
     r4b.researchelementdefinition_to_json(resource),
@@ -5363,7 +5317,7 @@ pub fn researchelementdefinition_update(
 pub fn researchelementdefinition_delete(
   resource: r4b.Researchelementdefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ResearchElementDefinition", client)
 }
 
@@ -5378,7 +5332,7 @@ pub fn researchelementdefinition_search(
 pub fn researchstudy_create(
   resource: r4b.Researchstudy,
   client: FhirClient,
-) -> Result(r4b.Researchstudy, ReqError) {
+) -> Result(r4b.Researchstudy, Err) {
   any_create(
     r4b.researchstudy_to_json(resource),
     "ResearchStudy",
@@ -5390,14 +5344,14 @@ pub fn researchstudy_create(
 pub fn researchstudy_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Researchstudy, ReqError) {
+) -> Result(r4b.Researchstudy, Err) {
   any_read(id, client, "ResearchStudy", r4b.researchstudy_decoder())
 }
 
 pub fn researchstudy_update(
   resource: r4b.Researchstudy,
   client: FhirClient,
-) -> Result(r4b.Researchstudy, ReqError) {
+) -> Result(r4b.Researchstudy, Err) {
   any_update(
     resource.id,
     r4b.researchstudy_to_json(resource),
@@ -5410,7 +5364,7 @@ pub fn researchstudy_update(
 pub fn researchstudy_delete(
   resource: r4b.Researchstudy,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ResearchStudy", client)
 }
 
@@ -5422,7 +5376,7 @@ pub fn researchstudy_search(sp: r4b_sansio.SpResearchstudy, client: FhirClient) 
 pub fn researchsubject_create(
   resource: r4b.Researchsubject,
   client: FhirClient,
-) -> Result(r4b.Researchsubject, ReqError) {
+) -> Result(r4b.Researchsubject, Err) {
   any_create(
     r4b.researchsubject_to_json(resource),
     "ResearchSubject",
@@ -5434,14 +5388,14 @@ pub fn researchsubject_create(
 pub fn researchsubject_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Researchsubject, ReqError) {
+) -> Result(r4b.Researchsubject, Err) {
   any_read(id, client, "ResearchSubject", r4b.researchsubject_decoder())
 }
 
 pub fn researchsubject_update(
   resource: r4b.Researchsubject,
   client: FhirClient,
-) -> Result(r4b.Researchsubject, ReqError) {
+) -> Result(r4b.Researchsubject, Err) {
   any_update(
     resource.id,
     r4b.researchsubject_to_json(resource),
@@ -5454,7 +5408,7 @@ pub fn researchsubject_update(
 pub fn researchsubject_delete(
   resource: r4b.Researchsubject,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ResearchSubject", client)
 }
 
@@ -5469,7 +5423,7 @@ pub fn researchsubject_search(
 pub fn riskassessment_create(
   resource: r4b.Riskassessment,
   client: FhirClient,
-) -> Result(r4b.Riskassessment, ReqError) {
+) -> Result(r4b.Riskassessment, Err) {
   any_create(
     r4b.riskassessment_to_json(resource),
     "RiskAssessment",
@@ -5481,14 +5435,14 @@ pub fn riskassessment_create(
 pub fn riskassessment_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Riskassessment, ReqError) {
+) -> Result(r4b.Riskassessment, Err) {
   any_read(id, client, "RiskAssessment", r4b.riskassessment_decoder())
 }
 
 pub fn riskassessment_update(
   resource: r4b.Riskassessment,
   client: FhirClient,
-) -> Result(r4b.Riskassessment, ReqError) {
+) -> Result(r4b.Riskassessment, Err) {
   any_update(
     resource.id,
     r4b.riskassessment_to_json(resource),
@@ -5501,7 +5455,7 @@ pub fn riskassessment_update(
 pub fn riskassessment_delete(
   resource: r4b.Riskassessment,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "RiskAssessment", client)
 }
 
@@ -5516,7 +5470,7 @@ pub fn riskassessment_search(
 pub fn schedule_create(
   resource: r4b.Schedule,
   client: FhirClient,
-) -> Result(r4b.Schedule, ReqError) {
+) -> Result(r4b.Schedule, Err) {
   any_create(
     r4b.schedule_to_json(resource),
     "Schedule",
@@ -5528,14 +5482,14 @@ pub fn schedule_create(
 pub fn schedule_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Schedule, ReqError) {
+) -> Result(r4b.Schedule, Err) {
   any_read(id, client, "Schedule", r4b.schedule_decoder())
 }
 
 pub fn schedule_update(
   resource: r4b.Schedule,
   client: FhirClient,
-) -> Result(r4b.Schedule, ReqError) {
+) -> Result(r4b.Schedule, Err) {
   any_update(
     resource.id,
     r4b.schedule_to_json(resource),
@@ -5548,7 +5502,7 @@ pub fn schedule_update(
 pub fn schedule_delete(
   resource: r4b.Schedule,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Schedule", client)
 }
 
@@ -5560,7 +5514,7 @@ pub fn schedule_search(sp: r4b_sansio.SpSchedule, client: FhirClient) {
 pub fn searchparameter_create(
   resource: r4b.Searchparameter,
   client: FhirClient,
-) -> Result(r4b.Searchparameter, ReqError) {
+) -> Result(r4b.Searchparameter, Err) {
   any_create(
     r4b.searchparameter_to_json(resource),
     "SearchParameter",
@@ -5572,14 +5526,14 @@ pub fn searchparameter_create(
 pub fn searchparameter_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Searchparameter, ReqError) {
+) -> Result(r4b.Searchparameter, Err) {
   any_read(id, client, "SearchParameter", r4b.searchparameter_decoder())
 }
 
 pub fn searchparameter_update(
   resource: r4b.Searchparameter,
   client: FhirClient,
-) -> Result(r4b.Searchparameter, ReqError) {
+) -> Result(r4b.Searchparameter, Err) {
   any_update(
     resource.id,
     r4b.searchparameter_to_json(resource),
@@ -5592,7 +5546,7 @@ pub fn searchparameter_update(
 pub fn searchparameter_delete(
   resource: r4b.Searchparameter,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "SearchParameter", client)
 }
 
@@ -5607,7 +5561,7 @@ pub fn searchparameter_search(
 pub fn servicerequest_create(
   resource: r4b.Servicerequest,
   client: FhirClient,
-) -> Result(r4b.Servicerequest, ReqError) {
+) -> Result(r4b.Servicerequest, Err) {
   any_create(
     r4b.servicerequest_to_json(resource),
     "ServiceRequest",
@@ -5619,14 +5573,14 @@ pub fn servicerequest_create(
 pub fn servicerequest_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Servicerequest, ReqError) {
+) -> Result(r4b.Servicerequest, Err) {
   any_read(id, client, "ServiceRequest", r4b.servicerequest_decoder())
 }
 
 pub fn servicerequest_update(
   resource: r4b.Servicerequest,
   client: FhirClient,
-) -> Result(r4b.Servicerequest, ReqError) {
+) -> Result(r4b.Servicerequest, Err) {
   any_update(
     resource.id,
     r4b.servicerequest_to_json(resource),
@@ -5639,7 +5593,7 @@ pub fn servicerequest_update(
 pub fn servicerequest_delete(
   resource: r4b.Servicerequest,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ServiceRequest", client)
 }
 
@@ -5654,18 +5608,18 @@ pub fn servicerequest_search(
 pub fn slot_create(
   resource: r4b.Slot,
   client: FhirClient,
-) -> Result(r4b.Slot, ReqError) {
+) -> Result(r4b.Slot, Err) {
   any_create(r4b.slot_to_json(resource), "Slot", r4b.slot_decoder(), client)
 }
 
-pub fn slot_read(id: String, client: FhirClient) -> Result(r4b.Slot, ReqError) {
+pub fn slot_read(id: String, client: FhirClient) -> Result(r4b.Slot, Err) {
   any_read(id, client, "Slot", r4b.slot_decoder())
 }
 
 pub fn slot_update(
   resource: r4b.Slot,
   client: FhirClient,
-) -> Result(r4b.Slot, ReqError) {
+) -> Result(r4b.Slot, Err) {
   any_update(
     resource.id,
     r4b.slot_to_json(resource),
@@ -5678,7 +5632,7 @@ pub fn slot_update(
 pub fn slot_delete(
   resource: r4b.Slot,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Slot", client)
 }
 
@@ -5690,7 +5644,7 @@ pub fn slot_search(sp: r4b_sansio.SpSlot, client: FhirClient) {
 pub fn specimen_create(
   resource: r4b.Specimen,
   client: FhirClient,
-) -> Result(r4b.Specimen, ReqError) {
+) -> Result(r4b.Specimen, Err) {
   any_create(
     r4b.specimen_to_json(resource),
     "Specimen",
@@ -5702,14 +5656,14 @@ pub fn specimen_create(
 pub fn specimen_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Specimen, ReqError) {
+) -> Result(r4b.Specimen, Err) {
   any_read(id, client, "Specimen", r4b.specimen_decoder())
 }
 
 pub fn specimen_update(
   resource: r4b.Specimen,
   client: FhirClient,
-) -> Result(r4b.Specimen, ReqError) {
+) -> Result(r4b.Specimen, Err) {
   any_update(
     resource.id,
     r4b.specimen_to_json(resource),
@@ -5722,7 +5676,7 @@ pub fn specimen_update(
 pub fn specimen_delete(
   resource: r4b.Specimen,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Specimen", client)
 }
 
@@ -5734,7 +5688,7 @@ pub fn specimen_search(sp: r4b_sansio.SpSpecimen, client: FhirClient) {
 pub fn specimendefinition_create(
   resource: r4b.Specimendefinition,
   client: FhirClient,
-) -> Result(r4b.Specimendefinition, ReqError) {
+) -> Result(r4b.Specimendefinition, Err) {
   any_create(
     r4b.specimendefinition_to_json(resource),
     "SpecimenDefinition",
@@ -5746,14 +5700,14 @@ pub fn specimendefinition_create(
 pub fn specimendefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Specimendefinition, ReqError) {
+) -> Result(r4b.Specimendefinition, Err) {
   any_read(id, client, "SpecimenDefinition", r4b.specimendefinition_decoder())
 }
 
 pub fn specimendefinition_update(
   resource: r4b.Specimendefinition,
   client: FhirClient,
-) -> Result(r4b.Specimendefinition, ReqError) {
+) -> Result(r4b.Specimendefinition, Err) {
   any_update(
     resource.id,
     r4b.specimendefinition_to_json(resource),
@@ -5766,7 +5720,7 @@ pub fn specimendefinition_update(
 pub fn specimendefinition_delete(
   resource: r4b.Specimendefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "SpecimenDefinition", client)
 }
 
@@ -5781,7 +5735,7 @@ pub fn specimendefinition_search(
 pub fn structuredefinition_create(
   resource: r4b.Structuredefinition,
   client: FhirClient,
-) -> Result(r4b.Structuredefinition, ReqError) {
+) -> Result(r4b.Structuredefinition, Err) {
   any_create(
     r4b.structuredefinition_to_json(resource),
     "StructureDefinition",
@@ -5793,14 +5747,14 @@ pub fn structuredefinition_create(
 pub fn structuredefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Structuredefinition, ReqError) {
+) -> Result(r4b.Structuredefinition, Err) {
   any_read(id, client, "StructureDefinition", r4b.structuredefinition_decoder())
 }
 
 pub fn structuredefinition_update(
   resource: r4b.Structuredefinition,
   client: FhirClient,
-) -> Result(r4b.Structuredefinition, ReqError) {
+) -> Result(r4b.Structuredefinition, Err) {
   any_update(
     resource.id,
     r4b.structuredefinition_to_json(resource),
@@ -5813,7 +5767,7 @@ pub fn structuredefinition_update(
 pub fn structuredefinition_delete(
   resource: r4b.Structuredefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "StructureDefinition", client)
 }
 
@@ -5828,7 +5782,7 @@ pub fn structuredefinition_search(
 pub fn structuremap_create(
   resource: r4b.Structuremap,
   client: FhirClient,
-) -> Result(r4b.Structuremap, ReqError) {
+) -> Result(r4b.Structuremap, Err) {
   any_create(
     r4b.structuremap_to_json(resource),
     "StructureMap",
@@ -5840,14 +5794,14 @@ pub fn structuremap_create(
 pub fn structuremap_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Structuremap, ReqError) {
+) -> Result(r4b.Structuremap, Err) {
   any_read(id, client, "StructureMap", r4b.structuremap_decoder())
 }
 
 pub fn structuremap_update(
   resource: r4b.Structuremap,
   client: FhirClient,
-) -> Result(r4b.Structuremap, ReqError) {
+) -> Result(r4b.Structuremap, Err) {
   any_update(
     resource.id,
     r4b.structuremap_to_json(resource),
@@ -5860,7 +5814,7 @@ pub fn structuremap_update(
 pub fn structuremap_delete(
   resource: r4b.Structuremap,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "StructureMap", client)
 }
 
@@ -5872,7 +5826,7 @@ pub fn structuremap_search(sp: r4b_sansio.SpStructuremap, client: FhirClient) {
 pub fn subscription_create(
   resource: r4b.Subscription,
   client: FhirClient,
-) -> Result(r4b.Subscription, ReqError) {
+) -> Result(r4b.Subscription, Err) {
   any_create(
     r4b.subscription_to_json(resource),
     "Subscription",
@@ -5884,14 +5838,14 @@ pub fn subscription_create(
 pub fn subscription_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Subscription, ReqError) {
+) -> Result(r4b.Subscription, Err) {
   any_read(id, client, "Subscription", r4b.subscription_decoder())
 }
 
 pub fn subscription_update(
   resource: r4b.Subscription,
   client: FhirClient,
-) -> Result(r4b.Subscription, ReqError) {
+) -> Result(r4b.Subscription, Err) {
   any_update(
     resource.id,
     r4b.subscription_to_json(resource),
@@ -5904,7 +5858,7 @@ pub fn subscription_update(
 pub fn subscription_delete(
   resource: r4b.Subscription,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Subscription", client)
 }
 
@@ -5916,7 +5870,7 @@ pub fn subscription_search(sp: r4b_sansio.SpSubscription, client: FhirClient) {
 pub fn subscriptionstatus_create(
   resource: r4b.Subscriptionstatus,
   client: FhirClient,
-) -> Result(r4b.Subscriptionstatus, ReqError) {
+) -> Result(r4b.Subscriptionstatus, Err) {
   any_create(
     r4b.subscriptionstatus_to_json(resource),
     "SubscriptionStatus",
@@ -5928,14 +5882,14 @@ pub fn subscriptionstatus_create(
 pub fn subscriptionstatus_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Subscriptionstatus, ReqError) {
+) -> Result(r4b.Subscriptionstatus, Err) {
   any_read(id, client, "SubscriptionStatus", r4b.subscriptionstatus_decoder())
 }
 
 pub fn subscriptionstatus_update(
   resource: r4b.Subscriptionstatus,
   client: FhirClient,
-) -> Result(r4b.Subscriptionstatus, ReqError) {
+) -> Result(r4b.Subscriptionstatus, Err) {
   any_update(
     resource.id,
     r4b.subscriptionstatus_to_json(resource),
@@ -5948,7 +5902,7 @@ pub fn subscriptionstatus_update(
 pub fn subscriptionstatus_delete(
   resource: r4b.Subscriptionstatus,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "SubscriptionStatus", client)
 }
 
@@ -5963,7 +5917,7 @@ pub fn subscriptionstatus_search(
 pub fn subscriptiontopic_create(
   resource: r4b.Subscriptiontopic,
   client: FhirClient,
-) -> Result(r4b.Subscriptiontopic, ReqError) {
+) -> Result(r4b.Subscriptiontopic, Err) {
   any_create(
     r4b.subscriptiontopic_to_json(resource),
     "SubscriptionTopic",
@@ -5975,14 +5929,14 @@ pub fn subscriptiontopic_create(
 pub fn subscriptiontopic_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Subscriptiontopic, ReqError) {
+) -> Result(r4b.Subscriptiontopic, Err) {
   any_read(id, client, "SubscriptionTopic", r4b.subscriptiontopic_decoder())
 }
 
 pub fn subscriptiontopic_update(
   resource: r4b.Subscriptiontopic,
   client: FhirClient,
-) -> Result(r4b.Subscriptiontopic, ReqError) {
+) -> Result(r4b.Subscriptiontopic, Err) {
   any_update(
     resource.id,
     r4b.subscriptiontopic_to_json(resource),
@@ -5995,7 +5949,7 @@ pub fn subscriptiontopic_update(
 pub fn subscriptiontopic_delete(
   resource: r4b.Subscriptiontopic,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "SubscriptionTopic", client)
 }
 
@@ -6010,7 +5964,7 @@ pub fn subscriptiontopic_search(
 pub fn substance_create(
   resource: r4b.Substance,
   client: FhirClient,
-) -> Result(r4b.Substance, ReqError) {
+) -> Result(r4b.Substance, Err) {
   any_create(
     r4b.substance_to_json(resource),
     "Substance",
@@ -6022,14 +5976,14 @@ pub fn substance_create(
 pub fn substance_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Substance, ReqError) {
+) -> Result(r4b.Substance, Err) {
   any_read(id, client, "Substance", r4b.substance_decoder())
 }
 
 pub fn substance_update(
   resource: r4b.Substance,
   client: FhirClient,
-) -> Result(r4b.Substance, ReqError) {
+) -> Result(r4b.Substance, Err) {
   any_update(
     resource.id,
     r4b.substance_to_json(resource),
@@ -6042,7 +5996,7 @@ pub fn substance_update(
 pub fn substance_delete(
   resource: r4b.Substance,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Substance", client)
 }
 
@@ -6054,7 +6008,7 @@ pub fn substance_search(sp: r4b_sansio.SpSubstance, client: FhirClient) {
 pub fn substancedefinition_create(
   resource: r4b.Substancedefinition,
   client: FhirClient,
-) -> Result(r4b.Substancedefinition, ReqError) {
+) -> Result(r4b.Substancedefinition, Err) {
   any_create(
     r4b.substancedefinition_to_json(resource),
     "SubstanceDefinition",
@@ -6066,14 +6020,14 @@ pub fn substancedefinition_create(
 pub fn substancedefinition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Substancedefinition, ReqError) {
+) -> Result(r4b.Substancedefinition, Err) {
   any_read(id, client, "SubstanceDefinition", r4b.substancedefinition_decoder())
 }
 
 pub fn substancedefinition_update(
   resource: r4b.Substancedefinition,
   client: FhirClient,
-) -> Result(r4b.Substancedefinition, ReqError) {
+) -> Result(r4b.Substancedefinition, Err) {
   any_update(
     resource.id,
     r4b.substancedefinition_to_json(resource),
@@ -6086,7 +6040,7 @@ pub fn substancedefinition_update(
 pub fn substancedefinition_delete(
   resource: r4b.Substancedefinition,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "SubstanceDefinition", client)
 }
 
@@ -6101,7 +6055,7 @@ pub fn substancedefinition_search(
 pub fn supplydelivery_create(
   resource: r4b.Supplydelivery,
   client: FhirClient,
-) -> Result(r4b.Supplydelivery, ReqError) {
+) -> Result(r4b.Supplydelivery, Err) {
   any_create(
     r4b.supplydelivery_to_json(resource),
     "SupplyDelivery",
@@ -6113,14 +6067,14 @@ pub fn supplydelivery_create(
 pub fn supplydelivery_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Supplydelivery, ReqError) {
+) -> Result(r4b.Supplydelivery, Err) {
   any_read(id, client, "SupplyDelivery", r4b.supplydelivery_decoder())
 }
 
 pub fn supplydelivery_update(
   resource: r4b.Supplydelivery,
   client: FhirClient,
-) -> Result(r4b.Supplydelivery, ReqError) {
+) -> Result(r4b.Supplydelivery, Err) {
   any_update(
     resource.id,
     r4b.supplydelivery_to_json(resource),
@@ -6133,7 +6087,7 @@ pub fn supplydelivery_update(
 pub fn supplydelivery_delete(
   resource: r4b.Supplydelivery,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "SupplyDelivery", client)
 }
 
@@ -6148,7 +6102,7 @@ pub fn supplydelivery_search(
 pub fn supplyrequest_create(
   resource: r4b.Supplyrequest,
   client: FhirClient,
-) -> Result(r4b.Supplyrequest, ReqError) {
+) -> Result(r4b.Supplyrequest, Err) {
   any_create(
     r4b.supplyrequest_to_json(resource),
     "SupplyRequest",
@@ -6160,14 +6114,14 @@ pub fn supplyrequest_create(
 pub fn supplyrequest_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Supplyrequest, ReqError) {
+) -> Result(r4b.Supplyrequest, Err) {
   any_read(id, client, "SupplyRequest", r4b.supplyrequest_decoder())
 }
 
 pub fn supplyrequest_update(
   resource: r4b.Supplyrequest,
   client: FhirClient,
-) -> Result(r4b.Supplyrequest, ReqError) {
+) -> Result(r4b.Supplyrequest, Err) {
   any_update(
     resource.id,
     r4b.supplyrequest_to_json(resource),
@@ -6180,7 +6134,7 @@ pub fn supplyrequest_update(
 pub fn supplyrequest_delete(
   resource: r4b.Supplyrequest,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "SupplyRequest", client)
 }
 
@@ -6192,18 +6146,18 @@ pub fn supplyrequest_search(sp: r4b_sansio.SpSupplyrequest, client: FhirClient) 
 pub fn task_create(
   resource: r4b.Task,
   client: FhirClient,
-) -> Result(r4b.Task, ReqError) {
+) -> Result(r4b.Task, Err) {
   any_create(r4b.task_to_json(resource), "Task", r4b.task_decoder(), client)
 }
 
-pub fn task_read(id: String, client: FhirClient) -> Result(r4b.Task, ReqError) {
+pub fn task_read(id: String, client: FhirClient) -> Result(r4b.Task, Err) {
   any_read(id, client, "Task", r4b.task_decoder())
 }
 
 pub fn task_update(
   resource: r4b.Task,
   client: FhirClient,
-) -> Result(r4b.Task, ReqError) {
+) -> Result(r4b.Task, Err) {
   any_update(
     resource.id,
     r4b.task_to_json(resource),
@@ -6216,7 +6170,7 @@ pub fn task_update(
 pub fn task_delete(
   resource: r4b.Task,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "Task", client)
 }
 
@@ -6228,7 +6182,7 @@ pub fn task_search(sp: r4b_sansio.SpTask, client: FhirClient) {
 pub fn terminologycapabilities_create(
   resource: r4b.Terminologycapabilities,
   client: FhirClient,
-) -> Result(r4b.Terminologycapabilities, ReqError) {
+) -> Result(r4b.Terminologycapabilities, Err) {
   any_create(
     r4b.terminologycapabilities_to_json(resource),
     "TerminologyCapabilities",
@@ -6240,7 +6194,7 @@ pub fn terminologycapabilities_create(
 pub fn terminologycapabilities_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Terminologycapabilities, ReqError) {
+) -> Result(r4b.Terminologycapabilities, Err) {
   any_read(
     id,
     client,
@@ -6252,7 +6206,7 @@ pub fn terminologycapabilities_read(
 pub fn terminologycapabilities_update(
   resource: r4b.Terminologycapabilities,
   client: FhirClient,
-) -> Result(r4b.Terminologycapabilities, ReqError) {
+) -> Result(r4b.Terminologycapabilities, Err) {
   any_update(
     resource.id,
     r4b.terminologycapabilities_to_json(resource),
@@ -6265,7 +6219,7 @@ pub fn terminologycapabilities_update(
 pub fn terminologycapabilities_delete(
   resource: r4b.Terminologycapabilities,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "TerminologyCapabilities", client)
 }
 
@@ -6280,7 +6234,7 @@ pub fn terminologycapabilities_search(
 pub fn testreport_create(
   resource: r4b.Testreport,
   client: FhirClient,
-) -> Result(r4b.Testreport, ReqError) {
+) -> Result(r4b.Testreport, Err) {
   any_create(
     r4b.testreport_to_json(resource),
     "TestReport",
@@ -6292,14 +6246,14 @@ pub fn testreport_create(
 pub fn testreport_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Testreport, ReqError) {
+) -> Result(r4b.Testreport, Err) {
   any_read(id, client, "TestReport", r4b.testreport_decoder())
 }
 
 pub fn testreport_update(
   resource: r4b.Testreport,
   client: FhirClient,
-) -> Result(r4b.Testreport, ReqError) {
+) -> Result(r4b.Testreport, Err) {
   any_update(
     resource.id,
     r4b.testreport_to_json(resource),
@@ -6312,7 +6266,7 @@ pub fn testreport_update(
 pub fn testreport_delete(
   resource: r4b.Testreport,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "TestReport", client)
 }
 
@@ -6324,7 +6278,7 @@ pub fn testreport_search(sp: r4b_sansio.SpTestreport, client: FhirClient) {
 pub fn testscript_create(
   resource: r4b.Testscript,
   client: FhirClient,
-) -> Result(r4b.Testscript, ReqError) {
+) -> Result(r4b.Testscript, Err) {
   any_create(
     r4b.testscript_to_json(resource),
     "TestScript",
@@ -6336,14 +6290,14 @@ pub fn testscript_create(
 pub fn testscript_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Testscript, ReqError) {
+) -> Result(r4b.Testscript, Err) {
   any_read(id, client, "TestScript", r4b.testscript_decoder())
 }
 
 pub fn testscript_update(
   resource: r4b.Testscript,
   client: FhirClient,
-) -> Result(r4b.Testscript, ReqError) {
+) -> Result(r4b.Testscript, Err) {
   any_update(
     resource.id,
     r4b.testscript_to_json(resource),
@@ -6356,7 +6310,7 @@ pub fn testscript_update(
 pub fn testscript_delete(
   resource: r4b.Testscript,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "TestScript", client)
 }
 
@@ -6368,7 +6322,7 @@ pub fn testscript_search(sp: r4b_sansio.SpTestscript, client: FhirClient) {
 pub fn valueset_create(
   resource: r4b.Valueset,
   client: FhirClient,
-) -> Result(r4b.Valueset, ReqError) {
+) -> Result(r4b.Valueset, Err) {
   any_create(
     r4b.valueset_to_json(resource),
     "ValueSet",
@@ -6380,14 +6334,14 @@ pub fn valueset_create(
 pub fn valueset_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Valueset, ReqError) {
+) -> Result(r4b.Valueset, Err) {
   any_read(id, client, "ValueSet", r4b.valueset_decoder())
 }
 
 pub fn valueset_update(
   resource: r4b.Valueset,
   client: FhirClient,
-) -> Result(r4b.Valueset, ReqError) {
+) -> Result(r4b.Valueset, Err) {
   any_update(
     resource.id,
     r4b.valueset_to_json(resource),
@@ -6400,7 +6354,7 @@ pub fn valueset_update(
 pub fn valueset_delete(
   resource: r4b.Valueset,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "ValueSet", client)
 }
 
@@ -6412,7 +6366,7 @@ pub fn valueset_search(sp: r4b_sansio.SpValueset, client: FhirClient) {
 pub fn verificationresult_create(
   resource: r4b.Verificationresult,
   client: FhirClient,
-) -> Result(r4b.Verificationresult, ReqError) {
+) -> Result(r4b.Verificationresult, Err) {
   any_create(
     r4b.verificationresult_to_json(resource),
     "VerificationResult",
@@ -6424,14 +6378,14 @@ pub fn verificationresult_create(
 pub fn verificationresult_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Verificationresult, ReqError) {
+) -> Result(r4b.Verificationresult, Err) {
   any_read(id, client, "VerificationResult", r4b.verificationresult_decoder())
 }
 
 pub fn verificationresult_update(
   resource: r4b.Verificationresult,
   client: FhirClient,
-) -> Result(r4b.Verificationresult, ReqError) {
+) -> Result(r4b.Verificationresult, Err) {
   any_update(
     resource.id,
     r4b.verificationresult_to_json(resource),
@@ -6444,7 +6398,7 @@ pub fn verificationresult_update(
 pub fn verificationresult_delete(
   resource: r4b.Verificationresult,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "VerificationResult", client)
 }
 
@@ -6459,7 +6413,7 @@ pub fn verificationresult_search(
 pub fn visionprescription_create(
   resource: r4b.Visionprescription,
   client: FhirClient,
-) -> Result(r4b.Visionprescription, ReqError) {
+) -> Result(r4b.Visionprescription, Err) {
   any_create(
     r4b.visionprescription_to_json(resource),
     "VisionPrescription",
@@ -6471,14 +6425,14 @@ pub fn visionprescription_create(
 pub fn visionprescription_read(
   id: String,
   client: FhirClient,
-) -> Result(r4b.Visionprescription, ReqError) {
+) -> Result(r4b.Visionprescription, Err) {
   any_read(id, client, "VisionPrescription", r4b.visionprescription_decoder())
 }
 
 pub fn visionprescription_update(
   resource: r4b.Visionprescription,
   client: FhirClient,
-) -> Result(r4b.Visionprescription, ReqError) {
+) -> Result(r4b.Visionprescription, Err) {
   any_update(
     resource.id,
     r4b.visionprescription_to_json(resource),
@@ -6491,7 +6445,7 @@ pub fn visionprescription_update(
 pub fn visionprescription_delete(
   resource: r4b.Visionprescription,
   client: FhirClient,
-) -> Result(r4b.Operationoutcome, ReqError) {
+) -> Result(r4b.Operationoutcome, Err) {
   any_delete(resource.id, "VisionPrescription", client)
 }
 

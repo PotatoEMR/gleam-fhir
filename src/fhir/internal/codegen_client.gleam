@@ -351,7 +351,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
             pub fn NAMELOWER_create(
               resource: FHIRVERSION.NAMECAPITAL,
               client: FhirClient,
-            ) -> Result(FHIRVERSION.NAMECAPITAL, ReqError) {
+            ) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
               any_create(
                 FHIRVERSION.NAMELOWER_to_json(resource),
                 \"NAMEUPPER\",
@@ -363,14 +363,14 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
             pub fn NAMELOWER_read(
               id: String,
               client: FhirClient,
-            ) -> Result(FHIRVERSION.NAMECAPITAL, ReqError) {
+            ) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
               any_read(id, client, \"NAMEUPPER\", FHIRVERSION.NAMELOWER_decoder())
             }
 
             pub fn NAMELOWER_update(
               resource: FHIRVERSION.NAMECAPITAL,
               client: FhirClient,
-            ) -> Result(FHIRVERSION.NAMECAPITAL, ReqError) {
+            ) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
               any_update(
                 resource.id,
                 FHIRVERSION.NAMELOWER_to_json(resource),
@@ -383,7 +383,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
             pub fn NAMELOWER_delete(
               resource: FHIRVERSION.NAMECAPITAL,
               client: FhirClient,
-            ) -> Result(FHIRVERSION.Operationoutcome, ReqError) {
+            ) -> Result(FHIRVERSION.Operationoutcome, Err) {
               any_delete(resource.id, \"NAMEUPPER\", client)
             }
 
@@ -411,7 +411,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
             pub fn NAMELOWER_create(
               resource: FHIRVERSION.NAMECAPITAL,
               client: FhirClient,
-              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, ReqErr)) -> a,
+              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, Err)) -> a,
             ) -> Effect(a) {
               any_create(
                 FHIRVERSION.NAMELOWER_to_json(resource),
@@ -425,7 +425,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
             pub fn NAMELOWER_read(
               id: String,
               client: FhirClient,
-              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, ReqErr)) -> a,
+              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, Err)) -> a,
             ) -> Effect(a) {
               any_read(id, \"NAMEUPPER\", FHIRVERSION.NAMELOWER_decoder(), client, handle_response)
             }
@@ -433,7 +433,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
             pub fn NAMELOWER_update(
               resource: FHIRVERSION.NAMECAPITAL,
               client: FhirClient,
-              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, ReqErr)) -> a,
+              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, Err)) -> a,
             ) -> Result(Effect(a), ErrNoId) {
               any_update(
                 resource.id,
@@ -448,7 +448,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
             pub fn NAMELOWER_delete(
               resource: FHIRVERSION.NAMECAPITAL,
               client: FhirClient,
-              handle_response: fn(Result(FHIRVERSION.Operationoutcome, ReqErr)) -> a,
+              handle_response: fn(Result(FHIRVERSION.Operationoutcome, Err)) -> a,
             ) -> Result(Effect(a), ErrNoId) {
               any_delete(resource.id, \"NAMEUPPER\", client, handle_response)
             }
@@ -456,7 +456,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
             pub fn NAMELOWER_search_bundled(
               search_for search_args: FHIRVERSION_sansio.SpNAMECAPITAL,
               with_client client: FhirClient,
-              response_msg handle_response: fn(Result(FHIRVERSION.Bundle, ReqErr)) -> msg,
+              response_msg handle_response: fn(Result(FHIRVERSION.Bundle, Err)) -> msg,
             ) -> Effect(msg) {
               let req = FHIRVERSION_sansio.NAMELOWER_search_req(search_args, client)
               sendreq_handleresponse(req, FHIRVERSION.bundle_decoder(), handle_response)
@@ -465,7 +465,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
             pub fn NAMELOWER_search(
               search_for search_args: FHIRVERSION_sansio.SpNAMECAPITAL,
               with_client client: FhirClient,
-              response_msg handle_response: fn(Result(List(FHIRVERSION.NAMECAPITAL), ReqErr)) -> msg,
+              response_msg handle_response: fn(Result(List(FHIRVERSION.NAMECAPITAL), Err)) -> msg,
             ) -> Effect(msg) {
               let req = FHIRVERSION_sansio.NAMELOWER_search_req(search_args, client)
               sendreq_handleresponse_andprocess(
