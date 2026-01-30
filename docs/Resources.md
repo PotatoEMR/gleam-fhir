@@ -6,7 +6,7 @@
 import r4
 ```
 
-The r4/r4b/r5 packages provide Gleam types for resources, and types for the data types for elements in resources. They also provide `[resource]_encoder()` and `[resource]_to_json()` functions for each resource, and a `[resource]_new()` that creates a new resource with `Option` fields as `None` and `List` fields as `[]`.
+The r4/r4b/r5 packages provide Gleam types for resources and their elements. They also provide `[resource]_encoder()` and `[resource]_to_json()` functions for each resource, and a `[resource]_new()` that creates a new resource with `Option` fields as `None` and `List` fields as `[]`.
 
 ## [Primitive Type](#primitivetype){#primitivetype}
 
@@ -23,6 +23,20 @@ pub type Patient {
   )
 }
 ```
+
+```gleam
+import fhir/r4
+import gleam/option.{Some}
+
+pub fn main() -> String {
+  // patient_new() creates a patient with all fields None or []
+  // r4.Patient(..r4.patient_new() is needed to set just 1 field, instead of all of them
+  // https://tour.gleam.run/data-types/record-updates/
+  let pat = r4.Patient(..r4.patient_new(), active: Some(True))
+  echo pat
+}
+```
+
 ## [Complex Type](#complextype){#complextype}
 
 FHIR [complex types](https://hl7.org/fhir/datatypes.html#complex) have multiple child elements. In Gleam, complex types are custom types with a record of their child fields. For example, an [Address](https://hl7.org/fhir/datatypes.html#Address) has a bunch of elements, which all are in [r4.Address](https://hexdocs.pm/fhir/fhir/r4.html#Address).
@@ -123,6 +137,47 @@ pub type PatientMultiplebirth {
   PatientMultiplebirthInteger(multiple_birth: Int)
 }
 ```
+
+```gleam
+import fhir/r4
+import gleam/int
+import gleam/io
+import gleam/option.{None, Some}
+
+pub fn main() {
+  let pat1 =
+    r4.Patient(
+      ..r4.patient_new(),
+      multiple_birth: Some(r4.PatientMultiplebirthBoolean(False)),
+    )
+  print_order(pat1)
+
+  let pat2 = r4.patient_new()
+  print_order(pat2)
+
+  let pat3 =
+    r4.Patient(
+      ..r4.patient_new(),
+      multiple_birth: Some(r4.PatientMultiplebirthInteger(2)),
+    )
+  print_order(pat3)
+}
+
+pub fn print_order(pat: r4.Patient) {
+  case pat.multiple_birth {
+    None -> io.println("No birth data recorded")
+    Some(r4.PatientMultiplebirthBoolean(False)) ->
+      io.println("Not a multiple birth")
+    Some(r4.PatientMultiplebirthBoolean(True)) ->
+      io.println("Part of a multiple birth")
+    Some(r4.PatientMultiplebirthInteger(order)) ->
+      io.println(
+        "Number " <> int.to_string(order) <> " in multiple birth sequence",
+      )
+  }
+}
+```
+
 ## [id vs Identifier](#id-vs-identifier){#id-vs-identifier}
 
 All [resources](https://hl7.org/fhir/R4/resource.html#Resource) have an id, which says where the resource is. For example, a patient with id 2cda5aad-e409-4070-9a15-e1c35c46ed5a would be at [https://r4.smarthealthit.org/Patient/2cda5aad-e409-4070-9a15-e1c35c46ed5a](https://r4.smarthealthit.org/Patient/2cda5aad-e409-4070-9a15-e1c35c46ed5a) if it exists on the r4.smarthealthit.org server. The FHIR server should always assign an id upon creating a resource, but a resource that has not yet been created on the server will not yet have an id, so id is an `Option(String)` in Gleam.
