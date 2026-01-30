@@ -4,7 +4,6 @@ import fhir/r5
 import fhir/r5_sansio.{type FhirClient}
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
-import gleam/http/response.{type Response}
 import gleam/httpc
 import gleam/json.{type Json}
 import gleam/option.{type Option}
