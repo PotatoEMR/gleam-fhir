@@ -6,7 +6,7 @@
 import r4
 ```
 
-The r4/r4b/r5 packages provide Gleam types for resources and their elements. They also provide `[resource]_encoder()` and `[resource]_to_json()` functions for each resource, and a `[resource]_new()` that creates a new resource with `Option` fields as `None` and `List` fields as `[]`.
+The [r4](https://hexdocs.pm/fhir/fhir/r4.html)/[r4b](https://hexdocs.pm/fhir/fhir/r4b.html)/[r5](https://hexdocs.pm/fhir/fhir/r5.html) packages provide Gleam types for resources and their elements. They also provide `[resource]_encoder()` and `[resource]_to_json()` functions for each resource, and a `[resource]_new()` that creates a new resource with `Option` fields as `None` and `List` fields as `[]`.
 
 ## [Primitive Type](#primitivetype){#primitivetype}
 

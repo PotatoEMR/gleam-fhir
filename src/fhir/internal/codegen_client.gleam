@@ -387,9 +387,17 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
               any_delete(resource.id, \"NAMEUPPER\", client)
             }
 
-            pub fn NAMELOWER_search(sp: FHIRVERSION_sansio.SpNAMECAPITAL, client: FhirClient) {
+            pub fn NAMELOWER_search_bundled(sp: FHIRVERSION_sansio.SpNAMECAPITAL, client: FhirClient) {
               let req = FHIRVERSION_sansio.NAMELOWER_search_req(sp, client)
               sendreq_parseresource(req, FHIRVERSION.bundle_decoder())
+            }
+            
+            pub fn NAMELOWER_search(sp: FHIRVERSION_sansio.SpNAMECAPITAL, client: FhirClient) -> Result(List(FHIRVERSION.NAMECAPITAL), Err) {
+              let req = FHIRVERSION_sansio.NAMELOWER_search_req(sp, client)
+              sendreq_parseresource(req, FHIRVERSION.bundle_decoder())
+              |> result.map(fn(bundle) {
+                { bundle |> FHIRVERSION_sansio.bundle_to_groupedresources }.NAMELOWER
+              })
             }
             ",
     )

@@ -72,4 +72,4 @@ These pages provide only an intro to FHIR and the Gleam implementation. For comp
 
 Gleam FHIR is not a mature project. For an application with real users and regulations, you are probably better off with a mature FHIR SDK such as [https://docs.fire.ly/](https://docs.fire.ly/). These Gleam FHIR pages are modelled on their .NET SDK documentation.
 
-[https://chat.fhir.org/](https://chat.fhir.org/) is a public chatroom with many FHIR implementers. If you have a question, there is a good chance someone has already asked it there.
+[https://chat.fhir.org/](https://chat.fhir.org/) is a public chatroom with many FHIR implementers. If you have a question, there is a good chance someone has asked it there.

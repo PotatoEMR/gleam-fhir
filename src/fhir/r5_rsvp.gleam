@@ -99,8 +99,8 @@ fn sendreq_handleresponse(
 fn sendreq_handleresponse_andprocess(
   req: Request(String),
   res_dec: Decoder(r),
-  handle_response,
-  process_res,
+  handle_response: fn(Result(b, Err)) -> a,
+  process_res: fn(r) -> b,
 ) -> Effect(a) {
   let handle_read = fn(resp_res: Result(Response(String), rsvp.Error)) {
     handle_response(case resp_res {
