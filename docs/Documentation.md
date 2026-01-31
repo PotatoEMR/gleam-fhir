@@ -2,7 +2,10 @@
 
 ## [Welcome](#welcome){#welcome}
 
-Welcome to the Gleam FHIR documentation! [FHIR](https://hl7.org/fhir/) (Fast Healthcare Interoperability Resources) is a standard for health care data exchange, published by HL7®.
+<img src="https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/lucy.svg" title="Gleam Lucy" alt="Gleam Lucy" width="200">
+<img src="https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/fhir.svg" title="HL7® FHIR® Flame" alt="HL7® FHIR Flame" width="200">
+
+[FHIR®](https://hl7.org/fhir/) (Fast Healthcare Interoperability Resources) is a standard for health care data exchange, published by HL7®. Welcome to the Gleam FHIR documentation!
 
 ## [Quick Start](#quickstart){#quickstart}
 
@@ -63,7 +66,7 @@ gleam run
   </div>
 </div>
 
-## [Further Reading](#furtherreading){#furtherreading}
+## [Other FHIR Docs](#otherfhirdocs){#otherfhirdocs}
 
 These pages provide only an intro to FHIR and the Gleam implementation. For comprehensive information, see the FHIR docs, e.g. for [R4 AllergyIntolerance](https://hl7.org/fhir/R4/allergyintolerance.html#resource).
 

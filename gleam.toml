@@ -17,7 +17,7 @@ pages = [
   { title = "├ Welcome", path = "documentation.html#welcome", source = "" },
   { title = "├ Quick Start", path = "documentation.html#quickstart", source = "" },
   { title = "├ Modules", path = "documentation.html#modules", source = "" },
-  { title = "└ Further Reading", path = "documentation.html#furtherreading", source = "" },
+  { title = "└ Other FHIR Docs", path = "documentation.html#otherfhirdocs", source = "" },
   { title = "Working with resources", path = "resources.html", source = "./docs/Resources.md" },
   { title = "├ Import", path = "resources.html#import", source = "" },
   { title = "├ Primitive Type", path = "resources.html#primitivetype", source = "" },
