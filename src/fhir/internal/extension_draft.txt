@@ -39,3 +39,38 @@
           cb,
         )
       }
+
+tbh this is terrible idea should do _family or in some kind of fhirstring primitive
+
+
+unrelated (could copy params but type constructor doesnt work):
+fn gen_copy_searchparams_from_sansio(first_entry: Entry) {
+  let search_type =
+    list.map(first_entry.resource.rest, fn(rest) {
+      list.map(rest.resource, fn(res) {
+        let name_capital = string.capitalise(res.type_)
+        "pub type Sp"
+        <> name_capital
+        <> " = FHIRVERSION_sansio."
+        <> "Sp"
+        <> name_capital
+        <> "\n"
+      })
+      |> string.concat
+    })
+    |> string.concat
+  let search_type_new =
+    list.map(first_entry.resource.rest, fn(rest) {
+      list.map(rest.resource, fn(res) {
+        let name_lower = string.lowercase(res.type_)
+        "pub fn sp_"
+        <> name_lower
+        <> "_new(){FHIRVERSION_sansio.sp_"
+        <> name_lower
+        <> "_new()}\n"
+      })
+      |> string.concat
+    })
+    |> string.concat
+  search_type <> search_type_new
+}

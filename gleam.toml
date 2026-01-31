@@ -5,6 +5,10 @@ description = "Type-safe FHIR resources and client"
 licences = ["MIT"]
 repository = { type = "github", user = "PotatoEMR", repo = "https://github.com/PotatoEMR/gleam-fhir" }
 
+links = [
+  { title = "Todo Issues", href = "https://github.com/PotatoEMR/gleam-fhir/issues/" },
+]
+
 [documentation]
 pages = [
   { title = "Release Notes", path = "releasenotes.html", source = "./ReleaseNotes.md" },

@@ -30,7 +30,7 @@ import gleam/option.{Some}
 
 pub fn main() -> String {
   // patient_new() creates a patient with all fields None or []
-  // r4.Patient(..r4.patient_new() is needed to set just 1 field, instead of all of them
+  // r4.Patient(..r4.patient_new() is needed to set just 1 field, instead of all
   // https://tour.gleam.run/data-types/record-updates/
   let pat = r4.Patient(..r4.patient_new(), active: Some(True))
   echo pat
