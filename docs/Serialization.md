@@ -2,7 +2,7 @@
 
 ## [JSON](#json){#json}
 
-In Gleam, creating a JSON will return a JSON successfully. Parsing a JSON may return failure if elements are missing or invalid for their Gleam type.
+In Gleam, creating a JSON always succeeds. Parsing a JSON may return failure if elements are missing or invalid for their Gleam type.
 
 Currently there are no lenient parsing options, e.g. for mostly valid resources with one or two missing fields, but this may change at some point. This package only supports JSON, with no plans for XML, GraphQL, protobuf, etc.
 

@@ -1,6 +1,6 @@
 # fhir
 
-## Type-safe FHIR resources and client, in simple Gleam
+## Type-safe FHIR resources and client
 
 [![Package Version](https://img.shields.io/hexpm/v/fhir)](https://hex.pm/packages/fhir)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
