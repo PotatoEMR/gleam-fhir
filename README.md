@@ -5,6 +5,10 @@
 [![Package Version](https://img.shields.io/hexpm/v/fhir)](https://hex.pm/packages/fhir)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
 
+## Warning
+
+Breaking changes are planned for at least primitive extensions, implicit precision in decimal types, and date/datetime, possibly more. This package is published to get feedback on the most convenient ways to implement these. Lots of stuff will break until a version 1.
+
 ## [Full Docs](https://hexdocs.pm/fhir/documentation.html) <- good starting point if new to Gleam or FHIR
 
 ## Quick Start
