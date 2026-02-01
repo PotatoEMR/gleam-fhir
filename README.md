@@ -73,4 +73,4 @@ gleam run
 
 ## Why Gleam
 
-Cardinality and choice types feel very natural in Gleam, and the compiler can prevent mistakes on complex resources such as operating on a missing field. Plus it's simple, you can [learn](https://tour.gleam.run/) the whole language in a day.
+Cardinality and choice types feel very natural in Gleam, and the compiler can prevent mistakes on complex resources such as operating on a missing field or on a bool instead of int. Plus it's simple, you can [learn](https://tour.gleam.run/) the whole language in a day.
