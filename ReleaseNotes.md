@@ -6,8 +6,9 @@
 - Search parameter types for each resource, but basic params only
 - Client layers over sans-io for httpc and rsvp
 - Supports R4, R4B, R5
-- Parses (I believe) valid FHIR JSON examples, but does *not* guarantee json -> encode -> to_json roundtrip will output same json as original, in particular there is a loss of implicit precision in decimal types, contrary to FHIR spec. At some point the decimal type will change, which will be a breaking change
+- Parses many valid FHIR JSON examples, but does *not* guarantee json -> encode -> to_json roundtrip will output same json as original, in particular there is a loss of implicit precision in decimal types, contrary to FHIR spec. At some point the decimal type will change, which will be a breaking change
 - Uses String for Date and DateTime, which will at some point change to a real time type in a breaking change
+- *No* primitive extensions support, so primitive elements will change in some undecided way
 - This is an initial release with various problems, so there could be breaking changes in any module
 
 [Version number MAJOR.MINOR.PATCH means:](https://semver.org/#semantic-versioning-200)

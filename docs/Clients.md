@@ -7,7 +7,7 @@ FHIR defines [REST operations](https://build.fhir.org/http.html) for interacting
 In Gleam, for r4, r4b, r5:
 - [r4_httpc](https://hexdocs.pm/fhir/fhir/r4_httpc.html) for Gleam's default Erlang target
 - [r4_rsvp](https://hexdocs.pm/fhir/fhir/r4_rsvp.html) for [Lustre](https://hexdocs.pm/lustre/lustre.html) apps
-- [r4_sansio](https://hexdocs.pm/fhir/fhir/r4_sansio.html) for other http clients
+- [r4_sansio](https://hexdocs.pm/fhir/fhir/r4_sansio.html) to implement other http clients
 
 The examples of operations (Create, Read, etc.) on this page use r4_httpc; similar operations exist in rsvp and sansio.
 
@@ -24,7 +24,7 @@ pub fn main() {
 
 ## [Client for httpc](#httpc){#httpc}
 
-[r4_httpc](https://hexdocs.pm/fhir/fhir/r4_httpc.html) makes requests using httpc, and is the easiest to use.
+[r4_httpc](https://hexdocs.pm/fhir/fhir/r4_httpc.html) makes requests using httpc, and is the easiest client to use.
 
 ```gleam
 import fhir/r4_httpc
@@ -266,7 +266,7 @@ TODO
 
 ## [Search](#search){#search}
 
-[Search](https://www.hl7.org/fhir/search.html) for a resource on server, which will return a [bundle](https://hexdocs.pm/fhir//resources.html#bundle) with a list of resources. In Gleam, `patient_search` will return just a list of patient resources, whereas `patient_search_bundled` will return the entire bundle, which can have other resource types. Use search parameters to narrow searches, such as patient [name](https://build.fhir.org/patient-search.html#hcPatient-name). In Gleam, `SpPatient` contains the search params for a patient, and `sp_patient_new` creates an `SpPatient` with no params set.
+[Search](https://www.hl7.org/fhir/search.html) for a resource on server, which will return a [bundle](https://hexdocs.pm/fhir/resources.html#bundle) with a list of resources. In Gleam, `patient_search` will return just a list of patient resources, whereas `patient_search_bundled` will return the entire bundle, which can have other resource types. Use search parameters to narrow searches, such as patient [name](https://build.fhir.org/patient-search.html#hcPatient-name). In Gleam, `SpPatient` contains the search params for a patient, and `sp_patient_new` creates an `SpPatient` with no params set.
 
 TODO include/revinclude
 

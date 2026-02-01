@@ -1,11 +1,11 @@
 # fhir
 
+## Type-safe FHIR resources and client, in simple Gleam
+
 [![Package Version](https://img.shields.io/hexpm/v/fhir)](https://hex.pm/packages/fhir)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
 
-## Type-safe FHIR resources and client, in simple Gleam
-
-## [Full Docs](https://hexdocs.pm/fhir/documentation.html)
+## [Full Docs](https://hexdocs.pm/fhir/documentation.html) <- good starting point if new to Gleam or FHIR
 
 ## Quick Start
 
@@ -13,6 +13,7 @@
 gleam new hello_fhir && cd hello_fhir && gleam add fhir
 ```
 ```gleam
+
 //In hello_fhir.gleam
 import fhir/r4
 import fhir/r4_httpc
@@ -20,32 +21,56 @@ import fhir/r4_valuesets
 import gleam/option.{Some}
 
 pub fn main() {
-  let fc = r4_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
-  let allergy =
-    r4.Allergyintolerance(
-      ..r4.allergyintolerance_new(
-        r4.Reference(..r4.reference_new(), reference: Some("Patient/7011747")),
+  let joe =
+    r4.Patient(
+      ..r4.patient_new(),
+      identifier: [
+        r4.Identifier(
+          ..r4.identifier_new(),
+          system: Some("https://fhir.nhs.uk/Id/nhs-number"),
+          value: Some("0123456789"),
+        ),
+      ],
+      name: [
+        r4.Humanname(
+          ..r4.humanname_new(),
+          given: ["Joe"],
+          family: Some("Armstrong"),
+        ),
+      ],
+      gender: Some(r4_valuesets.AdministrativegenderMale),
+      marital_status: Some(
+        r4.Codeableconcept(..r4.codeableconcept_new(), coding: [
+          r4.Coding(
+            ..r4.coding_new(),
+            system: Some(
+              "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
+            ),
+            code: Some("M"),
+            display: Some("Married"),
+          ),
+        ]),
       ),
-      criticality: Some(r4_valuesets.AllergyintolerancecriticalityHigh),
-      id: Some("abc"),
     )
 
-  let assert Ok(created) = r4_httpc.allergyintolerance_create(allergy, fc)
-  echo created
+  echo joe
+
+  let client = r4_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
+
+  let assert Ok(created) = r4_httpc.patient_create(joe, client)
   let assert Some(id) = created.id
-  let assert Ok(read) = r4_httpc.allergyintolerance_read(id, fc)
-  assert created == read
-  let changed =
-    r4.Allergyintolerance(
-      ..created,
-      criticality: Some(r4_valuesets.AllergyintolerancecriticalityLow),
-    )
-  let assert Ok(updated) = r4_httpc.allergyintolerance_update(changed, fc)
+  let assert Ok(read) = r4_httpc.patient_read(id, client)
+  echo read
+  let rip = r4.Patient(..read, deceased: Some(r4.PatientDeceasedBoolean(True)))
+  let assert Ok(updated) = r4_httpc.patient_update(rip, client)
   echo updated
-  let assert Ok(_) = r4_httpc.allergyintolerance_delete(updated, fc)
-  let assert Error(_) = r4_httpc.allergyintolerance_read(id, fc)
+  let assert Ok(_) = r4_httpc.patient_delete(updated, client)
 }
 ```
 ```sh
 gleam run
 ```
+
+## Why Gleam
+
+Cardinality and choice types feel very natural in Gleam, and the compiler can prevent mistakes on complex resources such as operating on a missing field. Plus it's simple, you can [learn](https://tour.gleam.run/) the whole language in a day.
