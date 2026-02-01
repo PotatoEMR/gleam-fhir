@@ -40,6 +40,16 @@ pages = [
   { title = "├ [resource]_decoder", path = "serialization.html#decoder", source = "" },
   { title = "└ Any resource", path = "serialization.html#anyresource", source = "" },
   { title = "REST clients", path = "clients.html", source = "./docs/Clients.md" },
+  { title = "├ FHIR Client", path = "clients.html#client", source = "" },
+  { title = "├ Client for httpc", path = "clients.html#httpc", source = "" },
+  { title = "├ Client for rsvp", path = "clients.html#rsvp", source = "" },
+  { title = "├ sansio", path = "clients.html#sansio", source = "" },
+  { title = "├ Handling Errors", path = "clients.html#handlingerrors", source = "" },
+  { title = "├ Create", path = "clients.html#create", source = "" },
+  { title = "├ Read", path = "clients.html#read", source = "" },
+  { title = "├ Update", path = "clients.html#update", source = "" },
+  { title = "├ Delete", path = "clients.html#delete", source = "" },
+  { title = "└ Search", path = "clients.html#search", source = "" },
 ]
 
 [dependencies]
