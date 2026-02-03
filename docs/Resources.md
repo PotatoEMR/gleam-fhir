@@ -113,7 +113,7 @@ pub type Patient {
 }
 ```
 
-A communication may optionally have the if it's the patient's preferred language, or may not, so the preferred field in r4.PatientCommunication is wrapped in an `Option`. Whereas a communication must have exactly one language, so the language field is not in an `Option`.
+A communication may optionally (but is not required to) have a preferred element if the patient prefers that language, so the `preferred` field in r4.PatientCommunication is wrapped in an `Option`. Whereas a communication must have exactly one language, so the `language` field is not in an `Option`.
 
 ```gleam
 pub type PatientCommunication {
