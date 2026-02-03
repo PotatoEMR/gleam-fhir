@@ -7,7 +7,7 @@ In Gleam, for r4, r4b, r5:
 - [r4_rsvp](https://hexdocs.pm/fhir/fhir/r4_rsvp.html) for [Lustre](https://hexdocs.pm/lustre/lustre.html) apps
 - [r4_sansio](https://hexdocs.pm/fhir/fhir/r4_sansio.html) to bring your own http client
 
-Regardless of compilation target, the first step is to create a client with the FHIR server base url.
+On any compilation target, the first step is to create a client with the FHIR server base url.
 
 ```gleam
 import fhir/r4_httpc
