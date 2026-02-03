@@ -1,12 +1,10 @@
-# Serialization
+# JSON
 
-## [JSON](#json){#json}
-
-In Gleam, creating a JSON always succeeds. Parsing a JSON may return failure if elements are missing or invalid for their Gleam type.
+In Gleam, a [type]_to_json function always creates a JSON; Parsing JSON with [type]_decoder may fail if elements are missing or invalid for their Gleam type.
 
 Currently there are no lenient parsing options, e.g. for mostly valid resources with one or two missing fields, but this may change at some point. This package only supports JSON, with no plans for XML, GraphQL, protobuf, etc.
 
-## [[type]_to_json](#tojson){#tojson}
+## [type]_to_json
 
 Converts Gleam type to JSON, and for resources adds resource type such as
 ```json
@@ -89,7 +87,8 @@ let assert Ok(parsed) =
 assert parsed == original_allergy
 ```
 
-## [[type]_decoder](#decoder){#decoder}
+## [type]_decoder
+
 Parses JSON to Gleam type, and for resources checks resource type such as
 ```json
 "resourceType" : "AllergyIntolerance"
@@ -181,7 +180,7 @@ assert shellfish_allergy.id == Some("9b6a76f1-ee00-4efc-828d-ffbae3cb4220")
 echo shellfish_allergy
 ```
 
-## [Any resource](#anyresource){#anyresource}
+## Any Resource
 
 The `Resource` type has a variant for each resource, used for instance in `Bundle` to list resources. `resource_to_json` calls the variant's to_json function, and `resource_decoder` checks the resource type to determine which decoder to use and map to a `Resource` variant, such as `ResourceAllergyintolerance` from
 

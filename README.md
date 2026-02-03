@@ -9,7 +9,14 @@
 
 Breaking changes are planned for at least primitive extensions, implicit precision in decimal types, and date/datetime, possibly more. This package is published to get feedback on the most convenient ways to implement these. Lots of stuff will break until a version 1.
 
-## [Full Docs](https://hexdocs.pm/fhir/documentation.html) <- good starting point if new to Gleam or FHIR
+## Welcome
+
+<img src="https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/lucy.svg" title="Gleam Lucy" alt="Gleam Lucy" width="35%">
+<img src="https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/fhir.svg" title="HL7® FHIR® Flame" alt="HL7® FHIR Flame" width="35%">
+
+[FHIR®](https://hl7.org/fhir/) (Fast Healthcare Interoperability Resources) is a standard for health care data exchange, published by HL7®. Welcome to Gleam FHIR!
+
+## Documentation: [Resources](https://hexdocs.pm/fhir/resources.html) & [Client](https://hexdocs.pm/fhir/clients.html)
 
 ## Quick Start
 
@@ -75,6 +82,54 @@ pub fn main() {
 gleam run
 ```
 
+## Modules
+
+(for each of r4, r4b, r5)
+
+<div style="display:grid;grid-template-columns:1fr;gap:8px;text-align:center;justify-items:center">
+  <div style="background:rgba(0,0,0,.2);padding:6px">
+    <a href="https://hexdocs.pm/fhir/fhir/r4_valuesets.html">r4_valuesets</a><br>
+    Enums for valuesets with required binding
+  </div>
+
+  <div>↓</div>
+
+  <div style="background:rgba(0,0,0,.2);padding:6px">
+    <a href="https://hexdocs.pm/fhir/fhir/r4.html">r4</a><br>
+    Resources and their data types, and decoder and to_json fns
+  </div>
+
+  <div>↓</div>
+
+  <div style="background:rgba(0,0,0,.2);padding:6px">
+    <a href="https://hexdocs.pm/fhir/fhir/r4_sansio.html">r4_sansio</a><br>
+    Prepare http request and parse http response
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;width:100%">
+    <div>↓</div><div>↓</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;width:100%">
+    <div style="background:rgba(0,0,0,.2);padding:6px">
+      <a href="https://hexdocs.pm/fhir/fhir/r4_httpc.html">r4_httpc</a><br>
+      Client for httpc (Erlang)
+    </div>
+    <div style="background:rgba(0,0,0,.2);padding:6px">
+      <a href="https://hexdocs.pm/fhir/fhir/r4_rsvp.html">r4_rsvp</a><br>
+      Client for rsvp (Lustre apps)
+    </div>
+  </div>
+</div>
+
 ## Why Gleam
 
 Cardinality and choice types feel very natural in Gleam, and the compiler can prevent mistakes on complex resources such as operating on a missing field or on a bool instead of int. Plus it's simple, you can [learn](https://tour.gleam.run/) the whole language in a day.
+
+## Other FHIR Docs
+
+These pages provide only an intro to FHIR and the Gleam implementation. For comprehensive information, see the FHIR docs, e.g. for [R4 AllergyIntolerance](https://hl7.org/fhir/R4/allergyintolerance.html#resource).
+
+Gleam FHIR is not a mature project. For an application with real users and regulations, you are probably better off with a mature FHIR SDK such as [https://docs.fire.ly/](https://docs.fire.ly/). These Gleam FHIR pages are modelled on their .NET SDK documentation.
+
+[https://chat.fhir.org/](https://chat.fhir.org/) is a public chatroom with many FHIR implementers. If you have a question, there is a good chance someone has asked it there.
