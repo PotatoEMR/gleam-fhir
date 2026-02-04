@@ -2,8 +2,10 @@
 
 ## Type-safe FHIR resources and client
 
+<div style="display: flex">
 [![Package Version](https://img.shields.io/hexpm/v/fhir)](https://hex.pm/packages/fhir)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
+</div>
 
 ## Warning
 
@@ -66,7 +68,7 @@ pub fn main() {
 
   echo joe
 
-  let client = r4_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
+  let client = r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
 
   let assert Ok(created) = r4_httpc.patient_create(joe, client)
   let assert Some(id) = created.id

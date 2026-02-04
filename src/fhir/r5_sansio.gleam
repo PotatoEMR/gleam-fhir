@@ -6047,7 +6047,6 @@ pub fn visionprescription_resp(
 
 pub type SpAccount {
   SpAccount(
-    include: Option(SpInclude),
     owner: Option(String),
     identifier: Option(String),
     period: Option(String),
@@ -6063,7 +6062,6 @@ pub type SpAccount {
 
 pub type SpActivitydefinition {
   SpActivitydefinition(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -6092,7 +6090,6 @@ pub type SpActivitydefinition {
 
 pub type SpActordefinition {
   SpActordefinition(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -6113,7 +6110,6 @@ pub type SpActordefinition {
 
 pub type SpAdministrableproductdefinition {
   SpAdministrableproductdefinition(
-    include: Option(SpInclude),
     identifier: Option(String),
     manufactured_item: Option(String),
     ingredient: Option(String),
@@ -6128,7 +6124,6 @@ pub type SpAdministrableproductdefinition {
 
 pub type SpAdverseevent {
   SpAdverseevent(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     recorder: Option(String),
@@ -6148,7 +6143,6 @@ pub type SpAdverseevent {
 
 pub type SpAllergyintolerance {
   SpAllergyintolerance(
-    include: Option(SpInclude),
     date: Option(String),
     severity: Option(String),
     identifier: Option(String),
@@ -6169,7 +6163,6 @@ pub type SpAllergyintolerance {
 
 pub type SpAppointment {
   SpAppointment(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     specialty: Option(String),
@@ -6196,7 +6189,6 @@ pub type SpAppointment {
 
 pub type SpAppointmentresponse {
   SpAppointmentresponse(
-    include: Option(SpInclude),
     actor: Option(String),
     identifier: Option(String),
     practitioner: Option(String),
@@ -6209,16 +6201,11 @@ pub type SpAppointmentresponse {
 }
 
 pub type SpArtifactassessment {
-  SpArtifactassessment(
-    include: Option(SpInclude),
-    date: Option(String),
-    identifier: Option(String),
-  )
+  SpArtifactassessment(date: Option(String), identifier: Option(String))
 }
 
 pub type SpAuditevent {
   SpAuditevent(
-    include: Option(SpInclude),
     date: Option(String),
     agent: Option(String),
     entity_role: Option(String),
@@ -6239,7 +6226,6 @@ pub type SpAuditevent {
 
 pub type SpBasic {
   SpBasic(
-    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     author: Option(String),
@@ -6250,12 +6236,11 @@ pub type SpBasic {
 }
 
 pub type SpBinary {
-  SpBinary(include: Option(SpInclude))
+  SpBinary
 }
 
 pub type SpBiologicallyderivedproduct {
   SpBiologicallyderivedproduct(
-    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     code: Option(String),
@@ -6269,7 +6254,6 @@ pub type SpBiologicallyderivedproduct {
 
 pub type SpBiologicallyderivedproductdispense {
   SpBiologicallyderivedproductdispense(
-    include: Option(SpInclude),
     identifier: Option(String),
     product: Option(String),
     performer: Option(String),
@@ -6280,7 +6264,6 @@ pub type SpBiologicallyderivedproductdispense {
 
 pub type SpBodystructure {
   SpBodystructure(
-    include: Option(SpInclude),
     identifier: Option(String),
     included_structure: Option(String),
     excluded_structure: Option(String),
@@ -6291,7 +6274,6 @@ pub type SpBodystructure {
 
 pub type SpBundle {
   SpBundle(
-    include: Option(SpInclude),
     identifier: Option(String),
     composition: Option(String),
     message: Option(String),
@@ -6302,7 +6284,6 @@ pub type SpBundle {
 
 pub type SpCapabilitystatement {
   SpCapabilitystatement(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     resource_profile: Option(String),
@@ -6332,7 +6313,6 @@ pub type SpCapabilitystatement {
 
 pub type SpCareplan {
   SpCareplan(
-    include: Option(SpInclude),
     care_team: Option(String),
     date: Option(String),
     identifier: Option(String),
@@ -6356,7 +6336,6 @@ pub type SpCareplan {
 
 pub type SpCareteam {
   SpCareteam(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     patient: Option(String),
@@ -6370,7 +6349,6 @@ pub type SpCareteam {
 
 pub type SpChargeitem {
   SpChargeitem(
-    include: Option(SpInclude),
     identifier: Option(String),
     performing_organization: Option(String),
     code: Option(String),
@@ -6394,7 +6372,6 @@ pub type SpChargeitem {
 
 pub type SpChargeitemdefinition {
   SpChargeitemdefinition(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -6415,7 +6392,6 @@ pub type SpChargeitemdefinition {
 
 pub type SpCitation {
   SpCitation(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -6440,7 +6416,6 @@ pub type SpCitation {
 
 pub type SpClaim {
   SpClaim(
-    include: Option(SpInclude),
     care_team: Option(String),
     identifier: Option(String),
     created: Option(String),
@@ -6463,7 +6438,6 @@ pub type SpClaim {
 
 pub type SpClaimresponse {
   SpClaimresponse(
-    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     disposition: Option(String),
@@ -6480,7 +6454,6 @@ pub type SpClaimresponse {
 
 pub type SpClinicalimpression {
   SpClinicalimpression(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     performer: Option(String),
@@ -6498,7 +6471,6 @@ pub type SpClinicalimpression {
 
 pub type SpClinicalusedefinition {
   SpClinicalusedefinition(
-    include: Option(SpInclude),
     contraindication_reference: Option(String),
     identifier: Option(String),
     indication_reference: Option(String),
@@ -6516,7 +6488,6 @@ pub type SpClinicalusedefinition {
 
 pub type SpCodesystem {
   SpCodesystem(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -6546,7 +6517,6 @@ pub type SpCodesystem {
 
 pub type SpCommunication {
   SpCommunication(
-    include: Option(SpInclude),
     identifier: Option(String),
     subject: Option(String),
     instantiates_canonical: Option(String),
@@ -6568,7 +6538,6 @@ pub type SpCommunication {
 
 pub type SpCommunicationrequest {
   SpCommunicationrequest(
-    include: Option(SpInclude),
     authored: Option(String),
     requester: Option(String),
     identifier: Option(String),
@@ -6590,7 +6559,6 @@ pub type SpCommunicationrequest {
 
 pub type SpCompartmentdefinition {
   SpCompartmentdefinition(
-    include: Option(SpInclude),
     date: Option(String),
     code: Option(String),
     context_type_value: Option(String),
@@ -6610,7 +6578,6 @@ pub type SpCompartmentdefinition {
 
 pub type SpComposition {
   SpComposition(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     period: Option(String),
@@ -6637,7 +6604,6 @@ pub type SpComposition {
 
 pub type SpConceptmap {
   SpConceptmap(
-    include: Option(SpInclude),
     date: Option(String),
     target_scope: Option(String),
     context_type_value: Option(String),
@@ -6672,7 +6638,6 @@ pub type SpConceptmap {
 
 pub type SpCondition {
   SpCondition(
-    include: Option(SpInclude),
     evidence_detail: Option(String),
     severity: Option(String),
     identifier: Option(String),
@@ -6700,7 +6665,6 @@ pub type SpCondition {
 
 pub type SpConditiondefinition {
   SpConditiondefinition(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -6721,7 +6685,6 @@ pub type SpConditiondefinition {
 
 pub type SpConsent {
   SpConsent(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     controller: Option(String),
@@ -6745,7 +6708,6 @@ pub type SpConsent {
 
 pub type SpContract {
   SpContract(
-    include: Option(SpInclude),
     identifier: Option(String),
     instantiates: Option(String),
     patient: Option(String),
@@ -6761,7 +6723,6 @@ pub type SpContract {
 
 pub type SpCoverage {
   SpCoverage(
-    include: Option(SpInclude),
     identifier: Option(String),
     subscriber: Option(String),
     subscriberid: Option(String),
@@ -6780,7 +6741,6 @@ pub type SpCoverage {
 
 pub type SpCoverageeligibilityrequest {
   SpCoverageeligibilityrequest(
-    include: Option(SpInclude),
     identifier: Option(String),
     provider: Option(String),
     created: Option(String),
@@ -6793,7 +6753,6 @@ pub type SpCoverageeligibilityrequest {
 
 pub type SpCoverageeligibilityresponse {
   SpCoverageeligibilityresponse(
-    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     disposition: Option(String),
@@ -6808,7 +6767,6 @@ pub type SpCoverageeligibilityresponse {
 
 pub type SpDetectedissue {
   SpDetectedissue(
-    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     identified: Option(String),
@@ -6823,7 +6781,6 @@ pub type SpDetectedissue {
 
 pub type SpDevice {
   SpDevice(
-    include: Option(SpInclude),
     udi_di: Option(String),
     identifier: Option(String),
     parent: Option(String),
@@ -6852,7 +6809,6 @@ pub type SpDevice {
 
 pub type SpDeviceassociation {
   SpDeviceassociation(
-    include: Option(SpInclude),
     identifier: Option(String),
     subject: Option(String),
     patient: Option(String),
@@ -6864,7 +6820,6 @@ pub type SpDeviceassociation {
 
 pub type SpDevicedefinition {
   SpDevicedefinition(
-    include: Option(SpInclude),
     identifier: Option(String),
     device_name: Option(String),
     organization: Option(String),
@@ -6877,7 +6832,6 @@ pub type SpDevicedefinition {
 
 pub type SpDevicedispense {
   SpDevicedispense(
-    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     subject: Option(String),
@@ -6888,7 +6842,6 @@ pub type SpDevicedispense {
 
 pub type SpDevicemetric {
   SpDevicemetric(
-    include: Option(SpInclude),
     identifier: Option(String),
     category: Option(String),
     type_: Option(String),
@@ -6898,7 +6851,6 @@ pub type SpDevicemetric {
 
 pub type SpDevicerequest {
   SpDevicerequest(
-    include: Option(SpInclude),
     insurance: Option(String),
     performer_code: Option(String),
     requester: Option(String),
@@ -6923,7 +6875,6 @@ pub type SpDevicerequest {
 
 pub type SpDeviceusage {
   SpDeviceusage(
-    include: Option(SpInclude),
     identifier: Option(String),
     patient: Option(String),
     device: Option(String),
@@ -6933,7 +6884,6 @@ pub type SpDeviceusage {
 
 pub type SpDiagnosticreport {
   SpDiagnosticreport(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     study: Option(String),
@@ -6956,7 +6906,6 @@ pub type SpDiagnosticreport {
 
 pub type SpDocumentreference {
   SpDocumentreference(
-    include: Option(SpInclude),
     date: Option(String),
     modality: Option(String),
     subject: Option(String),
@@ -6996,7 +6945,6 @@ pub type SpDocumentreference {
 
 pub type SpEncounter {
   SpEncounter(
-    include: Option(SpInclude),
     date: Option(String),
     participant_type: Option(String),
     subject: Option(String),
@@ -7030,7 +6978,6 @@ pub type SpEncounter {
 
 pub type SpEncounterhistory {
   SpEncounterhistory(
-    include: Option(SpInclude),
     identifier: Option(String),
     patient: Option(String),
     subject: Option(String),
@@ -7041,7 +6988,6 @@ pub type SpEncounterhistory {
 
 pub type SpEndpoint {
   SpEndpoint(
-    include: Option(SpInclude),
     payload_type: Option(String),
     identifier: Option(String),
     connection_type: Option(String),
@@ -7053,7 +6999,6 @@ pub type SpEndpoint {
 
 pub type SpEnrollmentrequest {
   SpEnrollmentrequest(
-    include: Option(SpInclude),
     identifier: Option(String),
     patient: Option(String),
     subject: Option(String),
@@ -7063,7 +7008,6 @@ pub type SpEnrollmentrequest {
 
 pub type SpEnrollmentresponse {
   SpEnrollmentresponse(
-    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     status: Option(String),
@@ -7072,7 +7016,6 @@ pub type SpEnrollmentresponse {
 
 pub type SpEpisodeofcare {
   SpEpisodeofcare(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     diagnosis_code: Option(String),
@@ -7090,7 +7033,6 @@ pub type SpEpisodeofcare {
 
 pub type SpEventdefinition {
   SpEventdefinition(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -7118,7 +7060,6 @@ pub type SpEventdefinition {
 
 pub type SpEvidence {
   SpEvidence(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -7137,7 +7078,6 @@ pub type SpEvidence {
 
 pub type SpEvidencereport {
   SpEvidencereport(
-    include: Option(SpInclude),
     context_quantity: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -7152,7 +7092,6 @@ pub type SpEvidencereport {
 
 pub type SpEvidencevariable {
   SpEvidencevariable(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -7178,7 +7117,6 @@ pub type SpEvidencevariable {
 
 pub type SpExamplescenario {
   SpExamplescenario(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -7197,7 +7135,6 @@ pub type SpExamplescenario {
 
 pub type SpExplanationofbenefit {
   SpExplanationofbenefit(
-    include: Option(SpInclude),
     care_team: Option(String),
     coverage: Option(String),
     identifier: Option(String),
@@ -7220,7 +7157,6 @@ pub type SpExplanationofbenefit {
 
 pub type SpFamilymemberhistory {
   SpFamilymemberhistory(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -7235,7 +7171,6 @@ pub type SpFamilymemberhistory {
 
 pub type SpFlag {
   SpFlag(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     author: Option(String),
@@ -7248,16 +7183,11 @@ pub type SpFlag {
 }
 
 pub type SpFormularyitem {
-  SpFormularyitem(
-    include: Option(SpInclude),
-    identifier: Option(String),
-    code: Option(String),
-  )
+  SpFormularyitem(identifier: Option(String), code: Option(String))
 }
 
 pub type SpGenomicstudy {
   SpGenomicstudy(
-    include: Option(SpInclude),
     identifier: Option(String),
     patient: Option(String),
     subject: Option(String),
@@ -7268,7 +7198,6 @@ pub type SpGenomicstudy {
 
 pub type SpGoal {
   SpGoal(
-    include: Option(SpInclude),
     target_measure: Option(String),
     identifier: Option(String),
     addresses: Option(String),
@@ -7285,7 +7214,6 @@ pub type SpGoal {
 
 pub type SpGraphdefinition {
   SpGraphdefinition(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -7306,7 +7234,6 @@ pub type SpGraphdefinition {
 
 pub type SpGroup {
   SpGroup(
-    include: Option(SpInclude),
     identifier: Option(String),
     characteristic_value: Option(String),
     managing_entity: Option(String),
@@ -7324,7 +7251,6 @@ pub type SpGroup {
 
 pub type SpGuidanceresponse {
   SpGuidanceresponse(
-    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     patient: Option(String),
@@ -7335,7 +7261,6 @@ pub type SpGuidanceresponse {
 
 pub type SpHealthcareservice {
   SpHealthcareservice(
-    include: Option(SpInclude),
     identifier: Option(String),
     specialty: Option(String),
     service_category: Option(String),
@@ -7356,7 +7281,6 @@ pub type SpHealthcareservice {
 
 pub type SpImagingselection {
   SpImagingselection(
-    include: Option(SpInclude),
     identifier: Option(String),
     body_structure: Option(String),
     based_on: Option(String),
@@ -7373,7 +7297,6 @@ pub type SpImagingselection {
 
 pub type SpImagingstudy {
   SpImagingstudy(
-    include: Option(SpInclude),
     identifier: Option(String),
     reason: Option(String),
     dicom_class: Option(String),
@@ -7396,7 +7319,6 @@ pub type SpImagingstudy {
 
 pub type SpImmunization {
   SpImmunization(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     performer: Option(String),
@@ -7418,7 +7340,6 @@ pub type SpImmunization {
 
 pub type SpImmunizationevaluation {
   SpImmunizationevaluation(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     target_disease: Option(String),
@@ -7431,7 +7352,6 @@ pub type SpImmunizationevaluation {
 
 pub type SpImmunizationrecommendation {
   SpImmunizationrecommendation(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     target_disease: Option(String),
@@ -7445,7 +7365,6 @@ pub type SpImmunizationrecommendation {
 
 pub type SpImplementationguide {
   SpImplementationguide(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -7470,7 +7389,6 @@ pub type SpImplementationguide {
 
 pub type SpIngredient {
   SpIngredient(
-    include: Option(SpInclude),
     identifier: Option(String),
     role: Option(String),
     substance: Option(String),
@@ -7489,7 +7407,6 @@ pub type SpIngredient {
 
 pub type SpInsuranceplan {
   SpInsuranceplan(
-    include: Option(SpInclude),
     identifier: Option(String),
     address: Option(String),
     address_state: Option(String),
@@ -7509,7 +7426,6 @@ pub type SpInsuranceplan {
 
 pub type SpInventoryitem {
   SpInventoryitem(
-    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     subject: Option(String),
@@ -7519,7 +7435,6 @@ pub type SpInventoryitem {
 
 pub type SpInventoryreport {
   SpInventoryreport(
-    include: Option(SpInclude),
     item_reference: Option(String),
     identifier: Option(String),
     item: Option(String),
@@ -7529,7 +7444,6 @@ pub type SpInventoryreport {
 
 pub type SpInvoice {
   SpInvoice(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     totalgross: Option(String),
@@ -7548,7 +7462,6 @@ pub type SpInvoice {
 
 pub type SpLibrary {
   SpLibrary(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -7578,7 +7491,6 @@ pub type SpLibrary {
 
 pub type SpLinkage {
   SpLinkage(
-    include: Option(SpInclude),
     item: Option(String),
     author: Option(String),
     source: Option(String),
@@ -7587,7 +7499,6 @@ pub type SpLinkage {
 
 pub type SpListfhir {
   SpListfhir(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     empty_reason: Option(String),
@@ -7605,7 +7516,6 @@ pub type SpListfhir {
 
 pub type SpLocation {
   SpLocation(
-    include: Option(SpInclude),
     identifier: Option(String),
     partof: Option(String),
     address: Option(String),
@@ -7628,7 +7538,6 @@ pub type SpLocation {
 
 pub type SpManufactureditemdefinition {
   SpManufactureditemdefinition(
-    include: Option(SpInclude),
     identifier: Option(String),
     ingredient: Option(String),
     name: Option(String),
@@ -7639,7 +7548,6 @@ pub type SpManufactureditemdefinition {
 
 pub type SpMeasure {
   SpMeasure(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -7667,7 +7575,6 @@ pub type SpMeasure {
 
 pub type SpMeasurereport {
   SpMeasurereport(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     period: Option(String),
@@ -7683,7 +7590,6 @@ pub type SpMeasurereport {
 
 pub type SpMedication {
   SpMedication(
-    include: Option(SpInclude),
     ingredient_code: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -7699,7 +7605,6 @@ pub type SpMedication {
 
 pub type SpMedicationadministration {
   SpMedicationadministration(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     request: Option(String),
@@ -7720,7 +7625,6 @@ pub type SpMedicationadministration {
 
 pub type SpMedicationdispense {
   SpMedicationdispense(
-    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     performer: Option(String),
@@ -7743,7 +7647,6 @@ pub type SpMedicationdispense {
 
 pub type SpMedicationknowledge {
   SpMedicationknowledge(
-    include: Option(SpInclude),
     product_type: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -7765,7 +7668,6 @@ pub type SpMedicationknowledge {
 
 pub type SpMedicationrequest {
   SpMedicationrequest(
-    include: Option(SpInclude),
     requester: Option(String),
     identifier: Option(String),
     intended_dispenser: Option(String),
@@ -7788,7 +7690,6 @@ pub type SpMedicationrequest {
 
 pub type SpMedicationstatement {
   SpMedicationstatement(
-    include: Option(SpInclude),
     effective: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -7805,7 +7706,6 @@ pub type SpMedicationstatement {
 
 pub type SpMedicinalproductdefinition {
   SpMedicinalproductdefinition(
-    include: Option(SpInclude),
     identifier: Option(String),
     ingredient: Option(String),
     master_file: Option(String),
@@ -7823,7 +7723,6 @@ pub type SpMedicinalproductdefinition {
 
 pub type SpMessagedefinition {
   SpMessagedefinition(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     parent: Option(String),
@@ -7848,7 +7747,6 @@ pub type SpMessagedefinition {
 
 pub type SpMessageheader {
   SpMessageheader(
-    include: Option(SpInclude),
     code: Option(String),
     receiver: Option(String),
     sender: Option(String),
@@ -7865,7 +7763,6 @@ pub type SpMessageheader {
 
 pub type SpMolecularsequence {
   SpMolecularsequence(
-    include: Option(SpInclude),
     identifier: Option(String),
     subject: Option(String),
     patient: Option(String),
@@ -7876,7 +7773,6 @@ pub type SpMolecularsequence {
 
 pub type SpNamingsystem {
   SpNamingsystem(
-    include: Option(SpInclude),
     date: Option(String),
     context_type_value: Option(String),
     jurisdiction: Option(String),
@@ -7908,7 +7804,6 @@ pub type SpNamingsystem {
 
 pub type SpNutritionintake {
   SpNutritionintake(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     nutrition: Option(String),
@@ -7923,7 +7818,6 @@ pub type SpNutritionintake {
 
 pub type SpNutritionorder {
   SpNutritionorder(
-    include: Option(SpInclude),
     identifier: Option(String),
     group_identifier: Option(String),
     datetime: Option(String),
@@ -7941,7 +7835,6 @@ pub type SpNutritionorder {
 
 pub type SpNutritionproduct {
   SpNutritionproduct(
-    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     lot_number: Option(String),
@@ -7952,7 +7845,6 @@ pub type SpNutritionproduct {
 
 pub type SpObservation {
   SpObservation(
-    include: Option(SpInclude),
     date: Option(String),
     combo_data_absent_reason: Option(String),
     code: Option(String),
@@ -8000,7 +7892,6 @@ pub type SpObservation {
 
 pub type SpObservationdefinition {
   SpObservationdefinition(
-    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     method: Option(String),
@@ -8014,7 +7905,6 @@ pub type SpObservationdefinition {
 
 pub type SpOperationdefinition {
   SpOperationdefinition(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -8042,12 +7932,11 @@ pub type SpOperationdefinition {
 }
 
 pub type SpOperationoutcome {
-  SpOperationoutcome(include: Option(SpInclude))
+  SpOperationoutcome
 }
 
 pub type SpOrganization {
   SpOrganization(
-    include: Option(SpInclude),
     identifier: Option(String),
     partof: Option(String),
     address: Option(String),
@@ -8066,7 +7955,6 @@ pub type SpOrganization {
 
 pub type SpOrganizationaffiliation {
   SpOrganizationaffiliation(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     specialty: Option(String),
@@ -8086,7 +7974,6 @@ pub type SpOrganizationaffiliation {
 
 pub type SpPackagedproductdefinition {
   SpPackagedproductdefinition(
-    include: Option(SpInclude),
     identifier: Option(String),
     manufactured_item: Option(String),
     nutrition: Option(String),
@@ -8103,7 +7990,6 @@ pub type SpPackagedproductdefinition {
 
 pub type SpPatient {
   SpPatient(
-    include: Option(SpInclude),
     given: Option(String),
     identifier: Option(String),
     address: Option(String),
@@ -8132,7 +8018,6 @@ pub type SpPatient {
 
 pub type SpPaymentnotice {
   SpPaymentnotice(
-    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     created: Option(String),
@@ -8145,7 +8030,6 @@ pub type SpPaymentnotice {
 
 pub type SpPaymentreconciliation {
   SpPaymentreconciliation(
-    include: Option(SpInclude),
     identifier: Option(String),
     request: Option(String),
     disposition: Option(String),
@@ -8160,12 +8044,11 @@ pub type SpPaymentreconciliation {
 }
 
 pub type SpPermission {
-  SpPermission(include: Option(SpInclude), status: Option(String))
+  SpPermission(status: Option(String))
 }
 
 pub type SpPerson {
   SpPerson(
-    include: Option(SpInclude),
     identifier: Option(String),
     given: Option(String),
     address: Option(String),
@@ -8194,7 +8077,6 @@ pub type SpPerson {
 
 pub type SpPlandefinition {
   SpPlandefinition(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     successor: Option(String),
@@ -8224,7 +8106,6 @@ pub type SpPlandefinition {
 
 pub type SpPractitioner {
   SpPractitioner(
-    include: Option(SpInclude),
     given: Option(String),
     identifier: Option(String),
     address: Option(String),
@@ -8250,7 +8131,6 @@ pub type SpPractitioner {
 
 pub type SpPractitionerrole {
   SpPractitionerrole(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     specialty: Option(String),
@@ -8271,7 +8151,6 @@ pub type SpPractitionerrole {
 
 pub type SpProcedure {
   SpProcedure(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -8294,7 +8173,6 @@ pub type SpProcedure {
 
 pub type SpProvenance {
   SpProvenance(
-    include: Option(SpInclude),
     agent_type: Option(String),
     agent: Option(String),
     signature_type: Option(String),
@@ -8313,7 +8191,6 @@ pub type SpProvenance {
 
 pub type SpQuestionnaire {
   SpQuestionnaire(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     combo_code: Option(String),
@@ -8340,7 +8217,6 @@ pub type SpQuestionnaire {
 
 pub type SpQuestionnaireresponse {
   SpQuestionnaireresponse(
-    include: Option(SpInclude),
     authored: Option(String),
     identifier: Option(String),
     questionnaire: Option(String),
@@ -8358,7 +8234,6 @@ pub type SpQuestionnaireresponse {
 
 pub type SpRegulatedauthorization {
   SpRegulatedauthorization(
-    include: Option(SpInclude),
     identifier: Option(String),
     subject: Option(String),
     case_type: Option(String),
@@ -8371,7 +8246,6 @@ pub type SpRegulatedauthorization {
 
 pub type SpRelatedperson {
   SpRelatedperson(
-    include: Option(SpInclude),
     identifier: Option(String),
     given: Option(String),
     address: Option(String),
@@ -8396,7 +8270,6 @@ pub type SpRelatedperson {
 
 pub type SpRequestorchestration {
   SpRequestorchestration(
-    include: Option(SpInclude),
     authored: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -8417,7 +8290,6 @@ pub type SpRequestorchestration {
 
 pub type SpRequirements {
   SpRequirements(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -8440,7 +8312,6 @@ pub type SpRequirements {
 
 pub type SpResearchstudy {
   SpResearchstudy(
-    include: Option(SpInclude),
     date: Option(String),
     objective_type: Option(String),
     study_design: Option(String),
@@ -8471,7 +8342,6 @@ pub type SpResearchstudy {
 
 pub type SpResearchsubject {
   SpResearchsubject(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     subject_state: Option(String),
@@ -8484,7 +8354,6 @@ pub type SpResearchsubject {
 
 pub type SpRiskassessment {
   SpRiskassessment(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     condition: Option(String),
@@ -8500,7 +8369,6 @@ pub type SpRiskassessment {
 
 pub type SpSchedule {
   SpSchedule(
-    include: Option(SpInclude),
     actor: Option(String),
     date: Option(String),
     identifier: Option(String),
@@ -8515,7 +8383,6 @@ pub type SpSchedule {
 
 pub type SpSearchparameter {
   SpSearchparameter(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -8541,7 +8408,6 @@ pub type SpSearchparameter {
 
 pub type SpServicerequest {
   SpServicerequest(
-    include: Option(SpInclude),
     authored: Option(String),
     requester: Option(String),
     identifier: Option(String),
@@ -8570,7 +8436,6 @@ pub type SpServicerequest {
 
 pub type SpSlot {
   SpSlot(
-    include: Option(SpInclude),
     identifier: Option(String),
     schedule: Option(String),
     specialty: Option(String),
@@ -8585,7 +8450,6 @@ pub type SpSlot {
 
 pub type SpSpecimen {
   SpSpecimen(
-    include: Option(SpInclude),
     identifier: Option(String),
     parent: Option(String),
     bodysite: Option(String),
@@ -8603,7 +8467,6 @@ pub type SpSpecimen {
 
 pub type SpSpecimendefinition {
   SpSpecimendefinition(
-    include: Option(SpInclude),
     container: Option(String),
     identifier: Option(String),
     is_derived: Option(String),
@@ -8618,7 +8481,6 @@ pub type SpSpecimendefinition {
 
 pub type SpStructuredefinition {
   SpStructuredefinition(
-    include: Option(SpInclude),
     date: Option(String),
     context_type_value: Option(String),
     ext_context_type: Option(String),
@@ -8652,7 +8514,6 @@ pub type SpStructuredefinition {
 
 pub type SpStructuremap {
   SpStructuremap(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -8673,7 +8534,6 @@ pub type SpStructuremap {
 
 pub type SpSubscription {
   SpSubscription(
-    include: Option(SpInclude),
     owner: Option(String),
     identifier: Option(String),
     payload: Option(String),
@@ -8689,12 +8549,11 @@ pub type SpSubscription {
 }
 
 pub type SpSubscriptionstatus {
-  SpSubscriptionstatus(include: Option(SpInclude))
+  SpSubscriptionstatus
 }
 
 pub type SpSubscriptiontopic {
   SpSubscriptiontopic(
-    include: Option(SpInclude),
     date: Option(String),
     effective: Option(String),
     identifier: Option(String),
@@ -8711,7 +8570,6 @@ pub type SpSubscriptiontopic {
 
 pub type SpSubstance {
   SpSubstance(
-    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     code_reference: Option(String),
@@ -8725,7 +8583,6 @@ pub type SpSubstance {
 
 pub type SpSubstancedefinition {
   SpSubstancedefinition(
-    include: Option(SpInclude),
     identifier: Option(String),
     code: Option(String),
     domain: Option(String),
@@ -8735,28 +8592,27 @@ pub type SpSubstancedefinition {
 }
 
 pub type SpSubstancenucleicacid {
-  SpSubstancenucleicacid(include: Option(SpInclude))
+  SpSubstancenucleicacid
 }
 
 pub type SpSubstancepolymer {
-  SpSubstancepolymer(include: Option(SpInclude))
+  SpSubstancepolymer
 }
 
 pub type SpSubstanceprotein {
-  SpSubstanceprotein(include: Option(SpInclude))
+  SpSubstanceprotein
 }
 
 pub type SpSubstancereferenceinformation {
-  SpSubstancereferenceinformation(include: Option(SpInclude))
+  SpSubstancereferenceinformation
 }
 
 pub type SpSubstancesourcematerial {
-  SpSubstancesourcematerial(include: Option(SpInclude))
+  SpSubstancesourcematerial
 }
 
 pub type SpSupplydelivery {
   SpSupplydelivery(
-    include: Option(SpInclude),
     identifier: Option(String),
     receiver: Option(String),
     patient: Option(String),
@@ -8767,7 +8623,6 @@ pub type SpSupplydelivery {
 
 pub type SpSupplyrequest {
   SpSupplyrequest(
-    include: Option(SpInclude),
     date: Option(String),
     requester: Option(String),
     identifier: Option(String),
@@ -8781,7 +8636,6 @@ pub type SpSupplyrequest {
 
 pub type SpTask {
   SpTask(
-    include: Option(SpInclude),
     owner: Option(String),
     requestedperformer_reference: Option(String),
     requester: Option(String),
@@ -8809,7 +8663,6 @@ pub type SpTask {
 
 pub type SpTerminologycapabilities {
   SpTerminologycapabilities(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -8830,7 +8683,6 @@ pub type SpTerminologycapabilities {
 
 pub type SpTestplan {
   SpTestplan(
-    include: Option(SpInclude),
     identifier: Option(String),
     scope: Option(String),
     url: Option(String),
@@ -8840,7 +8692,6 @@ pub type SpTestplan {
 
 pub type SpTestreport {
   SpTestreport(
-    include: Option(SpInclude),
     result: Option(String),
     identifier: Option(String),
     tester: Option(String),
@@ -8853,7 +8704,6 @@ pub type SpTestreport {
 
 pub type SpTestscript {
   SpTestscript(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     context_type_value: Option(String),
@@ -8877,16 +8727,11 @@ pub type SpTestscript {
 }
 
 pub type SpTransport {
-  SpTransport(
-    include: Option(SpInclude),
-    identifier: Option(String),
-    status: Option(String),
-  )
+  SpTransport(identifier: Option(String), status: Option(String))
 }
 
 pub type SpValueset {
   SpValueset(
-    include: Option(SpInclude),
     date: Option(String),
     identifier: Option(String),
     code: Option(String),
@@ -8914,7 +8759,6 @@ pub type SpValueset {
 
 pub type SpVerificationresult {
   SpVerificationresult(
-    include: Option(SpInclude),
     status_date: Option(String),
     primarysource_who: Option(String),
     primarysource_date: Option(String),
@@ -8930,7 +8774,6 @@ pub type SpVerificationresult {
 
 pub type SpVisionprescription {
   SpVisionprescription(
-    include: Option(SpInclude),
     prescriber: Option(String),
     identifier: Option(String),
     patient: Option(String),
@@ -8941,12 +8784,11 @@ pub type SpVisionprescription {
 }
 
 pub fn sp_account_new() {
-  SpAccount(None, None, None, None, None, None, None, None, None, None, None)
+  SpAccount(None, None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_activitydefinition_new() {
   SpActivitydefinition(
-    None,
     None,
     None,
     None,
@@ -8990,13 +8832,11 @@ pub fn sp_actordefinition_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_administrableproductdefinition_new() {
   SpAdministrableproductdefinition(
-    None,
     None,
     None,
     None,
@@ -9025,13 +8865,11 @@ pub fn sp_adverseevent_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_allergyintolerance_new() {
   SpAllergyintolerance(
-    None,
     None,
     None,
     None,
@@ -9073,16 +8911,15 @@ pub fn sp_appointment_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_appointmentresponse_new() {
-  SpAppointmentresponse(None, None, None, None, None, None, None, None, None)
+  SpAppointmentresponse(None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_artifactassessment_new() {
-  SpArtifactassessment(None, None, None)
+  SpArtifactassessment(None, None)
 }
 
 pub fn sp_auditevent_new() {
@@ -9102,47 +8939,35 @@ pub fn sp_auditevent_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_basic_new() {
-  SpBasic(None, None, None, None, None, None, None)
+  SpBasic(None, None, None, None, None, None)
 }
 
 pub fn sp_binary_new() {
-  SpBinary(None)
+  SpBinary
 }
 
 pub fn sp_biologicallyderivedproduct_new() {
-  SpBiologicallyderivedproduct(
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-  )
+  SpBiologicallyderivedproduct(None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_biologicallyderivedproductdispense_new() {
-  SpBiologicallyderivedproductdispense(None, None, None, None, None, None)
+  SpBiologicallyderivedproductdispense(None, None, None, None, None)
 }
 
 pub fn sp_bodystructure_new() {
-  SpBodystructure(None, None, None, None, None, None)
+  SpBodystructure(None, None, None, None, None)
 }
 
 pub fn sp_bundle_new() {
-  SpBundle(None, None, None, None, None, None)
+  SpBundle(None, None, None, None, None)
 }
 
 pub fn sp_capabilitystatement_new() {
   SpCapabilitystatement(
-    None,
     None,
     None,
     None,
@@ -9190,17 +9015,15 @@ pub fn sp_careplan_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_careteam_new() {
-  SpCareteam(None, None, None, None, None, None, None, None, None)
+  SpCareteam(None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_chargeitem_new() {
   SpChargeitem(
-    None,
     None,
     None,
     None,
@@ -9239,13 +9062,11 @@ pub fn sp_chargeitemdefinition_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_citation_new() {
   SpCitation(
-    None,
     None,
     None,
     None,
@@ -9287,7 +9108,6 @@ pub fn sp_claim_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
@@ -9304,13 +9124,11 @@ pub fn sp_claimresponse_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_clinicalimpression_new() {
   SpClinicalimpression(
-    None,
     None,
     None,
     None,
@@ -9340,13 +9158,11 @@ pub fn sp_clinicalusedefinition_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_codesystem_new() {
   SpCodesystem(
-    None,
     None,
     None,
     None,
@@ -9392,7 +9208,6 @@ pub fn sp_communication_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
@@ -9414,13 +9229,11 @@ pub fn sp_communicationrequest_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_compartmentdefinition_new() {
   SpCompartmentdefinition(
-    None,
     None,
     None,
     None,
@@ -9461,13 +9274,11 @@ pub fn sp_composition_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_conceptmap_new() {
   SpConceptmap(
-    None,
     None,
     None,
     None,
@@ -9524,13 +9335,11 @@ pub fn sp_condition_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_conditiondefinition_new() {
   SpConditiondefinition(
-    None,
     None,
     None,
     None,
@@ -9569,12 +9378,11 @@ pub fn sp_consent_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_contract_new() {
-  SpContract(None, None, None, None, None, None, None, None, None, None, None)
+  SpContract(None, None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_coverage_new() {
@@ -9592,12 +9400,11 @@ pub fn sp_coverage_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_coverageeligibilityrequest_new() {
-  SpCoverageeligibilityrequest(None, None, None, None, None, None, None, None)
+  SpCoverageeligibilityrequest(None, None, None, None, None, None, None)
 }
 
 pub fn sp_coverageeligibilityresponse_new() {
@@ -9611,12 +9418,11 @@ pub fn sp_coverageeligibilityresponse_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_detectedissue_new() {
-  SpDetectedissue(None, None, None, None, None, None, None, None, None, None)
+  SpDetectedissue(None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_device_new() {
@@ -9644,24 +9450,23 @@ pub fn sp_device_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_deviceassociation_new() {
-  SpDeviceassociation(None, None, None, None, None, None, None)
+  SpDeviceassociation(None, None, None, None, None, None)
 }
 
 pub fn sp_devicedefinition_new() {
-  SpDevicedefinition(None, None, None, None, None, None, None, None)
+  SpDevicedefinition(None, None, None, None, None, None, None)
 }
 
 pub fn sp_devicedispense_new() {
-  SpDevicedispense(None, None, None, None, None, None)
+  SpDevicedispense(None, None, None, None, None)
 }
 
 pub fn sp_devicemetric_new() {
-  SpDevicemetric(None, None, None, None, None)
+  SpDevicemetric(None, None, None, None)
 }
 
 pub fn sp_devicerequest_new() {
@@ -9685,17 +9490,15 @@ pub fn sp_devicerequest_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_deviceusage_new() {
-  SpDeviceusage(None, None, None, None, None)
+  SpDeviceusage(None, None, None, None)
 }
 
 pub fn sp_diagnosticreport_new() {
   SpDiagnosticreport(
-    None,
     None,
     None,
     None,
@@ -9718,7 +9521,6 @@ pub fn sp_diagnosticreport_new() {
 
 pub fn sp_documentreference_new() {
   SpDocumentreference(
-    None,
     None,
     None,
     None,
@@ -9786,29 +9588,27 @@ pub fn sp_encounter_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_encounterhistory_new() {
-  SpEncounterhistory(None, None, None, None, None, None)
+  SpEncounterhistory(None, None, None, None, None)
 }
 
 pub fn sp_endpoint_new() {
-  SpEndpoint(None, None, None, None, None, None, None)
+  SpEndpoint(None, None, None, None, None, None)
 }
 
 pub fn sp_enrollmentrequest_new() {
-  SpEnrollmentrequest(None, None, None, None, None)
+  SpEnrollmentrequest(None, None, None, None)
 }
 
 pub fn sp_enrollmentresponse_new() {
-  SpEnrollmentresponse(None, None, None, None)
+  SpEnrollmentresponse(None, None, None)
 }
 
 pub fn sp_episodeofcare_new() {
   SpEpisodeofcare(
-    None,
     None,
     None,
     None,
@@ -9826,7 +9626,6 @@ pub fn sp_episodeofcare_new() {
 
 pub fn sp_eventdefinition_new() {
   SpEventdefinition(
-    None,
     None,
     None,
     None,
@@ -9867,17 +9666,15 @@ pub fn sp_evidence_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_evidencereport_new() {
-  SpEvidencereport(None, None, None, None, None, None, None, None, None, None)
+  SpEvidencereport(None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_evidencevariable_new() {
   SpEvidencevariable(
-    None,
     None,
     None,
     None,
@@ -9916,7 +9713,6 @@ pub fn sp_examplescenario_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
@@ -9939,44 +9735,31 @@ pub fn sp_explanationofbenefit_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_familymemberhistory_new() {
-  SpFamilymemberhistory(
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-  )
+  SpFamilymemberhistory(None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_flag_new() {
-  SpFlag(None, None, None, None, None, None, None, None, None)
+  SpFlag(None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_formularyitem_new() {
-  SpFormularyitem(None, None, None)
+  SpFormularyitem(None, None)
 }
 
 pub fn sp_genomicstudy_new() {
-  SpGenomicstudy(None, None, None, None, None, None)
+  SpGenomicstudy(None, None, None, None, None)
 }
 
 pub fn sp_goal_new() {
-  SpGoal(None, None, None, None, None, None, None, None, None, None, None, None)
+  SpGoal(None, None, None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_graphdefinition_new() {
   SpGraphdefinition(
-    None,
     None,
     None,
     None,
@@ -10009,17 +9792,15 @@ pub fn sp_group_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_guidanceresponse_new() {
-  SpGuidanceresponse(None, None, None, None, None, None)
+  SpGuidanceresponse(None, None, None, None, None)
 }
 
 pub fn sp_healthcareservice_new() {
   SpHealthcareservice(
-    None,
     None,
     None,
     None,
@@ -10051,13 +9832,11 @@ pub fn sp_imagingselection_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_imagingstudy_new() {
   SpImagingstudy(
-    None,
     None,
     None,
     None,
@@ -10096,31 +9875,19 @@ pub fn sp_immunization_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_immunizationevaluation_new() {
-  SpImmunizationevaluation(None, None, None, None, None, None, None, None)
+  SpImmunizationevaluation(None, None, None, None, None, None, None)
 }
 
 pub fn sp_immunizationrecommendation_new() {
-  SpImmunizationrecommendation(
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-  )
+  SpImmunizationrecommendation(None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_implementationguide_new() {
   SpImplementationguide(
-    None,
     None,
     None,
     None,
@@ -10158,7 +9925,6 @@ pub fn sp_ingredient_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
@@ -10178,21 +9944,19 @@ pub fn sp_insuranceplan_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_inventoryitem_new() {
-  SpInventoryitem(None, None, None, None, None)
+  SpInventoryitem(None, None, None, None)
 }
 
 pub fn sp_inventoryreport_new() {
-  SpInventoryreport(None, None, None, None, None)
+  SpInventoryreport(None, None, None, None)
 }
 
 pub fn sp_invoice_new() {
   SpInvoice(
-    None,
     None,
     None,
     None,
@@ -10235,17 +9999,15 @@ pub fn sp_library_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_linkage_new() {
-  SpLinkage(None, None, None, None)
+  SpLinkage(None, None, None)
 }
 
 pub fn sp_listfhir_new() {
   SpListfhir(
-    None,
     None,
     None,
     None,
@@ -10280,12 +10042,11 @@ pub fn sp_location_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_manufactureditemdefinition_new() {
-  SpManufactureditemdefinition(None, None, None, None, None, None)
+  SpManufactureditemdefinition(None, None, None, None, None)
 }
 
 pub fn sp_measure_new() {
@@ -10312,33 +10073,19 @@ pub fn sp_measure_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_measurereport_new() {
-  SpMeasurereport(
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-  )
+  SpMeasurereport(None, None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_medication_new() {
-  SpMedication(None, None, None, None, None, None, None, None, None, None, None)
+  SpMedication(None, None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_medicationadministration_new() {
   SpMedicationadministration(
-    None,
     None,
     None,
     None,
@@ -10359,7 +10106,6 @@ pub fn sp_medicationadministration_new() {
 
 pub fn sp_medicationdispense_new() {
   SpMedicationdispense(
-    None,
     None,
     None,
     None,
@@ -10398,13 +10144,11 @@ pub fn sp_medicationknowledge_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_medicationrequest_new() {
   SpMedicationrequest(
-    None,
     None,
     None,
     None,
@@ -10438,13 +10182,11 @@ pub fn sp_medicationstatement_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_medicinalproductdefinition_new() {
   SpMedicinalproductdefinition(
-    None,
     None,
     None,
     None,
@@ -10481,7 +10223,6 @@ pub fn sp_messagedefinition_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
@@ -10498,12 +10239,11 @@ pub fn sp_messageheader_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_molecularsequence_new() {
-  SpMolecularsequence(None, None, None, None, None, None)
+  SpMolecularsequence(None, None, None, None, None)
 }
 
 pub fn sp_namingsystem_new() {
@@ -10534,12 +10274,11 @@ pub fn sp_namingsystem_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_nutritionintake_new() {
-  SpNutritionintake(None, None, None, None, None, None, None, None, None, None)
+  SpNutritionintake(None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_nutritionorder_new() {
@@ -10556,12 +10295,11 @@ pub fn sp_nutritionorder_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_nutritionproduct_new() {
-  SpNutritionproduct(None, None, None, None, None, None)
+  SpNutritionproduct(None, None, None, None, None)
 }
 
 pub fn sp_observation_new() {
@@ -10608,12 +10346,11 @@ pub fn sp_observation_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_observationdefinition_new() {
-  SpObservationdefinition(None, None, None, None, None, None, None, None, None)
+  SpObservationdefinition(None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_operationdefinition_new() {
@@ -10641,17 +10378,15 @@ pub fn sp_operationdefinition_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_operationoutcome_new() {
-  SpOperationoutcome(None)
+  SpOperationoutcome
 }
 
 pub fn sp_organization_new() {
   SpOrganization(
-    None,
     None,
     None,
     None,
@@ -10684,13 +10419,11 @@ pub fn sp_organizationaffiliation_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_packagedproductdefinition_new() {
   SpPackagedproductdefinition(
-    None,
     None,
     None,
     None,
@@ -10730,12 +10463,11 @@ pub fn sp_patient_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_paymentnotice_new() {
-  SpPaymentnotice(None, None, None, None, None, None, None, None)
+  SpPaymentnotice(None, None, None, None, None, None, None)
 }
 
 pub fn sp_paymentreconciliation_new() {
@@ -10750,17 +10482,15 @@ pub fn sp_paymentreconciliation_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_permission_new() {
-  SpPermission(None, None)
+  SpPermission(None)
 }
 
 pub fn sp_person_new() {
   SpPerson(
-    None,
     None,
     None,
     None,
@@ -10813,13 +10543,11 @@ pub fn sp_plandefinition_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_practitioner_new() {
   SpPractitioner(
-    None,
     None,
     None,
     None,
@@ -10860,7 +10588,6 @@ pub fn sp_practitionerrole_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
@@ -10883,13 +10610,11 @@ pub fn sp_procedure_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_provenance_new() {
   SpProvenance(
-    None,
     None,
     None,
     None,
@@ -10929,7 +10654,6 @@ pub fn sp_questionnaire_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
@@ -10947,17 +10671,15 @@ pub fn sp_questionnaireresponse_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_regulatedauthorization_new() {
-  SpRegulatedauthorization(None, None, None, None, None, None, None, None)
+  SpRegulatedauthorization(None, None, None, None, None, None, None)
 }
 
 pub fn sp_relatedperson_new() {
   SpRelatedperson(
-    None,
     None,
     None,
     None,
@@ -10997,13 +10719,11 @@ pub fn sp_requestorchestration_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_requirements_new() {
   SpRequirements(
-    None,
     None,
     None,
     None,
@@ -11051,37 +10771,23 @@ pub fn sp_researchstudy_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_researchsubject_new() {
-  SpResearchsubject(None, None, None, None, None, None, None, None)
+  SpResearchsubject(None, None, None, None, None, None, None)
 }
 
 pub fn sp_riskassessment_new() {
-  SpRiskassessment(
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-  )
+  SpRiskassessment(None, None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_schedule_new() {
-  SpSchedule(None, None, None, None, None, None, None, None, None, None)
+  SpSchedule(None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_searchparameter_new() {
   SpSearchparameter(
-    None,
     None,
     None,
     None,
@@ -11130,12 +10836,11 @@ pub fn sp_servicerequest_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_slot_new() {
-  SpSlot(None, None, None, None, None, None, None, None, None, None)
+  SpSlot(None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_specimen_new() {
@@ -11152,28 +10857,15 @@ pub fn sp_specimen_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_specimendefinition_new() {
-  SpSpecimendefinition(
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-    None,
-  )
+  SpSpecimendefinition(None, None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_structuredefinition_new() {
   SpStructuredefinition(
-    None,
     None,
     None,
     None,
@@ -11222,7 +10914,6 @@ pub fn sp_structuremap_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
@@ -11239,12 +10930,11 @@ pub fn sp_subscription_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_subscriptionstatus_new() {
-  SpSubscriptionstatus(None)
+  SpSubscriptionstatus
 }
 
 pub fn sp_subscriptiontopic_new() {
@@ -11260,49 +10950,47 @@ pub fn sp_subscriptiontopic_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_substance_new() {
-  SpSubstance(None, None, None, None, None, None, None, None, None)
+  SpSubstance(None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_substancedefinition_new() {
-  SpSubstancedefinition(None, None, None, None, None, None)
+  SpSubstancedefinition(None, None, None, None, None)
 }
 
 pub fn sp_substancenucleicacid_new() {
-  SpSubstancenucleicacid(None)
+  SpSubstancenucleicacid
 }
 
 pub fn sp_substancepolymer_new() {
-  SpSubstancepolymer(None)
+  SpSubstancepolymer
 }
 
 pub fn sp_substanceprotein_new() {
-  SpSubstanceprotein(None)
+  SpSubstanceprotein
 }
 
 pub fn sp_substancereferenceinformation_new() {
-  SpSubstancereferenceinformation(None)
+  SpSubstancereferenceinformation
 }
 
 pub fn sp_substancesourcematerial_new() {
-  SpSubstancesourcematerial(None)
+  SpSubstancesourcematerial
 }
 
 pub fn sp_supplydelivery_new() {
-  SpSupplydelivery(None, None, None, None, None, None)
+  SpSupplydelivery(None, None, None, None, None)
 }
 
 pub fn sp_supplyrequest_new() {
-  SpSupplyrequest(None, None, None, None, None, None, None, None, None)
+  SpSupplyrequest(None, None, None, None, None, None, None, None)
 }
 
 pub fn sp_task_new() {
   SpTask(
-    None,
     None,
     None,
     None,
@@ -11345,16 +11033,15 @@ pub fn sp_terminologycapabilities_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_testplan_new() {
-  SpTestplan(None, None, None, None, None)
+  SpTestplan(None, None, None, None)
 }
 
 pub fn sp_testreport_new() {
-  SpTestreport(None, None, None, None, None, None, None, None)
+  SpTestreport(None, None, None, None, None, None, None)
 }
 
 pub fn sp_testscript_new() {
@@ -11378,17 +11065,15 @@ pub fn sp_testscript_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_transport_new() {
-  SpTransport(None, None, None)
+  SpTransport(None, None)
 }
 
 pub fn sp_valueset_new() {
   SpValueset(
-    None,
     None,
     None,
     None,
@@ -11426,12 +11111,11 @@ pub fn sp_verificationresult_new() {
     None,
     None,
     None,
-    None,
   )
 }
 
 pub fn sp_visionprescription_new() {
-  SpVisionprescription(None, None, None, None, None, None, None)
+  SpVisionprescription(None, None, None, None, None, None)
 }
 
 pub type SpInclude {

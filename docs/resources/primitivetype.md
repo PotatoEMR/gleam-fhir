@@ -13,3 +13,26 @@ pub type Patient {
   )
 }
 ```
+
+| Primitive Type | In Gleam |
+| ------------ | ------------------------------------------ |
+| base64Binary | String                                     |
+| boolean      | Bool                                       |
+| canonical    | String                                     |
+| code         | enum if required binding, otherwise String |
+| date         | String                                     |
+| dateTime     | String                                     |
+| decimal      | Float                                      |
+| id           | String                                     |
+| instant      | String                                     |
+| integer      | Int                                        |
+| integer64    | Int                                        |
+| markdown     | String                                     |
+| oid          | String                                     |
+| string       | String                                     |
+| positiveInt  | Int                                        |
+| time         | String                                     |
+| unsignedInt  | Int                                        |
+| uri          | String                                     |
+| url          | String                                     |
+| uuid         | String                                     |
