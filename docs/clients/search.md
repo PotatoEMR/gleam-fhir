@@ -34,3 +34,11 @@ pub fn main() {
   echo pats1 == pats2
 }
 ```
+
+`search_any` takes a `String`, which is more error prone but supports complex [search params](https://build.fhir.org/search.html#ptypes)
+
+```gleam
+  let assert Ok(bundle) =
+    r4_httpc.search_any("name=Armstrong", "Patient", client)
+  let pats = { bundle |> r4_sansio.bundle_to_groupedresources }.patient
+```

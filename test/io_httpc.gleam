@@ -38,23 +38,22 @@ pub fn main() {
       ),
     )
 
-  echo joe
-
   let client = r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
 
   let assert Ok(created) = r4_httpc.patient_create(joe, client)
   let assert Some(id) = created.id
   let assert Ok(read) = r4_httpc.patient_read(id, client)
-  echo read
   let rip = r4.Patient(..read, deceased: Some(r4.PatientDeceasedBoolean(True)))
   let assert Ok(updated) = r4_httpc.patient_update(rip, client)
-  echo updated
   let assert Ok(pats) =
     r4_httpc.patient_search(
       r4_sansio.SpPatient(..r4_sansio.sp_patient_new(), name: Some("Armstrong")),
       client,
     )
-  let assert Ok(found) = list.find(pats, fn(pat) { pat.id == Some(id) })
-  echo found
+  let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
+  let assert Ok(bundle) =
+    r4_httpc.search_any("name=Armstrong", "Patient", client)
+  let pats = { bundle |> r4_sansio.bundle_to_groupedresources }.patient
+  let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
   let assert Ok(_) = r4_httpc.patient_delete(updated, client)
 }

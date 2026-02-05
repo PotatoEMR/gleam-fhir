@@ -88,6 +88,17 @@ fn any_delete(
   }
 }
 
+/// write out search string manually, in case typed search params don't work
+pub fn search_any(
+  search_string: String,
+  res_type: String,
+  client: FhirClient,
+  handle_response: fn(Result(r4.Bundle, Err)) -> msg,
+) -> Effect(msg) {
+  let req = r4_sansio.any_search_req(search_string, res_type, client)
+  sendreq_handleresponse(req, r4.bundle_decoder(), handle_response)
+}
+
 fn sendreq_handleresponse(
   req: Request(String),
   res_dec: Decoder(r),
