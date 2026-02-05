@@ -2,11 +2,9 @@
 
 ## Type-safe FHIR resources and client
 
-<div style="display: flex">
 [![Package Version](https://img.shields.io/hexpm/v/fhir)](https://hex.pm/packages/fhir)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
 ![GitHub License](https://img.shields.io/github/license/potatoemr/gleam-fhir)
-</div>
 
 ## Warning
 
@@ -14,8 +12,10 @@ Breaking changes are planned for at least primitive extensions, implicit precisi
 
 ## Welcome
 
+<div style="display: flex">
 <img src="https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/lucy.svg" title="Gleam Lucy" alt="Gleam Lucy" width="35%">
 <img src="https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/fhir.svg" title="HL7® FHIR® Flame" alt="HL7® FHIR Flame" width="35%">
+</div>
 
 [FHIR®](https://hl7.org/fhir/) (Fast Healthcare Interoperability Resources) is a standard for health care data exchange, published by HL7®. [Gleam](https://gleam.run/) is simple and type-safe, making FHIR resources features like cardinality and choice types easy to work with. This package provides FHIR resources with JSON serialization, and a FHIR REST client with standard interactions (Create, Read, etc.) and operations. Supports R4, R4B, R5. Supporting everything in FHIR would be nice but the main priority is making common things friendly.
 
