@@ -22,13 +22,13 @@ pub fn fhirclient_new(baseurl: String) {
 }
 
 pub type Err {
-  //could not make a delete or update request because resource has no id
+  ///could not make a delete or update request because resource has no id
   ErrNoId
-  //got json but could not parse it, probably a missing required field
+  ///got json but could not parse it, probably a missing required field
   ErrParseJson(json.DecodeError)
-  //did not get resource json, often server eg nginx gives basic html response
+  ///did not get resource json, often server eg nginx gives basic html response
   ErrNotJson(Response(String))
-  //got operationoutcome error from fhir server
+  ///got operationoutcome error from fhir server
   ErrOperationcome(r4.Operationoutcome)
 }
 

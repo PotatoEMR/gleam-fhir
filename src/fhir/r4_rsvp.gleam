@@ -22,9 +22,9 @@ pub type Err {
   ErrSansio(err: r4_sansio.Err)
 }
 
-/// when using rsvp, if you attempt update or delete a resource with no id
-/// we do not even send the request or give you an effect to use
-/// instead just an Error(ErrNoId)
+/// When using rsvp, if you attempt update or delete a resource with no id,
+/// we do not even send the request or give you an effect to use.
+/// Instead of an effect you get just Error(ErrNoId)
 pub type ErrNoId {
   ErrNoId
 }
