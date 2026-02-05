@@ -26,7 +26,7 @@ pub type Patient {
 | id           | String                                     |
 | instant      | String                                     |
 | integer      | Int                                        |
-| integer64    | Int                                        |
+| integer64    | String                                     |
 | markdown     | String                                     |
 | oid          | String                                     |
 | string       | String                                     |

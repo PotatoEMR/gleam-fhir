@@ -385,7 +385,7 @@ pub type Attachment {
     language: Option(String),
     data: Option(String),
     url: Option(String),
-    size: Option(Int),
+    size: Option(String),
     hash: Option(String),
     title: Option(String),
     creation: Option(String),
@@ -469,7 +469,7 @@ pub fn attachment_to_json(attachment: Attachment) -> Json {
     None -> fields
   }
   let fields = case size {
-    Some(v) -> [#("size", json.int(v)), ..fields]
+    Some(v) -> [#("size", json.string(v)), ..fields]
     None -> fields
   }
   let fields = case url {
@@ -533,7 +533,11 @@ pub fn attachment_decoder() -> Decoder(Attachment) {
     None,
     decode.optional(decode.string),
   )
-  use size <- decode.optional_field("size", None, decode.optional(decode.int))
+  use size <- decode.optional_field(
+    "size",
+    None,
+    decode.optional(decode.string),
+  )
   use url <- decode.optional_field("url", None, decode.optional(decode.string))
   use data <- decode.optional_field(
     "data",
@@ -2763,7 +2767,7 @@ pub type ElementdefinitionDefaultvalue {
   ElementdefinitionDefaultvalueId(default_value: String)
   ElementdefinitionDefaultvalueInstant(default_value: String)
   ElementdefinitionDefaultvalueInteger(default_value: Int)
-  ElementdefinitionDefaultvalueInteger64(default_value: Int)
+  ElementdefinitionDefaultvalueInteger64(default_value: String)
   ElementdefinitionDefaultvalueMarkdown(default_value: String)
   ElementdefinitionDefaultvalueOid(default_value: String)
   ElementdefinitionDefaultvaluePositiveint(default_value: Int)
@@ -2831,7 +2835,7 @@ pub fn elementdefinition_defaultvalue_to_json(
     ElementdefinitionDefaultvalueId(v) -> json.string(v)
     ElementdefinitionDefaultvalueInstant(v) -> json.string(v)
     ElementdefinitionDefaultvalueInteger(v) -> json.int(v)
-    ElementdefinitionDefaultvalueInteger64(v) -> json.int(v)
+    ElementdefinitionDefaultvalueInteger64(v) -> json.string(v)
     ElementdefinitionDefaultvalueMarkdown(v) -> json.string(v)
     ElementdefinitionDefaultvalueOid(v) -> json.string(v)
     ElementdefinitionDefaultvaluePositiveint(v) -> json.int(v)
@@ -2910,7 +2914,7 @@ pub fn elementdefinition_defaultvalue_decoder() -> Decoder(
         |> decode.map(ElementdefinitionDefaultvalueInstant),
       decode.field("defaultValueInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionDefaultvalueInteger),
-      decode.field("defaultValueInteger64", decode.int, decode.success)
+      decode.field("defaultValueInteger64", decode.string, decode.success)
         |> decode.map(ElementdefinitionDefaultvalueInteger64),
       decode.field("defaultValueMarkdown", decode.string, decode.success)
         |> decode.map(ElementdefinitionDefaultvalueMarkdown),
@@ -3082,7 +3086,7 @@ pub type ElementdefinitionFixed {
   ElementdefinitionFixedId(fixed: String)
   ElementdefinitionFixedInstant(fixed: String)
   ElementdefinitionFixedInteger(fixed: Int)
-  ElementdefinitionFixedInteger64(fixed: Int)
+  ElementdefinitionFixedInteger64(fixed: String)
   ElementdefinitionFixedMarkdown(fixed: String)
   ElementdefinitionFixedOid(fixed: String)
   ElementdefinitionFixedPositiveint(fixed: Int)
@@ -3140,7 +3144,7 @@ pub fn elementdefinition_fixed_to_json(elt: ElementdefinitionFixed) -> Json {
     ElementdefinitionFixedId(v) -> json.string(v)
     ElementdefinitionFixedInstant(v) -> json.string(v)
     ElementdefinitionFixedInteger(v) -> json.int(v)
-    ElementdefinitionFixedInteger64(v) -> json.int(v)
+    ElementdefinitionFixedInteger64(v) -> json.string(v)
     ElementdefinitionFixedMarkdown(v) -> json.string(v)
     ElementdefinitionFixedOid(v) -> json.string(v)
     ElementdefinitionFixedPositiveint(v) -> json.int(v)
@@ -3212,7 +3216,7 @@ pub fn elementdefinition_fixed_decoder() -> Decoder(ElementdefinitionFixed) {
         |> decode.map(ElementdefinitionFixedInstant),
       decode.field("fixedInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionFixedInteger),
-      decode.field("fixedInteger64", decode.int, decode.success)
+      decode.field("fixedInteger64", decode.string, decode.success)
         |> decode.map(ElementdefinitionFixedInteger64),
       decode.field("fixedMarkdown", decode.string, decode.success)
         |> decode.map(ElementdefinitionFixedMarkdown),
@@ -3348,7 +3352,7 @@ pub type ElementdefinitionPattern {
   ElementdefinitionPatternId(pattern: String)
   ElementdefinitionPatternInstant(pattern: String)
   ElementdefinitionPatternInteger(pattern: Int)
-  ElementdefinitionPatternInteger64(pattern: Int)
+  ElementdefinitionPatternInteger64(pattern: String)
   ElementdefinitionPatternMarkdown(pattern: String)
   ElementdefinitionPatternOid(pattern: String)
   ElementdefinitionPatternPositiveint(pattern: Int)
@@ -3406,7 +3410,7 @@ pub fn elementdefinition_pattern_to_json(elt: ElementdefinitionPattern) -> Json 
     ElementdefinitionPatternId(v) -> json.string(v)
     ElementdefinitionPatternInstant(v) -> json.string(v)
     ElementdefinitionPatternInteger(v) -> json.int(v)
-    ElementdefinitionPatternInteger64(v) -> json.int(v)
+    ElementdefinitionPatternInteger64(v) -> json.string(v)
     ElementdefinitionPatternMarkdown(v) -> json.string(v)
     ElementdefinitionPatternOid(v) -> json.string(v)
     ElementdefinitionPatternPositiveint(v) -> json.int(v)
@@ -3478,7 +3482,7 @@ pub fn elementdefinition_pattern_decoder() -> Decoder(ElementdefinitionPattern) 
         |> decode.map(ElementdefinitionPatternInstant),
       decode.field("patternInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionPatternInteger),
-      decode.field("patternInteger64", decode.int, decode.success)
+      decode.field("patternInteger64", decode.string, decode.success)
         |> decode.map(ElementdefinitionPatternInteger64),
       decode.field("patternMarkdown", decode.string, decode.success)
         |> decode.map(ElementdefinitionPatternMarkdown),
@@ -3622,7 +3626,7 @@ pub type ElementdefinitionMinvalue {
   ElementdefinitionMinvalueTime(min_value: String)
   ElementdefinitionMinvalueDecimal(min_value: Float)
   ElementdefinitionMinvalueInteger(min_value: Int)
-  ElementdefinitionMinvalueInteger64(min_value: Int)
+  ElementdefinitionMinvalueInteger64(min_value: String)
   ElementdefinitionMinvaluePositiveint(min_value: Int)
   ElementdefinitionMinvalueUnsignedint(min_value: Int)
   ElementdefinitionMinvalueQuantity(min_value: Quantity)
@@ -3638,7 +3642,7 @@ pub fn elementdefinition_minvalue_to_json(
     ElementdefinitionMinvalueTime(v) -> json.string(v)
     ElementdefinitionMinvalueDecimal(v) -> json.float(v)
     ElementdefinitionMinvalueInteger(v) -> json.int(v)
-    ElementdefinitionMinvalueInteger64(v) -> json.int(v)
+    ElementdefinitionMinvalueInteger64(v) -> json.string(v)
     ElementdefinitionMinvaluePositiveint(v) -> json.int(v)
     ElementdefinitionMinvalueUnsignedint(v) -> json.int(v)
     ElementdefinitionMinvalueQuantity(v) -> quantity_to_json(v)
@@ -3662,7 +3666,7 @@ pub fn elementdefinition_minvalue_decoder() -> Decoder(
         |> decode.map(ElementdefinitionMinvalueDecimal),
       decode.field("minValueInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionMinvalueInteger),
-      decode.field("minValueInteger64", decode.int, decode.success)
+      decode.field("minValueInteger64", decode.string, decode.success)
         |> decode.map(ElementdefinitionMinvalueInteger64),
       decode.field("minValuePositiveInt", decode.int, decode.success)
         |> decode.map(ElementdefinitionMinvaluePositiveint),
@@ -3682,7 +3686,7 @@ pub type ElementdefinitionMaxvalue {
   ElementdefinitionMaxvalueTime(max_value: String)
   ElementdefinitionMaxvalueDecimal(max_value: Float)
   ElementdefinitionMaxvalueInteger(max_value: Int)
-  ElementdefinitionMaxvalueInteger64(max_value: Int)
+  ElementdefinitionMaxvalueInteger64(max_value: String)
   ElementdefinitionMaxvaluePositiveint(max_value: Int)
   ElementdefinitionMaxvalueUnsignedint(max_value: Int)
   ElementdefinitionMaxvalueQuantity(max_value: Quantity)
@@ -3698,7 +3702,7 @@ pub fn elementdefinition_maxvalue_to_json(
     ElementdefinitionMaxvalueTime(v) -> json.string(v)
     ElementdefinitionMaxvalueDecimal(v) -> json.float(v)
     ElementdefinitionMaxvalueInteger(v) -> json.int(v)
-    ElementdefinitionMaxvalueInteger64(v) -> json.int(v)
+    ElementdefinitionMaxvalueInteger64(v) -> json.string(v)
     ElementdefinitionMaxvaluePositiveint(v) -> json.int(v)
     ElementdefinitionMaxvalueUnsignedint(v) -> json.int(v)
     ElementdefinitionMaxvalueQuantity(v) -> quantity_to_json(v)
@@ -3722,7 +3726,7 @@ pub fn elementdefinition_maxvalue_decoder() -> Decoder(
         |> decode.map(ElementdefinitionMaxvalueDecimal),
       decode.field("maxValueInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionMaxvalueInteger),
-      decode.field("maxValueInteger64", decode.int, decode.success)
+      decode.field("maxValueInteger64", decode.string, decode.success)
         |> decode.map(ElementdefinitionMaxvalueInteger64),
       decode.field("maxValuePositiveInt", decode.int, decode.success)
         |> decode.map(ElementdefinitionMaxvaluePositiveint),
@@ -3886,7 +3890,7 @@ pub type ElementdefinitionExampleValue {
   ElementdefinitionExampleValueId(value: String)
   ElementdefinitionExampleValueInstant(value: String)
   ElementdefinitionExampleValueInteger(value: Int)
-  ElementdefinitionExampleValueInteger64(value: Int)
+  ElementdefinitionExampleValueInteger64(value: String)
   ElementdefinitionExampleValueMarkdown(value: String)
   ElementdefinitionExampleValueOid(value: String)
   ElementdefinitionExampleValuePositiveint(value: Int)
@@ -3948,7 +3952,7 @@ pub fn elementdefinition_example_value_to_json(
     ElementdefinitionExampleValueId(v) -> json.string(v)
     ElementdefinitionExampleValueInstant(v) -> json.string(v)
     ElementdefinitionExampleValueInteger(v) -> json.int(v)
-    ElementdefinitionExampleValueInteger64(v) -> json.int(v)
+    ElementdefinitionExampleValueInteger64(v) -> json.string(v)
     ElementdefinitionExampleValueMarkdown(v) -> json.string(v)
     ElementdefinitionExampleValueOid(v) -> json.string(v)
     ElementdefinitionExampleValuePositiveint(v) -> json.int(v)
@@ -4027,7 +4031,7 @@ pub fn elementdefinition_example_value_decoder() -> Decoder(
         |> decode.map(ElementdefinitionExampleValueInstant),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionExampleValueInteger),
-      decode.field("valueInteger64", decode.int, decode.success)
+      decode.field("valueInteger64", decode.string, decode.success)
         |> decode.map(ElementdefinitionExampleValueInteger64),
       decode.field("valueMarkdown", decode.string, decode.success)
         |> decode.map(ElementdefinitionExampleValueMarkdown),
@@ -5800,7 +5804,7 @@ pub type ExtensionValue {
   ExtensionValueId(value: String)
   ExtensionValueInstant(value: String)
   ExtensionValueInteger(value: Int)
-  ExtensionValueInteger64(value: Int)
+  ExtensionValueInteger64(value: String)
   ExtensionValueMarkdown(value: String)
   ExtensionValueOid(value: String)
   ExtensionValuePositiveint(value: Int)
@@ -5942,7 +5946,7 @@ pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
     ExtensionValueId(v) -> json.string(v)
     ExtensionValueInstant(v) -> json.string(v)
     ExtensionValueInteger(v) -> json.int(v)
-    ExtensionValueInteger64(v) -> json.int(v)
+    ExtensionValueInteger64(v) -> json.string(v)
     ExtensionValueMarkdown(v) -> json.string(v)
     ExtensionValueOid(v) -> json.string(v)
     ExtensionValuePositiveint(v) -> json.int(v)
@@ -6031,7 +6035,7 @@ pub fn ext_simple_or_complex_decoder() {
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(ExtensionValueInteger)
         |> decode.map(ExtSimple),
-      decode.field("valueInteger64", decode.int, decode.success)
+      decode.field("valueInteger64", decode.string, decode.success)
         |> decode.map(ExtensionValueInteger64)
         |> decode.map(ExtSimple),
       decode.field("valueMarkdown", decode.string, decode.success)
@@ -111873,7 +111877,7 @@ pub type ParametersParameterValue {
   ParametersParameterValueId(value: String)
   ParametersParameterValueInstant(value: String)
   ParametersParameterValueInteger(value: Int)
-  ParametersParameterValueInteger64(value: Int)
+  ParametersParameterValueInteger64(value: String)
   ParametersParameterValueMarkdown(value: String)
   ParametersParameterValueOid(value: String)
   ParametersParameterValuePositiveint(value: Int)
@@ -111931,7 +111935,7 @@ pub fn parameters_parameter_value_to_json(elt: ParametersParameterValue) -> Json
     ParametersParameterValueId(v) -> json.string(v)
     ParametersParameterValueInstant(v) -> json.string(v)
     ParametersParameterValueInteger(v) -> json.int(v)
-    ParametersParameterValueInteger64(v) -> json.int(v)
+    ParametersParameterValueInteger64(v) -> json.string(v)
     ParametersParameterValueMarkdown(v) -> json.string(v)
     ParametersParameterValueOid(v) -> json.string(v)
     ParametersParameterValuePositiveint(v) -> json.int(v)
@@ -112003,7 +112007,7 @@ pub fn parameters_parameter_value_decoder() -> Decoder(ParametersParameterValue)
         |> decode.map(ParametersParameterValueInstant),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(ParametersParameterValueInteger),
-      decode.field("valueInteger64", decode.int, decode.success)
+      decode.field("valueInteger64", decode.string, decode.success)
         |> decode.map(ParametersParameterValueInteger64),
       decode.field("valueMarkdown", decode.string, decode.success)
         |> decode.map(ParametersParameterValueMarkdown),
@@ -135107,7 +135111,7 @@ pub type Subscriptionstatus {
     modifier_extension: List(Extension),
     status: Option(r5_valuesets.Subscriptionstatus),
     type_: r5_valuesets.Subscriptionnotificationtype,
-    events_since_subscription_start: Option(Int),
+    events_since_subscription_start: Option(String),
     notification_event: List(SubscriptionstatusNotificationevent),
     subscription: Reference,
     topic: Option(String),
@@ -135144,7 +135148,7 @@ pub type SubscriptionstatusNotificationevent {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    event_number: Int,
+    event_number: String,
     timestamp: Option(String),
     focus: Option(Reference),
     additional_context: List(Reference),
@@ -135152,7 +135156,7 @@ pub type SubscriptionstatusNotificationevent {
 }
 
 pub fn subscriptionstatus_notificationevent_new(
-  event_number event_number: Int,
+  event_number event_number: String,
 ) -> SubscriptionstatusNotificationevent {
   SubscriptionstatusNotificationevent(
     additional_context: [],
@@ -135178,7 +135182,7 @@ pub fn subscriptionstatus_notificationevent_to_json(
     id:,
   ) = subscriptionstatus_notificationevent
   let fields = [
-    #("eventNumber", json.int(event_number)),
+    #("eventNumber", json.string(event_number)),
   ]
   let fields = case additional_context {
     [] -> fields
@@ -135232,7 +135236,7 @@ pub fn subscriptionstatus_notificationevent_decoder() -> Decoder(
     None,
     decode.optional(decode.string),
   )
-  use event_number <- decode.field("eventNumber", decode.int)
+  use event_number <- decode.field("eventNumber", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -135301,7 +135305,7 @@ pub fn subscriptionstatus_to_json(
     ]
   }
   let fields = case events_since_subscription_start {
-    Some(v) -> [#("eventsSinceSubscriptionStart", json.int(v)), ..fields]
+    Some(v) -> [#("eventsSinceSubscriptionStart", json.string(v)), ..fields]
     None -> fields
   }
   let fields = case status {
@@ -135371,7 +135375,7 @@ pub fn subscriptionstatus_decoder() -> Decoder(Subscriptionstatus) {
   use events_since_subscription_start <- decode.optional_field(
     "eventsSinceSubscriptionStart",
     None,
-    decode.optional(decode.int),
+    decode.optional(decode.string),
   )
   use type_ <- decode.field(
     "type",
@@ -143926,7 +143930,7 @@ pub type TaskInputValue {
   TaskInputValueId(value: String)
   TaskInputValueInstant(value: String)
   TaskInputValueInteger(value: Int)
-  TaskInputValueInteger64(value: Int)
+  TaskInputValueInteger64(value: String)
   TaskInputValueMarkdown(value: String)
   TaskInputValueOid(value: String)
   TaskInputValuePositiveint(value: Int)
@@ -143984,7 +143988,7 @@ pub fn task_input_value_to_json(elt: TaskInputValue) -> Json {
     TaskInputValueId(v) -> json.string(v)
     TaskInputValueInstant(v) -> json.string(v)
     TaskInputValueInteger(v) -> json.int(v)
-    TaskInputValueInteger64(v) -> json.int(v)
+    TaskInputValueInteger64(v) -> json.string(v)
     TaskInputValueMarkdown(v) -> json.string(v)
     TaskInputValueOid(v) -> json.string(v)
     TaskInputValuePositiveint(v) -> json.int(v)
@@ -144054,7 +144058,7 @@ pub fn task_input_value_decoder() -> Decoder(TaskInputValue) {
         |> decode.map(TaskInputValueInstant),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(TaskInputValueInteger),
-      decode.field("valueInteger64", decode.int, decode.success)
+      decode.field("valueInteger64", decode.string, decode.success)
         |> decode.map(TaskInputValueInteger64),
       decode.field("valueMarkdown", decode.string, decode.success)
         |> decode.map(TaskInputValueMarkdown),
@@ -144208,7 +144212,7 @@ pub type TaskOutputValue {
   TaskOutputValueId(value: String)
   TaskOutputValueInstant(value: String)
   TaskOutputValueInteger(value: Int)
-  TaskOutputValueInteger64(value: Int)
+  TaskOutputValueInteger64(value: String)
   TaskOutputValueMarkdown(value: String)
   TaskOutputValueOid(value: String)
   TaskOutputValuePositiveint(value: Int)
@@ -144266,7 +144270,7 @@ pub fn task_output_value_to_json(elt: TaskOutputValue) -> Json {
     TaskOutputValueId(v) -> json.string(v)
     TaskOutputValueInstant(v) -> json.string(v)
     TaskOutputValueInteger(v) -> json.int(v)
-    TaskOutputValueInteger64(v) -> json.int(v)
+    TaskOutputValueInteger64(v) -> json.string(v)
     TaskOutputValueMarkdown(v) -> json.string(v)
     TaskOutputValueOid(v) -> json.string(v)
     TaskOutputValuePositiveint(v) -> json.int(v)
@@ -144336,7 +144340,7 @@ pub fn task_output_value_decoder() -> Decoder(TaskOutputValue) {
         |> decode.map(TaskOutputValueInstant),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(TaskOutputValueInteger),
-      decode.field("valueInteger64", decode.int, decode.success)
+      decode.field("valueInteger64", decode.string, decode.success)
         |> decode.map(TaskOutputValueInteger64),
       decode.field("valueMarkdown", decode.string, decode.success)
         |> decode.map(TaskOutputValueMarkdown),
@@ -152099,7 +152103,7 @@ pub type TransportInputValue {
   TransportInputValueId(value: String)
   TransportInputValueInstant(value: String)
   TransportInputValueInteger(value: Int)
-  TransportInputValueInteger64(value: Int)
+  TransportInputValueInteger64(value: String)
   TransportInputValueMarkdown(value: String)
   TransportInputValueOid(value: String)
   TransportInputValuePositiveint(value: Int)
@@ -152157,7 +152161,7 @@ pub fn transport_input_value_to_json(elt: TransportInputValue) -> Json {
     TransportInputValueId(v) -> json.string(v)
     TransportInputValueInstant(v) -> json.string(v)
     TransportInputValueInteger(v) -> json.int(v)
-    TransportInputValueInteger64(v) -> json.int(v)
+    TransportInputValueInteger64(v) -> json.string(v)
     TransportInputValueMarkdown(v) -> json.string(v)
     TransportInputValueOid(v) -> json.string(v)
     TransportInputValuePositiveint(v) -> json.int(v)
@@ -152228,7 +152232,7 @@ pub fn transport_input_value_decoder() -> Decoder(TransportInputValue) {
         |> decode.map(TransportInputValueInstant),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(TransportInputValueInteger),
-      decode.field("valueInteger64", decode.int, decode.success)
+      decode.field("valueInteger64", decode.string, decode.success)
         |> decode.map(TransportInputValueInteger64),
       decode.field("valueMarkdown", decode.string, decode.success)
         |> decode.map(TransportInputValueMarkdown),
@@ -152388,7 +152392,7 @@ pub type TransportOutputValue {
   TransportOutputValueId(value: String)
   TransportOutputValueInstant(value: String)
   TransportOutputValueInteger(value: Int)
-  TransportOutputValueInteger64(value: Int)
+  TransportOutputValueInteger64(value: String)
   TransportOutputValueMarkdown(value: String)
   TransportOutputValueOid(value: String)
   TransportOutputValuePositiveint(value: Int)
@@ -152446,7 +152450,7 @@ pub fn transport_output_value_to_json(elt: TransportOutputValue) -> Json {
     TransportOutputValueId(v) -> json.string(v)
     TransportOutputValueInstant(v) -> json.string(v)
     TransportOutputValueInteger(v) -> json.int(v)
-    TransportOutputValueInteger64(v) -> json.int(v)
+    TransportOutputValueInteger64(v) -> json.string(v)
     TransportOutputValueMarkdown(v) -> json.string(v)
     TransportOutputValueOid(v) -> json.string(v)
     TransportOutputValuePositiveint(v) -> json.int(v)
@@ -152517,7 +152521,7 @@ pub fn transport_output_value_decoder() -> Decoder(TransportOutputValue) {
         |> decode.map(TransportOutputValueInstant),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(TransportOutputValueInteger),
-      decode.field("valueInteger64", decode.int, decode.success)
+      decode.field("valueInteger64", decode.string, decode.success)
         |> decode.map(TransportOutputValueInteger64),
       decode.field("valueMarkdown", decode.string, decode.success)
         |> decode.map(TransportOutputValueMarkdown),
