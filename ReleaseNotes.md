@@ -16,7 +16,7 @@
 - *No* primitive extensions support, so primitive elements will change in some undecided way
 - This is an initial release with various problems, so there could be breaking changes in any module
 
-[Version number MAJOR.MINOR.PATCH means:](https://semver.org/#semantic-versioning-200)
+(once on 1.0.0) [Version number MAJOR.MINOR.PATCH means:](https://semver.org/#semantic-versioning-200)
 
 MAJOR - incompatible API changes
 
