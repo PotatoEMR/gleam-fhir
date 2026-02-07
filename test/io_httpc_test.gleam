@@ -3,7 +3,7 @@ import fhir/r4_httpc
 import fhir/r4_sansio
 import fhir/r4_valuesets
 import gleam/list
-import gleam/option.{Some}
+import gleam/option.{None, Some}
 
 pub fn main() {
   let joe =
@@ -40,6 +40,23 @@ pub fn main() {
 
   let client = r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
 
+  let params =
+    r4.Parameters(..r4.parameters_new(), parameter: [
+      r4.ParametersParameter(
+        ..r4.parameters_parameter_new("resource"),
+        resource: Some(r4.ResourcePatient(joe)),
+      ),
+    ])
+  let assert Ok(_) =
+    r4_httpc.operation_any(
+      params: Some(params),
+      operation_name: "validate",
+      res_type: "Patient",
+      res_id: None,
+      res_decoder: r4.operationoutcome_decoder(),
+      client:,
+    )
+
   let assert Ok(created) = r4_httpc.patient_create(joe, client)
   let assert Some(id) = created.id
   let assert Ok(read) = r4_httpc.patient_read(id, client)
@@ -51,9 +68,20 @@ pub fn main() {
       client,
     )
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
+
   let assert Ok(bundle) =
     r4_httpc.search_any("name=Armstrong", "Patient", client)
   let pats = { bundle |> r4_sansio.bundle_to_groupedresources }.patient
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
+
+  let assert Ok(_) =
+    r4_httpc.operation_any(
+      params: None,
+      operation_name: "everything",
+      res_type: "Patient",
+      res_id: created.id,
+      res_decoder: r4.bundle_decoder(),
+      client:,
+    )
   let assert Ok(_) = r4_httpc.patient_delete(updated, client)
 }

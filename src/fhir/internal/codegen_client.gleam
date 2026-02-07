@@ -3,6 +3,8 @@ import gleam/dynamic/decode
 import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
+
+//import gleam/set
 import gleam/string
 import simplifile
 
@@ -174,6 +176,53 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
   // and it is much slower than this
   // both real downsides, oh well
   let assert Ok(bundle) = json.parse(from: spec, using: bundle_decoder())
+
+  // will use res_names for operation parameters
+  // as each param is value (primitive, lowercase), Resource (in set), or part
+  // let res_names =
+  //   list.filter_map(bundle.entry, fn(e) {
+  //     case e.resource.kind {
+  //       Some("resource") -> Ok(e.resource.name)
+  //       _ -> Error(Nil)
+  //     }
+  //   })
+  //   |> set.from_list
+  // let assert Ok(opdef_bundle) =
+  //   json.parse(from: spec, using: opdef_bundle_decoder())
+  // let opdef_entries =
+  //   list.filter(opdef_bundle.entry, fn(e) { e.resource.url != None })
+  // let droplen = string.length("http://hl7.org/fhir/OperationDefinition/")
+  // let idk =
+  //   list.map(opdef_entries, fn(e) {
+  //     let assert Some(url) = e.resource.url
+  //     let assert Ok(op) =
+  //       url |> string.drop_start(droplen) |> string.split_once("-")
+  //     echo url
+  //     list.map(e.resource.parameter, fn(param) {
+  //       echo param.name
+  //       echo param.type_
+  //       echo "ok"
+  //       let param_type = case is_capital(param.name) {
+  //         True -> {
+  //           let assert Some(typ) = param.type_
+  //           "value" <> typ
+  //         }
+  //         False ->
+  //           case set.contains(res_names, param.name) {
+  //             True -> {
+  //               echo param.name
+  //               "resource"
+  //             }
+  //             False -> {
+  //               //echo param.name
+  //               "part"
+  //             }
+  //           }
+  //       }
+  //     })
+  //   })
+  //struggling atm with providing typed parameter list, but could maybe use this to generate it
+
   let entries =
     list.filter(bundle.entry, fn(e) {
       case e.resource.kind, e.resource.name {
@@ -193,22 +242,6 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
         _, _ -> False
       }
     })
-
-  let assert Ok(opdef_bundle) =
-    json.parse(from: spec, using: opdef_bundle_decoder())
-  let opdef_entries =
-    list.filter(opdef_bundle.entry, fn(e) { e.resource.url != None })
-  let droplen = string.length("http://hl7.org/fhir/OperationDefinition/")
-  let idk =
-    list.map(opdef_entries, fn(e) {
-      let assert Some(url) = e.resource.url
-      let assert Ok(op) =
-        url |> string.drop_start(droplen) |> string.split_once("-")
-      op
-      echo op
-      echo e.resource.parameter
-    })
-  echo idk
 
   //region sansio
   let res_specific_crud =
@@ -614,4 +647,9 @@ fn escape_spname(name: String) -> String {
     _ -> name
   })
   |> string.replace("-", "_")
+}
+
+pub fn is_capital(s: String) -> Bool {
+  let assert [first, ..] = string.to_graphemes(s)
+  string.capitalise(first) == first
 }

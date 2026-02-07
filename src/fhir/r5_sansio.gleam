@@ -3,7 +3,7 @@
 import fhir/r5
 import gleam/dynamic/decode
 import gleam/http
-import gleam/http/request.{type Request}
+import gleam/http/request.{type Request, Request}
 import gleam/http/response.{type Response}
 import gleam/json.{type Json}
 import gleam/list
@@ -115,6 +115,41 @@ pub fn any_search_req(
     )
   req
   |> request.set_header("Accept", "application/fhir+json")
+}
+
+pub fn any_operation_req(
+  res_type: String,
+  res_id: Option(String),
+  operation_name: String,
+  params: Option(r5.Parameters),
+  client: FhirClient,
+) -> Request(String) {
+  let assert Some(host) = client.baseurl.host
+  let path = case res_id {
+    Some(res_id) -> string.concat([res_type, "/", res_id, "/$", operation_name])
+    None -> string.concat([res_type, "/$", operation_name])
+  }
+  let req =
+    Request(
+      body: "",
+      headers: [],
+      host:,
+      method: http.Get,
+      path:,
+      port: client.baseurl.port,
+      query: None,
+      scheme: http.Https,
+    )
+    |> request.set_header("Accept", "application/fhir+json")
+    |> request.set_header("Content-Type", "application/fhir+json")
+    |> request.set_header("Prefer", "return=representation")
+  case params {
+    None -> req
+    Some(params) ->
+      req
+      |> request.set_body(params |> r5.parameters_to_json |> json.to_string)
+      |> request.set_method(http.Post)
+  }
 }
 
 fn using_params(params) {

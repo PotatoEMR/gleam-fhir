@@ -99,6 +99,27 @@ pub fn search_any(
   sendreq_handleresponse(req, FHIRVERSION.bundle_decoder(), handle_response)
 }
 
+// run any operation string on any resource string, optionally using Parameters
+pub fn operation_any(
+  params params: Option(FHIRVERSION.Parameters),
+  operation_name operation_name: String,
+  res_type res_type: String,
+  res_id res_id: Option(String),
+  res_decoder res_decoder: Decoder(res),
+  client client: FhirClient,
+  handle_response handle_response: fn(Result(res, Err)) -> msg,
+) -> Effect(msg) {
+  let req =
+    FHIRVERSION_sansio.any_operation_req(
+      res_type,
+      res_id,
+      operation_name,
+      params,
+      client,
+    )
+  sendreq_handleresponse(req, res_decoder, handle_response)
+}
+
 fn sendreq_handleresponse(
   req: Request(String),
   res_dec: Decoder(r),

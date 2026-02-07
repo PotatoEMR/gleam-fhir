@@ -76,6 +76,26 @@ pub fn search_any(
   sendreq_parseresource(req, r4b.bundle_decoder())
 }
 
+/// run any operation string on any resource string, optionally using Parameters
+pub fn operation_any(
+  params params: Option(r4b.Parameters),
+  operation_name operation_name: String,
+  res_type res_type: String,
+  res_id res_id: Option(String),
+  res_decoder res_decoder: Decoder(res),
+  client client: FhirClient,
+) -> Result(res, Err) {
+  let req =
+    r4b_sansio.any_operation_req(
+      res_type,
+      res_id,
+      operation_name,
+      params,
+      client,
+    )
+  sendreq_parseresource(req, res_decoder)
+}
+
 fn sendreq_parseresource(
   req: Request(String),
   res_dec: Decoder(r),
