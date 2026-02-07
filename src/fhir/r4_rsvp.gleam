@@ -10,10 +10,33 @@ import gleam/option.{type Option}
 import lustre/effect.{type Effect}
 import rsvp
 
+/// FHIR client for sending http requests to server such as
+/// `let read_pat_effect = r4_rsvp.patient_read("123", client, msg)`
+///
+/// create client from server base url with fhirclient_new(baseurl)`
+///
+/// `let assert Ok(client) = r4_rsvp.fhirclient_new("r4.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r4_rsvp.fhirclient_new("https://r4.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r4_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")`
+///
+/// `let assert Ok(client) = r4_rsvp.fhirclient_new("127.0.0.1:8000")`
 pub type FhirClient =
   r4_sansio.FhirClient
 
-pub fn fhirclient_new(baseurl: String) -> FhirClient {
+/// creates a new client from server base url
+///
+/// `let assert Ok(client) = r4_rsvp.fhirclient_new("r4.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r4_rsvp.fhirclient_new("https://r4.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r4_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")`
+///
+/// `let assert Ok(client) = r4_rsvp.fhirclient_new("127.0.0.1:8000")`
+pub fn fhirclient_new(
+  baseurl: String,
+) -> Result(FhirClient, r4_sansio.ErrBaseUrl) {
   r4_sansio.fhirclient_new(baseurl)
 }
 

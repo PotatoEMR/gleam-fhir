@@ -32,9 +32,10 @@ type Model {
 }
 
 fn init(_) -> #(Model, Effect(Msg)) {
+  let assert Ok(client) = r4_sansio.fhirclient_new("https://r4.smarthealthit.org")
   let model =
     Model(
-      client: r4_sansio.fhirclient_new("https://r4.smarthealthit.org"),
+      client: client,
       curr_pat: None,
     )
   let read: Effect(Msg) =

@@ -1,6 +1,7 @@
 ## 0.1.0 Feb 07, 2026
 - Breaking change: integer64 from `Int` to `String` in Gleam, as integer64 is sent as string in JSON, and is relatively uncommon, R5 only
-- Add `search_any` in clients, which takes a flexible but not necessarily correct `String` rather than typed search parameters
+- Breaking change: remove unused `SpInclude` with _include and _revinclude from resource search params 
+- Add `search_any` in clients, which takes a flexible (includes, modifiers, prefixes, etc.) but not necessarily correct `String` rather than statically typed search params
 - Add `operation_any` in clients, which similarly lets user choose operation name and parameters
 
 ## 0.0.0 Feb 01, 2026

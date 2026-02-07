@@ -4,7 +4,7 @@
 
 [![Package Version](https://img.shields.io/hexpm/v/fhir)](https://hex.pm/packages/fhir)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
-![GitHub License](https://img.shields.io/github/license/potatoemr/gleam-fhir)
+![GitHub License](https://img.shields.io/github/license/potatoemr/gleam-fhir?color=%237A6276)
 
 ## Warning
 
@@ -69,7 +69,7 @@ pub fn main() {
 
   echo joe
 
-  let client = r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
+  let assert Ok(client) = r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
 
   let assert Ok(created) = r4_httpc.patient_create(joe, client)
   let assert Some(id) = created.id

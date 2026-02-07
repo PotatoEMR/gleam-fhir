@@ -8,7 +8,7 @@ Note FHIR servers will return an `OperationOutcome` resource with details for an
 
 ```gleam
 pub fn main() {
-  let client = r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
+  let assert Ok(client) = r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
   let pat = r4_httpc.patient_read("87a339d0-8cae-418e-89c7-8651e6aab3c6", client)
   io.println(case pat {
     Ok(pat) -> {

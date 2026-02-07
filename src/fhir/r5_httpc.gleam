@@ -1,7 +1,7 @@
 ////[https://hl7.org/fhir/r5](https://hl7.org/fhir/r5) r5 client using httpc
 
 import fhir/r5
-import fhir/r5_sansio.{type FhirClient}
+import fhir/r5_sansio
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
 import gleam/httpc
@@ -9,7 +9,33 @@ import gleam/json.{type Json}
 import gleam/option.{type Option}
 import gleam/result
 
-pub fn fhirclient_new(baseurl: String) -> FhirClient {
+/// FHIR client for sending http requests to server such as
+/// `let pat = r5.patient_read("123", client)`
+///
+/// create client from server base url with fhirclient_new(baseurl)`
+///
+/// `let assert Ok(client) = r5_httpc.fhirclient_new("r4.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r5_httpc.fhirclient_new("https://r4.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r5_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")`
+///
+/// `let assert Ok(client) = r5_httpc.fhirclient_new("127.0.0.1:8000")`
+pub type FhirClient =
+  r5_sansio.FhirClient
+
+/// creates a new client from server base url
+///
+/// `let assert Ok(client) = r5_httpc.fhirclient_new("r4.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r5_httpc.fhirclient_new("https://r4.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r5_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")`
+///
+/// `let assert Ok(client) = r5_httpc.fhirclient_new("127.0.0.1:8000")`
+pub fn fhirclient_new(
+  baseurl: String,
+) -> Result(FhirClient, r5_sansio.ErrBaseUrl) {
   r5_sansio.fhirclient_new(baseurl)
 }
 

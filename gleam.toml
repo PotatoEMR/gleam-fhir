@@ -7,6 +7,7 @@ repository = { type = "github", user = "PotatoEMR", repo = "gleam-fhir" }
 
 links = [
   { title = "Todo Issues", href = "https://github.com/PotatoEMR/gleam-fhir/issues/" },
+  { title = "XM9J59@gmail.com", href = "https://hex.pm/users/d-matz" },
 ]
 
 [documentation]

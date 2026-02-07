@@ -11,7 +11,7 @@ import fhir/r4_sansio
 import gleam/option.{Some}
 
 pub fn main() {
-  let client = r4_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
+  let assert Ok(client) = r4_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
 
   //get patient list
   let patients: Result(List(r4.Patient), r4_httpc.Err) =

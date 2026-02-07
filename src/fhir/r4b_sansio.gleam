@@ -11,14 +11,86 @@ import gleam/option.{type Option, None, Some}
 import gleam/string
 import gleam/uri
 
-pub type FhirClient {
-  FhirClient(baseurl: uri.Uri)
+/// a problem with your baseurl in `fhirclient_new(baseurl)`,
+/// which you should only see if you have typo in server base url
+pub type ErrBaseUrl {
+  UriParseFail
+  UriNoHttpOrHttps
+  UriNoHost
 }
 
-//todo some tests to make sure no reasonable base url will panic
-pub fn fhirclient_new(baseurl: String) {
-  let assert Ok(b) = uri.parse(baseurl)
-  FhirClient(b)
+/// FHIR client for sending http requests to server such as
+/// `let pat = r4b.patient_read("123", client)`
+///
+/// create client from server base url with fhirclient_new(baseurl)`
+///
+/// `let assert Ok(client) = r4b_sansio.fhirclient_new("r4b.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r4b_sansio.fhirclient_new("https://r4b.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r4b_sansio.fhirclient_new("https://hapi.fhir.org/baser4b")`
+///
+/// `let assert Ok(client) = r4b_sansio.fhirclient_new("127.0.0.1:8000")`
+pub type FhirClient {
+  FhirClient(baseurl: uri.Uri, basereq: Request(String))
+}
+
+/// creates a new client from server base url
+///
+/// `let assert Ok(client) = r4b_sansio.fhirclient_new("r4b.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r4b_sansio.fhirclient_new("https://r4b.smarthealthit.org/")`
+///
+/// `let assert Ok(client) = r4b_sansio.fhirclient_new("https://hapi.fhir.org/baser4b")`
+///
+/// `let assert Ok(client) = r4b_sansio.fhirclient_new("127.0.0.1:8000")`
+pub fn fhirclient_new(
+  server_base_url in_url: String,
+) -> Result(FhirClient, ErrBaseUrl) {
+  let in_url = case
+    string.starts_with(in_url, "localhost")
+    || string.starts_with(in_url, "127.0.0.1")
+  {
+    False -> in_url
+    True -> "http://" <> in_url
+  }
+  let in_url = case string.starts_with(in_url, "http") {
+    True -> in_url
+    False -> "https://" <> in_url
+  }
+  case uri.parse(in_url) {
+    Error(_) -> Error(UriParseFail)
+    Ok(baseurl) ->
+      case baseurl.host {
+        None -> Error(UriNoHost)
+        Some(host) -> {
+          case baseurl.scheme {
+            Some("http") -> create_base_req(http.Http, host, baseurl)
+            Some("https") -> create_base_req(http.Https, host, baseurl)
+            _ -> Error(UriNoHttpOrHttps)
+          }
+        }
+      }
+  }
+}
+
+fn create_base_req(
+  scheme: http.Scheme,
+  host: String,
+  baseurl: uri.Uri,
+) -> Result(FhirClient, a) {
+  let basereq =
+    Request(
+      method: http.Get,
+      headers: [#("Accept", "application/fhir+json")],
+      body: "",
+      scheme:,
+      host:,
+      port: baseurl.port,
+      path: baseurl.path,
+      query: None,
+    )
+  Ok(FhirClient(baseurl:, basereq:))
 }
 
 pub type Err {
@@ -33,10 +105,8 @@ pub type Err {
 }
 
 pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient) {
-  let assert Ok(req) =
-    request.to(string.join([client.baseurl |> uri.to_string, res_type], "/"))
-  req
-  |> request.set_header("Accept", "application/fhir+json")
+  client.basereq
+  |> request.set_path(string.concat([client.basereq.path, "/", res_type]))
   |> request.set_header("Content-Type", "application/fhir+json")
   |> request.set_header("Prefer", "return=representation")
   |> request.set_body(resource_json |> json.to_string)
@@ -44,10 +114,10 @@ pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient)
 }
 
 pub fn any_read_req(id: String, res_type: String, client: FhirClient) {
-  let assert Ok(req) =
-    request.to(string.join([client.baseurl |> uri.to_string, res_type, id], "/"))
-  req
-  |> request.set_header("Accept", "application/fhir+json")
+  client.basereq
+  |> request.set_path(
+    string.concat([client.basereq.path, "/", res_type, "/", id]),
+  )
 }
 
 pub fn any_update_req(
@@ -58,21 +128,17 @@ pub fn any_update_req(
 ) -> Result(Request(String), Err) {
   case id {
     None -> Error(ErrNoId)
-    Some(id) -> {
-      let assert Ok(req) =
-        request.to(string.join(
-          [client.baseurl |> uri.to_string, res_type, id],
-          "/",
-        ))
+    Some(id) ->
       Ok(
-        req
-        |> request.set_header("Accept", "application/fhir+json")
+        client.basereq
+        |> request.set_path(
+          string.concat([client.basereq.path, "/", res_type, "/", id]),
+        )
         |> request.set_header("Content-Type", "application/fhir+json")
         |> request.set_header("Prefer", "return=representation")
         |> request.set_body(resource_json |> json.to_string)
         |> request.set_method(http.Put),
       )
-    }
   }
 }
 
@@ -83,18 +149,15 @@ pub fn any_delete_req(
 ) -> Result(Request(String), Err) {
   case id {
     None -> Error(ErrNoId)
-    Some(id) -> {
-      let assert Ok(req) =
-        request.to(string.join(
-          [client.baseurl |> uri.to_string, res_type, id],
-          "/",
-        ))
+    Some(id) ->
       Ok(
-        req
+        client.basereq
+        |> request.set_path(
+          string.concat([client.basereq.path, "/", res_type, "/", id]),
+        )
         |> request.set_header("Accept", "application/fhir+json")
         |> request.set_method(http.Delete),
       )
-    }
   }
 }
 
@@ -103,18 +166,10 @@ pub fn any_search_req(
   res_type: String,
   client: FhirClient,
 ) -> Request(String) {
-  let assert Ok(req) =
-    request.to(
-      string.concat([
-        client.baseurl |> uri.to_string,
-        "/",
-        res_type,
-        "?",
-        search_string,
-      ]),
-    )
-  req
-  |> request.set_header("Accept", "application/fhir+json")
+  client.basereq
+  |> request.set_path(
+    string.concat([client.basereq.path, "/", res_type, "?", search_string]),
+  )
 }
 
 pub fn any_operation_req(
@@ -124,23 +179,23 @@ pub fn any_operation_req(
   params: Option(r4b.Parameters),
   client: FhirClient,
 ) -> Request(String) {
-  let assert Some(host) = client.baseurl.host
   let path = case res_id {
-    Some(res_id) -> string.concat([res_type, "/", res_id, "/$", operation_name])
-    None -> string.concat([res_type, "/$", operation_name])
+    Some(res_id) ->
+      string.concat([
+        client.basereq.path,
+        "/",
+        res_type,
+        "/",
+        res_id,
+        "/$",
+        operation_name,
+      ])
+    None ->
+      string.concat([client.basereq.path, "/", res_type, "/$", operation_name])
   }
   let req =
-    Request(
-      body: "",
-      headers: [],
-      host:,
-      method: http.Get,
-      path:,
-      port: client.baseurl.port,
-      query: None,
-      scheme: http.Https,
-    )
-    |> request.set_header("Accept", "application/fhir+json")
+    client.basereq
+    |> request.set_path(path)
     |> request.set_header("Content-Type", "application/fhir+json")
     |> request.set_header("Prefer", "return=representation")
   case params {

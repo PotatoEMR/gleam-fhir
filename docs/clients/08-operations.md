@@ -45,7 +45,7 @@ pub fn main() {
       ),
     )
 
-  let client = r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
+  let assert Ok(client) = r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
 
   let params =
     r4.Parameters(..r4.parameters_new(), parameter: [
