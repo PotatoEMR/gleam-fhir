@@ -85,9 +85,12 @@ fn any_update(
   let req = r4b_sansio.any_update_req(id, resource, res_type, client)
   case req {
     Ok(req) -> Ok(sendreq_handleresponse(req, resource_dec, handle_response))
-    Error(r4b_sansio.ErrNoId) -> Error(ErrNoId)
-    Error(_) ->
-      panic as "should never get any errors besides NoId before making request"
+    // from rsvp's point of view it would make more sense to split sansio error into 2 separate errors
+    // since user creates request and gets effect or error, then sends and gets response or error
+    // ie you know first error must be creating error, and second must be http or parsing error
+    // that said, currently you can only get error creating request from calling update/delete on resource with no id
+    // so maybe it's easy to ignore all of this
+    Error(_) -> Error(ErrNoId)
   }
 }
 
@@ -105,9 +108,12 @@ fn any_delete(
         r4b.operationoutcome_decoder(),
         handle_response,
       ))
-    Error(r4b_sansio.ErrNoId) -> Error(ErrNoId)
-    Error(_) ->
-      panic as "should never get any errors besides NoId before making request"
+    // from rsvp's point of view it would make more sense to split sansio error into 2 separate errors
+    // since user creates request and gets effect or error, then sends and gets response or error
+    // ie you know first error must be creating error, and second must be http or parsing error
+    // that said, currently you can only get error creating request from calling update/delete on resource with no id
+    // so maybe it's easy to ignore all of this
+    Error(_) -> Error(ErrNoId)
   }
 }
 
