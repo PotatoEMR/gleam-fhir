@@ -1,5 +1,5 @@
 name = "fhir"
-version = "0.0.0"
+version = "0.1.0"
 
 description = "Type-safe FHIR resources and client"
 licences = ["MIT"]
@@ -13,29 +13,30 @@ links = [
 pages = [
   { title = "Release Notes", path = "releasenotes.html", source = "./ReleaseNotes.md" },
   { title = " ", path = "#", source = "" },
-  { title = "Gleam FHIR Resources", path = "resources.html", source = "./docs/resources/fhirresources.md" },
-  { title = "• Primitive Type", path = "resources/primitivetype.html", source = "./docs/resources/primitivetype.md" },
-  { title = "• Complex Type", path = "resources/complextype.html", source = "./docs/resources/complextype.md" },
-  { title = "• BackboneElement", path = "resources/backboneelement.html", source = "./docs/resources/backboneelement.md" },
-  { title = "• Cardinality", path = "resources/cardinality.html", source = "./docs/resources/cardinality.md" },
-  { title = "• Choice Element", path = "resources/choiceelement.html", source = "./docs/resources/choiceelement.md" },
-  { title = "• id vs Identifier", path = "resources/id-vs-identifier.html", source = "./docs/resources/idvsidentifier.md" },
-  { title = "• Reference", path = "resources/reference.html", source = "./docs/resources/reference.md" },
-  { title = "• code", path = "resources/code.html", source = "./docs/resources/code.md" },
-  { title = "• Coding", path = "resources/coding.html", source = "./docs/resources/coding.md" },
-  { title = "• CodeableConcept", path = "resources/codeableconcept.html", source = "./docs/resources/codeableconcept.md" },
-  { title = "• CodeableReference", path = "resources/codeablereference.html", source = "./docs/resources/codeablereference.md" },
-  { title = "• Extension", path = "resources/extension.html", source = "./docs/resources/extension.md" },
-  { title = "• Bundle", path = "resources/bundle.html", source = "./docs/resources/bundle.md" },
-  { title = "• JSON", path = "resources/json.html", source = "./docs/resources/json.md" },
+  { title = "Gleam FHIR Resources", path = "resources.html", source = "./docs/resources/01-fhirresources.md" },
+  { title = "• Primitive Type", path = "resources/primitivetype.html", source = "./docs/resources/02-primitivetype.md" },
+  { title = "• Complex Type", path = "resources/complextype.html", source = "./docs/resources/03-complextype.md" },
+  { title = "• BackboneElement", path = "resources/backboneelement.html", source = "./docs/resources/04-backboneelement.md" },
+  { title = "• Cardinality", path = "resources/cardinality.html", source = "./docs/resources/05-cardinality.md" },
+  { title = "• Choice Element", path = "resources/choiceelement.html", source = "./docs/resources/06-choiceelement.md" },
+  { title = "• id vs Identifier", path = "resources/id-vs-identifier.html", source = "./docs/resources/07-idvsidentifier.md" },
+  { title = "• Reference", path = "resources/reference.html", source = "./docs/resources/08-reference.md" },
+  { title = "• code", path = "resources/code.html", source = "./docs/resources/09-code.md" },
+  { title = "• Coding", path = "resources/coding.html", source = "./docs/resources/10-coding.md" },
+  { title = "• CodeableConcept", path = "resources/codeableconcept.html", source = "./docs/resources/11-codeableconcept.md" },
+  { title = "• CodeableReference", path = "resources/codeablereference.html", source = "./docs/resources/12-codeablereference.md" },
+  { title = "• Extension", path = "resources/extension.html", source = "./docs/resources/12-extension.md" },
+  { title = "• Bundle", path = "resources/bundle.html", source = "./docs/resources/13-bundle.md" },
+  { title = "• JSON", path = "resources/json.html", source = "./docs/resources/14-json.md" },
   { title = " ", path = "#", source = "" },
-  { title = "Gleam FHIR Clients", path = "clients.html", source = "./docs/clients/fhirclient.md" },
-  { title = "• Client for httpc", path = "clients/httpc.html", source = "./docs/clients/httpc.md" },
-  { title = "• Client for rsvp", path = "clients/rsvp.html", source = "./docs/clients/rsvp.md" },
-  { title = "• sans-io", path = "clients/sansio.html", source = "./docs/clients/sansio.md" },
-  { title = "• Handling Errors", path = "clients/handlingerrors.html", source = "./docs/clients/handlingerrors.md" },
-  { title = "• CRUD", path = "clients/crud.html", source = "./docs/clients/crud.md" },
-  { title = "• Search", path = "clients/search.html", source = "./docs/clients/search.md" },
+  { title = "Gleam FHIR Clients", path = "clients.html", source = "./docs/clients/01-fhirclient.md" },
+  { title = "• Client for httpc", path = "clients/httpc.html", source = "./docs/clients/02-httpc.md" },
+  { title = "• Client for rsvp", path = "clients/rsvp.html", source = "./docs/clients/03-rsvp.md" },
+  { title = "• sans-io", path = "clients/sansio.html", source = "./docs/clients/04-sansio.md" },
+  { title = "• Handling Errors", path = "clients/handlingerrors.html", source = "./docs/clients/05-handlingerrors.md" },
+  { title = "• CRUD", path = "clients/crud.html", source = "./docs/clients/06-crud.md" },
+  { title = "• Search", path = "clients/search.html", source = "./docs/clients/07-search.md" },
+  { title = "• Operations", path = "clients/operations.html", source = "./docs/clients/08-operations.md" },
 ]
 
 [dependencies]

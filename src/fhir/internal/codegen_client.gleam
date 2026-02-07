@@ -101,72 +101,72 @@ fn search_param_decoder() -> decode.Decoder(SearchParam) {
   decode.success(SearchParam(name:))
 }
 
-pub type Operationdefinition {
-  Operationdefinition(
-    url: Option(String),
-    name: String,
-    parameter: List(OperationdefinitionParameter),
-  )
-}
+// pub type Operationdefinition {
+//   Operationdefinition(
+//     url: Option(String),
+//     name: String,
+//     parameter: List(OperationdefinitionParameter),
+//   )
+// }
 
-fn operationdefinition_decoder() -> decode.Decoder(Operationdefinition) {
-  use rt <- decode.field("resourceType", decode.string)
-  case rt {
-    "OperationDefinition" -> {
-      use url <- decode.field("url", decode.optional(decode.string))
-      use name <- decode.field("name", decode.string)
-      use parameter <- decode.field(
-        "parameter",
-        decode.list(operationdefinition_parameter_decoder()),
-      )
-      decode.success(Operationdefinition(url:, name:, parameter:))
-    }
-    _ -> decode.success(Operationdefinition(url: None, name: "", parameter: []))
-  }
-}
+// fn operationdefinition_decoder() -> decode.Decoder(Operationdefinition) {
+//   use rt <- decode.field("resourceType", decode.string)
+//   case rt {
+//     "OperationDefinition" -> {
+//       use url <- decode.field("url", decode.optional(decode.string))
+//       use name <- decode.field("name", decode.string)
+//       use parameter <- decode.field(
+//         "parameter",
+//         decode.list(operationdefinition_parameter_decoder()),
+//       )
+//       decode.success(Operationdefinition(url:, name:, parameter:))
+//     }
+//     _ -> decode.success(Operationdefinition(url: None, name: "", parameter: []))
+//   }
+// }
 
-pub type OperationdefinitionParameter {
-  OperationdefinitionParameter(
-    name: String,
-    use_: String,
-    min: Int,
-    max: String,
-    type_: Option(String),
-  )
-}
+// pub type OperationdefinitionParameter {
+//   OperationdefinitionParameter(
+//     name: String,
+//     use_: String,
+//     min: Int,
+//     max: String,
+//     type_: Option(String),
+//   )
+// }
 
-fn operationdefinition_parameter_decoder() -> decode.Decoder(
-  OperationdefinitionParameter,
-) {
-  use name <- decode.field("name", decode.string)
-  use use_ <- decode.field("use", decode.string)
-  use min <- decode.field("min", decode.int)
-  use max <- decode.field("max", decode.string)
-  use type_ <- decode.optional_field(
-    "type",
-    None,
-    decode.optional(decode.string),
-  )
-  decode.success(OperationdefinitionParameter(name:, use_:, min:, max:, type_:))
-}
+// fn operationdefinition_parameter_decoder() -> decode.Decoder(
+//   OperationdefinitionParameter,
+// ) {
+//   use name <- decode.field("name", decode.string)
+//   use use_ <- decode.field("use", decode.string)
+//   use min <- decode.field("min", decode.int)
+//   use max <- decode.field("max", decode.string)
+//   use type_ <- decode.optional_field(
+//     "type",
+//     None,
+//     decode.optional(decode.string),
+//   )
+//   decode.success(OperationdefinitionParameter(name:, use_:, min:, max:, type_:))
+// }
 
-type OpdefBundle {
-  OpdefBundle(entry: List(OpdefEntry))
-}
+// type OpdefBundle {
+//   OpdefBundle(entry: List(OpdefEntry))
+// }
 
-fn opdef_bundle_decoder() -> decode.Decoder(OpdefBundle) {
-  use entry <- decode.field("entry", decode.list(opdef_entry_decoder()))
-  decode.success(OpdefBundle(entry:))
-}
+// fn opdef_bundle_decoder() -> decode.Decoder(OpdefBundle) {
+//   use entry <- decode.field("entry", decode.list(opdef_entry_decoder()))
+//   decode.success(OpdefBundle(entry:))
+// }
 
-type OpdefEntry {
-  OpdefEntry(resource: Operationdefinition)
-}
+// type OpdefEntry {
+//   OpdefEntry(resource: Operationdefinition)
+// }
 
-fn opdef_entry_decoder() -> decode.Decoder(OpdefEntry) {
-  use resource <- decode.field("resource", operationdefinition_decoder())
-  decode.success(OpdefEntry(resource:))
-}
+// fn opdef_entry_decoder() -> decode.Decoder(OpdefEntry) {
+//   use resource <- decode.field("resource", operationdefinition_decoder())
+//   decode.success(OpdefEntry(resource:))
+// }
 
 pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
   let assert Ok(spec) = simplifile.read(spec_file)
