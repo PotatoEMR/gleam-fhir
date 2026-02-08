@@ -874,148 +874,139 @@ fn file_to_types(
               }
 
               case camel_type {
-                "Extension" -> {
-                  let assert [elt, ..] = fields
-                  "///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
-                  pub type Extension {
-                    Extension(id: Option(String), url: String, ext: ExtensionSimpleOrComplex)
-                  }
-
-                  ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
-                  pub type ExtensionSimpleOrComplex {
-                    ExtComplex(children: List(Extension))
-                    ExtSimple(value: ExtensionValue)
-                  }
-
-                  ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
-                  pub type ExtensionValue {
-                    "
-                  <> list.fold(
-                    over: elt.type_,
-                    from: "",
-                    with: fn(acc: String, typ: Type) -> String {
-                      string.concat([
-                        acc,
-                        "ExtensionValue",
-                        string.capitalise(typ.code),
-                        "(value: ",
-                        string_to_type(typ.code, [], "", elt, ""),
-                        ")",
-                        "\n",
-                      ])
-                    },
-                  )
-                  <> "
-                  }
-
-                  pub fn extension_to_json(extension: Extension) -> Json {
-                    let Extension(id:, url:, ext:) = extension
-                    let fields = [#(\"url\", json.string(url))]
-                    let fields = case id {
-                      Some(v) -> [#(\"id\", json.string(v)), ..fields]
-                      None -> fields
-                    }
-                    let fields = [ext_simple_or_complex_to_json(ext), ..fields]
-                    json.object(fields)
-                  }
-
-                  fn ext_simple_or_complex_to_json(ext) {
-                    case ext {
-                      ExtComplex(children) -> #(
-                        \"extension\",
-                        json.array(children, extension_to_json),
-                      )
-                      ExtSimple(val) -> extsimple_to_json(val)
-                    }
-                  }
-
-                  fn extsimple_to_json(v: ExtensionValue) -> #(String, Json) {
-                    #(
-                      \"value\"
-                        <> case v {"
-                  <> list.fold(
-                    over: elt.type_,
-                    from: "",
-                    with: fn(acc: String, typ: Type) -> String {
-                      string.concat([
-                        acc,
-                        "ExtensionValue",
-                        string.capitalise(typ.code),
-                        "(_) -> \"",
-                        {
-                          let assert [fst, ..rest] =
-                            string.to_graphemes(typ.code)
-                          string.uppercase(fst) <> string.concat(rest)
-                        },
-                        "\"",
-                      ])
-                    },
-                  )
-                  <> "},
-                      extension_value_to_json(v),
-                    )
-                  }
-
-                  pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
-                    case elt {
-                      "
-                  <> list.fold(
-                    over: elt.type_,
-                    from: "",
-                    with: fn(acc: String, typ: Type) -> String {
-                      string.concat([
-                        acc,
-                        "ExtensionValue",
-                        string.capitalise(typ.code),
-                        "(v) -> ",
-                        string_to_encoder_type(typ.code, [], "", elt),
-                        "(v)\n",
-                      ])
-                    },
-                  )
-                  <> "
-                  }
-                  }
-
-
-                  pub fn extension_decoder() -> Decoder(Extension) {
-                    use url <- decode.field(\"url\", decode.string)
-                    use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
-                    use ext <- decode.then(ext_simple_or_complex_decoder())
-                    decode.success(Extension(url:, id:, ext:))
-                  }
-
-                  pub fn ext_simple_or_complex_decoder() {
-                    decode.one_of(
-                      decode.field(\"extension\", decode.list(extension_decoder()), decode.success)
-                        |> decode.map(ExtComplex),
-                      ["
-                  <> list.fold(
-                    over: elt.type_,
-                    from: "",
-                    with: fn(acc: String, typ: Type) -> String {
-                      let assert [fst, ..rest] = string.to_graphemes(typ.code)
-                      let first_upper =
-                        string.uppercase(fst) <> string.concat(rest)
-                      string.concat([
-                        acc,
-                        "decode.field(\"value"
-                          <> first_upper
-                          <> "\", "
-                          <> string_to_decoder_type(typ.code, [], "", elt)
-                          <> ", decode.success)
-                           |> decode.map(ExtensionValue"
-                          <> string.capitalise(typ.code)
-                          <> ")
-                           |> decode.map(ExtSimple),",
-                      ])
-                    },
-                  )
-                  <> "],
-                    )
-                  }
-                  "
-                }
+                // "Extension" -> {
+                //   let assert [elt, ..] = fields
+                //   "///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
+                //   pub type Extension {
+                //     Extension(id: Option(String), url: String, ext: ExtensionSimpleOrComplex)
+                //   }
+                //   ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
+                //   pub type ExtensionSimpleOrComplex {
+                //     ExtComplex(children: List(Extension))
+                //     ExtSimple(value: ExtensionValue)
+                //   }
+                //   ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
+                //   pub type ExtensionValue {
+                //     "
+                //   <> list.fold(
+                //     over: elt.type_,
+                //     from: "",
+                //     with: fn(acc: String, typ: Type) -> String {
+                //       string.concat([
+                //         acc,
+                //         "ExtensionValue",
+                //         string.capitalise(typ.code),
+                //         "(value: ",
+                //         string_to_type(typ.code, [], "", elt, ""),
+                //         ")",
+                //         "\n",
+                //       ])
+                //     },
+                //   )
+                //   <> "
+                //   }
+                //   pub fn extension_to_json(extension: Extension) -> Json {
+                //     let Extension(id:, url:, ext:) = extension
+                //     let fields = [#(\"url\", json.string(url))]
+                //     let fields = case id {
+                //       Some(v) -> [#(\"id\", json.string(v)), ..fields]
+                //       None -> fields
+                //     }
+                //     let fields = [ext_simple_or_complex_to_json(ext), ..fields]
+                //     json.object(fields)
+                //   }
+                //   fn ext_simple_or_complex_to_json(ext) {
+                //     case ext {
+                //       ExtComplex(children) -> #(
+                //         \"extension\",
+                //         json.array(children, extension_to_json),
+                //       )
+                //       ExtSimple(val) -> extsimple_to_json(val)
+                //     }
+                //   }
+                //   fn extsimple_to_json(v: ExtensionValue) -> #(String, Json) {
+                //     #(
+                //       \"value\"
+                //         <> case v {"
+                //   <> list.fold(
+                //     over: elt.type_,
+                //     from: "",
+                //     with: fn(acc: String, typ: Type) -> String {
+                //       string.concat([
+                //         acc,
+                //         "ExtensionValue",
+                //         string.capitalise(typ.code),
+                //         "(_) -> \"",
+                //         {
+                //           let assert [fst, ..rest] =
+                //             string.to_graphemes(typ.code)
+                //           string.uppercase(fst) <> string.concat(rest)
+                //         },
+                //         "\"",
+                //       ])
+                //     },
+                //   )
+                //   <> "},
+                //       extension_value_to_json(v),
+                //     )
+                //   }
+                //   pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
+                //     case elt {
+                //       "
+                //   <> list.fold(
+                //     over: elt.type_,
+                //     from: "",
+                //     with: fn(acc: String, typ: Type) -> String {
+                //       string.concat([
+                //         acc,
+                //         "ExtensionValue",
+                //         string.capitalise(typ.code),
+                //         "(v) -> ",
+                //         string_to_encoder_type(typ.code, [], "", elt),
+                //         "(v)\n",
+                //       ])
+                //     },
+                //   )
+                //   <> "
+                //   }
+                //   }
+                //   pub fn extension_decoder() -> Decoder(Extension) {
+                //     use url <- decode.field(\"url\", decode.string)
+                //     use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
+                //     use ext <- decode.then(ext_simple_or_complex_decoder())
+                //     decode.success(Extension(url:, id:, ext:))
+                //   }
+                //   pub fn ext_simple_or_complex_decoder() {
+                //     decode.one_of(
+                //       decode.field(\"extension\", decode.list(extension_decoder()), decode.success)
+                //         |> decode.map(ExtComplex),
+                //       ["
+                //   <> list.fold(
+                //     over: elt.type_,
+                //     from: "",
+                //     with: fn(acc: String, typ: Type) -> String {
+                //       let assert [fst, ..rest] = string.to_graphemes(typ.code)
+                //       let first_upper =
+                //         string.uppercase(fst) <> string.concat(rest)
+                //       string.concat([
+                //         acc,
+                //         "decode.field(\"value"
+                //           <> first_upper
+                //           <> "\", "
+                //           <> string_to_decoder_type(typ.code, [], "", elt)
+                //           <> ", decode.success)
+                //            |> decode.map(ExtensionValue"
+                //           <> string.capitalise(typ.code)
+                //           <> ")
+                //            |> decode.map(ExtSimple),",
+                //       ])
+                //     },
+                //   )
+                //   <> "],
+                //     )
+                //   }
+                //   "
+                // }
                 _ ->
                   string.join(
                     [

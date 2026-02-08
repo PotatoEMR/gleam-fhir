@@ -8,6 +8,7 @@ repository = { type = "github", user = "PotatoEMR", repo = "gleam-fhir" }
 links = [
   { title = "Todo Issues", href = "https://github.com/PotatoEMR/gleam-fhir/issues/" },
   { title = "XM9J59@gmail.com", href = "https://hex.pm/users/d-matz" },
+  { title = "Playlist", href="https://www.youtube.com/watch?v=ATVbLa4ASps&list=PLUIln88-e8cGnKwqpRUr39lv1aFQy4P3c&index=1"}
 ]
 
 [documentation]
