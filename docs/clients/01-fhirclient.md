@@ -1,4 +1,4 @@
-# FHIR Client
+# Client
 
 FHIR defines [REST operations](https://build.fhir.org/http.html) for interacting with a server. 
 

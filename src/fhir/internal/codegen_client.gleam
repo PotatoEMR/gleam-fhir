@@ -168,7 +168,11 @@ fn search_param_decoder() -> decode.Decoder(SearchParam) {
 //   decode.success(OpdefEntry(resource:))
 // }
 
-pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
+pub fn gen(
+  spec_file spec_file: String,
+  fv fhir_version: String,
+  pkg_prefix pkg_prefix: String,
+) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in src/fhir/internal/downloads/{r4 r4b r5}, run with download arg if not"
   // you could use generated bundle decoder here
@@ -464,7 +468,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
       search_encode,
       bundle_to_gt,
     ])
-    |> string.replace("FHIRVERSION", fhir_version)
+    |> string.replace("FHIRVERSION", pkg_prefix)
 
   //region httpc
   let res_specific_crud =
@@ -533,7 +537,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
     |> simplifile.read
   let httpc_layer =
     string.concat([file_text, res_specific_crud])
-    |> string.replace("FHIRVERSION", fhir_version)
+    |> string.replace("FHIRVERSION", pkg_prefix)
 
   let rsvp_res_specific_crud =
     gen_specific_crud(
@@ -617,7 +621,7 @@ pub fn gen(spec_file spec_file: String, fv fhir_version: String) {
     |> simplifile.read
   let rsvp_layer =
     string.concat([file_text, rsvp_res_specific_crud])
-    |> string.replace("FHIRVERSION", fhir_version)
+    |> string.replace("FHIRVERSION", pkg_prefix)
 
   #(sansio, httpc_layer, rsvp_layer)
 }

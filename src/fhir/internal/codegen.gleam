@@ -11,6 +11,9 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/set
 import gleam/string
+
+//is there a way to add these as dev dependencies but not require for users
+import shellout
 import simplifile
 
 //dogfood r4 to parse valuesets
@@ -39,22 +42,24 @@ fn const_download_dir() {
 pub fn main() {
   io.println("🔥🔥🔥 bultaoreune")
 
-  let args = argv.load().arguments |> list.map(fn(s) { string.lowercase(s) })
+  // lower easier but caps matter for urls like
+  // https://build.fhir.org/ig/HL7/US-Core/package.tgz
+  let args_cased = argv.load().arguments
+  let args_lower = args_cased |> list.map(fn(s) { string.lowercase(s) })
 
   case
-    list.contains(args, "r4")
-    || list.contains(args, "r4b")
-    || list.contains(args, "r5")
+    list.contains(args_lower, "r4")
+    || list.contains(args_lower, "r4b")
+    || list.contains(args_lower, "r5")
   {
     False ->
-      io.println(
-        "run with args r4 r4b r5 to generate eg gleam run -m fhir/internal/codegen r4 r5",
-      )
+      panic as "run with args r4 r4b r5 to generate eg gleam run -m fhir/internal/codegen r4 r5"
     True -> Nil
   }
 
-  let download_files = list.contains(args, "download")
+  let download_files = list.contains(args_lower, "download")
   let download_dir = const_download_dir()
+
   let _ = case download_files {
     True -> {
       case simplifile.delete(download_dir) {
@@ -76,10 +81,53 @@ pub fn main() {
   }
   let assert Ok(_) = simplifile.create_directory_all(const_gen_into_dir())
 
+  let custom_profile =
+    list.find(args_cased, fn(arg) { string.starts_with(arg, "custom=") })
+  case custom_profile {
+    Error(_) -> Nil
+    Ok(custom_profile) -> {
+      case download_files {
+        False -> Nil
+        True -> {
+          let extract_dir = const_download_dir() |> filepath.join("profiles")
+          let assert [_, profile_url] = string.split(custom_profile, "=")
+          let assert Ok(req) = request.to(profile_url)
+          echo profile_url
+          let assert Ok(resp) = httpc.send_bits(request.set_body(req, <<>>))
+          let assert Ok(_) = simplifile.create_directory_all(extract_dir)
+          let tgz_path = extract_dir |> filepath.join("package.tgz")
+          echo tgz_path
+          let assert Ok(Nil) =
+            simplifile.write_bits(to: tgz_path, bits: resp.body)
+          let assert Ok(_) =
+            shellout.command(
+              "tar",
+              ["-xzf", tgz_path, "-C", extract_dir],
+              ".",
+              [],
+            )
+          io.println("download profile " <> profile_url)
+        }
+      }
+    }
+  }
+
   use fhir_version <- list.map(check_versions)
 
-  let _ = case list.contains(args, fhir_version) {
-    True -> gen_fhir(fhir_version, download_files)
+  let custom_profile_name = case custom_profile {
+    Error(_) -> None
+    Ok(_) -> {
+      let assert Ok(custom_profile_name) =
+        list.find(args_cased, fn(arg) { string.starts_with(arg, "customname=") })
+        as "if custom=[url] also need arg customname=[pkg name]"
+      let assert [_, custom_profile_name] =
+        string.split(custom_profile_name, "=")
+      Some(custom_profile_name)
+    }
+  }
+
+  let _ = case list.contains(args_lower, fhir_version) {
+    True -> gen_fhir(fhir_version, download_files, custom_profile_name)
     False -> Nil
   }
   Nil
@@ -221,7 +269,11 @@ fn binding_decoder() -> decode.Decoder(Binding) {
   decode.success(Binding(strength:, value_set:))
 }
 
-fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
+fn gen_fhir(
+  fhir_version: String,
+  download_files: Bool,
+  custom_profile_name: Option(String),
+) -> Nil {
   let gen_into_dir = const_gen_into_dir()
   let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
 
@@ -230,7 +282,12 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
       let assert Ok(_) = simplifile.create_directory_all(extract_dir_ver)
       use filename <- list.map(zip_file_names)
       io.println(
-        fhir_url <> "/" <> string.uppercase(fhir_version) <> "/" <> filename,
+        "download "
+        <> fhir_url
+        <> "/"
+        <> string.uppercase(fhir_version)
+        <> "/"
+        <> filename,
       )
       let assert Ok(req) =
         request.to(
@@ -244,9 +301,16 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
     False -> [Nil]
   }
 
-  let gen_gleamfile = filepath.join(gen_into_dir, fhir_version) <> ".gleam"
-  let gen_vsfile =
-    filepath.join(gen_into_dir, fhir_version) <> "_valuesets.gleam"
+  let gen_prefix = case custom_profile_name {
+    None -> filepath.join(gen_into_dir, fhir_version)
+    Some(name) -> filepath.join(gen_into_dir, name)
+  }
+  let gen_gleamfile = gen_prefix <> ".gleam"
+  let gen_vsfile = gen_prefix <> "_valuesets.gleam"
+  let pkg_prefix = case custom_profile_name {
+    None -> fhir_version
+    Some(name) -> name
+  }
   let all_types =
     string.concat([
       "////[https://hl7.org/fhir/",
@@ -254,16 +318,16 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
       "](https://hl7.org/fhir/",
       fhir_version,
       ") resources\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport gleam/bool\nimport gleam/int\nimport fhir/",
-      fhir_version,
+      pkg_prefix,
       "_valuesets\n",
       file_to_types(
         spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
-        fv: fhir_version,
+        fv: pkg_prefix,
         vsfile: gen_vsfile,
       ),
       file_to_types(
         spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
-        fv: fhir_version,
+        fv: pkg_prefix,
         vsfile: gen_vsfile,
       ),
       "
@@ -291,14 +355,15 @@ fn gen_fhir(fhir_version: String, download_files: Bool) -> Nil {
     codegen_client.gen(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
       fv: fhir_version,
+      pkg_prefix: pkg_prefix,
     )
-  let f_sansio = gen_into_dir |> filepath.join(fhir_version <> "_sansio.gleam")
+  let f_sansio = gen_prefix <> "_sansio.gleam"
   let assert Ok(_) = simplifile.write(to: f_sansio, contents: sansio)
   io.println("generated " <> f_sansio)
-  let f_httpc = gen_into_dir |> filepath.join(fhir_version <> "_httpc.gleam")
+  let f_httpc = gen_prefix <> "_httpc.gleam"
   let assert Ok(_) = simplifile.write(to: f_httpc, contents: httpc_layer)
   io.println("generated " <> f_httpc)
-  let f_rsvp = gen_into_dir |> filepath.join(fhir_version <> "_rsvp.gleam")
+  let f_rsvp = gen_prefix <> "_rsvp.gleam"
   let assert Ok(_) = simplifile.write(to: f_rsvp, contents: rsvp_layer)
   io.println("generated " <> f_rsvp)
 }

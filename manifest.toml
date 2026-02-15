@@ -18,6 +18,7 @@ packages = [
   { name = "json", version = "1.4.1", build_tools = ["mix"], requirements = [], otp_app = "json", source = "hex", outer_checksum = "9ABF218DBE4EA4FCB875E087D5F904EF263D012EE5ED21D46E9DBCA63F053D16" },
   { name = "lustre", version = "5.5.2", build_tools = ["gleam"], requirements = ["gleam_erlang", "gleam_json", "gleam_otp", "gleam_stdlib", "houdini"], otp_app = "lustre", source = "hex", outer_checksum = "2DC2973D81C12E63251B636773217B8E09C5C84590A729750F6BCF009420B38E" },
   { name = "rsvp", version = "1.2.0", build_tools = ["gleam"], requirements = ["gleam_erlang", "gleam_fetch", "gleam_http", "gleam_httpc", "gleam_javascript", "gleam_json", "gleam_stdlib", "lustre"], otp_app = "rsvp", source = "hex", outer_checksum = "40F9E0E662FF258E10C7041A9591261FE802D56625FB444B91510969644F7722" },
+  { name = "shellout", version = "1.7.0", build_tools = ["gleam"], requirements = ["gleam_stdlib"], otp_app = "shellout", source = "hex", outer_checksum = "1BDC03438FEB97A6AF3E396F4ABEB32BECF20DF2452EC9A8C0ACEB7BDDF70B14" },
   { name = "simplifile", version = "2.3.1", build_tools = ["gleam"], requirements = ["filepath", "gleam_stdlib"], otp_app = "simplifile", source = "hex", outer_checksum = "957E0E5B75927659F1D2A1B7B75D7B9BA96FAA8D0C53EA71C4AD9CD0C6B848F6" },
 ]
 
@@ -33,4 +34,5 @@ gleeunit = { version = ">= 1.0.0 and < 2.0.0" }
 json = { version = ">= 1.4.1 and < 2.0.0" }
 lustre = { version = ">= 5.5.2 and < 6.0.0" }
 rsvp = { version = ">= 1.2.0 and < 2.0.0" }
+shellout = { version = ">= 1.7.0 and < 2.0.0" }
 simplifile = { version = ">= 2.3.1 and < 3.0.0" }

@@ -39,6 +39,7 @@ pages = [
   { title = "- CRUD", path = "clients/crud.html", source = "./docs/clients/06-crud.md" },
   { title = "- Search", path = "clients/search.html", source = "./docs/clients/07-search.md" },
   { title = "- Operations", path = "clients/operations.html", source = "./docs/clients/08-operations.md" },
+  { title = "Gleam FHIR Profiles", path = "clients.html", source = "./docs/profiles/01-profiles.md" },
 ]
 
 [dependencies]
@@ -53,6 +54,7 @@ filepath = ">= 1.1.2 and < 2.0.0"
 rsvp = ">= 1.2.0 and < 2.0.0"
 lustre = ">= 5.5.2 and < 6.0.0"
 gleam_time = ">= 1.7.0 and < 2.0.0"
+shellout = ">= 1.7.0 and < 2.0.0"
 
 [dev-dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"
