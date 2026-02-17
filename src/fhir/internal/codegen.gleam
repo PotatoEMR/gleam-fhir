@@ -81,6 +81,7 @@ pub fn main() {
   }
   let assert Ok(_) = simplifile.create_directory_all(const_gen_into_dir())
 
+  let profiles_dir = const_download_dir() |> filepath.join("profiles")
   let custom_profile =
     list.find(args_cased, fn(arg) { string.starts_with(arg, "custom=") })
   case custom_profile {
@@ -89,20 +90,19 @@ pub fn main() {
       case download_files {
         False -> Nil
         True -> {
-          let extract_dir = const_download_dir() |> filepath.join("profiles")
           let assert [_, profile_url] = string.split(custom_profile, "=")
           let assert Ok(req) = request.to(profile_url)
           echo profile_url
           let assert Ok(resp) = httpc.send_bits(request.set_body(req, <<>>))
-          let assert Ok(_) = simplifile.create_directory_all(extract_dir)
-          let tgz_path = extract_dir |> filepath.join("package.tgz")
+          let assert Ok(_) = simplifile.create_directory_all(profiles_dir)
+          let tgz_path = profiles_dir |> filepath.join("package.tgz")
           echo tgz_path
           let assert Ok(Nil) =
             simplifile.write_bits(to: tgz_path, bits: resp.body)
           let assert Ok(_) =
             shellout.command(
               "tar",
-              ["-xzf", tgz_path, "-C", extract_dir],
+              ["-xzf", tgz_path, "-C", profiles_dir],
               ".",
               [],
             )
@@ -125,9 +125,11 @@ pub fn main() {
       Some(custom_profile_name)
     }
   }
+  let profiles_dir = profiles_dir |> filepath.join("package")
 
   let _ = case list.contains(args_lower, fhir_version) {
-    True -> gen_fhir(fhir_version, download_files, custom_profile_name)
+    True ->
+      gen_fhir(fhir_version, download_files, custom_profile_name, profiles_dir)
     False -> Nil
   }
   Nil
@@ -159,6 +161,7 @@ type Resource {
     url: String,
     kind: Option(String),
     base_definition: Option(String),
+    type_: Option(String),
   )
 }
 
@@ -181,15 +184,34 @@ fn resource_decoder() -> decode.Decoder(Resource) {
     None,
     decode.optional(decode.string),
   )
-
-  decode.success(Resource(
-    snapshot:,
-    resource_type:,
-    name:,
-    url:,
-    kind:,
-    base_definition:,
-  ))
+  case resource_type {
+    "StructureDefinition" -> {
+      use type_ <- decode.optional_field(
+        "type",
+        None,
+        decode.optional(decode.string),
+      )
+      decode.success(Resource(
+        snapshot:,
+        resource_type:,
+        name:,
+        url:,
+        kind:,
+        base_definition:,
+        type_:,
+      ))
+    }
+    _ ->
+      decode.success(Resource(
+        snapshot:,
+        resource_type:,
+        name:,
+        url:,
+        kind:,
+        base_definition:,
+        type_: None,
+      ))
+  }
 }
 
 type Snapshot {
@@ -273,6 +295,7 @@ fn gen_fhir(
   fhir_version: String,
   download_files: Bool,
   custom_profile_name: Option(String),
+  profiles_dir: String,
 ) -> Nil {
   let gen_into_dir = const_gen_into_dir()
   let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
@@ -324,11 +347,15 @@ fn gen_fhir(
         spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
         fv: pkg_prefix,
         vsfile: gen_vsfile,
+        profiles_dir: profiles_dir,
+        custom_profile_name: custom_profile_name,
       ),
       file_to_types(
         spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
         fv: pkg_prefix,
         vsfile: gen_vsfile,
+        profiles_dir: profiles_dir,
+        custom_profile_name: custom_profile_name,
       ),
       "
       //std lib decode.optional supports myfield: null but what if myfield is omitted from json entirely?
@@ -347,7 +374,7 @@ fn gen_fhir(
 
   // gen valuesets for resource fields with required code binding
   // which were written as list to file by gen_gleamfile (why this fn needs to know file as temp list)
-  let all_vs = valueset_to_types(gen_vsfile, fhir_version)
+  let all_vs = valueset_to_types(gen_vsfile, fhir_version, profiles_dir)
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
 
@@ -372,7 +399,34 @@ fn file_to_types(
   spec_file spec_file: String,
   fv fhir_version: String,
   vsfile gen_vsfile: String,
+  profiles_dir profiles_dir: String,
+  custom_profile_name custom_profile_name: Option(String),
 ) -> String {
+  let profile_structures = case
+    custom_profile_name,
+    string.ends_with(spec_file, "profiles-resources.json")
+  {
+    _, False -> dict.new()
+    None, True -> dict.new()
+    Some(_), True -> {
+      let assert Ok(files) = simplifile.read_directory(profiles_dir)
+      files
+      |> list.filter(fn(f) { string.starts_with(f, "StructureDefinition") })
+      |> list.fold(dict.new(), fn(acc, f) {
+        let fname = profiles_dir |> filepath.join(f)
+        let assert Ok(profile_structuredef) = simplifile.read(fname)
+        let assert Ok(r) =
+          json.parse(from: profile_structuredef, using: resource_decoder())
+        let assert Some(type_) = r.type_
+        case dict.get(acc, type_) {
+          Ok(profile_resources) ->
+            dict.insert(acc, type_, [r, ..profile_resources])
+          Error(_) -> dict.insert(acc, type_, [r])
+        }
+      })
+    }
+  }
+
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in src/fhir/internal/downloads/{r4 r4b r5}, run with download arg if not"
   let assert Ok(bundle) = json.parse(from: spec, using: bundle_decoder())
@@ -391,40 +445,50 @@ fn file_to_types(
         _, _ -> False
       }
     })
+
+  let entries =
+    list.fold(entries, [], fn(acc, entry) {
+      case profile_structures |> dict.get(entry.resource.name) {
+        Error(_) -> [entry.resource, ..acc]
+        Ok(profile_structures) -> {
+          list.append(profile_structures, acc)
+        }
+      }
+    })
+    |> list.reverse
+
   let all_resources_and_types =
-    list.fold(entries, "", fn(elt_str_acc, entry: Entry) {
+    list.fold(entries, "", fn(elt_str_acc, resource: Resource) {
       //map of type -> fields needed to list out all the BackboneElements
       //because they're subcomponents eg Allergy -> Reaction
       //and rather than nested, we want to write fields one after the other
-      let starting_res_fields =
-        dict.new() |> dict.insert(entry.resource.name, [])
+      let starting_res_fields = dict.new() |> dict.insert(resource.name, [])
       //we want to write types in order of parsing backbone elements, but map order random
       //put elts into name of current struct, eg AllergyIntolerance, AllergyIntoleranceReaction...
-      let type_order = [entry.resource.name]
+      let type_order = [resource.name]
       let f_o = #(starting_res_fields, type_order)
 
       elt_str_acc
       <> "\n"
-      <> case entry.resource.snapshot {
+      <> case resource.snapshot {
         None -> ""
         Some(snapshot) -> {
           let fields_and_order =
             list.fold(over: snapshot.element, from: f_o, with: fn(f_o, elt) {
               let res_fields = f_o.0
               let order = f_o.1
-              let pp = string.split(elt.path, ".")
+              let pp =
+                elt.path
+                |> string.replace("-", "")
+                |> string.replace(":", ".")
+                |> string.split(".")
+              let assert [_, ..rest] = pp
+              let pp = [resource.name, ..rest]
               let field_path = string.join(pp, "_")
               //there must be a better way to drop last item?
               let pp_minus_last =
                 pp |> list.reverse |> list.drop(1) |> list.reverse
               let field_path_minus_last = string.join(pp_minus_last, "_")
-
-              //idk why but they just make these quantity
-              let field_path_minus_last = case entry.resource.name {
-                "SimpleQuantity" -> "Simple" <> field_path_minus_last
-                "MoneyQuantity" -> "Money" <> field_path_minus_last
-                _ -> field_path_minus_last
-              }
 
               let appended_field = case
                 dict.get(res_fields, field_path_minus_last)
@@ -459,7 +523,7 @@ fn file_to_types(
                 let link =
                   string.concat([
                     string.replace(
-                      entry.resource.url,
+                      resource.url,
                       "hl7.org/fhir",
                       "hl7.org/fhir/" <> fhir_version,
                     ),
@@ -476,12 +540,18 @@ fn file_to_types(
               }
               let snake_type = to_snake_case(camel_type)
               let assert Ok(fields) = dict.get(type_fields, new_type)
-              let fields = case entry.resource.name {
+              let fields = case resource.name {
                 "SimpleQuantity" ->
                   list.filter(fields, fn(x) { x.path != "Quantity.comparator" })
                 //simplequantity has no comparator
                 _ -> fields
               }
+              let fields =
+                fields
+                |> list.filter(fn(elt) {
+                  //profiles get rid of elements by setting cardinality max 0
+                  elt.max != "0"
+                })
               // this tuple is important - all the stuff you generate for each field
               // should probably be a custom type
               // also choice fields do one more fold within this, on their type possibilities
@@ -932,9 +1002,9 @@ fn file_to_types(
                   ")\n}",
                 ])
               let type_choicetypes = string.join(choicetypes, "\n")
-              let is_domainresource = case entry.resource.kind {
+              let is_domainresource = case resource.kind {
                 Some("complex-type") -> False
-                Some("resource") -> entry.resource.name == new_type
+                Some("resource") -> resource.name == new_type
                 _ -> panic as "????"
               }
 
@@ -1081,7 +1151,7 @@ fn file_to_types(
                       type_new_newfunc,
                       old_type_acc,
                       gen_res_encoder(
-                        entry.resource.name,
+                        resource.name,
                         camel_type,
                         snake_type,
                         encoder_args,
@@ -1090,7 +1160,7 @@ fn file_to_types(
                         is_domainresource,
                       ),
                       gen_res_decoder(
-                        entry.resource.name,
+                        resource.name,
                         camel_type,
                         snake_type,
                         decoder_use,
@@ -1112,13 +1182,12 @@ fn file_to_types(
     True -> {
       let res_entries =
         entries
-        |> list.filter(fn(entry) {
-          entry.resource.kind == Some("resource")
-          && entry.resource.name != "DomainResource"
+        |> list.filter(fn(resource) {
+          resource.kind == Some("resource") && resource.name != "DomainResource"
         })
-        |> list.map(fn(entry) {
-          let camel_type = entry.resource.name |> to_camel_case
-          #(entry, case camel_type {
+        |> list.map(fn(resource) {
+          let camel_type = resource.name |> to_camel_case
+          #(resource, case camel_type {
             "List" -> "Listfhir"
             _ -> camel_type
           })
@@ -1148,9 +1217,9 @@ fn file_to_types(
         res_entries
         |> list.map(fn(entry_and_camel_type) {
           let camel_type = entry_and_camel_type.1
-          let entry: Entry = entry_and_camel_type.0
+          let resource: Resource = entry_and_camel_type.0
           "\""
-          <> entry.resource.name
+          <> resource.name
           <> "\" -> "
           <> string.lowercase(camel_type)
           <> "_decoder()  |> decode.map(Resource"
@@ -1182,9 +1251,9 @@ fn file_to_types(
 
 fn link_type_from(content_reference: Option(String)) {
   let assert Some(link_type) = content_reference
+  let assert [_, link_type] = string.split(link_type, "#")
   link_type
   |> string.replace(".", "_")
-  |> string.replace("#", "")
   |> string.lowercase()
 }
 
@@ -1595,7 +1664,7 @@ fn concept_name_from_url(u) {
   |> string.capitalise
 }
 
-fn valueset_to_types(vsfile: String, fhir_version: String) {
+fn valueset_to_types(vsfile: String, fhir_version: String, profiles_dir: String) {
   //the valueset urls needed by element bindings
   let assert Ok(vs_list) = simplifile.read(vsfile)
   let vs_url_set =
@@ -1624,38 +1693,64 @@ fn valueset_to_types(vsfile: String, fhir_version: String) {
     |> filepath.join(fhir_version)
   set.fold(from: vs_imports, over: vs_url_set, with: fn(valuesets_acc, vs_url) {
     let vsname = concept_name_from_url(Some(vs_url))
-    let vs_codes = get_codes(vs_url, expansion_dir)
-    let vs_named_codes =
-      vs_codes
-      |> list.map(fn(code) { vsname <> string.capitalise(codetovarname(code)) })
-    string.concat([
-      "pub type ",
-      vsname,
-      "{",
-      string.join(vs_named_codes, "\n"),
-      "}",
-      gen_valueset_encoder(vsname, vs_codes),
-      gen_valueset_decoder(vsname, vs_codes),
-      valuesets_acc,
-    ])
+    let vs_codes = get_codes(vs_url, expansion_dir, profiles_dir)
+    case vs_codes {
+      Error(_) -> {
+        // would like to gen valuesets for profiles too but not clear how to expand some of them...
+        // eg ValueSet-us-core-condition-code-current.json has filter from snomed is-a
+        // for now will have to leave all codes in profiles as strings :/
+        // could maybe provide codes for simpler codesystems only
+        valuesets_acc
+      }
+      Ok(vs_codes) -> {
+        let vs_named_codes =
+          vs_codes
+          |> list.map(fn(code) {
+            vsname <> string.capitalise(codetovarname(code))
+          })
+        string.concat([
+          "pub type ",
+          vsname,
+          "{",
+          string.join(vs_named_codes, "\n"),
+          "}",
+          gen_valueset_encoder(vsname, vs_codes),
+          gen_valueset_decoder(vsname, vs_codes),
+          valuesets_acc,
+        ])
+      }
+    }
   })
 }
 
 // https://chat.fhir.org/#narrow/channel/179166-implementers/topic/Kotlin.20FHIR.20model.20code.20generation.20questions/near/524688061
 // kind of pissed after the satisfying experience of getting the recursive valueset/codesystem expansion working in gleam that you can (and must in r4b/r5) simply use the expanded valuesets from terminology download?
-fn get_codes(url: String, expansion_dir: String) {
+fn get_codes(url: String, expansion_dir: String, profiles_dir: String) {
   let assert Ok(vs_file) =
     url |> string.split("/") |> list.reverse |> list.first
   let expansion =
     expansion_dir |> filepath.join("ValueSet-" <> vs_file <> ".json")
-  let assert Ok(vs_json) = simplifile.read(expansion) as url
-  let assert Ok(vs) = vs_json |> json.parse(r4.valueset_decoder())
-  let assert Some(vs_expansion) = vs.expansion
-  vs_expansion.contains
-  |> list.map(fn(c: r4.ValuesetExpansionContains) {
-    let assert Some(code) = c.code
-    code
-  })
+  let vs_json = simplifile.read(expansion)
+  case vs_json {
+    Ok(vs_json) -> {
+      let assert Ok(vs) = vs_json |> json.parse(r4.valueset_decoder())
+      let assert Some(vs_expansion) = vs.expansion as "vs expansion"
+      Ok(
+        vs_expansion.contains
+        |> list.map(fn(c: r4.ValuesetExpansionContains) {
+          let assert Some(code) = c.code
+          code
+        }),
+      )
+    }
+    Error(_) -> {
+      let expansion =
+        profiles_dir |> filepath.join("ValueSet-" <> vs_file <> ".json")
+      let assert Ok(_) = simplifile.read(expansion)
+        as "valueset expansion should be in either fhir expansions or profile expansions"
+      Error(Nil)
+    }
+  }
 }
 
 fn codetovarname(c: String) {
