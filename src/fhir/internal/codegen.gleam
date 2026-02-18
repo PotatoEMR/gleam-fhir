@@ -229,6 +229,7 @@ fn snapshot_decoder() -> decode.Decoder(Snapshot) {
 
 type Element {
   Element(
+    id: String,
     path: String,
     min: Int,
     max: String,
@@ -239,6 +240,7 @@ type Element {
 }
 
 fn element_decoder() -> decode.Decoder(Element) {
+  use id <- decode.field("id", decode.string)
   use path <- decode.field("path", decode.string)
   use min <- decode.field("min", decode.int)
   use max <- decode.field("max", decode.string)
@@ -254,6 +256,7 @@ fn element_decoder() -> decode.Decoder(Element) {
     decode.optional(decode.string),
   )
   decode.success(Element(
+    id:,
     path:,
     min:,
     max:,
@@ -478,7 +481,7 @@ fn file_to_types(
               let res_fields = f_o.0
               let order = f_o.1
               let pp =
-                elt.path
+                elt.id
                 |> string.replace("-", "")
                 |> string.replace(":", ".")
                 |> string.split(".")
@@ -584,7 +587,13 @@ fn file_to_types(
                     let decoder_success_acc = acc.8
                     let decoder_always_failure_acc = acc.9
                     //yeah this should be custom type right
-                    let allparts = string.split(elt.path, ".")
+                    let allparts =
+                      elt.id
+                      |> string.replace("-", "")
+                      |> string.replace(":", ".")
+                      |> string.split(".")
+                    let assert [_, ..rest_allparts] = allparts
+                    let allparts = [resource.name, ..rest_allparts]
                     let assert Ok(elt_last_part) =
                       list.reverse(allparts) |> list.first
                     //for choice types, which will have a custom type
@@ -615,7 +624,8 @@ fn file_to_types(
                           gen_vsfile,
                         )
                       [] -> {
-                        link_type_from(elt.content_reference) |> to_camel_case
+                        link_type_from(elt.content_reference, resource.name)
+                        |> to_camel_case
                       }
                       _ -> field_name_new
                     }
@@ -784,7 +794,8 @@ fn file_to_types(
                           elt,
                         )
                       [] -> {
-                        link_type_from(elt.content_reference) <> "_to_json"
+                        link_type_from(elt.content_reference, resource.name)
+                        <> "_to_json"
                       }
                       _ ->
                         snake_type
@@ -898,7 +909,7 @@ fn file_to_types(
                               elt,
                             )
                           [] ->
-                            link_type_from(elt.content_reference)
+                            link_type_from(elt.content_reference, resource.name)
                             <> "_decoder()"
                           _ -> panic as "compiler should see this cant happen"
                         }
@@ -1240,7 +1251,7 @@ fn file_to_types(
         pub fn resource_decoder() -> Decoder(Resource) {
           use tag <- decode.field(\"resourceType\", decode.string)
           case tag {" <> resource_decoders <> "
-            _ -> decode.failure(ResourceCareteam(careteam_new()), expected: \"resourceType\")
+            _ -> decode.failure(ResourceSubstancenucleicacid(substancenucleicacid_new()), expected: \"resourceType\")
           }
         }
         ",
@@ -1249,11 +1260,12 @@ fn file_to_types(
   }
 }
 
-fn link_type_from(content_reference: Option(String)) {
+fn link_type_from(content_reference: Option(String), resource_name: String) {
   let assert Some(link_type) = content_reference
   let assert [_, link_type] = string.split(link_type, "#")
-  link_type
-  |> string.replace(".", "_")
+  let assert [_, ..rest] = string.split(link_type, ".")
+  [resource_name, ..rest]
+  |> string.join("_")
   |> string.lowercase()
 }
 
@@ -1725,30 +1737,55 @@ fn valueset_to_types(vsfile: String, fhir_version: String, profiles_dir: String)
 
 // https://chat.fhir.org/#narrow/channel/179166-implementers/topic/Kotlin.20FHIR.20model.20code.20generation.20questions/near/524688061
 // kind of pissed after the satisfying experience of getting the recursive valueset/codesystem expansion working in gleam that you can (and must in r4b/r5) simply use the expanded valuesets from terminology download?
-fn get_codes(url: String, expansion_dir: String, profiles_dir: String) {
+fn get_codes(
+  url: String,
+  expansion_dir: String,
+  profiles_dir: String,
+) -> Result(List(String), Nil) {
   let assert Ok(vs_file) =
     url |> string.split("/") |> list.reverse |> list.first
   let expansion =
     expansion_dir |> filepath.join("ValueSet-" <> vs_file <> ".json")
   let vs_json = simplifile.read(expansion)
-  case vs_json {
-    Ok(vs_json) -> {
-      let assert Ok(vs) = vs_json |> json.parse(r4.valueset_decoder())
-      let assert Some(vs_expansion) = vs.expansion as "vs expansion"
+  let vs_json = case vs_json {
+    Ok(vs_json) -> vs_json
+    Error(_) -> {
+      let expansion =
+        profiles_dir |> filepath.join("ValueSet-" <> vs_file <> ".json")
+      let assert Ok(profile_vs_json) = simplifile.read(expansion)
+        as "valueset expansion should be in either fhir expansions or profile expansions"
+      profile_vs_json
+    }
+  }
+  let assert Ok(vs) = vs_json |> json.parse(r4.valueset_decoder())
+  echo vs_json
+  // so profiles do not necessarily provide extended valuesets
+  // us core will come soon: https://chat.fhir.org/#narrow/channel/179166-implementers/topic/US.20core.20valueset.20expansion.20package.3F/with/574276119
+  // this could be a chance to do something clever with recursive codesystem parser
+  // for now just going to go 1 level of valueset -> compose -> include
+  case vs.expansion {
+    Some(vs_expansion) ->
       Ok(
-        vs_expansion.contains
-        |> list.map(fn(c: r4.ValuesetExpansionContains) {
+        list.map(vs_expansion.contains, fn(c: r4.ValuesetExpansionContains) {
           let assert Some(code) = c.code
           code
         }),
       )
-    }
-    Error(_) -> {
-      let expansion =
-        profiles_dir |> filepath.join("ValueSet-" <> vs_file <> ".json")
-      let assert Ok(_) = simplifile.read(expansion)
-        as "valueset expansion should be in either fhir expansions or profile expansions"
-      Error(Nil)
+    None -> {
+      case vs.compose {
+        None -> Error(Nil)
+        Some(vsc) -> {
+          let ret =
+            list.fold(from: [], over: vsc.include, with: fn(outer_acc, vsci) {
+              list.fold(
+                from: outer_acc,
+                over: vsci.concept,
+                with: fn(inner_acc, vscic) { [vscic.code, ..inner_acc] },
+              )
+            })
+          Ok(ret)
+        }
+      }
     }
   }
 }
