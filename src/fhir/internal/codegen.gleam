@@ -92,11 +92,9 @@ pub fn main() {
         True -> {
           let assert [_, profile_url] = string.split(custom_profile, "=")
           let assert Ok(req) = request.to(profile_url)
-          echo profile_url
           let assert Ok(resp) = httpc.send_bits(request.set_body(req, <<>>))
           let assert Ok(_) = simplifile.create_directory_all(profiles_dir)
           let tgz_path = profiles_dir |> filepath.join("package.tgz")
-          echo tgz_path
           let assert Ok(Nil) =
             simplifile.write_bits(to: tgz_path, bits: resp.body)
           let assert Ok(_) =
@@ -157,6 +155,7 @@ type Resource {
   Resource(
     snapshot: Option(Snapshot),
     resource_type: String,
+    id: String,
     name: String,
     url: String,
     kind: Option(String),
@@ -172,6 +171,7 @@ fn resource_decoder() -> decode.Decoder(Resource) {
     decode.optional(snapshot_decoder()),
   )
   use resource_type <- decode.field("resourceType", decode.string)
+  use id <- decode.field("id", decode.string)
   use name <- decode.field("name", decode.string)
   use url <- decode.field("url", decode.string)
   use kind <- decode.optional_field(
@@ -194,6 +194,7 @@ fn resource_decoder() -> decode.Decoder(Resource) {
       decode.success(Resource(
         snapshot:,
         resource_type:,
+        id:,
         name:,
         url:,
         kind:,
@@ -205,6 +206,7 @@ fn resource_decoder() -> decode.Decoder(Resource) {
       decode.success(Resource(
         snapshot:,
         resource_type:,
+        id:,
         name:,
         url:,
         kind:,
@@ -386,6 +388,8 @@ fn gen_fhir(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
       fv: fhir_version,
       pkg_prefix: pkg_prefix,
+      custom_profile_name: custom_profile_name,
+      profiles_dir: profiles_dir,
     )
   let f_sansio = gen_prefix <> "_sansio.gleam"
   let assert Ok(_) = simplifile.write(to: f_sansio, contents: sansio)
@@ -535,7 +539,10 @@ fn file_to_types(
                 "///[" <> link <> "](" <> link <> ")"
               }
 
-              let camel_type = new_type |> to_camel_case
+              let camel_type = case new_type == resource.name {
+                True -> resource.id |> string.replace("-", "_") |> to_camel_case
+                False -> new_type |> to_camel_case
+              }
               //conflict gleam list
               let camel_type = case camel_type == "List" {
                 True -> "Listfhir"
@@ -1197,7 +1204,8 @@ fn file_to_types(
           resource.kind == Some("resource") && resource.name != "DomainResource"
         })
         |> list.map(fn(resource) {
-          let camel_type = resource.name |> to_camel_case
+          let camel_type =
+            resource.id |> string.replace("-", "_") |> to_camel_case
           #(resource, case camel_type {
             "List" -> "Listfhir"
             _ -> camel_type
@@ -1219,7 +1227,7 @@ fn file_to_types(
           "Resource"
           <> camel_type
           <> "(r) -> "
-          <> string.lowercase(camel_type)
+          <> to_snake_case(camel_type)
           <> "_to_json(r)\n"
         })
         |> string.concat
@@ -1232,7 +1240,7 @@ fn file_to_types(
           "\""
           <> resource.name
           <> "\" -> "
-          <> string.lowercase(camel_type)
+          <> to_snake_case(camel_type)
           <> "_decoder()  |> decode.map(Resource"
           <> camel_type
           <> ")\n"
@@ -1251,7 +1259,7 @@ fn file_to_types(
         pub fn resource_decoder() -> Decoder(Resource) {
           use tag <- decode.field(\"resourceType\", decode.string)
           case tag {" <> resource_decoders <> "
-            _ -> decode.failure(ResourceSubstancenucleicacid(substancenucleicacid_new()), expected: \"resourceType\")
+            _ -> decode.failure(ResourceEnrollmentrequest(enrollmentrequest_new()), expected: \"resourceType\")
           }
         }
         ",
@@ -1758,7 +1766,6 @@ fn get_codes(
     }
   }
   let assert Ok(vs) = vs_json |> json.parse(r4.valueset_decoder())
-  echo vs_json
   // so profiles do not necessarily provide extended valuesets
   // us core will come soon: https://chat.fhir.org/#narrow/channel/179166-implementers/topic/US.20core.20valueset.20expansion.20package.3F/with/574276119
   // this could be a chance to do something clever with recursive codesystem parser

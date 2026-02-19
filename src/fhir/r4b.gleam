@@ -126900,7 +126900,10 @@ pub fn resource_decoder() -> Decoder(Resource) {
       visionprescription_decoder() |> decode.map(ResourceVisionprescription)
 
     _ ->
-      decode.failure(ResourceCareteam(careteam_new()), expected: "resourceType")
+      decode.failure(
+        ResourceEnrollmentrequest(enrollmentrequest_new()),
+        expected: "resourceType",
+      )
   }
 }
 

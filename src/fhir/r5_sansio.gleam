@@ -13558,7 +13558,7 @@ pub fn listfhir_search_req(sp: SpListfhir, client: FhirClient) {
       #("title", sp.title),
       #("status", sp.status),
     ])
-  any_search_req(params, "Listfhir", client)
+  any_search_req(params, "List", client)
 }
 
 pub fn location_search_req(sp: SpLocation, client: FhirClient) {
