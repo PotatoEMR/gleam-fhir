@@ -32,9 +32,8 @@ pub fn r4_allergy_test() {
         ),
       )),
       reaction: [
-        fhirversion.AllergyintoleranceReaction(
-          ..fhirversion.allergyintolerance_reaction_new(),
-          manifestation: [
+        fhirversion.allergyintolerance_reaction_new(
+          manifestation: fhirversion.List1(
             fhirversion.Codeableconcept(
               ..fhirversion.codeableconcept_new(),
               coding: [
@@ -46,7 +45,8 @@ pub fn r4_allergy_test() {
                 ),
               ],
             ),
-          ],
+            [],
+          ),
         ),
       ],
     )
@@ -59,7 +59,7 @@ pub fn r4_allergy_test() {
     parsed_allergy.onset
   assert onset.value == Some(4.0)
   let assert [reaction] = parsed_allergy.reaction
-  let assert [manifestation] = reaction.manifestation
+  let fhirversion.List1(manifestation, _) = reaction.manifestation
   let assert [coding] = manifestation.coding
   assert coding.system == Some("http://snomed.info/sct")
   assert coding.code == Some("247472004")

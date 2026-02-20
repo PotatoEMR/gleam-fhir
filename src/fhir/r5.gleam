@@ -11757,17 +11757,20 @@ pub type Administrableproductdefinition {
     device: Option(Reference),
     description: Option(String),
     property: List(AdministrableproductdefinitionProperty),
-    route_of_administration: List(
+    route_of_administration: List1(
       AdministrableproductdefinitionRouteofadministration,
     ),
   )
 }
 
 pub fn administrableproductdefinition_new(
+  route_of_administration route_of_administration: List1(
+    AdministrableproductdefinitionRouteofadministration,
+  ),
   status status: r5_valuesets.Publicationstatus,
 ) -> Administrableproductdefinition {
   Administrableproductdefinition(
-    route_of_administration: [],
+    route_of_administration:,
     property: [],
     description: None,
     device: None,
@@ -12355,21 +12358,15 @@ pub fn administrableproductdefinition_to_json(
     id:,
   ) = administrableproductdefinition
   let fields = [
+    #(
+      "routeOfAdministration",
+      list1_to_json(
+        route_of_administration,
+        administrableproductdefinition_routeofadministration_to_json,
+      ),
+    ),
     #("status", r5_valuesets.publicationstatus_to_json(status)),
   ]
-  let fields = case route_of_administration {
-    [] -> fields
-    _ -> [
-      #(
-        "routeOfAdministration",
-        json.array(
-          route_of_administration,
-          administrableproductdefinition_routeofadministration_to_json,
-        ),
-      ),
-      ..fields
-    ]
-  }
   let fields = case property {
     [] -> fields
     _ -> [
@@ -12467,10 +12464,9 @@ pub fn administrableproductdefinition_decoder() -> Decoder(
   Administrableproductdefinition,
 ) {
   use <- decode.recursive
-  use route_of_administration <- decode.optional_field(
+  use route_of_administration <- list1_decoder(
     "routeOfAdministration",
-    [],
-    decode.list(administrableproductdefinition_routeofadministration_decoder()),
+    administrableproductdefinition_routeofadministration_decoder(),
   )
   use property <- decode.optional_field(
     "property",
@@ -12558,7 +12554,10 @@ pub fn administrableproductdefinition_decoder() -> Decoder(
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "AdministrableProductDefinition",
-    decode.failure(administrableproductdefinition_new(status:), "resourceType"),
+    decode.failure(
+      administrableproductdefinition_new(route_of_administration:, status:),
+      "resourceType",
+    ),
   )
   decode.success(Administrableproductdefinition(
     route_of_administration:,
@@ -13959,7 +13958,7 @@ pub type AllergyintoleranceReaction {
     extension: List(Extension),
     modifier_extension: List(Extension),
     substance: Option(Codeableconcept),
-    manifestation: List(Codeablereference),
+    manifestation: List1(Codeablereference),
     description: Option(String),
     onset: Option(String),
     severity: Option(r5_valuesets.Reactioneventseverity),
@@ -13968,14 +13967,16 @@ pub type AllergyintoleranceReaction {
   )
 }
 
-pub fn allergyintolerance_reaction_new() -> AllergyintoleranceReaction {
+pub fn allergyintolerance_reaction_new(
+  manifestation manifestation: List1(Codeablereference),
+) -> AllergyintoleranceReaction {
   AllergyintoleranceReaction(
     note: [],
     exposure_route: None,
     severity: None,
     onset: None,
     description: None,
-    manifestation: [],
+    manifestation:,
     substance: None,
     modifier_extension: [],
     extension: [],
@@ -13998,7 +13999,9 @@ pub fn allergyintolerance_reaction_to_json(
     extension:,
     id:,
   ) = allergyintolerance_reaction
-  let fields = []
+  let fields = [
+    #("manifestation", list1_to_json(manifestation, codeablereference_to_json)),
+  ]
   let fields = case note {
     [] -> fields
     _ -> [#("note", json.array(note, annotation_to_json)), ..fields]
@@ -14021,13 +14024,6 @@ pub fn allergyintolerance_reaction_to_json(
   let fields = case description {
     Some(v) -> [#("description", json.string(v)), ..fields]
     None -> fields
-  }
-  let fields = case manifestation {
-    [] -> fields
-    _ -> [
-      #("manifestation", json.array(manifestation, codeablereference_to_json)),
-      ..fields
-    ]
   }
   let fields = case substance {
     Some(v) -> [#("substance", codeableconcept_to_json(v)), ..fields]
@@ -14080,10 +14076,9 @@ pub fn allergyintolerance_reaction_decoder() -> Decoder(
     None,
     decode.optional(decode.string),
   )
-  use manifestation <- decode.optional_field(
+  use manifestation <- list1_decoder(
     "manifestation",
-    [],
-    decode.list(codeablereference_decoder()),
+    codeablereference_decoder(),
   )
   use substance <- decode.optional_field(
     "substance",
@@ -14514,7 +14509,7 @@ pub type Appointment {
     patient_instruction: List(Codeablereference),
     based_on: List(Reference),
     subject: Option(Reference),
-    participant: List(AppointmentParticipant),
+    participant: List1(AppointmentParticipant),
     recurrence_id: Option(Int),
     occurrence_changed: Option(Bool),
     recurrence_template: List(AppointmentRecurrencetemplate),
@@ -14522,13 +14517,14 @@ pub type Appointment {
 }
 
 pub fn appointment_new(
+  participant participant: List1(AppointmentParticipant),
   status status: r5_valuesets.Appointmentstatus,
 ) -> Appointment {
   Appointment(
     recurrence_template: [],
     occurrence_changed: None,
     recurrence_id: None,
-    participant: [],
+    participant:,
     subject: None,
     based_on: [],
     patient_instruction: [],
@@ -15318,6 +15314,10 @@ pub fn appointment_to_json(appointment: Appointment) -> Json {
     id:,
   ) = appointment
   let fields = [
+    #(
+      "participant",
+      list1_to_json(participant, appointment_participant_to_json),
+    ),
     #("status", r5_valuesets.appointmentstatus_to_json(status)),
   ]
   let fields = case recurrence_template {
@@ -15337,13 +15337,6 @@ pub fn appointment_to_json(appointment: Appointment) -> Json {
   let fields = case recurrence_id {
     Some(v) -> [#("recurrenceId", json.int(v)), ..fields]
     None -> fields
-  }
-  let fields = case participant {
-    [] -> fields
-    _ -> [
-      #("participant", json.array(participant, appointment_participant_to_json)),
-      ..fields
-    ]
   }
   let fields = case subject {
     Some(v) -> [#("subject", reference_to_json(v)), ..fields]
@@ -15542,10 +15535,9 @@ pub fn appointment_decoder() -> Decoder(Appointment) {
     None,
     decode.optional(decode.int),
   )
-  use participant <- decode.optional_field(
+  use participant <- list1_decoder(
     "participant",
-    [],
-    decode.list(appointment_participant_decoder()),
+    appointment_participant_decoder(),
   )
   use subject <- decode.optional_field(
     "subject",
@@ -15719,7 +15711,7 @@ pub fn appointment_decoder() -> Decoder(Appointment) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "Appointment",
-    decode.failure(appointment_new(status:), "resourceType"),
+    decode.failure(appointment_new(participant:, status:), "resourceType"),
   )
   decode.success(Appointment(
     recurrence_template:,
@@ -16641,7 +16633,7 @@ pub type Auditevent {
     based_on: List(Reference),
     patient: Option(Reference),
     encounter: Option(Reference),
-    agent: List(AuditeventAgent),
+    agent: List1(AuditeventAgent),
     source: AuditeventSource,
     entity: List(AuditeventEntity),
   )
@@ -16673,13 +16665,14 @@ pub fn auditevent_occurred_decoder() -> Decoder(AuditeventOccurred) {
 
 pub fn auditevent_new(
   source source: AuditeventSource,
+  agent agent: List1(AuditeventAgent),
   recorded recorded: String,
   code code: Codeableconcept,
 ) -> Auditevent {
   Auditevent(
     entity: [],
     source:,
-    agent: [],
+    agent:,
     encounter: None,
     patient: None,
     based_on: [],
@@ -17391,16 +17384,13 @@ pub fn auditevent_to_json(auditevent: Auditevent) -> Json {
   ) = auditevent
   let fields = [
     #("source", auditevent_source_to_json(source)),
+    #("agent", list1_to_json(agent, auditevent_agent_to_json)),
     #("recorded", json.string(recorded)),
     #("code", codeableconcept_to_json(code)),
   ]
   let fields = case entity {
     [] -> fields
     _ -> [#("entity", json.array(entity, auditevent_entity_to_json)), ..fields]
-  }
-  let fields = case agent {
-    [] -> fields
-    _ -> [#("agent", json.array(agent, auditevent_agent_to_json)), ..fields]
   }
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
@@ -17504,11 +17494,7 @@ pub fn auditevent_decoder() -> Decoder(Auditevent) {
     decode.list(auditevent_entity_decoder()),
   )
   use source <- decode.field("source", auditevent_source_decoder())
-  use agent <- decode.optional_field(
-    "agent",
-    [],
-    decode.list(auditevent_agent_decoder()),
-  )
+  use agent <- list1_decoder("agent", auditevent_agent_decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
@@ -17592,7 +17578,10 @@ pub fn auditevent_decoder() -> Decoder(Auditevent) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "AuditEvent",
-    decode.failure(auditevent_new(source:, recorded:, code:), "resourceType"),
+    decode.failure(
+      auditevent_new(source:, agent:, recorded:, code:),
+      "resourceType",
+    ),
   )
   decode.success(Auditevent(
     entity:,
@@ -18991,7 +18980,7 @@ pub type Bodystructure {
     identifier: List(Identifier),
     active: Option(Bool),
     morphology: Option(Codeableconcept),
-    included_structure: List(BodystructureIncludedstructure),
+    included_structure: List1(BodystructureIncludedstructure),
     excluded_structure: List(BodystructureIncludedstructure),
     description: Option(String),
     image: List(Attachment),
@@ -18999,13 +18988,16 @@ pub type Bodystructure {
   )
 }
 
-pub fn bodystructure_new(patient patient: Reference) -> Bodystructure {
+pub fn bodystructure_new(
+  patient patient: Reference,
+  included_structure included_structure: List1(BodystructureIncludedstructure),
+) -> Bodystructure {
   Bodystructure(
     patient:,
     image: [],
     description: None,
     excluded_structure: [],
-    included_structure: [],
+    included_structure:,
     morphology: None,
     active: None,
     identifier: [],
@@ -19431,6 +19423,10 @@ pub fn bodystructure_to_json(bodystructure: Bodystructure) -> Json {
   ) = bodystructure
   let fields = [
     #("patient", reference_to_json(patient)),
+    #(
+      "includedStructure",
+      list1_to_json(included_structure, bodystructure_includedstructure_to_json),
+    ),
   ]
   let fields = case image {
     [] -> fields
@@ -19446,16 +19442,6 @@ pub fn bodystructure_to_json(bodystructure: Bodystructure) -> Json {
       #(
         "excludedStructure",
         json.array(excluded_structure, bodystructure_includedstructure_to_json),
-      ),
-      ..fields
-    ]
-  }
-  let fields = case included_structure {
-    [] -> fields
-    _ -> [
-      #(
-        "includedStructure",
-        json.array(included_structure, bodystructure_includedstructure_to_json),
       ),
       ..fields
     ]
@@ -19529,10 +19515,9 @@ pub fn bodystructure_decoder() -> Decoder(Bodystructure) {
     [],
     decode.list(bodystructure_includedstructure_decoder()),
   )
-  use included_structure <- decode.optional_field(
+  use included_structure <- list1_decoder(
     "includedStructure",
-    [],
-    decode.list(bodystructure_includedstructure_decoder()),
+    bodystructure_includedstructure_decoder(),
   )
   use morphology <- decode.optional_field(
     "morphology",
@@ -19589,7 +19574,10 @@ pub fn bodystructure_decoder() -> Decoder(Bodystructure) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "BodyStructure",
-    decode.failure(bodystructure_new(patient:), "resourceType"),
+    decode.failure(
+      bodystructure_new(patient:, included_structure:),
+      "resourceType",
+    ),
   )
   decode.success(Bodystructure(
     patient:,
@@ -20757,7 +20745,7 @@ pub type Capabilitystatement {
     software: Option(CapabilitystatementSoftware),
     implementation: Option(CapabilitystatementImplementation),
     fhir_version: r5_valuesets.Fhirversion,
-    format: List(String),
+    format: List1(String),
     patch_format: List(String),
     accept_language: List(String),
     implementation_guide: List(String),
@@ -20796,6 +20784,7 @@ pub fn capabilitystatement_versionalgorithm_decoder() -> Decoder(
 }
 
 pub fn capabilitystatement_new(
+  format format: List1(String),
   fhir_version fhir_version: r5_valuesets.Fhirversion,
   kind kind: r5_valuesets.Capabilitystatementkind,
   date date: String,
@@ -20808,7 +20797,7 @@ pub fn capabilitystatement_new(
     implementation_guide: [],
     accept_language: [],
     patch_format: [],
-    format: [],
+    format:,
     fhir_version:,
     implementation: None,
     software: None,
@@ -22507,6 +22496,7 @@ pub fn capabilitystatement_to_json(
     id:,
   ) = capabilitystatement
   let fields = [
+    #("format", list1_to_json(format, json.string)),
     #("fhirVersion", r5_valuesets.fhirversion_to_json(fhir_version)),
     #("kind", r5_valuesets.capabilitystatementkind_to_json(kind)),
     #("date", json.string(date)),
@@ -22553,10 +22543,6 @@ pub fn capabilitystatement_to_json(
   let fields = case patch_format {
     [] -> fields
     _ -> [#("patchFormat", json.array(patch_format, json.string)), ..fields]
-  }
-  let fields = case format {
-    [] -> fields
-    _ -> [#("format", json.array(format, json.string)), ..fields]
   }
   let fields = case implementation {
     Some(v) -> [
@@ -22727,7 +22713,7 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
     [],
     decode.list(decode.string),
   )
-  use format <- decode.optional_field("format", [], decode.list(decode.string))
+  use format <- list1_decoder("format", decode.string)
   use fhir_version <- decode.field(
     "fhirVersion",
     r5_valuesets.fhirversion_decoder(),
@@ -22868,7 +22854,7 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
   use <- bool.guard(
     rt != "CapabilityStatement",
     decode.failure(
-      capabilitystatement_new(fhir_version:, kind:, date:, status:),
+      capabilitystatement_new(format:, fhir_version:, kind:, date:, status:),
       "resourceType",
     ),
   )
@@ -28828,15 +28814,17 @@ pub type ClaimItemBodysite {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    site: List(Codeablereference),
+    site: List1(Codeablereference),
     sub_site: List(Codeableconcept),
   )
 }
 
-pub fn claim_item_bodysite_new() -> ClaimItemBodysite {
+pub fn claim_item_bodysite_new(
+  site site: List1(Codeablereference),
+) -> ClaimItemBodysite {
   ClaimItemBodysite(
     sub_site: [],
-    site: [],
+    site:,
     modifier_extension: [],
     extension: [],
     id: None,
@@ -29385,14 +29373,12 @@ pub fn claim_item_bodysite_to_json(
 ) -> Json {
   let ClaimItemBodysite(sub_site:, site:, modifier_extension:, extension:, id:) =
     claim_item_bodysite
-  let fields = []
+  let fields = [
+    #("site", list1_to_json(site, codeablereference_to_json)),
+  ]
   let fields = case sub_site {
     [] -> fields
     _ -> [#("subSite", json.array(sub_site, codeableconcept_to_json)), ..fields]
-  }
-  let fields = case site {
-    [] -> fields
-    _ -> [#("site", json.array(site, codeablereference_to_json)), ..fields]
   }
   let fields = case modifier_extension {
     [] -> fields
@@ -29419,11 +29405,7 @@ pub fn claim_item_bodysite_decoder() -> Decoder(ClaimItemBodysite) {
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use site <- decode.optional_field(
-    "site",
-    [],
-    decode.list(codeablereference_decoder()),
-  )
+  use site <- list1_decoder("site", codeablereference_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -31390,15 +31372,17 @@ pub type ClaimresponseAdditemBodysite {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    site: List(Codeablereference),
+    site: List1(Codeablereference),
     sub_site: List(Codeableconcept),
   )
 }
 
-pub fn claimresponse_additem_bodysite_new() -> ClaimresponseAdditemBodysite {
+pub fn claimresponse_additem_bodysite_new(
+  site site: List1(Codeablereference),
+) -> ClaimresponseAdditemBodysite {
   ClaimresponseAdditemBodysite(
     sub_site: [],
-    site: [],
+    site:,
     modifier_extension: [],
     extension: [],
     id: None,
@@ -32494,14 +32478,12 @@ pub fn claimresponse_additem_bodysite_to_json(
     extension:,
     id:,
   ) = claimresponse_additem_bodysite
-  let fields = []
+  let fields = [
+    #("site", list1_to_json(site, codeablereference_to_json)),
+  ]
   let fields = case sub_site {
     [] -> fields
     _ -> [#("subSite", json.array(sub_site, codeableconcept_to_json)), ..fields]
-  }
-  let fields = case site {
-    [] -> fields
-    _ -> [#("site", json.array(site, codeablereference_to_json)), ..fields]
   }
   let fields = case modifier_extension {
     [] -> fields
@@ -32530,11 +32512,7 @@ pub fn claimresponse_additem_bodysite_decoder() -> Decoder(
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use site <- decode.optional_field(
-    "site",
-    [],
-    decode.list(codeablereference_decoder()),
-  )
+  use site <- list1_decoder("site", codeablereference_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -35839,18 +35817,19 @@ pub type CodesystemFilter {
     modifier_extension: List(Extension),
     code: String,
     description: Option(String),
-    operator: List(r5_valuesets.Filteroperator),
+    operator: List1(r5_valuesets.Filteroperator),
     value: String,
   )
 }
 
 pub fn codesystem_filter_new(
   value value: String,
+  operator operator: List1(r5_valuesets.Filteroperator),
   code code: String,
 ) -> CodesystemFilter {
   CodesystemFilter(
     value:,
-    operator: [],
+    operator:,
     description: None,
     code:,
     modifier_extension: [],
@@ -36366,15 +36345,9 @@ pub fn codesystem_filter_to_json(codesystem_filter: CodesystemFilter) -> Json {
   ) = codesystem_filter
   let fields = [
     #("value", json.string(value)),
+    #("operator", list1_to_json(operator, r5_valuesets.filteroperator_to_json)),
     #("code", json.string(code)),
   ]
-  let fields = case operator {
-    [] -> fields
-    _ -> [
-      #("operator", json.array(operator, r5_valuesets.filteroperator_to_json)),
-      ..fields
-    ]
-  }
   let fields = case description {
     Some(v) -> [#("description", json.string(v)), ..fields]
     None -> fields
@@ -36400,10 +36373,9 @@ pub fn codesystem_filter_to_json(codesystem_filter: CodesystemFilter) -> Json {
 pub fn codesystem_filter_decoder() -> Decoder(CodesystemFilter) {
   use <- decode.recursive
   use value <- decode.field("value", decode.string)
-  use operator <- decode.optional_field(
+  use operator <- list1_decoder(
     "operator",
-    [],
-    decode.list(r5_valuesets.filteroperator_decoder()),
+    r5_valuesets.filteroperator_decoder(),
   )
   use description <- decode.optional_field(
     "description",
@@ -38589,7 +38561,7 @@ pub type Composition {
     encounter: Option(Reference),
     date: String,
     use_context: List(Usagecontext),
-    author: List(Reference),
+    author: List1(Reference),
     name: Option(String),
     title: String,
     note: List(Annotation),
@@ -38603,6 +38575,7 @@ pub type Composition {
 
 pub fn composition_new(
   title title: String,
+  author author: List1(Reference),
   date date: String,
   type_ type_: Codeableconcept,
   status status: r5_valuesets.Compositionstatus,
@@ -38616,7 +38589,7 @@ pub fn composition_new(
     note: [],
     title:,
     name: None,
-    author: [],
+    author:,
     use_context: [],
     date:,
     encounter: None,
@@ -39036,6 +39009,7 @@ pub fn composition_to_json(composition: Composition) -> Json {
   ) = composition
   let fields = [
     #("title", json.string(title)),
+    #("author", list1_to_json(author, reference_to_json)),
     #("date", json.string(date)),
     #("type", codeableconcept_to_json(type_)),
     #("status", r5_valuesets.compositionstatus_to_json(status)),
@@ -39076,10 +39050,6 @@ pub fn composition_to_json(composition: Composition) -> Json {
   let fields = case name {
     Some(v) -> [#("name", json.string(v)), ..fields]
     None -> fields
-  }
-  let fields = case author {
-    [] -> fields
-    _ -> [#("author", json.array(author, reference_to_json)), ..fields]
   }
   let fields = case use_context {
     [] -> fields
@@ -39192,11 +39162,7 @@ pub fn composition_decoder() -> Decoder(Composition) {
     None,
     decode.optional(decode.string),
   )
-  use author <- decode.optional_field(
-    "author",
-    [],
-    decode.list(reference_decoder()),
-  )
+  use author <- list1_decoder("author", reference_decoder())
   use use_context <- decode.optional_field(
     "useContext",
     [],
@@ -39272,7 +39238,7 @@ pub fn composition_decoder() -> Decoder(Composition) {
   use <- bool.guard(
     rt != "Composition",
     decode.failure(
-      composition_new(title:, date:, type_:, status:),
+      composition_new(title:, author:, date:, type_:, status:),
       "resourceType",
     ),
   )
@@ -39540,15 +39506,17 @@ pub type ConceptmapGroup {
     modifier_extension: List(Extension),
     source: Option(String),
     target: Option(String),
-    element: List(ConceptmapGroupElement),
+    element: List1(ConceptmapGroupElement),
     unmapped: Option(ConceptmapGroupUnmapped),
   )
 }
 
-pub fn conceptmap_group_new() -> ConceptmapGroup {
+pub fn conceptmap_group_new(
+  element element: List1(ConceptmapGroupElement),
+) -> ConceptmapGroup {
   ConceptmapGroup(
     unmapped: None,
-    element: [],
+    element:,
     target: None,
     source: None,
     modifier_extension: [],
@@ -40317,17 +40285,12 @@ pub fn conceptmap_group_to_json(conceptmap_group: ConceptmapGroup) -> Json {
     extension:,
     id:,
   ) = conceptmap_group
-  let fields = []
+  let fields = [
+    #("element", list1_to_json(element, conceptmap_group_element_to_json)),
+  ]
   let fields = case unmapped {
     Some(v) -> [#("unmapped", conceptmap_group_unmapped_to_json(v)), ..fields]
     None -> fields
-  }
-  let fields = case element {
-    [] -> fields
-    _ -> [
-      #("element", json.array(element, conceptmap_group_element_to_json)),
-      ..fields
-    ]
   }
   let fields = case target {
     Some(v) -> [#("target", json.string(v)), ..fields]
@@ -40362,11 +40325,7 @@ pub fn conceptmap_group_decoder() -> Decoder(ConceptmapGroup) {
     None,
     decode.optional(conceptmap_group_unmapped_decoder()),
   )
-  use element <- decode.optional_field(
-    "element",
-    [],
-    decode.list(conceptmap_group_element_decoder()),
-  )
+  use element <- list1_decoder("element", conceptmap_group_element_decoder())
   use target <- decode.optional_field(
     "target",
     None,
@@ -44057,17 +44016,18 @@ pub type ContractTermOfferParty {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    reference: List(Reference),
+    reference: List1(Reference),
     role: Codeableconcept,
   )
 }
 
 pub fn contract_term_offer_party_new(
   role role: Codeableconcept,
+  reference reference: List1(Reference),
 ) -> ContractTermOfferParty {
   ContractTermOfferParty(
     role:,
-    reference: [],
+    reference:,
     modifier_extension: [],
     extension: [],
     id: None,
@@ -44408,15 +44368,17 @@ pub type ContractTermActionSubject {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    reference: List(Reference),
+    reference: List1(Reference),
     role: Option(Codeableconcept),
   )
 }
 
-pub fn contract_term_action_subject_new() -> ContractTermActionSubject {
+pub fn contract_term_action_subject_new(
+  reference reference: List1(Reference),
+) -> ContractTermActionSubject {
   ContractTermActionSubject(
     role: None,
-    reference: [],
+    reference:,
     modifier_extension: [],
     extension: [],
     id: None,
@@ -44431,16 +44393,17 @@ pub type ContractSigner {
     modifier_extension: List(Extension),
     type_: Coding,
     party: Reference,
-    signature: List(Signature),
+    signature: List1(Signature),
   )
 }
 
 pub fn contract_signer_new(
+  signature signature: List1(Signature),
   party party: Reference,
   type_ type_: Coding,
 ) -> ContractSigner {
   ContractSigner(
-    signature: [],
+    signature:,
     party:,
     type_:,
     modifier_extension: [],
@@ -44705,13 +44668,10 @@ pub fn contract_signer_to_json(contract_signer: ContractSigner) -> Json {
     id:,
   ) = contract_signer
   let fields = [
+    #("signature", list1_to_json(signature, signature_to_json)),
     #("party", reference_to_json(party)),
     #("type", coding_to_json(type_)),
   ]
-  let fields = case signature {
-    [] -> fields
-    _ -> [#("signature", json.array(signature, signature_to_json)), ..fields]
-  }
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -44732,11 +44692,7 @@ pub fn contract_signer_to_json(contract_signer: ContractSigner) -> Json {
 
 pub fn contract_signer_decoder() -> Decoder(ContractSigner) {
   use <- decode.recursive
-  use signature <- decode.optional_field(
-    "signature",
-    [],
-    decode.list(signature_decoder()),
-  )
+  use signature <- list1_decoder("signature", signature_decoder())
   use party <- decode.field("party", reference_decoder())
   use type_ <- decode.field("type", coding_decoder())
   use modifier_extension <- decode.optional_field(
@@ -44770,14 +44726,12 @@ pub fn contract_term_action_subject_to_json(
     extension:,
     id:,
   ) = contract_term_action_subject
-  let fields = []
+  let fields = [
+    #("reference", list1_to_json(reference, reference_to_json)),
+  ]
   let fields = case role {
     Some(v) -> [#("role", codeableconcept_to_json(v)), ..fields]
     None -> fields
-  }
-  let fields = case reference {
-    [] -> fields
-    _ -> [#("reference", json.array(reference, reference_to_json)), ..fields]
   }
   let fields = case modifier_extension {
     [] -> fields
@@ -44806,11 +44760,7 @@ pub fn contract_term_action_subject_decoder() -> Decoder(
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use reference <- decode.optional_field(
-    "reference",
-    [],
-    decode.list(reference_decoder()),
-  )
+  use reference <- list1_decoder("reference", reference_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -45672,11 +45622,8 @@ pub fn contract_term_offer_party_to_json(
   ) = contract_term_offer_party
   let fields = [
     #("role", codeableconcept_to_json(role)),
+    #("reference", list1_to_json(reference, reference_to_json)),
   ]
-  let fields = case reference {
-    [] -> fields
-    _ -> [#("reference", json.array(reference, reference_to_json)), ..fields]
-  }
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -45698,11 +45645,7 @@ pub fn contract_term_offer_party_to_json(
 pub fn contract_term_offer_party_decoder() -> Decoder(ContractTermOfferParty) {
   use <- decode.recursive
   use role <- decode.field("role", codeableconcept_decoder())
-  use reference <- decode.optional_field(
-    "reference",
-    [],
-    decode.list(reference_decoder()),
-  )
+  use reference <- list1_decoder("reference", reference_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -47607,7 +47550,7 @@ pub type Coverageeligibilityrequest {
     identifier: List(Identifier),
     status: r5_valuesets.Fmstatus,
     priority: Option(Codeableconcept),
-    purpose: List(r5_valuesets.Eligibilityrequestpurpose),
+    purpose: List1(r5_valuesets.Eligibilityrequestpurpose),
     patient: Reference,
     event: List(CoverageeligibilityrequestEvent),
     serviced: Option(CoverageeligibilityrequestServiced),
@@ -47654,6 +47597,7 @@ pub fn coverageeligibilityrequest_new(
   insurer insurer: Reference,
   created created: String,
   patient patient: Reference,
+  purpose purpose: List1(r5_valuesets.Eligibilityrequestpurpose),
   status status: r5_valuesets.Fmstatus,
 ) -> Coverageeligibilityrequest {
   Coverageeligibilityrequest(
@@ -47668,7 +47612,7 @@ pub fn coverageeligibilityrequest_new(
     serviced: None,
     event: [],
     patient:,
-    purpose: [],
+    purpose:,
     priority: None,
     status:,
     identifier: [],
@@ -48363,6 +48307,10 @@ pub fn coverageeligibilityrequest_to_json(
     #("insurer", reference_to_json(insurer)),
     #("created", json.string(created)),
     #("patient", reference_to_json(patient)),
+    #(
+      "purpose",
+      list1_to_json(purpose, r5_valuesets.eligibilityrequestpurpose_to_json),
+    ),
     #("status", r5_valuesets.fmstatus_to_json(status)),
   ]
   let fields = case item {
@@ -48425,16 +48373,6 @@ pub fn coverageeligibilityrequest_to_json(
     [] -> fields
     _ -> [
       #("event", json.array(event, coverageeligibilityrequest_event_to_json)),
-      ..fields
-    ]
-  }
-  let fields = case purpose {
-    [] -> fields
-    _ -> [
-      #(
-        "purpose",
-        json.array(purpose, r5_valuesets.eligibilityrequestpurpose_to_json),
-      ),
       ..fields
     ]
   }
@@ -48533,10 +48471,9 @@ pub fn coverageeligibilityrequest_decoder() -> Decoder(
     decode.list(coverageeligibilityrequest_event_decoder()),
   )
   use patient <- decode.field("patient", reference_decoder())
-  use purpose <- decode.optional_field(
+  use purpose <- list1_decoder(
     "purpose",
-    [],
-    decode.list(r5_valuesets.eligibilityrequestpurpose_decoder()),
+    r5_valuesets.eligibilityrequestpurpose_decoder(),
   )
   use priority <- decode.optional_field(
     "priority",
@@ -48590,7 +48527,13 @@ pub fn coverageeligibilityrequest_decoder() -> Decoder(
   use <- bool.guard(
     rt != "CoverageEligibilityRequest",
     decode.failure(
-      coverageeligibilityrequest_new(insurer:, created:, patient:, status:),
+      coverageeligibilityrequest_new(
+        insurer:,
+        created:,
+        patient:,
+        purpose:,
+        status:,
+      ),
       "resourceType",
     ),
   )
@@ -48634,7 +48577,7 @@ pub type Coverageeligibilityresponse {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     status: r5_valuesets.Fmstatus,
-    purpose: List(r5_valuesets.Eligibilityresponsepurpose),
+    purpose: List1(r5_valuesets.Eligibilityresponsepurpose),
     patient: Reference,
     event: List(CoverageeligibilityresponseEvent),
     serviced: Option(CoverageeligibilityresponseServiced),
@@ -48685,6 +48628,7 @@ pub fn coverageeligibilityresponse_new(
   request request: Reference,
   created created: String,
   patient patient: Reference,
+  purpose purpose: List1(r5_valuesets.Eligibilityresponsepurpose),
   status status: r5_valuesets.Fmstatus,
 ) -> Coverageeligibilityresponse {
   Coverageeligibilityresponse(
@@ -48701,7 +48645,7 @@ pub fn coverageeligibilityresponse_new(
     serviced: None,
     event: [],
     patient:,
-    purpose: [],
+    purpose:,
     status:,
     identifier: [],
     modifier_extension: [],
@@ -49542,6 +49486,10 @@ pub fn coverageeligibilityresponse_to_json(
     #("request", reference_to_json(request)),
     #("created", json.string(created)),
     #("patient", reference_to_json(patient)),
+    #(
+      "purpose",
+      list1_to_json(purpose, r5_valuesets.eligibilityresponsepurpose_to_json),
+    ),
     #("status", r5_valuesets.fmstatus_to_json(status)),
   ]
   let fields = case error {
@@ -49595,16 +49543,6 @@ pub fn coverageeligibilityresponse_to_json(
     [] -> fields
     _ -> [
       #("event", json.array(event, coverageeligibilityresponse_event_to_json)),
-      ..fields
-    ]
-  }
-  let fields = case purpose {
-    [] -> fields
-    _ -> [
-      #(
-        "purpose",
-        json.array(purpose, r5_valuesets.eligibilityresponsepurpose_to_json),
-      ),
       ..fields
     ]
   }
@@ -49704,10 +49642,9 @@ pub fn coverageeligibilityresponse_decoder() -> Decoder(
     decode.list(coverageeligibilityresponse_event_decoder()),
   )
   use patient <- decode.field("patient", reference_decoder())
-  use purpose <- decode.optional_field(
+  use purpose <- list1_decoder(
     "purpose",
-    [],
-    decode.list(r5_valuesets.eligibilityresponsepurpose_decoder()),
+    r5_valuesets.eligibilityresponsepurpose_decoder(),
   )
   use status <- decode.field("status", r5_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
@@ -49762,6 +49699,7 @@ pub fn coverageeligibilityresponse_decoder() -> Decoder(
         request:,
         created:,
         patient:,
+        purpose:,
         status:,
       ),
       "resourceType",
@@ -55694,15 +55632,16 @@ pub type DeviceusageAdherence {
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
-    reason: List(Codeableconcept),
+    reason: List1(Codeableconcept),
   )
 }
 
 pub fn deviceusage_adherence_new(
+  reason reason: List1(Codeableconcept),
   code code: Codeableconcept,
 ) -> DeviceusageAdherence {
   DeviceusageAdherence(
-    reason: [],
+    reason:,
     code:,
     modifier_extension: [],
     extension: [],
@@ -55716,12 +55655,9 @@ pub fn deviceusage_adherence_to_json(
   let DeviceusageAdherence(reason:, code:, modifier_extension:, extension:, id:) =
     deviceusage_adherence
   let fields = [
+    #("reason", list1_to_json(reason, codeableconcept_to_json)),
     #("code", codeableconcept_to_json(code)),
   ]
-  let fields = case reason {
-    [] -> fields
-    _ -> [#("reason", json.array(reason, codeableconcept_to_json)), ..fields]
-  }
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -55742,11 +55678,7 @@ pub fn deviceusage_adherence_to_json(
 
 pub fn deviceusage_adherence_decoder() -> Decoder(DeviceusageAdherence) {
   use <- decode.recursive
-  use reason <- decode.optional_field(
-    "reason",
-    [],
-    decode.list(codeableconcept_decoder()),
-  )
+  use reason <- list1_decoder("reason", codeableconcept_decoder())
   use code <- decode.field("code", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -56717,15 +56649,16 @@ pub type Documentreference {
     relates_to: List(DocumentreferenceRelatesto),
     description: Option(String),
     security_label: List(Codeableconcept),
-    content: List(DocumentreferenceContent),
+    content: List1(DocumentreferenceContent),
   )
 }
 
 pub fn documentreference_new(
+  content content: List1(DocumentreferenceContent),
   status status: r5_valuesets.Documentreferencestatus,
 ) -> Documentreference {
   Documentreference(
-    content: [],
+    content:,
     security_label: [],
     description: None,
     relates_to: [],
@@ -57176,15 +57109,9 @@ pub fn documentreference_to_json(documentreference: Documentreference) -> Json {
     id:,
   ) = documentreference
   let fields = [
+    #("content", list1_to_json(content, documentreference_content_to_json)),
     #("status", r5_valuesets.documentreferencestatus_to_json(status)),
   ]
-  let fields = case content {
-    [] -> fields
-    _ -> [
-      #("content", json.array(content, documentreference_content_to_json)),
-      ..fields
-    ]
-  }
   let fields = case security_label {
     [] -> fields
     _ -> [
@@ -57334,11 +57261,7 @@ pub fn documentreference_to_json(documentreference: Documentreference) -> Json {
 
 pub fn documentreference_decoder() -> Decoder(Documentreference) {
   use <- decode.recursive
-  use content <- decode.optional_field(
-    "content",
-    [],
-    decode.list(documentreference_content_decoder()),
-  )
+  use content <- list1_decoder("content", documentreference_content_decoder())
   use security_label <- decode.optional_field(
     "securityLabel",
     [],
@@ -57488,7 +57411,7 @@ pub fn documentreference_decoder() -> Decoder(Documentreference) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "DocumentReference",
-    decode.failure(documentreference_new(status:), "resourceType"),
+    decode.failure(documentreference_new(content:, status:), "resourceType"),
   )
   decode.success(Documentreference(
     content:,
@@ -59120,7 +59043,7 @@ pub type Endpoint {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     status: r5_valuesets.Endpointstatus,
-    connection_type: List(Codeableconcept),
+    connection_type: List1(Codeableconcept),
     name: Option(String),
     description: Option(String),
     environment_type: List(Codeableconcept),
@@ -59135,6 +59058,7 @@ pub type Endpoint {
 
 pub fn endpoint_new(
   address address: String,
+  connection_type connection_type: List1(Codeableconcept),
   status status: r5_valuesets.Endpointstatus,
 ) -> Endpoint {
   Endpoint(
@@ -59147,7 +59071,7 @@ pub fn endpoint_new(
     environment_type: [],
     description: None,
     name: None,
-    connection_type: [],
+    connection_type:,
     status:,
     identifier: [],
     modifier_extension: [],
@@ -59269,6 +59193,7 @@ pub fn endpoint_to_json(endpoint: Endpoint) -> Json {
   ) = endpoint
   let fields = [
     #("address", json.string(address)),
+    #("connectionType", list1_to_json(connection_type, codeableconcept_to_json)),
     #("status", r5_valuesets.endpointstatus_to_json(status)),
   ]
   let fields = case header {
@@ -59308,13 +59233,6 @@ pub fn endpoint_to_json(endpoint: Endpoint) -> Json {
   let fields = case name {
     Some(v) -> [#("name", json.string(v)), ..fields]
     None -> fields
-  }
-  let fields = case connection_type {
-    [] -> fields
-    _ -> [
-      #("connectionType", json.array(connection_type, codeableconcept_to_json)),
-      ..fields
-    ]
   }
   let fields = case identifier {
     [] -> fields
@@ -59398,10 +59316,9 @@ pub fn endpoint_decoder() -> Decoder(Endpoint) {
     None,
     decode.optional(decode.string),
   )
-  use connection_type <- decode.optional_field(
+  use connection_type <- list1_decoder(
     "connectionType",
-    [],
-    decode.list(codeableconcept_decoder()),
+    codeableconcept_decoder(),
   )
   use status <- decode.field("status", r5_valuesets.endpointstatus_decoder())
   use identifier <- decode.optional_field(
@@ -59449,7 +59366,10 @@ pub fn endpoint_decoder() -> Decoder(Endpoint) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "Endpoint",
-    decode.failure(endpoint_new(address:, status:), "resourceType"),
+    decode.failure(
+      endpoint_new(address:, connection_type:, status:),
+      "resourceType",
+    ),
   )
   decode.success(Endpoint(
     header:,
@@ -60557,7 +60477,7 @@ pub type Eventdefinition {
     reviewer: List(Contactdetail),
     endorser: List(Contactdetail),
     related_artifact: List(Relatedartifact),
-    trigger: List(Triggerdefinition),
+    trigger: List1(Triggerdefinition),
   )
 }
 
@@ -60618,10 +60538,11 @@ pub fn eventdefinition_subject_decoder() -> Decoder(EventdefinitionSubject) {
 }
 
 pub fn eventdefinition_new(
+  trigger trigger: List1(Triggerdefinition),
   status status: r5_valuesets.Publicationstatus,
 ) -> Eventdefinition {
   Eventdefinition(
-    trigger: [],
+    trigger:,
     related_artifact: [],
     endorser: [],
     reviewer: [],
@@ -60704,15 +60625,9 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
     id:,
   ) = eventdefinition
   let fields = [
+    #("trigger", list1_to_json(trigger, triggerdefinition_to_json)),
     #("status", r5_valuesets.publicationstatus_to_json(status)),
   ]
-  let fields = case trigger {
-    [] -> fields
-    _ -> [
-      #("trigger", json.array(trigger, triggerdefinition_to_json)),
-      ..fields
-    ]
-  }
   let fields = case related_artifact {
     [] -> fields
     _ -> [
@@ -60898,11 +60813,7 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
 
 pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
   use <- decode.recursive
-  use trigger <- decode.optional_field(
-    "trigger",
-    [],
-    decode.list(triggerdefinition_decoder()),
-  )
+  use trigger <- list1_decoder("trigger", triggerdefinition_decoder())
   use related_artifact <- decode.optional_field(
     "relatedArtifact",
     [],
@@ -61074,7 +60985,7 @@ pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "EventDefinition",
-    decode.failure(eventdefinition_new(status:), "resourceType"),
+    decode.failure(eventdefinition_new(trigger:, status:), "resourceType"),
   )
   decode.success(Eventdefinition(
     trigger:,
@@ -61155,7 +61066,7 @@ pub type Evidence {
     description: Option(String),
     assertion: Option(String),
     note: List(Annotation),
-    variable_definition: List(EvidenceVariabledefinition),
+    variable_definition: List1(EvidenceVariabledefinition),
     synthesis_type: Option(Codeableconcept),
     study_design: List(Codeableconcept),
     statistic: List(EvidenceStatistic),
@@ -61211,13 +61122,16 @@ pub fn evidence_citeas_decoder() -> Decoder(EvidenceCiteas) {
   )
 }
 
-pub fn evidence_new(status status: r5_valuesets.Publicationstatus) -> Evidence {
+pub fn evidence_new(
+  variable_definition variable_definition: List1(EvidenceVariabledefinition),
+  status status: r5_valuesets.Publicationstatus,
+) -> Evidence {
   Evidence(
     certainty: [],
     statistic: [],
     study_design: [],
     synthesis_type: None,
-    variable_definition: [],
+    variable_definition:,
     note: [],
     assertion: None,
     description: None,
@@ -62362,6 +62276,10 @@ pub fn evidence_to_json(evidence: Evidence) -> Json {
     id:,
   ) = evidence
   let fields = [
+    #(
+      "variableDefinition",
+      list1_to_json(variable_definition, evidence_variabledefinition_to_json),
+    ),
     #("status", r5_valuesets.publicationstatus_to_json(status)),
   ]
   let fields = case certainty {
@@ -62388,16 +62306,6 @@ pub fn evidence_to_json(evidence: Evidence) -> Json {
   let fields = case synthesis_type {
     Some(v) -> [#("synthesisType", codeableconcept_to_json(v)), ..fields]
     None -> fields
-  }
-  let fields = case variable_definition {
-    [] -> fields
-    _ -> [
-      #(
-        "variableDefinition",
-        json.array(variable_definition, evidence_variabledefinition_to_json),
-      ),
-      ..fields
-    ]
   }
   let fields = case note {
     [] -> fields
@@ -62589,10 +62497,9 @@ pub fn evidence_decoder() -> Decoder(Evidence) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use variable_definition <- decode.optional_field(
+  use variable_definition <- list1_decoder(
     "variableDefinition",
-    [],
-    decode.list(evidence_variabledefinition_decoder()),
+    evidence_variabledefinition_decoder(),
   )
   use note <- decode.optional_field(
     "note",
@@ -62750,7 +62657,7 @@ pub fn evidence_decoder() -> Decoder(Evidence) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "Evidence",
-    decode.failure(evidence_new(status:), "resourceType"),
+    decode.failure(evidence_new(variable_definition:, status:), "resourceType"),
   )
   decode.success(Evidence(
     certainty:,
@@ -64220,15 +64127,16 @@ pub type EvidencevariableCharacteristicDefinitionbycombination {
     modifier_extension: List(Extension),
     code: r5_valuesets.Characteristiccombination,
     threshold: Option(Int),
-    characteristic: List(EvidencevariableCharacteristic),
+    characteristic: List1(EvidencevariableCharacteristic),
   )
 }
 
 pub fn evidencevariable_characteristic_definitionbycombination_new(
+  characteristic characteristic: List1(EvidencevariableCharacteristic),
   code code: r5_valuesets.Characteristiccombination,
 ) -> EvidencevariableCharacteristicDefinitionbycombination {
   EvidencevariableCharacteristicDefinitionbycombination(
-    characteristic: [],
+    characteristic:,
     threshold: None,
     code:,
     modifier_extension: [],
@@ -64578,18 +64486,12 @@ pub fn evidencevariable_characteristic_definitionbycombination_to_json(
     id:,
   ) = evidencevariable_characteristic_definitionbycombination
   let fields = [
+    #(
+      "characteristic",
+      list1_to_json(characteristic, evidencevariable_characteristic_to_json),
+    ),
     #("code", r5_valuesets.characteristiccombination_to_json(code)),
   ]
-  let fields = case characteristic {
-    [] -> fields
-    _ -> [
-      #(
-        "characteristic",
-        json.array(characteristic, evidencevariable_characteristic_to_json),
-      ),
-      ..fields
-    ]
-  }
   let fields = case threshold {
     Some(v) -> [#("threshold", json.int(v)), ..fields]
     None -> fields
@@ -64616,10 +64518,9 @@ pub fn evidencevariable_characteristic_definitionbycombination_decoder() -> Deco
   EvidencevariableCharacteristicDefinitionbycombination,
 ) {
   use <- decode.recursive
-  use characteristic <- decode.optional_field(
+  use characteristic <- list1_decoder(
     "characteristic",
-    [],
-    decode.list(evidencevariable_characteristic_decoder()),
+    evidencevariable_characteristic_decoder(),
   )
   use threshold <- decode.optional_field(
     "threshold",
@@ -67692,15 +67593,17 @@ pub type ExplanationofbenefitItemBodysite {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    site: List(Codeablereference),
+    site: List1(Codeablereference),
     sub_site: List(Codeableconcept),
   )
 }
 
-pub fn explanationofbenefit_item_bodysite_new() -> ExplanationofbenefitItemBodysite {
+pub fn explanationofbenefit_item_bodysite_new(
+  site site: List1(Codeablereference),
+) -> ExplanationofbenefitItemBodysite {
   ExplanationofbenefitItemBodysite(
     sub_site: [],
-    site: [],
+    site:,
     modifier_extension: [],
     extension: [],
     id: None,
@@ -68007,15 +67910,17 @@ pub type ExplanationofbenefitAdditemBodysite {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    site: List(Codeablereference),
+    site: List1(Codeablereference),
     sub_site: List(Codeableconcept),
   )
 }
 
-pub fn explanationofbenefit_additem_bodysite_new() -> ExplanationofbenefitAdditemBodysite {
+pub fn explanationofbenefit_additem_bodysite_new(
+  site site: List1(Codeablereference),
+) -> ExplanationofbenefitAdditemBodysite {
   ExplanationofbenefitAdditemBodysite(
     sub_site: [],
-    site: [],
+    site:,
     modifier_extension: [],
     extension: [],
     id: None,
@@ -69289,14 +69194,12 @@ pub fn explanationofbenefit_additem_bodysite_to_json(
     extension:,
     id:,
   ) = explanationofbenefit_additem_bodysite
-  let fields = []
+  let fields = [
+    #("site", list1_to_json(site, codeablereference_to_json)),
+  ]
   let fields = case sub_site {
     [] -> fields
     _ -> [#("subSite", json.array(sub_site, codeableconcept_to_json)), ..fields]
-  }
-  let fields = case site {
-    [] -> fields
-    _ -> [#("site", json.array(site, codeablereference_to_json)), ..fields]
   }
   let fields = case modifier_extension {
     [] -> fields
@@ -69325,11 +69228,7 @@ pub fn explanationofbenefit_additem_bodysite_decoder() -> Decoder(
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use site <- decode.optional_field(
-    "site",
-    [],
-    decode.list(codeablereference_decoder()),
-  )
+  use site <- list1_decoder("site", codeablereference_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -70434,14 +70333,12 @@ pub fn explanationofbenefit_item_bodysite_to_json(
     extension:,
     id:,
   ) = explanationofbenefit_item_bodysite
-  let fields = []
+  let fields = [
+    #("site", list1_to_json(site, codeablereference_to_json)),
+  ]
   let fields = case sub_site {
     [] -> fields
     _ -> [#("subSite", json.array(sub_site, codeableconcept_to_json)), ..fields]
-  }
-  let fields = case site {
-    [] -> fields
-    _ -> [#("site", json.array(site, codeablereference_to_json)), ..fields]
   }
   let fields = case modifier_extension {
     [] -> fields
@@ -70470,11 +70367,7 @@ pub fn explanationofbenefit_item_bodysite_decoder() -> Decoder(
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use site <- decode.optional_field(
-    "site",
-    [],
-    decode.list(codeablereference_decoder()),
-  )
+  use site <- list1_decoder("site", codeablereference_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -77693,15 +77586,16 @@ pub type ImagingselectionInstanceImageregion2d {
     extension: List(Extension),
     modifier_extension: List(Extension),
     region_type: r5_valuesets.Imagingselection2dgraphictype,
-    coordinate: List(Float),
+    coordinate: List1(Float),
   )
 }
 
 pub fn imagingselection_instance_imageregion2d_new(
+  coordinate coordinate: List1(Float),
   region_type region_type: r5_valuesets.Imagingselection2dgraphictype,
 ) -> ImagingselectionInstanceImageregion2d {
   ImagingselectionInstanceImageregion2d(
-    coordinate: [],
+    coordinate:,
     region_type:,
     modifier_extension: [],
     extension: [],
@@ -77716,15 +77610,16 @@ pub type ImagingselectionInstanceImageregion3d {
     extension: List(Extension),
     modifier_extension: List(Extension),
     region_type: r5_valuesets.Imagingselection3dgraphictype,
-    coordinate: List(Float),
+    coordinate: List1(Float),
   )
 }
 
 pub fn imagingselection_instance_imageregion3d_new(
+  coordinate coordinate: List1(Float),
   region_type region_type: r5_valuesets.Imagingselection3dgraphictype,
 ) -> ImagingselectionInstanceImageregion3d {
   ImagingselectionInstanceImageregion3d(
-    coordinate: [],
+    coordinate:,
     region_type:,
     modifier_extension: [],
     extension: [],
@@ -77743,15 +77638,12 @@ pub fn imagingselection_instance_imageregion3d_to_json(
     id:,
   ) = imagingselection_instance_imageregion3d
   let fields = [
+    #("coordinate", list1_to_json(coordinate, json.float)),
     #(
       "regionType",
       r5_valuesets.imagingselection3dgraphictype_to_json(region_type),
     ),
   ]
-  let fields = case coordinate {
-    [] -> fields
-    _ -> [#("coordinate", json.array(coordinate, json.float)), ..fields]
-  }
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -77774,11 +77666,7 @@ pub fn imagingselection_instance_imageregion3d_decoder() -> Decoder(
   ImagingselectionInstanceImageregion3d,
 ) {
   use <- decode.recursive
-  use coordinate <- decode.optional_field(
-    "coordinate",
-    [],
-    decode.list(decode_number()),
-  )
+  use coordinate <- list1_decoder("coordinate", decode_number())
   use region_type <- decode.field(
     "regionType",
     r5_valuesets.imagingselection3dgraphictype_decoder(),
@@ -77814,15 +77702,12 @@ pub fn imagingselection_instance_imageregion2d_to_json(
     id:,
   ) = imagingselection_instance_imageregion2d
   let fields = [
+    #("coordinate", list1_to_json(coordinate, json.float)),
     #(
       "regionType",
       r5_valuesets.imagingselection2dgraphictype_to_json(region_type),
     ),
   ]
-  let fields = case coordinate {
-    [] -> fields
-    _ -> [#("coordinate", json.array(coordinate, json.float)), ..fields]
-  }
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -77845,11 +77730,7 @@ pub fn imagingselection_instance_imageregion2d_decoder() -> Decoder(
   ImagingselectionInstanceImageregion2d,
 ) {
   use <- decode.recursive
-  use coordinate <- decode.optional_field(
-    "coordinate",
-    [],
-    decode.list(decode_number()),
-  )
+  use coordinate <- list1_decoder("coordinate", decode_number())
   use region_type <- decode.field(
     "regionType",
     r5_valuesets.imagingselection2dgraphictype_decoder(),
@@ -80403,16 +80284,17 @@ pub type Immunizationrecommendation {
     patient: Reference,
     date: String,
     authority: Option(Reference),
-    recommendation: List(ImmunizationrecommendationRecommendation),
+    recommendation: List1(ImmunizationrecommendationRecommendation),
   )
 }
 
 pub fn immunizationrecommendation_new(
+  recommendation recommendation: List1(ImmunizationrecommendationRecommendation),
   date date: String,
   patient patient: Reference,
 ) -> Immunizationrecommendation {
   Immunizationrecommendation(
-    recommendation: [],
+    recommendation:,
     authority: None,
     date:,
     patient:,
@@ -80788,22 +80670,16 @@ pub fn immunizationrecommendation_to_json(
     id:,
   ) = immunizationrecommendation
   let fields = [
+    #(
+      "recommendation",
+      list1_to_json(
+        recommendation,
+        immunizationrecommendation_recommendation_to_json,
+      ),
+    ),
     #("date", json.string(date)),
     #("patient", reference_to_json(patient)),
   ]
-  let fields = case recommendation {
-    [] -> fields
-    _ -> [
-      #(
-        "recommendation",
-        json.array(
-          recommendation,
-          immunizationrecommendation_recommendation_to_json,
-        ),
-      ),
-      ..fields
-    ]
-  }
   let fields = case authority {
     Some(v) -> [#("authority", reference_to_json(v)), ..fields]
     None -> fields
@@ -80858,10 +80734,9 @@ pub fn immunizationrecommendation_decoder() -> Decoder(
   Immunizationrecommendation,
 ) {
   use <- decode.recursive
-  use recommendation <- decode.optional_field(
+  use recommendation <- list1_decoder(
     "recommendation",
-    [],
-    decode.list(immunizationrecommendation_recommendation_decoder()),
+    immunizationrecommendation_recommendation_decoder(),
   )
   use authority <- decode.optional_field(
     "authority",
@@ -80916,7 +80791,7 @@ pub fn immunizationrecommendation_decoder() -> Decoder(
   use <- bool.guard(
     rt != "ImmunizationRecommendation",
     decode.failure(
-      immunizationrecommendation_new(date:, patient:),
+      immunizationrecommendation_new(recommendation:, date:, patient:),
       "resourceType",
     ),
   )
@@ -80967,7 +80842,7 @@ pub type Implementationguide {
     copyright_label: Option(String),
     package_id: String,
     license: Option(r5_valuesets.Spdxlicense),
-    fhir_version: List(r5_valuesets.Fhirversion),
+    fhir_version: List1(r5_valuesets.Fhirversion),
     depends_on: List(ImplementationguideDependson),
     global: List(ImplementationguideGlobal),
     definition: Option(ImplementationguideDefinition),
@@ -81004,6 +80879,7 @@ pub fn implementationguide_versionalgorithm_decoder() -> Decoder(
 }
 
 pub fn implementationguide_new(
+  fhir_version fhir_version: List1(r5_valuesets.Fhirversion),
   package_id package_id: String,
   status status: r5_valuesets.Publicationstatus,
   name name: String,
@@ -81014,7 +80890,7 @@ pub fn implementationguide_new(
     definition: None,
     global: [],
     depends_on: [],
-    fhir_version: [],
+    fhir_version:,
     license: None,
     package_id:,
     copyright_label: None,
@@ -81299,19 +81175,21 @@ pub type ImplementationguideManifest {
     extension: List(Extension),
     modifier_extension: List(Extension),
     rendering: Option(String),
-    resource: List(ImplementationguideManifestResource),
+    resource: List1(ImplementationguideManifestResource),
     page: List(ImplementationguideManifestPage),
     image: List(String),
     other: List(String),
   )
 }
 
-pub fn implementationguide_manifest_new() -> ImplementationguideManifest {
+pub fn implementationguide_manifest_new(
+  resource resource: List1(ImplementationguideManifestResource),
+) -> ImplementationguideManifest {
   ImplementationguideManifest(
     other: [],
     image: [],
     page: [],
-    resource: [],
+    resource:,
     rendering: None,
     modifier_extension: [],
     extension: [],
@@ -81543,7 +81421,12 @@ pub fn implementationguide_manifest_to_json(
     extension:,
     id:,
   ) = implementationguide_manifest
-  let fields = []
+  let fields = [
+    #(
+      "resource",
+      list1_to_json(resource, implementationguide_manifest_resource_to_json),
+    ),
+  ]
   let fields = case other {
     [] -> fields
     _ -> [#("other", json.array(other, json.string)), ..fields]
@@ -81556,16 +81439,6 @@ pub fn implementationguide_manifest_to_json(
     [] -> fields
     _ -> [
       #("page", json.array(page, implementationguide_manifest_page_to_json)),
-      ..fields
-    ]
-  }
-  let fields = case resource {
-    [] -> fields
-    _ -> [
-      #(
-        "resource",
-        json.array(resource, implementationguide_manifest_resource_to_json),
-      ),
       ..fields
     ]
   }
@@ -81602,10 +81475,9 @@ pub fn implementationguide_manifest_decoder() -> Decoder(
     [],
     decode.list(implementationguide_manifest_page_decoder()),
   )
-  use resource <- decode.optional_field(
+  use resource <- list1_decoder(
     "resource",
-    [],
-    decode.list(implementationguide_manifest_resource_decoder()),
+    implementationguide_manifest_resource_decoder(),
   )
   use rendering <- decode.optional_field(
     "rendering",
@@ -82366,6 +82238,10 @@ pub fn implementationguide_to_json(
     id:,
   ) = implementationguide
   let fields = [
+    #(
+      "fhirVersion",
+      list1_to_json(fhir_version, r5_valuesets.fhirversion_to_json),
+    ),
     #("packageId", json.string(package_id)),
     #("status", r5_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
@@ -82398,16 +82274,6 @@ pub fn implementationguide_to_json(
       #(
         "dependsOn",
         json.array(depends_on, implementationguide_dependson_to_json),
-      ),
-      ..fields
-    ]
-  }
-  let fields = case fhir_version {
-    [] -> fields
-    _ -> [
-      #(
-        "fhirVersion",
-        json.array(fhir_version, r5_valuesets.fhirversion_to_json),
       ),
       ..fields
     ]
@@ -82549,10 +82415,9 @@ pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
     [],
     decode.list(implementationguide_dependson_decoder()),
   )
-  use fhir_version <- decode.optional_field(
+  use fhir_version <- list1_decoder(
     "fhirVersion",
-    [],
-    decode.list(r5_valuesets.fhirversion_decoder()),
+    r5_valuesets.fhirversion_decoder(),
   )
   use license <- decode.optional_field(
     "license",
@@ -82672,7 +82537,7 @@ pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
   use <- bool.guard(
     rt != "ImplementationGuide",
     decode.failure(
-      implementationguide_new(package_id:, status:, name:, url:),
+      implementationguide_new(fhir_version:, package_id:, status:, name:, url:),
       "resourceType",
     ),
   )
@@ -83659,15 +83524,16 @@ pub type InsuranceplanCoverage {
     modifier_extension: List(Extension),
     type_: Codeableconcept,
     network: List(Reference),
-    benefit: List(InsuranceplanCoverageBenefit),
+    benefit: List1(InsuranceplanCoverageBenefit),
   )
 }
 
 pub fn insuranceplan_coverage_new(
+  benefit benefit: List1(InsuranceplanCoverageBenefit),
   type_ type_: Codeableconcept,
 ) -> InsuranceplanCoverage {
   InsuranceplanCoverage(
-    benefit: [],
+    benefit:,
     network: [],
     type_:,
     modifier_extension: [],
@@ -84465,15 +84331,9 @@ pub fn insuranceplan_coverage_to_json(
     id:,
   ) = insuranceplan_coverage
   let fields = [
+    #("benefit", list1_to_json(benefit, insuranceplan_coverage_benefit_to_json)),
     #("type", codeableconcept_to_json(type_)),
   ]
-  let fields = case benefit {
-    [] -> fields
-    _ -> [
-      #("benefit", json.array(benefit, insuranceplan_coverage_benefit_to_json)),
-      ..fields
-    ]
-  }
   let fields = case network {
     [] -> fields
     _ -> [#("network", json.array(network, reference_to_json)), ..fields]
@@ -84498,10 +84358,9 @@ pub fn insuranceplan_coverage_to_json(
 
 pub fn insuranceplan_coverage_decoder() -> Decoder(InsuranceplanCoverage) {
   use <- decode.recursive
-  use benefit <- decode.optional_field(
+  use benefit <- list1_decoder(
     "benefit",
-    [],
-    decode.list(insuranceplan_coverage_benefit_decoder()),
+    insuranceplan_coverage_benefit_decoder(),
   )
   use network <- decode.optional_field(
     "network",
@@ -87576,13 +87435,13 @@ pub type Linkage {
     modifier_extension: List(Extension),
     active: Option(Bool),
     author: Option(Reference),
-    item: List(LinkageItem),
+    item: List1(LinkageItem),
   )
 }
 
-pub fn linkage_new() -> Linkage {
+pub fn linkage_new(item item: List1(LinkageItem)) -> Linkage {
   Linkage(
-    item: [],
+    item:,
     author: None,
     active: None,
     modifier_extension: [],
@@ -87683,11 +87542,9 @@ pub fn linkage_to_json(linkage: Linkage) -> Json {
     meta:,
     id:,
   ) = linkage
-  let fields = []
-  let fields = case item {
-    [] -> fields
-    _ -> [#("item", json.array(item, linkage_item_to_json)), ..fields]
-  }
+  let fields = [
+    #("item", list1_to_json(item, linkage_item_to_json)),
+  ]
   let fields = case author {
     Some(v) -> [#("author", reference_to_json(v)), ..fields]
     None -> fields
@@ -87737,11 +87594,7 @@ pub fn linkage_to_json(linkage: Linkage) -> Json {
 
 pub fn linkage_decoder() -> Decoder(Linkage) {
   use <- decode.recursive
-  use item <- decode.optional_field(
-    "item",
-    [],
-    decode.list(linkage_item_decoder()),
-  )
+  use item <- list1_decoder("item", linkage_item_decoder())
   use author <- decode.optional_field(
     "author",
     None,
@@ -87792,7 +87645,7 @@ pub fn linkage_decoder() -> Decoder(Linkage) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "Linkage",
-    decode.failure(linkage_new(), "resourceType"),
+    decode.failure(linkage_new(item:), "resourceType"),
   )
   decode.success(Linkage(
     item:,
@@ -94517,15 +94370,16 @@ pub type MedicationknowledgeRelatedmedicationknowledge {
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
-    reference: List(Reference),
+    reference: List1(Reference),
   )
 }
 
 pub fn medicationknowledge_relatedmedicationknowledge_new(
+  reference reference: List1(Reference),
   type_ type_: Codeableconcept,
 ) -> MedicationknowledgeRelatedmedicationknowledge {
   MedicationknowledgeRelatedmedicationknowledge(
-    reference: [],
+    reference:,
     type_:,
     modifier_extension: [],
     extension: [],
@@ -94692,15 +94546,16 @@ pub type MedicationknowledgeIndicationguidelineDosingguidelineDosage {
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
-    dosage: List(Dosage),
+    dosage: List1(Dosage),
   )
 }
 
 pub fn medicationknowledge_indicationguideline_dosingguideline_dosage_new(
+  dosage dosage: List1(Dosage),
   type_ type_: Codeableconcept,
 ) -> MedicationknowledgeIndicationguidelineDosingguidelineDosage {
   MedicationknowledgeIndicationguidelineDosingguidelineDosage(
-    dosage: [],
+    dosage:,
     type_:,
     modifier_extension: [],
     extension: [],
@@ -96181,12 +96036,9 @@ pub fn medicationknowledge_indicationguideline_dosingguideline_dosage_to_json(
     id:,
   ) = medicationknowledge_indicationguideline_dosingguideline_dosage
   let fields = [
+    #("dosage", list1_to_json(dosage, dosage_to_json)),
     #("type", codeableconcept_to_json(type_)),
   ]
-  let fields = case dosage {
-    [] -> fields
-    _ -> [#("dosage", json.array(dosage, dosage_to_json)), ..fields]
-  }
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -96209,11 +96061,7 @@ pub fn medicationknowledge_indicationguideline_dosingguideline_dosage_decoder() 
   MedicationknowledgeIndicationguidelineDosingguidelineDosage,
 ) {
   use <- decode.recursive
-  use dosage <- decode.optional_field(
-    "dosage",
-    [],
-    decode.list(dosage_decoder()),
-  )
+  use dosage <- list1_decoder("dosage", dosage_decoder())
   use type_ <- decode.field("type", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -96672,12 +96520,9 @@ pub fn medicationknowledge_relatedmedicationknowledge_to_json(
     id:,
   ) = medicationknowledge_relatedmedicationknowledge
   let fields = [
+    #("reference", list1_to_json(reference, reference_to_json)),
     #("type", codeableconcept_to_json(type_)),
   ]
-  let fields = case reference {
-    [] -> fields
-    _ -> [#("reference", json.array(reference, reference_to_json)), ..fields]
-  }
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -96700,11 +96545,7 @@ pub fn medicationknowledge_relatedmedicationknowledge_decoder() -> Decoder(
   MedicationknowledgeRelatedmedicationknowledge,
 ) {
   use <- decode.recursive
-  use reference <- decode.optional_field(
-    "reference",
-    [],
-    decode.list(reference_decoder()),
-  )
+  use reference <- list1_decoder("reference", reference_decoder())
   use type_ <- decode.field("type", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -98656,19 +98497,21 @@ pub type Medicinalproductdefinition {
     contact: List(MedicinalproductdefinitionContact),
     clinical_trial: List(Reference),
     code: List(Coding),
-    name: List(MedicinalproductdefinitionName),
+    name: List1(MedicinalproductdefinitionName),
     cross_reference: List(MedicinalproductdefinitionCrossreference),
     operation: List(MedicinalproductdefinitionOperation),
     characteristic: List(MedicinalproductdefinitionCharacteristic),
   )
 }
 
-pub fn medicinalproductdefinition_new() -> Medicinalproductdefinition {
+pub fn medicinalproductdefinition_new(
+  name name: List1(MedicinalproductdefinitionName),
+) -> Medicinalproductdefinition {
   Medicinalproductdefinition(
     characteristic: [],
     operation: [],
     cross_reference: [],
-    name: [],
+    name:,
     code: [],
     clinical_trial: [],
     contact: [],
@@ -99509,7 +99352,9 @@ pub fn medicinalproductdefinition_to_json(
     meta:,
     id:,
   ) = medicinalproductdefinition
-  let fields = []
+  let fields = [
+    #("name", list1_to_json(name, medicinalproductdefinition_name_to_json)),
+  ]
   let fields = case characteristic {
     [] -> fields
     _ -> [
@@ -99543,13 +99388,6 @@ pub fn medicinalproductdefinition_to_json(
           medicinalproductdefinition_crossreference_to_json,
         ),
       ),
-      ..fields
-    ]
-  }
-  let fields = case name {
-    [] -> fields
-    _ -> [
-      #("name", json.array(name, medicinalproductdefinition_name_to_json)),
       ..fields
     ]
   }
@@ -99765,11 +99603,7 @@ pub fn medicinalproductdefinition_decoder() -> Decoder(
     [],
     decode.list(medicinalproductdefinition_crossreference_decoder()),
   )
-  use name <- decode.optional_field(
-    "name",
-    [],
-    decode.list(medicinalproductdefinition_name_decoder()),
-  )
+  use name <- list1_decoder("name", medicinalproductdefinition_name_decoder())
   use code <- decode.optional_field("code", [], decode.list(coding_decoder()))
   use clinical_trial <- decode.optional_field(
     "clinicalTrial",
@@ -99931,7 +99765,7 @@ pub fn medicinalproductdefinition_decoder() -> Decoder(
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "MedicinalProductDefinition",
-    decode.failure(medicinalproductdefinition_new(), "resourceType"),
+    decode.failure(medicinalproductdefinition_new(name:), "resourceType"),
   )
   decode.success(Medicinalproductdefinition(
     characteristic:,
@@ -102681,7 +102515,7 @@ pub type Namingsystem {
     endorser: List(Contactdetail),
     related_artifact: List(Relatedartifact),
     usage: Option(String),
-    unique_id: List(NamingsystemUniqueid),
+    unique_id: List1(NamingsystemUniqueid),
   )
 }
 
@@ -102714,13 +102548,14 @@ pub fn namingsystem_versionalgorithm_decoder() -> Decoder(
 }
 
 pub fn namingsystem_new(
+  unique_id unique_id: List1(NamingsystemUniqueid),
   date date: String,
   kind kind: r5_valuesets.Namingsystemtype,
   status status: r5_valuesets.Publicationstatus,
   name name: String,
 ) -> Namingsystem {
   Namingsystem(
-    unique_id: [],
+    unique_id:,
     usage: None,
     related_artifact: [],
     endorser: [],
@@ -102940,18 +102775,12 @@ pub fn namingsystem_to_json(namingsystem: Namingsystem) -> Json {
     id:,
   ) = namingsystem
   let fields = [
+    #("uniqueId", list1_to_json(unique_id, namingsystem_uniqueid_to_json)),
     #("date", json.string(date)),
     #("kind", r5_valuesets.namingsystemtype_to_json(kind)),
     #("status", r5_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
   ]
-  let fields = case unique_id {
-    [] -> fields
-    _ -> [
-      #("uniqueId", json.array(unique_id, namingsystem_uniqueid_to_json)),
-      ..fields
-    ]
-  }
   let fields = case usage {
     Some(v) -> [#("usage", json.string(v)), ..fields]
     None -> fields
@@ -103119,11 +102948,7 @@ pub fn namingsystem_to_json(namingsystem: Namingsystem) -> Json {
 
 pub fn namingsystem_decoder() -> Decoder(Namingsystem) {
   use <- decode.recursive
-  use unique_id <- decode.optional_field(
-    "uniqueId",
-    [],
-    decode.list(namingsystem_uniqueid_decoder()),
-  )
+  use unique_id <- list1_decoder("uniqueId", namingsystem_uniqueid_decoder())
   use usage <- decode.optional_field(
     "usage",
     None,
@@ -103293,7 +103118,7 @@ pub fn namingsystem_decoder() -> Decoder(Namingsystem) {
   use <- bool.guard(
     rt != "NamingSystem",
     decode.failure(
-      namingsystem_new(date:, kind:, status:, name:),
+      namingsystem_new(unique_id:, date:, kind:, status:, name:),
       "resourceType",
     ),
   )
@@ -103364,7 +103189,7 @@ pub type Nutritionintake {
     occurrence: Option(NutritionintakeOccurrence),
     recorded: Option(String),
     reported: Option(NutritionintakeReported),
-    consumed_item: List(NutritionintakeConsumeditem),
+    consumed_item: List1(NutritionintakeConsumeditem),
     ingredient_label: List(NutritionintakeIngredientlabel),
     performer: List(NutritionintakePerformer),
     location: Option(Reference),
@@ -103427,6 +103252,7 @@ pub fn nutritionintake_reported_decoder() -> Decoder(NutritionintakeReported) {
 }
 
 pub fn nutritionintake_new(
+  consumed_item consumed_item: List1(NutritionintakeConsumeditem),
   subject subject: Reference,
   status status: r5_valuesets.Eventstatus,
 ) -> Nutritionintake {
@@ -103437,7 +103263,7 @@ pub fn nutritionintake_new(
     location: None,
     performer: [],
     ingredient_label: [],
-    consumed_item: [],
+    consumed_item:,
     reported: None,
     recorded: None,
     occurrence: None,
@@ -103812,6 +103638,10 @@ pub fn nutritionintake_to_json(nutritionintake: Nutritionintake) -> Json {
     id:,
   ) = nutritionintake
   let fields = [
+    #(
+      "consumedItem",
+      list1_to_json(consumed_item, nutritionintake_consumeditem_to_json),
+    ),
     #("subject", reference_to_json(subject)),
     #("status", r5_valuesets.eventstatus_to_json(status)),
   ]
@@ -103847,16 +103677,6 @@ pub fn nutritionintake_to_json(nutritionintake: Nutritionintake) -> Json {
       #(
         "ingredientLabel",
         json.array(ingredient_label, nutritionintake_ingredientlabel_to_json),
-      ),
-      ..fields
-    ]
-  }
-  let fields = case consumed_item {
-    [] -> fields
-    _ -> [
-      #(
-        "consumedItem",
-        json.array(consumed_item, nutritionintake_consumeditem_to_json),
       ),
       ..fields
     ]
@@ -104008,10 +103828,9 @@ pub fn nutritionintake_decoder() -> Decoder(Nutritionintake) {
     [],
     decode.list(nutritionintake_ingredientlabel_decoder()),
   )
-  use consumed_item <- decode.optional_field(
+  use consumed_item <- list1_decoder(
     "consumedItem",
-    [],
-    decode.list(nutritionintake_consumeditem_decoder()),
+    nutritionintake_consumeditem_decoder(),
   )
   use reported <- decode.then(
     none_if_omitted(nutritionintake_reported_decoder()),
@@ -104106,7 +103925,10 @@ pub fn nutritionintake_decoder() -> Decoder(Nutritionintake) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "NutritionIntake",
-    decode.failure(nutritionintake_new(subject:, status:), "resourceType"),
+    decode.failure(
+      nutritionintake_new(consumed_item:, subject:, status:),
+      "resourceType",
+    ),
   )
   decode.success(Nutritionintake(
     note:,
@@ -109865,13 +109687,15 @@ pub type Operationoutcome {
     contained: List(Resource),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    issue: List(OperationoutcomeIssue),
+    issue: List1(OperationoutcomeIssue),
   )
 }
 
-pub fn operationoutcome_new() -> Operationoutcome {
+pub fn operationoutcome_new(
+  issue issue: List1(OperationoutcomeIssue),
+) -> Operationoutcome {
   Operationoutcome(
-    issue: [],
+    issue:,
     modifier_extension: [],
     extension: [],
     contained: [],
@@ -110027,14 +109851,9 @@ pub fn operationoutcome_to_json(operationoutcome: Operationoutcome) -> Json {
     meta:,
     id:,
   ) = operationoutcome
-  let fields = []
-  let fields = case issue {
-    [] -> fields
-    _ -> [
-      #("issue", json.array(issue, operationoutcome_issue_to_json)),
-      ..fields
-    ]
-  }
+  let fields = [
+    #("issue", list1_to_json(issue, operationoutcome_issue_to_json)),
+  ]
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -110076,11 +109895,7 @@ pub fn operationoutcome_to_json(operationoutcome: Operationoutcome) -> Json {
 
 pub fn operationoutcome_decoder() -> Decoder(Operationoutcome) {
   use <- decode.recursive
-  use issue <- decode.optional_field(
-    "issue",
-    [],
-    decode.list(operationoutcome_issue_decoder()),
-  )
+  use issue <- list1_decoder("issue", operationoutcome_issue_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -110121,7 +109936,7 @@ pub fn operationoutcome_decoder() -> Decoder(Operationoutcome) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "OperationOutcome",
-    decode.failure(operationoutcome_new(), "resourceType"),
+    decode.failure(operationoutcome_new(issue:), "resourceType"),
   )
   decode.success(Operationoutcome(
     issue:,
@@ -115725,13 +115540,15 @@ pub type PlandefinitionActor {
     modifier_extension: List(Extension),
     title: Option(String),
     description: Option(String),
-    option: List(PlandefinitionActorOption),
+    option: List1(PlandefinitionActorOption),
   )
 }
 
-pub fn plandefinition_actor_new() -> PlandefinitionActor {
+pub fn plandefinition_actor_new(
+  option option: List1(PlandefinitionActorOption),
+) -> PlandefinitionActor {
   PlandefinitionActor(
-    option: [],
+    option:,
     description: None,
     title: None,
     modifier_extension: [],
@@ -117183,14 +117000,9 @@ pub fn plandefinition_actor_to_json(
     extension:,
     id:,
   ) = plandefinition_actor
-  let fields = []
-  let fields = case option {
-    [] -> fields
-    _ -> [
-      #("option", json.array(option, plandefinition_actor_option_to_json)),
-      ..fields
-    ]
-  }
+  let fields = [
+    #("option", list1_to_json(option, plandefinition_actor_option_to_json)),
+  ]
   let fields = case description {
     Some(v) -> [#("description", json.string(v)), ..fields]
     None -> fields
@@ -117219,11 +117031,7 @@ pub fn plandefinition_actor_to_json(
 
 pub fn plandefinition_actor_decoder() -> Decoder(PlandefinitionActor) {
   use <- decode.recursive
-  use option <- decode.optional_field(
-    "option",
-    [],
-    decode.list(plandefinition_actor_option_decoder()),
-  )
+  use option <- list1_decoder("option", plandefinition_actor_option_decoder())
   use description <- decode.optional_field(
     "description",
     None,
@@ -119658,7 +119466,7 @@ pub type Provenance {
     contained: List(Resource),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    target: List(Reference),
+    target: List1(Reference),
     occurred: Option(ProvenanceOccurred),
     recorded: Option(String),
     policy: List(String),
@@ -119668,7 +119476,7 @@ pub type Provenance {
     based_on: List(Reference),
     patient: Option(Reference),
     encounter: Option(Reference),
-    agent: List(ProvenanceAgent),
+    agent: List1(ProvenanceAgent),
     entity: List(ProvenanceEntity),
     signature: List(Signature),
   )
@@ -119698,11 +119506,14 @@ pub fn provenance_occurred_decoder() -> Decoder(ProvenanceOccurred) {
   )
 }
 
-pub fn provenance_new() -> Provenance {
+pub fn provenance_new(
+  agent agent: List1(ProvenanceAgent),
+  target target: List1(Reference),
+) -> Provenance {
   Provenance(
     signature: [],
     entity: [],
-    agent: [],
+    agent:,
     encounter: None,
     patient: None,
     based_on: [],
@@ -119712,7 +119523,7 @@ pub fn provenance_new() -> Provenance {
     policy: [],
     recorded: None,
     occurred: None,
-    target: [],
+    target:,
     modifier_extension: [],
     extension: [],
     contained: [],
@@ -119947,7 +119758,10 @@ pub fn provenance_to_json(provenance: Provenance) -> Json {
     meta:,
     id:,
   ) = provenance
-  let fields = []
+  let fields = [
+    #("agent", list1_to_json(agent, provenance_agent_to_json)),
+    #("target", list1_to_json(target, reference_to_json)),
+  ]
   let fields = case signature {
     [] -> fields
     _ -> [#("signature", json.array(signature, signature_to_json)), ..fields]
@@ -119955,10 +119769,6 @@ pub fn provenance_to_json(provenance: Provenance) -> Json {
   let fields = case entity {
     [] -> fields
     _ -> [#("entity", json.array(entity, provenance_entity_to_json)), ..fields]
-  }
-  let fields = case agent {
-    [] -> fields
-    _ -> [#("agent", json.array(agent, provenance_agent_to_json)), ..fields]
   }
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
@@ -120008,10 +119818,6 @@ pub fn provenance_to_json(provenance: Provenance) -> Json {
       ..fields
     ]
     None -> fields
-  }
-  let fields = case target {
-    [] -> fields
-    _ -> [#("target", json.array(target, reference_to_json)), ..fields]
   }
   let fields = case modifier_extension {
     [] -> fields
@@ -120064,11 +119870,7 @@ pub fn provenance_decoder() -> Decoder(Provenance) {
     [],
     decode.list(provenance_entity_decoder()),
   )
-  use agent <- decode.optional_field(
-    "agent",
-    [],
-    decode.list(provenance_agent_decoder()),
-  )
+  use agent <- list1_decoder("agent", provenance_agent_decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
@@ -120106,11 +119908,7 @@ pub fn provenance_decoder() -> Decoder(Provenance) {
     decode.optional(decode.string),
   )
   use occurred <- decode.then(none_if_omitted(provenance_occurred_decoder()))
-  use target <- decode.optional_field(
-    "target",
-    [],
-    decode.list(reference_decoder()),
-  )
+  use target <- list1_decoder("target", reference_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -120151,7 +119949,7 @@ pub fn provenance_decoder() -> Decoder(Provenance) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "Provenance",
-    decode.failure(provenance_new(), "resourceType"),
+    decode.failure(provenance_new(agent:, target:), "resourceType"),
   )
   decode.success(Provenance(
     signature:,
@@ -127532,17 +127330,17 @@ pub type Schedule {
     service_type: List(Codeablereference),
     specialty: List(Codeableconcept),
     name: Option(String),
-    actor: List(Reference),
+    actor: List1(Reference),
     planning_horizon: Option(Period),
     comment: Option(String),
   )
 }
 
-pub fn schedule_new() -> Schedule {
+pub fn schedule_new(actor actor: List1(Reference)) -> Schedule {
   Schedule(
     comment: None,
     planning_horizon: None,
-    actor: [],
+    actor:,
     name: None,
     specialty: [],
     service_type: [],
@@ -127580,7 +127378,9 @@ pub fn schedule_to_json(schedule: Schedule) -> Json {
     meta:,
     id:,
   ) = schedule
-  let fields = []
+  let fields = [
+    #("actor", list1_to_json(actor, reference_to_json)),
+  ]
   let fields = case comment {
     Some(v) -> [#("comment", json.string(v)), ..fields]
     None -> fields
@@ -127588,10 +127388,6 @@ pub fn schedule_to_json(schedule: Schedule) -> Json {
   let fields = case planning_horizon {
     Some(v) -> [#("planningHorizon", period_to_json(v)), ..fields]
     None -> fields
-  }
-  let fields = case actor {
-    [] -> fields
-    _ -> [#("actor", json.array(actor, reference_to_json)), ..fields]
   }
   let fields = case name {
     Some(v) -> [#("name", json.string(v)), ..fields]
@@ -127680,11 +127476,7 @@ pub fn schedule_decoder() -> Decoder(Schedule) {
     None,
     decode.optional(period_decoder()),
   )
-  use actor <- decode.optional_field(
-    "actor",
-    [],
-    decode.list(reference_decoder()),
-  )
+  use actor <- list1_decoder("actor", reference_decoder())
   use name <- decode.optional_field(
     "name",
     None,
@@ -127755,7 +127547,7 @@ pub fn schedule_decoder() -> Decoder(Schedule) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "Schedule",
-    decode.failure(schedule_new(), "resourceType"),
+    decode.failure(schedule_new(actor:), "resourceType"),
   )
   decode.success(Schedule(
     comment:,
@@ -127808,7 +127600,7 @@ pub type Searchparameter {
     copyright: Option(String),
     copyright_label: Option(String),
     code: String,
-    base: List(r5_valuesets.Versionindependentallresourcetypes),
+    base: List1(r5_valuesets.Versionindependentallresourcetypes),
     type_: r5_valuesets.Searchparamtype,
     expression: Option(String),
     processing_mode: Option(r5_valuesets.Searchprocessingmode),
@@ -127853,6 +127645,7 @@ pub fn searchparameter_versionalgorithm_decoder() -> Decoder(
 
 pub fn searchparameter_new(
   type_ type_: r5_valuesets.Searchparamtype,
+  base base: List1(r5_valuesets.Versionindependentallresourcetypes),
   code code: String,
   description description: String,
   status status: r5_valuesets.Publicationstatus,
@@ -127871,7 +127664,7 @@ pub fn searchparameter_new(
     processing_mode: None,
     expression: None,
     type_:,
-    base: [],
+    base:,
     code:,
     copyright_label: None,
     copyright: None,
@@ -128026,6 +127819,13 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
   ) = searchparameter
   let fields = [
     #("type", r5_valuesets.searchparamtype_to_json(type_)),
+    #(
+      "base",
+      list1_to_json(
+        base,
+        r5_valuesets.versionindependentallresourcetypes_to_json,
+      ),
+    ),
     #("code", json.string(code)),
     #("description", json.string(description)),
     #("status", r5_valuesets.publicationstatus_to_json(status)),
@@ -128098,19 +127898,6 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
   let fields = case expression {
     Some(v) -> [#("expression", json.string(v)), ..fields]
     None -> fields
-  }
-  let fields = case base {
-    [] -> fields
-    _ -> [
-      #(
-        "base",
-        json.array(
-          base,
-          r5_valuesets.versionindependentallresourcetypes_to_json,
-        ),
-      ),
-      ..fields
-    ]
   }
   let fields = case copyright_label {
     Some(v) -> [#("copyrightLabel", json.string(v)), ..fields]
@@ -128272,10 +128059,9 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
     decode.optional(decode.string),
   )
   use type_ <- decode.field("type", r5_valuesets.searchparamtype_decoder())
-  use base <- decode.optional_field(
+  use base <- list1_decoder(
     "base",
-    [],
-    decode.list(r5_valuesets.versionindependentallresourcetypes_decoder()),
+    r5_valuesets.versionindependentallresourcetypes_decoder(),
   )
   use code <- decode.field("code", decode.string)
   use copyright_label <- decode.optional_field(
@@ -128391,7 +128177,15 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
   use <- bool.guard(
     rt != "SearchParameter",
     decode.failure(
-      searchparameter_new(type_:, code:, description:, status:, name:, url:),
+      searchparameter_new(
+        type_:,
+        base:,
+        code:,
+        description:,
+        status:,
+        name:,
+        url:,
+      ),
       "resourceType",
     ),
   )
@@ -128626,13 +128420,15 @@ pub type ServicerequestOrderdetail {
     extension: List(Extension),
     modifier_extension: List(Extension),
     parameter_focus: Option(Codeablereference),
-    parameter: List(ServicerequestOrderdetailParameter),
+    parameter: List1(ServicerequestOrderdetailParameter),
   )
 }
 
-pub fn servicerequest_orderdetail_new() -> ServicerequestOrderdetail {
+pub fn servicerequest_orderdetail_new(
+  parameter parameter: List1(ServicerequestOrderdetailParameter),
+) -> ServicerequestOrderdetail {
   ServicerequestOrderdetail(
-    parameter: [],
+    parameter:,
     parameter_focus: None,
     modifier_extension: [],
     extension: [],
@@ -128901,17 +128697,12 @@ pub fn servicerequest_orderdetail_to_json(
     extension:,
     id:,
   ) = servicerequest_orderdetail
-  let fields = []
-  let fields = case parameter {
-    [] -> fields
-    _ -> [
-      #(
-        "parameter",
-        json.array(parameter, servicerequest_orderdetail_parameter_to_json),
-      ),
-      ..fields
-    ]
-  }
+  let fields = [
+    #(
+      "parameter",
+      list1_to_json(parameter, servicerequest_orderdetail_parameter_to_json),
+    ),
+  ]
   let fields = case parameter_focus {
     Some(v) -> [#("parameterFocus", codeablereference_to_json(v)), ..fields]
     None -> fields
@@ -128938,10 +128729,9 @@ pub fn servicerequest_orderdetail_decoder() -> Decoder(
   ServicerequestOrderdetail,
 ) {
   use <- decode.recursive
-  use parameter <- decode.optional_field(
+  use parameter <- list1_decoder(
     "parameter",
-    [],
-    decode.list(servicerequest_orderdetail_parameter_decoder()),
+    servicerequest_orderdetail_parameter_decoder(),
   )
   use parameter_focus <- decode.optional_field(
     "parameterFocus",
@@ -132156,13 +131946,15 @@ pub type StructuredefinitionSnapshot {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    element: List(Elementdefinition),
+    element: List1(Elementdefinition),
   )
 }
 
-pub fn structuredefinition_snapshot_new() -> StructuredefinitionSnapshot {
+pub fn structuredefinition_snapshot_new(
+  element element: List1(Elementdefinition),
+) -> StructuredefinitionSnapshot {
   StructuredefinitionSnapshot(
-    element: [],
+    element:,
     modifier_extension: [],
     extension: [],
     id: None,
@@ -132175,13 +131967,15 @@ pub type StructuredefinitionDifferential {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    element: List(Elementdefinition),
+    element: List1(Elementdefinition),
   )
 }
 
-pub fn structuredefinition_differential_new() -> StructuredefinitionDifferential {
+pub fn structuredefinition_differential_new(
+  element element: List1(Elementdefinition),
+) -> StructuredefinitionDifferential {
   StructuredefinitionDifferential(
-    element: [],
+    element:,
     modifier_extension: [],
     extension: [],
     id: None,
@@ -132197,14 +131991,9 @@ pub fn structuredefinition_differential_to_json(
     extension:,
     id:,
   ) = structuredefinition_differential
-  let fields = []
-  let fields = case element {
-    [] -> fields
-    _ -> [
-      #("element", json.array(element, elementdefinition_to_json)),
-      ..fields
-    ]
-  }
+  let fields = [
+    #("element", list1_to_json(element, elementdefinition_to_json)),
+  ]
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -132227,11 +132016,7 @@ pub fn structuredefinition_differential_decoder() -> Decoder(
   StructuredefinitionDifferential,
 ) {
   use <- decode.recursive
-  use element <- decode.optional_field(
-    "element",
-    [],
-    decode.list(elementdefinition_decoder()),
-  )
+  use element <- list1_decoder("element", elementdefinition_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -132260,14 +132045,9 @@ pub fn structuredefinition_snapshot_to_json(
     extension:,
     id:,
   ) = structuredefinition_snapshot
-  let fields = []
-  let fields = case element {
-    [] -> fields
-    _ -> [
-      #("element", json.array(element, elementdefinition_to_json)),
-      ..fields
-    ]
-  }
+  let fields = [
+    #("element", list1_to_json(element, elementdefinition_to_json)),
+  ]
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -132290,11 +132070,7 @@ pub fn structuredefinition_snapshot_decoder() -> Decoder(
   StructuredefinitionSnapshot,
 ) {
   use <- decode.recursive
-  use element <- decode.optional_field(
-    "element",
-    [],
-    decode.list(elementdefinition_decoder()),
-  )
+  use element <- list1_decoder("element", elementdefinition_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -132911,7 +132687,7 @@ pub type Structuremap {
     structure: List(StructuremapStructure),
     import_: List(String),
     const_: List(StructuremapConst),
-    group: List(StructuremapGroup),
+    group: List1(StructuremapGroup),
   )
 }
 
@@ -132944,12 +132720,13 @@ pub fn structuremap_versionalgorithm_decoder() -> Decoder(
 }
 
 pub fn structuremap_new(
+  group group: List1(StructuremapGroup),
   status status: r5_valuesets.Publicationstatus,
   name name: String,
   url url: String,
 ) -> Structuremap {
   Structuremap(
-    group: [],
+    group:,
     const_: [],
     import_: [],
     structure: [],
@@ -133040,15 +132817,18 @@ pub type StructuremapGroup {
     extends: Option(String),
     type_mode: Option(r5_valuesets.Mapgrouptypemode),
     documentation: Option(String),
-    input: List(StructuremapGroupInput),
+    input: List1(StructuremapGroupInput),
     rule: List(StructuremapGroupRule),
   )
 }
 
-pub fn structuremap_group_new(name name: String) -> StructuremapGroup {
+pub fn structuremap_group_new(
+  input input: List1(StructuremapGroupInput),
+  name name: String,
+) -> StructuremapGroup {
   StructuremapGroup(
     rule: [],
-    input: [],
+    input:,
     documentation: None,
     type_mode: None,
     extends: None,
@@ -133094,7 +132874,7 @@ pub type StructuremapGroupRule {
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Option(String),
-    source: List(StructuremapGroupRuleSource),
+    source: List1(StructuremapGroupRuleSource),
     target: List(StructuremapGroupRuleTarget),
     rule: List(StructuremapGroupRule),
     dependent: List(StructuremapGroupRuleDependent),
@@ -133102,13 +132882,15 @@ pub type StructuremapGroupRule {
   )
 }
 
-pub fn structuremap_group_rule_new() -> StructuremapGroupRule {
+pub fn structuremap_group_rule_new(
+  source source: List1(StructuremapGroupRuleSource),
+) -> StructuremapGroupRule {
   StructuremapGroupRule(
     documentation: None,
     dependent: [],
     rule: [],
     target: [],
-    source: [],
+    source:,
     name: None,
     modifier_extension: [],
     extension: [],
@@ -133268,15 +133050,16 @@ pub type StructuremapGroupRuleDependent {
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: String,
-    parameter: List(StructuremapGroupRuleTargetParameter),
+    parameter: List1(StructuremapGroupRuleTargetParameter),
   )
 }
 
 pub fn structuremap_group_rule_dependent_new(
+  parameter parameter: List1(StructuremapGroupRuleTargetParameter),
   name name: String,
 ) -> StructuremapGroupRuleDependent {
   StructuremapGroupRuleDependent(
-    parameter: [],
+    parameter:,
     name:,
     modifier_extension: [],
     extension: [],
@@ -133295,18 +133078,12 @@ pub fn structuremap_group_rule_dependent_to_json(
     id:,
   ) = structuremap_group_rule_dependent
   let fields = [
+    #(
+      "parameter",
+      list1_to_json(parameter, structuremap_group_rule_target_parameter_to_json),
+    ),
     #("name", json.string(name)),
   ]
-  let fields = case parameter {
-    [] -> fields
-    _ -> [
-      #(
-        "parameter",
-        json.array(parameter, structuremap_group_rule_target_parameter_to_json),
-      ),
-      ..fields
-    ]
-  }
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -133329,10 +133106,9 @@ pub fn structuremap_group_rule_dependent_decoder() -> Decoder(
   StructuremapGroupRuleDependent,
 ) {
   use <- decode.recursive
-  use parameter <- decode.optional_field(
+  use parameter <- list1_decoder(
     "parameter",
-    [],
-    decode.list(structuremap_group_rule_target_parameter_decoder()),
+    structuremap_group_rule_target_parameter_decoder(),
   )
   use name <- decode.field("name", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -133722,7 +133498,9 @@ pub fn structuremap_group_rule_to_json(
     extension:,
     id:,
   ) = structuremap_group_rule
-  let fields = []
+  let fields = [
+    #("source", list1_to_json(source, structuremap_group_rule_source_to_json)),
+  ]
   let fields = case documentation {
     Some(v) -> [#("documentation", json.string(v)), ..fields]
     None -> fields
@@ -133748,13 +133526,6 @@ pub fn structuremap_group_rule_to_json(
     [] -> fields
     _ -> [
       #("target", json.array(target, structuremap_group_rule_target_to_json)),
-      ..fields
-    ]
-  }
-  let fields = case source {
-    [] -> fields
-    _ -> [
-      #("source", json.array(source, structuremap_group_rule_source_to_json)),
       ..fields
     ]
   }
@@ -133802,10 +133573,9 @@ pub fn structuremap_group_rule_decoder() -> Decoder(StructuremapGroupRule) {
     [],
     decode.list(structuremap_group_rule_target_decoder()),
   )
-  use source <- decode.optional_field(
+  use source <- list1_decoder(
     "source",
-    [],
-    decode.list(structuremap_group_rule_source_decoder()),
+    structuremap_group_rule_source_decoder(),
   )
   use name <- decode.optional_field(
     "name",
@@ -133927,19 +133697,13 @@ pub fn structuremap_group_to_json(structuremap_group: StructuremapGroup) -> Json
     id:,
   ) = structuremap_group
   let fields = [
+    #("input", list1_to_json(input, structuremap_group_input_to_json)),
     #("name", json.string(name)),
   ]
   let fields = case rule {
     [] -> fields
     _ -> [
       #("rule", json.array(rule, structuremap_group_rule_to_json)),
-      ..fields
-    ]
-  }
-  let fields = case input {
-    [] -> fields
-    _ -> [
-      #("input", json.array(input, structuremap_group_input_to_json)),
       ..fields
     ]
   }
@@ -133983,11 +133747,7 @@ pub fn structuremap_group_decoder() -> Decoder(StructuremapGroup) {
     [],
     decode.list(structuremap_group_rule_decoder()),
   )
-  use input <- decode.optional_field(
-    "input",
-    [],
-    decode.list(structuremap_group_input_decoder()),
-  )
+  use input <- list1_decoder("input", structuremap_group_input_decoder())
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -134201,14 +133961,11 @@ pub fn structuremap_to_json(structuremap: Structuremap) -> Json {
     id:,
   ) = structuremap
   let fields = [
+    #("group", list1_to_json(group, structuremap_group_to_json)),
     #("status", r5_valuesets.publicationstatus_to_json(status)),
     #("name", json.string(name)),
     #("url", json.string(url)),
   ]
-  let fields = case group {
-    [] -> fields
-    _ -> [#("group", json.array(group, structuremap_group_to_json)), ..fields]
-  }
   let fields = case const_ {
     [] -> fields
     _ -> [#("const", json.array(const_, structuremap_const_to_json)), ..fields]
@@ -134337,11 +134094,7 @@ pub fn structuremap_to_json(structuremap: Structuremap) -> Json {
 
 pub fn structuremap_decoder() -> Decoder(Structuremap) {
   use <- decode.recursive
-  use group <- decode.optional_field(
-    "group",
-    [],
-    decode.list(structuremap_group_decoder()),
-  )
+  use group <- list1_decoder("group", structuremap_group_decoder())
   use const_ <- decode.optional_field(
     "const",
     [],
@@ -134464,7 +134217,10 @@ pub fn structuremap_decoder() -> Decoder(Structuremap) {
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
     rt != "StructureMap",
-    decode.failure(structuremap_new(status:, name:, url:), "resourceType"),
+    decode.failure(
+      structuremap_new(group:, status:, name:, url:),
+      "resourceType",
+    ),
   )
   decode.success(Structuremap(
     group:,
@@ -145342,15 +145098,16 @@ pub type TerminologycapabilitiesCodesystemVersionFilter {
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: String,
-    op: List(String),
+    op: List1(String),
   )
 }
 
 pub fn terminologycapabilities_codesystem_version_filter_new(
+  op op: List1(String),
   code code: String,
 ) -> TerminologycapabilitiesCodesystemVersionFilter {
   TerminologycapabilitiesCodesystemVersionFilter(
-    op: [],
+    op:,
     code:,
     modifier_extension: [],
     extension: [],
@@ -145826,12 +145583,9 @@ pub fn terminologycapabilities_codesystem_version_filter_to_json(
     id:,
   ) = terminologycapabilities_codesystem_version_filter
   let fields = [
+    #("op", list1_to_json(op, json.string)),
     #("code", json.string(code)),
   ]
-  let fields = case op {
-    [] -> fields
-    _ -> [#("op", json.array(op, json.string)), ..fields]
-  }
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -145854,7 +145608,7 @@ pub fn terminologycapabilities_codesystem_version_filter_decoder() -> Decoder(
   TerminologycapabilitiesCodesystemVersionFilter,
 ) {
   use <- decode.recursive
-  use op <- decode.optional_field("op", [], decode.list(decode.string))
+  use op <- list1_decoder("op", decode.string)
   use code <- decode.field("code", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -148008,12 +147762,14 @@ pub type TestreportSetup {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    action: List(TestreportSetupAction),
+    action: List1(TestreportSetupAction),
   )
 }
 
-pub fn testreport_setup_new() -> TestreportSetup {
-  TestreportSetup(action: [], modifier_extension: [], extension: [], id: None)
+pub fn testreport_setup_new(
+  action action: List1(TestreportSetupAction),
+) -> TestreportSetup {
+  TestreportSetup(action:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
@@ -148144,13 +147900,15 @@ pub type TestreportTest {
     modifier_extension: List(Extension),
     name: Option(String),
     description: Option(String),
-    action: List(TestreportTestAction),
+    action: List1(TestreportTestAction),
   )
 }
 
-pub fn testreport_test_new() -> TestreportTest {
+pub fn testreport_test_new(
+  action action: List1(TestreportTestAction),
+) -> TestreportTest {
   TestreportTest(
-    action: [],
+    action:,
     description: None,
     name: None,
     modifier_extension: [],
@@ -148186,17 +147944,14 @@ pub type TestreportTeardown {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    action: List(TestreportTeardownAction),
+    action: List1(TestreportTeardownAction),
   )
 }
 
-pub fn testreport_teardown_new() -> TestreportTeardown {
-  TestreportTeardown(
-    action: [],
-    modifier_extension: [],
-    extension: [],
-    id: None,
-  )
+pub fn testreport_teardown_new(
+  action action: List1(TestreportTeardownAction),
+) -> TestreportTeardown {
+  TestreportTeardown(action:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r5/StructureDefinition/TestReport#resource)
@@ -148276,14 +148031,9 @@ pub fn testreport_teardown_to_json(
 ) -> Json {
   let TestreportTeardown(action:, modifier_extension:, extension:, id:) =
     testreport_teardown
-  let fields = []
-  let fields = case action {
-    [] -> fields
-    _ -> [
-      #("action", json.array(action, testreport_teardown_action_to_json)),
-      ..fields
-    ]
-  }
+  let fields = [
+    #("action", list1_to_json(action, testreport_teardown_action_to_json)),
+  ]
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -148304,11 +148054,7 @@ pub fn testreport_teardown_to_json(
 
 pub fn testreport_teardown_decoder() -> Decoder(TestreportTeardown) {
   use <- decode.recursive
-  use action <- decode.optional_field(
-    "action",
-    [],
-    decode.list(testreport_teardown_action_decoder()),
-  )
+  use action <- list1_decoder("action", testreport_teardown_action_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -148412,14 +148158,9 @@ pub fn testreport_test_to_json(testreport_test: TestreportTest) -> Json {
     extension:,
     id:,
   ) = testreport_test
-  let fields = []
-  let fields = case action {
-    [] -> fields
-    _ -> [
-      #("action", json.array(action, testreport_test_action_to_json)),
-      ..fields
-    ]
-  }
+  let fields = [
+    #("action", list1_to_json(action, testreport_test_action_to_json)),
+  ]
   let fields = case description {
     Some(v) -> [#("description", json.string(v)), ..fields]
     None -> fields
@@ -148448,11 +148189,7 @@ pub fn testreport_test_to_json(testreport_test: TestreportTest) -> Json {
 
 pub fn testreport_test_decoder() -> Decoder(TestreportTest) {
   use <- decode.recursive
-  use action <- decode.optional_field(
-    "action",
-    [],
-    decode.list(testreport_test_action_decoder()),
-  )
+  use action <- list1_decoder("action", testreport_test_action_decoder())
   use description <- decode.optional_field(
     "description",
     None,
@@ -148808,14 +148545,9 @@ pub fn testreport_setup_action_decoder() -> Decoder(TestreportSetupAction) {
 pub fn testreport_setup_to_json(testreport_setup: TestreportSetup) -> Json {
   let TestreportSetup(action:, modifier_extension:, extension:, id:) =
     testreport_setup
-  let fields = []
-  let fields = case action {
-    [] -> fields
-    _ -> [
-      #("action", json.array(action, testreport_setup_action_to_json)),
-      ..fields
-    ]
-  }
+  let fields = [
+    #("action", list1_to_json(action, testreport_setup_action_to_json)),
+  ]
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -148836,11 +148568,7 @@ pub fn testreport_setup_to_json(testreport_setup: TestreportSetup) -> Json {
 
 pub fn testreport_setup_decoder() -> Decoder(TestreportSetup) {
   use <- decode.recursive
-  use action <- decode.optional_field(
-    "action",
-    [],
-    decode.list(testreport_setup_action_decoder()),
-  )
+  use action <- list1_decoder("action", testreport_setup_action_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -149321,13 +149049,15 @@ pub type TestscriptMetadata {
     extension: List(Extension),
     modifier_extension: List(Extension),
     link: List(TestscriptMetadataLink),
-    capability: List(TestscriptMetadataCapability),
+    capability: List1(TestscriptMetadataCapability),
   )
 }
 
-pub fn testscript_metadata_new() -> TestscriptMetadata {
+pub fn testscript_metadata_new(
+  capability capability: List1(TestscriptMetadataCapability),
+) -> TestscriptMetadata {
   TestscriptMetadata(
-    capability: [],
+    capability:,
     link: [],
     modifier_extension: [],
     extension: [],
@@ -149479,12 +149209,14 @@ pub type TestscriptSetup {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    action: List(TestscriptSetupAction),
+    action: List1(TestscriptSetupAction),
   )
 }
 
-pub fn testscript_setup_new() -> TestscriptSetup {
-  TestscriptSetup(action: [], modifier_extension: [], extension: [], id: None)
+pub fn testscript_setup_new(
+  action action: List1(TestscriptSetupAction),
+) -> TestscriptSetup {
+  TestscriptSetup(action:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
@@ -149710,13 +149442,15 @@ pub type TestscriptTest {
     modifier_extension: List(Extension),
     name: Option(String),
     description: Option(String),
-    action: List(TestscriptTestAction),
+    action: List1(TestscriptTestAction),
   )
 }
 
-pub fn testscript_test_new() -> TestscriptTest {
+pub fn testscript_test_new(
+  action action: List1(TestscriptTestAction),
+) -> TestscriptTest {
   TestscriptTest(
-    action: [],
+    action:,
     description: None,
     name: None,
     modifier_extension: [],
@@ -149752,17 +149486,14 @@ pub type TestscriptTeardown {
     id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    action: List(TestscriptTeardownAction),
+    action: List1(TestscriptTeardownAction),
   )
 }
 
-pub fn testscript_teardown_new() -> TestscriptTeardown {
-  TestscriptTeardown(
-    action: [],
-    modifier_extension: [],
-    extension: [],
-    id: None,
-  )
+pub fn testscript_teardown_new(
+  action action: List1(TestscriptTeardownAction),
+) -> TestscriptTeardown {
+  TestscriptTeardown(action:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r5/StructureDefinition/TestScript#resource)
@@ -149842,14 +149573,9 @@ pub fn testscript_teardown_to_json(
 ) -> Json {
   let TestscriptTeardown(action:, modifier_extension:, extension:, id:) =
     testscript_teardown
-  let fields = []
-  let fields = case action {
-    [] -> fields
-    _ -> [
-      #("action", json.array(action, testscript_teardown_action_to_json)),
-      ..fields
-    ]
-  }
+  let fields = [
+    #("action", list1_to_json(action, testscript_teardown_action_to_json)),
+  ]
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -149870,11 +149596,7 @@ pub fn testscript_teardown_to_json(
 
 pub fn testscript_teardown_decoder() -> Decoder(TestscriptTeardown) {
   use <- decode.recursive
-  use action <- decode.optional_field(
-    "action",
-    [],
-    decode.list(testscript_teardown_action_decoder()),
-  )
+  use action <- list1_decoder("action", testscript_teardown_action_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -149978,14 +149700,9 @@ pub fn testscript_test_to_json(testscript_test: TestscriptTest) -> Json {
     extension:,
     id:,
   ) = testscript_test
-  let fields = []
-  let fields = case action {
-    [] -> fields
-    _ -> [
-      #("action", json.array(action, testscript_test_action_to_json)),
-      ..fields
-    ]
-  }
+  let fields = [
+    #("action", list1_to_json(action, testscript_test_action_to_json)),
+  ]
   let fields = case description {
     Some(v) -> [#("description", json.string(v)), ..fields]
     None -> fields
@@ -150014,11 +149731,7 @@ pub fn testscript_test_to_json(testscript_test: TestscriptTest) -> Json {
 
 pub fn testscript_test_decoder() -> Decoder(TestscriptTest) {
   use <- decode.recursive
-  use action <- decode.optional_field(
-    "action",
-    [],
-    decode.list(testscript_test_action_decoder()),
-  )
+  use action <- list1_decoder("action", testscript_test_action_decoder())
   use description <- decode.optional_field(
     "description",
     None,
@@ -150827,14 +150540,9 @@ pub fn testscript_setup_action_decoder() -> Decoder(TestscriptSetupAction) {
 pub fn testscript_setup_to_json(testscript_setup: TestscriptSetup) -> Json {
   let TestscriptSetup(action:, modifier_extension:, extension:, id:) =
     testscript_setup
-  let fields = []
-  let fields = case action {
-    [] -> fields
-    _ -> [
-      #("action", json.array(action, testscript_setup_action_to_json)),
-      ..fields
-    ]
-  }
+  let fields = [
+    #("action", list1_to_json(action, testscript_setup_action_to_json)),
+  ]
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -150855,11 +150563,7 @@ pub fn testscript_setup_to_json(testscript_setup: TestscriptSetup) -> Json {
 
 pub fn testscript_setup_decoder() -> Decoder(TestscriptSetup) {
   use <- decode.recursive
-  use action <- decode.optional_field(
-    "action",
-    [],
-    decode.list(testscript_setup_action_decoder()),
-  )
+  use action <- list1_decoder("action", testscript_setup_action_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -151311,17 +151015,12 @@ pub fn testscript_metadata_to_json(
     extension:,
     id:,
   ) = testscript_metadata
-  let fields = []
-  let fields = case capability {
-    [] -> fields
-    _ -> [
-      #(
-        "capability",
-        json.array(capability, testscript_metadata_capability_to_json),
-      ),
-      ..fields
-    ]
-  }
+  let fields = [
+    #(
+      "capability",
+      list1_to_json(capability, testscript_metadata_capability_to_json),
+    ),
+  ]
   let fields = case link {
     [] -> fields
     _ -> [
@@ -151349,10 +151048,9 @@ pub fn testscript_metadata_to_json(
 
 pub fn testscript_metadata_decoder() -> Decoder(TestscriptMetadata) {
   use <- decode.recursive
-  use capability <- decode.optional_field(
+  use capability <- list1_decoder(
     "capability",
-    [],
-    decode.list(testscript_metadata_capability_decoder()),
+    testscript_metadata_capability_decoder(),
   )
   use link <- decode.optional_field(
     "link",
@@ -153360,17 +153058,19 @@ pub type ValuesetCompose {
     modifier_extension: List(Extension),
     locked_date: Option(String),
     inactive: Option(Bool),
-    include: List(ValuesetComposeInclude),
+    include: List1(ValuesetComposeInclude),
     exclude: List(ValuesetComposeInclude),
     property: List(String),
   )
 }
 
-pub fn valueset_compose_new() -> ValuesetCompose {
+pub fn valueset_compose_new(
+  include include: List1(ValuesetComposeInclude),
+) -> ValuesetCompose {
   ValuesetCompose(
     property: [],
     exclude: [],
-    include: [],
+    include:,
     inactive: None,
     locked_date: None,
     modifier_extension: [],
@@ -154836,7 +154536,9 @@ pub fn valueset_compose_to_json(valueset_compose: ValuesetCompose) -> Json {
     extension:,
     id:,
   ) = valueset_compose
-  let fields = []
+  let fields = [
+    #("include", list1_to_json(include, valueset_compose_include_to_json)),
+  ]
   let fields = case property {
     [] -> fields
     _ -> [#("property", json.array(property, json.string)), ..fields]
@@ -154845,13 +154547,6 @@ pub fn valueset_compose_to_json(valueset_compose: ValuesetCompose) -> Json {
     [] -> fields
     _ -> [
       #("exclude", json.array(exclude, valueset_compose_include_to_json)),
-      ..fields
-    ]
-  }
-  let fields = case include {
-    [] -> fields
-    _ -> [
-      #("include", json.array(include, valueset_compose_include_to_json)),
       ..fields
     ]
   }
@@ -154893,11 +154588,7 @@ pub fn valueset_compose_decoder() -> Decoder(ValuesetCompose) {
     [],
     decode.list(valueset_compose_include_decoder()),
   )
-  use include <- decode.optional_field(
-    "include",
-    [],
-    decode.list(valueset_compose_include_decoder()),
-  )
+  use include <- list1_decoder("include", valueset_compose_include_decoder())
   use inactive <- decode.optional_field(
     "inactive",
     None,
@@ -156177,11 +155868,14 @@ pub type Visionprescription {
     encounter: Option(Reference),
     date_written: String,
     prescriber: Reference,
-    lens_specification: List(VisionprescriptionLensspecification),
+    lens_specification: List1(VisionprescriptionLensspecification),
   )
 }
 
 pub fn visionprescription_new(
+  lens_specification lens_specification: List1(
+    VisionprescriptionLensspecification,
+  ),
   prescriber prescriber: Reference,
   date_written date_written: String,
   patient patient: Reference,
@@ -156189,7 +155883,7 @@ pub fn visionprescription_new(
   status status: r5_valuesets.Fmstatus,
 ) -> Visionprescription {
   Visionprescription(
-    lens_specification: [],
+    lens_specification:,
     prescriber:,
     date_written:,
     encounter: None,
@@ -156552,25 +156246,19 @@ pub fn visionprescription_to_json(
     id:,
   ) = visionprescription
   let fields = [
+    #(
+      "lensSpecification",
+      list1_to_json(
+        lens_specification,
+        visionprescription_lensspecification_to_json,
+      ),
+    ),
     #("prescriber", reference_to_json(prescriber)),
     #("dateWritten", json.string(date_written)),
     #("patient", reference_to_json(patient)),
     #("created", json.string(created)),
     #("status", r5_valuesets.fmstatus_to_json(status)),
   ]
-  let fields = case lens_specification {
-    [] -> fields
-    _ -> [
-      #(
-        "lensSpecification",
-        json.array(
-          lens_specification,
-          visionprescription_lensspecification_to_json,
-        ),
-      ),
-      ..fields
-    ]
-  }
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
@@ -156620,10 +156308,9 @@ pub fn visionprescription_to_json(
 
 pub fn visionprescription_decoder() -> Decoder(Visionprescription) {
   use <- decode.recursive
-  use lens_specification <- decode.optional_field(
+  use lens_specification <- list1_decoder(
     "lensSpecification",
-    [],
-    decode.list(visionprescription_lensspecification_decoder()),
+    visionprescription_lensspecification_decoder(),
   )
   use prescriber <- decode.field("prescriber", reference_decoder())
   use date_written <- decode.field("dateWritten", decode.string)
@@ -156682,6 +156369,7 @@ pub fn visionprescription_decoder() -> Decoder(Visionprescription) {
     rt != "VisionPrescription",
     decode.failure(
       visionprescription_new(
+        lens_specification:,
         prescriber:,
         date_written:,
         patient:,
@@ -157339,6 +157027,28 @@ pub fn resource_decoder() -> Decoder(Resource) {
   }
 }
 
+/// 1..*
+///
+/// a list that must have at least 1 element
+pub type List1(a) {
+  List1(first: a, rest: List(a))
+}
+
+/// 2..*
+///
+/// a list that must have at least 2 elements, for instance
+/// https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-blood-pressure.html
+pub type List2(a) {
+  List2(first: a, second: a, rest: List(a))
+}
+
+/// 3..*
+///
+/// a list that must have at least 3 elements
+pub type List3(a) {
+  List3(first: a, second: a, third: a, rest: List(a))
+}
+
 //std lib decode.optional supports myfield: null but what if myfield is omitted from json entirely?
 fn none_if_omitted(d: decode.Decoder(a)) -> decode.Decoder(Option(a)) {
   decode.one_of(d |> decode.map(Some), [decode.success(None)])
@@ -157347,4 +157057,78 @@ fn none_if_omitted(d: decode.Decoder(a)) -> decode.Decoder(Option(a)) {
 //std lib decode.float will NOT decode numbers without decimal point eg 4, only 4.0
 fn decode_number() {
   decode.one_of(decode.float, [decode.map(decode.int, int.to_float)])
+}
+
+pub fn list1_to_json(l: List1(a), tj: fn(a) -> Json) {
+  let List1(first:, rest:) = l
+  json.array([first, ..rest], tj)
+}
+
+pub fn list2_to_json(l: List2(a), tj: fn(a) -> Json) {
+  let List2(first:, second:, rest:) = l
+  json.array([first, second, ..rest], tj)
+}
+
+pub fn list3_to_json(l: List3(a), tj: fn(a) -> Json) {
+  let List3(first:, second:, third:, rest:) = l
+  json.array([first, second, third, ..rest], tj)
+}
+
+pub fn list1_decoder(
+  name: String,
+  inner: decode.Decoder(a),
+  next: fn(List1(a)) -> decode.Decoder(b),
+) -> decode.Decoder(b) {
+  use lst <- decode.field(name, decode.list(inner))
+  case lst {
+    [first, ..rest] -> next(List1(first:, rest:))
+    _ -> {
+      use fail_decode_to_satisfy_gleam_type <- decode.field(name, inner)
+      next(List1(first: fail_decode_to_satisfy_gleam_type, rest: []))
+    }
+  }
+}
+
+pub fn list2_decoder(
+  name: String,
+  inner: decode.Decoder(a),
+  next: fn(List2(a)) -> decode.Decoder(b),
+) -> decode.Decoder(b) {
+  use lst <- decode.field(name, decode.list(inner))
+  case lst {
+    [first, second, ..rest] -> next(List2(first:, second:, rest:))
+    _ -> {
+      use fail_decode_to_satisfy_gleam_type <- decode.field(name, inner)
+      next(
+        List2(
+          first: fail_decode_to_satisfy_gleam_type,
+          second: fail_decode_to_satisfy_gleam_type,
+          rest: [],
+        ),
+      )
+    }
+  }
+}
+
+pub fn list3_decoder(
+  name: String,
+  inner: decode.Decoder(a),
+  next: fn(List3(a)) -> decode.Decoder(b),
+) -> decode.Decoder(b) {
+  use lst <- decode.field(name, decode.list(inner))
+  case lst {
+    [first, second, third, ..rest] ->
+      next(List3(first:, second:, third:, rest:))
+    _ -> {
+      use fail_decode_to_satisfy_gleam_type <- decode.field(name, inner)
+      next(
+        List3(
+          first: fail_decode_to_satisfy_gleam_type,
+          second: fail_decode_to_satisfy_gleam_type,
+          third: fail_decode_to_satisfy_gleam_type,
+          rest: [],
+        ),
+      )
+    }
+  }
 }

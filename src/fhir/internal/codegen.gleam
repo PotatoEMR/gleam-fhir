@@ -372,6 +372,66 @@ fn gen_fhir(
       fn decode_number() {
         decode.one_of(decode.float, [decode.map(decode.int, int.to_float)])
       }
+
+      pub fn list1_to_json(l: List1(a), tj: fn(a) -> Json) {
+        let List1(first:, rest:) = l
+        json.array([first, ..rest], tj)
+      }
+
+      pub fn list2_to_json(l: List2(a), tj: fn(a) -> Json) {
+        let List2(first:, second:, rest:) = l
+        json.array([first, second, ..rest], tj)
+      }
+
+      pub fn list3_to_json(l: List3(a), tj: fn(a) -> Json) {
+        let List3(first:, second:, third:, rest:) = l
+        json.array([first, second, third, ..rest], tj)
+      }
+
+      pub fn list1_decoder(
+        name: String,
+        inner: decode.Decoder(a),
+        next: fn(List1(a)) -> decode.Decoder(b),
+      ) -> decode.Decoder(b) {
+        use lst <- decode.field(name, decode.list(inner))
+        case lst {
+          [first, ..rest] -> next(List1(first:, rest:))
+          _ -> {
+            use fail_decode_to_satisfy_gleam_type <- decode.field(name, inner)
+            next(List1(first: fail_decode_to_satisfy_gleam_type, rest: []))
+          }
+        }
+      }
+
+      pub fn list2_decoder(
+        name: String,
+        inner: decode.Decoder(a),
+        next: fn(List2(a)) -> decode.Decoder(b),
+      ) -> decode.Decoder(b) {
+        use lst <- decode.field(name, decode.list(inner))
+        case lst {
+          [first, second, ..rest] -> next(List2(first:, second:, rest:))
+          _ -> {
+            use fail_decode_to_satisfy_gleam_type <- decode.field(name, inner)
+            next(List2(first: fail_decode_to_satisfy_gleam_type, second: fail_decode_to_satisfy_gleam_type, rest: []))
+          }
+        }
+      }
+
+      pub fn list3_decoder(
+        name: String,
+        inner: decode.Decoder(a),
+        next: fn(List3(a)) -> decode.Decoder(b),
+      ) -> decode.Decoder(b) {
+        use lst <- decode.field(name, decode.list(inner))
+        case lst {
+          [first, second, third, ..rest] -> next(List3(first:, second:, third:, rest:))
+          _ -> {
+            use fail_decode_to_satisfy_gleam_type <- decode.field(name, inner)
+            next(List3(first: fail_decode_to_satisfy_gleam_type, second: fail_decode_to_satisfy_gleam_type, third: fail_decode_to_satisfy_gleam_type, rest: []))
+          }
+        }
+      }
       ",
     ])
   let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: all_types)
@@ -417,6 +477,7 @@ fn file_to_types(
     None, True -> dict.new()
     Some(_), True -> {
       let assert Ok(files) = simplifile.read_directory(profiles_dir)
+        as { "maybe run with download, custom profile not in " <> profiles_dir }
       files
       |> list.filter(fn(f) { string.starts_with(f, "StructureDefinition") })
       |> list.fold(dict.new(), fn(acc, f) {
@@ -769,26 +830,62 @@ fn file_to_types(
                         //add to all choice types
                       ]
                     }
-                    let #(newfunc_arg, newfunc_field) = case elt.max {
-                      "*" -> #("", elt_snake <> ": [],")
-                      _ ->
-                        case elt.min {
-                          0 -> #("", elt_snake <> ": None,")
-                          1 -> {
-                            let arg =
-                              string.concat([
-                                elt_snake,
-                                " ",
-                                elt_snake,
-                                ": ",
-                                field_type,
-                                ",",
-                              ])
-                            let field = elt_snake <> ":,"
-                            #(arg, field)
-                          }
-                          _ -> panic as "cardinality panic 2"
-                        }
+                    let #(newfunc_arg, newfunc_field) = case elt.min, elt.max {
+                      0, "*" -> #("", elt_snake <> ": [],")
+                      1, "*" -> {
+                        let arg =
+                          string.concat([
+                            elt_snake,
+                            " ",
+                            elt_snake,
+                            ": List1(",
+                            field_type,
+                            "),",
+                          ])
+                        let field = elt_snake <> ":,"
+                        #(arg, field)
+                      }
+                      2, "*" -> {
+                        let arg =
+                          string.concat([
+                            elt_snake,
+                            " ",
+                            elt_snake,
+                            ": List2(",
+                            field_type,
+                            "),",
+                          ])
+                        let field = elt_snake <> ":,"
+                        #(arg, field)
+                      }
+                      3, "*" -> {
+                        let arg =
+                          string.concat([
+                            elt_snake,
+                            " ",
+                            elt_snake,
+                            ": List3(",
+                            field_type,
+                            "),",
+                          ])
+                        let field = elt_snake <> ":,"
+                        #(arg, field)
+                      }
+                      0, _ -> #("", elt_snake <> ": None,")
+                      1, _ -> {
+                        let arg =
+                          string.concat([
+                            elt_snake,
+                            " ",
+                            elt_snake,
+                            ": ",
+                            field_type,
+                            ",",
+                          ])
+                        let field = elt_snake <> ":,"
+                        #(arg, field)
+                      }
+                      _, _ -> panic as "cardinality panic 2"
                     }
                     //all the fields for encoder to convert to json
                     let encoder_args_acc = encoder_args_acc <> elt_snake <> ":,"
@@ -820,8 +917,8 @@ fn file_to_types(
                       encoder_always_acc,
                       decoder_always_failure_acc,
                     ) = case elt.min, elt.max {
-                      _, "*" -> {
-                        //list case to json, in non empty [] case add to first fields list
+                      0, "*" -> {
+                        //0..* list: omit from json if empty
                         let opts =
                           encoder_optional_acc
                           <> "\nlet fields = case "
@@ -837,6 +934,51 @@ fn file_to_types(
                           <> ")), ..fields]
                           }"
                         #(opts, encoder_always_acc, decoder_always_failure_acc)
+                      }
+                      1, "*" -> {
+                        //1..* list: always present, destructure List1
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part_withgleamtype
+                          <> "\", list1_to_json("
+                          <> elt_snake
+                          <> ","
+                          <> field_type_encoder
+                          <> ")),"
+                        let decoder_always_failure =
+                          decoder_always_failure_acc <> elt_snake <> ":, "
+                        #(encoder_optional_acc, always, decoder_always_failure)
+                      }
+                      2, "*" -> {
+                        //2..* list: always present, destructure List2
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part_withgleamtype
+                          <> "\", list2_to_json("
+                          <> elt_snake
+                          <> ","
+                          <> field_type_encoder
+                          <> ")),"
+                        let decoder_always_failure =
+                          decoder_always_failure_acc <> elt_snake <> ":, "
+                        #(encoder_optional_acc, always, decoder_always_failure)
+                      }
+                      3, "*" -> {
+                        //3..* list: always present, destructure List3
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part_withgleamtype
+                          <> "\", list3_to_json("
+                          <> elt_snake
+                          <> ","
+                          <> field_type_encoder
+                          <> ")),"
+                        let decoder_always_failure =
+                          decoder_always_failure_acc <> elt_snake <> ":, "
+                        #(encoder_optional_acc, always, decoder_always_failure)
                       }
                       0, "1" -> {
                         //optional case to json, in Some case add to fields list
@@ -922,11 +1064,33 @@ fn file_to_types(
                         }
                         case elt.max {
                           "*" ->
-                            "decode.optional_field(\""
-                            <> elt_last_part_withgleamtype
-                            <> "\", [], decode.list("
-                            <> decoder_itself
-                            <> "))"
+                            case elt.min {
+                              0 ->
+                                "decode.optional_field(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\", [], decode.list("
+                                <> decoder_itself
+                                <> "))"
+                              1 ->
+                                "list1_decoder(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\","
+                                <> decoder_itself
+                                <> ")"
+                              2 ->
+                                "list2_decoder(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\","
+                                <> decoder_itself
+                                <> ")"
+                              3 ->
+                                "list3_decoder(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\","
+                                <> decoder_itself
+                                <> ")"
+                              _ -> panic as "list min > 3 not supported"
+                            }
                           _ ->
                             case elt.min {
                               0 -> {
@@ -1025,6 +1189,9 @@ fn file_to_types(
                 Some("resource") -> resource.name == new_type
                 _ -> panic as "????"
               }
+              // for profiles, resource.name is eg "USCorePatientProfile" but
+              // the resourceType in json must be the base FHIR type eg "Patient"
+              let assert Some(fhir_resource_type) = resource.type_
 
               case camel_type {
                 // "Extension" -> {
@@ -1169,7 +1336,7 @@ fn file_to_types(
                       type_new_newfunc,
                       old_type_acc,
                       gen_res_encoder(
-                        resource.name,
+                        fhir_resource_type,
                         camel_type,
                         snake_type,
                         encoder_args,
@@ -1178,7 +1345,7 @@ fn file_to_types(
                         is_domainresource,
                       ),
                       gen_res_decoder(
-                        resource.name,
+                        fhir_resource_type,
                         camel_type,
                         snake_type,
                         decoder_use,
@@ -1237,8 +1404,10 @@ fn file_to_types(
         |> list.map(fn(entry_and_camel_type) {
           let camel_type = entry_and_camel_type.1
           let resource: Resource = entry_and_camel_type.0
+          // use the base FHIR type (resource.type_) not the profile name (resource.name)
+          let assert Some(fhir_resource_type) = resource.type_
           "\""
-          <> resource.name
+          <> fhir_resource_type
           <> "\" -> "
           <> to_snake_case(camel_type)
           <> "_decoder()  |> decode.map(Resource"
@@ -1261,6 +1430,28 @@ fn file_to_types(
           case tag {" <> resource_decoders <> "
             _ -> decode.failure(ResourceEnrollmentrequest(enrollmentrequest_new()), expected: \"resourceType\")
           }
+        }
+
+        /// 1..*
+        ///
+        /// a list that must have at least 1 element
+        pub type List1(a){
+          List1(first: a, rest: List(a))
+        }
+
+        /// 2..*
+        ///
+        /// a list that must have at least 2 elements, for instance
+        /// https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-blood-pressure.html
+        pub type List2(a){
+          List2(first: a, second: a, rest: List(a))
+        }
+
+        /// 3..*
+        ///
+        /// a list that must have at least 3 elements
+        pub type List3(a){
+          List3(first: a, second: a, third: a, rest: List(a))
         }
         ",
       ])
@@ -1613,11 +1804,13 @@ fn to_camel_case(input: String) -> String {
 
 fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
   case fieldmin, fieldmax {
-    _, "*" -> "List(" <> fieldtype <> ")"
-    //might be missing "must have at least 1" correctness for cases with 1..* but who cares
+    0, "*" -> "List(" <> fieldtype <> ")"
+    1, "*" -> "List1(" <> fieldtype <> ")"
+    2, "*" -> "List2(" <> fieldtype <> ")"
+    3, "*" -> "List3(" <> fieldtype <> ")"
     0, "1" -> "Option(" <> fieldtype <> ")"
     1, "1" -> fieldtype
-    _, _ -> panic as "cardinality panic"
+    _, _ -> panic as "cardinality panic, if you have n..* with n > 3 idk"
   }
 }
 
@@ -1783,13 +1976,17 @@ fn get_codes(
         None -> Error(Nil)
         Some(vsc) -> {
           let ret =
-            list.fold(from: [], over: vsc.include, with: fn(outer_acc, vsci) {
-              list.fold(
-                from: outer_acc,
-                over: vsci.concept,
-                with: fn(inner_acc, vscic) { [vscic.code, ..inner_acc] },
-              )
-            })
+            list.fold(
+              from: [],
+              over: [vsc.include.first, ..vsc.include.rest],
+              with: fn(outer_acc, vsci) {
+                list.fold(
+                  from: outer_acc,
+                  over: vsci.concept,
+                  with: fn(inner_acc, vscic) { [vscic.code, ..inner_acc] },
+                )
+              },
+            )
           Ok(ret)
         }
       }

@@ -30,9 +30,8 @@ pub fn some_resource_test() {
         ),
       )),
       reaction: [
-        r4.AllergyintoleranceReaction(
-          ..r4.allergyintolerance_reaction_new(),
-          manifestation: [
+        r4.allergyintolerance_reaction_new(
+          manifestation: r4.List1(
             r4.Codeableconcept(..r4.codeableconcept_new(), coding: [
               r4.Coding(
                 ..r4.coding_new(),
@@ -41,7 +40,8 @@ pub fn some_resource_test() {
                 display: Some("Hives"),
               ),
             ]),
-          ],
+            [],
+          ),
         ),
       ],
     )
@@ -52,7 +52,7 @@ pub fn some_resource_test() {
   let assert Some(r4.AllergyintoleranceOnsetAge(onset)) = parsed_allergy.onset
   assert onset.value == Some(4.0)
   let assert [reaction] = parsed_allergy.reaction
-  let assert [manifestation] = reaction.manifestation
+  let r4.List1(manifestation, _) = reaction.manifestation
   let assert [coding] = manifestation.coding
   assert coding.system == Some("http://snomed.info/sct")
   assert coding.code == Some("247472004")

@@ -7,9 +7,9 @@
 | `1..1` | One mandatory element | `x` |
 | `0..1` | One optional element | `Option(x)` |
 | `0..*` | Any number of elements | `List(x)` |
-| `1..*` | Any >0 number of elements | `List(x)` |
+| `1..*` | Any >0 number of elements | `List1(x)` |
 
-Gleam's type system enforces that a `1..1` element must exist, so attempting to decode a JSON that does not have a `1..1` element will fail. Note this is not true for `1..*`, although in practice `1..1`, `0..1`, and `0..*` elements are far more common.
+Gleam's type system enforces that a `1..1` element must exist, so attempting to decode a JSON that does not have a `1..1` element will fail. `1..1`, `0..1`, and `0..*` elements are most common. `1..*` uses a custom type with a required first element and a list of the rest.
 
 For example, a patient may have multiple Communication backbone elements, so the communication field in r4.Patient is a `List(PatientCommunication)`.
 
