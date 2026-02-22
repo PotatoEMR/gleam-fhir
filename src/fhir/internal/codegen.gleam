@@ -479,6 +479,13 @@ fn gen_fhir(
   io.println("generated " <> f_rsvp)
 }
 
+// type safe extensions for profiles only
+// look for StructureDefinition in dir, with type Extension
+// if found, create type out of extension, plus
+// check .context for where resources use it
+// create dict of expression -> extension(s)
+// then when generating resource we can add extensions to it
+
 type ProfileFiles {
   ProfileFiles(
     resources: dict.Dict(String, List(Resource)),
@@ -497,13 +504,9 @@ fn file_to_types(
   // so store the new versions in a resourcename -> structure dict
   // to be used when looping through resources to generate
   // if this is just vanilla r4/r4b/r5 and not a profile, will not change anything
-  let profile_structures = case
-    custom_profile_name,
-    string.ends_with(spec_file, "profiles-resources.json")
-  {
-    _, False -> ProfileFiles(dict.new(), dict.new())
-    None, True -> ProfileFiles(dict.new(), dict.new())
-    Some(_), True -> {
+  let profile_structures = case custom_profile_name {
+    None -> ProfileFiles(dict.new(), dict.new())
+    Some(_) -> {
       let assert Ok(files) = simplifile.read_directory(profiles_dir)
         as { "maybe run with download, custom profile not in " <> profiles_dir }
       files
@@ -564,7 +567,7 @@ fn file_to_types(
       case profile_structures.resources |> dict.get(entry.resource.name) {
         Error(_) -> [entry.resource, ..acc]
         Ok(profile_structures) -> {
-          list.append(profile_structures, acc)
+          list.append([entry.resource, ..profile_structures], acc)
         }
       }
     })
@@ -590,17 +593,58 @@ fn file_to_types(
             list.fold(over: snapshot.element, from: f_o, with: fn(f_o, elt) {
               let res_fields = f_o.0
               let order = f_o.1
-              let pp =
+
+              // check if we have any extensions on this element
+              let is_primitive = case elt.type_ {
+                [fst, ..] ->
+                  case fst.code {
+                    "base64Binary"
+                    | "boolean"
+                    | "canonical"
+                    | "code"
+                    | "date"
+                    | "dateTime"
+                    | "decimal"
+                    | "id"
+                    | "instant"
+                    | "integer"
+                    | "integer64"
+                    | "markdown"
+                    | "oid"
+                    | "positiveInt"
+                    | "string"
+                    | "time"
+                    | "unsignedInt"
+                    | "uri"
+                    | "url"
+                    | "uuid"
+                    | "xhtml"
+                    | "http://hl7.org/fhirpath/System.String" -> True
+                    _ -> False
+                  }
+                _ -> False
+              }
+              case profile_structures.extensions |> dict.get(elt.id) {
+                Error(Nil) -> Nil
+                Ok(_) ->
+                  case is_primitive {
+                    False -> Nil
+                    True -> io.println(elt.id)
+                  }
+              }
+              // done checking if we have any extensions on this element
+
+              let pathparts =
                 elt.id
                 |> string.replace("-", "")
                 |> string.replace(":", ".")
                 |> string.split(".")
-              let assert [_, ..rest] = pp
-              let pp = [resource.name, ..rest]
-              let field_path = string.join(pp, "_")
+              let assert [_, ..rest] = pathparts
+              let pathparts = [resource.name, ..rest]
+              let field_path = string.join(pathparts, "_")
               //there must be a better way to drop last item?
               let pp_minus_last =
-                pp |> list.reverse |> list.drop(1) |> list.reverse
+                pathparts |> list.reverse |> list.drop(1) |> list.reverse
               let field_path_minus_last = string.join(pp_minus_last, "_")
 
               let appended_field = case
@@ -1915,10 +1959,25 @@ fn gen_res_decoder(
 fn concept_name_from_url(u) {
   let assert Some(url) = u
   let assert Ok(urlname) = url |> string.split("/") |> list.last()
+  let assert [fst, ..rest] = string.to_graphemes(urlname)
+  let urlname = case fst {
+    "0" -> string.concat(["Zero", ..rest])
+    "1" -> string.concat(["One", ..rest])
+    "2" -> string.concat(["Two", ..rest])
+    "3" -> string.concat(["Three", ..rest])
+    "4" -> string.concat(["Four", ..rest])
+    "5" -> string.concat(["Five", ..rest])
+    "6" -> string.concat(["Six", ..rest])
+    "7" -> string.concat(["Seven", ..rest])
+    "8" -> string.concat(["Eight", ..rest])
+    "9" -> string.concat(["Nine", ..rest])
+    _ -> urlname
+  }
   urlname
   |> string.replace(" ", "")
   |> string.replace("-", "")
   |> string.replace("_", "")
+  |> string.replace(".", "")
   |> string.capitalise
 }
 
@@ -1999,7 +2058,10 @@ fn get_codes(
       let expansion =
         profiles_dir |> filepath.join("ValueSet-" <> vs_file <> ".json")
       let assert Ok(profile_vs_json) = simplifile.read(expansion)
-        as "valueset expansion should be in either fhir expansions or profile expansions"
+        as {
+          expansion
+          <> " valueset expansion should be in either fhir expansions or profile expansions"
+        }
       profile_vs_json
     }
   }
@@ -2109,11 +2171,3 @@ fn gen_valueset_decoder(vsname: String, vs_codes: List(String)) -> String {
   |> string.replace("CNAMELOWER", vsname_lower)
   |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
 }
-// region extensions
-// type safe extensions
-// for profiles only
-// look for StructureDefinition in dir, with type Extension
-// if found, create type out of extension, plus
-// check .context for where resources use it
-// create dict of expression -> extension(s)
-// then when generating resource we can add extensions to it
