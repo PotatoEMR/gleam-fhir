@@ -161,6 +161,7 @@ type Resource {
     kind: Option(String),
     base_definition: Option(String),
     type_: Option(String),
+    context: List(StructuredefinitionContext),
   )
 }
 
@@ -184,6 +185,11 @@ fn resource_decoder() -> decode.Decoder(Resource) {
     None,
     decode.optional(decode.string),
   )
+  use context <- decode.optional_field(
+    "context",
+    [],
+    decode.list(structuredefinition_context_decoder()),
+  )
   case resource_type {
     "StructureDefinition" -> {
       use type_ <- decode.optional_field(
@@ -200,6 +206,7 @@ fn resource_decoder() -> decode.Decoder(Resource) {
         kind:,
         base_definition:,
         type_:,
+        context:,
       ))
     }
     _ ->
@@ -212,6 +219,7 @@ fn resource_decoder() -> decode.Decoder(Resource) {
         kind:,
         base_definition:,
         type_: None,
+        context:,
       ))
   }
 }
@@ -294,6 +302,15 @@ fn binding_decoder() -> decode.Decoder(Binding) {
     decode.optional(decode.string),
   )
   decode.success(Binding(strength:, value_set:))
+}
+
+pub type StructuredefinitionContext {
+  StructuredefinitionContext(expression: String)
+}
+
+pub fn structuredefinition_context_decoder() {
+  use expression <- decode.field("expression", decode.string)
+  decode.success(StructuredefinitionContext(expression:))
 }
 
 fn gen_fhir(
@@ -462,6 +479,13 @@ fn gen_fhir(
   io.println("generated " <> f_rsvp)
 }
 
+type ProfileFiles {
+  ProfileFiles(
+    resources: dict.Dict(String, List(Resource)),
+    extensions: dict.Dict(String, List(String)),
+  )
+}
+
 fn file_to_types(
   spec_file spec_file: String,
   fv fhir_version: String,
@@ -469,28 +493,49 @@ fn file_to_types(
   profiles_dir profiles_dir: String,
   custom_profile_name custom_profile_name: Option(String),
 ) -> String {
+  // if doing profile it will define new versions of resources
+  // so store the new versions in a resourcename -> structure dict
+  // to be used when looping through resources to generate
+  // if this is just vanilla r4/r4b/r5 and not a profile, will not change anything
   let profile_structures = case
     custom_profile_name,
     string.ends_with(spec_file, "profiles-resources.json")
   {
-    _, False -> dict.new()
-    None, True -> dict.new()
+    _, False -> ProfileFiles(dict.new(), dict.new())
+    None, True -> ProfileFiles(dict.new(), dict.new())
     Some(_), True -> {
       let assert Ok(files) = simplifile.read_directory(profiles_dir)
         as { "maybe run with download, custom profile not in " <> profiles_dir }
       files
       |> list.filter(fn(f) { string.starts_with(f, "StructureDefinition") })
-      |> list.fold(dict.new(), fn(acc, f) {
+      |> list.fold(ProfileFiles(dict.new(), dict.new()), fn(acc, f) {
         let fname = profiles_dir |> filepath.join(f)
         let assert Ok(profile_structuredef) = simplifile.read(fname)
         let assert Ok(r) =
           json.parse(from: profile_structuredef, using: resource_decoder())
         let assert Some(type_) = r.type_
-        case dict.get(acc, type_) {
-          Ok(profile_resources) ->
-            dict.insert(acc, type_, [r, ..profile_resources])
-          Error(_) -> dict.insert(acc, type_, [r])
+        let ext = case type_ {
+          "Extension" -> {
+            list.fold(
+              from: acc.extensions,
+              over: r.context,
+              with: fn(ext_acc, ext_ctx) {
+                case dict.get(ext_acc, ext_ctx.expression) {
+                  Ok(exprs) ->
+                    dict.insert(ext_acc, ext_ctx.expression, [r.name, ..exprs])
+                  Error(_) -> dict.insert(ext_acc, ext_ctx.expression, [r.name])
+                }
+              },
+            )
+          }
+          _ -> acc.extensions
         }
+        let res = case dict.get(acc.resources, type_) {
+          Ok(profile_resources) ->
+            dict.insert(acc.resources, type_, [r, ..profile_resources])
+          Error(_) -> dict.insert(acc.resources, type_, [r])
+        }
+        ProfileFiles(res, ext)
       })
     }
   }
@@ -516,7 +561,7 @@ fn file_to_types(
 
   let entries =
     list.fold(entries, [], fn(acc, entry) {
-      case profile_structures |> dict.get(entry.resource.name) {
+      case profile_structures.resources |> dict.get(entry.resource.name) {
         Error(_) -> [entry.resource, ..acc]
         Ok(profile_structures) -> {
           list.append(profile_structures, acc)
@@ -2064,3 +2109,11 @@ fn gen_valueset_decoder(vsname: String, vs_codes: List(String)) -> String {
   |> string.replace("CNAMELOWER", vsname_lower)
   |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
 }
+// region extensions
+// type safe extensions
+// for profiles only
+// look for StructureDefinition in dir, with type Extension
+// if found, create type out of extension, plus
+// check .context for where resources use it
+// create dict of expression -> extension(s)
+// then when generating resource we can add extensions to it
