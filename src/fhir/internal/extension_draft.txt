@@ -74,3 +74,55 @@ fn gen_copy_searchparams_from_sansio(first_entry: Entry) {
     |> string.concat
   search_type <> search_type_new
 }
+
+
+
+// possible to_json but not sure decoder
+// for now easier to just convert to/from normal extension and use their to_json/decoder
+// although idk what's faster
+pub fn us_core_ethnicity_to_json(us_core_ethnicity: UsCoreEthnicity) -> Json {
+  let UsCoreEthnicity(id:, ombcategory:, detailed:, text:) = us_core_ethnicity
+  let url = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+  let fields = [
+    #("url", json.string(url)),
+  ]
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  let ext_children = []
+  let ext_children = [
+    json.object([
+      #("url", json.string("text")),
+      #("valueString", json.string(text)),
+    ]),
+    ..ext_children
+  ]
+  let ext_children = case ombcategory {
+    None -> ext_children
+    Some(ombcategory) -> [
+      json.object([
+        #("url", json.string("ombCategory")),
+        #("valueCoding", r4.coding_to_json(ombcategory)),
+      ]),
+      ..ext_children
+    ]
+  }
+  let ext_children = case detailed {
+    [] -> ext_children
+    _ ->
+      detailed
+      |> list.map(fn(x) {
+        json.object([
+          #("url", json.string("detailed")),
+          #("valueString", r4.coding_to_json(x)),
+        ])
+      })
+      |> list.append(ext_children)
+  }
+  let fields = case ext_children {
+    [] -> fields
+    _ -> [#("extension", json.preprocessed_array(ext_children)), ..fields]
+  }
+  json.object(fields)
+}

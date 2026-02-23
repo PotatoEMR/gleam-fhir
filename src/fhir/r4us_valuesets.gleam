@@ -1655,6 +1655,41 @@ pub fn documentmode_decoder() -> Decoder(Documentmode) {
   }
 }
 
+pub type Two16840111376214102124 {
+  Two16840111376214102124Asku
+  Two16840111376214102124F
+  Two16840111376214102124M
+  Two16840111376214102124Oth
+  Two16840111376214102124Unk
+  Two16840111376214102124Askeddeclined
+}
+
+pub fn two16840111376214102124_to_json(
+  two16840111376214102124: Two16840111376214102124,
+) -> Json {
+  case two16840111376214102124 {
+    Two16840111376214102124Asku -> json.string("ASKU")
+    Two16840111376214102124F -> json.string("F")
+    Two16840111376214102124M -> json.string("M")
+    Two16840111376214102124Oth -> json.string("OTH")
+    Two16840111376214102124Unk -> json.string("UNK")
+    Two16840111376214102124Askeddeclined -> json.string("asked-declined")
+  }
+}
+
+pub fn two16840111376214102124_decoder() -> Decoder(Two16840111376214102124) {
+  use variant <- decode.then(decode.string)
+  case variant {
+    "ASKU" -> decode.success(Two16840111376214102124Asku)
+    "F" -> decode.success(Two16840111376214102124F)
+    "M" -> decode.success(Two16840111376214102124M)
+    "OTH" -> decode.success(Two16840111376214102124Oth)
+    "UNK" -> decode.success(Two16840111376214102124Unk)
+    "asked-declined" -> decode.success(Two16840111376214102124Askeddeclined)
+    _ -> decode.failure(Two16840111376214102124Asku, "Two16840111376214102124")
+  }
+}
+
 pub type Maptargetlistmode {
   MaptargetlistmodeFirst
   MaptargetlistmodeShare
