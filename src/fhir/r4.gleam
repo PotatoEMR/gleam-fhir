@@ -4734,12 +4734,13 @@ pub fn expression_decoder() -> Decoder(Expression) {
 
 ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
 pub type Extension {
-  Extension(
-    id: Option(String),
-    extension: List(Extension),
-    url: String,
-    value: Option(ExtensionValue),
-  )
+  Extension(id: Option(String), url: String, ext: ExtensionSimpleOrComplex)
+}
+
+///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
+pub type ExtensionSimpleOrComplex {
+  ExtComplex(children: List(Extension))
+  ExtSimple(value: ExtensionValue)
 }
 
 ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
@@ -4794,6 +4795,86 @@ pub type ExtensionValue {
   ExtensionValueUsagecontext(value: Usagecontext)
   ExtensionValueDosage(value: Dosage)
   ExtensionValueMeta(value: Meta)
+}
+
+pub fn extension_to_json(extension: Extension) -> Json {
+  let Extension(id:, url:, ext:) = extension
+  let fields = [#("url", json.string(url))]
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = [ext_simple_or_complex_to_json(ext), ..fields]
+  json.object(fields)
+}
+
+fn ext_simple_or_complex_to_json(ext) {
+  case ext {
+    ExtComplex(children) -> #(
+      "extension",
+      json.array(children, extension_to_json),
+    )
+    ExtSimple(val) -> extsimple_to_json(val)
+  }
+}
+
+fn extsimple_to_json(v: ExtensionValue) -> #(String, Json) {
+  #(
+    "value"
+      <> case v {
+      ExtensionValueBase64binary(_) -> "Base64Binary"
+      ExtensionValueBoolean(_) -> "Boolean"
+      ExtensionValueCanonical(_) -> "Canonical"
+      ExtensionValueCode(_) -> "Code"
+      ExtensionValueDate(_) -> "Date"
+      ExtensionValueDatetime(_) -> "DateTime"
+      ExtensionValueDecimal(_) -> "Decimal"
+      ExtensionValueId(_) -> "Id"
+      ExtensionValueInstant(_) -> "Instant"
+      ExtensionValueInteger(_) -> "Integer"
+      ExtensionValueMarkdown(_) -> "Markdown"
+      ExtensionValueOid(_) -> "Oid"
+      ExtensionValuePositiveint(_) -> "PositiveInt"
+      ExtensionValueString(_) -> "String"
+      ExtensionValueTime(_) -> "Time"
+      ExtensionValueUnsignedint(_) -> "UnsignedInt"
+      ExtensionValueUri(_) -> "Uri"
+      ExtensionValueUrl(_) -> "Url"
+      ExtensionValueUuid(_) -> "Uuid"
+      ExtensionValueAddress(_) -> "Address"
+      ExtensionValueAge(_) -> "Age"
+      ExtensionValueAnnotation(_) -> "Annotation"
+      ExtensionValueAttachment(_) -> "Attachment"
+      ExtensionValueCodeableconcept(_) -> "CodeableConcept"
+      ExtensionValueCoding(_) -> "Coding"
+      ExtensionValueContactpoint(_) -> "ContactPoint"
+      ExtensionValueCount(_) -> "Count"
+      ExtensionValueDistance(_) -> "Distance"
+      ExtensionValueDuration(_) -> "Duration"
+      ExtensionValueHumanname(_) -> "HumanName"
+      ExtensionValueIdentifier(_) -> "Identifier"
+      ExtensionValueMoney(_) -> "Money"
+      ExtensionValuePeriod(_) -> "Period"
+      ExtensionValueQuantity(_) -> "Quantity"
+      ExtensionValueRange(_) -> "Range"
+      ExtensionValueRatio(_) -> "Ratio"
+      ExtensionValueReference(_) -> "Reference"
+      ExtensionValueSampleddata(_) -> "SampledData"
+      ExtensionValueSignature(_) -> "Signature"
+      ExtensionValueTiming(_) -> "Timing"
+      ExtensionValueContactdetail(_) -> "ContactDetail"
+      ExtensionValueContributor(_) -> "Contributor"
+      ExtensionValueDatarequirement(_) -> "DataRequirement"
+      ExtensionValueExpression(_) -> "Expression"
+      ExtensionValueParameterdefinition(_) -> "ParameterDefinition"
+      ExtensionValueRelatedartifact(_) -> "RelatedArtifact"
+      ExtensionValueTriggerdefinition(_) -> "TriggerDefinition"
+      ExtensionValueUsagecontext(_) -> "UsageContext"
+      ExtensionValueDosage(_) -> "Dosage"
+      ExtensionValueMeta(_) -> "Meta"
+    },
+    extension_value_to_json(v),
+  )
 }
 
 pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
@@ -4851,230 +4932,194 @@ pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
   }
 }
 
-pub fn extension_value_decoder() -> Decoder(ExtensionValue) {
+pub fn extension_decoder() -> Decoder(Extension) {
+  use url <- decode.field("url", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  use ext <- decode.then(ext_simple_or_complex_decoder())
+  decode.success(Extension(url:, id:, ext:))
+}
+
+pub fn ext_simple_or_complex_decoder() {
   decode.one_of(
-    decode.field("valueBase64Binary", decode.string, decode.success)
-      |> decode.map(ExtensionValueBase64binary),
+    decode.field("extension", decode.list(extension_decoder()), decode.success)
+      |> decode.map(ExtComplex),
     [
+      decode.field("valueBase64Binary", decode.string, decode.success)
+        |> decode.map(ExtensionValueBase64binary)
+        |> decode.map(ExtSimple),
       decode.field("valueBoolean", decode.bool, decode.success)
-        |> decode.map(ExtensionValueBoolean),
+        |> decode.map(ExtensionValueBoolean)
+        |> decode.map(ExtSimple),
       decode.field("valueCanonical", decode.string, decode.success)
-        |> decode.map(ExtensionValueCanonical),
+        |> decode.map(ExtensionValueCanonical)
+        |> decode.map(ExtSimple),
       decode.field("valueCode", decode.string, decode.success)
-        |> decode.map(ExtensionValueCode),
+        |> decode.map(ExtensionValueCode)
+        |> decode.map(ExtSimple),
       decode.field("valueDate", decode.string, decode.success)
-        |> decode.map(ExtensionValueDate),
+        |> decode.map(ExtensionValueDate)
+        |> decode.map(ExtSimple),
       decode.field("valueDateTime", decode.string, decode.success)
-        |> decode.map(ExtensionValueDatetime),
+        |> decode.map(ExtensionValueDatetime)
+        |> decode.map(ExtSimple),
       decode.field("valueDecimal", decode_number(), decode.success)
-        |> decode.map(ExtensionValueDecimal),
+        |> decode.map(ExtensionValueDecimal)
+        |> decode.map(ExtSimple),
       decode.field("valueId", decode.string, decode.success)
-        |> decode.map(ExtensionValueId),
+        |> decode.map(ExtensionValueId)
+        |> decode.map(ExtSimple),
       decode.field("valueInstant", decode.string, decode.success)
-        |> decode.map(ExtensionValueInstant),
+        |> decode.map(ExtensionValueInstant)
+        |> decode.map(ExtSimple),
       decode.field("valueInteger", decode.int, decode.success)
-        |> decode.map(ExtensionValueInteger),
+        |> decode.map(ExtensionValueInteger)
+        |> decode.map(ExtSimple),
       decode.field("valueMarkdown", decode.string, decode.success)
-        |> decode.map(ExtensionValueMarkdown),
+        |> decode.map(ExtensionValueMarkdown)
+        |> decode.map(ExtSimple),
       decode.field("valueOid", decode.string, decode.success)
-        |> decode.map(ExtensionValueOid),
+        |> decode.map(ExtensionValueOid)
+        |> decode.map(ExtSimple),
       decode.field("valuePositiveInt", decode.int, decode.success)
-        |> decode.map(ExtensionValuePositiveint),
+        |> decode.map(ExtensionValuePositiveint)
+        |> decode.map(ExtSimple),
       decode.field("valueString", decode.string, decode.success)
-        |> decode.map(ExtensionValueString),
+        |> decode.map(ExtensionValueString)
+        |> decode.map(ExtSimple),
       decode.field("valueTime", decode.string, decode.success)
-        |> decode.map(ExtensionValueTime),
+        |> decode.map(ExtensionValueTime)
+        |> decode.map(ExtSimple),
       decode.field("valueUnsignedInt", decode.int, decode.success)
-        |> decode.map(ExtensionValueUnsignedint),
+        |> decode.map(ExtensionValueUnsignedint)
+        |> decode.map(ExtSimple),
       decode.field("valueUri", decode.string, decode.success)
-        |> decode.map(ExtensionValueUri),
+        |> decode.map(ExtensionValueUri)
+        |> decode.map(ExtSimple),
       decode.field("valueUrl", decode.string, decode.success)
-        |> decode.map(ExtensionValueUrl),
+        |> decode.map(ExtensionValueUrl)
+        |> decode.map(ExtSimple),
       decode.field("valueUuid", decode.string, decode.success)
-        |> decode.map(ExtensionValueUuid),
+        |> decode.map(ExtensionValueUuid)
+        |> decode.map(ExtSimple),
       decode.field("valueAddress", address_decoder(), decode.success)
-        |> decode.map(ExtensionValueAddress),
+        |> decode.map(ExtensionValueAddress)
+        |> decode.map(ExtSimple),
       decode.field("valueAge", age_decoder(), decode.success)
-        |> decode.map(ExtensionValueAge),
+        |> decode.map(ExtensionValueAge)
+        |> decode.map(ExtSimple),
       decode.field("valueAnnotation", annotation_decoder(), decode.success)
-        |> decode.map(ExtensionValueAnnotation),
+        |> decode.map(ExtensionValueAnnotation)
+        |> decode.map(ExtSimple),
       decode.field("valueAttachment", attachment_decoder(), decode.success)
-        |> decode.map(ExtensionValueAttachment),
+        |> decode.map(ExtensionValueAttachment)
+        |> decode.map(ExtSimple),
       decode.field(
         "valueCodeableConcept",
         codeableconcept_decoder(),
         decode.success,
       )
-        |> decode.map(ExtensionValueCodeableconcept),
+        |> decode.map(ExtensionValueCodeableconcept)
+        |> decode.map(ExtSimple),
       decode.field("valueCoding", coding_decoder(), decode.success)
-        |> decode.map(ExtensionValueCoding),
+        |> decode.map(ExtensionValueCoding)
+        |> decode.map(ExtSimple),
       decode.field("valueContactPoint", contactpoint_decoder(), decode.success)
-        |> decode.map(ExtensionValueContactpoint),
+        |> decode.map(ExtensionValueContactpoint)
+        |> decode.map(ExtSimple),
       decode.field("valueCount", count_decoder(), decode.success)
-        |> decode.map(ExtensionValueCount),
+        |> decode.map(ExtensionValueCount)
+        |> decode.map(ExtSimple),
       decode.field("valueDistance", distance_decoder(), decode.success)
-        |> decode.map(ExtensionValueDistance),
+        |> decode.map(ExtensionValueDistance)
+        |> decode.map(ExtSimple),
       decode.field("valueDuration", duration_decoder(), decode.success)
-        |> decode.map(ExtensionValueDuration),
+        |> decode.map(ExtensionValueDuration)
+        |> decode.map(ExtSimple),
       decode.field("valueHumanName", humanname_decoder(), decode.success)
-        |> decode.map(ExtensionValueHumanname),
+        |> decode.map(ExtensionValueHumanname)
+        |> decode.map(ExtSimple),
       decode.field("valueIdentifier", identifier_decoder(), decode.success)
-        |> decode.map(ExtensionValueIdentifier),
+        |> decode.map(ExtensionValueIdentifier)
+        |> decode.map(ExtSimple),
       decode.field("valueMoney", money_decoder(), decode.success)
-        |> decode.map(ExtensionValueMoney),
+        |> decode.map(ExtensionValueMoney)
+        |> decode.map(ExtSimple),
       decode.field("valuePeriod", period_decoder(), decode.success)
-        |> decode.map(ExtensionValuePeriod),
+        |> decode.map(ExtensionValuePeriod)
+        |> decode.map(ExtSimple),
       decode.field("valueQuantity", quantity_decoder(), decode.success)
-        |> decode.map(ExtensionValueQuantity),
+        |> decode.map(ExtensionValueQuantity)
+        |> decode.map(ExtSimple),
       decode.field("valueRange", range_decoder(), decode.success)
-        |> decode.map(ExtensionValueRange),
+        |> decode.map(ExtensionValueRange)
+        |> decode.map(ExtSimple),
       decode.field("valueRatio", ratio_decoder(), decode.success)
-        |> decode.map(ExtensionValueRatio),
+        |> decode.map(ExtensionValueRatio)
+        |> decode.map(ExtSimple),
       decode.field("valueReference", reference_decoder(), decode.success)
-        |> decode.map(ExtensionValueReference),
+        |> decode.map(ExtensionValueReference)
+        |> decode.map(ExtSimple),
       decode.field("valueSampledData", sampleddata_decoder(), decode.success)
-        |> decode.map(ExtensionValueSampleddata),
+        |> decode.map(ExtensionValueSampleddata)
+        |> decode.map(ExtSimple),
       decode.field("valueSignature", signature_decoder(), decode.success)
-        |> decode.map(ExtensionValueSignature),
+        |> decode.map(ExtensionValueSignature)
+        |> decode.map(ExtSimple),
       decode.field("valueTiming", timing_decoder(), decode.success)
-        |> decode.map(ExtensionValueTiming),
+        |> decode.map(ExtensionValueTiming)
+        |> decode.map(ExtSimple),
       decode.field(
         "valueContactDetail",
         contactdetail_decoder(),
         decode.success,
       )
-        |> decode.map(ExtensionValueContactdetail),
+        |> decode.map(ExtensionValueContactdetail)
+        |> decode.map(ExtSimple),
       decode.field("valueContributor", contributor_decoder(), decode.success)
-        |> decode.map(ExtensionValueContributor),
+        |> decode.map(ExtensionValueContributor)
+        |> decode.map(ExtSimple),
       decode.field(
         "valueDataRequirement",
         datarequirement_decoder(),
         decode.success,
       )
-        |> decode.map(ExtensionValueDatarequirement),
+        |> decode.map(ExtensionValueDatarequirement)
+        |> decode.map(ExtSimple),
       decode.field("valueExpression", expression_decoder(), decode.success)
-        |> decode.map(ExtensionValueExpression),
+        |> decode.map(ExtensionValueExpression)
+        |> decode.map(ExtSimple),
       decode.field(
         "valueParameterDefinition",
         parameterdefinition_decoder(),
         decode.success,
       )
-        |> decode.map(ExtensionValueParameterdefinition),
+        |> decode.map(ExtensionValueParameterdefinition)
+        |> decode.map(ExtSimple),
       decode.field(
         "valueRelatedArtifact",
         relatedartifact_decoder(),
         decode.success,
       )
-        |> decode.map(ExtensionValueRelatedartifact),
+        |> decode.map(ExtensionValueRelatedartifact)
+        |> decode.map(ExtSimple),
       decode.field(
         "valueTriggerDefinition",
         triggerdefinition_decoder(),
         decode.success,
       )
-        |> decode.map(ExtensionValueTriggerdefinition),
+        |> decode.map(ExtensionValueTriggerdefinition)
+        |> decode.map(ExtSimple),
       decode.field("valueUsageContext", usagecontext_decoder(), decode.success)
-        |> decode.map(ExtensionValueUsagecontext),
+        |> decode.map(ExtensionValueUsagecontext)
+        |> decode.map(ExtSimple),
       decode.field("valueDosage", dosage_decoder(), decode.success)
-        |> decode.map(ExtensionValueDosage),
+        |> decode.map(ExtensionValueDosage)
+        |> decode.map(ExtSimple),
       decode.field("valueMeta", meta_decoder(), decode.success)
-        |> decode.map(ExtensionValueMeta),
+        |> decode.map(ExtensionValueMeta)
+        |> decode.map(ExtSimple),
     ],
   )
-}
-
-pub fn extension_new(url url: String) -> Extension {
-  Extension(value: None, url:, extension: [], id: None)
-}
-
-pub fn extension_to_json(extension: Extension) -> Json {
-  let Extension(value:, url:, extension:, id:) = extension
-  let fields = [
-    #("url", json.string(url)),
-  ]
-  let fields = case value {
-    Some(v) -> [
-      #(
-        "value"
-          <> case v {
-          ExtensionValueBase64binary(_) -> "Base64Binary"
-          ExtensionValueBoolean(_) -> "Boolean"
-          ExtensionValueCanonical(_) -> "Canonical"
-          ExtensionValueCode(_) -> "Code"
-          ExtensionValueDate(_) -> "Date"
-          ExtensionValueDatetime(_) -> "DateTime"
-          ExtensionValueDecimal(_) -> "Decimal"
-          ExtensionValueId(_) -> "Id"
-          ExtensionValueInstant(_) -> "Instant"
-          ExtensionValueInteger(_) -> "Integer"
-          ExtensionValueMarkdown(_) -> "Markdown"
-          ExtensionValueOid(_) -> "Oid"
-          ExtensionValuePositiveint(_) -> "PositiveInt"
-          ExtensionValueString(_) -> "String"
-          ExtensionValueTime(_) -> "Time"
-          ExtensionValueUnsignedint(_) -> "UnsignedInt"
-          ExtensionValueUri(_) -> "Uri"
-          ExtensionValueUrl(_) -> "Url"
-          ExtensionValueUuid(_) -> "Uuid"
-          ExtensionValueAddress(_) -> "Address"
-          ExtensionValueAge(_) -> "Age"
-          ExtensionValueAnnotation(_) -> "Annotation"
-          ExtensionValueAttachment(_) -> "Attachment"
-          ExtensionValueCodeableconcept(_) -> "CodeableConcept"
-          ExtensionValueCoding(_) -> "Coding"
-          ExtensionValueContactpoint(_) -> "ContactPoint"
-          ExtensionValueCount(_) -> "Count"
-          ExtensionValueDistance(_) -> "Distance"
-          ExtensionValueDuration(_) -> "Duration"
-          ExtensionValueHumanname(_) -> "HumanName"
-          ExtensionValueIdentifier(_) -> "Identifier"
-          ExtensionValueMoney(_) -> "Money"
-          ExtensionValuePeriod(_) -> "Period"
-          ExtensionValueQuantity(_) -> "Quantity"
-          ExtensionValueRange(_) -> "Range"
-          ExtensionValueRatio(_) -> "Ratio"
-          ExtensionValueReference(_) -> "Reference"
-          ExtensionValueSampleddata(_) -> "SampledData"
-          ExtensionValueSignature(_) -> "Signature"
-          ExtensionValueTiming(_) -> "Timing"
-          ExtensionValueContactdetail(_) -> "ContactDetail"
-          ExtensionValueContributor(_) -> "Contributor"
-          ExtensionValueDatarequirement(_) -> "DataRequirement"
-          ExtensionValueExpression(_) -> "Expression"
-          ExtensionValueParameterdefinition(_) -> "ParameterDefinition"
-          ExtensionValueRelatedartifact(_) -> "RelatedArtifact"
-          ExtensionValueTriggerdefinition(_) -> "TriggerDefinition"
-          ExtensionValueUsagecontext(_) -> "UsageContext"
-          ExtensionValueDosage(_) -> "Dosage"
-          ExtensionValueMeta(_) -> "Meta"
-        },
-        extension_value_to_json(v),
-      ),
-      ..fields
-    ]
-    None -> fields
-  }
-  let fields = case extension {
-    [] -> fields
-    _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
-  }
-  let fields = case id {
-    Some(v) -> [#("id", json.string(v)), ..fields]
-    None -> fields
-  }
-  json.object(fields)
-}
-
-pub fn extension_decoder() -> Decoder(Extension) {
-  use <- decode.recursive
-  use value <- decode.then(none_if_omitted(extension_value_decoder()))
-  use url <- decode.field("url", decode.string)
-  use extension <- decode.optional_field(
-    "extension",
-    [],
-    decode.list(extension_decoder()),
-  )
-  use id <- decode.optional_field("id", None, decode.optional(decode.string))
-  decode.success(Extension(value:, url:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4/StructureDefinition/HumanName#resource](http://hl7.org/fhir/r4/StructureDefinition/HumanName#resource)
