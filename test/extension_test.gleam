@@ -1,7 +1,9 @@
 import fhir/r5
+import gleam/dict
 import gleam/dynamic/decode
-import gleam/io
 import gleam/json
+import gleam/list
+import gleam/option.{None, Some}
 
 fn check_roundtrip(in: String, thing_dec: decode.Decoder(a), thing_to_json) {
   let assert Ok(as_dynamic) = json.parse(in, decode.dynamic)
@@ -279,4 +281,32 @@ pub fn main() {
     r5.patient_decoder(),
     r5.patient_to_json,
   )
+  let assert Ok(pat) =
+    json.parse(patient_example_sex_and_gender, r5.patient_decoder())
+  let pat_exts: r5.ExtDict = r5.exts_to_extdict(pat.extension)
+  let assert Ok([ident]) =
+    dict.get(
+      pat_exts.exts_by_url,
+      "http://hl7.org/fhir/StructureDefinition/individual-genderIdentity",
+    )
+  let assert r5.ExtDictComplex(ident_exts) = ident.content
+
+  let assert Ok([val]) = dict.get(ident_exts.exts_by_url, "value")
+  let assert r5.ExtDictSimple(val_cc) = val.content
+  let assert r5.ExtensionValueCodeableconcept(ident_cc) = val_cc
+  let assert [ident_coding] = ident_cc.coding
+  let assert Some("446141000124107") = ident_coding.code
+
+  let assert Ok([when]) = dict.get(ident_exts.exts_by_url, "period")
+  let assert r5.ExtDictSimple(val_period) = when.content
+  let assert r5.ExtensionValuePeriod(period) = val_period
+  let assert Some("2001-05-06") = period.start
+  let assert None = period.end
+
+  assert 4 == pat_exts.exts_by_url |> dict.keys |> list.length
+  let assert Ok([_, _, _]) =
+    dict.get(
+      pat_exts.exts_by_url,
+      "http://hl7.org/fhir/StructureDefinition/individual-recordedSexOrGender",
+    )
 }

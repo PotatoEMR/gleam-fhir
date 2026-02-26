@@ -368,7 +368,14 @@ fn gen_fhir(
       fhir_version,
       "](https://hl7.org/fhir/",
       fhir_version,
-      ") resources\nimport gleam/json.{type Json}\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/option.{type Option, None, Some}\nimport gleam/bool\nimport gleam/int\nimport fhir/",
+      ") resources\nimport gleam/json.{type Json}
+      import gleam/dynamic/decode.{type Decoder}
+      import gleam/option.{type Option, None, Some}
+      import gleam/bool
+      import gleam/int
+      import gleam/dict.{type Dict}
+      import gleam/list
+      import fhir/",
       pkg_prefix,
       "_valuesets\n",
       file_to_types(
@@ -1339,7 +1346,37 @@ fn file_to_types(
           case camel_type {
             "Extension" -> {
               let assert [elt, ..] = fields
-              "///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
+              "
+              pub type ExtDict {
+                ExtDict(exts_by_url: Dict(String, List(ExtDictContent)))
+              }
+
+              pub type ExtDictContent {
+                ExtDictContent(id: Option(String), content: ExtDictSimpleOrComplex)
+              }
+
+              pub type ExtDictSimpleOrComplex {
+                ExtDictComplex(children: ExtDict)
+                ExtDictSimple(value: ExtensionValue)
+              }
+
+              pub fn exts_to_extdict(exts: List(Extension)) -> ExtDict {
+                list.fold(from: dict.new(), over: exts, with: fn(acc, ext) {
+                  let content = case ext.ext {
+                    ExtSimple(v) -> ExtDictSimple(v)
+                    ExtComplex(c) -> ExtDictComplex(exts_to_extdict(c))
+                  }
+                  let new_ext = ExtDictContent(id: ext.id, content:,)
+                  let new_ext_list = case dict.get(acc, ext.url) {
+                    Ok(exts) -> [new_ext, ..exts]
+                    Error(_) -> [new_ext]
+                  }
+                  acc |> dict.insert(ext.url, new_ext_list)
+                })
+                |> ExtDict
+              }
+
+              ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
               pub type Extension {
                 Extension(id: Option(String), url: String, ext: ExtensionSimpleOrComplex)
               }
@@ -1350,8 +1387,7 @@ fn file_to_types(
               }
               ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
               pub type ExtensionValue {
-                "
-              <> list.fold(
+                " <> list.fold(
                 over: elt.type_,
                 from: "",
                 with: fn(acc: String, typ: Type) -> String {
@@ -1365,8 +1401,7 @@ fn file_to_types(
                     "\n",
                   ])
                 },
-              )
-              <> "
+              ) <> "
               }
               pub fn extension_to_json(extension: Extension) -> Json {
                 let Extension(id:, url:, ext:) = extension
@@ -1390,8 +1425,7 @@ fn file_to_types(
               fn extsimple_to_json(v: ExtensionValue) -> #(String, Json) {
                 #(
                   \"value\"
-                    <> case v {"
-              <> list.fold(
+                    <> case v {" <> list.fold(
                 over: elt.type_,
                 from: "",
                 with: fn(acc: String, typ: Type) -> String {
@@ -1407,15 +1441,13 @@ fn file_to_types(
                     "\"",
                   ])
                 },
-              )
-              <> "},
+              ) <> "},
                   extension_value_to_json(v),
                 )
               }
               pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
                 case elt {
-                  "
-              <> list.fold(
+                  " <> list.fold(
                 over: elt.type_,
                 from: "",
                 with: fn(acc: String, typ: Type) -> String {
@@ -1428,8 +1460,7 @@ fn file_to_types(
                     "(v)\n",
                   ])
                 },
-              )
-              <> "
+              ) <> "
               }
               }
               pub fn extension_decoder() -> Decoder(Extension) {
@@ -1442,8 +1473,7 @@ fn file_to_types(
                 decode.one_of(
                   decode.field(\"extension\", decode.list(extension_decoder()), decode.success)
                     |> decode.map(ExtComplex),
-                  ["
-              <> list.fold(
+                  [" <> list.fold(
                 over: elt.type_,
                 from: "",
                 with: fn(acc: String, typ: Type) -> String {
@@ -1462,8 +1492,7 @@ fn file_to_types(
                        |> decode.map(ExtSimple),",
                   ])
                 },
-              )
-              <> "],
+              ) <> "],
                 )
               }
               "

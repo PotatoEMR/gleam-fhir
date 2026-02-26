@@ -2,9 +2,11 @@
 
 import fhir/r5_valuesets
 import gleam/bool
+import gleam/dict.{type Dict}
 import gleam/dynamic/decode.{type Decoder}
 import gleam/int
 import gleam/json.{type Json}
+import gleam/list
 import gleam/option.{type Option, None, Some}
 
 ///[http://hl7.org/fhir/r5/StructureDefinition/Address#resource](http://hl7.org/fhir/r5/StructureDefinition/Address#resource)
@@ -5779,6 +5781,35 @@ pub fn extendedcontactdetail_decoder() -> Decoder(Extendedcontactdetail) {
     extension:,
     id:,
   ))
+}
+
+pub type ExtDict {
+  ExtDict(exts_by_url: Dict(String, List(ExtDictContent)))
+}
+
+pub type ExtDictContent {
+  ExtDictContent(id: Option(String), content: ExtDictSimpleOrComplex)
+}
+
+pub type ExtDictSimpleOrComplex {
+  ExtDictComplex(children: ExtDict)
+  ExtDictSimple(value: ExtensionValue)
+}
+
+pub fn exts_to_extdict(exts: List(Extension)) -> ExtDict {
+  list.fold(from: dict.new(), over: exts, with: fn(acc, ext) {
+    let content = case ext.ext {
+      ExtSimple(v) -> ExtDictSimple(v)
+      ExtComplex(c) -> ExtDictComplex(exts_to_extdict(c))
+    }
+    let new_ext = ExtDictContent(id: ext.id, content:)
+    let new_ext_list = case dict.get(acc, ext.url) {
+      Ok(exts) -> [new_ext, ..exts]
+      Error(_) -> [new_ext]
+    }
+    acc |> dict.insert(ext.url, new_ext_list)
+  })
+  |> ExtDict
 }
 
 ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
