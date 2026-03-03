@@ -5,6 +5,7 @@ import gleam/dict
 import gleam/dynamic/decode
 import gleam/http/request
 import gleam/httpc
+import gleam/int
 import gleam/io
 import gleam/json
 import gleam/list
@@ -105,6 +106,20 @@ pub fn main() {
               ".",
               [],
             )
+          let more_exts =
+            const_download_dir()
+            |> filepath.directory_name
+            |> filepath.join("more_custom_extensions")
+          let package_dir = profiles_dir |> filepath.join("package")
+          let _ =
+            result.map(simplifile.read_directory(more_exts), fn(files) {
+              list.each(files, fn(f) {
+                let assert Ok(bits) =
+                  simplifile.read_bits(filepath.join(more_exts, f))
+                let assert Ok(_) =
+                  simplifile.write_bits(filepath.join(package_dir, f), bits)
+              })
+            })
           io.println("download profile " <> profile_url)
         }
       }
@@ -362,6 +377,10 @@ fn gen_fhir(
     None -> fhir_version
     Some(name) -> name
   }
+  let need_import_result = case custom_profile_name {
+    None -> ""
+    Some(_) -> "import gleam/result\n"
+  }
   let all_types =
     string.concat([
       "////[https://hl7.org/fhir/",
@@ -378,6 +397,7 @@ fn gen_fhir(
       import fhir/",
       pkg_prefix,
       "_valuesets\n",
+      need_import_result,
       file_to_types(
         spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
         fv: pkg_prefix,
@@ -597,6 +617,69 @@ fn file_to_types(
       //put elts into name of current struct, eg AllergyIntolerance, AllergyIntoleranceReaction...
       let type_order = [resource.name]
       let assert Some(snapshot) = resource.snapshot
+      let snapshot = case resource.base_definition {
+        None -> snapshot
+        Some(bd) ->
+          case string.contains(bd, "StructureDefinition/Extension") {
+            False -> snapshot
+            True -> {
+              let slices =
+                list.filter(snapshot.element, fn(e) {
+                  case string.split(e.id, ":") {
+                    [_, _] -> True
+                    _ -> False
+                  }
+                })
+              let synthetic = case slices {
+                [] ->
+                  list.fold(snapshot.element, [], fn(acc, e) {
+                    case e.id {
+                      "Extension.value[x]" -> [
+                        Element(
+                          id: "Extension.value",
+                          path: "Extension.value",
+                          min: e.min,
+                          max: e.max,
+                          type_: e.type_,
+                          binding: e.binding,
+                          content_reference: None,
+                        ),
+                        ..acc
+                      ]
+                      _ -> acc
+                    }
+                  })
+                _ ->
+                  list.fold(slices, [], fn(acc, slice) {
+                    let assert [_, slice_name] = string.split(slice.id, ":")
+                    case
+                      list.find(snapshot.element, fn(e) {
+                        e.id == slice.id <> ".value[x]"
+                      })
+                    {
+                      Error(_) -> acc
+                      Ok(value_elt) -> [
+                        Element(
+                          id: "Extension." <> slice_name,
+                          path: "Extension." <> slice_name,
+                          min: slice.min,
+                          max: case slice.max {
+                            "1" -> "1"
+                            _ -> "*"
+                          },
+                          type_: value_elt.type_,
+                          binding: value_elt.binding,
+                          content_reference: None,
+                        ),
+                        ..acc
+                      ]
+                    }
+                  })
+              }
+              Snapshot(element: synthetic)
+            }
+          }
+      }
       // map extension URL -> #(min, max) from snapshot slices
       let extension_cardinalities =
         list.fold(over: snapshot.element, from: dict.new(), with: fn(acc, elt) {
@@ -606,6 +689,7 @@ fn file_to_types(
             _, _ -> acc
           }
         })
+      // add extensions used in profiles as fake elements to res fields
       let starting_res_fields =
         list.fold(
           over: snapshot.element,
@@ -799,9 +883,10 @@ fn file_to_types(
             decoder_use,
             decoder_success,
             decoder_always_failure_fordr,
+            profile_exts,
           ) =
             list.fold(
-              from: #("", list.new(), "", "", "", "", "", "", "", ""),
+              from: #("", list.new(), "", "", "", "", "", "", "", "", []),
               over: fields,
               with: fn(acc, elt: Element) {
                 //this should clearly be custom type not tuple
@@ -815,6 +900,7 @@ fn file_to_types(
                 let decoder_use_acc = acc.7
                 let decoder_success_acc = acc.8
                 let decoder_always_failure_acc = acc.9
+                let profile_exts_acc = acc.10
                 //yeah this should be custom type right
                 let allparts =
                   elt.id
@@ -1063,234 +1149,271 @@ fn file_to_types(
                 // also putting lists as optional_acc so in empty list cast it omits instead of field: []
                 // hence two separate accs
                 //let elt_is_choice_type = elt.path |> string.ends_with("[x]")
+                let is_profile_ext_check = case elt.type_ {
+                  [Type(code:, ..)] -> string.contains(code, "_")
+                  _ -> False
+                }
                 let #(
                   encoder_optional_acc,
                   encoder_always_acc,
                   decoder_always_failure_acc,
-                ) = case elt.min, elt.max {
-                  0, "*" -> {
-                    //0..* list: omit from json if empty
-                    let opts =
-                      encoder_optional_acc
-                      <> "\nlet fields = case "
-                      <> elt_snake
-                      <> " {
+                ) = case is_profile_ext_check {
+                  True -> #(
+                    encoder_optional_acc,
+                    encoder_always_acc,
+                    decoder_always_failure_acc,
+                  )
+                  False ->
+                    case elt.min, elt.max {
+                      0, "*" -> {
+                        //0..* list: omit from json if empty
+                        let opts =
+                          encoder_optional_acc
+                          <> "\nlet fields = case "
+                          <> elt_snake
+                          <> " {
                         [] -> fields
                         _ -> [#(\""
-                      <> elt_last_part_withgleamtype
-                      <> "\", json.array("
-                      <> elt_snake
-                      <> ","
-                      <> field_type_encoder
-                      <> ")), ..fields]
+                          <> elt_last_part_withgleamtype
+                          <> "\", json.array("
+                          <> elt_snake
+                          <> ","
+                          <> field_type_encoder
+                          <> ")), ..fields]
                           }"
-                    #(opts, encoder_always_acc, decoder_always_failure_acc)
-                  }
-                  1, "*" -> {
-                    //1..* list: always present, destructure List1
-                    let always =
-                      encoder_always_acc
-                      <> "#(\""
-                      <> elt_last_part_withgleamtype
-                      <> "\", list1_to_json("
-                      <> elt_snake
-                      <> ","
-                      <> field_type_encoder
-                      <> ")),"
-                    let decoder_always_failure =
-                      decoder_always_failure_acc <> elt_snake <> ":, "
-                    #(encoder_optional_acc, always, decoder_always_failure)
-                  }
-                  2, "*" -> {
-                    //2..* list: always present, destructure List2
-                    let always =
-                      encoder_always_acc
-                      <> "#(\""
-                      <> elt_last_part_withgleamtype
-                      <> "\", list2_to_json("
-                      <> elt_snake
-                      <> ","
-                      <> field_type_encoder
-                      <> ")),"
-                    let decoder_always_failure =
-                      decoder_always_failure_acc <> elt_snake <> ":, "
-                    #(encoder_optional_acc, always, decoder_always_failure)
-                  }
-                  3, "*" -> {
-                    //3..* list: always present, destructure List3
-                    let always =
-                      encoder_always_acc
-                      <> "#(\""
-                      <> elt_last_part_withgleamtype
-                      <> "\", list3_to_json("
-                      <> elt_snake
-                      <> ","
-                      <> field_type_encoder
-                      <> ")),"
-                    let decoder_always_failure =
-                      decoder_always_failure_acc <> elt_snake <> ":, "
-                    #(encoder_optional_acc, always, decoder_always_failure)
-                  }
-                  0, "1" -> {
-                    //optional case to json, in Some case add to fields list
-                    let choicetype_suffixes = case elt.type_ {
-                      // choice type encoder requires onsetAge onsetString onsetPeriod whatever to be suffix in json
-                      [_, _, ..] ->
-                        string.concat([
-                          " <> case v {",
-                          list.fold(
-                            from: "",
-                            over: elt.type_,
-                            with: fn(suffixes_acc, ct) {
-                              let assert [first_letter, ..rest] =
-                                ct.code |> string.to_graphemes
-                              // unlike string.capitalise this doesnt make everything after first lowercase
-                              // so createdDateTime doesnt become createdDatetime
-                              let capital_ct =
-                                string.concat([
-                                  string.uppercase(first_letter),
-                                  ..rest
-                                ])
-                              suffixes_acc
-                              <> field_name_new
-                              <> string.capitalise(ct.code)
-                              <> "(_) -> \""
-                              <> capital_ct
-                              <> "\"\n"
-                            },
-                          ),
-                          "}",
-                        ])
-                      //normal type encoder (not choice type)
-                      _ -> ""
-                    }
-                    let opts =
-                      encoder_optional_acc
-                      <> "\nlet fields = case "
-                      <> elt_snake
-                      <> " {
+                        #(opts, encoder_always_acc, decoder_always_failure_acc)
+                      }
+                      1, "*" -> {
+                        //1..* list: always present, destructure List1
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part_withgleamtype
+                          <> "\", list1_to_json("
+                          <> elt_snake
+                          <> ","
+                          <> field_type_encoder
+                          <> ")),"
+                        let decoder_always_failure =
+                          decoder_always_failure_acc <> elt_snake <> ":, "
+                        #(encoder_optional_acc, always, decoder_always_failure)
+                      }
+                      2, "*" -> {
+                        //2..* list: always present, destructure List2
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part_withgleamtype
+                          <> "\", list2_to_json("
+                          <> elt_snake
+                          <> ","
+                          <> field_type_encoder
+                          <> ")),"
+                        let decoder_always_failure =
+                          decoder_always_failure_acc <> elt_snake <> ":, "
+                        #(encoder_optional_acc, always, decoder_always_failure)
+                      }
+                      3, "*" -> {
+                        //3..* list: always present, destructure List3
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part_withgleamtype
+                          <> "\", list3_to_json("
+                          <> elt_snake
+                          <> ","
+                          <> field_type_encoder
+                          <> ")),"
+                        let decoder_always_failure =
+                          decoder_always_failure_acc <> elt_snake <> ":, "
+                        #(encoder_optional_acc, always, decoder_always_failure)
+                      }
+                      0, "1" -> {
+                        //optional case to json, in Some case add to fields list
+                        let choicetype_suffixes = case elt.type_ {
+                          // choice type encoder requires onsetAge onsetString onsetPeriod whatever to be suffix in json
+                          [_, _, ..] ->
+                            string.concat([
+                              " <> case v {",
+                              list.fold(
+                                from: "",
+                                over: elt.type_,
+                                with: fn(suffixes_acc, ct) {
+                                  let assert [first_letter, ..rest] =
+                                    ct.code |> string.to_graphemes
+                                  // unlike string.capitalise this doesnt make everything after first lowercase
+                                  // so createdDateTime doesnt become createdDatetime
+                                  let capital_ct =
+                                    string.concat([
+                                      string.uppercase(first_letter),
+                                      ..rest
+                                    ])
+                                  suffixes_acc
+                                  <> field_name_new
+                                  <> string.capitalise(ct.code)
+                                  <> "(_) -> \""
+                                  <> capital_ct
+                                  <> "\"\n"
+                                },
+                              ),
+                              "}",
+                            ])
+                          //normal type encoder (not choice type)
+                          _ -> ""
+                        }
+                        let opts =
+                          encoder_optional_acc
+                          <> "\nlet fields = case "
+                          <> elt_snake
+                          <> " {
                         Some(v) -> [#(\""
-                      <> elt_last_part_withgleamtype
-                      <> "\""
-                      <> choicetype_suffixes
-                      <> ", "
-                      <> field_type_encoder
-                      <> "(v)), ..fields]
+                          <> elt_last_part_withgleamtype
+                          <> "\""
+                          <> choicetype_suffixes
+                          <> ", "
+                          <> field_type_encoder
+                          <> "(v)), ..fields]
                           None -> fields
                         }"
-                    #(opts, encoder_always_acc, decoder_always_failure_acc)
-                  }
-                  1, "1" -> {
-                    //mandatory case to json, put in first fields list
-                    let always =
-                      encoder_always_acc
-                      <> "#(\""
-                      <> elt_last_part_withgleamtype
-                      <> "\", "
-                      <> field_type_encoder
-                      <> "("
-                      <> elt_snake
-                      <> ")"
-                      <> "),"
-                    let decoder_always_failure =
-                      decoder_always_failure_acc <> elt_snake <> ":, "
-                    #(encoder_optional_acc, always, decoder_always_failure)
-                  }
-                  _, _ -> panic as "cardinality panic 72"
+                        #(opts, encoder_always_acc, decoder_always_failure_acc)
+                      }
+                      1, "1" -> {
+                        //mandatory case to json, put in first fields list
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part_withgleamtype
+                          <> "\", "
+                          <> field_type_encoder
+                          <> "("
+                          <> elt_snake
+                          <> ")"
+                          <> "),"
+                        let decoder_always_failure =
+                          decoder_always_failure_acc <> elt_snake <> ":, "
+                        #(encoder_optional_acc, always, decoder_always_failure)
+                      }
+                      _, _ -> panic as "cardinality panic 72"
+                    }
                 }
-                let field_type_decoder = case elt.type_ {
-                  [_] | [] -> {
-                    let decoder_itself = case elt.type_ {
-                      [one_type] ->
-                        string_to_decoder_type(
-                          one_type.code,
-                          allparts,
-                          fhir_version,
-                          elt,
-                        )
-                      [] ->
-                        link_type_from(elt.content_reference, resource.name)
-                        <> "_decoder()"
-                      _ -> panic as "compiler should see this cant happen"
+                let #(is_profile_ext_fake_elt, profile_ext_fn_name) = case
+                  elt.type_
+                {
+                  [Type(code:, ..)] ->
+                    case string.contains(code, "_") {
+                      True -> #(True, to_snake_case(to_camel_case(code)))
+                      False -> #(False, "")
                     }
-                    case elt.max {
-                      "*" ->
+                  _ -> #(False, "")
+                }
+                let field_type_decoder = case is_profile_ext_fake_elt {
+                  True -> "todo"
+                  False ->
+                    case elt.type_ {
+                      [_] | [] -> {
+                        let decoder_itself = case elt.type_ {
+                          [one_type] ->
+                            string_to_decoder_type(
+                              one_type.code,
+                              allparts,
+                              fhir_version,
+                              elt,
+                            )
+                          [] ->
+                            link_type_from(elt.content_reference, resource.name)
+                            <> "_decoder()"
+                          _ -> panic as "compiler should see this cant happen"
+                        }
+                        case elt.max {
+                          "*" ->
+                            case elt.min {
+                              0 ->
+                                "decode.optional_field(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\", [], decode.list("
+                                <> decoder_itself
+                                <> "))"
+                              1 ->
+                                "list1_decoder(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\","
+                                <> decoder_itself
+                                <> ")"
+                              2 ->
+                                "list2_decoder(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\","
+                                <> decoder_itself
+                                <> ")"
+                              3 ->
+                                "list3_decoder(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\","
+                                <> decoder_itself
+                                <> ")"
+                              _ -> panic as "list min > 3 not supported"
+                            }
+                          _ ->
+                            case elt.min {
+                              0 -> {
+                                "decode.optional_field(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\", None, decode.optional("
+                                <> decoder_itself
+                                <> "))"
+                              }
+                              1 -> {
+                                "decode.field(\""
+                                <> elt_last_part_withgleamtype
+                                <> "\","
+                                <> decoder_itself
+                                <> ")"
+                              }
+                              _ -> panic as "cardinality panic 3"
+                            }
+                        }
+                      }
+                      _ -> {
+                        let choicetype_decoder_itself =
+                          string.concat([
+                            snake_type,
+                            "_",
+                            elt_last_part |> string.lowercase(),
+                            "_decoder()",
+                          ])
                         case elt.min {
-                          0 ->
-                            "decode.optional_field(\""
-                            <> elt_last_part_withgleamtype
-                            <> "\", [], decode.list("
-                            <> decoder_itself
-                            <> "))"
+                          //for choice type case, custom decoder already knows field names, but we need decode.then and omit if empty
                           1 ->
-                            "list1_decoder(\""
-                            <> elt_last_part_withgleamtype
-                            <> "\","
-                            <> decoder_itself
-                            <> ")"
-                          2 ->
-                            "list2_decoder(\""
-                            <> elt_last_part_withgleamtype
-                            <> "\","
-                            <> decoder_itself
-                            <> ")"
-                          3 ->
-                            "list3_decoder(\""
-                            <> elt_last_part_withgleamtype
-                            <> "\","
-                            <> decoder_itself
-                            <> ")"
-                          _ -> panic as "list min > 3 not supported"
-                        }
-                      _ ->
-                        case elt.min {
-                          0 -> {
-                            "decode.optional_field(\""
-                            <> elt_last_part_withgleamtype
-                            <> "\", None, decode.optional("
-                            <> decoder_itself
+                            "decode.then(" <> choicetype_decoder_itself <> ")"
+                          0 ->
+                            "decode.then(none_if_omitted("
+                            <> choicetype_decoder_itself
                             <> "))"
-                          }
-                          1 -> {
-                            "decode.field(\""
-                            <> elt_last_part_withgleamtype
-                            <> "\","
-                            <> decoder_itself
-                            <> ")"
-                          }
-                          _ -> panic as "cardinality panic 3"
+                          _ -> panic as "card panic 37"
                         }
+                      }
                     }
-                  }
-                  _ -> {
-                    let choicetype_decoder_itself =
-                      string.concat([
-                        snake_type,
-                        "_",
-                        elt_last_part |> string.lowercase(),
-                        "_decoder()",
-                      ])
-                    case elt.min {
-                      //for choice type case, custom decoder already knows field names, but we need decode.then and omit if empty
-                      1 -> "decode.then(" <> choicetype_decoder_itself <> ")"
-                      0 ->
-                        "decode.then(none_if_omitted("
-                        <> choicetype_decoder_itself
-                        <> "))"
-                      _ -> panic as "card panic 37"
-                    }
-                  }
                 }
 
-                let decoder_use_acc =
-                  string.concat([
-                    decoder_use_acc,
-                    "use ",
-                    elt_snake,
-                    " <- ",
-                    field_type_decoder,
-                    "\n",
+                let #(decoder_use_acc, profile_exts_acc) = case
+                  is_profile_ext_fake_elt
+                {
+                  True -> #(decoder_use_acc, [
+                    #(elt_snake, profile_ext_fn_name, elt.min, elt.max),
+                    ..profile_exts_acc
                   ])
+                  False -> #(
+                    string.concat([
+                      decoder_use_acc,
+                      "use ",
+                      elt_snake,
+                      " <- ",
+                      field_type_decoder,
+                      "\n",
+                    ]),
+                    profile_exts_acc,
+                  )
+                }
                 let decoder_success_acc =
                   decoder_success_acc <> elt_snake <> ":,"
                 #(
@@ -1304,11 +1427,145 @@ fn file_to_types(
                   decoder_use_acc,
                   decoder_success_acc,
                   decoder_always_failure_acc,
+                  profile_exts_acc,
                 )
               },
             )
           //now have #(field_list, choicetypes, newfunc_args, newfunc_fields) tuple should prolly be custom type or something
           // first elt in tuple is all the fields for this type
+
+          // generate extension fold for profile extensions
+          let profile_exts = list.reverse(profile_exts)
+          let decoder_use = case profile_exts {
+            [] -> decoder_use
+            exts -> {
+              let n = list.length(exts)
+              let tuple_vars =
+                string.join(
+                  list.append(
+                    list.map(exts, fn(p) {
+                      let #(name, _, _, _) = p
+                      name <> "_"
+                    }),
+                    ["extension"],
+                  ),
+                  ", ",
+                )
+              let from_tuple =
+                "#(" <> string.join(list.repeat("[]", n + 1), ", ") <> ")"
+              let acc_vars =
+                "#("
+                <> string.join(
+                  list.append(
+                    list.index_map(exts, fn(_, i) { "a" <> int.to_string(i) }),
+                    ["plain"],
+                  ),
+                  ", ",
+                )
+                <> ")"
+              let ok_tuple_for = fn(idx) {
+                "#("
+                <> string.join(
+                  list.append(
+                    list.index_map(exts, fn(_, i) {
+                      case i == idx {
+                        True -> "[v, ..a" <> int.to_string(i) <> "]"
+                        False -> "a" <> int.to_string(i)
+                      }
+                    }),
+                    ["plain"],
+                  ),
+                  ", ",
+                )
+                <> ")"
+              }
+              let error_tuple =
+                "#("
+                <> string.join(
+                  list.append(
+                    list.index_map(exts, fn(_, i) { "a" <> int.to_string(i) }),
+                    ["[ext, ..plain]"],
+                  ),
+                  ", ",
+                )
+                <> ")"
+              let nested_cases =
+                list.reverse(
+                  list.index_map(exts, fn(p, i) {
+                    let #(_, fn_name, _, _) = p
+                    #(fn_name, i)
+                  }),
+                )
+                |> list.fold(from: error_tuple, with: fn(inner, pair) {
+                  let #(fn_name, idx) = pair
+                  "case "
+                  <> fn_name
+                  <> "_from_ext(ext) { Ok(v) -> "
+                  <> ok_tuple_for(idx)
+                  <> " Error(_) -> "
+                  <> inner
+                  <> " }"
+                })
+              let conversions =
+                list.fold(from: "", over: exts, with: fn(acc, p) {
+                  let #(name, _, _min, max) = p
+                  acc
+                  <> case max {
+                    "*" -> "let " <> name <> " = " <> name <> "_\n"
+                    _ ->
+                      "let "
+                      <> name
+                      <> " = list.first("
+                      <> name
+                      <> "_) |> option.from_result\n"
+                  }
+                })
+              let fold_code =
+                "let #("
+                <> tuple_vars
+                <> ") = list.fold(from: "
+                <> from_tuple
+                <> ", over: extension, with: fn(acc, ext) { let "
+                <> acc_vars
+                <> " = acc "
+                <> nested_cases
+                <> " },)\n"
+                <> conversions
+              decoder_use <> fold_code
+            }
+          }
+
+          let profile_ext_pre_encoder = case profile_exts {
+            [] -> ""
+            exts -> {
+              let ext_lists =
+                list.map(exts, fn(p) {
+                  let #(name, fn_name, min, max) = p
+                  case min, max {
+                    0, "1" ->
+                      "case "
+                      <> name
+                      <> " { Some(v) -> ["
+                      <> fn_name
+                      <> "_to_ext(v)] None -> [] }"
+                    0, _ -> "list.map(" <> name <> ", " <> fn_name <> "_to_ext)"
+                    1, "1" -> "[" <> fn_name <> "_to_ext(" <> name <> ")]"
+                    1, _ ->
+                      "list.map(["
+                      <> name
+                      <> ".first, .."
+                      <> name
+                      <> ".rest], "
+                      <> fn_name
+                      <> "_to_ext)"
+                    _, _ -> "[]"
+                  }
+                })
+              "\nlet extension = list.flatten([extension, "
+              <> string.join(ext_lists, ", ")
+              <> "])"
+            }
+          }
 
           let type_newfields =
             string.concat([
@@ -1497,35 +1754,401 @@ fn file_to_types(
               }
               "
             }
-            _ ->
-              string.join(
-                [
-                  new_doc_link,
-                  type_newfields,
-                  type_choicetypes,
-                  type_new_newfunc,
-                  old_type_acc,
-                  gen_res_encoder(
-                    fhir_resource_type,
-                    camel_type,
-                    snake_type,
-                    encoder_args,
-                    encoder_json_always,
-                    encoder_json_options,
-                    is_domainresource,
-                  ),
-                  gen_res_decoder(
-                    fhir_resource_type,
-                    camel_type,
-                    snake_type,
-                    decoder_use,
-                    decoder_success,
-                    is_domainresource,
-                    decoder_always_failure_fordr,
-                  ),
-                ],
-                "\n",
-              )
+            _ -> {
+              let assert Some(base_def) = resource.base_definition
+              case string.contains(base_def, "StructureDefinition/Extension") {
+                True -> {
+                  let to_ext_children =
+                    list.fold(
+                      over: fields,
+                      from: [],
+                      with: fn(acc, elt: Element) {
+                        let assert Ok(slice_url) =
+                          elt.id |> string.split(".") |> list.last
+                        let slice_field = case slice_url {
+                          "type" -> "type_"
+                          "use" -> "use_"
+                          "case" -> "case_"
+                          "const" -> "const_"
+                          "import" -> "import_"
+                          "test" -> "test_"
+                          "assert" -> "assert_"
+                          _ -> slice_url
+                        }
+                        let elt_snake2 = to_snake_case(slice_field)
+                        // returns Extension(...) given a placeholder expression for the value
+                        let make_child_ext = fn(placeholder) {
+                          case elt.type_ {
+                            [] -> ""
+                            [Type(code:, ..)] -> {
+                              // for code+required binding the field is a valueset type, need _to_string
+                              let val_expr = case code, elt.binding {
+                                "code",
+                                  Some(Binding(
+                                    strength: "required",
+                                    value_set: Some(vs),
+                                  ))
+                                -> {
+                                  let assert [url, ..] = string.split(vs, "|")
+                                  fhir_version
+                                  <> "_valuesets."
+                                  <> string.lowercase(
+                                    concept_name_from_url(Some(url)),
+                                  )
+                                  <> "_to_string("
+                                  <> placeholder
+                                  <> ")"
+                                }
+                                _, _ -> placeholder
+                              }
+                              "Extension(id: None, url: \""
+                              <> slice_url
+                              <> "\", ext: ExtSimple(ExtensionValue"
+                              <> string.capitalise(code)
+                              <> "("
+                              <> val_expr
+                              <> ")))"
+                            }
+                            types -> {
+                              // choice type: case on the variants, each maps to an ExtensionValue*
+                              let field_name_new =
+                                camel_type <> string.capitalise(slice_field)
+                              let case_arms =
+                                list.fold(
+                                  over: types,
+                                  from: "",
+                                  with: fn(case_acc, typ) {
+                                    case_acc
+                                    <> field_name_new
+                                    <> string.capitalise(typ.code)
+                                    <> "(v) -> Extension(id: None, url: \""
+                                    <> slice_url
+                                    <> "\", ext: ExtSimple(ExtensionValue"
+                                    <> string.capitalise(typ.code)
+                                    <> "(v)))\n"
+                                  },
+                                )
+                              "case " <> placeholder <> " {" <> case_arms <> "}"
+                            }
+                          }
+                        }
+                        case elt.type_ {
+                          [] -> acc
+                          _ -> {
+                            let list_expr = case elt.min, elt.max {
+                              0, "1" ->
+                                "case to_ext."
+                                <> elt_snake2
+                                <> " { None -> [] Some(c) -> ["
+                                <> make_child_ext("c")
+                                <> "] }"
+                              0, _ ->
+                                "to_ext."
+                                <> elt_snake2
+                                <> " |> list.map(fn(c){ "
+                                <> make_child_ext("c")
+                                <> " })"
+                              1, _ ->
+                                "["
+                                <> make_child_ext("to_ext." <> elt_snake2)
+                                <> "]"
+                              _, _ -> ""
+                            }
+                            [list_expr, ..acc]
+                          }
+                        }
+                      },
+                    )
+                    |> list.reverse
+                    |> string.join(",\n")
+                  let from_ext_parts =
+                    list.fold(
+                      over: fields,
+                      from: [],
+                      with: fn(acc, elt: Element) {
+                        case elt.type_ {
+                          [] -> acc
+                          _ -> {
+                            let assert Ok(slice_url) =
+                              elt.id |> string.split(".") |> list.last
+                            let slice_field = case slice_url {
+                              "type" -> "type_"
+                              "use" -> "use_"
+                              "case" -> "case_"
+                              "const" -> "const_"
+                              "import" -> "import_"
+                              "test" -> "test_"
+                              "assert" -> "assert_"
+                              _ -> slice_url
+                            }
+                            let elt_snake2 = to_snake_case(slice_field)
+                            let use_binding = case elt.type_ {
+                              [Type(code:, ..)] -> {
+                                let is_code_binding = case code, elt.binding {
+                                  "code",
+                                    Some(Binding(
+                                      strength: "required",
+                                      value_set: Some(_),
+                                    ))
+                                  -> True
+                                  _, _ -> False
+                                }
+                                case is_code_binding {
+                                  True -> {
+                                    let assert Some(Binding(
+                                      value_set: Some(vs),
+                                      ..,
+                                    )) = elt.binding
+                                    let assert [vs_url, ..] =
+                                      string.split(vs, "|")
+                                    let from_str =
+                                      fhir_version
+                                      <> "_valuesets."
+                                      <> string.lowercase(
+                                        concept_name_from_url(Some(vs_url)),
+                                      )
+                                      <> "_from_string"
+                                    case elt.min, elt.max {
+                                      0, "1" ->
+                                        "use "
+                                        <> elt_snake2
+                                        <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
+                                        <> slice_url
+                                        <> "\") { Error(_) -> Ok(None) Ok([ExtDictContent(content: ExtDictSimple(ExtensionValueCode(s)), ..)]) -> "
+                                        <> from_str
+                                        <> "(s) |> result.map(Some) Ok(_) -> Error(Nil) })"
+                                      0, _ ->
+                                        "use "
+                                        <> elt_snake2
+                                        <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
+                                        <> slice_url
+                                        <> "\") { Error(_) -> Ok([]) Ok(entries) -> list.fold(from: Ok([]), over: entries, with: fn(acc, entry) { use so_far <- result.try(acc) case entry.content { ExtDictSimple(ExtensionValueCode(s)) -> "
+                                        <> from_str
+                                        <> "(s) |> result.map(fn(v){ [v, ..so_far] }) _ -> Error(Nil) } }) })"
+                                      1, _ ->
+                                        "use "
+                                        <> elt_snake2
+                                        <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
+                                        <> slice_url
+                                        <> "\") { Error(_) -> Error(Nil) Ok([ExtDictContent(content: ExtDictSimple(ExtensionValueCode(s)), ..)]) -> "
+                                        <> from_str
+                                        <> "(s) Ok(_) -> Error(Nil) })"
+                                      _, _ -> ""
+                                    }
+                                  }
+                                  False -> {
+                                    let val_type = string.capitalise(code)
+                                    let ext_pat =
+                                      "ExtDictSimple(ExtensionValue"
+                                      <> val_type
+                                      <> "(v))"
+                                    case elt.min, elt.max {
+                                      0, "1" ->
+                                        "use "
+                                        <> elt_snake2
+                                        <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
+                                        <> slice_url
+                                        <> "\") { Error(_) -> Ok(None) Ok([ExtDictContent(content: "
+                                        <> ext_pat
+                                        <> ", ..)]) -> Ok(Some(v)) Ok(_) -> Error(Nil) })"
+                                      0, _ ->
+                                        "use "
+                                        <> elt_snake2
+                                        <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
+                                        <> slice_url
+                                        <> "\") { Error(_) -> Ok([]) Ok(entries) -> list.fold(from: Ok([]), over: entries, with: fn(acc, entry) { use so_far <- result.try(acc) case entry.content { "
+                                        <> ext_pat
+                                        <> " -> Ok([v, ..so_far]) _ -> Error(Nil) } }) })"
+                                      1, _ ->
+                                        "use "
+                                        <> elt_snake2
+                                        <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
+                                        <> slice_url
+                                        <> "\") { Error(_) -> Error(Nil) Ok([ExtDictContent(content: "
+                                        <> ext_pat
+                                        <> ", ..)]) -> Ok(v) Ok(_) -> Error(Nil) })"
+                                      _, _ -> ""
+                                    }
+                                  }
+                                }
+                              }
+                              types -> {
+                                let field_name_new =
+                                  camel_type <> string.capitalise(slice_field)
+                                let type_arms_some =
+                                  list.fold(
+                                    over: types,
+                                    from: "",
+                                    with: fn(case_acc, typ) {
+                                      let vt = string.capitalise(typ.code)
+                                      case_acc
+                                      <> "Ok([ExtDictContent(content: ExtDictSimple(ExtensionValue"
+                                      <> vt
+                                      <> "(v)), ..)]) -> Ok(Some("
+                                      <> field_name_new
+                                      <> vt
+                                      <> "(v))) "
+                                    },
+                                  )
+                                let type_arms_single =
+                                  list.fold(
+                                    over: types,
+                                    from: "",
+                                    with: fn(case_acc, typ) {
+                                      let vt = string.capitalise(typ.code)
+                                      case_acc
+                                      <> "Ok([ExtDictContent(content: ExtDictSimple(ExtensionValue"
+                                      <> vt
+                                      <> "(v)), ..)]) -> Ok("
+                                      <> field_name_new
+                                      <> vt
+                                      <> "(v)) "
+                                    },
+                                  )
+                                let type_arms_list =
+                                  list.fold(
+                                    over: types,
+                                    from: "",
+                                    with: fn(case_acc, typ) {
+                                      let vt = string.capitalise(typ.code)
+                                      case_acc
+                                      <> "ExtDictSimple(ExtensionValue"
+                                      <> vt
+                                      <> "(v)) -> Ok(["
+                                      <> field_name_new
+                                      <> vt
+                                      <> "(v), ..so_far]) "
+                                    },
+                                  )
+                                case elt.min, elt.max {
+                                  0, "1" ->
+                                    "use "
+                                    <> elt_snake2
+                                    <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
+                                    <> slice_url
+                                    <> "\") { Error(_) -> Ok(None) "
+                                    <> type_arms_some
+                                    <> "Ok(_) -> Error(Nil) })"
+                                  0, _ ->
+                                    "use "
+                                    <> elt_snake2
+                                    <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
+                                    <> slice_url
+                                    <> "\") { Error(_) -> Ok([]) Ok(entries) -> list.fold(from: Ok([]), over: entries, with: fn(acc, entry) { use so_far <- result.try(acc) case entry.content { "
+                                    <> type_arms_list
+                                    <> "_ -> Error(Nil) } }) })"
+                                  1, _ ->
+                                    "use "
+                                    <> elt_snake2
+                                    <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
+                                    <> slice_url
+                                    <> "\") { Error(_) -> Error(Nil) "
+                                    <> type_arms_single
+                                    <> "Ok(_) -> Error(Nil) })"
+                                  _, _ -> ""
+                                }
+                              }
+                            }
+                            [#(use_binding, elt_snake2), ..acc]
+                          }
+                        }
+                      },
+                    )
+                    |> list.reverse
+                  let from_ext_use_chain =
+                    list.map(from_ext_parts, fn(p) { p.0 })
+                    |> string.join("\n")
+                  let from_ext_fields =
+                    list.map(from_ext_parts, fn(p) { p.1 <> ":" })
+                    |> string.join(", ")
+                  let to_ext_fn =
+                    "pub fn "
+                    <> snake_type
+                    <> "_to_ext(to_ext: "
+                    <> camel_type
+                    <> ") -> Extension { Extension(id: None, url: \""
+                    <> resource.url
+                    <> "\", ext: ExtComplex(list.flatten(["
+                    <> to_ext_children
+                    <> "]))) }"
+                  let ext_to_json_fn =
+                    "pub fn "
+                    <> snake_type
+                    <> "_to_json("
+                    <> snake_type
+                    <> ": "
+                    <> camel_type
+                    <> ") -> Json { extension_to_json("
+                    <> snake_type
+                    <> "_to_ext("
+                    <> snake_type
+                    <> ")) }"
+                  let ext_decoder_fn =
+                    "pub fn "
+                    <> snake_type
+                    <> "_decoder() -> Decoder(Result("
+                    <> camel_type
+                    <> ", Extension)) { use ext <- decode.then(extension_decoder()) case "
+                    <> snake_type
+                    <> "_from_ext(ext) { Ok(result) -> decode.success(Ok(result)) Error(Nil) -> decode.success(Error(ext)) } }"
+                  let from_ext_fn =
+                    "pub fn "
+                    <> snake_type
+                    <> "_from_ext(ext: Extension) -> Result("
+                    <> camel_type
+                    <> ", Nil) { case ext.url, ext.ext { \""
+                    <> resource.url
+                    <> "\", ExtComplex(children) -> { let ext_dict = exts_to_extdict(children) "
+                    <> from_ext_use_chain
+                    <> " Ok("
+                    <> camel_type
+                    <> "("
+                    <> from_ext_fields
+                    <> ")) } _, _ -> Error(Nil) } }"
+                  string.join(
+                    [
+                      new_doc_link,
+                      type_newfields,
+                      type_choicetypes,
+                      to_ext_fn,
+                      ext_to_json_fn,
+                      ext_decoder_fn,
+                      from_ext_fn,
+                    ],
+                    "\n",
+                  )
+                }
+                False ->
+                  string.join(
+                    [
+                      new_doc_link,
+                      type_newfields,
+                      type_choicetypes,
+                      type_new_newfunc,
+                      old_type_acc,
+                      gen_res_encoder(
+                        fhir_resource_type,
+                        camel_type,
+                        snake_type,
+                        encoder_args,
+                        encoder_json_always,
+                        profile_ext_pre_encoder <> encoder_json_options,
+                        is_domainresource,
+                      ),
+                      gen_res_decoder(
+                        fhir_resource_type,
+                        camel_type,
+                        snake_type,
+                        decoder_use,
+                        decoder_success,
+                        is_domainresource,
+                        decoder_always_failure_fordr,
+                      ),
+                    ],
+                    "\n",
+                  )
+              }
+            }
           }
         })
       }
@@ -2111,6 +2734,8 @@ fn valueset_to_types(vsfile: String, fhir_version: String, profiles_dir: String)
           string.join(vs_named_codes, "\n"),
           "}",
           gen_valueset_encoder(vsname, vs_codes),
+          gen_valueset_to_string(vsname, vs_codes),
+          gen_valueset_from_string(vsname, vs_codes),
           gen_valueset_decoder(vsname, vs_codes),
           valuesets_acc,
         ])
@@ -2201,15 +2826,28 @@ fn str_replace_many(s: String, badchars: List(#(String, String))) -> String {
   })
 }
 
-fn gen_valueset_encoder(vsname: String, vs_codes: List(String)) -> String {
+fn gen_valueset_encoder(vsname: String, _vs_codes: List(String)) -> String {
   let vsname_lower = vsname |> string.lowercase()
-  let template = "pub fn CNAMELOWER_to_json(CNAMELOWER: CNAMECAPITAL) -> Json {
+  let template =
+    "pub fn CNAMELOWER_to_json(CNAMELOWER: CNAMECAPITAL) -> Json {
+    json.string(CNAMELOWER_to_string(CNAMELOWER))
+  }
+  "
+  template
+  |> string.replace("CNAMELOWER", vsname_lower)
+  |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
+}
+
+fn gen_valueset_to_string(vsname: String, vs_codes: List(String)) -> String {
+  let vsname_lower = vsname |> string.lowercase()
+  let template =
+    "pub fn CNAMELOWER_to_string(CNAMELOWER: CNAMECAPITAL) -> String {
     case CNAMELOWER {" <> list.fold(
       from: "",
       over: vs_codes,
       with: fn(acc: String, code: String) {
         acc
-        <> "CODETYPE -> json.string(\"ACTUALCODE\")\n"
+        <> "CODETYPE -> \"ACTUALCODE\"\n"
         |> string.replace(
           "CODETYPE",
           vsname <> string.capitalise(codetovarname(code)),
@@ -2244,6 +2882,30 @@ fn gen_valueset_decoder(vsname: String, vs_codes: List(String)) -> String {
     ) <> "_ -> decode.failure(" <> vsname <> string.capitalise(codetovarname(
       fail_code,
     )) <> ", \"CNAMECAPITAL\")}
+  }
+  "
+  template
+  |> string.replace("CNAMELOWER", vsname_lower)
+  |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
+}
+
+fn gen_valueset_from_string(vsname: String, vs_codes: List(String)) -> String {
+  let vsname_lower = vsname |> string.lowercase()
+  let template =
+    "pub fn CNAMELOWER_from_string(s: String) -> Result(CNAMECAPITAL, Nil) {
+    case s {" <> list.fold(
+      from: "",
+      over: vs_codes,
+      with: fn(acc: String, code: String) {
+        acc
+        <> "\"ACTUALCODE\" -> Ok(CODETYPE)\n"
+        |> string.replace(
+          "CODETYPE",
+          vsname <> string.capitalise(codetovarname(code)),
+        )
+        |> string.replace("ACTUALCODE", code)
+      },
+    ) <> "_ -> Error(Nil)}
   }
   "
   template

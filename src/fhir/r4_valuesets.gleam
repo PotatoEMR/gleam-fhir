@@ -9,10 +9,27 @@ pub type Conditionaldeletestatus {
 pub fn conditionaldeletestatus_to_json(
   conditionaldeletestatus: Conditionaldeletestatus,
 ) -> Json {
+  json.string(conditionaldeletestatus_to_string(conditionaldeletestatus))
+}
+
+pub fn conditionaldeletestatus_to_string(
+  conditionaldeletestatus: Conditionaldeletestatus,
+) -> String {
   case conditionaldeletestatus {
-    ConditionaldeletestatusNotsupported -> json.string("not-supported")
-    ConditionaldeletestatusSingle -> json.string("single")
-    ConditionaldeletestatusMultiple -> json.string("multiple")
+    ConditionaldeletestatusNotsupported -> "not-supported"
+    ConditionaldeletestatusSingle -> "single"
+    ConditionaldeletestatusMultiple -> "multiple"
+  }
+}
+
+pub fn conditionaldeletestatus_from_string(
+  s: String,
+) -> Result(Conditionaldeletestatus, Nil) {
+  case s {
+    "not-supported" -> Ok(ConditionaldeletestatusNotsupported)
+    "single" -> Ok(ConditionaldeletestatusSingle)
+    "multiple" -> Ok(ConditionaldeletestatusMultiple)
+    _ -> Error(Nil)
   }
 }
 
@@ -37,10 +54,23 @@ pub type Namingsystemtype {
 }
 
 pub fn namingsystemtype_to_json(namingsystemtype: Namingsystemtype) -> Json {
+  json.string(namingsystemtype_to_string(namingsystemtype))
+}
+
+pub fn namingsystemtype_to_string(namingsystemtype: Namingsystemtype) -> String {
   case namingsystemtype {
-    NamingsystemtypeCodesystem -> json.string("codesystem")
-    NamingsystemtypeIdentifier -> json.string("identifier")
-    NamingsystemtypeRoot -> json.string("root")
+    NamingsystemtypeCodesystem -> "codesystem"
+    NamingsystemtypeIdentifier -> "identifier"
+    NamingsystemtypeRoot -> "root"
+  }
+}
+
+pub fn namingsystemtype_from_string(s: String) -> Result(Namingsystemtype, Nil) {
+  case s {
+    "codesystem" -> Ok(NamingsystemtypeCodesystem)
+    "identifier" -> Ok(NamingsystemtypeIdentifier)
+    "root" -> Ok(NamingsystemtypeRoot)
+    _ -> Error(Nil)
   }
 }
 
@@ -64,11 +94,29 @@ pub type Encounterlocationstatus {
 pub fn encounterlocationstatus_to_json(
   encounterlocationstatus: Encounterlocationstatus,
 ) -> Json {
+  json.string(encounterlocationstatus_to_string(encounterlocationstatus))
+}
+
+pub fn encounterlocationstatus_to_string(
+  encounterlocationstatus: Encounterlocationstatus,
+) -> String {
   case encounterlocationstatus {
-    EncounterlocationstatusPlanned -> json.string("planned")
-    EncounterlocationstatusActive -> json.string("active")
-    EncounterlocationstatusReserved -> json.string("reserved")
-    EncounterlocationstatusCompleted -> json.string("completed")
+    EncounterlocationstatusPlanned -> "planned"
+    EncounterlocationstatusActive -> "active"
+    EncounterlocationstatusReserved -> "reserved"
+    EncounterlocationstatusCompleted -> "completed"
+  }
+}
+
+pub fn encounterlocationstatus_from_string(
+  s: String,
+) -> Result(Encounterlocationstatus, Nil) {
+  case s {
+    "planned" -> Ok(EncounterlocationstatusPlanned)
+    "active" -> Ok(EncounterlocationstatusActive)
+    "reserved" -> Ok(EncounterlocationstatusReserved)
+    "completed" -> Ok(EncounterlocationstatusCompleted)
+    _ -> Error(Nil)
   }
 }
 
@@ -93,10 +141,27 @@ pub type Resourceaggregationmode {
 pub fn resourceaggregationmode_to_json(
   resourceaggregationmode: Resourceaggregationmode,
 ) -> Json {
+  json.string(resourceaggregationmode_to_string(resourceaggregationmode))
+}
+
+pub fn resourceaggregationmode_to_string(
+  resourceaggregationmode: Resourceaggregationmode,
+) -> String {
   case resourceaggregationmode {
-    ResourceaggregationmodeContained -> json.string("contained")
-    ResourceaggregationmodeReferenced -> json.string("referenced")
-    ResourceaggregationmodeBundled -> json.string("bundled")
+    ResourceaggregationmodeContained -> "contained"
+    ResourceaggregationmodeReferenced -> "referenced"
+    ResourceaggregationmodeBundled -> "bundled"
+  }
+}
+
+pub fn resourceaggregationmode_from_string(
+  s: String,
+) -> Result(Resourceaggregationmode, Nil) {
+  case s {
+    "contained" -> Ok(ResourceaggregationmodeContained)
+    "referenced" -> Ok(ResourceaggregationmodeReferenced)
+    "bundled" -> Ok(ResourceaggregationmodeBundled)
+    _ -> Error(Nil)
   }
 }
 
@@ -121,10 +186,23 @@ pub type Variabletype {
 }
 
 pub fn variabletype_to_json(variabletype: Variabletype) -> Json {
+  json.string(variabletype_to_string(variabletype))
+}
+
+pub fn variabletype_to_string(variabletype: Variabletype) -> String {
   case variabletype {
-    VariabletypeDichotomous -> json.string("dichotomous")
-    VariabletypeContinuous -> json.string("continuous")
-    VariabletypeDescriptive -> json.string("descriptive")
+    VariabletypeDichotomous -> "dichotomous"
+    VariabletypeContinuous -> "continuous"
+    VariabletypeDescriptive -> "descriptive"
+  }
+}
+
+pub fn variabletype_from_string(s: String) -> Result(Variabletype, Nil) {
+  case s {
+    "dichotomous" -> Ok(VariabletypeDichotomous)
+    "continuous" -> Ok(VariabletypeContinuous)
+    "descriptive" -> Ok(VariabletypeDescriptive)
+    _ -> Error(Nil)
   }
 }
 
@@ -144,9 +222,21 @@ pub type Relationtype {
 }
 
 pub fn relationtype_to_json(relationtype: Relationtype) -> Json {
+  json.string(relationtype_to_string(relationtype))
+}
+
+pub fn relationtype_to_string(relationtype: Relationtype) -> String {
   case relationtype {
-    RelationtypeTriggers -> json.string("triggers")
-    RelationtypeIsreplacedby -> json.string("is-replaced-by")
+    RelationtypeTriggers -> "triggers"
+    RelationtypeIsreplacedby -> "is-replaced-by"
+  }
+}
+
+pub fn relationtype_from_string(s: String) -> Result(Relationtype, Nil) {
+  case s {
+    "triggers" -> Ok(RelationtypeTriggers)
+    "is-replaced-by" -> Ok(RelationtypeIsreplacedby)
+    _ -> Error(Nil)
   }
 }
 
@@ -169,11 +259,29 @@ pub type Structuredefinitionkind {
 pub fn structuredefinitionkind_to_json(
   structuredefinitionkind: Structuredefinitionkind,
 ) -> Json {
+  json.string(structuredefinitionkind_to_string(structuredefinitionkind))
+}
+
+pub fn structuredefinitionkind_to_string(
+  structuredefinitionkind: Structuredefinitionkind,
+) -> String {
   case structuredefinitionkind {
-    StructuredefinitionkindPrimitivetype -> json.string("primitive-type")
-    StructuredefinitionkindComplextype -> json.string("complex-type")
-    StructuredefinitionkindResource -> json.string("resource")
-    StructuredefinitionkindLogical -> json.string("logical")
+    StructuredefinitionkindPrimitivetype -> "primitive-type"
+    StructuredefinitionkindComplextype -> "complex-type"
+    StructuredefinitionkindResource -> "resource"
+    StructuredefinitionkindLogical -> "logical"
+  }
+}
+
+pub fn structuredefinitionkind_from_string(
+  s: String,
+) -> Result(Structuredefinitionkind, Nil) {
+  case s {
+    "primitive-type" -> Ok(StructuredefinitionkindPrimitivetype)
+    "complex-type" -> Ok(StructuredefinitionkindComplextype)
+    "resource" -> Ok(StructuredefinitionkindResource)
+    "logical" -> Ok(StructuredefinitionkindLogical)
+    _ -> Error(Nil)
   }
 }
 
@@ -199,10 +307,23 @@ pub type Locationstatus {
 }
 
 pub fn locationstatus_to_json(locationstatus: Locationstatus) -> Json {
+  json.string(locationstatus_to_string(locationstatus))
+}
+
+pub fn locationstatus_to_string(locationstatus: Locationstatus) -> String {
   case locationstatus {
-    LocationstatusActive -> json.string("active")
-    LocationstatusSuspended -> json.string("suspended")
-    LocationstatusInactive -> json.string("inactive")
+    LocationstatusActive -> "active"
+    LocationstatusSuspended -> "suspended"
+    LocationstatusInactive -> "inactive"
+  }
+}
+
+pub fn locationstatus_from_string(s: String) -> Result(Locationstatus, Nil) {
+  case s {
+    "active" -> Ok(LocationstatusActive)
+    "suspended" -> Ok(LocationstatusSuspended)
+    "inactive" -> Ok(LocationstatusInactive)
+    _ -> Error(Nil)
   }
 }
 
@@ -225,12 +346,27 @@ pub type Invoicestatus {
 }
 
 pub fn invoicestatus_to_json(invoicestatus: Invoicestatus) -> Json {
+  json.string(invoicestatus_to_string(invoicestatus))
+}
+
+pub fn invoicestatus_to_string(invoicestatus: Invoicestatus) -> String {
   case invoicestatus {
-    InvoicestatusDraft -> json.string("draft")
-    InvoicestatusIssued -> json.string("issued")
-    InvoicestatusBalanced -> json.string("balanced")
-    InvoicestatusCancelled -> json.string("cancelled")
-    InvoicestatusEnteredinerror -> json.string("entered-in-error")
+    InvoicestatusDraft -> "draft"
+    InvoicestatusIssued -> "issued"
+    InvoicestatusBalanced -> "balanced"
+    InvoicestatusCancelled -> "cancelled"
+    InvoicestatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn invoicestatus_from_string(s: String) -> Result(Invoicestatus, Nil) {
+  case s {
+    "draft" -> Ok(InvoicestatusDraft)
+    "issued" -> Ok(InvoicestatusIssued)
+    "balanced" -> Ok(InvoicestatusBalanced)
+    "cancelled" -> Ok(InvoicestatusCancelled)
+    "entered-in-error" -> Ok(InvoicestatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -256,11 +392,29 @@ pub type Quantitycomparator {
 pub fn quantitycomparator_to_json(
   quantitycomparator: Quantitycomparator,
 ) -> Json {
+  json.string(quantitycomparator_to_string(quantitycomparator))
+}
+
+pub fn quantitycomparator_to_string(
+  quantitycomparator: Quantitycomparator,
+) -> String {
   case quantitycomparator {
-    QuantitycomparatorLessthan -> json.string("<")
-    QuantitycomparatorLessthanequal -> json.string("<=")
-    QuantitycomparatorGreaterthanequal -> json.string(">=")
-    QuantitycomparatorGreaterthan -> json.string(">")
+    QuantitycomparatorLessthan -> "<"
+    QuantitycomparatorLessthanequal -> "<="
+    QuantitycomparatorGreaterthanequal -> ">="
+    QuantitycomparatorGreaterthan -> ">"
+  }
+}
+
+pub fn quantitycomparator_from_string(
+  s: String,
+) -> Result(Quantitycomparator, Nil) {
+  case s {
+    "<" -> Ok(QuantitycomparatorLessthan)
+    "<=" -> Ok(QuantitycomparatorLessthanequal)
+    ">=" -> Ok(QuantitycomparatorGreaterthanequal)
+    ">" -> Ok(QuantitycomparatorGreaterthan)
+    _ -> Error(Nil)
   }
 }
 
@@ -282,10 +436,27 @@ pub type Reportresultcodes {
 }
 
 pub fn reportresultcodes_to_json(reportresultcodes: Reportresultcodes) -> Json {
+  json.string(reportresultcodes_to_string(reportresultcodes))
+}
+
+pub fn reportresultcodes_to_string(
+  reportresultcodes: Reportresultcodes,
+) -> String {
   case reportresultcodes {
-    ReportresultcodesPass -> json.string("pass")
-    ReportresultcodesFail -> json.string("fail")
-    ReportresultcodesPending -> json.string("pending")
+    ReportresultcodesPass -> "pass"
+    ReportresultcodesFail -> "fail"
+    ReportresultcodesPending -> "pending"
+  }
+}
+
+pub fn reportresultcodes_from_string(
+  s: String,
+) -> Result(Reportresultcodes, Nil) {
+  case s {
+    "pass" -> Ok(ReportresultcodesPass)
+    "fail" -> Ok(ReportresultcodesFail)
+    "pending" -> Ok(ReportresultcodesPending)
+    _ -> Error(Nil)
   }
 }
 
@@ -307,9 +478,25 @@ pub type Operationparameteruse {
 pub fn operationparameteruse_to_json(
   operationparameteruse: Operationparameteruse,
 ) -> Json {
+  json.string(operationparameteruse_to_string(operationparameteruse))
+}
+
+pub fn operationparameteruse_to_string(
+  operationparameteruse: Operationparameteruse,
+) -> String {
   case operationparameteruse {
-    OperationparameteruseIn -> json.string("in")
-    OperationparameteruseOut -> json.string("out")
+    OperationparameteruseIn -> "in"
+    OperationparameteruseOut -> "out"
+  }
+}
+
+pub fn operationparameteruse_from_string(
+  s: String,
+) -> Result(Operationparameteruse, Nil) {
+  case s {
+    "in" -> Ok(OperationparameteruseIn)
+    "out" -> Ok(OperationparameteruseOut)
+    _ -> Error(Nil)
   }
 }
 
@@ -329,10 +516,23 @@ pub type Substancestatus {
 }
 
 pub fn substancestatus_to_json(substancestatus: Substancestatus) -> Json {
+  json.string(substancestatus_to_string(substancestatus))
+}
+
+pub fn substancestatus_to_string(substancestatus: Substancestatus) -> String {
   case substancestatus {
-    SubstancestatusActive -> json.string("active")
-    SubstancestatusInactive -> json.string("inactive")
-    SubstancestatusEnteredinerror -> json.string("entered-in-error")
+    SubstancestatusActive -> "active"
+    SubstancestatusInactive -> "inactive"
+    SubstancestatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn substancestatus_from_string(s: String) -> Result(Substancestatus, Nil) {
+  case s {
+    "active" -> Ok(SubstancestatusActive)
+    "inactive" -> Ok(SubstancestatusInactive)
+    "entered-in-error" -> Ok(SubstancestatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -363,22 +563,50 @@ pub type Researchstudystatus {
 pub fn researchstudystatus_to_json(
   researchstudystatus: Researchstudystatus,
 ) -> Json {
+  json.string(researchstudystatus_to_string(researchstudystatus))
+}
+
+pub fn researchstudystatus_to_string(
+  researchstudystatus: Researchstudystatus,
+) -> String {
   case researchstudystatus {
-    ResearchstudystatusActive -> json.string("active")
-    ResearchstudystatusAdministrativelycompleted ->
-      json.string("administratively-completed")
-    ResearchstudystatusApproved -> json.string("approved")
-    ResearchstudystatusClosedtoaccrual -> json.string("closed-to-accrual")
+    ResearchstudystatusActive -> "active"
+    ResearchstudystatusAdministrativelycompleted -> "administratively-completed"
+    ResearchstudystatusApproved -> "approved"
+    ResearchstudystatusClosedtoaccrual -> "closed-to-accrual"
     ResearchstudystatusClosedtoaccrualandintervention ->
-      json.string("closed-to-accrual-and-intervention")
-    ResearchstudystatusCompleted -> json.string("completed")
-    ResearchstudystatusDisapproved -> json.string("disapproved")
-    ResearchstudystatusInreview -> json.string("in-review")
+      "closed-to-accrual-and-intervention"
+    ResearchstudystatusCompleted -> "completed"
+    ResearchstudystatusDisapproved -> "disapproved"
+    ResearchstudystatusInreview -> "in-review"
     ResearchstudystatusTemporarilyclosedtoaccrual ->
-      json.string("temporarily-closed-to-accrual")
+      "temporarily-closed-to-accrual"
     ResearchstudystatusTemporarilyclosedtoaccrualandintervention ->
-      json.string("temporarily-closed-to-accrual-and-intervention")
-    ResearchstudystatusWithdrawn -> json.string("withdrawn")
+      "temporarily-closed-to-accrual-and-intervention"
+    ResearchstudystatusWithdrawn -> "withdrawn"
+  }
+}
+
+pub fn researchstudystatus_from_string(
+  s: String,
+) -> Result(Researchstudystatus, Nil) {
+  case s {
+    "active" -> Ok(ResearchstudystatusActive)
+    "administratively-completed" ->
+      Ok(ResearchstudystatusAdministrativelycompleted)
+    "approved" -> Ok(ResearchstudystatusApproved)
+    "closed-to-accrual" -> Ok(ResearchstudystatusClosedtoaccrual)
+    "closed-to-accrual-and-intervention" ->
+      Ok(ResearchstudystatusClosedtoaccrualandintervention)
+    "completed" -> Ok(ResearchstudystatusCompleted)
+    "disapproved" -> Ok(ResearchstudystatusDisapproved)
+    "in-review" -> Ok(ResearchstudystatusInreview)
+    "temporarily-closed-to-accrual" ->
+      Ok(ResearchstudystatusTemporarilyclosedtoaccrual)
+    "temporarily-closed-to-accrual-and-intervention" ->
+      Ok(ResearchstudystatusTemporarilyclosedtoaccrualandintervention)
+    "withdrawn" -> Ok(ResearchstudystatusWithdrawn)
+    _ -> Error(Nil)
   }
 }
 
@@ -417,14 +645,31 @@ pub type Unitsoftime {
 }
 
 pub fn unitsoftime_to_json(unitsoftime: Unitsoftime) -> Json {
+  json.string(unitsoftime_to_string(unitsoftime))
+}
+
+pub fn unitsoftime_to_string(unitsoftime: Unitsoftime) -> String {
   case unitsoftime {
-    UnitsoftimeS -> json.string("s")
-    UnitsoftimeMin -> json.string("min")
-    UnitsoftimeH -> json.string("h")
-    UnitsoftimeD -> json.string("d")
-    UnitsoftimeWk -> json.string("wk")
-    UnitsoftimeMo -> json.string("mo")
-    UnitsoftimeA -> json.string("a")
+    UnitsoftimeS -> "s"
+    UnitsoftimeMin -> "min"
+    UnitsoftimeH -> "h"
+    UnitsoftimeD -> "d"
+    UnitsoftimeWk -> "wk"
+    UnitsoftimeMo -> "mo"
+    UnitsoftimeA -> "a"
+  }
+}
+
+pub fn unitsoftime_from_string(s: String) -> Result(Unitsoftime, Nil) {
+  case s {
+    "s" -> Ok(UnitsoftimeS)
+    "min" -> Ok(UnitsoftimeMin)
+    "h" -> Ok(UnitsoftimeH)
+    "d" -> Ok(UnitsoftimeD)
+    "wk" -> Ok(UnitsoftimeWk)
+    "mo" -> Ok(UnitsoftimeMo)
+    "a" -> Ok(UnitsoftimeA)
+    _ -> Error(Nil)
   }
 }
 
@@ -451,12 +696,27 @@ pub type Searchxpathusage {
 }
 
 pub fn searchxpathusage_to_json(searchxpathusage: Searchxpathusage) -> Json {
+  json.string(searchxpathusage_to_string(searchxpathusage))
+}
+
+pub fn searchxpathusage_to_string(searchxpathusage: Searchxpathusage) -> String {
   case searchxpathusage {
-    SearchxpathusageNormal -> json.string("normal")
-    SearchxpathusagePhonetic -> json.string("phonetic")
-    SearchxpathusageNearby -> json.string("nearby")
-    SearchxpathusageDistance -> json.string("distance")
-    SearchxpathusageOther -> json.string("other")
+    SearchxpathusageNormal -> "normal"
+    SearchxpathusagePhonetic -> "phonetic"
+    SearchxpathusageNearby -> "nearby"
+    SearchxpathusageDistance -> "distance"
+    SearchxpathusageOther -> "other"
+  }
+}
+
+pub fn searchxpathusage_from_string(s: String) -> Result(Searchxpathusage, Nil) {
+  case s {
+    "normal" -> Ok(SearchxpathusageNormal)
+    "phonetic" -> Ok(SearchxpathusagePhonetic)
+    "nearby" -> Ok(SearchxpathusageNearby)
+    "distance" -> Ok(SearchxpathusageDistance)
+    "other" -> Ok(SearchxpathusageOther)
+    _ -> Error(Nil)
   }
 }
 
@@ -481,12 +741,27 @@ pub type Careteamstatus {
 }
 
 pub fn careteamstatus_to_json(careteamstatus: Careteamstatus) -> Json {
+  json.string(careteamstatus_to_string(careteamstatus))
+}
+
+pub fn careteamstatus_to_string(careteamstatus: Careteamstatus) -> String {
   case careteamstatus {
-    CareteamstatusProposed -> json.string("proposed")
-    CareteamstatusActive -> json.string("active")
-    CareteamstatusSuspended -> json.string("suspended")
-    CareteamstatusInactive -> json.string("inactive")
-    CareteamstatusEnteredinerror -> json.string("entered-in-error")
+    CareteamstatusProposed -> "proposed"
+    CareteamstatusActive -> "active"
+    CareteamstatusSuspended -> "suspended"
+    CareteamstatusInactive -> "inactive"
+    CareteamstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn careteamstatus_from_string(s: String) -> Result(Careteamstatus, Nil) {
+  case s {
+    "proposed" -> Ok(CareteamstatusProposed)
+    "active" -> Ok(CareteamstatusActive)
+    "suspended" -> Ok(CareteamstatusSuspended)
+    "inactive" -> Ok(CareteamstatusInactive)
+    "entered-in-error" -> Ok(CareteamstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -511,10 +786,27 @@ pub type Clinicalimpressionstatus {
 pub fn clinicalimpressionstatus_to_json(
   clinicalimpressionstatus: Clinicalimpressionstatus,
 ) -> Json {
+  json.string(clinicalimpressionstatus_to_string(clinicalimpressionstatus))
+}
+
+pub fn clinicalimpressionstatus_to_string(
+  clinicalimpressionstatus: Clinicalimpressionstatus,
+) -> String {
   case clinicalimpressionstatus {
-    ClinicalimpressionstatusInprogress -> json.string("in-progress")
-    ClinicalimpressionstatusCompleted -> json.string("completed")
-    ClinicalimpressionstatusEnteredinerror -> json.string("entered-in-error")
+    ClinicalimpressionstatusInprogress -> "in-progress"
+    ClinicalimpressionstatusCompleted -> "completed"
+    ClinicalimpressionstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn clinicalimpressionstatus_from_string(
+  s: String,
+) -> Result(Clinicalimpressionstatus, Nil) {
+  case s {
+    "in-progress" -> Ok(ClinicalimpressionstatusInprogress)
+    "completed" -> Ok(ClinicalimpressionstatusCompleted)
+    "entered-in-error" -> Ok(ClinicalimpressionstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -540,11 +832,29 @@ pub type Compositionstatus {
 }
 
 pub fn compositionstatus_to_json(compositionstatus: Compositionstatus) -> Json {
+  json.string(compositionstatus_to_string(compositionstatus))
+}
+
+pub fn compositionstatus_to_string(
+  compositionstatus: Compositionstatus,
+) -> String {
   case compositionstatus {
-    CompositionstatusPreliminary -> json.string("preliminary")
-    CompositionstatusFinal -> json.string("final")
-    CompositionstatusAmended -> json.string("amended")
-    CompositionstatusEnteredinerror -> json.string("entered-in-error")
+    CompositionstatusPreliminary -> "preliminary"
+    CompositionstatusFinal -> "final"
+    CompositionstatusAmended -> "amended"
+    CompositionstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn compositionstatus_from_string(
+  s: String,
+) -> Result(Compositionstatus, Nil) {
+  case s {
+    "preliminary" -> Ok(CompositionstatusPreliminary)
+    "final" -> Ok(CompositionstatusFinal)
+    "amended" -> Ok(CompositionstatusAmended)
+    "entered-in-error" -> Ok(CompositionstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -570,14 +880,31 @@ pub type Chargeitemstatus {
 }
 
 pub fn chargeitemstatus_to_json(chargeitemstatus: Chargeitemstatus) -> Json {
+  json.string(chargeitemstatus_to_string(chargeitemstatus))
+}
+
+pub fn chargeitemstatus_to_string(chargeitemstatus: Chargeitemstatus) -> String {
   case chargeitemstatus {
-    ChargeitemstatusPlanned -> json.string("planned")
-    ChargeitemstatusBillable -> json.string("billable")
-    ChargeitemstatusNotbillable -> json.string("not-billable")
-    ChargeitemstatusAborted -> json.string("aborted")
-    ChargeitemstatusBilled -> json.string("billed")
-    ChargeitemstatusEnteredinerror -> json.string("entered-in-error")
-    ChargeitemstatusUnknown -> json.string("unknown")
+    ChargeitemstatusPlanned -> "planned"
+    ChargeitemstatusBillable -> "billable"
+    ChargeitemstatusNotbillable -> "not-billable"
+    ChargeitemstatusAborted -> "aborted"
+    ChargeitemstatusBilled -> "billed"
+    ChargeitemstatusEnteredinerror -> "entered-in-error"
+    ChargeitemstatusUnknown -> "unknown"
+  }
+}
+
+pub fn chargeitemstatus_from_string(s: String) -> Result(Chargeitemstatus, Nil) {
+  case s {
+    "planned" -> Ok(ChargeitemstatusPlanned)
+    "billable" -> Ok(ChargeitemstatusBillable)
+    "not-billable" -> Ok(ChargeitemstatusNotbillable)
+    "aborted" -> Ok(ChargeitemstatusAborted)
+    "billed" -> Ok(ChargeitemstatusBilled)
+    "entered-in-error" -> Ok(ChargeitemstatusEnteredinerror)
+    "unknown" -> Ok(ChargeitemstatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -747,175 +1074,326 @@ pub type Resourcetypes {
 }
 
 pub fn resourcetypes_to_json(resourcetypes: Resourcetypes) -> Json {
+  json.string(resourcetypes_to_string(resourcetypes))
+}
+
+pub fn resourcetypes_to_string(resourcetypes: Resourcetypes) -> String {
   case resourcetypes {
-    ResourcetypesAccount -> json.string("Account")
-    ResourcetypesActivitydefinition -> json.string("ActivityDefinition")
-    ResourcetypesAdverseevent -> json.string("AdverseEvent")
-    ResourcetypesAllergyintolerance -> json.string("AllergyIntolerance")
-    ResourcetypesAppointment -> json.string("Appointment")
-    ResourcetypesAppointmentresponse -> json.string("AppointmentResponse")
-    ResourcetypesAuditevent -> json.string("AuditEvent")
-    ResourcetypesBasic -> json.string("Basic")
-    ResourcetypesBinary -> json.string("Binary")
-    ResourcetypesBiologicallyderivedproduct ->
-      json.string("BiologicallyDerivedProduct")
-    ResourcetypesBodystructure -> json.string("BodyStructure")
-    ResourcetypesBundle -> json.string("Bundle")
-    ResourcetypesCapabilitystatement -> json.string("CapabilityStatement")
-    ResourcetypesCareplan -> json.string("CarePlan")
-    ResourcetypesCareteam -> json.string("CareTeam")
-    ResourcetypesCatalogentry -> json.string("CatalogEntry")
-    ResourcetypesChargeitem -> json.string("ChargeItem")
-    ResourcetypesChargeitemdefinition -> json.string("ChargeItemDefinition")
-    ResourcetypesClaim -> json.string("Claim")
-    ResourcetypesClaimresponse -> json.string("ClaimResponse")
-    ResourcetypesClinicalimpression -> json.string("ClinicalImpression")
-    ResourcetypesCodesystem -> json.string("CodeSystem")
-    ResourcetypesCommunication -> json.string("Communication")
-    ResourcetypesCommunicationrequest -> json.string("CommunicationRequest")
-    ResourcetypesCompartmentdefinition -> json.string("CompartmentDefinition")
-    ResourcetypesComposition -> json.string("Composition")
-    ResourcetypesConceptmap -> json.string("ConceptMap")
-    ResourcetypesCondition -> json.string("Condition")
-    ResourcetypesConsent -> json.string("Consent")
-    ResourcetypesContract -> json.string("Contract")
-    ResourcetypesCoverage -> json.string("Coverage")
-    ResourcetypesCoverageeligibilityrequest ->
-      json.string("CoverageEligibilityRequest")
-    ResourcetypesCoverageeligibilityresponse ->
-      json.string("CoverageEligibilityResponse")
-    ResourcetypesDetectedissue -> json.string("DetectedIssue")
-    ResourcetypesDevice -> json.string("Device")
-    ResourcetypesDevicedefinition -> json.string("DeviceDefinition")
-    ResourcetypesDevicemetric -> json.string("DeviceMetric")
-    ResourcetypesDevicerequest -> json.string("DeviceRequest")
-    ResourcetypesDeviceusestatement -> json.string("DeviceUseStatement")
-    ResourcetypesDiagnosticreport -> json.string("DiagnosticReport")
-    ResourcetypesDocumentmanifest -> json.string("DocumentManifest")
-    ResourcetypesDocumentreference -> json.string("DocumentReference")
-    ResourcetypesDomainresource -> json.string("DomainResource")
-    ResourcetypesEffectevidencesynthesis ->
-      json.string("EffectEvidenceSynthesis")
-    ResourcetypesEncounter -> json.string("Encounter")
-    ResourcetypesEndpoint -> json.string("Endpoint")
-    ResourcetypesEnrollmentrequest -> json.string("EnrollmentRequest")
-    ResourcetypesEnrollmentresponse -> json.string("EnrollmentResponse")
-    ResourcetypesEpisodeofcare -> json.string("EpisodeOfCare")
-    ResourcetypesEventdefinition -> json.string("EventDefinition")
-    ResourcetypesEvidence -> json.string("Evidence")
-    ResourcetypesEvidencevariable -> json.string("EvidenceVariable")
-    ResourcetypesExamplescenario -> json.string("ExampleScenario")
-    ResourcetypesExplanationofbenefit -> json.string("ExplanationOfBenefit")
-    ResourcetypesFamilymemberhistory -> json.string("FamilyMemberHistory")
-    ResourcetypesFlag -> json.string("Flag")
-    ResourcetypesGoal -> json.string("Goal")
-    ResourcetypesGraphdefinition -> json.string("GraphDefinition")
-    ResourcetypesGroup -> json.string("Group")
-    ResourcetypesGuidanceresponse -> json.string("GuidanceResponse")
-    ResourcetypesHealthcareservice -> json.string("HealthcareService")
-    ResourcetypesImagingstudy -> json.string("ImagingStudy")
-    ResourcetypesImmunization -> json.string("Immunization")
-    ResourcetypesImmunizationevaluation -> json.string("ImmunizationEvaluation")
-    ResourcetypesImmunizationrecommendation ->
-      json.string("ImmunizationRecommendation")
-    ResourcetypesImplementationguide -> json.string("ImplementationGuide")
-    ResourcetypesInsuranceplan -> json.string("InsurancePlan")
-    ResourcetypesInvoice -> json.string("Invoice")
-    ResourcetypesLibrary -> json.string("Library")
-    ResourcetypesLinkage -> json.string("Linkage")
-    ResourcetypesList -> json.string("List")
-    ResourcetypesLocation -> json.string("Location")
-    ResourcetypesMeasure -> json.string("Measure")
-    ResourcetypesMeasurereport -> json.string("MeasureReport")
-    ResourcetypesMedia -> json.string("Media")
-    ResourcetypesMedication -> json.string("Medication")
-    ResourcetypesMedicationadministration ->
-      json.string("MedicationAdministration")
-    ResourcetypesMedicationdispense -> json.string("MedicationDispense")
-    ResourcetypesMedicationknowledge -> json.string("MedicationKnowledge")
-    ResourcetypesMedicationrequest -> json.string("MedicationRequest")
-    ResourcetypesMedicationstatement -> json.string("MedicationStatement")
-    ResourcetypesMedicinalproduct -> json.string("MedicinalProduct")
+    ResourcetypesAccount -> "Account"
+    ResourcetypesActivitydefinition -> "ActivityDefinition"
+    ResourcetypesAdverseevent -> "AdverseEvent"
+    ResourcetypesAllergyintolerance -> "AllergyIntolerance"
+    ResourcetypesAppointment -> "Appointment"
+    ResourcetypesAppointmentresponse -> "AppointmentResponse"
+    ResourcetypesAuditevent -> "AuditEvent"
+    ResourcetypesBasic -> "Basic"
+    ResourcetypesBinary -> "Binary"
+    ResourcetypesBiologicallyderivedproduct -> "BiologicallyDerivedProduct"
+    ResourcetypesBodystructure -> "BodyStructure"
+    ResourcetypesBundle -> "Bundle"
+    ResourcetypesCapabilitystatement -> "CapabilityStatement"
+    ResourcetypesCareplan -> "CarePlan"
+    ResourcetypesCareteam -> "CareTeam"
+    ResourcetypesCatalogentry -> "CatalogEntry"
+    ResourcetypesChargeitem -> "ChargeItem"
+    ResourcetypesChargeitemdefinition -> "ChargeItemDefinition"
+    ResourcetypesClaim -> "Claim"
+    ResourcetypesClaimresponse -> "ClaimResponse"
+    ResourcetypesClinicalimpression -> "ClinicalImpression"
+    ResourcetypesCodesystem -> "CodeSystem"
+    ResourcetypesCommunication -> "Communication"
+    ResourcetypesCommunicationrequest -> "CommunicationRequest"
+    ResourcetypesCompartmentdefinition -> "CompartmentDefinition"
+    ResourcetypesComposition -> "Composition"
+    ResourcetypesConceptmap -> "ConceptMap"
+    ResourcetypesCondition -> "Condition"
+    ResourcetypesConsent -> "Consent"
+    ResourcetypesContract -> "Contract"
+    ResourcetypesCoverage -> "Coverage"
+    ResourcetypesCoverageeligibilityrequest -> "CoverageEligibilityRequest"
+    ResourcetypesCoverageeligibilityresponse -> "CoverageEligibilityResponse"
+    ResourcetypesDetectedissue -> "DetectedIssue"
+    ResourcetypesDevice -> "Device"
+    ResourcetypesDevicedefinition -> "DeviceDefinition"
+    ResourcetypesDevicemetric -> "DeviceMetric"
+    ResourcetypesDevicerequest -> "DeviceRequest"
+    ResourcetypesDeviceusestatement -> "DeviceUseStatement"
+    ResourcetypesDiagnosticreport -> "DiagnosticReport"
+    ResourcetypesDocumentmanifest -> "DocumentManifest"
+    ResourcetypesDocumentreference -> "DocumentReference"
+    ResourcetypesDomainresource -> "DomainResource"
+    ResourcetypesEffectevidencesynthesis -> "EffectEvidenceSynthesis"
+    ResourcetypesEncounter -> "Encounter"
+    ResourcetypesEndpoint -> "Endpoint"
+    ResourcetypesEnrollmentrequest -> "EnrollmentRequest"
+    ResourcetypesEnrollmentresponse -> "EnrollmentResponse"
+    ResourcetypesEpisodeofcare -> "EpisodeOfCare"
+    ResourcetypesEventdefinition -> "EventDefinition"
+    ResourcetypesEvidence -> "Evidence"
+    ResourcetypesEvidencevariable -> "EvidenceVariable"
+    ResourcetypesExamplescenario -> "ExampleScenario"
+    ResourcetypesExplanationofbenefit -> "ExplanationOfBenefit"
+    ResourcetypesFamilymemberhistory -> "FamilyMemberHistory"
+    ResourcetypesFlag -> "Flag"
+    ResourcetypesGoal -> "Goal"
+    ResourcetypesGraphdefinition -> "GraphDefinition"
+    ResourcetypesGroup -> "Group"
+    ResourcetypesGuidanceresponse -> "GuidanceResponse"
+    ResourcetypesHealthcareservice -> "HealthcareService"
+    ResourcetypesImagingstudy -> "ImagingStudy"
+    ResourcetypesImmunization -> "Immunization"
+    ResourcetypesImmunizationevaluation -> "ImmunizationEvaluation"
+    ResourcetypesImmunizationrecommendation -> "ImmunizationRecommendation"
+    ResourcetypesImplementationguide -> "ImplementationGuide"
+    ResourcetypesInsuranceplan -> "InsurancePlan"
+    ResourcetypesInvoice -> "Invoice"
+    ResourcetypesLibrary -> "Library"
+    ResourcetypesLinkage -> "Linkage"
+    ResourcetypesList -> "List"
+    ResourcetypesLocation -> "Location"
+    ResourcetypesMeasure -> "Measure"
+    ResourcetypesMeasurereport -> "MeasureReport"
+    ResourcetypesMedia -> "Media"
+    ResourcetypesMedication -> "Medication"
+    ResourcetypesMedicationadministration -> "MedicationAdministration"
+    ResourcetypesMedicationdispense -> "MedicationDispense"
+    ResourcetypesMedicationknowledge -> "MedicationKnowledge"
+    ResourcetypesMedicationrequest -> "MedicationRequest"
+    ResourcetypesMedicationstatement -> "MedicationStatement"
+    ResourcetypesMedicinalproduct -> "MedicinalProduct"
     ResourcetypesMedicinalproductauthorization ->
-      json.string("MedicinalProductAuthorization")
+      "MedicinalProductAuthorization"
     ResourcetypesMedicinalproductcontraindication ->
-      json.string("MedicinalProductContraindication")
-    ResourcetypesMedicinalproductindication ->
-      json.string("MedicinalProductIndication")
-    ResourcetypesMedicinalproductingredient ->
-      json.string("MedicinalProductIngredient")
-    ResourcetypesMedicinalproductinteraction ->
-      json.string("MedicinalProductInteraction")
-    ResourcetypesMedicinalproductmanufactured ->
-      json.string("MedicinalProductManufactured")
-    ResourcetypesMedicinalproductpackaged ->
-      json.string("MedicinalProductPackaged")
+      "MedicinalProductContraindication"
+    ResourcetypesMedicinalproductindication -> "MedicinalProductIndication"
+    ResourcetypesMedicinalproductingredient -> "MedicinalProductIngredient"
+    ResourcetypesMedicinalproductinteraction -> "MedicinalProductInteraction"
+    ResourcetypesMedicinalproductmanufactured -> "MedicinalProductManufactured"
+    ResourcetypesMedicinalproductpackaged -> "MedicinalProductPackaged"
     ResourcetypesMedicinalproductpharmaceutical ->
-      json.string("MedicinalProductPharmaceutical")
+      "MedicinalProductPharmaceutical"
     ResourcetypesMedicinalproductundesirableeffect ->
-      json.string("MedicinalProductUndesirableEffect")
-    ResourcetypesMessagedefinition -> json.string("MessageDefinition")
-    ResourcetypesMessageheader -> json.string("MessageHeader")
-    ResourcetypesMolecularsequence -> json.string("MolecularSequence")
-    ResourcetypesNamingsystem -> json.string("NamingSystem")
-    ResourcetypesNutritionorder -> json.string("NutritionOrder")
-    ResourcetypesObservation -> json.string("Observation")
-    ResourcetypesObservationdefinition -> json.string("ObservationDefinition")
-    ResourcetypesOperationdefinition -> json.string("OperationDefinition")
-    ResourcetypesOperationoutcome -> json.string("OperationOutcome")
-    ResourcetypesOrganization -> json.string("Organization")
-    ResourcetypesOrganizationaffiliation ->
-      json.string("OrganizationAffiliation")
-    ResourcetypesParameters -> json.string("Parameters")
-    ResourcetypesPatient -> json.string("Patient")
-    ResourcetypesPaymentnotice -> json.string("PaymentNotice")
-    ResourcetypesPaymentreconciliation -> json.string("PaymentReconciliation")
-    ResourcetypesPerson -> json.string("Person")
-    ResourcetypesPlandefinition -> json.string("PlanDefinition")
-    ResourcetypesPractitioner -> json.string("Practitioner")
-    ResourcetypesPractitionerrole -> json.string("PractitionerRole")
-    ResourcetypesProcedure -> json.string("Procedure")
-    ResourcetypesProvenance -> json.string("Provenance")
-    ResourcetypesQuestionnaire -> json.string("Questionnaire")
-    ResourcetypesQuestionnaireresponse -> json.string("QuestionnaireResponse")
-    ResourcetypesRelatedperson -> json.string("RelatedPerson")
-    ResourcetypesRequestgroup -> json.string("RequestGroup")
-    ResourcetypesResearchdefinition -> json.string("ResearchDefinition")
-    ResourcetypesResearchelementdefinition ->
-      json.string("ResearchElementDefinition")
-    ResourcetypesResearchstudy -> json.string("ResearchStudy")
-    ResourcetypesResearchsubject -> json.string("ResearchSubject")
-    ResourcetypesResource -> json.string("Resource")
-    ResourcetypesRiskassessment -> json.string("RiskAssessment")
-    ResourcetypesRiskevidencesynthesis -> json.string("RiskEvidenceSynthesis")
-    ResourcetypesSchedule -> json.string("Schedule")
-    ResourcetypesSearchparameter -> json.string("SearchParameter")
-    ResourcetypesServicerequest -> json.string("ServiceRequest")
-    ResourcetypesSlot -> json.string("Slot")
-    ResourcetypesSpecimen -> json.string("Specimen")
-    ResourcetypesSpecimendefinition -> json.string("SpecimenDefinition")
-    ResourcetypesStructuredefinition -> json.string("StructureDefinition")
-    ResourcetypesStructuremap -> json.string("StructureMap")
-    ResourcetypesSubscription -> json.string("Subscription")
-    ResourcetypesSubstance -> json.string("Substance")
-    ResourcetypesSubstancenucleicacid -> json.string("SubstanceNucleicAcid")
-    ResourcetypesSubstancepolymer -> json.string("SubstancePolymer")
-    ResourcetypesSubstanceprotein -> json.string("SubstanceProtein")
+      "MedicinalProductUndesirableEffect"
+    ResourcetypesMessagedefinition -> "MessageDefinition"
+    ResourcetypesMessageheader -> "MessageHeader"
+    ResourcetypesMolecularsequence -> "MolecularSequence"
+    ResourcetypesNamingsystem -> "NamingSystem"
+    ResourcetypesNutritionorder -> "NutritionOrder"
+    ResourcetypesObservation -> "Observation"
+    ResourcetypesObservationdefinition -> "ObservationDefinition"
+    ResourcetypesOperationdefinition -> "OperationDefinition"
+    ResourcetypesOperationoutcome -> "OperationOutcome"
+    ResourcetypesOrganization -> "Organization"
+    ResourcetypesOrganizationaffiliation -> "OrganizationAffiliation"
+    ResourcetypesParameters -> "Parameters"
+    ResourcetypesPatient -> "Patient"
+    ResourcetypesPaymentnotice -> "PaymentNotice"
+    ResourcetypesPaymentreconciliation -> "PaymentReconciliation"
+    ResourcetypesPerson -> "Person"
+    ResourcetypesPlandefinition -> "PlanDefinition"
+    ResourcetypesPractitioner -> "Practitioner"
+    ResourcetypesPractitionerrole -> "PractitionerRole"
+    ResourcetypesProcedure -> "Procedure"
+    ResourcetypesProvenance -> "Provenance"
+    ResourcetypesQuestionnaire -> "Questionnaire"
+    ResourcetypesQuestionnaireresponse -> "QuestionnaireResponse"
+    ResourcetypesRelatedperson -> "RelatedPerson"
+    ResourcetypesRequestgroup -> "RequestGroup"
+    ResourcetypesResearchdefinition -> "ResearchDefinition"
+    ResourcetypesResearchelementdefinition -> "ResearchElementDefinition"
+    ResourcetypesResearchstudy -> "ResearchStudy"
+    ResourcetypesResearchsubject -> "ResearchSubject"
+    ResourcetypesResource -> "Resource"
+    ResourcetypesRiskassessment -> "RiskAssessment"
+    ResourcetypesRiskevidencesynthesis -> "RiskEvidenceSynthesis"
+    ResourcetypesSchedule -> "Schedule"
+    ResourcetypesSearchparameter -> "SearchParameter"
+    ResourcetypesServicerequest -> "ServiceRequest"
+    ResourcetypesSlot -> "Slot"
+    ResourcetypesSpecimen -> "Specimen"
+    ResourcetypesSpecimendefinition -> "SpecimenDefinition"
+    ResourcetypesStructuredefinition -> "StructureDefinition"
+    ResourcetypesStructuremap -> "StructureMap"
+    ResourcetypesSubscription -> "Subscription"
+    ResourcetypesSubstance -> "Substance"
+    ResourcetypesSubstancenucleicacid -> "SubstanceNucleicAcid"
+    ResourcetypesSubstancepolymer -> "SubstancePolymer"
+    ResourcetypesSubstanceprotein -> "SubstanceProtein"
     ResourcetypesSubstancereferenceinformation ->
-      json.string("SubstanceReferenceInformation")
-    ResourcetypesSubstancesourcematerial ->
-      json.string("SubstanceSourceMaterial")
-    ResourcetypesSubstancespecification -> json.string("SubstanceSpecification")
-    ResourcetypesSupplydelivery -> json.string("SupplyDelivery")
-    ResourcetypesSupplyrequest -> json.string("SupplyRequest")
-    ResourcetypesTask -> json.string("Task")
-    ResourcetypesTerminologycapabilities ->
-      json.string("TerminologyCapabilities")
-    ResourcetypesTestreport -> json.string("TestReport")
-    ResourcetypesTestscript -> json.string("TestScript")
-    ResourcetypesValueset -> json.string("ValueSet")
-    ResourcetypesVerificationresult -> json.string("VerificationResult")
-    ResourcetypesVisionprescription -> json.string("VisionPrescription")
+      "SubstanceReferenceInformation"
+    ResourcetypesSubstancesourcematerial -> "SubstanceSourceMaterial"
+    ResourcetypesSubstancespecification -> "SubstanceSpecification"
+    ResourcetypesSupplydelivery -> "SupplyDelivery"
+    ResourcetypesSupplyrequest -> "SupplyRequest"
+    ResourcetypesTask -> "Task"
+    ResourcetypesTerminologycapabilities -> "TerminologyCapabilities"
+    ResourcetypesTestreport -> "TestReport"
+    ResourcetypesTestscript -> "TestScript"
+    ResourcetypesValueset -> "ValueSet"
+    ResourcetypesVerificationresult -> "VerificationResult"
+    ResourcetypesVisionprescription -> "VisionPrescription"
+  }
+}
+
+pub fn resourcetypes_from_string(s: String) -> Result(Resourcetypes, Nil) {
+  case s {
+    "Account" -> Ok(ResourcetypesAccount)
+    "ActivityDefinition" -> Ok(ResourcetypesActivitydefinition)
+    "AdverseEvent" -> Ok(ResourcetypesAdverseevent)
+    "AllergyIntolerance" -> Ok(ResourcetypesAllergyintolerance)
+    "Appointment" -> Ok(ResourcetypesAppointment)
+    "AppointmentResponse" -> Ok(ResourcetypesAppointmentresponse)
+    "AuditEvent" -> Ok(ResourcetypesAuditevent)
+    "Basic" -> Ok(ResourcetypesBasic)
+    "Binary" -> Ok(ResourcetypesBinary)
+    "BiologicallyDerivedProduct" -> Ok(ResourcetypesBiologicallyderivedproduct)
+    "BodyStructure" -> Ok(ResourcetypesBodystructure)
+    "Bundle" -> Ok(ResourcetypesBundle)
+    "CapabilityStatement" -> Ok(ResourcetypesCapabilitystatement)
+    "CarePlan" -> Ok(ResourcetypesCareplan)
+    "CareTeam" -> Ok(ResourcetypesCareteam)
+    "CatalogEntry" -> Ok(ResourcetypesCatalogentry)
+    "ChargeItem" -> Ok(ResourcetypesChargeitem)
+    "ChargeItemDefinition" -> Ok(ResourcetypesChargeitemdefinition)
+    "Claim" -> Ok(ResourcetypesClaim)
+    "ClaimResponse" -> Ok(ResourcetypesClaimresponse)
+    "ClinicalImpression" -> Ok(ResourcetypesClinicalimpression)
+    "CodeSystem" -> Ok(ResourcetypesCodesystem)
+    "Communication" -> Ok(ResourcetypesCommunication)
+    "CommunicationRequest" -> Ok(ResourcetypesCommunicationrequest)
+    "CompartmentDefinition" -> Ok(ResourcetypesCompartmentdefinition)
+    "Composition" -> Ok(ResourcetypesComposition)
+    "ConceptMap" -> Ok(ResourcetypesConceptmap)
+    "Condition" -> Ok(ResourcetypesCondition)
+    "Consent" -> Ok(ResourcetypesConsent)
+    "Contract" -> Ok(ResourcetypesContract)
+    "Coverage" -> Ok(ResourcetypesCoverage)
+    "CoverageEligibilityRequest" -> Ok(ResourcetypesCoverageeligibilityrequest)
+    "CoverageEligibilityResponse" ->
+      Ok(ResourcetypesCoverageeligibilityresponse)
+    "DetectedIssue" -> Ok(ResourcetypesDetectedissue)
+    "Device" -> Ok(ResourcetypesDevice)
+    "DeviceDefinition" -> Ok(ResourcetypesDevicedefinition)
+    "DeviceMetric" -> Ok(ResourcetypesDevicemetric)
+    "DeviceRequest" -> Ok(ResourcetypesDevicerequest)
+    "DeviceUseStatement" -> Ok(ResourcetypesDeviceusestatement)
+    "DiagnosticReport" -> Ok(ResourcetypesDiagnosticreport)
+    "DocumentManifest" -> Ok(ResourcetypesDocumentmanifest)
+    "DocumentReference" -> Ok(ResourcetypesDocumentreference)
+    "DomainResource" -> Ok(ResourcetypesDomainresource)
+    "EffectEvidenceSynthesis" -> Ok(ResourcetypesEffectevidencesynthesis)
+    "Encounter" -> Ok(ResourcetypesEncounter)
+    "Endpoint" -> Ok(ResourcetypesEndpoint)
+    "EnrollmentRequest" -> Ok(ResourcetypesEnrollmentrequest)
+    "EnrollmentResponse" -> Ok(ResourcetypesEnrollmentresponse)
+    "EpisodeOfCare" -> Ok(ResourcetypesEpisodeofcare)
+    "EventDefinition" -> Ok(ResourcetypesEventdefinition)
+    "Evidence" -> Ok(ResourcetypesEvidence)
+    "EvidenceVariable" -> Ok(ResourcetypesEvidencevariable)
+    "ExampleScenario" -> Ok(ResourcetypesExamplescenario)
+    "ExplanationOfBenefit" -> Ok(ResourcetypesExplanationofbenefit)
+    "FamilyMemberHistory" -> Ok(ResourcetypesFamilymemberhistory)
+    "Flag" -> Ok(ResourcetypesFlag)
+    "Goal" -> Ok(ResourcetypesGoal)
+    "GraphDefinition" -> Ok(ResourcetypesGraphdefinition)
+    "Group" -> Ok(ResourcetypesGroup)
+    "GuidanceResponse" -> Ok(ResourcetypesGuidanceresponse)
+    "HealthcareService" -> Ok(ResourcetypesHealthcareservice)
+    "ImagingStudy" -> Ok(ResourcetypesImagingstudy)
+    "Immunization" -> Ok(ResourcetypesImmunization)
+    "ImmunizationEvaluation" -> Ok(ResourcetypesImmunizationevaluation)
+    "ImmunizationRecommendation" -> Ok(ResourcetypesImmunizationrecommendation)
+    "ImplementationGuide" -> Ok(ResourcetypesImplementationguide)
+    "InsurancePlan" -> Ok(ResourcetypesInsuranceplan)
+    "Invoice" -> Ok(ResourcetypesInvoice)
+    "Library" -> Ok(ResourcetypesLibrary)
+    "Linkage" -> Ok(ResourcetypesLinkage)
+    "List" -> Ok(ResourcetypesList)
+    "Location" -> Ok(ResourcetypesLocation)
+    "Measure" -> Ok(ResourcetypesMeasure)
+    "MeasureReport" -> Ok(ResourcetypesMeasurereport)
+    "Media" -> Ok(ResourcetypesMedia)
+    "Medication" -> Ok(ResourcetypesMedication)
+    "MedicationAdministration" -> Ok(ResourcetypesMedicationadministration)
+    "MedicationDispense" -> Ok(ResourcetypesMedicationdispense)
+    "MedicationKnowledge" -> Ok(ResourcetypesMedicationknowledge)
+    "MedicationRequest" -> Ok(ResourcetypesMedicationrequest)
+    "MedicationStatement" -> Ok(ResourcetypesMedicationstatement)
+    "MedicinalProduct" -> Ok(ResourcetypesMedicinalproduct)
+    "MedicinalProductAuthorization" ->
+      Ok(ResourcetypesMedicinalproductauthorization)
+    "MedicinalProductContraindication" ->
+      Ok(ResourcetypesMedicinalproductcontraindication)
+    "MedicinalProductIndication" -> Ok(ResourcetypesMedicinalproductindication)
+    "MedicinalProductIngredient" -> Ok(ResourcetypesMedicinalproductingredient)
+    "MedicinalProductInteraction" ->
+      Ok(ResourcetypesMedicinalproductinteraction)
+    "MedicinalProductManufactured" ->
+      Ok(ResourcetypesMedicinalproductmanufactured)
+    "MedicinalProductPackaged" -> Ok(ResourcetypesMedicinalproductpackaged)
+    "MedicinalProductPharmaceutical" ->
+      Ok(ResourcetypesMedicinalproductpharmaceutical)
+    "MedicinalProductUndesirableEffect" ->
+      Ok(ResourcetypesMedicinalproductundesirableeffect)
+    "MessageDefinition" -> Ok(ResourcetypesMessagedefinition)
+    "MessageHeader" -> Ok(ResourcetypesMessageheader)
+    "MolecularSequence" -> Ok(ResourcetypesMolecularsequence)
+    "NamingSystem" -> Ok(ResourcetypesNamingsystem)
+    "NutritionOrder" -> Ok(ResourcetypesNutritionorder)
+    "Observation" -> Ok(ResourcetypesObservation)
+    "ObservationDefinition" -> Ok(ResourcetypesObservationdefinition)
+    "OperationDefinition" -> Ok(ResourcetypesOperationdefinition)
+    "OperationOutcome" -> Ok(ResourcetypesOperationoutcome)
+    "Organization" -> Ok(ResourcetypesOrganization)
+    "OrganizationAffiliation" -> Ok(ResourcetypesOrganizationaffiliation)
+    "Parameters" -> Ok(ResourcetypesParameters)
+    "Patient" -> Ok(ResourcetypesPatient)
+    "PaymentNotice" -> Ok(ResourcetypesPaymentnotice)
+    "PaymentReconciliation" -> Ok(ResourcetypesPaymentreconciliation)
+    "Person" -> Ok(ResourcetypesPerson)
+    "PlanDefinition" -> Ok(ResourcetypesPlandefinition)
+    "Practitioner" -> Ok(ResourcetypesPractitioner)
+    "PractitionerRole" -> Ok(ResourcetypesPractitionerrole)
+    "Procedure" -> Ok(ResourcetypesProcedure)
+    "Provenance" -> Ok(ResourcetypesProvenance)
+    "Questionnaire" -> Ok(ResourcetypesQuestionnaire)
+    "QuestionnaireResponse" -> Ok(ResourcetypesQuestionnaireresponse)
+    "RelatedPerson" -> Ok(ResourcetypesRelatedperson)
+    "RequestGroup" -> Ok(ResourcetypesRequestgroup)
+    "ResearchDefinition" -> Ok(ResourcetypesResearchdefinition)
+    "ResearchElementDefinition" -> Ok(ResourcetypesResearchelementdefinition)
+    "ResearchStudy" -> Ok(ResourcetypesResearchstudy)
+    "ResearchSubject" -> Ok(ResourcetypesResearchsubject)
+    "Resource" -> Ok(ResourcetypesResource)
+    "RiskAssessment" -> Ok(ResourcetypesRiskassessment)
+    "RiskEvidenceSynthesis" -> Ok(ResourcetypesRiskevidencesynthesis)
+    "Schedule" -> Ok(ResourcetypesSchedule)
+    "SearchParameter" -> Ok(ResourcetypesSearchparameter)
+    "ServiceRequest" -> Ok(ResourcetypesServicerequest)
+    "Slot" -> Ok(ResourcetypesSlot)
+    "Specimen" -> Ok(ResourcetypesSpecimen)
+    "SpecimenDefinition" -> Ok(ResourcetypesSpecimendefinition)
+    "StructureDefinition" -> Ok(ResourcetypesStructuredefinition)
+    "StructureMap" -> Ok(ResourcetypesStructuremap)
+    "Subscription" -> Ok(ResourcetypesSubscription)
+    "Substance" -> Ok(ResourcetypesSubstance)
+    "SubstanceNucleicAcid" -> Ok(ResourcetypesSubstancenucleicacid)
+    "SubstancePolymer" -> Ok(ResourcetypesSubstancepolymer)
+    "SubstanceProtein" -> Ok(ResourcetypesSubstanceprotein)
+    "SubstanceReferenceInformation" ->
+      Ok(ResourcetypesSubstancereferenceinformation)
+    "SubstanceSourceMaterial" -> Ok(ResourcetypesSubstancesourcematerial)
+    "SubstanceSpecification" -> Ok(ResourcetypesSubstancespecification)
+    "SupplyDelivery" -> Ok(ResourcetypesSupplydelivery)
+    "SupplyRequest" -> Ok(ResourcetypesSupplyrequest)
+    "Task" -> Ok(ResourcetypesTask)
+    "TerminologyCapabilities" -> Ok(ResourcetypesTerminologycapabilities)
+    "TestReport" -> Ok(ResourcetypesTestreport)
+    "TestScript" -> Ok(ResourcetypesTestscript)
+    "ValueSet" -> Ok(ResourcetypesValueset)
+    "VerificationResult" -> Ok(ResourcetypesVerificationresult)
+    "VisionPrescription" -> Ok(ResourcetypesVisionprescription)
+    _ -> Error(Nil)
   }
 }
 
@@ -1110,10 +1588,27 @@ pub type Reactioneventseverity {
 pub fn reactioneventseverity_to_json(
   reactioneventseverity: Reactioneventseverity,
 ) -> Json {
+  json.string(reactioneventseverity_to_string(reactioneventseverity))
+}
+
+pub fn reactioneventseverity_to_string(
+  reactioneventseverity: Reactioneventseverity,
+) -> String {
   case reactioneventseverity {
-    ReactioneventseverityMild -> json.string("mild")
-    ReactioneventseverityModerate -> json.string("moderate")
-    ReactioneventseveritySevere -> json.string("severe")
+    ReactioneventseverityMild -> "mild"
+    ReactioneventseverityModerate -> "moderate"
+    ReactioneventseveritySevere -> "severe"
+  }
+}
+
+pub fn reactioneventseverity_from_string(
+  s: String,
+) -> Result(Reactioneventseverity, Nil) {
+  case s {
+    "mild" -> Ok(ReactioneventseverityMild)
+    "moderate" -> Ok(ReactioneventseverityModerate)
+    "severe" -> Ok(ReactioneventseveritySevere)
+    _ -> Error(Nil)
   }
 }
 
@@ -1134,10 +1629,23 @@ pub type Notetype {
 }
 
 pub fn notetype_to_json(notetype: Notetype) -> Json {
+  json.string(notetype_to_string(notetype))
+}
+
+pub fn notetype_to_string(notetype: Notetype) -> String {
   case notetype {
-    NotetypeDisplay -> json.string("display")
-    NotetypePrint -> json.string("print")
-    NotetypePrintoper -> json.string("printoper")
+    NotetypeDisplay -> "display"
+    NotetypePrint -> "print"
+    NotetypePrintoper -> "printoper"
+  }
+}
+
+pub fn notetype_from_string(s: String) -> Result(Notetype, Nil) {
+  case s {
+    "display" -> Ok(NotetypeDisplay)
+    "print" -> Ok(NotetypePrint)
+    "printoper" -> Ok(NotetypePrintoper)
+    _ -> Error(Nil)
   }
 }
 
@@ -1159,9 +1667,25 @@ pub type Actionprecheckbehavior {
 pub fn actionprecheckbehavior_to_json(
   actionprecheckbehavior: Actionprecheckbehavior,
 ) -> Json {
+  json.string(actionprecheckbehavior_to_string(actionprecheckbehavior))
+}
+
+pub fn actionprecheckbehavior_to_string(
+  actionprecheckbehavior: Actionprecheckbehavior,
+) -> String {
   case actionprecheckbehavior {
-    ActionprecheckbehaviorYes -> json.string("yes")
-    ActionprecheckbehaviorNo -> json.string("no")
+    ActionprecheckbehaviorYes -> "yes"
+    ActionprecheckbehaviorNo -> "no"
+  }
+}
+
+pub fn actionprecheckbehavior_from_string(
+  s: String,
+) -> Result(Actionprecheckbehavior, Nil) {
+  case s {
+    "yes" -> Ok(ActionprecheckbehaviorYes)
+    "no" -> Ok(ActionprecheckbehaviorNo)
+    _ -> Error(Nil)
   }
 }
 
@@ -1183,12 +1707,27 @@ pub type Compartmenttype {
 }
 
 pub fn compartmenttype_to_json(compartmenttype: Compartmenttype) -> Json {
+  json.string(compartmenttype_to_string(compartmenttype))
+}
+
+pub fn compartmenttype_to_string(compartmenttype: Compartmenttype) -> String {
   case compartmenttype {
-    CompartmenttypePatient -> json.string("Patient")
-    CompartmenttypeEncounter -> json.string("Encounter")
-    CompartmenttypeRelatedperson -> json.string("RelatedPerson")
-    CompartmenttypePractitioner -> json.string("Practitioner")
-    CompartmenttypeDevice -> json.string("Device")
+    CompartmenttypePatient -> "Patient"
+    CompartmenttypeEncounter -> "Encounter"
+    CompartmenttypeRelatedperson -> "RelatedPerson"
+    CompartmenttypePractitioner -> "Practitioner"
+    CompartmenttypeDevice -> "Device"
+  }
+}
+
+pub fn compartmenttype_from_string(s: String) -> Result(Compartmenttype, Nil) {
+  case s {
+    "Patient" -> Ok(CompartmenttypePatient)
+    "Encounter" -> Ok(CompartmenttypeEncounter)
+    "RelatedPerson" -> Ok(CompartmenttypeRelatedperson)
+    "Practitioner" -> Ok(CompartmenttypePractitioner)
+    "Device" -> Ok(CompartmenttypeDevice)
+    _ -> Error(Nil)
   }
 }
 
@@ -1216,15 +1755,37 @@ pub type Observationstatus {
 }
 
 pub fn observationstatus_to_json(observationstatus: Observationstatus) -> Json {
+  json.string(observationstatus_to_string(observationstatus))
+}
+
+pub fn observationstatus_to_string(
+  observationstatus: Observationstatus,
+) -> String {
   case observationstatus {
-    ObservationstatusRegistered -> json.string("registered")
-    ObservationstatusPreliminary -> json.string("preliminary")
-    ObservationstatusFinal -> json.string("final")
-    ObservationstatusAmended -> json.string("amended")
-    ObservationstatusCorrected -> json.string("corrected")
-    ObservationstatusCancelled -> json.string("cancelled")
-    ObservationstatusEnteredinerror -> json.string("entered-in-error")
-    ObservationstatusUnknown -> json.string("unknown")
+    ObservationstatusRegistered -> "registered"
+    ObservationstatusPreliminary -> "preliminary"
+    ObservationstatusFinal -> "final"
+    ObservationstatusAmended -> "amended"
+    ObservationstatusCorrected -> "corrected"
+    ObservationstatusCancelled -> "cancelled"
+    ObservationstatusEnteredinerror -> "entered-in-error"
+    ObservationstatusUnknown -> "unknown"
+  }
+}
+
+pub fn observationstatus_from_string(
+  s: String,
+) -> Result(Observationstatus, Nil) {
+  case s {
+    "registered" -> Ok(ObservationstatusRegistered)
+    "preliminary" -> Ok(ObservationstatusPreliminary)
+    "final" -> Ok(ObservationstatusFinal)
+    "amended" -> Ok(ObservationstatusAmended)
+    "corrected" -> Ok(ObservationstatusCorrected)
+    "cancelled" -> Ok(ObservationstatusCancelled)
+    "entered-in-error" -> Ok(ObservationstatusEnteredinerror)
+    "unknown" -> Ok(ObservationstatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -1251,11 +1812,25 @@ pub type Bindingstrength {
 }
 
 pub fn bindingstrength_to_json(bindingstrength: Bindingstrength) -> Json {
+  json.string(bindingstrength_to_string(bindingstrength))
+}
+
+pub fn bindingstrength_to_string(bindingstrength: Bindingstrength) -> String {
   case bindingstrength {
-    BindingstrengthRequired -> json.string("required")
-    BindingstrengthExtensible -> json.string("extensible")
-    BindingstrengthPreferred -> json.string("preferred")
-    BindingstrengthExample -> json.string("example")
+    BindingstrengthRequired -> "required"
+    BindingstrengthExtensible -> "extensible"
+    BindingstrengthPreferred -> "preferred"
+    BindingstrengthExample -> "example"
+  }
+}
+
+pub fn bindingstrength_from_string(s: String) -> Result(Bindingstrength, Nil) {
+  case s {
+    "required" -> Ok(BindingstrengthRequired)
+    "extensible" -> Ok(BindingstrengthExtensible)
+    "preferred" -> Ok(BindingstrengthPreferred)
+    "example" -> Ok(BindingstrengthExample)
+    _ -> Error(Nil)
   }
 }
 
@@ -1278,11 +1853,25 @@ pub type Requestpriority {
 }
 
 pub fn requestpriority_to_json(requestpriority: Requestpriority) -> Json {
+  json.string(requestpriority_to_string(requestpriority))
+}
+
+pub fn requestpriority_to_string(requestpriority: Requestpriority) -> String {
   case requestpriority {
-    RequestpriorityRoutine -> json.string("routine")
-    RequestpriorityUrgent -> json.string("urgent")
-    RequestpriorityAsap -> json.string("asap")
-    RequestpriorityStat -> json.string("stat")
+    RequestpriorityRoutine -> "routine"
+    RequestpriorityUrgent -> "urgent"
+    RequestpriorityAsap -> "asap"
+    RequestpriorityStat -> "stat"
+  }
+}
+
+pub fn requestpriority_from_string(s: String) -> Result(Requestpriority, Nil) {
+  case s {
+    "routine" -> Ok(RequestpriorityRoutine)
+    "urgent" -> Ok(RequestpriorityUrgent)
+    "asap" -> Ok(RequestpriorityAsap)
+    "stat" -> Ok(RequestpriorityStat)
+    _ -> Error(Nil)
   }
 }
 
@@ -1307,11 +1896,29 @@ pub type Supplydeliverystatus {
 pub fn supplydeliverystatus_to_json(
   supplydeliverystatus: Supplydeliverystatus,
 ) -> Json {
+  json.string(supplydeliverystatus_to_string(supplydeliverystatus))
+}
+
+pub fn supplydeliverystatus_to_string(
+  supplydeliverystatus: Supplydeliverystatus,
+) -> String {
   case supplydeliverystatus {
-    SupplydeliverystatusInprogress -> json.string("in-progress")
-    SupplydeliverystatusCompleted -> json.string("completed")
-    SupplydeliverystatusAbandoned -> json.string("abandoned")
-    SupplydeliverystatusEnteredinerror -> json.string("entered-in-error")
+    SupplydeliverystatusInprogress -> "in-progress"
+    SupplydeliverystatusCompleted -> "completed"
+    SupplydeliverystatusAbandoned -> "abandoned"
+    SupplydeliverystatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn supplydeliverystatus_from_string(
+  s: String,
+) -> Result(Supplydeliverystatus, Nil) {
+  case s {
+    "in-progress" -> Ok(SupplydeliverystatusInprogress)
+    "completed" -> Ok(SupplydeliverystatusCompleted)
+    "abandoned" -> Ok(SupplydeliverystatusAbandoned)
+    "entered-in-error" -> Ok(SupplydeliverystatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -1361,38 +1968,79 @@ pub type Issuetype {
 }
 
 pub fn issuetype_to_json(issuetype: Issuetype) -> Json {
+  json.string(issuetype_to_string(issuetype))
+}
+
+pub fn issuetype_to_string(issuetype: Issuetype) -> String {
   case issuetype {
-    IssuetypeInvalid -> json.string("invalid")
-    IssuetypeStructure -> json.string("structure")
-    IssuetypeRequired -> json.string("required")
-    IssuetypeValue -> json.string("value")
-    IssuetypeInvariant -> json.string("invariant")
-    IssuetypeSecurity -> json.string("security")
-    IssuetypeLogin -> json.string("login")
-    IssuetypeUnknown -> json.string("unknown")
-    IssuetypeExpired -> json.string("expired")
-    IssuetypeForbidden -> json.string("forbidden")
-    IssuetypeSuppressed -> json.string("suppressed")
-    IssuetypeProcessing -> json.string("processing")
-    IssuetypeNotsupported -> json.string("not-supported")
-    IssuetypeDuplicate -> json.string("duplicate")
-    IssuetypeMultiplematches -> json.string("multiple-matches")
-    IssuetypeNotfound -> json.string("not-found")
-    IssuetypeDeleted -> json.string("deleted")
-    IssuetypeToolong -> json.string("too-long")
-    IssuetypeCodeinvalid -> json.string("code-invalid")
-    IssuetypeExtension -> json.string("extension")
-    IssuetypeToocostly -> json.string("too-costly")
-    IssuetypeBusinessrule -> json.string("business-rule")
-    IssuetypeConflict -> json.string("conflict")
-    IssuetypeTransient -> json.string("transient")
-    IssuetypeLockerror -> json.string("lock-error")
-    IssuetypeNostore -> json.string("no-store")
-    IssuetypeException -> json.string("exception")
-    IssuetypeTimeout -> json.string("timeout")
-    IssuetypeIncomplete -> json.string("incomplete")
-    IssuetypeThrottled -> json.string("throttled")
-    IssuetypeInformational -> json.string("informational")
+    IssuetypeInvalid -> "invalid"
+    IssuetypeStructure -> "structure"
+    IssuetypeRequired -> "required"
+    IssuetypeValue -> "value"
+    IssuetypeInvariant -> "invariant"
+    IssuetypeSecurity -> "security"
+    IssuetypeLogin -> "login"
+    IssuetypeUnknown -> "unknown"
+    IssuetypeExpired -> "expired"
+    IssuetypeForbidden -> "forbidden"
+    IssuetypeSuppressed -> "suppressed"
+    IssuetypeProcessing -> "processing"
+    IssuetypeNotsupported -> "not-supported"
+    IssuetypeDuplicate -> "duplicate"
+    IssuetypeMultiplematches -> "multiple-matches"
+    IssuetypeNotfound -> "not-found"
+    IssuetypeDeleted -> "deleted"
+    IssuetypeToolong -> "too-long"
+    IssuetypeCodeinvalid -> "code-invalid"
+    IssuetypeExtension -> "extension"
+    IssuetypeToocostly -> "too-costly"
+    IssuetypeBusinessrule -> "business-rule"
+    IssuetypeConflict -> "conflict"
+    IssuetypeTransient -> "transient"
+    IssuetypeLockerror -> "lock-error"
+    IssuetypeNostore -> "no-store"
+    IssuetypeException -> "exception"
+    IssuetypeTimeout -> "timeout"
+    IssuetypeIncomplete -> "incomplete"
+    IssuetypeThrottled -> "throttled"
+    IssuetypeInformational -> "informational"
+  }
+}
+
+pub fn issuetype_from_string(s: String) -> Result(Issuetype, Nil) {
+  case s {
+    "invalid" -> Ok(IssuetypeInvalid)
+    "structure" -> Ok(IssuetypeStructure)
+    "required" -> Ok(IssuetypeRequired)
+    "value" -> Ok(IssuetypeValue)
+    "invariant" -> Ok(IssuetypeInvariant)
+    "security" -> Ok(IssuetypeSecurity)
+    "login" -> Ok(IssuetypeLogin)
+    "unknown" -> Ok(IssuetypeUnknown)
+    "expired" -> Ok(IssuetypeExpired)
+    "forbidden" -> Ok(IssuetypeForbidden)
+    "suppressed" -> Ok(IssuetypeSuppressed)
+    "processing" -> Ok(IssuetypeProcessing)
+    "not-supported" -> Ok(IssuetypeNotsupported)
+    "duplicate" -> Ok(IssuetypeDuplicate)
+    "multiple-matches" -> Ok(IssuetypeMultiplematches)
+    "not-found" -> Ok(IssuetypeNotfound)
+    "deleted" -> Ok(IssuetypeDeleted)
+    "too-long" -> Ok(IssuetypeToolong)
+    "code-invalid" -> Ok(IssuetypeCodeinvalid)
+    "extension" -> Ok(IssuetypeExtension)
+    "too-costly" -> Ok(IssuetypeToocostly)
+    "business-rule" -> Ok(IssuetypeBusinessrule)
+    "conflict" -> Ok(IssuetypeConflict)
+    "transient" -> Ok(IssuetypeTransient)
+    "lock-error" -> Ok(IssuetypeLockerror)
+    "no-store" -> Ok(IssuetypeNostore)
+    "exception" -> Ok(IssuetypeException)
+    "timeout" -> Ok(IssuetypeTimeout)
+    "incomplete" -> Ok(IssuetypeIncomplete)
+    "throttled" -> Ok(IssuetypeThrottled)
+    "informational" -> Ok(IssuetypeInformational)
+    _ -> Error(Nil)
   }
 }
 
@@ -1452,20 +2100,45 @@ pub type Assertresponsecodetypes {
 pub fn assertresponsecodetypes_to_json(
   assertresponsecodetypes: Assertresponsecodetypes,
 ) -> Json {
+  json.string(assertresponsecodetypes_to_string(assertresponsecodetypes))
+}
+
+pub fn assertresponsecodetypes_to_string(
+  assertresponsecodetypes: Assertresponsecodetypes,
+) -> String {
   case assertresponsecodetypes {
-    AssertresponsecodetypesOkay -> json.string("okay")
-    AssertresponsecodetypesCreated -> json.string("created")
-    AssertresponsecodetypesNocontent -> json.string("noContent")
-    AssertresponsecodetypesNotmodified -> json.string("notModified")
-    AssertresponsecodetypesBad -> json.string("bad")
-    AssertresponsecodetypesForbidden -> json.string("forbidden")
-    AssertresponsecodetypesNotfound -> json.string("notFound")
-    AssertresponsecodetypesMethodnotallowed -> json.string("methodNotAllowed")
-    AssertresponsecodetypesConflict -> json.string("conflict")
-    AssertresponsecodetypesGone -> json.string("gone")
-    AssertresponsecodetypesPreconditionfailed ->
-      json.string("preconditionFailed")
-    AssertresponsecodetypesUnprocessable -> json.string("unprocessable")
+    AssertresponsecodetypesOkay -> "okay"
+    AssertresponsecodetypesCreated -> "created"
+    AssertresponsecodetypesNocontent -> "noContent"
+    AssertresponsecodetypesNotmodified -> "notModified"
+    AssertresponsecodetypesBad -> "bad"
+    AssertresponsecodetypesForbidden -> "forbidden"
+    AssertresponsecodetypesNotfound -> "notFound"
+    AssertresponsecodetypesMethodnotallowed -> "methodNotAllowed"
+    AssertresponsecodetypesConflict -> "conflict"
+    AssertresponsecodetypesGone -> "gone"
+    AssertresponsecodetypesPreconditionfailed -> "preconditionFailed"
+    AssertresponsecodetypesUnprocessable -> "unprocessable"
+  }
+}
+
+pub fn assertresponsecodetypes_from_string(
+  s: String,
+) -> Result(Assertresponsecodetypes, Nil) {
+  case s {
+    "okay" -> Ok(AssertresponsecodetypesOkay)
+    "created" -> Ok(AssertresponsecodetypesCreated)
+    "noContent" -> Ok(AssertresponsecodetypesNocontent)
+    "notModified" -> Ok(AssertresponsecodetypesNotmodified)
+    "bad" -> Ok(AssertresponsecodetypesBad)
+    "forbidden" -> Ok(AssertresponsecodetypesForbidden)
+    "notFound" -> Ok(AssertresponsecodetypesNotfound)
+    "methodNotAllowed" -> Ok(AssertresponsecodetypesMethodnotallowed)
+    "conflict" -> Ok(AssertresponsecodetypesConflict)
+    "gone" -> Ok(AssertresponsecodetypesGone)
+    "preconditionFailed" -> Ok(AssertresponsecodetypesPreconditionfailed)
+    "unprocessable" -> Ok(AssertresponsecodetypesUnprocessable)
+    _ -> Error(Nil)
   }
 }
 
@@ -1500,11 +2173,29 @@ pub type Identityassurancelevel {
 pub fn identityassurancelevel_to_json(
   identityassurancelevel: Identityassurancelevel,
 ) -> Json {
+  json.string(identityassurancelevel_to_string(identityassurancelevel))
+}
+
+pub fn identityassurancelevel_to_string(
+  identityassurancelevel: Identityassurancelevel,
+) -> String {
   case identityassurancelevel {
-    IdentityassurancelevelLevel1 -> json.string("level1")
-    IdentityassurancelevelLevel2 -> json.string("level2")
-    IdentityassurancelevelLevel3 -> json.string("level3")
-    IdentityassurancelevelLevel4 -> json.string("level4")
+    IdentityassurancelevelLevel1 -> "level1"
+    IdentityassurancelevelLevel2 -> "level2"
+    IdentityassurancelevelLevel3 -> "level3"
+    IdentityassurancelevelLevel4 -> "level4"
+  }
+}
+
+pub fn identityassurancelevel_from_string(
+  s: String,
+) -> Result(Identityassurancelevel, Nil) {
+  case s {
+    "level1" -> Ok(IdentityassurancelevelLevel1)
+    "level2" -> Ok(IdentityassurancelevelLevel2)
+    "level3" -> Ok(IdentityassurancelevelLevel3)
+    "level4" -> Ok(IdentityassurancelevelLevel4)
+    _ -> Error(Nil)
   }
 }
 
@@ -1529,13 +2220,29 @@ pub type Httpverb {
 }
 
 pub fn httpverb_to_json(httpverb: Httpverb) -> Json {
+  json.string(httpverb_to_string(httpverb))
+}
+
+pub fn httpverb_to_string(httpverb: Httpverb) -> String {
   case httpverb {
-    HttpverbGet -> json.string("GET")
-    HttpverbHead -> json.string("HEAD")
-    HttpverbPost -> json.string("POST")
-    HttpverbPut -> json.string("PUT")
-    HttpverbDelete -> json.string("DELETE")
-    HttpverbPatch -> json.string("PATCH")
+    HttpverbGet -> "GET"
+    HttpverbHead -> "HEAD"
+    HttpverbPost -> "POST"
+    HttpverbPut -> "PUT"
+    HttpverbDelete -> "DELETE"
+    HttpverbPatch -> "PATCH"
+  }
+}
+
+pub fn httpverb_from_string(s: String) -> Result(Httpverb, Nil) {
+  case s {
+    "GET" -> Ok(HttpverbGet)
+    "HEAD" -> Ok(HttpverbHead)
+    "POST" -> Ok(HttpverbPost)
+    "PUT" -> Ok(HttpverbPut)
+    "DELETE" -> Ok(HttpverbDelete)
+    "PATCH" -> Ok(HttpverbPatch)
+    _ -> Error(Nil)
   }
 }
 
@@ -1561,10 +2268,27 @@ pub type Messagesignificancecategory {
 pub fn messagesignificancecategory_to_json(
   messagesignificancecategory: Messagesignificancecategory,
 ) -> Json {
+  json.string(messagesignificancecategory_to_string(messagesignificancecategory))
+}
+
+pub fn messagesignificancecategory_to_string(
+  messagesignificancecategory: Messagesignificancecategory,
+) -> String {
   case messagesignificancecategory {
-    MessagesignificancecategoryConsequence -> json.string("consequence")
-    MessagesignificancecategoryCurrency -> json.string("currency")
-    MessagesignificancecategoryNotification -> json.string("notification")
+    MessagesignificancecategoryConsequence -> "consequence"
+    MessagesignificancecategoryCurrency -> "currency"
+    MessagesignificancecategoryNotification -> "notification"
+  }
+}
+
+pub fn messagesignificancecategory_from_string(
+  s: String,
+) -> Result(Messagesignificancecategory, Nil) {
+  case s {
+    "consequence" -> Ok(MessagesignificancecategoryConsequence)
+    "currency" -> Ok(MessagesignificancecategoryCurrency)
+    "notification" -> Ok(MessagesignificancecategoryNotification)
+    _ -> Error(Nil)
   }
 }
 
@@ -1593,10 +2317,27 @@ pub type Capabilitystatementkind {
 pub fn capabilitystatementkind_to_json(
   capabilitystatementkind: Capabilitystatementkind,
 ) -> Json {
+  json.string(capabilitystatementkind_to_string(capabilitystatementkind))
+}
+
+pub fn capabilitystatementkind_to_string(
+  capabilitystatementkind: Capabilitystatementkind,
+) -> String {
   case capabilitystatementkind {
-    CapabilitystatementkindInstance -> json.string("instance")
-    CapabilitystatementkindCapability -> json.string("capability")
-    CapabilitystatementkindRequirements -> json.string("requirements")
+    CapabilitystatementkindInstance -> "instance"
+    CapabilitystatementkindCapability -> "capability"
+    CapabilitystatementkindRequirements -> "requirements"
+  }
+}
+
+pub fn capabilitystatementkind_from_string(
+  s: String,
+) -> Result(Capabilitystatementkind, Nil) {
+  case s {
+    "instance" -> Ok(CapabilitystatementkindInstance)
+    "capability" -> Ok(CapabilitystatementkindCapability)
+    "requirements" -> Ok(CapabilitystatementkindRequirements)
+    _ -> Error(Nil)
   }
 }
 
@@ -1619,9 +2360,25 @@ pub type Allergyintolerancetype {
 pub fn allergyintolerancetype_to_json(
   allergyintolerancetype: Allergyintolerancetype,
 ) -> Json {
+  json.string(allergyintolerancetype_to_string(allergyintolerancetype))
+}
+
+pub fn allergyintolerancetype_to_string(
+  allergyintolerancetype: Allergyintolerancetype,
+) -> String {
   case allergyintolerancetype {
-    AllergyintolerancetypeAllergy -> json.string("allergy")
-    AllergyintolerancetypeIntolerance -> json.string("intolerance")
+    AllergyintolerancetypeAllergy -> "allergy"
+    AllergyintolerancetypeIntolerance -> "intolerance"
+  }
+}
+
+pub fn allergyintolerancetype_from_string(
+  s: String,
+) -> Result(Allergyintolerancetype, Nil) {
+  case s {
+    "allergy" -> Ok(AllergyintolerancetypeAllergy)
+    "intolerance" -> Ok(AllergyintolerancetypeIntolerance)
+    _ -> Error(Nil)
   }
 }
 
@@ -1640,9 +2397,21 @@ pub type Documentmode {
 }
 
 pub fn documentmode_to_json(documentmode: Documentmode) -> Json {
+  json.string(documentmode_to_string(documentmode))
+}
+
+pub fn documentmode_to_string(documentmode: Documentmode) -> String {
   case documentmode {
-    DocumentmodeProducer -> json.string("producer")
-    DocumentmodeConsumer -> json.string("consumer")
+    DocumentmodeProducer -> "producer"
+    DocumentmodeConsumer -> "consumer"
+  }
+}
+
+pub fn documentmode_from_string(s: String) -> Result(Documentmode, Nil) {
+  case s {
+    "producer" -> Ok(DocumentmodeProducer)
+    "consumer" -> Ok(DocumentmodeConsumer)
+    _ -> Error(Nil)
   }
 }
 
@@ -1663,11 +2432,29 @@ pub type Maptargetlistmode {
 }
 
 pub fn maptargetlistmode_to_json(maptargetlistmode: Maptargetlistmode) -> Json {
+  json.string(maptargetlistmode_to_string(maptargetlistmode))
+}
+
+pub fn maptargetlistmode_to_string(
+  maptargetlistmode: Maptargetlistmode,
+) -> String {
   case maptargetlistmode {
-    MaptargetlistmodeFirst -> json.string("first")
-    MaptargetlistmodeShare -> json.string("share")
-    MaptargetlistmodeLast -> json.string("last")
-    MaptargetlistmodeCollate -> json.string("collate")
+    MaptargetlistmodeFirst -> "first"
+    MaptargetlistmodeShare -> "share"
+    MaptargetlistmodeLast -> "last"
+    MaptargetlistmodeCollate -> "collate"
+  }
+}
+
+pub fn maptargetlistmode_from_string(
+  s: String,
+) -> Result(Maptargetlistmode, Nil) {
+  case s {
+    "first" -> Ok(MaptargetlistmodeFirst)
+    "share" -> Ok(MaptargetlistmodeShare)
+    "last" -> Ok(MaptargetlistmodeLast)
+    "collate" -> Ok(MaptargetlistmodeCollate)
+    _ -> Error(Nil)
   }
 }
 
@@ -1695,16 +2482,35 @@ pub type Filteroperator {
 }
 
 pub fn filteroperator_to_json(filteroperator: Filteroperator) -> Json {
+  json.string(filteroperator_to_string(filteroperator))
+}
+
+pub fn filteroperator_to_string(filteroperator: Filteroperator) -> String {
   case filteroperator {
-    FilteroperatorEqual -> json.string("=")
-    FilteroperatorIsa -> json.string("is-a")
-    FilteroperatorDescendentof -> json.string("descendent-of")
-    FilteroperatorIsnota -> json.string("is-not-a")
-    FilteroperatorRegex -> json.string("regex")
-    FilteroperatorIn -> json.string("in")
-    FilteroperatorNotin -> json.string("not-in")
-    FilteroperatorGeneralizes -> json.string("generalizes")
-    FilteroperatorExists -> json.string("exists")
+    FilteroperatorEqual -> "="
+    FilteroperatorIsa -> "is-a"
+    FilteroperatorDescendentof -> "descendent-of"
+    FilteroperatorIsnota -> "is-not-a"
+    FilteroperatorRegex -> "regex"
+    FilteroperatorIn -> "in"
+    FilteroperatorNotin -> "not-in"
+    FilteroperatorGeneralizes -> "generalizes"
+    FilteroperatorExists -> "exists"
+  }
+}
+
+pub fn filteroperator_from_string(s: String) -> Result(Filteroperator, Nil) {
+  case s {
+    "=" -> Ok(FilteroperatorEqual)
+    "is-a" -> Ok(FilteroperatorIsa)
+    "descendent-of" -> Ok(FilteroperatorDescendentof)
+    "is-not-a" -> Ok(FilteroperatorIsnota)
+    "regex" -> Ok(FilteroperatorRegex)
+    "in" -> Ok(FilteroperatorIn)
+    "not-in" -> Ok(FilteroperatorNotin)
+    "generalizes" -> Ok(FilteroperatorGeneralizes)
+    "exists" -> Ok(FilteroperatorExists)
+    _ -> Error(Nil)
   }
 }
 
@@ -1750,29 +2556,61 @@ pub type Fhirversion {
 }
 
 pub fn fhirversion_to_json(fhirversion: Fhirversion) -> Json {
+  json.string(fhirversion_to_string(fhirversion))
+}
+
+pub fn fhirversion_to_string(fhirversion: Fhirversion) -> String {
   case fhirversion {
-    Fhirversion001 -> json.string("0.01")
-    Fhirversion005 -> json.string("0.05")
-    Fhirversion006 -> json.string("0.06")
-    Fhirversion011 -> json.string("0.11")
-    Fhirversion0080 -> json.string("0.0.80")
-    Fhirversion0081 -> json.string("0.0.81")
-    Fhirversion0082 -> json.string("0.0.82")
-    Fhirversion040 -> json.string("0.4.0")
-    Fhirversion050 -> json.string("0.5.0")
-    Fhirversion100 -> json.string("1.0.0")
-    Fhirversion101 -> json.string("1.0.1")
-    Fhirversion102 -> json.string("1.0.2")
-    Fhirversion110 -> json.string("1.1.0")
-    Fhirversion140 -> json.string("1.4.0")
-    Fhirversion160 -> json.string("1.6.0")
-    Fhirversion180 -> json.string("1.8.0")
-    Fhirversion300 -> json.string("3.0.0")
-    Fhirversion301 -> json.string("3.0.1")
-    Fhirversion330 -> json.string("3.3.0")
-    Fhirversion350 -> json.string("3.5.0")
-    Fhirversion400 -> json.string("4.0.0")
-    Fhirversion401 -> json.string("4.0.1")
+    Fhirversion001 -> "0.01"
+    Fhirversion005 -> "0.05"
+    Fhirversion006 -> "0.06"
+    Fhirversion011 -> "0.11"
+    Fhirversion0080 -> "0.0.80"
+    Fhirversion0081 -> "0.0.81"
+    Fhirversion0082 -> "0.0.82"
+    Fhirversion040 -> "0.4.0"
+    Fhirversion050 -> "0.5.0"
+    Fhirversion100 -> "1.0.0"
+    Fhirversion101 -> "1.0.1"
+    Fhirversion102 -> "1.0.2"
+    Fhirversion110 -> "1.1.0"
+    Fhirversion140 -> "1.4.0"
+    Fhirversion160 -> "1.6.0"
+    Fhirversion180 -> "1.8.0"
+    Fhirversion300 -> "3.0.0"
+    Fhirversion301 -> "3.0.1"
+    Fhirversion330 -> "3.3.0"
+    Fhirversion350 -> "3.5.0"
+    Fhirversion400 -> "4.0.0"
+    Fhirversion401 -> "4.0.1"
+  }
+}
+
+pub fn fhirversion_from_string(s: String) -> Result(Fhirversion, Nil) {
+  case s {
+    "0.01" -> Ok(Fhirversion001)
+    "0.05" -> Ok(Fhirversion005)
+    "0.06" -> Ok(Fhirversion006)
+    "0.11" -> Ok(Fhirversion011)
+    "0.0.80" -> Ok(Fhirversion0080)
+    "0.0.81" -> Ok(Fhirversion0081)
+    "0.0.82" -> Ok(Fhirversion0082)
+    "0.4.0" -> Ok(Fhirversion040)
+    "0.5.0" -> Ok(Fhirversion050)
+    "1.0.0" -> Ok(Fhirversion100)
+    "1.0.1" -> Ok(Fhirversion101)
+    "1.0.2" -> Ok(Fhirversion102)
+    "1.1.0" -> Ok(Fhirversion110)
+    "1.4.0" -> Ok(Fhirversion140)
+    "1.6.0" -> Ok(Fhirversion160)
+    "1.8.0" -> Ok(Fhirversion180)
+    "3.0.0" -> Ok(Fhirversion300)
+    "3.0.1" -> Ok(Fhirversion301)
+    "3.3.0" -> Ok(Fhirversion330)
+    "3.5.0" -> Ok(Fhirversion350)
+    "4.0.0" -> Ok(Fhirversion400)
+    "4.0.1" -> Ok(Fhirversion401)
+    _ -> Error(Nil)
   }
 }
 
@@ -1814,10 +2652,27 @@ pub type Medicationknowledgestatus {
 pub fn medicationknowledgestatus_to_json(
   medicationknowledgestatus: Medicationknowledgestatus,
 ) -> Json {
+  json.string(medicationknowledgestatus_to_string(medicationknowledgestatus))
+}
+
+pub fn medicationknowledgestatus_to_string(
+  medicationknowledgestatus: Medicationknowledgestatus,
+) -> String {
   case medicationknowledgestatus {
-    MedicationknowledgestatusActive -> json.string("active")
-    MedicationknowledgestatusInactive -> json.string("inactive")
-    MedicationknowledgestatusEnteredinerror -> json.string("entered-in-error")
+    MedicationknowledgestatusActive -> "active"
+    MedicationknowledgestatusInactive -> "inactive"
+    MedicationknowledgestatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn medicationknowledgestatus_from_string(
+  s: String,
+) -> Result(Medicationknowledgestatus, Nil) {
+  case s {
+    "active" -> Ok(MedicationknowledgestatusActive)
+    "inactive" -> Ok(MedicationknowledgestatusInactive)
+    "entered-in-error" -> Ok(MedicationknowledgestatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -1846,13 +2701,29 @@ pub type Grouptype {
 }
 
 pub fn grouptype_to_json(grouptype: Grouptype) -> Json {
+  json.string(grouptype_to_string(grouptype))
+}
+
+pub fn grouptype_to_string(grouptype: Grouptype) -> String {
   case grouptype {
-    GrouptypePerson -> json.string("person")
-    GrouptypeAnimal -> json.string("animal")
-    GrouptypePractitioner -> json.string("practitioner")
-    GrouptypeDevice -> json.string("device")
-    GrouptypeMedication -> json.string("medication")
-    GrouptypeSubstance -> json.string("substance")
+    GrouptypePerson -> "person"
+    GrouptypeAnimal -> "animal"
+    GrouptypePractitioner -> "practitioner"
+    GrouptypeDevice -> "device"
+    GrouptypeMedication -> "medication"
+    GrouptypeSubstance -> "substance"
+  }
+}
+
+pub fn grouptype_from_string(s: String) -> Result(Grouptype, Nil) {
+  case s {
+    "person" -> Ok(GrouptypePerson)
+    "animal" -> Ok(GrouptypeAnimal)
+    "practitioner" -> Ok(GrouptypePractitioner)
+    "device" -> Ok(GrouptypeDevice)
+    "medication" -> Ok(GrouptypeMedication)
+    "substance" -> Ok(GrouptypeSubstance)
+    _ -> Error(Nil)
   }
 }
 
@@ -2084,238 +2955,448 @@ pub type Definedtypes {
 }
 
 pub fn definedtypes_to_json(definedtypes: Definedtypes) -> Json {
+  json.string(definedtypes_to_string(definedtypes))
+}
+
+pub fn definedtypes_to_string(definedtypes: Definedtypes) -> String {
   case definedtypes {
-    DefinedtypesAddress -> json.string("Address")
-    DefinedtypesAge -> json.string("Age")
-    DefinedtypesAnnotation -> json.string("Annotation")
-    DefinedtypesAttachment -> json.string("Attachment")
-    DefinedtypesBackboneelement -> json.string("BackboneElement")
-    DefinedtypesCodeableconcept -> json.string("CodeableConcept")
-    DefinedtypesCoding -> json.string("Coding")
-    DefinedtypesContactdetail -> json.string("ContactDetail")
-    DefinedtypesContactpoint -> json.string("ContactPoint")
-    DefinedtypesContributor -> json.string("Contributor")
-    DefinedtypesCount -> json.string("Count")
-    DefinedtypesDatarequirement -> json.string("DataRequirement")
-    DefinedtypesDistance -> json.string("Distance")
-    DefinedtypesDosage -> json.string("Dosage")
-    DefinedtypesDuration -> json.string("Duration")
-    DefinedtypesElement -> json.string("Element")
-    DefinedtypesElementdefinition -> json.string("ElementDefinition")
-    DefinedtypesExpression -> json.string("Expression")
-    DefinedtypesExtension -> json.string("Extension")
-    DefinedtypesHumanname -> json.string("HumanName")
-    DefinedtypesIdentifier -> json.string("Identifier")
-    DefinedtypesMarketingstatus -> json.string("MarketingStatus")
-    DefinedtypesMeta -> json.string("Meta")
-    DefinedtypesMoney -> json.string("Money")
-    DefinedtypesMoneyquantity -> json.string("MoneyQuantity")
-    DefinedtypesNarrative -> json.string("Narrative")
-    DefinedtypesParameterdefinition -> json.string("ParameterDefinition")
-    DefinedtypesPeriod -> json.string("Period")
-    DefinedtypesPopulation -> json.string("Population")
-    DefinedtypesProdcharacteristic -> json.string("ProdCharacteristic")
-    DefinedtypesProductshelflife -> json.string("ProductShelfLife")
-    DefinedtypesQuantity -> json.string("Quantity")
-    DefinedtypesRange -> json.string("Range")
-    DefinedtypesRatio -> json.string("Ratio")
-    DefinedtypesReference -> json.string("Reference")
-    DefinedtypesRelatedartifact -> json.string("RelatedArtifact")
-    DefinedtypesSampleddata -> json.string("SampledData")
-    DefinedtypesSignature -> json.string("Signature")
-    DefinedtypesSimplequantity -> json.string("SimpleQuantity")
-    DefinedtypesSubstanceamount -> json.string("SubstanceAmount")
-    DefinedtypesTiming -> json.string("Timing")
-    DefinedtypesTriggerdefinition -> json.string("TriggerDefinition")
-    DefinedtypesUsagecontext -> json.string("UsageContext")
-    DefinedtypesBase64binary -> json.string("base64Binary")
-    DefinedtypesBoolean -> json.string("boolean")
-    DefinedtypesCanonical -> json.string("canonical")
-    DefinedtypesCode -> json.string("code")
-    DefinedtypesDate -> json.string("date")
-    DefinedtypesDatetime -> json.string("dateTime")
-    DefinedtypesDecimal -> json.string("decimal")
-    DefinedtypesId -> json.string("id")
-    DefinedtypesInstant -> json.string("instant")
-    DefinedtypesInteger -> json.string("integer")
-    DefinedtypesMarkdown -> json.string("markdown")
-    DefinedtypesOid -> json.string("oid")
-    DefinedtypesPositiveint -> json.string("positiveInt")
-    DefinedtypesString -> json.string("string")
-    DefinedtypesTime -> json.string("time")
-    DefinedtypesUnsignedint -> json.string("unsignedInt")
-    DefinedtypesUri -> json.string("uri")
-    DefinedtypesUrl -> json.string("url")
-    DefinedtypesUuid -> json.string("uuid")
-    DefinedtypesXhtml -> json.string("xhtml")
-    DefinedtypesAccount -> json.string("Account")
-    DefinedtypesActivitydefinition -> json.string("ActivityDefinition")
-    DefinedtypesAdverseevent -> json.string("AdverseEvent")
-    DefinedtypesAllergyintolerance -> json.string("AllergyIntolerance")
-    DefinedtypesAppointment -> json.string("Appointment")
-    DefinedtypesAppointmentresponse -> json.string("AppointmentResponse")
-    DefinedtypesAuditevent -> json.string("AuditEvent")
-    DefinedtypesBasic -> json.string("Basic")
-    DefinedtypesBinary -> json.string("Binary")
-    DefinedtypesBiologicallyderivedproduct ->
-      json.string("BiologicallyDerivedProduct")
-    DefinedtypesBodystructure -> json.string("BodyStructure")
-    DefinedtypesBundle -> json.string("Bundle")
-    DefinedtypesCapabilitystatement -> json.string("CapabilityStatement")
-    DefinedtypesCareplan -> json.string("CarePlan")
-    DefinedtypesCareteam -> json.string("CareTeam")
-    DefinedtypesCatalogentry -> json.string("CatalogEntry")
-    DefinedtypesChargeitem -> json.string("ChargeItem")
-    DefinedtypesChargeitemdefinition -> json.string("ChargeItemDefinition")
-    DefinedtypesClaim -> json.string("Claim")
-    DefinedtypesClaimresponse -> json.string("ClaimResponse")
-    DefinedtypesClinicalimpression -> json.string("ClinicalImpression")
-    DefinedtypesCodesystem -> json.string("CodeSystem")
-    DefinedtypesCommunication -> json.string("Communication")
-    DefinedtypesCommunicationrequest -> json.string("CommunicationRequest")
-    DefinedtypesCompartmentdefinition -> json.string("CompartmentDefinition")
-    DefinedtypesComposition -> json.string("Composition")
-    DefinedtypesConceptmap -> json.string("ConceptMap")
-    DefinedtypesCondition -> json.string("Condition")
-    DefinedtypesConsent -> json.string("Consent")
-    DefinedtypesContract -> json.string("Contract")
-    DefinedtypesCoverage -> json.string("Coverage")
-    DefinedtypesCoverageeligibilityrequest ->
-      json.string("CoverageEligibilityRequest")
-    DefinedtypesCoverageeligibilityresponse ->
-      json.string("CoverageEligibilityResponse")
-    DefinedtypesDetectedissue -> json.string("DetectedIssue")
-    DefinedtypesDevice -> json.string("Device")
-    DefinedtypesDevicedefinition -> json.string("DeviceDefinition")
-    DefinedtypesDevicemetric -> json.string("DeviceMetric")
-    DefinedtypesDevicerequest -> json.string("DeviceRequest")
-    DefinedtypesDeviceusestatement -> json.string("DeviceUseStatement")
-    DefinedtypesDiagnosticreport -> json.string("DiagnosticReport")
-    DefinedtypesDocumentmanifest -> json.string("DocumentManifest")
-    DefinedtypesDocumentreference -> json.string("DocumentReference")
-    DefinedtypesDomainresource -> json.string("DomainResource")
-    DefinedtypesEffectevidencesynthesis ->
-      json.string("EffectEvidenceSynthesis")
-    DefinedtypesEncounter -> json.string("Encounter")
-    DefinedtypesEndpoint -> json.string("Endpoint")
-    DefinedtypesEnrollmentrequest -> json.string("EnrollmentRequest")
-    DefinedtypesEnrollmentresponse -> json.string("EnrollmentResponse")
-    DefinedtypesEpisodeofcare -> json.string("EpisodeOfCare")
-    DefinedtypesEventdefinition -> json.string("EventDefinition")
-    DefinedtypesEvidence -> json.string("Evidence")
-    DefinedtypesEvidencevariable -> json.string("EvidenceVariable")
-    DefinedtypesExamplescenario -> json.string("ExampleScenario")
-    DefinedtypesExplanationofbenefit -> json.string("ExplanationOfBenefit")
-    DefinedtypesFamilymemberhistory -> json.string("FamilyMemberHistory")
-    DefinedtypesFlag -> json.string("Flag")
-    DefinedtypesGoal -> json.string("Goal")
-    DefinedtypesGraphdefinition -> json.string("GraphDefinition")
-    DefinedtypesGroup -> json.string("Group")
-    DefinedtypesGuidanceresponse -> json.string("GuidanceResponse")
-    DefinedtypesHealthcareservice -> json.string("HealthcareService")
-    DefinedtypesImagingstudy -> json.string("ImagingStudy")
-    DefinedtypesImmunization -> json.string("Immunization")
-    DefinedtypesImmunizationevaluation -> json.string("ImmunizationEvaluation")
-    DefinedtypesImmunizationrecommendation ->
-      json.string("ImmunizationRecommendation")
-    DefinedtypesImplementationguide -> json.string("ImplementationGuide")
-    DefinedtypesInsuranceplan -> json.string("InsurancePlan")
-    DefinedtypesInvoice -> json.string("Invoice")
-    DefinedtypesLibrary -> json.string("Library")
-    DefinedtypesLinkage -> json.string("Linkage")
-    DefinedtypesList -> json.string("List")
-    DefinedtypesLocation -> json.string("Location")
-    DefinedtypesMeasure -> json.string("Measure")
-    DefinedtypesMeasurereport -> json.string("MeasureReport")
-    DefinedtypesMedia -> json.string("Media")
-    DefinedtypesMedication -> json.string("Medication")
-    DefinedtypesMedicationadministration ->
-      json.string("MedicationAdministration")
-    DefinedtypesMedicationdispense -> json.string("MedicationDispense")
-    DefinedtypesMedicationknowledge -> json.string("MedicationKnowledge")
-    DefinedtypesMedicationrequest -> json.string("MedicationRequest")
-    DefinedtypesMedicationstatement -> json.string("MedicationStatement")
-    DefinedtypesMedicinalproduct -> json.string("MedicinalProduct")
-    DefinedtypesMedicinalproductauthorization ->
-      json.string("MedicinalProductAuthorization")
+    DefinedtypesAddress -> "Address"
+    DefinedtypesAge -> "Age"
+    DefinedtypesAnnotation -> "Annotation"
+    DefinedtypesAttachment -> "Attachment"
+    DefinedtypesBackboneelement -> "BackboneElement"
+    DefinedtypesCodeableconcept -> "CodeableConcept"
+    DefinedtypesCoding -> "Coding"
+    DefinedtypesContactdetail -> "ContactDetail"
+    DefinedtypesContactpoint -> "ContactPoint"
+    DefinedtypesContributor -> "Contributor"
+    DefinedtypesCount -> "Count"
+    DefinedtypesDatarequirement -> "DataRequirement"
+    DefinedtypesDistance -> "Distance"
+    DefinedtypesDosage -> "Dosage"
+    DefinedtypesDuration -> "Duration"
+    DefinedtypesElement -> "Element"
+    DefinedtypesElementdefinition -> "ElementDefinition"
+    DefinedtypesExpression -> "Expression"
+    DefinedtypesExtension -> "Extension"
+    DefinedtypesHumanname -> "HumanName"
+    DefinedtypesIdentifier -> "Identifier"
+    DefinedtypesMarketingstatus -> "MarketingStatus"
+    DefinedtypesMeta -> "Meta"
+    DefinedtypesMoney -> "Money"
+    DefinedtypesMoneyquantity -> "MoneyQuantity"
+    DefinedtypesNarrative -> "Narrative"
+    DefinedtypesParameterdefinition -> "ParameterDefinition"
+    DefinedtypesPeriod -> "Period"
+    DefinedtypesPopulation -> "Population"
+    DefinedtypesProdcharacteristic -> "ProdCharacteristic"
+    DefinedtypesProductshelflife -> "ProductShelfLife"
+    DefinedtypesQuantity -> "Quantity"
+    DefinedtypesRange -> "Range"
+    DefinedtypesRatio -> "Ratio"
+    DefinedtypesReference -> "Reference"
+    DefinedtypesRelatedartifact -> "RelatedArtifact"
+    DefinedtypesSampleddata -> "SampledData"
+    DefinedtypesSignature -> "Signature"
+    DefinedtypesSimplequantity -> "SimpleQuantity"
+    DefinedtypesSubstanceamount -> "SubstanceAmount"
+    DefinedtypesTiming -> "Timing"
+    DefinedtypesTriggerdefinition -> "TriggerDefinition"
+    DefinedtypesUsagecontext -> "UsageContext"
+    DefinedtypesBase64binary -> "base64Binary"
+    DefinedtypesBoolean -> "boolean"
+    DefinedtypesCanonical -> "canonical"
+    DefinedtypesCode -> "code"
+    DefinedtypesDate -> "date"
+    DefinedtypesDatetime -> "dateTime"
+    DefinedtypesDecimal -> "decimal"
+    DefinedtypesId -> "id"
+    DefinedtypesInstant -> "instant"
+    DefinedtypesInteger -> "integer"
+    DefinedtypesMarkdown -> "markdown"
+    DefinedtypesOid -> "oid"
+    DefinedtypesPositiveint -> "positiveInt"
+    DefinedtypesString -> "string"
+    DefinedtypesTime -> "time"
+    DefinedtypesUnsignedint -> "unsignedInt"
+    DefinedtypesUri -> "uri"
+    DefinedtypesUrl -> "url"
+    DefinedtypesUuid -> "uuid"
+    DefinedtypesXhtml -> "xhtml"
+    DefinedtypesAccount -> "Account"
+    DefinedtypesActivitydefinition -> "ActivityDefinition"
+    DefinedtypesAdverseevent -> "AdverseEvent"
+    DefinedtypesAllergyintolerance -> "AllergyIntolerance"
+    DefinedtypesAppointment -> "Appointment"
+    DefinedtypesAppointmentresponse -> "AppointmentResponse"
+    DefinedtypesAuditevent -> "AuditEvent"
+    DefinedtypesBasic -> "Basic"
+    DefinedtypesBinary -> "Binary"
+    DefinedtypesBiologicallyderivedproduct -> "BiologicallyDerivedProduct"
+    DefinedtypesBodystructure -> "BodyStructure"
+    DefinedtypesBundle -> "Bundle"
+    DefinedtypesCapabilitystatement -> "CapabilityStatement"
+    DefinedtypesCareplan -> "CarePlan"
+    DefinedtypesCareteam -> "CareTeam"
+    DefinedtypesCatalogentry -> "CatalogEntry"
+    DefinedtypesChargeitem -> "ChargeItem"
+    DefinedtypesChargeitemdefinition -> "ChargeItemDefinition"
+    DefinedtypesClaim -> "Claim"
+    DefinedtypesClaimresponse -> "ClaimResponse"
+    DefinedtypesClinicalimpression -> "ClinicalImpression"
+    DefinedtypesCodesystem -> "CodeSystem"
+    DefinedtypesCommunication -> "Communication"
+    DefinedtypesCommunicationrequest -> "CommunicationRequest"
+    DefinedtypesCompartmentdefinition -> "CompartmentDefinition"
+    DefinedtypesComposition -> "Composition"
+    DefinedtypesConceptmap -> "ConceptMap"
+    DefinedtypesCondition -> "Condition"
+    DefinedtypesConsent -> "Consent"
+    DefinedtypesContract -> "Contract"
+    DefinedtypesCoverage -> "Coverage"
+    DefinedtypesCoverageeligibilityrequest -> "CoverageEligibilityRequest"
+    DefinedtypesCoverageeligibilityresponse -> "CoverageEligibilityResponse"
+    DefinedtypesDetectedissue -> "DetectedIssue"
+    DefinedtypesDevice -> "Device"
+    DefinedtypesDevicedefinition -> "DeviceDefinition"
+    DefinedtypesDevicemetric -> "DeviceMetric"
+    DefinedtypesDevicerequest -> "DeviceRequest"
+    DefinedtypesDeviceusestatement -> "DeviceUseStatement"
+    DefinedtypesDiagnosticreport -> "DiagnosticReport"
+    DefinedtypesDocumentmanifest -> "DocumentManifest"
+    DefinedtypesDocumentreference -> "DocumentReference"
+    DefinedtypesDomainresource -> "DomainResource"
+    DefinedtypesEffectevidencesynthesis -> "EffectEvidenceSynthesis"
+    DefinedtypesEncounter -> "Encounter"
+    DefinedtypesEndpoint -> "Endpoint"
+    DefinedtypesEnrollmentrequest -> "EnrollmentRequest"
+    DefinedtypesEnrollmentresponse -> "EnrollmentResponse"
+    DefinedtypesEpisodeofcare -> "EpisodeOfCare"
+    DefinedtypesEventdefinition -> "EventDefinition"
+    DefinedtypesEvidence -> "Evidence"
+    DefinedtypesEvidencevariable -> "EvidenceVariable"
+    DefinedtypesExamplescenario -> "ExampleScenario"
+    DefinedtypesExplanationofbenefit -> "ExplanationOfBenefit"
+    DefinedtypesFamilymemberhistory -> "FamilyMemberHistory"
+    DefinedtypesFlag -> "Flag"
+    DefinedtypesGoal -> "Goal"
+    DefinedtypesGraphdefinition -> "GraphDefinition"
+    DefinedtypesGroup -> "Group"
+    DefinedtypesGuidanceresponse -> "GuidanceResponse"
+    DefinedtypesHealthcareservice -> "HealthcareService"
+    DefinedtypesImagingstudy -> "ImagingStudy"
+    DefinedtypesImmunization -> "Immunization"
+    DefinedtypesImmunizationevaluation -> "ImmunizationEvaluation"
+    DefinedtypesImmunizationrecommendation -> "ImmunizationRecommendation"
+    DefinedtypesImplementationguide -> "ImplementationGuide"
+    DefinedtypesInsuranceplan -> "InsurancePlan"
+    DefinedtypesInvoice -> "Invoice"
+    DefinedtypesLibrary -> "Library"
+    DefinedtypesLinkage -> "Linkage"
+    DefinedtypesList -> "List"
+    DefinedtypesLocation -> "Location"
+    DefinedtypesMeasure -> "Measure"
+    DefinedtypesMeasurereport -> "MeasureReport"
+    DefinedtypesMedia -> "Media"
+    DefinedtypesMedication -> "Medication"
+    DefinedtypesMedicationadministration -> "MedicationAdministration"
+    DefinedtypesMedicationdispense -> "MedicationDispense"
+    DefinedtypesMedicationknowledge -> "MedicationKnowledge"
+    DefinedtypesMedicationrequest -> "MedicationRequest"
+    DefinedtypesMedicationstatement -> "MedicationStatement"
+    DefinedtypesMedicinalproduct -> "MedicinalProduct"
+    DefinedtypesMedicinalproductauthorization -> "MedicinalProductAuthorization"
     DefinedtypesMedicinalproductcontraindication ->
-      json.string("MedicinalProductContraindication")
-    DefinedtypesMedicinalproductindication ->
-      json.string("MedicinalProductIndication")
-    DefinedtypesMedicinalproductingredient ->
-      json.string("MedicinalProductIngredient")
-    DefinedtypesMedicinalproductinteraction ->
-      json.string("MedicinalProductInteraction")
-    DefinedtypesMedicinalproductmanufactured ->
-      json.string("MedicinalProductManufactured")
-    DefinedtypesMedicinalproductpackaged ->
-      json.string("MedicinalProductPackaged")
+      "MedicinalProductContraindication"
+    DefinedtypesMedicinalproductindication -> "MedicinalProductIndication"
+    DefinedtypesMedicinalproductingredient -> "MedicinalProductIngredient"
+    DefinedtypesMedicinalproductinteraction -> "MedicinalProductInteraction"
+    DefinedtypesMedicinalproductmanufactured -> "MedicinalProductManufactured"
+    DefinedtypesMedicinalproductpackaged -> "MedicinalProductPackaged"
     DefinedtypesMedicinalproductpharmaceutical ->
-      json.string("MedicinalProductPharmaceutical")
+      "MedicinalProductPharmaceutical"
     DefinedtypesMedicinalproductundesirableeffect ->
-      json.string("MedicinalProductUndesirableEffect")
-    DefinedtypesMessagedefinition -> json.string("MessageDefinition")
-    DefinedtypesMessageheader -> json.string("MessageHeader")
-    DefinedtypesMolecularsequence -> json.string("MolecularSequence")
-    DefinedtypesNamingsystem -> json.string("NamingSystem")
-    DefinedtypesNutritionorder -> json.string("NutritionOrder")
-    DefinedtypesObservation -> json.string("Observation")
-    DefinedtypesObservationdefinition -> json.string("ObservationDefinition")
-    DefinedtypesOperationdefinition -> json.string("OperationDefinition")
-    DefinedtypesOperationoutcome -> json.string("OperationOutcome")
-    DefinedtypesOrganization -> json.string("Organization")
-    DefinedtypesOrganizationaffiliation ->
-      json.string("OrganizationAffiliation")
-    DefinedtypesParameters -> json.string("Parameters")
-    DefinedtypesPatient -> json.string("Patient")
-    DefinedtypesPaymentnotice -> json.string("PaymentNotice")
-    DefinedtypesPaymentreconciliation -> json.string("PaymentReconciliation")
-    DefinedtypesPerson -> json.string("Person")
-    DefinedtypesPlandefinition -> json.string("PlanDefinition")
-    DefinedtypesPractitioner -> json.string("Practitioner")
-    DefinedtypesPractitionerrole -> json.string("PractitionerRole")
-    DefinedtypesProcedure -> json.string("Procedure")
-    DefinedtypesProvenance -> json.string("Provenance")
-    DefinedtypesQuestionnaire -> json.string("Questionnaire")
-    DefinedtypesQuestionnaireresponse -> json.string("QuestionnaireResponse")
-    DefinedtypesRelatedperson -> json.string("RelatedPerson")
-    DefinedtypesRequestgroup -> json.string("RequestGroup")
-    DefinedtypesResearchdefinition -> json.string("ResearchDefinition")
-    DefinedtypesResearchelementdefinition ->
-      json.string("ResearchElementDefinition")
-    DefinedtypesResearchstudy -> json.string("ResearchStudy")
-    DefinedtypesResearchsubject -> json.string("ResearchSubject")
-    DefinedtypesResource -> json.string("Resource")
-    DefinedtypesRiskassessment -> json.string("RiskAssessment")
-    DefinedtypesRiskevidencesynthesis -> json.string("RiskEvidenceSynthesis")
-    DefinedtypesSchedule -> json.string("Schedule")
-    DefinedtypesSearchparameter -> json.string("SearchParameter")
-    DefinedtypesServicerequest -> json.string("ServiceRequest")
-    DefinedtypesSlot -> json.string("Slot")
-    DefinedtypesSpecimen -> json.string("Specimen")
-    DefinedtypesSpecimendefinition -> json.string("SpecimenDefinition")
-    DefinedtypesStructuredefinition -> json.string("StructureDefinition")
-    DefinedtypesStructuremap -> json.string("StructureMap")
-    DefinedtypesSubscription -> json.string("Subscription")
-    DefinedtypesSubstance -> json.string("Substance")
-    DefinedtypesSubstancenucleicacid -> json.string("SubstanceNucleicAcid")
-    DefinedtypesSubstancepolymer -> json.string("SubstancePolymer")
-    DefinedtypesSubstanceprotein -> json.string("SubstanceProtein")
-    DefinedtypesSubstancereferenceinformation ->
-      json.string("SubstanceReferenceInformation")
-    DefinedtypesSubstancesourcematerial ->
-      json.string("SubstanceSourceMaterial")
-    DefinedtypesSubstancespecification -> json.string("SubstanceSpecification")
-    DefinedtypesSupplydelivery -> json.string("SupplyDelivery")
-    DefinedtypesSupplyrequest -> json.string("SupplyRequest")
-    DefinedtypesTask -> json.string("Task")
-    DefinedtypesTerminologycapabilities ->
-      json.string("TerminologyCapabilities")
-    DefinedtypesTestreport -> json.string("TestReport")
-    DefinedtypesTestscript -> json.string("TestScript")
-    DefinedtypesValueset -> json.string("ValueSet")
-    DefinedtypesVerificationresult -> json.string("VerificationResult")
-    DefinedtypesVisionprescription -> json.string("VisionPrescription")
+      "MedicinalProductUndesirableEffect"
+    DefinedtypesMessagedefinition -> "MessageDefinition"
+    DefinedtypesMessageheader -> "MessageHeader"
+    DefinedtypesMolecularsequence -> "MolecularSequence"
+    DefinedtypesNamingsystem -> "NamingSystem"
+    DefinedtypesNutritionorder -> "NutritionOrder"
+    DefinedtypesObservation -> "Observation"
+    DefinedtypesObservationdefinition -> "ObservationDefinition"
+    DefinedtypesOperationdefinition -> "OperationDefinition"
+    DefinedtypesOperationoutcome -> "OperationOutcome"
+    DefinedtypesOrganization -> "Organization"
+    DefinedtypesOrganizationaffiliation -> "OrganizationAffiliation"
+    DefinedtypesParameters -> "Parameters"
+    DefinedtypesPatient -> "Patient"
+    DefinedtypesPaymentnotice -> "PaymentNotice"
+    DefinedtypesPaymentreconciliation -> "PaymentReconciliation"
+    DefinedtypesPerson -> "Person"
+    DefinedtypesPlandefinition -> "PlanDefinition"
+    DefinedtypesPractitioner -> "Practitioner"
+    DefinedtypesPractitionerrole -> "PractitionerRole"
+    DefinedtypesProcedure -> "Procedure"
+    DefinedtypesProvenance -> "Provenance"
+    DefinedtypesQuestionnaire -> "Questionnaire"
+    DefinedtypesQuestionnaireresponse -> "QuestionnaireResponse"
+    DefinedtypesRelatedperson -> "RelatedPerson"
+    DefinedtypesRequestgroup -> "RequestGroup"
+    DefinedtypesResearchdefinition -> "ResearchDefinition"
+    DefinedtypesResearchelementdefinition -> "ResearchElementDefinition"
+    DefinedtypesResearchstudy -> "ResearchStudy"
+    DefinedtypesResearchsubject -> "ResearchSubject"
+    DefinedtypesResource -> "Resource"
+    DefinedtypesRiskassessment -> "RiskAssessment"
+    DefinedtypesRiskevidencesynthesis -> "RiskEvidenceSynthesis"
+    DefinedtypesSchedule -> "Schedule"
+    DefinedtypesSearchparameter -> "SearchParameter"
+    DefinedtypesServicerequest -> "ServiceRequest"
+    DefinedtypesSlot -> "Slot"
+    DefinedtypesSpecimen -> "Specimen"
+    DefinedtypesSpecimendefinition -> "SpecimenDefinition"
+    DefinedtypesStructuredefinition -> "StructureDefinition"
+    DefinedtypesStructuremap -> "StructureMap"
+    DefinedtypesSubscription -> "Subscription"
+    DefinedtypesSubstance -> "Substance"
+    DefinedtypesSubstancenucleicacid -> "SubstanceNucleicAcid"
+    DefinedtypesSubstancepolymer -> "SubstancePolymer"
+    DefinedtypesSubstanceprotein -> "SubstanceProtein"
+    DefinedtypesSubstancereferenceinformation -> "SubstanceReferenceInformation"
+    DefinedtypesSubstancesourcematerial -> "SubstanceSourceMaterial"
+    DefinedtypesSubstancespecification -> "SubstanceSpecification"
+    DefinedtypesSupplydelivery -> "SupplyDelivery"
+    DefinedtypesSupplyrequest -> "SupplyRequest"
+    DefinedtypesTask -> "Task"
+    DefinedtypesTerminologycapabilities -> "TerminologyCapabilities"
+    DefinedtypesTestreport -> "TestReport"
+    DefinedtypesTestscript -> "TestScript"
+    DefinedtypesValueset -> "ValueSet"
+    DefinedtypesVerificationresult -> "VerificationResult"
+    DefinedtypesVisionprescription -> "VisionPrescription"
+  }
+}
+
+pub fn definedtypes_from_string(s: String) -> Result(Definedtypes, Nil) {
+  case s {
+    "Address" -> Ok(DefinedtypesAddress)
+    "Age" -> Ok(DefinedtypesAge)
+    "Annotation" -> Ok(DefinedtypesAnnotation)
+    "Attachment" -> Ok(DefinedtypesAttachment)
+    "BackboneElement" -> Ok(DefinedtypesBackboneelement)
+    "CodeableConcept" -> Ok(DefinedtypesCodeableconcept)
+    "Coding" -> Ok(DefinedtypesCoding)
+    "ContactDetail" -> Ok(DefinedtypesContactdetail)
+    "ContactPoint" -> Ok(DefinedtypesContactpoint)
+    "Contributor" -> Ok(DefinedtypesContributor)
+    "Count" -> Ok(DefinedtypesCount)
+    "DataRequirement" -> Ok(DefinedtypesDatarequirement)
+    "Distance" -> Ok(DefinedtypesDistance)
+    "Dosage" -> Ok(DefinedtypesDosage)
+    "Duration" -> Ok(DefinedtypesDuration)
+    "Element" -> Ok(DefinedtypesElement)
+    "ElementDefinition" -> Ok(DefinedtypesElementdefinition)
+    "Expression" -> Ok(DefinedtypesExpression)
+    "Extension" -> Ok(DefinedtypesExtension)
+    "HumanName" -> Ok(DefinedtypesHumanname)
+    "Identifier" -> Ok(DefinedtypesIdentifier)
+    "MarketingStatus" -> Ok(DefinedtypesMarketingstatus)
+    "Meta" -> Ok(DefinedtypesMeta)
+    "Money" -> Ok(DefinedtypesMoney)
+    "MoneyQuantity" -> Ok(DefinedtypesMoneyquantity)
+    "Narrative" -> Ok(DefinedtypesNarrative)
+    "ParameterDefinition" -> Ok(DefinedtypesParameterdefinition)
+    "Period" -> Ok(DefinedtypesPeriod)
+    "Population" -> Ok(DefinedtypesPopulation)
+    "ProdCharacteristic" -> Ok(DefinedtypesProdcharacteristic)
+    "ProductShelfLife" -> Ok(DefinedtypesProductshelflife)
+    "Quantity" -> Ok(DefinedtypesQuantity)
+    "Range" -> Ok(DefinedtypesRange)
+    "Ratio" -> Ok(DefinedtypesRatio)
+    "Reference" -> Ok(DefinedtypesReference)
+    "RelatedArtifact" -> Ok(DefinedtypesRelatedartifact)
+    "SampledData" -> Ok(DefinedtypesSampleddata)
+    "Signature" -> Ok(DefinedtypesSignature)
+    "SimpleQuantity" -> Ok(DefinedtypesSimplequantity)
+    "SubstanceAmount" -> Ok(DefinedtypesSubstanceamount)
+    "Timing" -> Ok(DefinedtypesTiming)
+    "TriggerDefinition" -> Ok(DefinedtypesTriggerdefinition)
+    "UsageContext" -> Ok(DefinedtypesUsagecontext)
+    "base64Binary" -> Ok(DefinedtypesBase64binary)
+    "boolean" -> Ok(DefinedtypesBoolean)
+    "canonical" -> Ok(DefinedtypesCanonical)
+    "code" -> Ok(DefinedtypesCode)
+    "date" -> Ok(DefinedtypesDate)
+    "dateTime" -> Ok(DefinedtypesDatetime)
+    "decimal" -> Ok(DefinedtypesDecimal)
+    "id" -> Ok(DefinedtypesId)
+    "instant" -> Ok(DefinedtypesInstant)
+    "integer" -> Ok(DefinedtypesInteger)
+    "markdown" -> Ok(DefinedtypesMarkdown)
+    "oid" -> Ok(DefinedtypesOid)
+    "positiveInt" -> Ok(DefinedtypesPositiveint)
+    "string" -> Ok(DefinedtypesString)
+    "time" -> Ok(DefinedtypesTime)
+    "unsignedInt" -> Ok(DefinedtypesUnsignedint)
+    "uri" -> Ok(DefinedtypesUri)
+    "url" -> Ok(DefinedtypesUrl)
+    "uuid" -> Ok(DefinedtypesUuid)
+    "xhtml" -> Ok(DefinedtypesXhtml)
+    "Account" -> Ok(DefinedtypesAccount)
+    "ActivityDefinition" -> Ok(DefinedtypesActivitydefinition)
+    "AdverseEvent" -> Ok(DefinedtypesAdverseevent)
+    "AllergyIntolerance" -> Ok(DefinedtypesAllergyintolerance)
+    "Appointment" -> Ok(DefinedtypesAppointment)
+    "AppointmentResponse" -> Ok(DefinedtypesAppointmentresponse)
+    "AuditEvent" -> Ok(DefinedtypesAuditevent)
+    "Basic" -> Ok(DefinedtypesBasic)
+    "Binary" -> Ok(DefinedtypesBinary)
+    "BiologicallyDerivedProduct" -> Ok(DefinedtypesBiologicallyderivedproduct)
+    "BodyStructure" -> Ok(DefinedtypesBodystructure)
+    "Bundle" -> Ok(DefinedtypesBundle)
+    "CapabilityStatement" -> Ok(DefinedtypesCapabilitystatement)
+    "CarePlan" -> Ok(DefinedtypesCareplan)
+    "CareTeam" -> Ok(DefinedtypesCareteam)
+    "CatalogEntry" -> Ok(DefinedtypesCatalogentry)
+    "ChargeItem" -> Ok(DefinedtypesChargeitem)
+    "ChargeItemDefinition" -> Ok(DefinedtypesChargeitemdefinition)
+    "Claim" -> Ok(DefinedtypesClaim)
+    "ClaimResponse" -> Ok(DefinedtypesClaimresponse)
+    "ClinicalImpression" -> Ok(DefinedtypesClinicalimpression)
+    "CodeSystem" -> Ok(DefinedtypesCodesystem)
+    "Communication" -> Ok(DefinedtypesCommunication)
+    "CommunicationRequest" -> Ok(DefinedtypesCommunicationrequest)
+    "CompartmentDefinition" -> Ok(DefinedtypesCompartmentdefinition)
+    "Composition" -> Ok(DefinedtypesComposition)
+    "ConceptMap" -> Ok(DefinedtypesConceptmap)
+    "Condition" -> Ok(DefinedtypesCondition)
+    "Consent" -> Ok(DefinedtypesConsent)
+    "Contract" -> Ok(DefinedtypesContract)
+    "Coverage" -> Ok(DefinedtypesCoverage)
+    "CoverageEligibilityRequest" -> Ok(DefinedtypesCoverageeligibilityrequest)
+    "CoverageEligibilityResponse" -> Ok(DefinedtypesCoverageeligibilityresponse)
+    "DetectedIssue" -> Ok(DefinedtypesDetectedissue)
+    "Device" -> Ok(DefinedtypesDevice)
+    "DeviceDefinition" -> Ok(DefinedtypesDevicedefinition)
+    "DeviceMetric" -> Ok(DefinedtypesDevicemetric)
+    "DeviceRequest" -> Ok(DefinedtypesDevicerequest)
+    "DeviceUseStatement" -> Ok(DefinedtypesDeviceusestatement)
+    "DiagnosticReport" -> Ok(DefinedtypesDiagnosticreport)
+    "DocumentManifest" -> Ok(DefinedtypesDocumentmanifest)
+    "DocumentReference" -> Ok(DefinedtypesDocumentreference)
+    "DomainResource" -> Ok(DefinedtypesDomainresource)
+    "EffectEvidenceSynthesis" -> Ok(DefinedtypesEffectevidencesynthesis)
+    "Encounter" -> Ok(DefinedtypesEncounter)
+    "Endpoint" -> Ok(DefinedtypesEndpoint)
+    "EnrollmentRequest" -> Ok(DefinedtypesEnrollmentrequest)
+    "EnrollmentResponse" -> Ok(DefinedtypesEnrollmentresponse)
+    "EpisodeOfCare" -> Ok(DefinedtypesEpisodeofcare)
+    "EventDefinition" -> Ok(DefinedtypesEventdefinition)
+    "Evidence" -> Ok(DefinedtypesEvidence)
+    "EvidenceVariable" -> Ok(DefinedtypesEvidencevariable)
+    "ExampleScenario" -> Ok(DefinedtypesExamplescenario)
+    "ExplanationOfBenefit" -> Ok(DefinedtypesExplanationofbenefit)
+    "FamilyMemberHistory" -> Ok(DefinedtypesFamilymemberhistory)
+    "Flag" -> Ok(DefinedtypesFlag)
+    "Goal" -> Ok(DefinedtypesGoal)
+    "GraphDefinition" -> Ok(DefinedtypesGraphdefinition)
+    "Group" -> Ok(DefinedtypesGroup)
+    "GuidanceResponse" -> Ok(DefinedtypesGuidanceresponse)
+    "HealthcareService" -> Ok(DefinedtypesHealthcareservice)
+    "ImagingStudy" -> Ok(DefinedtypesImagingstudy)
+    "Immunization" -> Ok(DefinedtypesImmunization)
+    "ImmunizationEvaluation" -> Ok(DefinedtypesImmunizationevaluation)
+    "ImmunizationRecommendation" -> Ok(DefinedtypesImmunizationrecommendation)
+    "ImplementationGuide" -> Ok(DefinedtypesImplementationguide)
+    "InsurancePlan" -> Ok(DefinedtypesInsuranceplan)
+    "Invoice" -> Ok(DefinedtypesInvoice)
+    "Library" -> Ok(DefinedtypesLibrary)
+    "Linkage" -> Ok(DefinedtypesLinkage)
+    "List" -> Ok(DefinedtypesList)
+    "Location" -> Ok(DefinedtypesLocation)
+    "Measure" -> Ok(DefinedtypesMeasure)
+    "MeasureReport" -> Ok(DefinedtypesMeasurereport)
+    "Media" -> Ok(DefinedtypesMedia)
+    "Medication" -> Ok(DefinedtypesMedication)
+    "MedicationAdministration" -> Ok(DefinedtypesMedicationadministration)
+    "MedicationDispense" -> Ok(DefinedtypesMedicationdispense)
+    "MedicationKnowledge" -> Ok(DefinedtypesMedicationknowledge)
+    "MedicationRequest" -> Ok(DefinedtypesMedicationrequest)
+    "MedicationStatement" -> Ok(DefinedtypesMedicationstatement)
+    "MedicinalProduct" -> Ok(DefinedtypesMedicinalproduct)
+    "MedicinalProductAuthorization" ->
+      Ok(DefinedtypesMedicinalproductauthorization)
+    "MedicinalProductContraindication" ->
+      Ok(DefinedtypesMedicinalproductcontraindication)
+    "MedicinalProductIndication" -> Ok(DefinedtypesMedicinalproductindication)
+    "MedicinalProductIngredient" -> Ok(DefinedtypesMedicinalproductingredient)
+    "MedicinalProductInteraction" -> Ok(DefinedtypesMedicinalproductinteraction)
+    "MedicinalProductManufactured" ->
+      Ok(DefinedtypesMedicinalproductmanufactured)
+    "MedicinalProductPackaged" -> Ok(DefinedtypesMedicinalproductpackaged)
+    "MedicinalProductPharmaceutical" ->
+      Ok(DefinedtypesMedicinalproductpharmaceutical)
+    "MedicinalProductUndesirableEffect" ->
+      Ok(DefinedtypesMedicinalproductundesirableeffect)
+    "MessageDefinition" -> Ok(DefinedtypesMessagedefinition)
+    "MessageHeader" -> Ok(DefinedtypesMessageheader)
+    "MolecularSequence" -> Ok(DefinedtypesMolecularsequence)
+    "NamingSystem" -> Ok(DefinedtypesNamingsystem)
+    "NutritionOrder" -> Ok(DefinedtypesNutritionorder)
+    "Observation" -> Ok(DefinedtypesObservation)
+    "ObservationDefinition" -> Ok(DefinedtypesObservationdefinition)
+    "OperationDefinition" -> Ok(DefinedtypesOperationdefinition)
+    "OperationOutcome" -> Ok(DefinedtypesOperationoutcome)
+    "Organization" -> Ok(DefinedtypesOrganization)
+    "OrganizationAffiliation" -> Ok(DefinedtypesOrganizationaffiliation)
+    "Parameters" -> Ok(DefinedtypesParameters)
+    "Patient" -> Ok(DefinedtypesPatient)
+    "PaymentNotice" -> Ok(DefinedtypesPaymentnotice)
+    "PaymentReconciliation" -> Ok(DefinedtypesPaymentreconciliation)
+    "Person" -> Ok(DefinedtypesPerson)
+    "PlanDefinition" -> Ok(DefinedtypesPlandefinition)
+    "Practitioner" -> Ok(DefinedtypesPractitioner)
+    "PractitionerRole" -> Ok(DefinedtypesPractitionerrole)
+    "Procedure" -> Ok(DefinedtypesProcedure)
+    "Provenance" -> Ok(DefinedtypesProvenance)
+    "Questionnaire" -> Ok(DefinedtypesQuestionnaire)
+    "QuestionnaireResponse" -> Ok(DefinedtypesQuestionnaireresponse)
+    "RelatedPerson" -> Ok(DefinedtypesRelatedperson)
+    "RequestGroup" -> Ok(DefinedtypesRequestgroup)
+    "ResearchDefinition" -> Ok(DefinedtypesResearchdefinition)
+    "ResearchElementDefinition" -> Ok(DefinedtypesResearchelementdefinition)
+    "ResearchStudy" -> Ok(DefinedtypesResearchstudy)
+    "ResearchSubject" -> Ok(DefinedtypesResearchsubject)
+    "Resource" -> Ok(DefinedtypesResource)
+    "RiskAssessment" -> Ok(DefinedtypesRiskassessment)
+    "RiskEvidenceSynthesis" -> Ok(DefinedtypesRiskevidencesynthesis)
+    "Schedule" -> Ok(DefinedtypesSchedule)
+    "SearchParameter" -> Ok(DefinedtypesSearchparameter)
+    "ServiceRequest" -> Ok(DefinedtypesServicerequest)
+    "Slot" -> Ok(DefinedtypesSlot)
+    "Specimen" -> Ok(DefinedtypesSpecimen)
+    "SpecimenDefinition" -> Ok(DefinedtypesSpecimendefinition)
+    "StructureDefinition" -> Ok(DefinedtypesStructuredefinition)
+    "StructureMap" -> Ok(DefinedtypesStructuremap)
+    "Subscription" -> Ok(DefinedtypesSubscription)
+    "Substance" -> Ok(DefinedtypesSubstance)
+    "SubstanceNucleicAcid" -> Ok(DefinedtypesSubstancenucleicacid)
+    "SubstancePolymer" -> Ok(DefinedtypesSubstancepolymer)
+    "SubstanceProtein" -> Ok(DefinedtypesSubstanceprotein)
+    "SubstanceReferenceInformation" ->
+      Ok(DefinedtypesSubstancereferenceinformation)
+    "SubstanceSourceMaterial" -> Ok(DefinedtypesSubstancesourcematerial)
+    "SubstanceSpecification" -> Ok(DefinedtypesSubstancespecification)
+    "SupplyDelivery" -> Ok(DefinedtypesSupplydelivery)
+    "SupplyRequest" -> Ok(DefinedtypesSupplyrequest)
+    "Task" -> Ok(DefinedtypesTask)
+    "TerminologyCapabilities" -> Ok(DefinedtypesTerminologycapabilities)
+    "TestReport" -> Ok(DefinedtypesTestreport)
+    "TestScript" -> Ok(DefinedtypesTestscript)
+    "ValueSet" -> Ok(DefinedtypesValueset)
+    "VerificationResult" -> Ok(DefinedtypesVerificationresult)
+    "VisionPrescription" -> Ok(DefinedtypesVisionprescription)
+    _ -> Error(Nil)
   }
 }
 
@@ -2567,9 +3648,25 @@ pub type Adverseeventactuality {
 pub fn adverseeventactuality_to_json(
   adverseeventactuality: Adverseeventactuality,
 ) -> Json {
+  json.string(adverseeventactuality_to_string(adverseeventactuality))
+}
+
+pub fn adverseeventactuality_to_string(
+  adverseeventactuality: Adverseeventactuality,
+) -> String {
   case adverseeventactuality {
-    AdverseeventactualityActual -> json.string("actual")
-    AdverseeventactualityPotential -> json.string("potential")
+    AdverseeventactualityActual -> "actual"
+    AdverseeventactualityPotential -> "potential"
+  }
+}
+
+pub fn adverseeventactuality_from_string(
+  s: String,
+) -> Result(Adverseeventactuality, Nil) {
+  case s {
+    "actual" -> Ok(AdverseeventactualityActual)
+    "potential" -> Ok(AdverseeventactualityPotential)
+    _ -> Error(Nil)
   }
 }
 
@@ -2590,11 +3687,25 @@ pub type Mapmodelmode {
 }
 
 pub fn mapmodelmode_to_json(mapmodelmode: Mapmodelmode) -> Json {
+  json.string(mapmodelmode_to_string(mapmodelmode))
+}
+
+pub fn mapmodelmode_to_string(mapmodelmode: Mapmodelmode) -> String {
   case mapmodelmode {
-    MapmodelmodeSource -> json.string("source")
-    MapmodelmodeQueried -> json.string("queried")
-    MapmodelmodeTarget -> json.string("target")
-    MapmodelmodeProduced -> json.string("produced")
+    MapmodelmodeSource -> "source"
+    MapmodelmodeQueried -> "queried"
+    MapmodelmodeTarget -> "target"
+    MapmodelmodeProduced -> "produced"
+  }
+}
+
+pub fn mapmodelmode_from_string(s: String) -> Result(Mapmodelmode, Nil) {
+  case s {
+    "source" -> Ok(MapmodelmodeSource)
+    "queried" -> Ok(MapmodelmodeQueried)
+    "target" -> Ok(MapmodelmodeTarget)
+    "produced" -> Ok(MapmodelmodeProduced)
+    _ -> Error(Nil)
   }
 }
 
@@ -2617,11 +3728,25 @@ pub type Linktype {
 }
 
 pub fn linktype_to_json(linktype: Linktype) -> Json {
+  json.string(linktype_to_string(linktype))
+}
+
+pub fn linktype_to_string(linktype: Linktype) -> String {
   case linktype {
-    LinktypeReplacedby -> json.string("replaced-by")
-    LinktypeReplaces -> json.string("replaces")
-    LinktypeRefer -> json.string("refer")
-    LinktypeSeealso -> json.string("seealso")
+    LinktypeReplacedby -> "replaced-by"
+    LinktypeReplaces -> "replaces"
+    LinktypeRefer -> "refer"
+    LinktypeSeealso -> "seealso"
+  }
+}
+
+pub fn linktype_from_string(s: String) -> Result(Linktype, Nil) {
+  case s {
+    "replaced-by" -> Ok(LinktypeReplacedby)
+    "replaces" -> Ok(LinktypeReplaces)
+    "refer" -> Ok(LinktypeRefer)
+    "seealso" -> Ok(LinktypeSeealso)
+    _ -> Error(Nil)
   }
 }
 
@@ -2652,19 +3777,41 @@ pub type Taskstatus {
 }
 
 pub fn taskstatus_to_json(taskstatus: Taskstatus) -> Json {
+  json.string(taskstatus_to_string(taskstatus))
+}
+
+pub fn taskstatus_to_string(taskstatus: Taskstatus) -> String {
   case taskstatus {
-    TaskstatusDraft -> json.string("draft")
-    TaskstatusRequested -> json.string("requested")
-    TaskstatusReceived -> json.string("received")
-    TaskstatusAccepted -> json.string("accepted")
-    TaskstatusRejected -> json.string("rejected")
-    TaskstatusReady -> json.string("ready")
-    TaskstatusCancelled -> json.string("cancelled")
-    TaskstatusInprogress -> json.string("in-progress")
-    TaskstatusOnhold -> json.string("on-hold")
-    TaskstatusFailed -> json.string("failed")
-    TaskstatusCompleted -> json.string("completed")
-    TaskstatusEnteredinerror -> json.string("entered-in-error")
+    TaskstatusDraft -> "draft"
+    TaskstatusRequested -> "requested"
+    TaskstatusReceived -> "received"
+    TaskstatusAccepted -> "accepted"
+    TaskstatusRejected -> "rejected"
+    TaskstatusReady -> "ready"
+    TaskstatusCancelled -> "cancelled"
+    TaskstatusInprogress -> "in-progress"
+    TaskstatusOnhold -> "on-hold"
+    TaskstatusFailed -> "failed"
+    TaskstatusCompleted -> "completed"
+    TaskstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn taskstatus_from_string(s: String) -> Result(Taskstatus, Nil) {
+  case s {
+    "draft" -> Ok(TaskstatusDraft)
+    "requested" -> Ok(TaskstatusRequested)
+    "received" -> Ok(TaskstatusReceived)
+    "accepted" -> Ok(TaskstatusAccepted)
+    "rejected" -> Ok(TaskstatusRejected)
+    "ready" -> Ok(TaskstatusReady)
+    "cancelled" -> Ok(TaskstatusCancelled)
+    "in-progress" -> Ok(TaskstatusInprogress)
+    "on-hold" -> Ok(TaskstatusOnhold)
+    "failed" -> Ok(TaskstatusFailed)
+    "completed" -> Ok(TaskstatusCompleted)
+    "entered-in-error" -> Ok(TaskstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -2698,12 +3845,31 @@ pub type Propertyrepresentation {
 pub fn propertyrepresentation_to_json(
   propertyrepresentation: Propertyrepresentation,
 ) -> Json {
+  json.string(propertyrepresentation_to_string(propertyrepresentation))
+}
+
+pub fn propertyrepresentation_to_string(
+  propertyrepresentation: Propertyrepresentation,
+) -> String {
   case propertyrepresentation {
-    PropertyrepresentationXmlattr -> json.string("xmlAttr")
-    PropertyrepresentationXmltext -> json.string("xmlText")
-    PropertyrepresentationTypeattr -> json.string("typeAttr")
-    PropertyrepresentationCdatext -> json.string("cdaText")
-    PropertyrepresentationXhtml -> json.string("xhtml")
+    PropertyrepresentationXmlattr -> "xmlAttr"
+    PropertyrepresentationXmltext -> "xmlText"
+    PropertyrepresentationTypeattr -> "typeAttr"
+    PropertyrepresentationCdatext -> "cdaText"
+    PropertyrepresentationXhtml -> "xhtml"
+  }
+}
+
+pub fn propertyrepresentation_from_string(
+  s: String,
+) -> Result(Propertyrepresentation, Nil) {
+  case s {
+    "xmlAttr" -> Ok(PropertyrepresentationXmlattr)
+    "xmlText" -> Ok(PropertyrepresentationXmltext)
+    "typeAttr" -> Ok(PropertyrepresentationTypeattr)
+    "cdaText" -> Ok(PropertyrepresentationCdatext)
+    "xhtml" -> Ok(PropertyrepresentationXhtml)
+    _ -> Error(Nil)
   }
 }
 
@@ -2731,13 +3897,33 @@ pub type Invoicepricecomponenttype {
 pub fn invoicepricecomponenttype_to_json(
   invoicepricecomponenttype: Invoicepricecomponenttype,
 ) -> Json {
+  json.string(invoicepricecomponenttype_to_string(invoicepricecomponenttype))
+}
+
+pub fn invoicepricecomponenttype_to_string(
+  invoicepricecomponenttype: Invoicepricecomponenttype,
+) -> String {
   case invoicepricecomponenttype {
-    InvoicepricecomponenttypeBase -> json.string("base")
-    InvoicepricecomponenttypeSurcharge -> json.string("surcharge")
-    InvoicepricecomponenttypeDeduction -> json.string("deduction")
-    InvoicepricecomponenttypeDiscount -> json.string("discount")
-    InvoicepricecomponenttypeTax -> json.string("tax")
-    InvoicepricecomponenttypeInformational -> json.string("informational")
+    InvoicepricecomponenttypeBase -> "base"
+    InvoicepricecomponenttypeSurcharge -> "surcharge"
+    InvoicepricecomponenttypeDeduction -> "deduction"
+    InvoicepricecomponenttypeDiscount -> "discount"
+    InvoicepricecomponenttypeTax -> "tax"
+    InvoicepricecomponenttypeInformational -> "informational"
+  }
+}
+
+pub fn invoicepricecomponenttype_from_string(
+  s: String,
+) -> Result(Invoicepricecomponenttype, Nil) {
+  case s {
+    "base" -> Ok(InvoicepricecomponenttypeBase)
+    "surcharge" -> Ok(InvoicepricecomponenttypeSurcharge)
+    "deduction" -> Ok(InvoicepricecomponenttypeDeduction)
+    "discount" -> Ok(InvoicepricecomponenttypeDiscount)
+    "tax" -> Ok(InvoicepricecomponenttypeTax)
+    "informational" -> Ok(InvoicepricecomponenttypeInformational)
+    _ -> Error(Nil)
   }
 }
 
@@ -2769,16 +3955,37 @@ pub type Careplanactivitykind {
 pub fn careplanactivitykind_to_json(
   careplanactivitykind: Careplanactivitykind,
 ) -> Json {
+  json.string(careplanactivitykind_to_string(careplanactivitykind))
+}
+
+pub fn careplanactivitykind_to_string(
+  careplanactivitykind: Careplanactivitykind,
+) -> String {
   case careplanactivitykind {
-    CareplanactivitykindAppointment -> json.string("Appointment")
-    CareplanactivitykindCommunicationrequest ->
-      json.string("CommunicationRequest")
-    CareplanactivitykindDevicerequest -> json.string("DeviceRequest")
-    CareplanactivitykindMedicationrequest -> json.string("MedicationRequest")
-    CareplanactivitykindNutritionorder -> json.string("NutritionOrder")
-    CareplanactivitykindTask -> json.string("Task")
-    CareplanactivitykindServicerequest -> json.string("ServiceRequest")
-    CareplanactivitykindVisionprescription -> json.string("VisionPrescription")
+    CareplanactivitykindAppointment -> "Appointment"
+    CareplanactivitykindCommunicationrequest -> "CommunicationRequest"
+    CareplanactivitykindDevicerequest -> "DeviceRequest"
+    CareplanactivitykindMedicationrequest -> "MedicationRequest"
+    CareplanactivitykindNutritionorder -> "NutritionOrder"
+    CareplanactivitykindTask -> "Task"
+    CareplanactivitykindServicerequest -> "ServiceRequest"
+    CareplanactivitykindVisionprescription -> "VisionPrescription"
+  }
+}
+
+pub fn careplanactivitykind_from_string(
+  s: String,
+) -> Result(Careplanactivitykind, Nil) {
+  case s {
+    "Appointment" -> Ok(CareplanactivitykindAppointment)
+    "CommunicationRequest" -> Ok(CareplanactivitykindCommunicationrequest)
+    "DeviceRequest" -> Ok(CareplanactivitykindDevicerequest)
+    "MedicationRequest" -> Ok(CareplanactivitykindMedicationrequest)
+    "NutritionOrder" -> Ok(CareplanactivitykindNutritionorder)
+    "Task" -> Ok(CareplanactivitykindTask)
+    "ServiceRequest" -> Ok(CareplanactivitykindServicerequest)
+    "VisionPrescription" -> Ok(CareplanactivitykindVisionprescription)
+    _ -> Error(Nil)
   }
 }
 
@@ -2805,9 +4012,21 @@ pub type Exposurestate {
 }
 
 pub fn exposurestate_to_json(exposurestate: Exposurestate) -> Json {
+  json.string(exposurestate_to_string(exposurestate))
+}
+
+pub fn exposurestate_to_string(exposurestate: Exposurestate) -> String {
   case exposurestate {
-    ExposurestateExposure -> json.string("exposure")
-    ExposurestateExposurealternative -> json.string("exposure-alternative")
+    ExposurestateExposure -> "exposure"
+    ExposurestateExposurealternative -> "exposure-alternative"
+  }
+}
+
+pub fn exposurestate_from_string(s: String) -> Result(Exposurestate, Nil) {
+  case s {
+    "exposure" -> Ok(ExposurestateExposure)
+    "exposure-alternative" -> Ok(ExposurestateExposurealternative)
+    _ -> Error(Nil)
   }
 }
 
@@ -2829,10 +4048,27 @@ pub type Conceptmapunmappedmode {
 pub fn conceptmapunmappedmode_to_json(
   conceptmapunmappedmode: Conceptmapunmappedmode,
 ) -> Json {
+  json.string(conceptmapunmappedmode_to_string(conceptmapunmappedmode))
+}
+
+pub fn conceptmapunmappedmode_to_string(
+  conceptmapunmappedmode: Conceptmapunmappedmode,
+) -> String {
   case conceptmapunmappedmode {
-    ConceptmapunmappedmodeProvided -> json.string("provided")
-    ConceptmapunmappedmodeFixed -> json.string("fixed")
-    ConceptmapunmappedmodeOthermap -> json.string("other-map")
+    ConceptmapunmappedmodeProvided -> "provided"
+    ConceptmapunmappedmodeFixed -> "fixed"
+    ConceptmapunmappedmodeOthermap -> "other-map"
+  }
+}
+
+pub fn conceptmapunmappedmode_from_string(
+  s: String,
+) -> Result(Conceptmapunmappedmode, Nil) {
+  case s {
+    "provided" -> Ok(ConceptmapunmappedmodeProvided)
+    "fixed" -> Ok(ConceptmapunmappedmodeFixed)
+    "other-map" -> Ok(ConceptmapunmappedmodeOthermap)
+    _ -> Error(Nil)
   }
 }
 
@@ -2859,13 +4095,33 @@ pub type Verificationresultstatus {
 pub fn verificationresultstatus_to_json(
   verificationresultstatus: Verificationresultstatus,
 ) -> Json {
+  json.string(verificationresultstatus_to_string(verificationresultstatus))
+}
+
+pub fn verificationresultstatus_to_string(
+  verificationresultstatus: Verificationresultstatus,
+) -> String {
   case verificationresultstatus {
-    VerificationresultstatusAttested -> json.string("attested")
-    VerificationresultstatusValidated -> json.string("validated")
-    VerificationresultstatusInprocess -> json.string("in-process")
-    VerificationresultstatusReqrevalid -> json.string("req-revalid")
-    VerificationresultstatusValfail -> json.string("val-fail")
-    VerificationresultstatusRevalfail -> json.string("reval-fail")
+    VerificationresultstatusAttested -> "attested"
+    VerificationresultstatusValidated -> "validated"
+    VerificationresultstatusInprocess -> "in-process"
+    VerificationresultstatusReqrevalid -> "req-revalid"
+    VerificationresultstatusValfail -> "val-fail"
+    VerificationresultstatusRevalfail -> "reval-fail"
+  }
+}
+
+pub fn verificationresultstatus_from_string(
+  s: String,
+) -> Result(Verificationresultstatus, Nil) {
+  case s {
+    "attested" -> Ok(VerificationresultstatusAttested)
+    "validated" -> Ok(VerificationresultstatusValidated)
+    "in-process" -> Ok(VerificationresultstatusInprocess)
+    "req-revalid" -> Ok(VerificationresultstatusReqrevalid)
+    "val-fail" -> Ok(VerificationresultstatusValfail)
+    "reval-fail" -> Ok(VerificationresultstatusRevalfail)
+    _ -> Error(Nil)
   }
 }
 
@@ -2895,12 +4151,27 @@ pub type Accountstatus {
 }
 
 pub fn accountstatus_to_json(accountstatus: Accountstatus) -> Json {
+  json.string(accountstatus_to_string(accountstatus))
+}
+
+pub fn accountstatus_to_string(accountstatus: Accountstatus) -> String {
   case accountstatus {
-    AccountstatusActive -> json.string("active")
-    AccountstatusInactive -> json.string("inactive")
-    AccountstatusEnteredinerror -> json.string("entered-in-error")
-    AccountstatusOnhold -> json.string("on-hold")
-    AccountstatusUnknown -> json.string("unknown")
+    AccountstatusActive -> "active"
+    AccountstatusInactive -> "inactive"
+    AccountstatusEnteredinerror -> "entered-in-error"
+    AccountstatusOnhold -> "on-hold"
+    AccountstatusUnknown -> "unknown"
+  }
+}
+
+pub fn accountstatus_from_string(s: String) -> Result(Accountstatus, Nil) {
+  case s {
+    "active" -> Ok(AccountstatusActive)
+    "inactive" -> Ok(AccountstatusInactive)
+    "entered-in-error" -> Ok(AccountstatusEnteredinerror)
+    "on-hold" -> Ok(AccountstatusOnhold)
+    "unknown" -> Ok(AccountstatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -2924,11 +4195,25 @@ pub type Careplanintent {
 }
 
 pub fn careplanintent_to_json(careplanintent: Careplanintent) -> Json {
+  json.string(careplanintent_to_string(careplanintent))
+}
+
+pub fn careplanintent_to_string(careplanintent: Careplanintent) -> String {
   case careplanintent {
-    CareplanintentProposal -> json.string("proposal")
-    CareplanintentPlan -> json.string("plan")
-    CareplanintentOrder -> json.string("order")
-    CareplanintentOption -> json.string("option")
+    CareplanintentProposal -> "proposal"
+    CareplanintentPlan -> "plan"
+    CareplanintentOrder -> "order"
+    CareplanintentOption -> "option"
+  }
+}
+
+pub fn careplanintent_from_string(s: String) -> Result(Careplanintent, Nil) {
+  case s {
+    "proposal" -> Ok(CareplanintentProposal)
+    "plan" -> Ok(CareplanintentPlan)
+    "order" -> Ok(CareplanintentOrder)
+    "option" -> Ok(CareplanintentOption)
+    _ -> Error(Nil)
   }
 }
 
@@ -2956,16 +4241,35 @@ pub type Taskintent {
 }
 
 pub fn taskintent_to_json(taskintent: Taskintent) -> Json {
+  json.string(taskintent_to_string(taskintent))
+}
+
+pub fn taskintent_to_string(taskintent: Taskintent) -> String {
   case taskintent {
-    TaskintentUnknown -> json.string("unknown")
-    TaskintentProposal -> json.string("proposal")
-    TaskintentPlan -> json.string("plan")
-    TaskintentOrder -> json.string("order")
-    TaskintentOriginalorder -> json.string("original-order")
-    TaskintentReflexorder -> json.string("reflex-order")
-    TaskintentFillerorder -> json.string("filler-order")
-    TaskintentInstanceorder -> json.string("instance-order")
-    TaskintentOption -> json.string("option")
+    TaskintentUnknown -> "unknown"
+    TaskintentProposal -> "proposal"
+    TaskintentPlan -> "plan"
+    TaskintentOrder -> "order"
+    TaskintentOriginalorder -> "original-order"
+    TaskintentReflexorder -> "reflex-order"
+    TaskintentFillerorder -> "filler-order"
+    TaskintentInstanceorder -> "instance-order"
+    TaskintentOption -> "option"
+  }
+}
+
+pub fn taskintent_from_string(s: String) -> Result(Taskintent, Nil) {
+  case s {
+    "unknown" -> Ok(TaskintentUnknown)
+    "proposal" -> Ok(TaskintentProposal)
+    "plan" -> Ok(TaskintentPlan)
+    "order" -> Ok(TaskintentOrder)
+    "original-order" -> Ok(TaskintentOriginalorder)
+    "reflex-order" -> Ok(TaskintentReflexorder)
+    "filler-order" -> Ok(TaskintentFillerorder)
+    "instance-order" -> Ok(TaskintentInstanceorder)
+    "option" -> Ok(TaskintentOption)
+    _ -> Error(Nil)
   }
 }
 
@@ -3003,19 +4307,45 @@ pub type Searchmodifiercode {
 pub fn searchmodifiercode_to_json(
   searchmodifiercode: Searchmodifiercode,
 ) -> Json {
+  json.string(searchmodifiercode_to_string(searchmodifiercode))
+}
+
+pub fn searchmodifiercode_to_string(
+  searchmodifiercode: Searchmodifiercode,
+) -> String {
   case searchmodifiercode {
-    SearchmodifiercodeMissing -> json.string("missing")
-    SearchmodifiercodeExact -> json.string("exact")
-    SearchmodifiercodeContains -> json.string("contains")
-    SearchmodifiercodeNot -> json.string("not")
-    SearchmodifiercodeText -> json.string("text")
-    SearchmodifiercodeIn -> json.string("in")
-    SearchmodifiercodeNotin -> json.string("not-in")
-    SearchmodifiercodeBelow -> json.string("below")
-    SearchmodifiercodeAbove -> json.string("above")
-    SearchmodifiercodeType -> json.string("type")
-    SearchmodifiercodeIdentifier -> json.string("identifier")
-    SearchmodifiercodeOftype -> json.string("ofType")
+    SearchmodifiercodeMissing -> "missing"
+    SearchmodifiercodeExact -> "exact"
+    SearchmodifiercodeContains -> "contains"
+    SearchmodifiercodeNot -> "not"
+    SearchmodifiercodeText -> "text"
+    SearchmodifiercodeIn -> "in"
+    SearchmodifiercodeNotin -> "not-in"
+    SearchmodifiercodeBelow -> "below"
+    SearchmodifiercodeAbove -> "above"
+    SearchmodifiercodeType -> "type"
+    SearchmodifiercodeIdentifier -> "identifier"
+    SearchmodifiercodeOftype -> "ofType"
+  }
+}
+
+pub fn searchmodifiercode_from_string(
+  s: String,
+) -> Result(Searchmodifiercode, Nil) {
+  case s {
+    "missing" -> Ok(SearchmodifiercodeMissing)
+    "exact" -> Ok(SearchmodifiercodeExact)
+    "contains" -> Ok(SearchmodifiercodeContains)
+    "not" -> Ok(SearchmodifiercodeNot)
+    "text" -> Ok(SearchmodifiercodeText)
+    "in" -> Ok(SearchmodifiercodeIn)
+    "not-in" -> Ok(SearchmodifiercodeNotin)
+    "below" -> Ok(SearchmodifiercodeBelow)
+    "above" -> Ok(SearchmodifiercodeAbove)
+    "type" -> Ok(SearchmodifiercodeType)
+    "identifier" -> Ok(SearchmodifiercodeIdentifier)
+    "ofType" -> Ok(SearchmodifiercodeOftype)
+    _ -> Error(Nil)
   }
 }
 
@@ -3048,11 +4378,29 @@ pub type Consentdatameaning {
 pub fn consentdatameaning_to_json(
   consentdatameaning: Consentdatameaning,
 ) -> Json {
+  json.string(consentdatameaning_to_string(consentdatameaning))
+}
+
+pub fn consentdatameaning_to_string(
+  consentdatameaning: Consentdatameaning,
+) -> String {
   case consentdatameaning {
-    ConsentdatameaningInstance -> json.string("instance")
-    ConsentdatameaningRelated -> json.string("related")
-    ConsentdatameaningDependents -> json.string("dependents")
-    ConsentdatameaningAuthoredby -> json.string("authoredby")
+    ConsentdatameaningInstance -> "instance"
+    ConsentdatameaningRelated -> "related"
+    ConsentdatameaningDependents -> "dependents"
+    ConsentdatameaningAuthoredby -> "authoredby"
+  }
+}
+
+pub fn consentdatameaning_from_string(
+  s: String,
+) -> Result(Consentdatameaning, Nil) {
+  case s {
+    "instance" -> Ok(ConsentdatameaningInstance)
+    "related" -> Ok(ConsentdatameaningRelated)
+    "dependents" -> Ok(ConsentdatameaningDependents)
+    "authoredby" -> Ok(ConsentdatameaningAuthoredby)
+    _ -> Error(Nil)
   }
 }
 
@@ -3075,11 +4423,25 @@ pub type Fmstatus {
 }
 
 pub fn fmstatus_to_json(fmstatus: Fmstatus) -> Json {
+  json.string(fmstatus_to_string(fmstatus))
+}
+
+pub fn fmstatus_to_string(fmstatus: Fmstatus) -> String {
   case fmstatus {
-    FmstatusActive -> json.string("active")
-    FmstatusCancelled -> json.string("cancelled")
-    FmstatusDraft -> json.string("draft")
-    FmstatusEnteredinerror -> json.string("entered-in-error")
+    FmstatusActive -> "active"
+    FmstatusCancelled -> "cancelled"
+    FmstatusDraft -> "draft"
+    FmstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn fmstatus_from_string(s: String) -> Result(Fmstatus, Nil) {
+  case s {
+    "active" -> Ok(FmstatusActive)
+    "cancelled" -> Ok(FmstatusCancelled)
+    "draft" -> Ok(FmstatusDraft)
+    "entered-in-error" -> Ok(FmstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -3101,10 +4463,23 @@ pub type Medicationstatus {
 }
 
 pub fn medicationstatus_to_json(medicationstatus: Medicationstatus) -> Json {
+  json.string(medicationstatus_to_string(medicationstatus))
+}
+
+pub fn medicationstatus_to_string(medicationstatus: Medicationstatus) -> String {
   case medicationstatus {
-    MedicationstatusActive -> json.string("active")
-    MedicationstatusInactive -> json.string("inactive")
-    MedicationstatusEnteredinerror -> json.string("entered-in-error")
+    MedicationstatusActive -> "active"
+    MedicationstatusInactive -> "inactive"
+    MedicationstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn medicationstatus_from_string(s: String) -> Result(Medicationstatus, Nil) {
+  case s {
+    "active" -> Ok(MedicationstatusActive)
+    "inactive" -> Ok(MedicationstatusInactive)
+    "entered-in-error" -> Ok(MedicationstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -3125,10 +4500,23 @@ pub type Sequencetype {
 }
 
 pub fn sequencetype_to_json(sequencetype: Sequencetype) -> Json {
+  json.string(sequencetype_to_string(sequencetype))
+}
+
+pub fn sequencetype_to_string(sequencetype: Sequencetype) -> String {
   case sequencetype {
-    SequencetypeAa -> json.string("aa")
-    SequencetypeDna -> json.string("dna")
-    SequencetypeRna -> json.string("rna")
+    SequencetypeAa -> "aa"
+    SequencetypeDna -> "dna"
+    SequencetypeRna -> "rna"
+  }
+}
+
+pub fn sequencetype_from_string(s: String) -> Result(Sequencetype, Nil) {
+  case s {
+    "aa" -> Ok(SequencetypeAa)
+    "dna" -> Ok(SequencetypeDna)
+    "rna" -> Ok(SequencetypeRna)
+    _ -> Error(Nil)
   }
 }
 
@@ -3152,11 +4540,29 @@ pub type Graphcompartmentrule {
 pub fn graphcompartmentrule_to_json(
   graphcompartmentrule: Graphcompartmentrule,
 ) -> Json {
+  json.string(graphcompartmentrule_to_string(graphcompartmentrule))
+}
+
+pub fn graphcompartmentrule_to_string(
+  graphcompartmentrule: Graphcompartmentrule,
+) -> String {
   case graphcompartmentrule {
-    GraphcompartmentruleIdentical -> json.string("identical")
-    GraphcompartmentruleMatching -> json.string("matching")
-    GraphcompartmentruleDifferent -> json.string("different")
-    GraphcompartmentruleCustom -> json.string("custom")
+    GraphcompartmentruleIdentical -> "identical"
+    GraphcompartmentruleMatching -> "matching"
+    GraphcompartmentruleDifferent -> "different"
+    GraphcompartmentruleCustom -> "custom"
+  }
+}
+
+pub fn graphcompartmentrule_from_string(
+  s: String,
+) -> Result(Graphcompartmentrule, Nil) {
+  case s {
+    "identical" -> Ok(GraphcompartmentruleIdentical)
+    "matching" -> Ok(GraphcompartmentruleMatching)
+    "different" -> Ok(GraphcompartmentruleDifferent)
+    "custom" -> Ok(GraphcompartmentruleCustom)
+    _ -> Error(Nil)
   }
 }
 
@@ -3177,9 +4583,21 @@ pub type Operationkind {
 }
 
 pub fn operationkind_to_json(operationkind: Operationkind) -> Json {
+  json.string(operationkind_to_string(operationkind))
+}
+
+pub fn operationkind_to_string(operationkind: Operationkind) -> String {
   case operationkind {
-    OperationkindOperation -> json.string("operation")
-    OperationkindQuery -> json.string("query")
+    OperationkindOperation -> "operation"
+    OperationkindQuery -> "query"
+  }
+}
+
+pub fn operationkind_from_string(s: String) -> Result(Operationkind, Nil) {
+  case s {
+    "operation" -> Ok(OperationkindOperation)
+    "query" -> Ok(OperationkindQuery)
+    _ -> Error(Nil)
   }
 }
 
@@ -3201,10 +4619,27 @@ pub type Detectedissueseverity {
 pub fn detectedissueseverity_to_json(
   detectedissueseverity: Detectedissueseverity,
 ) -> Json {
+  json.string(detectedissueseverity_to_string(detectedissueseverity))
+}
+
+pub fn detectedissueseverity_to_string(
+  detectedissueseverity: Detectedissueseverity,
+) -> String {
   case detectedissueseverity {
-    DetectedissueseverityHigh -> json.string("high")
-    DetectedissueseverityModerate -> json.string("moderate")
-    DetectedissueseverityLow -> json.string("low")
+    DetectedissueseverityHigh -> "high"
+    DetectedissueseverityModerate -> "moderate"
+    DetectedissueseverityLow -> "low"
+  }
+}
+
+pub fn detectedissueseverity_from_string(
+  s: String,
+) -> Result(Detectedissueseverity, Nil) {
+  case s {
+    "high" -> Ok(DetectedissueseverityHigh)
+    "moderate" -> Ok(DetectedissueseverityModerate)
+    "low" -> Ok(DetectedissueseverityLow)
+    _ -> Error(Nil)
   }
 }
 
@@ -3228,12 +4663,29 @@ pub type Metriccalibrationstate {
 pub fn metriccalibrationstate_to_json(
   metriccalibrationstate: Metriccalibrationstate,
 ) -> Json {
+  json.string(metriccalibrationstate_to_string(metriccalibrationstate))
+}
+
+pub fn metriccalibrationstate_to_string(
+  metriccalibrationstate: Metriccalibrationstate,
+) -> String {
   case metriccalibrationstate {
-    MetriccalibrationstateNotcalibrated -> json.string("not-calibrated")
-    MetriccalibrationstateCalibrationrequired ->
-      json.string("calibration-required")
-    MetriccalibrationstateCalibrated -> json.string("calibrated")
-    MetriccalibrationstateUnspecified -> json.string("unspecified")
+    MetriccalibrationstateNotcalibrated -> "not-calibrated"
+    MetriccalibrationstateCalibrationrequired -> "calibration-required"
+    MetriccalibrationstateCalibrated -> "calibrated"
+    MetriccalibrationstateUnspecified -> "unspecified"
+  }
+}
+
+pub fn metriccalibrationstate_from_string(
+  s: String,
+) -> Result(Metriccalibrationstate, Nil) {
+  case s {
+    "not-calibrated" -> Ok(MetriccalibrationstateNotcalibrated)
+    "calibration-required" -> Ok(MetriccalibrationstateCalibrationrequired)
+    "calibrated" -> Ok(MetriccalibrationstateCalibrated)
+    "unspecified" -> Ok(MetriccalibrationstateUnspecified)
+    _ -> Error(Nil)
   }
 }
 
@@ -3266,16 +4718,35 @@ pub type Searchparamtype {
 }
 
 pub fn searchparamtype_to_json(searchparamtype: Searchparamtype) -> Json {
+  json.string(searchparamtype_to_string(searchparamtype))
+}
+
+pub fn searchparamtype_to_string(searchparamtype: Searchparamtype) -> String {
   case searchparamtype {
-    SearchparamtypeNumber -> json.string("number")
-    SearchparamtypeDate -> json.string("date")
-    SearchparamtypeString -> json.string("string")
-    SearchparamtypeToken -> json.string("token")
-    SearchparamtypeReference -> json.string("reference")
-    SearchparamtypeComposite -> json.string("composite")
-    SearchparamtypeQuantity -> json.string("quantity")
-    SearchparamtypeUri -> json.string("uri")
-    SearchparamtypeSpecial -> json.string("special")
+    SearchparamtypeNumber -> "number"
+    SearchparamtypeDate -> "date"
+    SearchparamtypeString -> "string"
+    SearchparamtypeToken -> "token"
+    SearchparamtypeReference -> "reference"
+    SearchparamtypeComposite -> "composite"
+    SearchparamtypeQuantity -> "quantity"
+    SearchparamtypeUri -> "uri"
+    SearchparamtypeSpecial -> "special"
+  }
+}
+
+pub fn searchparamtype_from_string(s: String) -> Result(Searchparamtype, Nil) {
+  case s {
+    "number" -> Ok(SearchparamtypeNumber)
+    "date" -> Ok(SearchparamtypeDate)
+    "string" -> Ok(SearchparamtypeString)
+    "token" -> Ok(SearchparamtypeToken)
+    "reference" -> Ok(SearchparamtypeReference)
+    "composite" -> Ok(SearchparamtypeComposite)
+    "quantity" -> Ok(SearchparamtypeQuantity)
+    "uri" -> Ok(SearchparamtypeUri)
+    "special" -> Ok(SearchparamtypeSpecial)
+    _ -> Error(Nil)
   }
 }
 
@@ -3302,10 +4773,23 @@ pub type Linkagetype {
 }
 
 pub fn linkagetype_to_json(linkagetype: Linkagetype) -> Json {
+  json.string(linkagetype_to_string(linkagetype))
+}
+
+pub fn linkagetype_to_string(linkagetype: Linkagetype) -> String {
   case linkagetype {
-    LinkagetypeSource -> json.string("source")
-    LinkagetypeAlternate -> json.string("alternate")
-    LinkagetypeHistorical -> json.string("historical")
+    LinkagetypeSource -> "source"
+    LinkagetypeAlternate -> "alternate"
+    LinkagetypeHistorical -> "historical"
+  }
+}
+
+pub fn linkagetype_from_string(s: String) -> Result(Linkagetype, Nil) {
+  case s {
+    "source" -> Ok(LinkagetypeSource)
+    "alternate" -> Ok(LinkagetypeAlternate)
+    "historical" -> Ok(LinkagetypeHistorical)
+    _ -> Error(Nil)
   }
 }
 
@@ -3327,10 +4811,27 @@ pub type Immunizationevaluationstatus {
 pub fn immunizationevaluationstatus_to_json(
   immunizationevaluationstatus: Immunizationevaluationstatus,
 ) -> Json {
+  json.string(immunizationevaluationstatus_to_string(
+    immunizationevaluationstatus,
+  ))
+}
+
+pub fn immunizationevaluationstatus_to_string(
+  immunizationevaluationstatus: Immunizationevaluationstatus,
+) -> String {
   case immunizationevaluationstatus {
-    ImmunizationevaluationstatusCompleted -> json.string("completed")
-    ImmunizationevaluationstatusEnteredinerror ->
-      json.string("entered-in-error")
+    ImmunizationevaluationstatusCompleted -> "completed"
+    ImmunizationevaluationstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn immunizationevaluationstatus_from_string(
+  s: String,
+) -> Result(Immunizationevaluationstatus, Nil) {
+  case s {
+    "completed" -> Ok(ImmunizationevaluationstatusCompleted)
+    "entered-in-error" -> Ok(ImmunizationevaluationstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -3361,12 +4862,31 @@ pub type Imagingstudystatus {
 pub fn imagingstudystatus_to_json(
   imagingstudystatus: Imagingstudystatus,
 ) -> Json {
+  json.string(imagingstudystatus_to_string(imagingstudystatus))
+}
+
+pub fn imagingstudystatus_to_string(
+  imagingstudystatus: Imagingstudystatus,
+) -> String {
   case imagingstudystatus {
-    ImagingstudystatusRegistered -> json.string("registered")
-    ImagingstudystatusAvailable -> json.string("available")
-    ImagingstudystatusCancelled -> json.string("cancelled")
-    ImagingstudystatusEnteredinerror -> json.string("entered-in-error")
-    ImagingstudystatusUnknown -> json.string("unknown")
+    ImagingstudystatusRegistered -> "registered"
+    ImagingstudystatusAvailable -> "available"
+    ImagingstudystatusCancelled -> "cancelled"
+    ImagingstudystatusEnteredinerror -> "entered-in-error"
+    ImagingstudystatusUnknown -> "unknown"
+  }
+}
+
+pub fn imagingstudystatus_from_string(
+  s: String,
+) -> Result(Imagingstudystatus, Nil) {
+  case s {
+    "registered" -> Ok(ImagingstudystatusRegistered)
+    "available" -> Ok(ImagingstudystatusAvailable)
+    "cancelled" -> Ok(ImagingstudystatusCancelled)
+    "entered-in-error" -> Ok(ImagingstudystatusEnteredinerror)
+    "unknown" -> Ok(ImagingstudystatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -3391,12 +4911,27 @@ pub type Repositorytype {
 }
 
 pub fn repositorytype_to_json(repositorytype: Repositorytype) -> Json {
+  json.string(repositorytype_to_string(repositorytype))
+}
+
+pub fn repositorytype_to_string(repositorytype: Repositorytype) -> String {
   case repositorytype {
-    RepositorytypeDirectlink -> json.string("directlink")
-    RepositorytypeOpenapi -> json.string("openapi")
-    RepositorytypeLogin -> json.string("login")
-    RepositorytypeOauth -> json.string("oauth")
-    RepositorytypeOther -> json.string("other")
+    RepositorytypeDirectlink -> "directlink"
+    RepositorytypeOpenapi -> "openapi"
+    RepositorytypeLogin -> "login"
+    RepositorytypeOauth -> "oauth"
+    RepositorytypeOther -> "other"
+  }
+}
+
+pub fn repositorytype_from_string(s: String) -> Result(Repositorytype, Nil) {
+  case s {
+    "directlink" -> Ok(RepositorytypeDirectlink)
+    "openapi" -> Ok(RepositorytypeOpenapi)
+    "login" -> Ok(RepositorytypeLogin)
+    "oauth" -> Ok(RepositorytypeOauth)
+    "other" -> Ok(RepositorytypeOther)
+    _ -> Error(Nil)
   }
 }
 
@@ -3422,11 +4957,29 @@ pub type Subscriptionstatus {
 pub fn subscriptionstatus_to_json(
   subscriptionstatus: Subscriptionstatus,
 ) -> Json {
+  json.string(subscriptionstatus_to_string(subscriptionstatus))
+}
+
+pub fn subscriptionstatus_to_string(
+  subscriptionstatus: Subscriptionstatus,
+) -> String {
   case subscriptionstatus {
-    SubscriptionstatusRequested -> json.string("requested")
-    SubscriptionstatusActive -> json.string("active")
-    SubscriptionstatusError -> json.string("error")
-    SubscriptionstatusOff -> json.string("off")
+    SubscriptionstatusRequested -> "requested"
+    SubscriptionstatusActive -> "active"
+    SubscriptionstatusError -> "error"
+    SubscriptionstatusOff -> "off"
+  }
+}
+
+pub fn subscriptionstatus_from_string(
+  s: String,
+) -> Result(Subscriptionstatus, Nil) {
+  case s {
+    "requested" -> Ok(SubscriptionstatusRequested)
+    "active" -> Ok(SubscriptionstatusActive)
+    "error" -> Ok(SubscriptionstatusError)
+    "off" -> Ok(SubscriptionstatusOff)
+    _ -> Error(Nil)
   }
 }
 
@@ -3450,12 +5003,27 @@ pub type Auditeventaction {
 }
 
 pub fn auditeventaction_to_json(auditeventaction: Auditeventaction) -> Json {
+  json.string(auditeventaction_to_string(auditeventaction))
+}
+
+pub fn auditeventaction_to_string(auditeventaction: Auditeventaction) -> String {
   case auditeventaction {
-    AuditeventactionC -> json.string("C")
-    AuditeventactionR -> json.string("R")
-    AuditeventactionU -> json.string("U")
-    AuditeventactionD -> json.string("D")
-    AuditeventactionE -> json.string("E")
+    AuditeventactionC -> "C"
+    AuditeventactionR -> "R"
+    AuditeventactionU -> "U"
+    AuditeventactionD -> "D"
+    AuditeventactionE -> "E"
+  }
+}
+
+pub fn auditeventaction_from_string(s: String) -> Result(Auditeventaction, Nil) {
+  case s {
+    "C" -> Ok(AuditeventactionC)
+    "R" -> Ok(AuditeventactionR)
+    "U" -> Ok(AuditeventactionU)
+    "D" -> Ok(AuditeventactionD)
+    "E" -> Ok(AuditeventactionE)
+    _ -> Error(Nil)
   }
 }
 
@@ -3486,16 +5054,39 @@ pub type Careplanactivitystatus {
 pub fn careplanactivitystatus_to_json(
   careplanactivitystatus: Careplanactivitystatus,
 ) -> Json {
+  json.string(careplanactivitystatus_to_string(careplanactivitystatus))
+}
+
+pub fn careplanactivitystatus_to_string(
+  careplanactivitystatus: Careplanactivitystatus,
+) -> String {
   case careplanactivitystatus {
-    CareplanactivitystatusNotstarted -> json.string("not-started")
-    CareplanactivitystatusScheduled -> json.string("scheduled")
-    CareplanactivitystatusInprogress -> json.string("in-progress")
-    CareplanactivitystatusOnhold -> json.string("on-hold")
-    CareplanactivitystatusCompleted -> json.string("completed")
-    CareplanactivitystatusCancelled -> json.string("cancelled")
-    CareplanactivitystatusStopped -> json.string("stopped")
-    CareplanactivitystatusUnknown -> json.string("unknown")
-    CareplanactivitystatusEnteredinerror -> json.string("entered-in-error")
+    CareplanactivitystatusNotstarted -> "not-started"
+    CareplanactivitystatusScheduled -> "scheduled"
+    CareplanactivitystatusInprogress -> "in-progress"
+    CareplanactivitystatusOnhold -> "on-hold"
+    CareplanactivitystatusCompleted -> "completed"
+    CareplanactivitystatusCancelled -> "cancelled"
+    CareplanactivitystatusStopped -> "stopped"
+    CareplanactivitystatusUnknown -> "unknown"
+    CareplanactivitystatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn careplanactivitystatus_from_string(
+  s: String,
+) -> Result(Careplanactivitystatus, Nil) {
+  case s {
+    "not-started" -> Ok(CareplanactivitystatusNotstarted)
+    "scheduled" -> Ok(CareplanactivitystatusScheduled)
+    "in-progress" -> Ok(CareplanactivitystatusInprogress)
+    "on-hold" -> Ok(CareplanactivitystatusOnhold)
+    "completed" -> Ok(CareplanactivitystatusCompleted)
+    "cancelled" -> Ok(CareplanactivitystatusCancelled)
+    "stopped" -> Ok(CareplanactivitystatusStopped)
+    "unknown" -> Ok(CareplanactivitystatusUnknown)
+    "entered-in-error" -> Ok(CareplanactivitystatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -3525,10 +5116,27 @@ pub type Reportparticipanttype {
 pub fn reportparticipanttype_to_json(
   reportparticipanttype: Reportparticipanttype,
 ) -> Json {
+  json.string(reportparticipanttype_to_string(reportparticipanttype))
+}
+
+pub fn reportparticipanttype_to_string(
+  reportparticipanttype: Reportparticipanttype,
+) -> String {
   case reportparticipanttype {
-    ReportparticipanttypeTestengine -> json.string("test-engine")
-    ReportparticipanttypeClient -> json.string("client")
-    ReportparticipanttypeServer -> json.string("server")
+    ReportparticipanttypeTestengine -> "test-engine"
+    ReportparticipanttypeClient -> "client"
+    ReportparticipanttypeServer -> "server"
+  }
+}
+
+pub fn reportparticipanttype_from_string(
+  s: String,
+) -> Result(Reportparticipanttype, Nil) {
+  case s {
+    "test-engine" -> Ok(ReportparticipanttypeTestengine)
+    "client" -> Ok(ReportparticipanttypeClient)
+    "server" -> Ok(ReportparticipanttypeServer)
+    _ -> Error(Nil)
   }
 }
 
@@ -3551,9 +5159,25 @@ pub type Specimencontainedpreference {
 pub fn specimencontainedpreference_to_json(
   specimencontainedpreference: Specimencontainedpreference,
 ) -> Json {
+  json.string(specimencontainedpreference_to_string(specimencontainedpreference))
+}
+
+pub fn specimencontainedpreference_to_string(
+  specimencontainedpreference: Specimencontainedpreference,
+) -> String {
   case specimencontainedpreference {
-    SpecimencontainedpreferencePreferred -> json.string("preferred")
-    SpecimencontainedpreferenceAlternate -> json.string("alternate")
+    SpecimencontainedpreferencePreferred -> "preferred"
+    SpecimencontainedpreferenceAlternate -> "alternate"
+  }
+}
+
+pub fn specimencontainedpreference_from_string(
+  s: String,
+) -> Result(Specimencontainedpreference, Nil) {
+  case s {
+    "preferred" -> Ok(SpecimencontainedpreferencePreferred)
+    "alternate" -> Ok(SpecimencontainedpreferenceAlternate)
+    _ -> Error(Nil)
   }
 }
 
@@ -3582,13 +5206,29 @@ pub type Devicenametype {
 }
 
 pub fn devicenametype_to_json(devicenametype: Devicenametype) -> Json {
+  json.string(devicenametype_to_string(devicenametype))
+}
+
+pub fn devicenametype_to_string(devicenametype: Devicenametype) -> String {
   case devicenametype {
-    DevicenametypeUdilabelname -> json.string("udi-label-name")
-    DevicenametypeUserfriendlyname -> json.string("user-friendly-name")
-    DevicenametypePatientreportedname -> json.string("patient-reported-name")
-    DevicenametypeManufacturername -> json.string("manufacturer-name")
-    DevicenametypeModelname -> json.string("model-name")
-    DevicenametypeOther -> json.string("other")
+    DevicenametypeUdilabelname -> "udi-label-name"
+    DevicenametypeUserfriendlyname -> "user-friendly-name"
+    DevicenametypePatientreportedname -> "patient-reported-name"
+    DevicenametypeManufacturername -> "manufacturer-name"
+    DevicenametypeModelname -> "model-name"
+    DevicenametypeOther -> "other"
+  }
+}
+
+pub fn devicenametype_from_string(s: String) -> Result(Devicenametype, Nil) {
+  case s {
+    "udi-label-name" -> Ok(DevicenametypeUdilabelname)
+    "user-friendly-name" -> Ok(DevicenametypeUserfriendlyname)
+    "patient-reported-name" -> Ok(DevicenametypePatientreportedname)
+    "manufacturer-name" -> Ok(DevicenametypeManufacturername)
+    "model-name" -> Ok(DevicenametypeModelname)
+    "other" -> Ok(DevicenametypeOther)
+    _ -> Error(Nil)
   }
 }
 
@@ -3614,12 +5254,31 @@ pub type Mapsourcelistmode {
 }
 
 pub fn mapsourcelistmode_to_json(mapsourcelistmode: Mapsourcelistmode) -> Json {
+  json.string(mapsourcelistmode_to_string(mapsourcelistmode))
+}
+
+pub fn mapsourcelistmode_to_string(
+  mapsourcelistmode: Mapsourcelistmode,
+) -> String {
   case mapsourcelistmode {
-    MapsourcelistmodeFirst -> json.string("first")
-    MapsourcelistmodeNotfirst -> json.string("not_first")
-    MapsourcelistmodeLast -> json.string("last")
-    MapsourcelistmodeNotlast -> json.string("not_last")
-    MapsourcelistmodeOnlyone -> json.string("only_one")
+    MapsourcelistmodeFirst -> "first"
+    MapsourcelistmodeNotfirst -> "not_first"
+    MapsourcelistmodeLast -> "last"
+    MapsourcelistmodeNotlast -> "not_last"
+    MapsourcelistmodeOnlyone -> "only_one"
+  }
+}
+
+pub fn mapsourcelistmode_from_string(
+  s: String,
+) -> Result(Mapsourcelistmode, Nil) {
+  case s {
+    "first" -> Ok(MapsourcelistmodeFirst)
+    "not_first" -> Ok(MapsourcelistmodeNotfirst)
+    "last" -> Ok(MapsourcelistmodeLast)
+    "not_last" -> Ok(MapsourcelistmodeNotlast)
+    "only_one" -> Ok(MapsourcelistmodeOnlyone)
+    _ -> Error(Nil)
   }
 }
 
@@ -3651,17 +5310,41 @@ pub type Guideparametercode {
 pub fn guideparametercode_to_json(
   guideparametercode: Guideparametercode,
 ) -> Json {
+  json.string(guideparametercode_to_string(guideparametercode))
+}
+
+pub fn guideparametercode_to_string(
+  guideparametercode: Guideparametercode,
+) -> String {
   case guideparametercode {
-    GuideparametercodeApply -> json.string("apply")
-    GuideparametercodePathresource -> json.string("path-resource")
-    GuideparametercodePathpages -> json.string("path-pages")
-    GuideparametercodePathtxcache -> json.string("path-tx-cache")
-    GuideparametercodeExpansionparameter -> json.string("expansion-parameter")
-    GuideparametercodeRulebrokenlinks -> json.string("rule-broken-links")
-    GuideparametercodeGeneratexml -> json.string("generate-xml")
-    GuideparametercodeGeneratejson -> json.string("generate-json")
-    GuideparametercodeGenerateturtle -> json.string("generate-turtle")
-    GuideparametercodeHtmltemplate -> json.string("html-template")
+    GuideparametercodeApply -> "apply"
+    GuideparametercodePathresource -> "path-resource"
+    GuideparametercodePathpages -> "path-pages"
+    GuideparametercodePathtxcache -> "path-tx-cache"
+    GuideparametercodeExpansionparameter -> "expansion-parameter"
+    GuideparametercodeRulebrokenlinks -> "rule-broken-links"
+    GuideparametercodeGeneratexml -> "generate-xml"
+    GuideparametercodeGeneratejson -> "generate-json"
+    GuideparametercodeGenerateturtle -> "generate-turtle"
+    GuideparametercodeHtmltemplate -> "html-template"
+  }
+}
+
+pub fn guideparametercode_from_string(
+  s: String,
+) -> Result(Guideparametercode, Nil) {
+  case s {
+    "apply" -> Ok(GuideparametercodeApply)
+    "path-resource" -> Ok(GuideparametercodePathresource)
+    "path-pages" -> Ok(GuideparametercodePathpages)
+    "path-tx-cache" -> Ok(GuideparametercodePathtxcache)
+    "expansion-parameter" -> Ok(GuideparametercodeExpansionparameter)
+    "rule-broken-links" -> Ok(GuideparametercodeRulebrokenlinks)
+    "generate-xml" -> Ok(GuideparametercodeGeneratexml)
+    "generate-json" -> Ok(GuideparametercodeGeneratejson)
+    "generate-turtle" -> Ok(GuideparametercodeGenerateturtle)
+    "html-template" -> Ok(GuideparametercodeHtmltemplate)
+    _ -> Error(Nil)
   }
 }
 
@@ -3694,12 +5377,31 @@ pub type Questionnaireanswersstatus {
 pub fn questionnaireanswersstatus_to_json(
   questionnaireanswersstatus: Questionnaireanswersstatus,
 ) -> Json {
+  json.string(questionnaireanswersstatus_to_string(questionnaireanswersstatus))
+}
+
+pub fn questionnaireanswersstatus_to_string(
+  questionnaireanswersstatus: Questionnaireanswersstatus,
+) -> String {
   case questionnaireanswersstatus {
-    QuestionnaireanswersstatusInprogress -> json.string("in-progress")
-    QuestionnaireanswersstatusCompleted -> json.string("completed")
-    QuestionnaireanswersstatusAmended -> json.string("amended")
-    QuestionnaireanswersstatusEnteredinerror -> json.string("entered-in-error")
-    QuestionnaireanswersstatusStopped -> json.string("stopped")
+    QuestionnaireanswersstatusInprogress -> "in-progress"
+    QuestionnaireanswersstatusCompleted -> "completed"
+    QuestionnaireanswersstatusAmended -> "amended"
+    QuestionnaireanswersstatusEnteredinerror -> "entered-in-error"
+    QuestionnaireanswersstatusStopped -> "stopped"
+  }
+}
+
+pub fn questionnaireanswersstatus_from_string(
+  s: String,
+) -> Result(Questionnaireanswersstatus, Nil) {
+  case s {
+    "in-progress" -> Ok(QuestionnaireanswersstatusInprogress)
+    "completed" -> Ok(QuestionnaireanswersstatusCompleted)
+    "amended" -> Ok(QuestionnaireanswersstatusAmended)
+    "entered-in-error" -> Ok(QuestionnaireanswersstatusEnteredinerror)
+    "stopped" -> Ok(QuestionnaireanswersstatusStopped)
+    _ -> Error(Nil)
   }
 }
 
@@ -3733,12 +5435,31 @@ pub type Subscriptionchanneltype {
 pub fn subscriptionchanneltype_to_json(
   subscriptionchanneltype: Subscriptionchanneltype,
 ) -> Json {
+  json.string(subscriptionchanneltype_to_string(subscriptionchanneltype))
+}
+
+pub fn subscriptionchanneltype_to_string(
+  subscriptionchanneltype: Subscriptionchanneltype,
+) -> String {
   case subscriptionchanneltype {
-    SubscriptionchanneltypeResthook -> json.string("rest-hook")
-    SubscriptionchanneltypeWebsocket -> json.string("websocket")
-    SubscriptionchanneltypeEmail -> json.string("email")
-    SubscriptionchanneltypeSms -> json.string("sms")
-    SubscriptionchanneltypeMessage -> json.string("message")
+    SubscriptionchanneltypeResthook -> "rest-hook"
+    SubscriptionchanneltypeWebsocket -> "websocket"
+    SubscriptionchanneltypeEmail -> "email"
+    SubscriptionchanneltypeSms -> "sms"
+    SubscriptionchanneltypeMessage -> "message"
+  }
+}
+
+pub fn subscriptionchanneltype_from_string(
+  s: String,
+) -> Result(Subscriptionchanneltype, Nil) {
+  case s {
+    "rest-hook" -> Ok(SubscriptionchanneltypeResthook)
+    "websocket" -> Ok(SubscriptionchanneltypeWebsocket)
+    "email" -> Ok(SubscriptionchanneltypeEmail)
+    "sms" -> Ok(SubscriptionchanneltypeSms)
+    "message" -> Ok(SubscriptionchanneltypeMessage)
+    _ -> Error(Nil)
   }
 }
 
@@ -3762,10 +5483,23 @@ pub type Flagstatus {
 }
 
 pub fn flagstatus_to_json(flagstatus: Flagstatus) -> Json {
+  json.string(flagstatus_to_string(flagstatus))
+}
+
+pub fn flagstatus_to_string(flagstatus: Flagstatus) -> String {
   case flagstatus {
-    FlagstatusActive -> json.string("active")
-    FlagstatusInactive -> json.string("inactive")
-    FlagstatusEnteredinerror -> json.string("entered-in-error")
+    FlagstatusActive -> "active"
+    FlagstatusInactive -> "inactive"
+    FlagstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn flagstatus_from_string(s: String) -> Result(Flagstatus, Nil) {
+  case s {
+    "active" -> Ok(FlagstatusActive)
+    "inactive" -> Ok(FlagstatusInactive)
+    "entered-in-error" -> Ok(FlagstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -3800,25 +5534,53 @@ pub type Requestresourcetypes {
 pub fn requestresourcetypes_to_json(
   requestresourcetypes: Requestresourcetypes,
 ) -> Json {
+  json.string(requestresourcetypes_to_string(requestresourcetypes))
+}
+
+pub fn requestresourcetypes_to_string(
+  requestresourcetypes: Requestresourcetypes,
+) -> String {
   case requestresourcetypes {
-    RequestresourcetypesAppointment -> json.string("Appointment")
-    RequestresourcetypesAppointmentresponse ->
-      json.string("AppointmentResponse")
-    RequestresourcetypesCareplan -> json.string("CarePlan")
-    RequestresourcetypesClaim -> json.string("Claim")
-    RequestresourcetypesCommunicationrequest ->
-      json.string("CommunicationRequest")
-    RequestresourcetypesContract -> json.string("Contract")
-    RequestresourcetypesDevicerequest -> json.string("DeviceRequest")
-    RequestresourcetypesEnrollmentrequest -> json.string("EnrollmentRequest")
+    RequestresourcetypesAppointment -> "Appointment"
+    RequestresourcetypesAppointmentresponse -> "AppointmentResponse"
+    RequestresourcetypesCareplan -> "CarePlan"
+    RequestresourcetypesClaim -> "Claim"
+    RequestresourcetypesCommunicationrequest -> "CommunicationRequest"
+    RequestresourcetypesContract -> "Contract"
+    RequestresourcetypesDevicerequest -> "DeviceRequest"
+    RequestresourcetypesEnrollmentrequest -> "EnrollmentRequest"
     RequestresourcetypesImmunizationrecommendation ->
-      json.string("ImmunizationRecommendation")
-    RequestresourcetypesMedicationrequest -> json.string("MedicationRequest")
-    RequestresourcetypesNutritionorder -> json.string("NutritionOrder")
-    RequestresourcetypesServicerequest -> json.string("ServiceRequest")
-    RequestresourcetypesSupplyrequest -> json.string("SupplyRequest")
-    RequestresourcetypesTask -> json.string("Task")
-    RequestresourcetypesVisionprescription -> json.string("VisionPrescription")
+      "ImmunizationRecommendation"
+    RequestresourcetypesMedicationrequest -> "MedicationRequest"
+    RequestresourcetypesNutritionorder -> "NutritionOrder"
+    RequestresourcetypesServicerequest -> "ServiceRequest"
+    RequestresourcetypesSupplyrequest -> "SupplyRequest"
+    RequestresourcetypesTask -> "Task"
+    RequestresourcetypesVisionprescription -> "VisionPrescription"
+  }
+}
+
+pub fn requestresourcetypes_from_string(
+  s: String,
+) -> Result(Requestresourcetypes, Nil) {
+  case s {
+    "Appointment" -> Ok(RequestresourcetypesAppointment)
+    "AppointmentResponse" -> Ok(RequestresourcetypesAppointmentresponse)
+    "CarePlan" -> Ok(RequestresourcetypesCareplan)
+    "Claim" -> Ok(RequestresourcetypesClaim)
+    "CommunicationRequest" -> Ok(RequestresourcetypesCommunicationrequest)
+    "Contract" -> Ok(RequestresourcetypesContract)
+    "DeviceRequest" -> Ok(RequestresourcetypesDevicerequest)
+    "EnrollmentRequest" -> Ok(RequestresourcetypesEnrollmentrequest)
+    "ImmunizationRecommendation" ->
+      Ok(RequestresourcetypesImmunizationrecommendation)
+    "MedicationRequest" -> Ok(RequestresourcetypesMedicationrequest)
+    "NutritionOrder" -> Ok(RequestresourcetypesNutritionorder)
+    "ServiceRequest" -> Ok(RequestresourcetypesServicerequest)
+    "SupplyRequest" -> Ok(RequestresourcetypesSupplyrequest)
+    "Task" -> Ok(RequestresourcetypesTask)
+    "VisionPrescription" -> Ok(RequestresourcetypesVisionprescription)
+    _ -> Error(Nil)
   }
 }
 
@@ -3858,11 +5620,29 @@ pub type Documentrelationshiptype {
 pub fn documentrelationshiptype_to_json(
   documentrelationshiptype: Documentrelationshiptype,
 ) -> Json {
+  json.string(documentrelationshiptype_to_string(documentrelationshiptype))
+}
+
+pub fn documentrelationshiptype_to_string(
+  documentrelationshiptype: Documentrelationshiptype,
+) -> String {
   case documentrelationshiptype {
-    DocumentrelationshiptypeReplaces -> json.string("replaces")
-    DocumentrelationshiptypeTransforms -> json.string("transforms")
-    DocumentrelationshiptypeSigns -> json.string("signs")
-    DocumentrelationshiptypeAppends -> json.string("appends")
+    DocumentrelationshiptypeReplaces -> "replaces"
+    DocumentrelationshiptypeTransforms -> "transforms"
+    DocumentrelationshiptypeSigns -> "signs"
+    DocumentrelationshiptypeAppends -> "appends"
+  }
+}
+
+pub fn documentrelationshiptype_from_string(
+  s: String,
+) -> Result(Documentrelationshiptype, Nil) {
+  case s {
+    "replaces" -> Ok(DocumentrelationshiptypeReplaces)
+    "transforms" -> Ok(DocumentrelationshiptypeTransforms)
+    "signs" -> Ok(DocumentrelationshiptypeSigns)
+    "appends" -> Ok(DocumentrelationshiptypeAppends)
+    _ -> Error(Nil)
   }
 }
 
@@ -3891,11 +5671,29 @@ pub type Metricoperationalstatus {
 pub fn metricoperationalstatus_to_json(
   metricoperationalstatus: Metricoperationalstatus,
 ) -> Json {
+  json.string(metricoperationalstatus_to_string(metricoperationalstatus))
+}
+
+pub fn metricoperationalstatus_to_string(
+  metricoperationalstatus: Metricoperationalstatus,
+) -> String {
   case metricoperationalstatus {
-    MetricoperationalstatusOn -> json.string("on")
-    MetricoperationalstatusOff -> json.string("off")
-    MetricoperationalstatusStandby -> json.string("standby")
-    MetricoperationalstatusEnteredinerror -> json.string("entered-in-error")
+    MetricoperationalstatusOn -> "on"
+    MetricoperationalstatusOff -> "off"
+    MetricoperationalstatusStandby -> "standby"
+    MetricoperationalstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn metricoperationalstatus_from_string(
+  s: String,
+) -> Result(Metricoperationalstatus, Nil) {
+  case s {
+    "on" -> Ok(MetricoperationalstatusOn)
+    "off" -> Ok(MetricoperationalstatusOff)
+    "standby" -> Ok(MetricoperationalstatusStandby)
+    "entered-in-error" -> Ok(MetricoperationalstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -3923,16 +5721,35 @@ pub type Requestintent {
 }
 
 pub fn requestintent_to_json(requestintent: Requestintent) -> Json {
+  json.string(requestintent_to_string(requestintent))
+}
+
+pub fn requestintent_to_string(requestintent: Requestintent) -> String {
   case requestintent {
-    RequestintentProposal -> json.string("proposal")
-    RequestintentPlan -> json.string("plan")
-    RequestintentDirective -> json.string("directive")
-    RequestintentOrder -> json.string("order")
-    RequestintentOriginalorder -> json.string("original-order")
-    RequestintentReflexorder -> json.string("reflex-order")
-    RequestintentFillerorder -> json.string("filler-order")
-    RequestintentInstanceorder -> json.string("instance-order")
-    RequestintentOption -> json.string("option")
+    RequestintentProposal -> "proposal"
+    RequestintentPlan -> "plan"
+    RequestintentDirective -> "directive"
+    RequestintentOrder -> "order"
+    RequestintentOriginalorder -> "original-order"
+    RequestintentReflexorder -> "reflex-order"
+    RequestintentFillerorder -> "filler-order"
+    RequestintentInstanceorder -> "instance-order"
+    RequestintentOption -> "option"
+  }
+}
+
+pub fn requestintent_from_string(s: String) -> Result(Requestintent, Nil) {
+  case s {
+    "proposal" -> Ok(RequestintentProposal)
+    "plan" -> Ok(RequestintentPlan)
+    "directive" -> Ok(RequestintentDirective)
+    "order" -> Ok(RequestintentOrder)
+    "original-order" -> Ok(RequestintentOriginalorder)
+    "reflex-order" -> Ok(RequestintentReflexorder)
+    "filler-order" -> Ok(RequestintentFillerorder)
+    "instance-order" -> Ok(RequestintentInstanceorder)
+    "option" -> Ok(RequestintentOption)
+    _ -> Error(Nil)
   }
 }
 
@@ -3960,9 +5777,25 @@ pub type Assertdirectioncodes {
 pub fn assertdirectioncodes_to_json(
   assertdirectioncodes: Assertdirectioncodes,
 ) -> Json {
+  json.string(assertdirectioncodes_to_string(assertdirectioncodes))
+}
+
+pub fn assertdirectioncodes_to_string(
+  assertdirectioncodes: Assertdirectioncodes,
+) -> String {
   case assertdirectioncodes {
-    AssertdirectioncodesResponse -> json.string("response")
-    AssertdirectioncodesRequest -> json.string("request")
+    AssertdirectioncodesResponse -> "response"
+    AssertdirectioncodesRequest -> "request"
+  }
+}
+
+pub fn assertdirectioncodes_from_string(
+  s: String,
+) -> Result(Assertdirectioncodes, Nil) {
+  case s {
+    "response" -> Ok(AssertdirectioncodesResponse)
+    "request" -> Ok(AssertdirectioncodesRequest)
+    _ -> Error(Nil)
   }
 }
 
@@ -3984,11 +5817,27 @@ pub type Actionrequiredbehavior {
 pub fn actionrequiredbehavior_to_json(
   actionrequiredbehavior: Actionrequiredbehavior,
 ) -> Json {
+  json.string(actionrequiredbehavior_to_string(actionrequiredbehavior))
+}
+
+pub fn actionrequiredbehavior_to_string(
+  actionrequiredbehavior: Actionrequiredbehavior,
+) -> String {
   case actionrequiredbehavior {
-    ActionrequiredbehaviorMust -> json.string("must")
-    ActionrequiredbehaviorCould -> json.string("could")
-    ActionrequiredbehaviorMustunlessdocumented ->
-      json.string("must-unless-documented")
+    ActionrequiredbehaviorMust -> "must"
+    ActionrequiredbehaviorCould -> "could"
+    ActionrequiredbehaviorMustunlessdocumented -> "must-unless-documented"
+  }
+}
+
+pub fn actionrequiredbehavior_from_string(
+  s: String,
+) -> Result(Actionrequiredbehavior, Nil) {
+  case s {
+    "must" -> Ok(ActionrequiredbehaviorMust)
+    "could" -> Ok(ActionrequiredbehaviorCould)
+    "must-unless-documented" -> Ok(ActionrequiredbehaviorMustunlessdocumented)
+    _ -> Error(Nil)
   }
 }
 
@@ -4012,12 +5861,27 @@ pub type Identifieruse {
 }
 
 pub fn identifieruse_to_json(identifieruse: Identifieruse) -> Json {
+  json.string(identifieruse_to_string(identifieruse))
+}
+
+pub fn identifieruse_to_string(identifieruse: Identifieruse) -> String {
   case identifieruse {
-    IdentifieruseUsual -> json.string("usual")
-    IdentifieruseOfficial -> json.string("official")
-    IdentifieruseTemp -> json.string("temp")
-    IdentifieruseSecondary -> json.string("secondary")
-    IdentifieruseOld -> json.string("old")
+    IdentifieruseUsual -> "usual"
+    IdentifieruseOfficial -> "official"
+    IdentifieruseTemp -> "temp"
+    IdentifieruseSecondary -> "secondary"
+    IdentifieruseOld -> "old"
+  }
+}
+
+pub fn identifieruse_from_string(s: String) -> Result(Identifieruse, Nil) {
+  case s {
+    "usual" -> Ok(IdentifieruseUsual)
+    "official" -> Ok(IdentifieruseOfficial)
+    "temp" -> Ok(IdentifieruseTemp)
+    "secondary" -> Ok(IdentifieruseSecondary)
+    "old" -> Ok(IdentifieruseOld)
+    _ -> Error(Nil)
   }
 }
 
@@ -4039,9 +5903,21 @@ pub type Strandtype {
 }
 
 pub fn strandtype_to_json(strandtype: Strandtype) -> Json {
+  json.string(strandtype_to_string(strandtype))
+}
+
+pub fn strandtype_to_string(strandtype: Strandtype) -> String {
   case strandtype {
-    StrandtypeWatson -> json.string("watson")
-    StrandtypeCrick -> json.string("crick")
+    StrandtypeWatson -> "watson"
+    StrandtypeCrick -> "crick"
+  }
+}
+
+pub fn strandtype_from_string(s: String) -> Result(Strandtype, Nil) {
+  case s {
+    "watson" -> Ok(StrandtypeWatson)
+    "crick" -> Ok(StrandtypeCrick)
+    _ -> Error(Nil)
   }
 }
 
@@ -4063,10 +5939,27 @@ pub type Measurereportstatus {
 pub fn measurereportstatus_to_json(
   measurereportstatus: Measurereportstatus,
 ) -> Json {
+  json.string(measurereportstatus_to_string(measurereportstatus))
+}
+
+pub fn measurereportstatus_to_string(
+  measurereportstatus: Measurereportstatus,
+) -> String {
   case measurereportstatus {
-    MeasurereportstatusComplete -> json.string("complete")
-    MeasurereportstatusPending -> json.string("pending")
-    MeasurereportstatusError -> json.string("error")
+    MeasurereportstatusComplete -> "complete"
+    MeasurereportstatusPending -> "pending"
+    MeasurereportstatusError -> "error"
+  }
+}
+
+pub fn measurereportstatus_from_string(
+  s: String,
+) -> Result(Measurereportstatus, Nil) {
+  case s {
+    "complete" -> Ok(MeasurereportstatusComplete)
+    "pending" -> Ok(MeasurereportstatusPending)
+    "error" -> Ok(MeasurereportstatusError)
+    _ -> Error(Nil)
   }
 }
 
@@ -4086,9 +5979,21 @@ pub type Productstatus {
 }
 
 pub fn productstatus_to_json(productstatus: Productstatus) -> Json {
+  json.string(productstatus_to_string(productstatus))
+}
+
+pub fn productstatus_to_string(productstatus: Productstatus) -> String {
   case productstatus {
-    ProductstatusAvailable -> json.string("available")
-    ProductstatusUnavailable -> json.string("unavailable")
+    ProductstatusAvailable -> "available"
+    ProductstatusUnavailable -> "unavailable"
+  }
+}
+
+pub fn productstatus_from_string(s: String) -> Result(Productstatus, Nil) {
+  case s {
+    "available" -> Ok(ProductstatusAvailable)
+    "unavailable" -> Ok(ProductstatusUnavailable)
+    _ -> Error(Nil)
   }
 }
 
@@ -4110,10 +6015,27 @@ pub type Extensioncontexttype {
 pub fn extensioncontexttype_to_json(
   extensioncontexttype: Extensioncontexttype,
 ) -> Json {
+  json.string(extensioncontexttype_to_string(extensioncontexttype))
+}
+
+pub fn extensioncontexttype_to_string(
+  extensioncontexttype: Extensioncontexttype,
+) -> String {
   case extensioncontexttype {
-    ExtensioncontexttypeFhirpath -> json.string("fhirpath")
-    ExtensioncontexttypeElement -> json.string("element")
-    ExtensioncontexttypeExtension -> json.string("extension")
+    ExtensioncontexttypeFhirpath -> "fhirpath"
+    ExtensioncontexttypeElement -> "element"
+    ExtensioncontexttypeExtension -> "extension"
+  }
+}
+
+pub fn extensioncontexttype_from_string(
+  s: String,
+) -> Result(Extensioncontexttype, Nil) {
+  case s {
+    "fhirpath" -> Ok(ExtensioncontexttypeFhirpath)
+    "element" -> Ok(ExtensioncontexttypeElement)
+    "extension" -> Ok(ExtensioncontexttypeExtension)
+    _ -> Error(Nil)
   }
 }
 
@@ -4138,12 +6060,31 @@ pub type Provenanceentityrole {
 pub fn provenanceentityrole_to_json(
   provenanceentityrole: Provenanceentityrole,
 ) -> Json {
+  json.string(provenanceentityrole_to_string(provenanceentityrole))
+}
+
+pub fn provenanceentityrole_to_string(
+  provenanceentityrole: Provenanceentityrole,
+) -> String {
   case provenanceentityrole {
-    ProvenanceentityroleDerivation -> json.string("derivation")
-    ProvenanceentityroleRevision -> json.string("revision")
-    ProvenanceentityroleQuotation -> json.string("quotation")
-    ProvenanceentityroleSource -> json.string("source")
-    ProvenanceentityroleRemoval -> json.string("removal")
+    ProvenanceentityroleDerivation -> "derivation"
+    ProvenanceentityroleRevision -> "revision"
+    ProvenanceentityroleQuotation -> "quotation"
+    ProvenanceentityroleSource -> "source"
+    ProvenanceentityroleRemoval -> "removal"
+  }
+}
+
+pub fn provenanceentityrole_from_string(
+  s: String,
+) -> Result(Provenanceentityrole, Nil) {
+  case s {
+    "derivation" -> Ok(ProvenanceentityroleDerivation)
+    "revision" -> Ok(ProvenanceentityroleRevision)
+    "quotation" -> Ok(ProvenanceentityroleQuotation)
+    "source" -> Ok(ProvenanceentityroleSource)
+    "removal" -> Ok(ProvenanceentityroleRemoval)
+    _ -> Error(Nil)
   }
 }
 
@@ -4167,9 +6108,25 @@ pub type Questionnaireenablebehavior {
 pub fn questionnaireenablebehavior_to_json(
   questionnaireenablebehavior: Questionnaireenablebehavior,
 ) -> Json {
+  json.string(questionnaireenablebehavior_to_string(questionnaireenablebehavior))
+}
+
+pub fn questionnaireenablebehavior_to_string(
+  questionnaireenablebehavior: Questionnaireenablebehavior,
+) -> String {
   case questionnaireenablebehavior {
-    QuestionnaireenablebehaviorAll -> json.string("all")
-    QuestionnaireenablebehaviorAny -> json.string("any")
+    QuestionnaireenablebehaviorAll -> "all"
+    QuestionnaireenablebehaviorAny -> "any"
+  }
+}
+
+pub fn questionnaireenablebehavior_from_string(
+  s: String,
+) -> Result(Questionnaireenablebehavior, Nil) {
+  case s {
+    "all" -> Ok(QuestionnaireenablebehaviorAll)
+    "any" -> Ok(QuestionnaireenablebehaviorAny)
+    _ -> Error(Nil)
   }
 }
 
@@ -4201,14 +6158,35 @@ pub type Questionnaireenableoperator {
 pub fn questionnaireenableoperator_to_json(
   questionnaireenableoperator: Questionnaireenableoperator,
 ) -> Json {
+  json.string(questionnaireenableoperator_to_string(questionnaireenableoperator))
+}
+
+pub fn questionnaireenableoperator_to_string(
+  questionnaireenableoperator: Questionnaireenableoperator,
+) -> String {
   case questionnaireenableoperator {
-    QuestionnaireenableoperatorExists -> json.string("exists")
-    QuestionnaireenableoperatorEqual -> json.string("=")
-    QuestionnaireenableoperatorNotequal -> json.string("!=")
-    QuestionnaireenableoperatorGreaterthan -> json.string(">")
-    QuestionnaireenableoperatorLessthan -> json.string("<")
-    QuestionnaireenableoperatorGreaterthanequal -> json.string(">=")
-    QuestionnaireenableoperatorLessthanequal -> json.string("<=")
+    QuestionnaireenableoperatorExists -> "exists"
+    QuestionnaireenableoperatorEqual -> "="
+    QuestionnaireenableoperatorNotequal -> "!="
+    QuestionnaireenableoperatorGreaterthan -> ">"
+    QuestionnaireenableoperatorLessthan -> "<"
+    QuestionnaireenableoperatorGreaterthanequal -> ">="
+    QuestionnaireenableoperatorLessthanequal -> "<="
+  }
+}
+
+pub fn questionnaireenableoperator_from_string(
+  s: String,
+) -> Result(Questionnaireenableoperator, Nil) {
+  case s {
+    "exists" -> Ok(QuestionnaireenableoperatorExists)
+    "=" -> Ok(QuestionnaireenableoperatorEqual)
+    "!=" -> Ok(QuestionnaireenableoperatorNotequal)
+    ">" -> Ok(QuestionnaireenableoperatorGreaterthan)
+    "<" -> Ok(QuestionnaireenableoperatorLessthan)
+    ">=" -> Ok(QuestionnaireenableoperatorGreaterthanequal)
+    "<=" -> Ok(QuestionnaireenableoperatorLessthanequal)
+    _ -> Error(Nil)
   }
 }
 
@@ -4240,9 +6218,25 @@ pub type Typederivationrule {
 pub fn typederivationrule_to_json(
   typederivationrule: Typederivationrule,
 ) -> Json {
+  json.string(typederivationrule_to_string(typederivationrule))
+}
+
+pub fn typederivationrule_to_string(
+  typederivationrule: Typederivationrule,
+) -> String {
   case typederivationrule {
-    TypederivationruleSpecialization -> json.string("specialization")
-    TypederivationruleConstraint -> json.string("constraint")
+    TypederivationruleSpecialization -> "specialization"
+    TypederivationruleConstraint -> "constraint"
+  }
+}
+
+pub fn typederivationrule_from_string(
+  s: String,
+) -> Result(Typederivationrule, Nil) {
+  case s {
+    "specialization" -> Ok(TypederivationruleSpecialization)
+    "constraint" -> Ok(TypederivationruleConstraint)
+    _ -> Error(Nil)
   }
 }
 
@@ -4262,10 +6256,23 @@ pub type Claimuse {
 }
 
 pub fn claimuse_to_json(claimuse: Claimuse) -> Json {
+  json.string(claimuse_to_string(claimuse))
+}
+
+pub fn claimuse_to_string(claimuse: Claimuse) -> String {
   case claimuse {
-    ClaimuseClaim -> json.string("claim")
-    ClaimusePreauthorization -> json.string("preauthorization")
-    ClaimusePredetermination -> json.string("predetermination")
+    ClaimuseClaim -> "claim"
+    ClaimusePreauthorization -> "preauthorization"
+    ClaimusePredetermination -> "predetermination"
+  }
+}
+
+pub fn claimuse_from_string(s: String) -> Result(Claimuse, Nil) {
+  case s {
+    "claim" -> Ok(ClaimuseClaim)
+    "preauthorization" -> Ok(ClaimusePreauthorization)
+    "predetermination" -> Ok(ClaimusePredetermination)
+    _ -> Error(Nil)
   }
 }
 
@@ -4296,18 +6303,43 @@ pub type Assertoperatorcodes {
 pub fn assertoperatorcodes_to_json(
   assertoperatorcodes: Assertoperatorcodes,
 ) -> Json {
+  json.string(assertoperatorcodes_to_string(assertoperatorcodes))
+}
+
+pub fn assertoperatorcodes_to_string(
+  assertoperatorcodes: Assertoperatorcodes,
+) -> String {
   case assertoperatorcodes {
-    AssertoperatorcodesEquals -> json.string("equals")
-    AssertoperatorcodesNotequals -> json.string("notEquals")
-    AssertoperatorcodesIn -> json.string("in")
-    AssertoperatorcodesNotin -> json.string("notIn")
-    AssertoperatorcodesGreaterthan -> json.string("greaterThan")
-    AssertoperatorcodesLessthan -> json.string("lessThan")
-    AssertoperatorcodesEmpty -> json.string("empty")
-    AssertoperatorcodesNotempty -> json.string("notEmpty")
-    AssertoperatorcodesContains -> json.string("contains")
-    AssertoperatorcodesNotcontains -> json.string("notContains")
-    AssertoperatorcodesEval -> json.string("eval")
+    AssertoperatorcodesEquals -> "equals"
+    AssertoperatorcodesNotequals -> "notEquals"
+    AssertoperatorcodesIn -> "in"
+    AssertoperatorcodesNotin -> "notIn"
+    AssertoperatorcodesGreaterthan -> "greaterThan"
+    AssertoperatorcodesLessthan -> "lessThan"
+    AssertoperatorcodesEmpty -> "empty"
+    AssertoperatorcodesNotempty -> "notEmpty"
+    AssertoperatorcodesContains -> "contains"
+    AssertoperatorcodesNotcontains -> "notContains"
+    AssertoperatorcodesEval -> "eval"
+  }
+}
+
+pub fn assertoperatorcodes_from_string(
+  s: String,
+) -> Result(Assertoperatorcodes, Nil) {
+  case s {
+    "equals" -> Ok(AssertoperatorcodesEquals)
+    "notEquals" -> Ok(AssertoperatorcodesNotequals)
+    "in" -> Ok(AssertoperatorcodesIn)
+    "notIn" -> Ok(AssertoperatorcodesNotin)
+    "greaterThan" -> Ok(AssertoperatorcodesGreaterthan)
+    "lessThan" -> Ok(AssertoperatorcodesLessthan)
+    "empty" -> Ok(AssertoperatorcodesEmpty)
+    "notEmpty" -> Ok(AssertoperatorcodesNotempty)
+    "contains" -> Ok(AssertoperatorcodesContains)
+    "notContains" -> Ok(AssertoperatorcodesNotcontains)
+    "eval" -> Ok(AssertoperatorcodesEval)
+    _ -> Error(Nil)
   }
 }
 
@@ -4337,11 +6369,25 @@ pub type Devicestatus {
 }
 
 pub fn devicestatus_to_json(devicestatus: Devicestatus) -> Json {
+  json.string(devicestatus_to_string(devicestatus))
+}
+
+pub fn devicestatus_to_string(devicestatus: Devicestatus) -> String {
   case devicestatus {
-    DevicestatusActive -> json.string("active")
-    DevicestatusInactive -> json.string("inactive")
-    DevicestatusEnteredinerror -> json.string("entered-in-error")
-    DevicestatusUnknown -> json.string("unknown")
+    DevicestatusActive -> "active"
+    DevicestatusInactive -> "inactive"
+    DevicestatusEnteredinerror -> "entered-in-error"
+    DevicestatusUnknown -> "unknown"
+  }
+}
+
+pub fn devicestatus_from_string(s: String) -> Result(Devicestatus, Nil) {
+  case s {
+    "active" -> Ok(DevicestatusActive)
+    "inactive" -> Ok(DevicestatusInactive)
+    "entered-in-error" -> Ok(DevicestatusEnteredinerror)
+    "unknown" -> Ok(DevicestatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -4369,16 +6415,35 @@ pub type Searchcomparator {
 }
 
 pub fn searchcomparator_to_json(searchcomparator: Searchcomparator) -> Json {
+  json.string(searchcomparator_to_string(searchcomparator))
+}
+
+pub fn searchcomparator_to_string(searchcomparator: Searchcomparator) -> String {
   case searchcomparator {
-    SearchcomparatorEq -> json.string("eq")
-    SearchcomparatorNe -> json.string("ne")
-    SearchcomparatorGt -> json.string("gt")
-    SearchcomparatorLt -> json.string("lt")
-    SearchcomparatorGe -> json.string("ge")
-    SearchcomparatorLe -> json.string("le")
-    SearchcomparatorSa -> json.string("sa")
-    SearchcomparatorEb -> json.string("eb")
-    SearchcomparatorAp -> json.string("ap")
+    SearchcomparatorEq -> "eq"
+    SearchcomparatorNe -> "ne"
+    SearchcomparatorGt -> "gt"
+    SearchcomparatorLt -> "lt"
+    SearchcomparatorGe -> "ge"
+    SearchcomparatorLe -> "le"
+    SearchcomparatorSa -> "sa"
+    SearchcomparatorEb -> "eb"
+    SearchcomparatorAp -> "ap"
+  }
+}
+
+pub fn searchcomparator_from_string(s: String) -> Result(Searchcomparator, Nil) {
+  case s {
+    "eq" -> Ok(SearchcomparatorEq)
+    "ne" -> Ok(SearchcomparatorNe)
+    "gt" -> Ok(SearchcomparatorGt)
+    "lt" -> Ok(SearchcomparatorLt)
+    "ge" -> Ok(SearchcomparatorGe)
+    "le" -> Ok(SearchcomparatorLe)
+    "sa" -> Ok(SearchcomparatorSa)
+    "eb" -> Ok(SearchcomparatorEb)
+    "ap" -> Ok(SearchcomparatorAp)
+    _ -> Error(Nil)
   }
 }
 
@@ -4406,11 +6471,25 @@ pub type Visionbasecodes {
 }
 
 pub fn visionbasecodes_to_json(visionbasecodes: Visionbasecodes) -> Json {
+  json.string(visionbasecodes_to_string(visionbasecodes))
+}
+
+pub fn visionbasecodes_to_string(visionbasecodes: Visionbasecodes) -> String {
   case visionbasecodes {
-    VisionbasecodesUp -> json.string("up")
-    VisionbasecodesDown -> json.string("down")
-    VisionbasecodesIn -> json.string("in")
-    VisionbasecodesOut -> json.string("out")
+    VisionbasecodesUp -> "up"
+    VisionbasecodesDown -> "down"
+    VisionbasecodesIn -> "in"
+    VisionbasecodesOut -> "out"
+  }
+}
+
+pub fn visionbasecodes_from_string(s: String) -> Result(Visionbasecodes, Nil) {
+  case s {
+    "up" -> Ok(VisionbasecodesUp)
+    "down" -> Ok(VisionbasecodesDown)
+    "in" -> Ok(VisionbasecodesIn)
+    "out" -> Ok(VisionbasecodesOut)
+    _ -> Error(Nil)
   }
 }
 
@@ -4435,12 +6514,29 @@ pub type Eligibilityresponsepurpose {
 pub fn eligibilityresponsepurpose_to_json(
   eligibilityresponsepurpose: Eligibilityresponsepurpose,
 ) -> Json {
+  json.string(eligibilityresponsepurpose_to_string(eligibilityresponsepurpose))
+}
+
+pub fn eligibilityresponsepurpose_to_string(
+  eligibilityresponsepurpose: Eligibilityresponsepurpose,
+) -> String {
   case eligibilityresponsepurpose {
-    EligibilityresponsepurposeAuthrequirements ->
-      json.string("auth-requirements")
-    EligibilityresponsepurposeBenefits -> json.string("benefits")
-    EligibilityresponsepurposeDiscovery -> json.string("discovery")
-    EligibilityresponsepurposeValidation -> json.string("validation")
+    EligibilityresponsepurposeAuthrequirements -> "auth-requirements"
+    EligibilityresponsepurposeBenefits -> "benefits"
+    EligibilityresponsepurposeDiscovery -> "discovery"
+    EligibilityresponsepurposeValidation -> "validation"
+  }
+}
+
+pub fn eligibilityresponsepurpose_from_string(
+  s: String,
+) -> Result(Eligibilityresponsepurpose, Nil) {
+  case s {
+    "auth-requirements" -> Ok(EligibilityresponsepurposeAuthrequirements)
+    "benefits" -> Ok(EligibilityresponsepurposeBenefits)
+    "discovery" -> Ok(EligibilityresponsepurposeDiscovery)
+    "validation" -> Ok(EligibilityresponsepurposeValidation)
+    _ -> Error(Nil)
   }
 }
 
@@ -4471,12 +6567,31 @@ pub type Discriminatortype {
 }
 
 pub fn discriminatortype_to_json(discriminatortype: Discriminatortype) -> Json {
+  json.string(discriminatortype_to_string(discriminatortype))
+}
+
+pub fn discriminatortype_to_string(
+  discriminatortype: Discriminatortype,
+) -> String {
   case discriminatortype {
-    DiscriminatortypeValue -> json.string("value")
-    DiscriminatortypeExists -> json.string("exists")
-    DiscriminatortypePattern -> json.string("pattern")
-    DiscriminatortypeType -> json.string("type")
-    DiscriminatortypeProfile -> json.string("profile")
+    DiscriminatortypeValue -> "value"
+    DiscriminatortypeExists -> "exists"
+    DiscriminatortypePattern -> "pattern"
+    DiscriminatortypeType -> "type"
+    DiscriminatortypeProfile -> "profile"
+  }
+}
+
+pub fn discriminatortype_from_string(
+  s: String,
+) -> Result(Discriminatortype, Nil) {
+  case s {
+    "value" -> Ok(DiscriminatortypeValue)
+    "exists" -> Ok(DiscriminatortypeExists)
+    "pattern" -> Ok(DiscriminatortypePattern)
+    "type" -> Ok(DiscriminatortypeType)
+    "profile" -> Ok(DiscriminatortypeProfile)
+    _ -> Error(Nil)
   }
 }
 
@@ -4500,11 +6615,25 @@ pub type Narrativestatus {
 }
 
 pub fn narrativestatus_to_json(narrativestatus: Narrativestatus) -> Json {
+  json.string(narrativestatus_to_string(narrativestatus))
+}
+
+pub fn narrativestatus_to_string(narrativestatus: Narrativestatus) -> String {
   case narrativestatus {
-    NarrativestatusGenerated -> json.string("generated")
-    NarrativestatusExtensions -> json.string("extensions")
-    NarrativestatusAdditional -> json.string("additional")
-    NarrativestatusEmpty -> json.string("empty")
+    NarrativestatusGenerated -> "generated"
+    NarrativestatusExtensions -> "extensions"
+    NarrativestatusAdditional -> "additional"
+    NarrativestatusEmpty -> "empty"
+  }
+}
+
+pub fn narrativestatus_from_string(s: String) -> Result(Narrativestatus, Nil) {
+  case s {
+    "generated" -> Ok(NarrativestatusGenerated)
+    "extensions" -> Ok(NarrativestatusExtensions)
+    "additional" -> Ok(NarrativestatusAdditional)
+    "empty" -> Ok(NarrativestatusEmpty)
+    _ -> Error(Nil)
   }
 }
 
@@ -4526,10 +6655,23 @@ pub type Versioningpolicy {
 }
 
 pub fn versioningpolicy_to_json(versioningpolicy: Versioningpolicy) -> Json {
+  json.string(versioningpolicy_to_string(versioningpolicy))
+}
+
+pub fn versioningpolicy_to_string(versioningpolicy: Versioningpolicy) -> String {
   case versioningpolicy {
-    VersioningpolicyNoversion -> json.string("no-version")
-    VersioningpolicyVersioned -> json.string("versioned")
-    VersioningpolicyVersionedupdate -> json.string("versioned-update")
+    VersioningpolicyNoversion -> "no-version"
+    VersioningpolicyVersioned -> "versioned"
+    VersioningpolicyVersionedupdate -> "versioned-update"
+  }
+}
+
+pub fn versioningpolicy_from_string(s: String) -> Result(Versioningpolicy, Nil) {
+  case s {
+    "no-version" -> Ok(VersioningpolicyNoversion)
+    "versioned" -> Ok(VersioningpolicyVersioned)
+    "versioned-update" -> Ok(VersioningpolicyVersionedupdate)
+    _ -> Error(Nil)
   }
 }
 
@@ -4551,9 +6693,25 @@ pub type Consentprovisiontype {
 pub fn consentprovisiontype_to_json(
   consentprovisiontype: Consentprovisiontype,
 ) -> Json {
+  json.string(consentprovisiontype_to_string(consentprovisiontype))
+}
+
+pub fn consentprovisiontype_to_string(
+  consentprovisiontype: Consentprovisiontype,
+) -> String {
   case consentprovisiontype {
-    ConsentprovisiontypeDeny -> json.string("deny")
-    ConsentprovisiontypePermit -> json.string("permit")
+    ConsentprovisiontypeDeny -> "deny"
+    ConsentprovisiontypePermit -> "permit"
+  }
+}
+
+pub fn consentprovisiontype_from_string(
+  s: String,
+) -> Result(Consentprovisiontype, Nil) {
+  case s {
+    "deny" -> Ok(ConsentprovisiontypeDeny)
+    "permit" -> Ok(ConsentprovisiontypePermit)
+    _ -> Error(Nil)
   }
 }
 
@@ -4575,10 +6733,27 @@ pub type Actionconditionkind {
 pub fn actionconditionkind_to_json(
   actionconditionkind: Actionconditionkind,
 ) -> Json {
+  json.string(actionconditionkind_to_string(actionconditionkind))
+}
+
+pub fn actionconditionkind_to_string(
+  actionconditionkind: Actionconditionkind,
+) -> String {
   case actionconditionkind {
-    ActionconditionkindApplicability -> json.string("applicability")
-    ActionconditionkindStart -> json.string("start")
-    ActionconditionkindStop -> json.string("stop")
+    ActionconditionkindApplicability -> "applicability"
+    ActionconditionkindStart -> "start"
+    ActionconditionkindStop -> "stop"
+  }
+}
+
+pub fn actionconditionkind_from_string(
+  s: String,
+) -> Result(Actionconditionkind, Nil) {
+  case s {
+    "applicability" -> Ok(ActionconditionkindApplicability)
+    "start" -> Ok(ActionconditionkindStart)
+    "stop" -> Ok(ActionconditionkindStop)
+    _ -> Error(Nil)
   }
 }
 
@@ -4605,16 +6780,35 @@ pub type Bundletype {
 }
 
 pub fn bundletype_to_json(bundletype: Bundletype) -> Json {
+  json.string(bundletype_to_string(bundletype))
+}
+
+pub fn bundletype_to_string(bundletype: Bundletype) -> String {
   case bundletype {
-    BundletypeDocument -> json.string("document")
-    BundletypeMessage -> json.string("message")
-    BundletypeTransaction -> json.string("transaction")
-    BundletypeTransactionresponse -> json.string("transaction-response")
-    BundletypeBatch -> json.string("batch")
-    BundletypeBatchresponse -> json.string("batch-response")
-    BundletypeHistory -> json.string("history")
-    BundletypeSearchset -> json.string("searchset")
-    BundletypeCollection -> json.string("collection")
+    BundletypeDocument -> "document"
+    BundletypeMessage -> "message"
+    BundletypeTransaction -> "transaction"
+    BundletypeTransactionresponse -> "transaction-response"
+    BundletypeBatch -> "batch"
+    BundletypeBatchresponse -> "batch-response"
+    BundletypeHistory -> "history"
+    BundletypeSearchset -> "searchset"
+    BundletypeCollection -> "collection"
+  }
+}
+
+pub fn bundletype_from_string(s: String) -> Result(Bundletype, Nil) {
+  case s {
+    "document" -> Ok(BundletypeDocument)
+    "message" -> Ok(BundletypeMessage)
+    "transaction" -> Ok(BundletypeTransaction)
+    "transaction-response" -> Ok(BundletypeTransactionresponse)
+    "batch" -> Ok(BundletypeBatch)
+    "batch-response" -> Ok(BundletypeBatchresponse)
+    "history" -> Ok(BundletypeHistory)
+    "searchset" -> Ok(BundletypeSearchset)
+    "collection" -> Ok(BundletypeCollection)
+    _ -> Error(Nil)
   }
 }
 
@@ -4646,13 +6840,33 @@ pub type Actionselectionbehavior {
 pub fn actionselectionbehavior_to_json(
   actionselectionbehavior: Actionselectionbehavior,
 ) -> Json {
+  json.string(actionselectionbehavior_to_string(actionselectionbehavior))
+}
+
+pub fn actionselectionbehavior_to_string(
+  actionselectionbehavior: Actionselectionbehavior,
+) -> String {
   case actionselectionbehavior {
-    ActionselectionbehaviorAny -> json.string("any")
-    ActionselectionbehaviorAll -> json.string("all")
-    ActionselectionbehaviorAllornone -> json.string("all-or-none")
-    ActionselectionbehaviorExactlyone -> json.string("exactly-one")
-    ActionselectionbehaviorAtmostone -> json.string("at-most-one")
-    ActionselectionbehaviorOneormore -> json.string("one-or-more")
+    ActionselectionbehaviorAny -> "any"
+    ActionselectionbehaviorAll -> "all"
+    ActionselectionbehaviorAllornone -> "all-or-none"
+    ActionselectionbehaviorExactlyone -> "exactly-one"
+    ActionselectionbehaviorAtmostone -> "at-most-one"
+    ActionselectionbehaviorOneormore -> "one-or-more"
+  }
+}
+
+pub fn actionselectionbehavior_from_string(
+  s: String,
+) -> Result(Actionselectionbehavior, Nil) {
+  case s {
+    "any" -> Ok(ActionselectionbehaviorAny)
+    "all" -> Ok(ActionselectionbehaviorAll)
+    "all-or-none" -> Ok(ActionselectionbehaviorAllornone)
+    "exactly-one" -> Ok(ActionselectionbehaviorExactlyone)
+    "at-most-one" -> Ok(ActionselectionbehaviorAtmostone)
+    "one-or-more" -> Ok(ActionselectionbehaviorOneormore)
+    _ -> Error(Nil)
   }
 }
 
@@ -4690,24 +6904,51 @@ pub type Maptransform {
 }
 
 pub fn maptransform_to_json(maptransform: Maptransform) -> Json {
+  json.string(maptransform_to_string(maptransform))
+}
+
+pub fn maptransform_to_string(maptransform: Maptransform) -> String {
   case maptransform {
-    MaptransformCreate -> json.string("create")
-    MaptransformCopy -> json.string("copy")
-    MaptransformTruncate -> json.string("truncate")
-    MaptransformEscape -> json.string("escape")
-    MaptransformCast -> json.string("cast")
-    MaptransformAppend -> json.string("append")
-    MaptransformTranslate -> json.string("translate")
-    MaptransformReference -> json.string("reference")
-    MaptransformDateop -> json.string("dateOp")
-    MaptransformUuid -> json.string("uuid")
-    MaptransformPointer -> json.string("pointer")
-    MaptransformEvaluate -> json.string("evaluate")
-    MaptransformCc -> json.string("cc")
-    MaptransformC -> json.string("c")
-    MaptransformQty -> json.string("qty")
-    MaptransformId -> json.string("id")
-    MaptransformCp -> json.string("cp")
+    MaptransformCreate -> "create"
+    MaptransformCopy -> "copy"
+    MaptransformTruncate -> "truncate"
+    MaptransformEscape -> "escape"
+    MaptransformCast -> "cast"
+    MaptransformAppend -> "append"
+    MaptransformTranslate -> "translate"
+    MaptransformReference -> "reference"
+    MaptransformDateop -> "dateOp"
+    MaptransformUuid -> "uuid"
+    MaptransformPointer -> "pointer"
+    MaptransformEvaluate -> "evaluate"
+    MaptransformCc -> "cc"
+    MaptransformC -> "c"
+    MaptransformQty -> "qty"
+    MaptransformId -> "id"
+    MaptransformCp -> "cp"
+  }
+}
+
+pub fn maptransform_from_string(s: String) -> Result(Maptransform, Nil) {
+  case s {
+    "create" -> Ok(MaptransformCreate)
+    "copy" -> Ok(MaptransformCopy)
+    "truncate" -> Ok(MaptransformTruncate)
+    "escape" -> Ok(MaptransformEscape)
+    "cast" -> Ok(MaptransformCast)
+    "append" -> Ok(MaptransformAppend)
+    "translate" -> Ok(MaptransformTranslate)
+    "reference" -> Ok(MaptransformReference)
+    "dateOp" -> Ok(MaptransformDateop)
+    "uuid" -> Ok(MaptransformUuid)
+    "pointer" -> Ok(MaptransformPointer)
+    "evaluate" -> Ok(MaptransformEvaluate)
+    "cc" -> Ok(MaptransformCc)
+    "c" -> Ok(MaptransformC)
+    "qty" -> Ok(MaptransformQty)
+    "id" -> Ok(MaptransformId)
+    "cp" -> Ok(MaptransformCp)
+    _ -> Error(Nil)
   }
 }
 
@@ -4748,14 +6989,35 @@ pub type Contactpointsystem {
 pub fn contactpointsystem_to_json(
   contactpointsystem: Contactpointsystem,
 ) -> Json {
+  json.string(contactpointsystem_to_string(contactpointsystem))
+}
+
+pub fn contactpointsystem_to_string(
+  contactpointsystem: Contactpointsystem,
+) -> String {
   case contactpointsystem {
-    ContactpointsystemPhone -> json.string("phone")
-    ContactpointsystemFax -> json.string("fax")
-    ContactpointsystemEmail -> json.string("email")
-    ContactpointsystemPager -> json.string("pager")
-    ContactpointsystemUrl -> json.string("url")
-    ContactpointsystemSms -> json.string("sms")
-    ContactpointsystemOther -> json.string("other")
+    ContactpointsystemPhone -> "phone"
+    ContactpointsystemFax -> "fax"
+    ContactpointsystemEmail -> "email"
+    ContactpointsystemPager -> "pager"
+    ContactpointsystemUrl -> "url"
+    ContactpointsystemSms -> "sms"
+    ContactpointsystemOther -> "other"
+  }
+}
+
+pub fn contactpointsystem_from_string(
+  s: String,
+) -> Result(Contactpointsystem, Nil) {
+  case s {
+    "phone" -> Ok(ContactpointsystemPhone)
+    "fax" -> Ok(ContactpointsystemFax)
+    "email" -> Ok(ContactpointsystemEmail)
+    "pager" -> Ok(ContactpointsystemPager)
+    "url" -> Ok(ContactpointsystemUrl)
+    "sms" -> Ok(ContactpointsystemSms)
+    "other" -> Ok(ContactpointsystemOther)
+    _ -> Error(Nil)
   }
 }
 
@@ -4781,11 +7043,29 @@ pub type Remittanceoutcome {
 }
 
 pub fn remittanceoutcome_to_json(remittanceoutcome: Remittanceoutcome) -> Json {
+  json.string(remittanceoutcome_to_string(remittanceoutcome))
+}
+
+pub fn remittanceoutcome_to_string(
+  remittanceoutcome: Remittanceoutcome,
+) -> String {
   case remittanceoutcome {
-    RemittanceoutcomeQueued -> json.string("queued")
-    RemittanceoutcomeComplete -> json.string("complete")
-    RemittanceoutcomeError -> json.string("error")
-    RemittanceoutcomePartial -> json.string("partial")
+    RemittanceoutcomeQueued -> "queued"
+    RemittanceoutcomeComplete -> "complete"
+    RemittanceoutcomeError -> "error"
+    RemittanceoutcomePartial -> "partial"
+  }
+}
+
+pub fn remittanceoutcome_from_string(
+  s: String,
+) -> Result(Remittanceoutcome, Nil) {
+  case s {
+    "queued" -> Ok(RemittanceoutcomeQueued)
+    "complete" -> Ok(RemittanceoutcomeComplete)
+    "error" -> Ok(RemittanceoutcomeError)
+    "partial" -> Ok(RemittanceoutcomePartial)
+    _ -> Error(Nil)
   }
 }
 
@@ -4814,17 +7094,41 @@ pub type Appointmentstatus {
 }
 
 pub fn appointmentstatus_to_json(appointmentstatus: Appointmentstatus) -> Json {
+  json.string(appointmentstatus_to_string(appointmentstatus))
+}
+
+pub fn appointmentstatus_to_string(
+  appointmentstatus: Appointmentstatus,
+) -> String {
   case appointmentstatus {
-    AppointmentstatusProposed -> json.string("proposed")
-    AppointmentstatusPending -> json.string("pending")
-    AppointmentstatusBooked -> json.string("booked")
-    AppointmentstatusArrived -> json.string("arrived")
-    AppointmentstatusFulfilled -> json.string("fulfilled")
-    AppointmentstatusCancelled -> json.string("cancelled")
-    AppointmentstatusNoshow -> json.string("noshow")
-    AppointmentstatusEnteredinerror -> json.string("entered-in-error")
-    AppointmentstatusCheckedin -> json.string("checked-in")
-    AppointmentstatusWaitlist -> json.string("waitlist")
+    AppointmentstatusProposed -> "proposed"
+    AppointmentstatusPending -> "pending"
+    AppointmentstatusBooked -> "booked"
+    AppointmentstatusArrived -> "arrived"
+    AppointmentstatusFulfilled -> "fulfilled"
+    AppointmentstatusCancelled -> "cancelled"
+    AppointmentstatusNoshow -> "noshow"
+    AppointmentstatusEnteredinerror -> "entered-in-error"
+    AppointmentstatusCheckedin -> "checked-in"
+    AppointmentstatusWaitlist -> "waitlist"
+  }
+}
+
+pub fn appointmentstatus_from_string(
+  s: String,
+) -> Result(Appointmentstatus, Nil) {
+  case s {
+    "proposed" -> Ok(AppointmentstatusProposed)
+    "pending" -> Ok(AppointmentstatusPending)
+    "booked" -> Ok(AppointmentstatusBooked)
+    "arrived" -> Ok(AppointmentstatusArrived)
+    "fulfilled" -> Ok(AppointmentstatusFulfilled)
+    "cancelled" -> Ok(AppointmentstatusCancelled)
+    "noshow" -> Ok(AppointmentstatusNoshow)
+    "entered-in-error" -> Ok(AppointmentstatusEnteredinerror)
+    "checked-in" -> Ok(AppointmentstatusCheckedin)
+    "waitlist" -> Ok(AppointmentstatusWaitlist)
+    _ -> Error(Nil)
   }
 }
 
@@ -4853,9 +7157,25 @@ pub type Examplescenarioactortype {
 pub fn examplescenarioactortype_to_json(
   examplescenarioactortype: Examplescenarioactortype,
 ) -> Json {
+  json.string(examplescenarioactortype_to_string(examplescenarioactortype))
+}
+
+pub fn examplescenarioactortype_to_string(
+  examplescenarioactortype: Examplescenarioactortype,
+) -> String {
   case examplescenarioactortype {
-    ExamplescenarioactortypePerson -> json.string("person")
-    ExamplescenarioactortypeEntity -> json.string("entity")
+    ExamplescenarioactortypePerson -> "person"
+    ExamplescenarioactortypeEntity -> "entity"
+  }
+}
+
+pub fn examplescenarioactortype_from_string(
+  s: String,
+) -> Result(Examplescenarioactortype, Nil) {
+  case s {
+    "person" -> Ok(ExamplescenarioactortypePerson)
+    "entity" -> Ok(ExamplescenarioactortypeEntity)
+    _ -> Error(Nil)
   }
 }
 
@@ -4878,12 +7198,27 @@ pub type Networktype {
 }
 
 pub fn networktype_to_json(networktype: Networktype) -> Json {
+  json.string(networktype_to_string(networktype))
+}
+
+pub fn networktype_to_string(networktype: Networktype) -> String {
   case networktype {
-    Networktype1 -> json.string("1")
-    Networktype2 -> json.string("2")
-    Networktype3 -> json.string("3")
-    Networktype4 -> json.string("4")
-    Networktype5 -> json.string("5")
+    Networktype1 -> "1"
+    Networktype2 -> "2"
+    Networktype3 -> "3"
+    Networktype4 -> "4"
+    Networktype5 -> "5"
+  }
+}
+
+pub fn networktype_from_string(s: String) -> Result(Networktype, Nil) {
+  case s {
+    "1" -> Ok(Networktype1)
+    "2" -> Ok(Networktype2)
+    "3" -> Ok(Networktype3)
+    "4" -> Ok(Networktype4)
+    "5" -> Ok(Networktype5)
+    _ -> Error(Nil)
   }
 }
 
@@ -4915,17 +7250,41 @@ pub type Conceptmapequivalence {
 pub fn conceptmapequivalence_to_json(
   conceptmapequivalence: Conceptmapequivalence,
 ) -> Json {
+  json.string(conceptmapequivalence_to_string(conceptmapequivalence))
+}
+
+pub fn conceptmapequivalence_to_string(
+  conceptmapequivalence: Conceptmapequivalence,
+) -> String {
   case conceptmapequivalence {
-    ConceptmapequivalenceRelatedto -> json.string("relatedto")
-    ConceptmapequivalenceEquivalent -> json.string("equivalent")
-    ConceptmapequivalenceEqual -> json.string("equal")
-    ConceptmapequivalenceWider -> json.string("wider")
-    ConceptmapequivalenceSubsumes -> json.string("subsumes")
-    ConceptmapequivalenceNarrower -> json.string("narrower")
-    ConceptmapequivalenceSpecializes -> json.string("specializes")
-    ConceptmapequivalenceInexact -> json.string("inexact")
-    ConceptmapequivalenceUnmatched -> json.string("unmatched")
-    ConceptmapequivalenceDisjoint -> json.string("disjoint")
+    ConceptmapequivalenceRelatedto -> "relatedto"
+    ConceptmapequivalenceEquivalent -> "equivalent"
+    ConceptmapequivalenceEqual -> "equal"
+    ConceptmapequivalenceWider -> "wider"
+    ConceptmapequivalenceSubsumes -> "subsumes"
+    ConceptmapequivalenceNarrower -> "narrower"
+    ConceptmapequivalenceSpecializes -> "specializes"
+    ConceptmapequivalenceInexact -> "inexact"
+    ConceptmapequivalenceUnmatched -> "unmatched"
+    ConceptmapequivalenceDisjoint -> "disjoint"
+  }
+}
+
+pub fn conceptmapequivalence_from_string(
+  s: String,
+) -> Result(Conceptmapequivalence, Nil) {
+  case s {
+    "relatedto" -> Ok(ConceptmapequivalenceRelatedto)
+    "equivalent" -> Ok(ConceptmapequivalenceEquivalent)
+    "equal" -> Ok(ConceptmapequivalenceEqual)
+    "wider" -> Ok(ConceptmapequivalenceWider)
+    "subsumes" -> Ok(ConceptmapequivalenceSubsumes)
+    "narrower" -> Ok(ConceptmapequivalenceNarrower)
+    "specializes" -> Ok(ConceptmapequivalenceSpecializes)
+    "inexact" -> Ok(ConceptmapequivalenceInexact)
+    "unmatched" -> Ok(ConceptmapequivalenceUnmatched)
+    "disjoint" -> Ok(ConceptmapequivalenceDisjoint)
+    _ -> Error(Nil)
   }
 }
 
@@ -4958,15 +7317,33 @@ pub type Triggertype {
 }
 
 pub fn triggertype_to_json(triggertype: Triggertype) -> Json {
+  json.string(triggertype_to_string(triggertype))
+}
+
+pub fn triggertype_to_string(triggertype: Triggertype) -> String {
   case triggertype {
-    TriggertypeNamedevent -> json.string("named-event")
-    TriggertypePeriodic -> json.string("periodic")
-    TriggertypeDatachanged -> json.string("data-changed")
-    TriggertypeDataadded -> json.string("data-added")
-    TriggertypeDatamodified -> json.string("data-modified")
-    TriggertypeDataremoved -> json.string("data-removed")
-    TriggertypeDataaccessed -> json.string("data-accessed")
-    TriggertypeDataaccessended -> json.string("data-access-ended")
+    TriggertypeNamedevent -> "named-event"
+    TriggertypePeriodic -> "periodic"
+    TriggertypeDatachanged -> "data-changed"
+    TriggertypeDataadded -> "data-added"
+    TriggertypeDatamodified -> "data-modified"
+    TriggertypeDataremoved -> "data-removed"
+    TriggertypeDataaccessed -> "data-accessed"
+    TriggertypeDataaccessended -> "data-access-ended"
+  }
+}
+
+pub fn triggertype_from_string(s: String) -> Result(Triggertype, Nil) {
+  case s {
+    "named-event" -> Ok(TriggertypeNamedevent)
+    "periodic" -> Ok(TriggertypePeriodic)
+    "data-changed" -> Ok(TriggertypeDatachanged)
+    "data-added" -> Ok(TriggertypeDataadded)
+    "data-modified" -> Ok(TriggertypeDatamodified)
+    "data-removed" -> Ok(TriggertypeDataremoved)
+    "data-accessed" -> Ok(TriggertypeDataaccessed)
+    "data-access-ended" -> Ok(TriggertypeDataaccessended)
+    _ -> Error(Nil)
   }
 }
 
@@ -4999,15 +7376,37 @@ pub type Relatedartifacttype {
 pub fn relatedartifacttype_to_json(
   relatedartifacttype: Relatedartifacttype,
 ) -> Json {
+  json.string(relatedartifacttype_to_string(relatedartifacttype))
+}
+
+pub fn relatedartifacttype_to_string(
+  relatedartifacttype: Relatedartifacttype,
+) -> String {
   case relatedartifacttype {
-    RelatedartifacttypeDocumentation -> json.string("documentation")
-    RelatedartifacttypeJustification -> json.string("justification")
-    RelatedartifacttypeCitation -> json.string("citation")
-    RelatedartifacttypePredecessor -> json.string("predecessor")
-    RelatedartifacttypeSuccessor -> json.string("successor")
-    RelatedartifacttypeDerivedfrom -> json.string("derived-from")
-    RelatedartifacttypeDependson -> json.string("depends-on")
-    RelatedartifacttypeComposedof -> json.string("composed-of")
+    RelatedartifacttypeDocumentation -> "documentation"
+    RelatedartifacttypeJustification -> "justification"
+    RelatedartifacttypeCitation -> "citation"
+    RelatedartifacttypePredecessor -> "predecessor"
+    RelatedartifacttypeSuccessor -> "successor"
+    RelatedartifacttypeDerivedfrom -> "derived-from"
+    RelatedartifacttypeDependson -> "depends-on"
+    RelatedartifacttypeComposedof -> "composed-of"
+  }
+}
+
+pub fn relatedartifacttype_from_string(
+  s: String,
+) -> Result(Relatedartifacttype, Nil) {
+  case s {
+    "documentation" -> Ok(RelatedartifacttypeDocumentation)
+    "justification" -> Ok(RelatedartifacttypeJustification)
+    "citation" -> Ok(RelatedartifacttypeCitation)
+    "predecessor" -> Ok(RelatedartifacttypePredecessor)
+    "successor" -> Ok(RelatedartifacttypeSuccessor)
+    "derived-from" -> Ok(RelatedartifacttypeDerivedfrom)
+    "depends-on" -> Ok(RelatedartifacttypeDependson)
+    "composed-of" -> Ok(RelatedartifacttypeComposedof)
+    _ -> Error(Nil)
   }
 }
 
@@ -5035,10 +7434,27 @@ pub type Documentreferencestatus {
 pub fn documentreferencestatus_to_json(
   documentreferencestatus: Documentreferencestatus,
 ) -> Json {
+  json.string(documentreferencestatus_to_string(documentreferencestatus))
+}
+
+pub fn documentreferencestatus_to_string(
+  documentreferencestatus: Documentreferencestatus,
+) -> String {
   case documentreferencestatus {
-    DocumentreferencestatusCurrent -> json.string("current")
-    DocumentreferencestatusSuperseded -> json.string("superseded")
-    DocumentreferencestatusEnteredinerror -> json.string("entered-in-error")
+    DocumentreferencestatusCurrent -> "current"
+    DocumentreferencestatusSuperseded -> "superseded"
+    DocumentreferencestatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn documentreferencestatus_from_string(
+  s: String,
+) -> Result(Documentreferencestatus, Nil) {
+  case s {
+    "current" -> Ok(DocumentreferencestatusCurrent)
+    "superseded" -> Ok(DocumentreferencestatusSuperseded)
+    "entered-in-error" -> Ok(DocumentreferencestatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -5063,11 +7479,29 @@ pub type Codesystemhierarchymeaning {
 pub fn codesystemhierarchymeaning_to_json(
   codesystemhierarchymeaning: Codesystemhierarchymeaning,
 ) -> Json {
+  json.string(codesystemhierarchymeaning_to_string(codesystemhierarchymeaning))
+}
+
+pub fn codesystemhierarchymeaning_to_string(
+  codesystemhierarchymeaning: Codesystemhierarchymeaning,
+) -> String {
   case codesystemhierarchymeaning {
-    CodesystemhierarchymeaningGroupedby -> json.string("grouped-by")
-    CodesystemhierarchymeaningIsa -> json.string("is-a")
-    CodesystemhierarchymeaningPartof -> json.string("part-of")
-    CodesystemhierarchymeaningClassifiedwith -> json.string("classified-with")
+    CodesystemhierarchymeaningGroupedby -> "grouped-by"
+    CodesystemhierarchymeaningIsa -> "is-a"
+    CodesystemhierarchymeaningPartof -> "part-of"
+    CodesystemhierarchymeaningClassifiedwith -> "classified-with"
+  }
+}
+
+pub fn codesystemhierarchymeaning_from_string(
+  s: String,
+) -> Result(Codesystemhierarchymeaning, Nil) {
+  case s {
+    "grouped-by" -> Ok(CodesystemhierarchymeaningGroupedby)
+    "is-a" -> Ok(CodesystemhierarchymeaningIsa)
+    "part-of" -> Ok(CodesystemhierarchymeaningPartof)
+    "classified-with" -> Ok(CodesystemhierarchymeaningClassifiedwith)
+    _ -> Error(Nil)
   }
 }
 
@@ -5101,15 +7535,33 @@ pub type Eventstatus {
 }
 
 pub fn eventstatus_to_json(eventstatus: Eventstatus) -> Json {
+  json.string(eventstatus_to_string(eventstatus))
+}
+
+pub fn eventstatus_to_string(eventstatus: Eventstatus) -> String {
   case eventstatus {
-    EventstatusPreparation -> json.string("preparation")
-    EventstatusInprogress -> json.string("in-progress")
-    EventstatusNotdone -> json.string("not-done")
-    EventstatusOnhold -> json.string("on-hold")
-    EventstatusStopped -> json.string("stopped")
-    EventstatusCompleted -> json.string("completed")
-    EventstatusEnteredinerror -> json.string("entered-in-error")
-    EventstatusUnknown -> json.string("unknown")
+    EventstatusPreparation -> "preparation"
+    EventstatusInprogress -> "in-progress"
+    EventstatusNotdone -> "not-done"
+    EventstatusOnhold -> "on-hold"
+    EventstatusStopped -> "stopped"
+    EventstatusCompleted -> "completed"
+    EventstatusEnteredinerror -> "entered-in-error"
+    EventstatusUnknown -> "unknown"
+  }
+}
+
+pub fn eventstatus_from_string(s: String) -> Result(Eventstatus, Nil) {
+  case s {
+    "preparation" -> Ok(EventstatusPreparation)
+    "in-progress" -> Ok(EventstatusInprogress)
+    "not-done" -> Ok(EventstatusNotdone)
+    "on-hold" -> Ok(EventstatusOnhold)
+    "stopped" -> Ok(EventstatusStopped)
+    "completed" -> Ok(EventstatusCompleted)
+    "entered-in-error" -> Ok(EventstatusEnteredinerror)
+    "unknown" -> Ok(EventstatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -5140,13 +7592,33 @@ pub type Devicestatementstatus {
 pub fn devicestatementstatus_to_json(
   devicestatementstatus: Devicestatementstatus,
 ) -> Json {
+  json.string(devicestatementstatus_to_string(devicestatementstatus))
+}
+
+pub fn devicestatementstatus_to_string(
+  devicestatementstatus: Devicestatementstatus,
+) -> String {
   case devicestatementstatus {
-    DevicestatementstatusActive -> json.string("active")
-    DevicestatementstatusCompleted -> json.string("completed")
-    DevicestatementstatusEnteredinerror -> json.string("entered-in-error")
-    DevicestatementstatusIntended -> json.string("intended")
-    DevicestatementstatusStopped -> json.string("stopped")
-    DevicestatementstatusOnhold -> json.string("on-hold")
+    DevicestatementstatusActive -> "active"
+    DevicestatementstatusCompleted -> "completed"
+    DevicestatementstatusEnteredinerror -> "entered-in-error"
+    DevicestatementstatusIntended -> "intended"
+    DevicestatementstatusStopped -> "stopped"
+    DevicestatementstatusOnhold -> "on-hold"
+  }
+}
+
+pub fn devicestatementstatus_from_string(
+  s: String,
+) -> Result(Devicestatementstatus, Nil) {
+  case s {
+    "active" -> Ok(DevicestatementstatusActive)
+    "completed" -> Ok(DevicestatementstatusCompleted)
+    "entered-in-error" -> Ok(DevicestatementstatusEnteredinerror)
+    "intended" -> Ok(DevicestatementstatusIntended)
+    "stopped" -> Ok(DevicestatementstatusStopped)
+    "on-hold" -> Ok(DevicestatementstatusOnhold)
+    _ -> Error(Nil)
   }
 }
 
@@ -5176,16 +7648,35 @@ pub type Encounterstatus {
 }
 
 pub fn encounterstatus_to_json(encounterstatus: Encounterstatus) -> Json {
+  json.string(encounterstatus_to_string(encounterstatus))
+}
+
+pub fn encounterstatus_to_string(encounterstatus: Encounterstatus) -> String {
   case encounterstatus {
-    EncounterstatusPlanned -> json.string("planned")
-    EncounterstatusArrived -> json.string("arrived")
-    EncounterstatusTriaged -> json.string("triaged")
-    EncounterstatusInprogress -> json.string("in-progress")
-    EncounterstatusOnleave -> json.string("onleave")
-    EncounterstatusFinished -> json.string("finished")
-    EncounterstatusCancelled -> json.string("cancelled")
-    EncounterstatusEnteredinerror -> json.string("entered-in-error")
-    EncounterstatusUnknown -> json.string("unknown")
+    EncounterstatusPlanned -> "planned"
+    EncounterstatusArrived -> "arrived"
+    EncounterstatusTriaged -> "triaged"
+    EncounterstatusInprogress -> "in-progress"
+    EncounterstatusOnleave -> "onleave"
+    EncounterstatusFinished -> "finished"
+    EncounterstatusCancelled -> "cancelled"
+    EncounterstatusEnteredinerror -> "entered-in-error"
+    EncounterstatusUnknown -> "unknown"
+  }
+}
+
+pub fn encounterstatus_from_string(s: String) -> Result(Encounterstatus, Nil) {
+  case s {
+    "planned" -> Ok(EncounterstatusPlanned)
+    "arrived" -> Ok(EncounterstatusArrived)
+    "triaged" -> Ok(EncounterstatusTriaged)
+    "in-progress" -> Ok(EncounterstatusInprogress)
+    "onleave" -> Ok(EncounterstatusOnleave)
+    "finished" -> Ok(EncounterstatusFinished)
+    "cancelled" -> Ok(EncounterstatusCancelled)
+    "entered-in-error" -> Ok(EncounterstatusEnteredinerror)
+    "unknown" -> Ok(EncounterstatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -5211,9 +7702,21 @@ pub type Orientationtype {
 }
 
 pub fn orientationtype_to_json(orientationtype: Orientationtype) -> Json {
+  json.string(orientationtype_to_string(orientationtype))
+}
+
+pub fn orientationtype_to_string(orientationtype: Orientationtype) -> String {
   case orientationtype {
-    OrientationtypeSense -> json.string("sense")
-    OrientationtypeAntisense -> json.string("antisense")
+    OrientationtypeSense -> "sense"
+    OrientationtypeAntisense -> "antisense"
+  }
+}
+
+pub fn orientationtype_from_string(s: String) -> Result(Orientationtype, Nil) {
+  case s {
+    "sense" -> Ok(OrientationtypeSense)
+    "antisense" -> Ok(OrientationtypeAntisense)
+    _ -> Error(Nil)
   }
 }
 
@@ -5235,11 +7738,29 @@ pub type Allergyintolerancecriticality {
 pub fn allergyintolerancecriticality_to_json(
   allergyintolerancecriticality: Allergyintolerancecriticality,
 ) -> Json {
+  json.string(allergyintolerancecriticality_to_string(
+    allergyintolerancecriticality,
+  ))
+}
+
+pub fn allergyintolerancecriticality_to_string(
+  allergyintolerancecriticality: Allergyintolerancecriticality,
+) -> String {
   case allergyintolerancecriticality {
-    AllergyintolerancecriticalityLow -> json.string("low")
-    AllergyintolerancecriticalityHigh -> json.string("high")
-    AllergyintolerancecriticalityUnabletoassess ->
-      json.string("unable-to-assess")
+    AllergyintolerancecriticalityLow -> "low"
+    AllergyintolerancecriticalityHigh -> "high"
+    AllergyintolerancecriticalityUnabletoassess -> "unable-to-assess"
+  }
+}
+
+pub fn allergyintolerancecriticality_from_string(
+  s: String,
+) -> Result(Allergyintolerancecriticality, Nil) {
+  case s {
+    "low" -> Ok(AllergyintolerancecriticalityLow)
+    "high" -> Ok(AllergyintolerancecriticalityHigh)
+    "unable-to-assess" -> Ok(AllergyintolerancecriticalityUnabletoassess)
+    _ -> Error(Nil)
   }
 }
 
@@ -5275,18 +7796,39 @@ pub type Actionrelationshiptype {
 pub fn actionrelationshiptype_to_json(
   actionrelationshiptype: Actionrelationshiptype,
 ) -> Json {
+  json.string(actionrelationshiptype_to_string(actionrelationshiptype))
+}
+
+pub fn actionrelationshiptype_to_string(
+  actionrelationshiptype: Actionrelationshiptype,
+) -> String {
   case actionrelationshiptype {
-    ActionrelationshiptypeBeforestart -> json.string("before-start")
-    ActionrelationshiptypeBefore -> json.string("before")
-    ActionrelationshiptypeBeforeend -> json.string("before-end")
-    ActionrelationshiptypeConcurrentwithstart ->
-      json.string("concurrent-with-start")
-    ActionrelationshiptypeConcurrent -> json.string("concurrent")
-    ActionrelationshiptypeConcurrentwithend ->
-      json.string("concurrent-with-end")
-    ActionrelationshiptypeAfterstart -> json.string("after-start")
-    ActionrelationshiptypeAfter -> json.string("after")
-    ActionrelationshiptypeAfterend -> json.string("after-end")
+    ActionrelationshiptypeBeforestart -> "before-start"
+    ActionrelationshiptypeBefore -> "before"
+    ActionrelationshiptypeBeforeend -> "before-end"
+    ActionrelationshiptypeConcurrentwithstart -> "concurrent-with-start"
+    ActionrelationshiptypeConcurrent -> "concurrent"
+    ActionrelationshiptypeConcurrentwithend -> "concurrent-with-end"
+    ActionrelationshiptypeAfterstart -> "after-start"
+    ActionrelationshiptypeAfter -> "after"
+    ActionrelationshiptypeAfterend -> "after-end"
+  }
+}
+
+pub fn actionrelationshiptype_from_string(
+  s: String,
+) -> Result(Actionrelationshiptype, Nil) {
+  case s {
+    "before-start" -> Ok(ActionrelationshiptypeBeforestart)
+    "before" -> Ok(ActionrelationshiptypeBefore)
+    "before-end" -> Ok(ActionrelationshiptypeBeforeend)
+    "concurrent-with-start" -> Ok(ActionrelationshiptypeConcurrentwithstart)
+    "concurrent" -> Ok(ActionrelationshiptypeConcurrent)
+    "concurrent-with-end" -> Ok(ActionrelationshiptypeConcurrentwithend)
+    "after-start" -> Ok(ActionrelationshiptypeAfterstart)
+    "after" -> Ok(ActionrelationshiptypeAfter)
+    "after-end" -> Ok(ActionrelationshiptypeAfterend)
+    _ -> Error(Nil)
   }
 }
 
@@ -5320,11 +7862,25 @@ pub type Issueseverity {
 }
 
 pub fn issueseverity_to_json(issueseverity: Issueseverity) -> Json {
+  json.string(issueseverity_to_string(issueseverity))
+}
+
+pub fn issueseverity_to_string(issueseverity: Issueseverity) -> String {
   case issueseverity {
-    IssueseverityFatal -> json.string("fatal")
-    IssueseverityError -> json.string("error")
-    IssueseverityWarning -> json.string("warning")
-    IssueseverityInformation -> json.string("information")
+    IssueseverityFatal -> "fatal"
+    IssueseverityError -> "error"
+    IssueseverityWarning -> "warning"
+    IssueseverityInformation -> "information"
+  }
+}
+
+pub fn issueseverity_from_string(s: String) -> Result(Issueseverity, Nil) {
+  case s {
+    "fatal" -> Ok(IssueseverityFatal)
+    "error" -> Ok(IssueseverityError)
+    "warning" -> Ok(IssueseverityWarning)
+    "information" -> Ok(IssueseverityInformation)
+    _ -> Error(Nil)
   }
 }
 
@@ -5348,12 +7904,27 @@ pub type Slotstatus {
 }
 
 pub fn slotstatus_to_json(slotstatus: Slotstatus) -> Json {
+  json.string(slotstatus_to_string(slotstatus))
+}
+
+pub fn slotstatus_to_string(slotstatus: Slotstatus) -> String {
   case slotstatus {
-    SlotstatusBusy -> json.string("busy")
-    SlotstatusFree -> json.string("free")
-    SlotstatusBusyunavailable -> json.string("busy-unavailable")
-    SlotstatusBusytentative -> json.string("busy-tentative")
-    SlotstatusEnteredinerror -> json.string("entered-in-error")
+    SlotstatusBusy -> "busy"
+    SlotstatusFree -> "free"
+    SlotstatusBusyunavailable -> "busy-unavailable"
+    SlotstatusBusytentative -> "busy-tentative"
+    SlotstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn slotstatus_from_string(s: String) -> Result(Slotstatus, Nil) {
+  case s {
+    "busy" -> Ok(SlotstatusBusy)
+    "free" -> Ok(SlotstatusFree)
+    "busy-unavailable" -> Ok(SlotstatusBusyunavailable)
+    "busy-tentative" -> Ok(SlotstatusBusytentative)
+    "entered-in-error" -> Ok(SlotstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -5380,12 +7951,31 @@ pub type Codesystemcontentmode {
 pub fn codesystemcontentmode_to_json(
   codesystemcontentmode: Codesystemcontentmode,
 ) -> Json {
+  json.string(codesystemcontentmode_to_string(codesystemcontentmode))
+}
+
+pub fn codesystemcontentmode_to_string(
+  codesystemcontentmode: Codesystemcontentmode,
+) -> String {
   case codesystemcontentmode {
-    CodesystemcontentmodeNotpresent -> json.string("not-present")
-    CodesystemcontentmodeExample -> json.string("example")
-    CodesystemcontentmodeFragment -> json.string("fragment")
-    CodesystemcontentmodeComplete -> json.string("complete")
-    CodesystemcontentmodeSupplement -> json.string("supplement")
+    CodesystemcontentmodeNotpresent -> "not-present"
+    CodesystemcontentmodeExample -> "example"
+    CodesystemcontentmodeFragment -> "fragment"
+    CodesystemcontentmodeComplete -> "complete"
+    CodesystemcontentmodeSupplement -> "supplement"
+  }
+}
+
+pub fn codesystemcontentmode_from_string(
+  s: String,
+) -> Result(Codesystemcontentmode, Nil) {
+  case s {
+    "not-present" -> Ok(CodesystemcontentmodeNotpresent)
+    "example" -> Ok(CodesystemcontentmodeExample)
+    "fragment" -> Ok(CodesystemcontentmodeFragment)
+    "complete" -> Ok(CodesystemcontentmodeComplete)
+    "supplement" -> Ok(CodesystemcontentmodeSupplement)
+    _ -> Error(Nil)
   }
 }
 
@@ -5414,15 +8004,33 @@ pub type Metriccolor {
 }
 
 pub fn metriccolor_to_json(metriccolor: Metriccolor) -> Json {
+  json.string(metriccolor_to_string(metriccolor))
+}
+
+pub fn metriccolor_to_string(metriccolor: Metriccolor) -> String {
   case metriccolor {
-    MetriccolorBlack -> json.string("black")
-    MetriccolorRed -> json.string("red")
-    MetriccolorGreen -> json.string("green")
-    MetriccolorYellow -> json.string("yellow")
-    MetriccolorBlue -> json.string("blue")
-    MetriccolorMagenta -> json.string("magenta")
-    MetriccolorCyan -> json.string("cyan")
-    MetriccolorWhite -> json.string("white")
+    MetriccolorBlack -> "black"
+    MetriccolorRed -> "red"
+    MetriccolorGreen -> "green"
+    MetriccolorYellow -> "yellow"
+    MetriccolorBlue -> "blue"
+    MetriccolorMagenta -> "magenta"
+    MetriccolorCyan -> "cyan"
+    MetriccolorWhite -> "white"
+  }
+}
+
+pub fn metriccolor_from_string(s: String) -> Result(Metriccolor, Nil) {
+  case s {
+    "black" -> Ok(MetriccolorBlack)
+    "red" -> Ok(MetriccolorRed)
+    "green" -> Ok(MetriccolorGreen)
+    "yellow" -> Ok(MetriccolorYellow)
+    "blue" -> Ok(MetriccolorBlue)
+    "magenta" -> Ok(MetriccolorMagenta)
+    "cyan" -> Ok(MetriccolorCyan)
+    "white" -> Ok(MetriccolorWhite)
+    _ -> Error(Nil)
   }
 }
 
@@ -5452,12 +8060,31 @@ pub type Referencehandlingpolicy {
 pub fn referencehandlingpolicy_to_json(
   referencehandlingpolicy: Referencehandlingpolicy,
 ) -> Json {
+  json.string(referencehandlingpolicy_to_string(referencehandlingpolicy))
+}
+
+pub fn referencehandlingpolicy_to_string(
+  referencehandlingpolicy: Referencehandlingpolicy,
+) -> String {
   case referencehandlingpolicy {
-    ReferencehandlingpolicyLiteral -> json.string("literal")
-    ReferencehandlingpolicyLogical -> json.string("logical")
-    ReferencehandlingpolicyResolves -> json.string("resolves")
-    ReferencehandlingpolicyEnforced -> json.string("enforced")
-    ReferencehandlingpolicyLocal -> json.string("local")
+    ReferencehandlingpolicyLiteral -> "literal"
+    ReferencehandlingpolicyLogical -> "logical"
+    ReferencehandlingpolicyResolves -> "resolves"
+    ReferencehandlingpolicyEnforced -> "enforced"
+    ReferencehandlingpolicyLocal -> "local"
+  }
+}
+
+pub fn referencehandlingpolicy_from_string(
+  s: String,
+) -> Result(Referencehandlingpolicy, Nil) {
+  case s {
+    "literal" -> Ok(ReferencehandlingpolicyLiteral)
+    "logical" -> Ok(ReferencehandlingpolicyLogical)
+    "resolves" -> Ok(ReferencehandlingpolicyResolves)
+    "enforced" -> Ok(ReferencehandlingpolicyEnforced)
+    "local" -> Ok(ReferencehandlingpolicyLocal)
+    _ -> Error(Nil)
   }
 }
 
@@ -5487,14 +8114,35 @@ pub type Supplyrequeststatus {
 pub fn supplyrequeststatus_to_json(
   supplyrequeststatus: Supplyrequeststatus,
 ) -> Json {
+  json.string(supplyrequeststatus_to_string(supplyrequeststatus))
+}
+
+pub fn supplyrequeststatus_to_string(
+  supplyrequeststatus: Supplyrequeststatus,
+) -> String {
   case supplyrequeststatus {
-    SupplyrequeststatusDraft -> json.string("draft")
-    SupplyrequeststatusActive -> json.string("active")
-    SupplyrequeststatusSuspended -> json.string("suspended")
-    SupplyrequeststatusCancelled -> json.string("cancelled")
-    SupplyrequeststatusCompleted -> json.string("completed")
-    SupplyrequeststatusEnteredinerror -> json.string("entered-in-error")
-    SupplyrequeststatusUnknown -> json.string("unknown")
+    SupplyrequeststatusDraft -> "draft"
+    SupplyrequeststatusActive -> "active"
+    SupplyrequeststatusSuspended -> "suspended"
+    SupplyrequeststatusCancelled -> "cancelled"
+    SupplyrequeststatusCompleted -> "completed"
+    SupplyrequeststatusEnteredinerror -> "entered-in-error"
+    SupplyrequeststatusUnknown -> "unknown"
+  }
+}
+
+pub fn supplyrequeststatus_from_string(
+  s: String,
+) -> Result(Supplyrequeststatus, Nil) {
+  case s {
+    "draft" -> Ok(SupplyrequeststatusDraft)
+    "active" -> Ok(SupplyrequeststatusActive)
+    "suspended" -> Ok(SupplyrequeststatusSuspended)
+    "cancelled" -> Ok(SupplyrequeststatusCancelled)
+    "completed" -> Ok(SupplyrequeststatusCompleted)
+    "entered-in-error" -> Ok(SupplyrequeststatusEnteredinerror)
+    "unknown" -> Ok(SupplyrequeststatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -5519,10 +8167,23 @@ pub type Qualitytype {
 }
 
 pub fn qualitytype_to_json(qualitytype: Qualitytype) -> Json {
+  json.string(qualitytype_to_string(qualitytype))
+}
+
+pub fn qualitytype_to_string(qualitytype: Qualitytype) -> String {
   case qualitytype {
-    QualitytypeIndel -> json.string("indel")
-    QualitytypeSnp -> json.string("snp")
-    QualitytypeUnknown -> json.string("unknown")
+    QualitytypeIndel -> "indel"
+    QualitytypeSnp -> "snp"
+    QualitytypeUnknown -> "unknown"
+  }
+}
+
+pub fn qualitytype_from_string(s: String) -> Result(Qualitytype, Nil) {
+  case s {
+    "indel" -> Ok(QualitytypeIndel)
+    "snp" -> Ok(QualitytypeSnp)
+    "unknown" -> Ok(QualitytypeUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -5544,11 +8205,29 @@ pub type Measurereporttype {
 }
 
 pub fn measurereporttype_to_json(measurereporttype: Measurereporttype) -> Json {
+  json.string(measurereporttype_to_string(measurereporttype))
+}
+
+pub fn measurereporttype_to_string(
+  measurereporttype: Measurereporttype,
+) -> String {
   case measurereporttype {
-    MeasurereporttypeIndividual -> json.string("individual")
-    MeasurereporttypeSubjectlist -> json.string("subject-list")
-    MeasurereporttypeSummary -> json.string("summary")
-    MeasurereporttypeDatacollection -> json.string("data-collection")
+    MeasurereporttypeIndividual -> "individual"
+    MeasurereporttypeSubjectlist -> "subject-list"
+    MeasurereporttypeSummary -> "summary"
+    MeasurereporttypeDatacollection -> "data-collection"
+  }
+}
+
+pub fn measurereporttype_from_string(
+  s: String,
+) -> Result(Measurereporttype, Nil) {
+  case s {
+    "individual" -> Ok(MeasurereporttypeIndividual)
+    "subject-list" -> Ok(MeasurereporttypeSubjectlist)
+    "summary" -> Ok(MeasurereporttypeSummary)
+    "data-collection" -> Ok(MeasurereporttypeDatacollection)
+    _ -> Error(Nil)
   }
 }
 
@@ -5571,11 +8250,29 @@ pub type Publicationstatus {
 }
 
 pub fn publicationstatus_to_json(publicationstatus: Publicationstatus) -> Json {
+  json.string(publicationstatus_to_string(publicationstatus))
+}
+
+pub fn publicationstatus_to_string(
+  publicationstatus: Publicationstatus,
+) -> String {
   case publicationstatus {
-    PublicationstatusDraft -> json.string("draft")
-    PublicationstatusActive -> json.string("active")
-    PublicationstatusRetired -> json.string("retired")
-    PublicationstatusUnknown -> json.string("unknown")
+    PublicationstatusDraft -> "draft"
+    PublicationstatusActive -> "active"
+    PublicationstatusRetired -> "retired"
+    PublicationstatusUnknown -> "unknown"
+  }
+}
+
+pub fn publicationstatus_from_string(
+  s: String,
+) -> Result(Publicationstatus, Nil) {
+  case s {
+    "draft" -> Ok(PublicationstatusDraft)
+    "active" -> Ok(PublicationstatusActive)
+    "retired" -> Ok(PublicationstatusRetired)
+    "unknown" -> Ok(PublicationstatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -5605,16 +8302,39 @@ pub type Medicationdispensestatus {
 pub fn medicationdispensestatus_to_json(
   medicationdispensestatus: Medicationdispensestatus,
 ) -> Json {
+  json.string(medicationdispensestatus_to_string(medicationdispensestatus))
+}
+
+pub fn medicationdispensestatus_to_string(
+  medicationdispensestatus: Medicationdispensestatus,
+) -> String {
   case medicationdispensestatus {
-    MedicationdispensestatusPreparation -> json.string("preparation")
-    MedicationdispensestatusInprogress -> json.string("in-progress")
-    MedicationdispensestatusCancelled -> json.string("cancelled")
-    MedicationdispensestatusOnhold -> json.string("on-hold")
-    MedicationdispensestatusCompleted -> json.string("completed")
-    MedicationdispensestatusEnteredinerror -> json.string("entered-in-error")
-    MedicationdispensestatusStopped -> json.string("stopped")
-    MedicationdispensestatusDeclined -> json.string("declined")
-    MedicationdispensestatusUnknown -> json.string("unknown")
+    MedicationdispensestatusPreparation -> "preparation"
+    MedicationdispensestatusInprogress -> "in-progress"
+    MedicationdispensestatusCancelled -> "cancelled"
+    MedicationdispensestatusOnhold -> "on-hold"
+    MedicationdispensestatusCompleted -> "completed"
+    MedicationdispensestatusEnteredinerror -> "entered-in-error"
+    MedicationdispensestatusStopped -> "stopped"
+    MedicationdispensestatusDeclined -> "declined"
+    MedicationdispensestatusUnknown -> "unknown"
+  }
+}
+
+pub fn medicationdispensestatus_from_string(
+  s: String,
+) -> Result(Medicationdispensestatus, Nil) {
+  case s {
+    "preparation" -> Ok(MedicationdispensestatusPreparation)
+    "in-progress" -> Ok(MedicationdispensestatusInprogress)
+    "cancelled" -> Ok(MedicationdispensestatusCancelled)
+    "on-hold" -> Ok(MedicationdispensestatusOnhold)
+    "completed" -> Ok(MedicationdispensestatusCompleted)
+    "entered-in-error" -> Ok(MedicationdispensestatusEnteredinerror)
+    "stopped" -> Ok(MedicationdispensestatusStopped)
+    "declined" -> Ok(MedicationdispensestatusDeclined)
+    "unknown" -> Ok(MedicationdispensestatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -5645,10 +8365,23 @@ pub type Searchentrymode {
 }
 
 pub fn searchentrymode_to_json(searchentrymode: Searchentrymode) -> Json {
+  json.string(searchentrymode_to_string(searchentrymode))
+}
+
+pub fn searchentrymode_to_string(searchentrymode: Searchentrymode) -> String {
   case searchentrymode {
-    SearchentrymodeMatch -> json.string("match")
-    SearchentrymodeInclude -> json.string("include")
-    SearchentrymodeOutcome -> json.string("outcome")
+    SearchentrymodeMatch -> "match"
+    SearchentrymodeInclude -> "include"
+    SearchentrymodeOutcome -> "outcome"
+  }
+}
+
+pub fn searchentrymode_from_string(s: String) -> Result(Searchentrymode, Nil) {
+  case s {
+    "match" -> Ok(SearchentrymodeMatch)
+    "include" -> Ok(SearchentrymodeInclude)
+    "outcome" -> Ok(SearchentrymodeOutcome)
+    _ -> Error(Nil)
   }
 }
 
@@ -5673,14 +8406,31 @@ pub type Requeststatus {
 }
 
 pub fn requeststatus_to_json(requeststatus: Requeststatus) -> Json {
+  json.string(requeststatus_to_string(requeststatus))
+}
+
+pub fn requeststatus_to_string(requeststatus: Requeststatus) -> String {
   case requeststatus {
-    RequeststatusDraft -> json.string("draft")
-    RequeststatusActive -> json.string("active")
-    RequeststatusOnhold -> json.string("on-hold")
-    RequeststatusRevoked -> json.string("revoked")
-    RequeststatusCompleted -> json.string("completed")
-    RequeststatusEnteredinerror -> json.string("entered-in-error")
-    RequeststatusUnknown -> json.string("unknown")
+    RequeststatusDraft -> "draft"
+    RequeststatusActive -> "active"
+    RequeststatusOnhold -> "on-hold"
+    RequeststatusRevoked -> "revoked"
+    RequeststatusCompleted -> "completed"
+    RequeststatusEnteredinerror -> "entered-in-error"
+    RequeststatusUnknown -> "unknown"
+  }
+}
+
+pub fn requeststatus_from_string(s: String) -> Result(Requeststatus, Nil) {
+  case s {
+    "draft" -> Ok(RequeststatusDraft)
+    "active" -> Ok(RequeststatusActive)
+    "on-hold" -> Ok(RequeststatusOnhold)
+    "revoked" -> Ok(RequeststatusRevoked)
+    "completed" -> Ok(RequeststatusCompleted)
+    "entered-in-error" -> Ok(RequeststatusEnteredinerror)
+    "unknown" -> Ok(RequeststatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -5707,10 +8457,27 @@ pub type Observationrangecategory {
 pub fn observationrangecategory_to_json(
   observationrangecategory: Observationrangecategory,
 ) -> Json {
+  json.string(observationrangecategory_to_string(observationrangecategory))
+}
+
+pub fn observationrangecategory_to_string(
+  observationrangecategory: Observationrangecategory,
+) -> String {
   case observationrangecategory {
-    ObservationrangecategoryReference -> json.string("reference")
-    ObservationrangecategoryCritical -> json.string("critical")
-    ObservationrangecategoryAbsolute -> json.string("absolute")
+    ObservationrangecategoryReference -> "reference"
+    ObservationrangecategoryCritical -> "critical"
+    ObservationrangecategoryAbsolute -> "absolute"
+  }
+}
+
+pub fn observationrangecategory_from_string(
+  s: String,
+) -> Result(Observationrangecategory, Nil) {
+  case s {
+    "reference" -> Ok(ObservationrangecategoryReference)
+    "critical" -> Ok(ObservationrangecategoryCritical)
+    "absolute" -> Ok(ObservationrangecategoryAbsolute)
+    _ -> Error(Nil)
   }
 }
 
@@ -5737,10 +8504,27 @@ pub type Productstoragescale {
 pub fn productstoragescale_to_json(
   productstoragescale: Productstoragescale,
 ) -> Json {
+  json.string(productstoragescale_to_string(productstoragescale))
+}
+
+pub fn productstoragescale_to_string(
+  productstoragescale: Productstoragescale,
+) -> String {
   case productstoragescale {
-    ProductstoragescaleFarenheit -> json.string("farenheit")
-    ProductstoragescaleCelsius -> json.string("celsius")
-    ProductstoragescaleKelvin -> json.string("kelvin")
+    ProductstoragescaleFarenheit -> "farenheit"
+    ProductstoragescaleCelsius -> "celsius"
+    ProductstoragescaleKelvin -> "kelvin"
+  }
+}
+
+pub fn productstoragescale_from_string(
+  s: String,
+) -> Result(Productstoragescale, Nil) {
+  case s {
+    "farenheit" -> Ok(ProductstoragescaleFarenheit)
+    "celsius" -> Ok(ProductstoragescaleCelsius)
+    "kelvin" -> Ok(ProductstoragescaleKelvin)
+    _ -> Error(Nil)
   }
 }
 
@@ -5762,11 +8546,25 @@ pub type Metriccategory {
 }
 
 pub fn metriccategory_to_json(metriccategory: Metriccategory) -> Json {
+  json.string(metriccategory_to_string(metriccategory))
+}
+
+pub fn metriccategory_to_string(metriccategory: Metriccategory) -> String {
   case metriccategory {
-    MetriccategoryMeasurement -> json.string("measurement")
-    MetriccategorySetting -> json.string("setting")
-    MetriccategoryCalculation -> json.string("calculation")
-    MetriccategoryUnspecified -> json.string("unspecified")
+    MetriccategoryMeasurement -> "measurement"
+    MetriccategorySetting -> "setting"
+    MetriccategoryCalculation -> "calculation"
+    MetriccategoryUnspecified -> "unspecified"
+  }
+}
+
+pub fn metriccategory_from_string(s: String) -> Result(Metriccategory, Nil) {
+  case s {
+    "measurement" -> Ok(MetriccategoryMeasurement)
+    "setting" -> Ok(MetriccategorySetting)
+    "calculation" -> Ok(MetriccategoryCalculation)
+    "unspecified" -> Ok(MetriccategoryUnspecified)
+    _ -> Error(Nil)
   }
 }
 
@@ -5787,9 +8585,25 @@ pub type Codesearchsupport {
 }
 
 pub fn codesearchsupport_to_json(codesearchsupport: Codesearchsupport) -> Json {
+  json.string(codesearchsupport_to_string(codesearchsupport))
+}
+
+pub fn codesearchsupport_to_string(
+  codesearchsupport: Codesearchsupport,
+) -> String {
   case codesearchsupport {
-    CodesearchsupportExplicit -> json.string("explicit")
-    CodesearchsupportAll -> json.string("all")
+    CodesearchsupportExplicit -> "explicit"
+    CodesearchsupportAll -> "all"
+  }
+}
+
+pub fn codesearchsupport_from_string(
+  s: String,
+) -> Result(Codesearchsupport, Nil) {
+  case s {
+    "explicit" -> Ok(CodesearchsupportExplicit)
+    "all" -> Ok(CodesearchsupportAll)
+    _ -> Error(Nil)
   }
 }
 
@@ -5811,12 +8625,27 @@ pub type Addressuse {
 }
 
 pub fn addressuse_to_json(addressuse: Addressuse) -> Json {
+  json.string(addressuse_to_string(addressuse))
+}
+
+pub fn addressuse_to_string(addressuse: Addressuse) -> String {
   case addressuse {
-    AddressuseHome -> json.string("home")
-    AddressuseWork -> json.string("work")
-    AddressuseTemp -> json.string("temp")
-    AddressuseOld -> json.string("old")
-    AddressuseBilling -> json.string("billing")
+    AddressuseHome -> "home"
+    AddressuseWork -> "work"
+    AddressuseTemp -> "temp"
+    AddressuseOld -> "old"
+    AddressuseBilling -> "billing"
+  }
+}
+
+pub fn addressuse_from_string(s: String) -> Result(Addressuse, Nil) {
+  case s {
+    "home" -> Ok(AddressuseHome)
+    "work" -> Ok(AddressuseWork)
+    "temp" -> Ok(AddressuseTemp)
+    "old" -> Ok(AddressuseOld)
+    "billing" -> Ok(AddressuseBilling)
+    _ -> Error(Nil)
   }
 }
 
@@ -5839,10 +8668,23 @@ pub type Listmode {
 }
 
 pub fn listmode_to_json(listmode: Listmode) -> Json {
+  json.string(listmode_to_string(listmode))
+}
+
+pub fn listmode_to_string(listmode: Listmode) -> String {
   case listmode {
-    ListmodeWorking -> json.string("working")
-    ListmodeSnapshot -> json.string("snapshot")
-    ListmodeChanges -> json.string("changes")
+    ListmodeWorking -> "working"
+    ListmodeSnapshot -> "snapshot"
+    ListmodeChanges -> "changes"
+  }
+}
+
+pub fn listmode_from_string(s: String) -> Result(Listmode, Nil) {
+  case s {
+    "working" -> Ok(ListmodeWorking)
+    "snapshot" -> Ok(ListmodeSnapshot)
+    "changes" -> Ok(ListmodeChanges)
+    _ -> Error(Nil)
   }
 }
 
@@ -5866,12 +8708,29 @@ pub type Eligibilityrequestpurpose {
 pub fn eligibilityrequestpurpose_to_json(
   eligibilityrequestpurpose: Eligibilityrequestpurpose,
 ) -> Json {
+  json.string(eligibilityrequestpurpose_to_string(eligibilityrequestpurpose))
+}
+
+pub fn eligibilityrequestpurpose_to_string(
+  eligibilityrequestpurpose: Eligibilityrequestpurpose,
+) -> String {
   case eligibilityrequestpurpose {
-    EligibilityrequestpurposeAuthrequirements ->
-      json.string("auth-requirements")
-    EligibilityrequestpurposeBenefits -> json.string("benefits")
-    EligibilityrequestpurposeDiscovery -> json.string("discovery")
-    EligibilityrequestpurposeValidation -> json.string("validation")
+    EligibilityrequestpurposeAuthrequirements -> "auth-requirements"
+    EligibilityrequestpurposeBenefits -> "benefits"
+    EligibilityrequestpurposeDiscovery -> "discovery"
+    EligibilityrequestpurposeValidation -> "validation"
+  }
+}
+
+pub fn eligibilityrequestpurpose_from_string(
+  s: String,
+) -> Result(Eligibilityrequestpurpose, Nil) {
+  case s {
+    "auth-requirements" -> Ok(EligibilityrequestpurposeAuthrequirements)
+    "benefits" -> Ok(EligibilityrequestpurposeBenefits)
+    "discovery" -> Ok(EligibilityrequestpurposeDiscovery)
+    "validation" -> Ok(EligibilityrequestpurposeValidation)
+    _ -> Error(Nil)
   }
 }
 
@@ -5901,13 +8760,29 @@ pub type Endpointstatus {
 }
 
 pub fn endpointstatus_to_json(endpointstatus: Endpointstatus) -> Json {
+  json.string(endpointstatus_to_string(endpointstatus))
+}
+
+pub fn endpointstatus_to_string(endpointstatus: Endpointstatus) -> String {
   case endpointstatus {
-    EndpointstatusActive -> json.string("active")
-    EndpointstatusSuspended -> json.string("suspended")
-    EndpointstatusError -> json.string("error")
-    EndpointstatusOff -> json.string("off")
-    EndpointstatusEnteredinerror -> json.string("entered-in-error")
-    EndpointstatusTest -> json.string("test")
+    EndpointstatusActive -> "active"
+    EndpointstatusSuspended -> "suspended"
+    EndpointstatusError -> "error"
+    EndpointstatusOff -> "off"
+    EndpointstatusEnteredinerror -> "entered-in-error"
+    EndpointstatusTest -> "test"
+  }
+}
+
+pub fn endpointstatus_from_string(s: String) -> Result(Endpointstatus, Nil) {
+  case s {
+    "active" -> Ok(EndpointstatusActive)
+    "suspended" -> Ok(EndpointstatusSuspended)
+    "error" -> Ok(EndpointstatusError)
+    "off" -> Ok(EndpointstatusOff)
+    "entered-in-error" -> Ok(EndpointstatusEnteredinerror)
+    "test" -> Ok(EndpointstatusTest)
+    _ -> Error(Nil)
   }
 }
 
@@ -5934,11 +8809,29 @@ pub type Explanationofbenefitstatus {
 pub fn explanationofbenefitstatus_to_json(
   explanationofbenefitstatus: Explanationofbenefitstatus,
 ) -> Json {
+  json.string(explanationofbenefitstatus_to_string(explanationofbenefitstatus))
+}
+
+pub fn explanationofbenefitstatus_to_string(
+  explanationofbenefitstatus: Explanationofbenefitstatus,
+) -> String {
   case explanationofbenefitstatus {
-    ExplanationofbenefitstatusActive -> json.string("active")
-    ExplanationofbenefitstatusCancelled -> json.string("cancelled")
-    ExplanationofbenefitstatusDraft -> json.string("draft")
-    ExplanationofbenefitstatusEnteredinerror -> json.string("entered-in-error")
+    ExplanationofbenefitstatusActive -> "active"
+    ExplanationofbenefitstatusCancelled -> "cancelled"
+    ExplanationofbenefitstatusDraft -> "draft"
+    ExplanationofbenefitstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn explanationofbenefitstatus_from_string(
+  s: String,
+) -> Result(Explanationofbenefitstatus, Nil) {
+  case s {
+    "active" -> Ok(ExplanationofbenefitstatusActive)
+    "cancelled" -> Ok(ExplanationofbenefitstatusCancelled)
+    "draft" -> Ok(ExplanationofbenefitstatusDraft)
+    "entered-in-error" -> Ok(ExplanationofbenefitstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -5974,15 +8867,37 @@ pub type Medicationrequestintent {
 pub fn medicationrequestintent_to_json(
   medicationrequestintent: Medicationrequestintent,
 ) -> Json {
+  json.string(medicationrequestintent_to_string(medicationrequestintent))
+}
+
+pub fn medicationrequestintent_to_string(
+  medicationrequestintent: Medicationrequestintent,
+) -> String {
   case medicationrequestintent {
-    MedicationrequestintentProposal -> json.string("proposal")
-    MedicationrequestintentPlan -> json.string("plan")
-    MedicationrequestintentOrder -> json.string("order")
-    MedicationrequestintentOriginalorder -> json.string("original-order")
-    MedicationrequestintentReflexorder -> json.string("reflex-order")
-    MedicationrequestintentFillerorder -> json.string("filler-order")
-    MedicationrequestintentInstanceorder -> json.string("instance-order")
-    MedicationrequestintentOption -> json.string("option")
+    MedicationrequestintentProposal -> "proposal"
+    MedicationrequestintentPlan -> "plan"
+    MedicationrequestintentOrder -> "order"
+    MedicationrequestintentOriginalorder -> "original-order"
+    MedicationrequestintentReflexorder -> "reflex-order"
+    MedicationrequestintentFillerorder -> "filler-order"
+    MedicationrequestintentInstanceorder -> "instance-order"
+    MedicationrequestintentOption -> "option"
+  }
+}
+
+pub fn medicationrequestintent_from_string(
+  s: String,
+) -> Result(Medicationrequestintent, Nil) {
+  case s {
+    "proposal" -> Ok(MedicationrequestintentProposal)
+    "plan" -> Ok(MedicationrequestintentPlan)
+    "order" -> Ok(MedicationrequestintentOrder)
+    "original-order" -> Ok(MedicationrequestintentOriginalorder)
+    "reflex-order" -> Ok(MedicationrequestintentReflexorder)
+    "filler-order" -> Ok(MedicationrequestintentFillerorder)
+    "instance-order" -> Ok(MedicationrequestintentInstanceorder)
+    "option" -> Ok(MedicationrequestintentOption)
+    _ -> Error(Nil)
   }
 }
 
@@ -6011,10 +8926,27 @@ pub type Actiongroupingbehavior {
 pub fn actiongroupingbehavior_to_json(
   actiongroupingbehavior: Actiongroupingbehavior,
 ) -> Json {
+  json.string(actiongroupingbehavior_to_string(actiongroupingbehavior))
+}
+
+pub fn actiongroupingbehavior_to_string(
+  actiongroupingbehavior: Actiongroupingbehavior,
+) -> String {
   case actiongroupingbehavior {
-    ActiongroupingbehaviorVisualgroup -> json.string("visual-group")
-    ActiongroupingbehaviorLogicalgroup -> json.string("logical-group")
-    ActiongroupingbehaviorSentencegroup -> json.string("sentence-group")
+    ActiongroupingbehaviorVisualgroup -> "visual-group"
+    ActiongroupingbehaviorLogicalgroup -> "logical-group"
+    ActiongroupingbehaviorSentencegroup -> "sentence-group"
+  }
+}
+
+pub fn actiongroupingbehavior_from_string(
+  s: String,
+) -> Result(Actiongroupingbehavior, Nil) {
+  case s {
+    "visual-group" -> Ok(ActiongroupingbehaviorVisualgroup)
+    "logical-group" -> Ok(ActiongroupingbehaviorLogicalgroup)
+    "sentence-group" -> Ok(ActiongroupingbehaviorSentencegroup)
+    _ -> Error(Nil)
   }
 }
 
@@ -6040,9 +8972,25 @@ pub type Graphcompartmentuse {
 pub fn graphcompartmentuse_to_json(
   graphcompartmentuse: Graphcompartmentuse,
 ) -> Json {
+  json.string(graphcompartmentuse_to_string(graphcompartmentuse))
+}
+
+pub fn graphcompartmentuse_to_string(
+  graphcompartmentuse: Graphcompartmentuse,
+) -> String {
   case graphcompartmentuse {
-    GraphcompartmentuseCondition -> json.string("condition")
-    GraphcompartmentuseRequirement -> json.string("requirement")
+    GraphcompartmentuseCondition -> "condition"
+    GraphcompartmentuseRequirement -> "requirement"
+  }
+}
+
+pub fn graphcompartmentuse_from_string(
+  s: String,
+) -> Result(Graphcompartmentuse, Nil) {
+  case s {
+    "condition" -> Ok(GraphcompartmentuseCondition)
+    "requirement" -> Ok(GraphcompartmentuseRequirement)
+    _ -> Error(Nil)
   }
 }
 
@@ -6061,9 +9009,21 @@ pub type Mapinputmode {
 }
 
 pub fn mapinputmode_to_json(mapinputmode: Mapinputmode) -> Json {
+  json.string(mapinputmode_to_string(mapinputmode))
+}
+
+pub fn mapinputmode_to_string(mapinputmode: Mapinputmode) -> String {
   case mapinputmode {
-    MapinputmodeSource -> json.string("source")
-    MapinputmodeTarget -> json.string("target")
+    MapinputmodeSource -> "source"
+    MapinputmodeTarget -> "target"
+  }
+}
+
+pub fn mapinputmode_from_string(s: String) -> Result(Mapinputmode, Nil) {
+  case s {
+    "source" -> Ok(MapinputmodeSource)
+    "target" -> Ok(MapinputmodeTarget)
+    _ -> Error(Nil)
   }
 }
 
@@ -6095,22 +9055,47 @@ pub type Contractstatus {
 }
 
 pub fn contractstatus_to_json(contractstatus: Contractstatus) -> Json {
+  json.string(contractstatus_to_string(contractstatus))
+}
+
+pub fn contractstatus_to_string(contractstatus: Contractstatus) -> String {
   case contractstatus {
-    ContractstatusAmended -> json.string("amended")
-    ContractstatusAppended -> json.string("appended")
-    ContractstatusCancelled -> json.string("cancelled")
-    ContractstatusDisputed -> json.string("disputed")
-    ContractstatusEnteredinerror -> json.string("entered-in-error")
-    ContractstatusExecutable -> json.string("executable")
-    ContractstatusExecuted -> json.string("executed")
-    ContractstatusNegotiable -> json.string("negotiable")
-    ContractstatusOffered -> json.string("offered")
-    ContractstatusPolicy -> json.string("policy")
-    ContractstatusRejected -> json.string("rejected")
-    ContractstatusRenewed -> json.string("renewed")
-    ContractstatusRevoked -> json.string("revoked")
-    ContractstatusResolved -> json.string("resolved")
-    ContractstatusTerminated -> json.string("terminated")
+    ContractstatusAmended -> "amended"
+    ContractstatusAppended -> "appended"
+    ContractstatusCancelled -> "cancelled"
+    ContractstatusDisputed -> "disputed"
+    ContractstatusEnteredinerror -> "entered-in-error"
+    ContractstatusExecutable -> "executable"
+    ContractstatusExecuted -> "executed"
+    ContractstatusNegotiable -> "negotiable"
+    ContractstatusOffered -> "offered"
+    ContractstatusPolicy -> "policy"
+    ContractstatusRejected -> "rejected"
+    ContractstatusRenewed -> "renewed"
+    ContractstatusRevoked -> "revoked"
+    ContractstatusResolved -> "resolved"
+    ContractstatusTerminated -> "terminated"
+  }
+}
+
+pub fn contractstatus_from_string(s: String) -> Result(Contractstatus, Nil) {
+  case s {
+    "amended" -> Ok(ContractstatusAmended)
+    "appended" -> Ok(ContractstatusAppended)
+    "cancelled" -> Ok(ContractstatusCancelled)
+    "disputed" -> Ok(ContractstatusDisputed)
+    "entered-in-error" -> Ok(ContractstatusEnteredinerror)
+    "executable" -> Ok(ContractstatusExecutable)
+    "executed" -> Ok(ContractstatusExecuted)
+    "negotiable" -> Ok(ContractstatusNegotiable)
+    "offered" -> Ok(ContractstatusOffered)
+    "policy" -> Ok(ContractstatusPolicy)
+    "rejected" -> Ok(ContractstatusRejected)
+    "renewed" -> Ok(ContractstatusRenewed)
+    "revoked" -> Ok(ContractstatusRevoked)
+    "resolved" -> Ok(ContractstatusResolved)
+    "terminated" -> Ok(ContractstatusTerminated)
+    _ -> Error(Nil)
   }
 }
 
@@ -6145,10 +9130,27 @@ pub type Researchelementtype {
 pub fn researchelementtype_to_json(
   researchelementtype: Researchelementtype,
 ) -> Json {
+  json.string(researchelementtype_to_string(researchelementtype))
+}
+
+pub fn researchelementtype_to_string(
+  researchelementtype: Researchelementtype,
+) -> String {
   case researchelementtype {
-    ResearchelementtypePopulation -> json.string("population")
-    ResearchelementtypeExposure -> json.string("exposure")
-    ResearchelementtypeOutcome -> json.string("outcome")
+    ResearchelementtypePopulation -> "population"
+    ResearchelementtypeExposure -> "exposure"
+    ResearchelementtypeOutcome -> "outcome"
+  }
+}
+
+pub fn researchelementtype_from_string(
+  s: String,
+) -> Result(Researchelementtype, Nil) {
+  case s {
+    "population" -> Ok(ResearchelementtypePopulation)
+    "exposure" -> Ok(ResearchelementtypeExposure)
+    "outcome" -> Ok(ResearchelementtypeOutcome)
+    _ -> Error(Nil)
   }
 }
 
@@ -6170,9 +9172,25 @@ pub type Actioncardinalitybehavior {
 pub fn actioncardinalitybehavior_to_json(
   actioncardinalitybehavior: Actioncardinalitybehavior,
 ) -> Json {
+  json.string(actioncardinalitybehavior_to_string(actioncardinalitybehavior))
+}
+
+pub fn actioncardinalitybehavior_to_string(
+  actioncardinalitybehavior: Actioncardinalitybehavior,
+) -> String {
   case actioncardinalitybehavior {
-    ActioncardinalitybehaviorSingle -> json.string("single")
-    ActioncardinalitybehaviorMultiple -> json.string("multiple")
+    ActioncardinalitybehaviorSingle -> "single"
+    ActioncardinalitybehaviorMultiple -> "multiple"
+  }
+}
+
+pub fn actioncardinalitybehavior_from_string(
+  s: String,
+) -> Result(Actioncardinalitybehavior, Nil) {
+  case s {
+    "single" -> Ok(ActioncardinalitybehaviorSingle)
+    "multiple" -> Ok(ActioncardinalitybehaviorMultiple)
+    _ -> Error(Nil)
   }
 }
 
@@ -6208,23 +9226,47 @@ pub type Researchsubjectstatus {
 pub fn researchsubjectstatus_to_json(
   researchsubjectstatus: Researchsubjectstatus,
 ) -> Json {
+  json.string(researchsubjectstatus_to_string(researchsubjectstatus))
+}
+
+pub fn researchsubjectstatus_to_string(
+  researchsubjectstatus: Researchsubjectstatus,
+) -> String {
   case researchsubjectstatus {
-    ResearchsubjectstatusCandidate -> json.string("candidate")
-    ResearchsubjectstatusEligible -> json.string("eligible")
-    ResearchsubjectstatusFollowup -> json.string("follow-up")
-    ResearchsubjectstatusIneligible -> json.string("ineligible")
-    ResearchsubjectstatusNotregistered -> json.string("not-registered")
-    ResearchsubjectstatusOffstudy -> json.string("off-study")
-    ResearchsubjectstatusOnstudy -> json.string("on-study")
-    ResearchsubjectstatusOnstudyintervention ->
-      json.string("on-study-intervention")
-    ResearchsubjectstatusOnstudyobservation ->
-      json.string("on-study-observation")
-    ResearchsubjectstatusPendingonstudy -> json.string("pending-on-study")
-    ResearchsubjectstatusPotentialcandidate ->
-      json.string("potential-candidate")
-    ResearchsubjectstatusScreening -> json.string("screening")
-    ResearchsubjectstatusWithdrawn -> json.string("withdrawn")
+    ResearchsubjectstatusCandidate -> "candidate"
+    ResearchsubjectstatusEligible -> "eligible"
+    ResearchsubjectstatusFollowup -> "follow-up"
+    ResearchsubjectstatusIneligible -> "ineligible"
+    ResearchsubjectstatusNotregistered -> "not-registered"
+    ResearchsubjectstatusOffstudy -> "off-study"
+    ResearchsubjectstatusOnstudy -> "on-study"
+    ResearchsubjectstatusOnstudyintervention -> "on-study-intervention"
+    ResearchsubjectstatusOnstudyobservation -> "on-study-observation"
+    ResearchsubjectstatusPendingonstudy -> "pending-on-study"
+    ResearchsubjectstatusPotentialcandidate -> "potential-candidate"
+    ResearchsubjectstatusScreening -> "screening"
+    ResearchsubjectstatusWithdrawn -> "withdrawn"
+  }
+}
+
+pub fn researchsubjectstatus_from_string(
+  s: String,
+) -> Result(Researchsubjectstatus, Nil) {
+  case s {
+    "candidate" -> Ok(ResearchsubjectstatusCandidate)
+    "eligible" -> Ok(ResearchsubjectstatusEligible)
+    "follow-up" -> Ok(ResearchsubjectstatusFollowup)
+    "ineligible" -> Ok(ResearchsubjectstatusIneligible)
+    "not-registered" -> Ok(ResearchsubjectstatusNotregistered)
+    "off-study" -> Ok(ResearchsubjectstatusOffstudy)
+    "on-study" -> Ok(ResearchsubjectstatusOnstudy)
+    "on-study-intervention" -> Ok(ResearchsubjectstatusOnstudyintervention)
+    "on-study-observation" -> Ok(ResearchsubjectstatusOnstudyobservation)
+    "pending-on-study" -> Ok(ResearchsubjectstatusPendingonstudy)
+    "potential-candidate" -> Ok(ResearchsubjectstatusPotentialcandidate)
+    "screening" -> Ok(ResearchsubjectstatusScreening)
+    "withdrawn" -> Ok(ResearchsubjectstatusWithdrawn)
+    _ -> Error(Nil)
   }
 }
 
@@ -6261,11 +9303,29 @@ pub type Conditionalreadstatus {
 pub fn conditionalreadstatus_to_json(
   conditionalreadstatus: Conditionalreadstatus,
 ) -> Json {
+  json.string(conditionalreadstatus_to_string(conditionalreadstatus))
+}
+
+pub fn conditionalreadstatus_to_string(
+  conditionalreadstatus: Conditionalreadstatus,
+) -> String {
   case conditionalreadstatus {
-    ConditionalreadstatusNotsupported -> json.string("not-supported")
-    ConditionalreadstatusModifiedsince -> json.string("modified-since")
-    ConditionalreadstatusNotmatch -> json.string("not-match")
-    ConditionalreadstatusFullsupport -> json.string("full-support")
+    ConditionalreadstatusNotsupported -> "not-supported"
+    ConditionalreadstatusModifiedsince -> "modified-since"
+    ConditionalreadstatusNotmatch -> "not-match"
+    ConditionalreadstatusFullsupport -> "full-support"
+  }
+}
+
+pub fn conditionalreadstatus_from_string(
+  s: String,
+) -> Result(Conditionalreadstatus, Nil) {
+  case s {
+    "not-supported" -> Ok(ConditionalreadstatusNotsupported)
+    "modified-since" -> Ok(ConditionalreadstatusModifiedsince)
+    "not-match" -> Ok(ConditionalreadstatusNotmatch)
+    "full-support" -> Ok(ConditionalreadstatusFullsupport)
+    _ -> Error(Nil)
   }
 }
 
@@ -6295,15 +9355,37 @@ pub type Medicationrequeststatus {
 pub fn medicationrequeststatus_to_json(
   medicationrequeststatus: Medicationrequeststatus,
 ) -> Json {
+  json.string(medicationrequeststatus_to_string(medicationrequeststatus))
+}
+
+pub fn medicationrequeststatus_to_string(
+  medicationrequeststatus: Medicationrequeststatus,
+) -> String {
   case medicationrequeststatus {
-    MedicationrequeststatusActive -> json.string("active")
-    MedicationrequeststatusOnhold -> json.string("on-hold")
-    MedicationrequeststatusCancelled -> json.string("cancelled")
-    MedicationrequeststatusCompleted -> json.string("completed")
-    MedicationrequeststatusEnteredinerror -> json.string("entered-in-error")
-    MedicationrequeststatusStopped -> json.string("stopped")
-    MedicationrequeststatusDraft -> json.string("draft")
-    MedicationrequeststatusUnknown -> json.string("unknown")
+    MedicationrequeststatusActive -> "active"
+    MedicationrequeststatusOnhold -> "on-hold"
+    MedicationrequeststatusCancelled -> "cancelled"
+    MedicationrequeststatusCompleted -> "completed"
+    MedicationrequeststatusEnteredinerror -> "entered-in-error"
+    MedicationrequeststatusStopped -> "stopped"
+    MedicationrequeststatusDraft -> "draft"
+    MedicationrequeststatusUnknown -> "unknown"
+  }
+}
+
+pub fn medicationrequeststatus_from_string(
+  s: String,
+) -> Result(Medicationrequeststatus, Nil) {
+  case s {
+    "active" -> Ok(MedicationrequeststatusActive)
+    "on-hold" -> Ok(MedicationrequeststatusOnhold)
+    "cancelled" -> Ok(MedicationrequeststatusCancelled)
+    "completed" -> Ok(MedicationrequeststatusCompleted)
+    "entered-in-error" -> Ok(MedicationrequeststatusEnteredinerror)
+    "stopped" -> Ok(MedicationrequeststatusStopped)
+    "draft" -> Ok(MedicationrequeststatusDraft)
+    "unknown" -> Ok(MedicationrequeststatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -6339,17 +9421,41 @@ pub type Diagnosticreportstatus {
 pub fn diagnosticreportstatus_to_json(
   diagnosticreportstatus: Diagnosticreportstatus,
 ) -> Json {
+  json.string(diagnosticreportstatus_to_string(diagnosticreportstatus))
+}
+
+pub fn diagnosticreportstatus_to_string(
+  diagnosticreportstatus: Diagnosticreportstatus,
+) -> String {
   case diagnosticreportstatus {
-    DiagnosticreportstatusRegistered -> json.string("registered")
-    DiagnosticreportstatusPartial -> json.string("partial")
-    DiagnosticreportstatusPreliminary -> json.string("preliminary")
-    DiagnosticreportstatusFinal -> json.string("final")
-    DiagnosticreportstatusAmended -> json.string("amended")
-    DiagnosticreportstatusCorrected -> json.string("corrected")
-    DiagnosticreportstatusAppended -> json.string("appended")
-    DiagnosticreportstatusCancelled -> json.string("cancelled")
-    DiagnosticreportstatusEnteredinerror -> json.string("entered-in-error")
-    DiagnosticreportstatusUnknown -> json.string("unknown")
+    DiagnosticreportstatusRegistered -> "registered"
+    DiagnosticreportstatusPartial -> "partial"
+    DiagnosticreportstatusPreliminary -> "preliminary"
+    DiagnosticreportstatusFinal -> "final"
+    DiagnosticreportstatusAmended -> "amended"
+    DiagnosticreportstatusCorrected -> "corrected"
+    DiagnosticreportstatusAppended -> "appended"
+    DiagnosticreportstatusCancelled -> "cancelled"
+    DiagnosticreportstatusEnteredinerror -> "entered-in-error"
+    DiagnosticreportstatusUnknown -> "unknown"
+  }
+}
+
+pub fn diagnosticreportstatus_from_string(
+  s: String,
+) -> Result(Diagnosticreportstatus, Nil) {
+  case s {
+    "registered" -> Ok(DiagnosticreportstatusRegistered)
+    "partial" -> Ok(DiagnosticreportstatusPartial)
+    "preliminary" -> Ok(DiagnosticreportstatusPreliminary)
+    "final" -> Ok(DiagnosticreportstatusFinal)
+    "amended" -> Ok(DiagnosticreportstatusAmended)
+    "corrected" -> Ok(DiagnosticreportstatusCorrected)
+    "appended" -> Ok(DiagnosticreportstatusAppended)
+    "cancelled" -> Ok(DiagnosticreportstatusCancelled)
+    "entered-in-error" -> Ok(DiagnosticreportstatusEnteredinerror)
+    "unknown" -> Ok(DiagnosticreportstatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -6588,234 +9694,448 @@ pub type Alltypes {
 }
 
 pub fn alltypes_to_json(alltypes: Alltypes) -> Json {
+  json.string(alltypes_to_string(alltypes))
+}
+
+pub fn alltypes_to_string(alltypes: Alltypes) -> String {
   case alltypes {
-    AlltypesAddress -> json.string("Address")
-    AlltypesAge -> json.string("Age")
-    AlltypesAnnotation -> json.string("Annotation")
-    AlltypesAttachment -> json.string("Attachment")
-    AlltypesBackboneelement -> json.string("BackboneElement")
-    AlltypesCodeableconcept -> json.string("CodeableConcept")
-    AlltypesCoding -> json.string("Coding")
-    AlltypesContactdetail -> json.string("ContactDetail")
-    AlltypesContactpoint -> json.string("ContactPoint")
-    AlltypesContributor -> json.string("Contributor")
-    AlltypesCount -> json.string("Count")
-    AlltypesDatarequirement -> json.string("DataRequirement")
-    AlltypesDistance -> json.string("Distance")
-    AlltypesDosage -> json.string("Dosage")
-    AlltypesDuration -> json.string("Duration")
-    AlltypesElement -> json.string("Element")
-    AlltypesElementdefinition -> json.string("ElementDefinition")
-    AlltypesExpression -> json.string("Expression")
-    AlltypesExtension -> json.string("Extension")
-    AlltypesHumanname -> json.string("HumanName")
-    AlltypesIdentifier -> json.string("Identifier")
-    AlltypesMarketingstatus -> json.string("MarketingStatus")
-    AlltypesMeta -> json.string("Meta")
-    AlltypesMoney -> json.string("Money")
-    AlltypesMoneyquantity -> json.string("MoneyQuantity")
-    AlltypesNarrative -> json.string("Narrative")
-    AlltypesParameterdefinition -> json.string("ParameterDefinition")
-    AlltypesPeriod -> json.string("Period")
-    AlltypesPopulation -> json.string("Population")
-    AlltypesProdcharacteristic -> json.string("ProdCharacteristic")
-    AlltypesProductshelflife -> json.string("ProductShelfLife")
-    AlltypesQuantity -> json.string("Quantity")
-    AlltypesRange -> json.string("Range")
-    AlltypesRatio -> json.string("Ratio")
-    AlltypesReference -> json.string("Reference")
-    AlltypesRelatedartifact -> json.string("RelatedArtifact")
-    AlltypesSampleddata -> json.string("SampledData")
-    AlltypesSignature -> json.string("Signature")
-    AlltypesSimplequantity -> json.string("SimpleQuantity")
-    AlltypesSubstanceamount -> json.string("SubstanceAmount")
-    AlltypesTiming -> json.string("Timing")
-    AlltypesTriggerdefinition -> json.string("TriggerDefinition")
-    AlltypesUsagecontext -> json.string("UsageContext")
-    AlltypesBase64binary -> json.string("base64Binary")
-    AlltypesBoolean -> json.string("boolean")
-    AlltypesCanonical -> json.string("canonical")
-    AlltypesCode -> json.string("code")
-    AlltypesDate -> json.string("date")
-    AlltypesDatetime -> json.string("dateTime")
-    AlltypesDecimal -> json.string("decimal")
-    AlltypesId -> json.string("id")
-    AlltypesInstant -> json.string("instant")
-    AlltypesInteger -> json.string("integer")
-    AlltypesMarkdown -> json.string("markdown")
-    AlltypesOid -> json.string("oid")
-    AlltypesPositiveint -> json.string("positiveInt")
-    AlltypesString -> json.string("string")
-    AlltypesTime -> json.string("time")
-    AlltypesUnsignedint -> json.string("unsignedInt")
-    AlltypesUri -> json.string("uri")
-    AlltypesUrl -> json.string("url")
-    AlltypesUuid -> json.string("uuid")
-    AlltypesXhtml -> json.string("xhtml")
-    AlltypesAccount -> json.string("Account")
-    AlltypesActivitydefinition -> json.string("ActivityDefinition")
-    AlltypesAdverseevent -> json.string("AdverseEvent")
-    AlltypesAllergyintolerance -> json.string("AllergyIntolerance")
-    AlltypesAppointment -> json.string("Appointment")
-    AlltypesAppointmentresponse -> json.string("AppointmentResponse")
-    AlltypesAuditevent -> json.string("AuditEvent")
-    AlltypesBasic -> json.string("Basic")
-    AlltypesBinary -> json.string("Binary")
-    AlltypesBiologicallyderivedproduct ->
-      json.string("BiologicallyDerivedProduct")
-    AlltypesBodystructure -> json.string("BodyStructure")
-    AlltypesBundle -> json.string("Bundle")
-    AlltypesCapabilitystatement -> json.string("CapabilityStatement")
-    AlltypesCareplan -> json.string("CarePlan")
-    AlltypesCareteam -> json.string("CareTeam")
-    AlltypesCatalogentry -> json.string("CatalogEntry")
-    AlltypesChargeitem -> json.string("ChargeItem")
-    AlltypesChargeitemdefinition -> json.string("ChargeItemDefinition")
-    AlltypesClaim -> json.string("Claim")
-    AlltypesClaimresponse -> json.string("ClaimResponse")
-    AlltypesClinicalimpression -> json.string("ClinicalImpression")
-    AlltypesCodesystem -> json.string("CodeSystem")
-    AlltypesCommunication -> json.string("Communication")
-    AlltypesCommunicationrequest -> json.string("CommunicationRequest")
-    AlltypesCompartmentdefinition -> json.string("CompartmentDefinition")
-    AlltypesComposition -> json.string("Composition")
-    AlltypesConceptmap -> json.string("ConceptMap")
-    AlltypesCondition -> json.string("Condition")
-    AlltypesConsent -> json.string("Consent")
-    AlltypesContract -> json.string("Contract")
-    AlltypesCoverage -> json.string("Coverage")
-    AlltypesCoverageeligibilityrequest ->
-      json.string("CoverageEligibilityRequest")
-    AlltypesCoverageeligibilityresponse ->
-      json.string("CoverageEligibilityResponse")
-    AlltypesDetectedissue -> json.string("DetectedIssue")
-    AlltypesDevice -> json.string("Device")
-    AlltypesDevicedefinition -> json.string("DeviceDefinition")
-    AlltypesDevicemetric -> json.string("DeviceMetric")
-    AlltypesDevicerequest -> json.string("DeviceRequest")
-    AlltypesDeviceusestatement -> json.string("DeviceUseStatement")
-    AlltypesDiagnosticreport -> json.string("DiagnosticReport")
-    AlltypesDocumentmanifest -> json.string("DocumentManifest")
-    AlltypesDocumentreference -> json.string("DocumentReference")
-    AlltypesDomainresource -> json.string("DomainResource")
-    AlltypesEffectevidencesynthesis -> json.string("EffectEvidenceSynthesis")
-    AlltypesEncounter -> json.string("Encounter")
-    AlltypesEndpoint -> json.string("Endpoint")
-    AlltypesEnrollmentrequest -> json.string("EnrollmentRequest")
-    AlltypesEnrollmentresponse -> json.string("EnrollmentResponse")
-    AlltypesEpisodeofcare -> json.string("EpisodeOfCare")
-    AlltypesEventdefinition -> json.string("EventDefinition")
-    AlltypesEvidence -> json.string("Evidence")
-    AlltypesEvidencevariable -> json.string("EvidenceVariable")
-    AlltypesExamplescenario -> json.string("ExampleScenario")
-    AlltypesExplanationofbenefit -> json.string("ExplanationOfBenefit")
-    AlltypesFamilymemberhistory -> json.string("FamilyMemberHistory")
-    AlltypesFlag -> json.string("Flag")
-    AlltypesGoal -> json.string("Goal")
-    AlltypesGraphdefinition -> json.string("GraphDefinition")
-    AlltypesGroup -> json.string("Group")
-    AlltypesGuidanceresponse -> json.string("GuidanceResponse")
-    AlltypesHealthcareservice -> json.string("HealthcareService")
-    AlltypesImagingstudy -> json.string("ImagingStudy")
-    AlltypesImmunization -> json.string("Immunization")
-    AlltypesImmunizationevaluation -> json.string("ImmunizationEvaluation")
-    AlltypesImmunizationrecommendation ->
-      json.string("ImmunizationRecommendation")
-    AlltypesImplementationguide -> json.string("ImplementationGuide")
-    AlltypesInsuranceplan -> json.string("InsurancePlan")
-    AlltypesInvoice -> json.string("Invoice")
-    AlltypesLibrary -> json.string("Library")
-    AlltypesLinkage -> json.string("Linkage")
-    AlltypesList -> json.string("List")
-    AlltypesLocation -> json.string("Location")
-    AlltypesMeasure -> json.string("Measure")
-    AlltypesMeasurereport -> json.string("MeasureReport")
-    AlltypesMedia -> json.string("Media")
-    AlltypesMedication -> json.string("Medication")
-    AlltypesMedicationadministration -> json.string("MedicationAdministration")
-    AlltypesMedicationdispense -> json.string("MedicationDispense")
-    AlltypesMedicationknowledge -> json.string("MedicationKnowledge")
-    AlltypesMedicationrequest -> json.string("MedicationRequest")
-    AlltypesMedicationstatement -> json.string("MedicationStatement")
-    AlltypesMedicinalproduct -> json.string("MedicinalProduct")
-    AlltypesMedicinalproductauthorization ->
-      json.string("MedicinalProductAuthorization")
+    AlltypesAddress -> "Address"
+    AlltypesAge -> "Age"
+    AlltypesAnnotation -> "Annotation"
+    AlltypesAttachment -> "Attachment"
+    AlltypesBackboneelement -> "BackboneElement"
+    AlltypesCodeableconcept -> "CodeableConcept"
+    AlltypesCoding -> "Coding"
+    AlltypesContactdetail -> "ContactDetail"
+    AlltypesContactpoint -> "ContactPoint"
+    AlltypesContributor -> "Contributor"
+    AlltypesCount -> "Count"
+    AlltypesDatarequirement -> "DataRequirement"
+    AlltypesDistance -> "Distance"
+    AlltypesDosage -> "Dosage"
+    AlltypesDuration -> "Duration"
+    AlltypesElement -> "Element"
+    AlltypesElementdefinition -> "ElementDefinition"
+    AlltypesExpression -> "Expression"
+    AlltypesExtension -> "Extension"
+    AlltypesHumanname -> "HumanName"
+    AlltypesIdentifier -> "Identifier"
+    AlltypesMarketingstatus -> "MarketingStatus"
+    AlltypesMeta -> "Meta"
+    AlltypesMoney -> "Money"
+    AlltypesMoneyquantity -> "MoneyQuantity"
+    AlltypesNarrative -> "Narrative"
+    AlltypesParameterdefinition -> "ParameterDefinition"
+    AlltypesPeriod -> "Period"
+    AlltypesPopulation -> "Population"
+    AlltypesProdcharacteristic -> "ProdCharacteristic"
+    AlltypesProductshelflife -> "ProductShelfLife"
+    AlltypesQuantity -> "Quantity"
+    AlltypesRange -> "Range"
+    AlltypesRatio -> "Ratio"
+    AlltypesReference -> "Reference"
+    AlltypesRelatedartifact -> "RelatedArtifact"
+    AlltypesSampleddata -> "SampledData"
+    AlltypesSignature -> "Signature"
+    AlltypesSimplequantity -> "SimpleQuantity"
+    AlltypesSubstanceamount -> "SubstanceAmount"
+    AlltypesTiming -> "Timing"
+    AlltypesTriggerdefinition -> "TriggerDefinition"
+    AlltypesUsagecontext -> "UsageContext"
+    AlltypesBase64binary -> "base64Binary"
+    AlltypesBoolean -> "boolean"
+    AlltypesCanonical -> "canonical"
+    AlltypesCode -> "code"
+    AlltypesDate -> "date"
+    AlltypesDatetime -> "dateTime"
+    AlltypesDecimal -> "decimal"
+    AlltypesId -> "id"
+    AlltypesInstant -> "instant"
+    AlltypesInteger -> "integer"
+    AlltypesMarkdown -> "markdown"
+    AlltypesOid -> "oid"
+    AlltypesPositiveint -> "positiveInt"
+    AlltypesString -> "string"
+    AlltypesTime -> "time"
+    AlltypesUnsignedint -> "unsignedInt"
+    AlltypesUri -> "uri"
+    AlltypesUrl -> "url"
+    AlltypesUuid -> "uuid"
+    AlltypesXhtml -> "xhtml"
+    AlltypesAccount -> "Account"
+    AlltypesActivitydefinition -> "ActivityDefinition"
+    AlltypesAdverseevent -> "AdverseEvent"
+    AlltypesAllergyintolerance -> "AllergyIntolerance"
+    AlltypesAppointment -> "Appointment"
+    AlltypesAppointmentresponse -> "AppointmentResponse"
+    AlltypesAuditevent -> "AuditEvent"
+    AlltypesBasic -> "Basic"
+    AlltypesBinary -> "Binary"
+    AlltypesBiologicallyderivedproduct -> "BiologicallyDerivedProduct"
+    AlltypesBodystructure -> "BodyStructure"
+    AlltypesBundle -> "Bundle"
+    AlltypesCapabilitystatement -> "CapabilityStatement"
+    AlltypesCareplan -> "CarePlan"
+    AlltypesCareteam -> "CareTeam"
+    AlltypesCatalogentry -> "CatalogEntry"
+    AlltypesChargeitem -> "ChargeItem"
+    AlltypesChargeitemdefinition -> "ChargeItemDefinition"
+    AlltypesClaim -> "Claim"
+    AlltypesClaimresponse -> "ClaimResponse"
+    AlltypesClinicalimpression -> "ClinicalImpression"
+    AlltypesCodesystem -> "CodeSystem"
+    AlltypesCommunication -> "Communication"
+    AlltypesCommunicationrequest -> "CommunicationRequest"
+    AlltypesCompartmentdefinition -> "CompartmentDefinition"
+    AlltypesComposition -> "Composition"
+    AlltypesConceptmap -> "ConceptMap"
+    AlltypesCondition -> "Condition"
+    AlltypesConsent -> "Consent"
+    AlltypesContract -> "Contract"
+    AlltypesCoverage -> "Coverage"
+    AlltypesCoverageeligibilityrequest -> "CoverageEligibilityRequest"
+    AlltypesCoverageeligibilityresponse -> "CoverageEligibilityResponse"
+    AlltypesDetectedissue -> "DetectedIssue"
+    AlltypesDevice -> "Device"
+    AlltypesDevicedefinition -> "DeviceDefinition"
+    AlltypesDevicemetric -> "DeviceMetric"
+    AlltypesDevicerequest -> "DeviceRequest"
+    AlltypesDeviceusestatement -> "DeviceUseStatement"
+    AlltypesDiagnosticreport -> "DiagnosticReport"
+    AlltypesDocumentmanifest -> "DocumentManifest"
+    AlltypesDocumentreference -> "DocumentReference"
+    AlltypesDomainresource -> "DomainResource"
+    AlltypesEffectevidencesynthesis -> "EffectEvidenceSynthesis"
+    AlltypesEncounter -> "Encounter"
+    AlltypesEndpoint -> "Endpoint"
+    AlltypesEnrollmentrequest -> "EnrollmentRequest"
+    AlltypesEnrollmentresponse -> "EnrollmentResponse"
+    AlltypesEpisodeofcare -> "EpisodeOfCare"
+    AlltypesEventdefinition -> "EventDefinition"
+    AlltypesEvidence -> "Evidence"
+    AlltypesEvidencevariable -> "EvidenceVariable"
+    AlltypesExamplescenario -> "ExampleScenario"
+    AlltypesExplanationofbenefit -> "ExplanationOfBenefit"
+    AlltypesFamilymemberhistory -> "FamilyMemberHistory"
+    AlltypesFlag -> "Flag"
+    AlltypesGoal -> "Goal"
+    AlltypesGraphdefinition -> "GraphDefinition"
+    AlltypesGroup -> "Group"
+    AlltypesGuidanceresponse -> "GuidanceResponse"
+    AlltypesHealthcareservice -> "HealthcareService"
+    AlltypesImagingstudy -> "ImagingStudy"
+    AlltypesImmunization -> "Immunization"
+    AlltypesImmunizationevaluation -> "ImmunizationEvaluation"
+    AlltypesImmunizationrecommendation -> "ImmunizationRecommendation"
+    AlltypesImplementationguide -> "ImplementationGuide"
+    AlltypesInsuranceplan -> "InsurancePlan"
+    AlltypesInvoice -> "Invoice"
+    AlltypesLibrary -> "Library"
+    AlltypesLinkage -> "Linkage"
+    AlltypesList -> "List"
+    AlltypesLocation -> "Location"
+    AlltypesMeasure -> "Measure"
+    AlltypesMeasurereport -> "MeasureReport"
+    AlltypesMedia -> "Media"
+    AlltypesMedication -> "Medication"
+    AlltypesMedicationadministration -> "MedicationAdministration"
+    AlltypesMedicationdispense -> "MedicationDispense"
+    AlltypesMedicationknowledge -> "MedicationKnowledge"
+    AlltypesMedicationrequest -> "MedicationRequest"
+    AlltypesMedicationstatement -> "MedicationStatement"
+    AlltypesMedicinalproduct -> "MedicinalProduct"
+    AlltypesMedicinalproductauthorization -> "MedicinalProductAuthorization"
     AlltypesMedicinalproductcontraindication ->
-      json.string("MedicinalProductContraindication")
-    AlltypesMedicinalproductindication ->
-      json.string("MedicinalProductIndication")
-    AlltypesMedicinalproductingredient ->
-      json.string("MedicinalProductIngredient")
-    AlltypesMedicinalproductinteraction ->
-      json.string("MedicinalProductInteraction")
-    AlltypesMedicinalproductmanufactured ->
-      json.string("MedicinalProductManufactured")
-    AlltypesMedicinalproductpackaged -> json.string("MedicinalProductPackaged")
-    AlltypesMedicinalproductpharmaceutical ->
-      json.string("MedicinalProductPharmaceutical")
+      "MedicinalProductContraindication"
+    AlltypesMedicinalproductindication -> "MedicinalProductIndication"
+    AlltypesMedicinalproductingredient -> "MedicinalProductIngredient"
+    AlltypesMedicinalproductinteraction -> "MedicinalProductInteraction"
+    AlltypesMedicinalproductmanufactured -> "MedicinalProductManufactured"
+    AlltypesMedicinalproductpackaged -> "MedicinalProductPackaged"
+    AlltypesMedicinalproductpharmaceutical -> "MedicinalProductPharmaceutical"
     AlltypesMedicinalproductundesirableeffect ->
-      json.string("MedicinalProductUndesirableEffect")
-    AlltypesMessagedefinition -> json.string("MessageDefinition")
-    AlltypesMessageheader -> json.string("MessageHeader")
-    AlltypesMolecularsequence -> json.string("MolecularSequence")
-    AlltypesNamingsystem -> json.string("NamingSystem")
-    AlltypesNutritionorder -> json.string("NutritionOrder")
-    AlltypesObservation -> json.string("Observation")
-    AlltypesObservationdefinition -> json.string("ObservationDefinition")
-    AlltypesOperationdefinition -> json.string("OperationDefinition")
-    AlltypesOperationoutcome -> json.string("OperationOutcome")
-    AlltypesOrganization -> json.string("Organization")
-    AlltypesOrganizationaffiliation -> json.string("OrganizationAffiliation")
-    AlltypesParameters -> json.string("Parameters")
-    AlltypesPatient -> json.string("Patient")
-    AlltypesPaymentnotice -> json.string("PaymentNotice")
-    AlltypesPaymentreconciliation -> json.string("PaymentReconciliation")
-    AlltypesPerson -> json.string("Person")
-    AlltypesPlandefinition -> json.string("PlanDefinition")
-    AlltypesPractitioner -> json.string("Practitioner")
-    AlltypesPractitionerrole -> json.string("PractitionerRole")
-    AlltypesProcedure -> json.string("Procedure")
-    AlltypesProvenance -> json.string("Provenance")
-    AlltypesQuestionnaire -> json.string("Questionnaire")
-    AlltypesQuestionnaireresponse -> json.string("QuestionnaireResponse")
-    AlltypesRelatedperson -> json.string("RelatedPerson")
-    AlltypesRequestgroup -> json.string("RequestGroup")
-    AlltypesResearchdefinition -> json.string("ResearchDefinition")
-    AlltypesResearchelementdefinition ->
-      json.string("ResearchElementDefinition")
-    AlltypesResearchstudy -> json.string("ResearchStudy")
-    AlltypesResearchsubject -> json.string("ResearchSubject")
-    AlltypesResource -> json.string("Resource")
-    AlltypesRiskassessment -> json.string("RiskAssessment")
-    AlltypesRiskevidencesynthesis -> json.string("RiskEvidenceSynthesis")
-    AlltypesSchedule -> json.string("Schedule")
-    AlltypesSearchparameter -> json.string("SearchParameter")
-    AlltypesServicerequest -> json.string("ServiceRequest")
-    AlltypesSlot -> json.string("Slot")
-    AlltypesSpecimen -> json.string("Specimen")
-    AlltypesSpecimendefinition -> json.string("SpecimenDefinition")
-    AlltypesStructuredefinition -> json.string("StructureDefinition")
-    AlltypesStructuremap -> json.string("StructureMap")
-    AlltypesSubscription -> json.string("Subscription")
-    AlltypesSubstance -> json.string("Substance")
-    AlltypesSubstancenucleicacid -> json.string("SubstanceNucleicAcid")
-    AlltypesSubstancepolymer -> json.string("SubstancePolymer")
-    AlltypesSubstanceprotein -> json.string("SubstanceProtein")
-    AlltypesSubstancereferenceinformation ->
-      json.string("SubstanceReferenceInformation")
-    AlltypesSubstancesourcematerial -> json.string("SubstanceSourceMaterial")
-    AlltypesSubstancespecification -> json.string("SubstanceSpecification")
-    AlltypesSupplydelivery -> json.string("SupplyDelivery")
-    AlltypesSupplyrequest -> json.string("SupplyRequest")
-    AlltypesTask -> json.string("Task")
-    AlltypesTerminologycapabilities -> json.string("TerminologyCapabilities")
-    AlltypesTestreport -> json.string("TestReport")
-    AlltypesTestscript -> json.string("TestScript")
-    AlltypesValueset -> json.string("ValueSet")
-    AlltypesVerificationresult -> json.string("VerificationResult")
-    AlltypesVisionprescription -> json.string("VisionPrescription")
-    AlltypesType -> json.string("Type")
-    AlltypesAny -> json.string("Any")
+      "MedicinalProductUndesirableEffect"
+    AlltypesMessagedefinition -> "MessageDefinition"
+    AlltypesMessageheader -> "MessageHeader"
+    AlltypesMolecularsequence -> "MolecularSequence"
+    AlltypesNamingsystem -> "NamingSystem"
+    AlltypesNutritionorder -> "NutritionOrder"
+    AlltypesObservation -> "Observation"
+    AlltypesObservationdefinition -> "ObservationDefinition"
+    AlltypesOperationdefinition -> "OperationDefinition"
+    AlltypesOperationoutcome -> "OperationOutcome"
+    AlltypesOrganization -> "Organization"
+    AlltypesOrganizationaffiliation -> "OrganizationAffiliation"
+    AlltypesParameters -> "Parameters"
+    AlltypesPatient -> "Patient"
+    AlltypesPaymentnotice -> "PaymentNotice"
+    AlltypesPaymentreconciliation -> "PaymentReconciliation"
+    AlltypesPerson -> "Person"
+    AlltypesPlandefinition -> "PlanDefinition"
+    AlltypesPractitioner -> "Practitioner"
+    AlltypesPractitionerrole -> "PractitionerRole"
+    AlltypesProcedure -> "Procedure"
+    AlltypesProvenance -> "Provenance"
+    AlltypesQuestionnaire -> "Questionnaire"
+    AlltypesQuestionnaireresponse -> "QuestionnaireResponse"
+    AlltypesRelatedperson -> "RelatedPerson"
+    AlltypesRequestgroup -> "RequestGroup"
+    AlltypesResearchdefinition -> "ResearchDefinition"
+    AlltypesResearchelementdefinition -> "ResearchElementDefinition"
+    AlltypesResearchstudy -> "ResearchStudy"
+    AlltypesResearchsubject -> "ResearchSubject"
+    AlltypesResource -> "Resource"
+    AlltypesRiskassessment -> "RiskAssessment"
+    AlltypesRiskevidencesynthesis -> "RiskEvidenceSynthesis"
+    AlltypesSchedule -> "Schedule"
+    AlltypesSearchparameter -> "SearchParameter"
+    AlltypesServicerequest -> "ServiceRequest"
+    AlltypesSlot -> "Slot"
+    AlltypesSpecimen -> "Specimen"
+    AlltypesSpecimendefinition -> "SpecimenDefinition"
+    AlltypesStructuredefinition -> "StructureDefinition"
+    AlltypesStructuremap -> "StructureMap"
+    AlltypesSubscription -> "Subscription"
+    AlltypesSubstance -> "Substance"
+    AlltypesSubstancenucleicacid -> "SubstanceNucleicAcid"
+    AlltypesSubstancepolymer -> "SubstancePolymer"
+    AlltypesSubstanceprotein -> "SubstanceProtein"
+    AlltypesSubstancereferenceinformation -> "SubstanceReferenceInformation"
+    AlltypesSubstancesourcematerial -> "SubstanceSourceMaterial"
+    AlltypesSubstancespecification -> "SubstanceSpecification"
+    AlltypesSupplydelivery -> "SupplyDelivery"
+    AlltypesSupplyrequest -> "SupplyRequest"
+    AlltypesTask -> "Task"
+    AlltypesTerminologycapabilities -> "TerminologyCapabilities"
+    AlltypesTestreport -> "TestReport"
+    AlltypesTestscript -> "TestScript"
+    AlltypesValueset -> "ValueSet"
+    AlltypesVerificationresult -> "VerificationResult"
+    AlltypesVisionprescription -> "VisionPrescription"
+    AlltypesType -> "Type"
+    AlltypesAny -> "Any"
+  }
+}
+
+pub fn alltypes_from_string(s: String) -> Result(Alltypes, Nil) {
+  case s {
+    "Address" -> Ok(AlltypesAddress)
+    "Age" -> Ok(AlltypesAge)
+    "Annotation" -> Ok(AlltypesAnnotation)
+    "Attachment" -> Ok(AlltypesAttachment)
+    "BackboneElement" -> Ok(AlltypesBackboneelement)
+    "CodeableConcept" -> Ok(AlltypesCodeableconcept)
+    "Coding" -> Ok(AlltypesCoding)
+    "ContactDetail" -> Ok(AlltypesContactdetail)
+    "ContactPoint" -> Ok(AlltypesContactpoint)
+    "Contributor" -> Ok(AlltypesContributor)
+    "Count" -> Ok(AlltypesCount)
+    "DataRequirement" -> Ok(AlltypesDatarequirement)
+    "Distance" -> Ok(AlltypesDistance)
+    "Dosage" -> Ok(AlltypesDosage)
+    "Duration" -> Ok(AlltypesDuration)
+    "Element" -> Ok(AlltypesElement)
+    "ElementDefinition" -> Ok(AlltypesElementdefinition)
+    "Expression" -> Ok(AlltypesExpression)
+    "Extension" -> Ok(AlltypesExtension)
+    "HumanName" -> Ok(AlltypesHumanname)
+    "Identifier" -> Ok(AlltypesIdentifier)
+    "MarketingStatus" -> Ok(AlltypesMarketingstatus)
+    "Meta" -> Ok(AlltypesMeta)
+    "Money" -> Ok(AlltypesMoney)
+    "MoneyQuantity" -> Ok(AlltypesMoneyquantity)
+    "Narrative" -> Ok(AlltypesNarrative)
+    "ParameterDefinition" -> Ok(AlltypesParameterdefinition)
+    "Period" -> Ok(AlltypesPeriod)
+    "Population" -> Ok(AlltypesPopulation)
+    "ProdCharacteristic" -> Ok(AlltypesProdcharacteristic)
+    "ProductShelfLife" -> Ok(AlltypesProductshelflife)
+    "Quantity" -> Ok(AlltypesQuantity)
+    "Range" -> Ok(AlltypesRange)
+    "Ratio" -> Ok(AlltypesRatio)
+    "Reference" -> Ok(AlltypesReference)
+    "RelatedArtifact" -> Ok(AlltypesRelatedartifact)
+    "SampledData" -> Ok(AlltypesSampleddata)
+    "Signature" -> Ok(AlltypesSignature)
+    "SimpleQuantity" -> Ok(AlltypesSimplequantity)
+    "SubstanceAmount" -> Ok(AlltypesSubstanceamount)
+    "Timing" -> Ok(AlltypesTiming)
+    "TriggerDefinition" -> Ok(AlltypesTriggerdefinition)
+    "UsageContext" -> Ok(AlltypesUsagecontext)
+    "base64Binary" -> Ok(AlltypesBase64binary)
+    "boolean" -> Ok(AlltypesBoolean)
+    "canonical" -> Ok(AlltypesCanonical)
+    "code" -> Ok(AlltypesCode)
+    "date" -> Ok(AlltypesDate)
+    "dateTime" -> Ok(AlltypesDatetime)
+    "decimal" -> Ok(AlltypesDecimal)
+    "id" -> Ok(AlltypesId)
+    "instant" -> Ok(AlltypesInstant)
+    "integer" -> Ok(AlltypesInteger)
+    "markdown" -> Ok(AlltypesMarkdown)
+    "oid" -> Ok(AlltypesOid)
+    "positiveInt" -> Ok(AlltypesPositiveint)
+    "string" -> Ok(AlltypesString)
+    "time" -> Ok(AlltypesTime)
+    "unsignedInt" -> Ok(AlltypesUnsignedint)
+    "uri" -> Ok(AlltypesUri)
+    "url" -> Ok(AlltypesUrl)
+    "uuid" -> Ok(AlltypesUuid)
+    "xhtml" -> Ok(AlltypesXhtml)
+    "Account" -> Ok(AlltypesAccount)
+    "ActivityDefinition" -> Ok(AlltypesActivitydefinition)
+    "AdverseEvent" -> Ok(AlltypesAdverseevent)
+    "AllergyIntolerance" -> Ok(AlltypesAllergyintolerance)
+    "Appointment" -> Ok(AlltypesAppointment)
+    "AppointmentResponse" -> Ok(AlltypesAppointmentresponse)
+    "AuditEvent" -> Ok(AlltypesAuditevent)
+    "Basic" -> Ok(AlltypesBasic)
+    "Binary" -> Ok(AlltypesBinary)
+    "BiologicallyDerivedProduct" -> Ok(AlltypesBiologicallyderivedproduct)
+    "BodyStructure" -> Ok(AlltypesBodystructure)
+    "Bundle" -> Ok(AlltypesBundle)
+    "CapabilityStatement" -> Ok(AlltypesCapabilitystatement)
+    "CarePlan" -> Ok(AlltypesCareplan)
+    "CareTeam" -> Ok(AlltypesCareteam)
+    "CatalogEntry" -> Ok(AlltypesCatalogentry)
+    "ChargeItem" -> Ok(AlltypesChargeitem)
+    "ChargeItemDefinition" -> Ok(AlltypesChargeitemdefinition)
+    "Claim" -> Ok(AlltypesClaim)
+    "ClaimResponse" -> Ok(AlltypesClaimresponse)
+    "ClinicalImpression" -> Ok(AlltypesClinicalimpression)
+    "CodeSystem" -> Ok(AlltypesCodesystem)
+    "Communication" -> Ok(AlltypesCommunication)
+    "CommunicationRequest" -> Ok(AlltypesCommunicationrequest)
+    "CompartmentDefinition" -> Ok(AlltypesCompartmentdefinition)
+    "Composition" -> Ok(AlltypesComposition)
+    "ConceptMap" -> Ok(AlltypesConceptmap)
+    "Condition" -> Ok(AlltypesCondition)
+    "Consent" -> Ok(AlltypesConsent)
+    "Contract" -> Ok(AlltypesContract)
+    "Coverage" -> Ok(AlltypesCoverage)
+    "CoverageEligibilityRequest" -> Ok(AlltypesCoverageeligibilityrequest)
+    "CoverageEligibilityResponse" -> Ok(AlltypesCoverageeligibilityresponse)
+    "DetectedIssue" -> Ok(AlltypesDetectedissue)
+    "Device" -> Ok(AlltypesDevice)
+    "DeviceDefinition" -> Ok(AlltypesDevicedefinition)
+    "DeviceMetric" -> Ok(AlltypesDevicemetric)
+    "DeviceRequest" -> Ok(AlltypesDevicerequest)
+    "DeviceUseStatement" -> Ok(AlltypesDeviceusestatement)
+    "DiagnosticReport" -> Ok(AlltypesDiagnosticreport)
+    "DocumentManifest" -> Ok(AlltypesDocumentmanifest)
+    "DocumentReference" -> Ok(AlltypesDocumentreference)
+    "DomainResource" -> Ok(AlltypesDomainresource)
+    "EffectEvidenceSynthesis" -> Ok(AlltypesEffectevidencesynthesis)
+    "Encounter" -> Ok(AlltypesEncounter)
+    "Endpoint" -> Ok(AlltypesEndpoint)
+    "EnrollmentRequest" -> Ok(AlltypesEnrollmentrequest)
+    "EnrollmentResponse" -> Ok(AlltypesEnrollmentresponse)
+    "EpisodeOfCare" -> Ok(AlltypesEpisodeofcare)
+    "EventDefinition" -> Ok(AlltypesEventdefinition)
+    "Evidence" -> Ok(AlltypesEvidence)
+    "EvidenceVariable" -> Ok(AlltypesEvidencevariable)
+    "ExampleScenario" -> Ok(AlltypesExamplescenario)
+    "ExplanationOfBenefit" -> Ok(AlltypesExplanationofbenefit)
+    "FamilyMemberHistory" -> Ok(AlltypesFamilymemberhistory)
+    "Flag" -> Ok(AlltypesFlag)
+    "Goal" -> Ok(AlltypesGoal)
+    "GraphDefinition" -> Ok(AlltypesGraphdefinition)
+    "Group" -> Ok(AlltypesGroup)
+    "GuidanceResponse" -> Ok(AlltypesGuidanceresponse)
+    "HealthcareService" -> Ok(AlltypesHealthcareservice)
+    "ImagingStudy" -> Ok(AlltypesImagingstudy)
+    "Immunization" -> Ok(AlltypesImmunization)
+    "ImmunizationEvaluation" -> Ok(AlltypesImmunizationevaluation)
+    "ImmunizationRecommendation" -> Ok(AlltypesImmunizationrecommendation)
+    "ImplementationGuide" -> Ok(AlltypesImplementationguide)
+    "InsurancePlan" -> Ok(AlltypesInsuranceplan)
+    "Invoice" -> Ok(AlltypesInvoice)
+    "Library" -> Ok(AlltypesLibrary)
+    "Linkage" -> Ok(AlltypesLinkage)
+    "List" -> Ok(AlltypesList)
+    "Location" -> Ok(AlltypesLocation)
+    "Measure" -> Ok(AlltypesMeasure)
+    "MeasureReport" -> Ok(AlltypesMeasurereport)
+    "Media" -> Ok(AlltypesMedia)
+    "Medication" -> Ok(AlltypesMedication)
+    "MedicationAdministration" -> Ok(AlltypesMedicationadministration)
+    "MedicationDispense" -> Ok(AlltypesMedicationdispense)
+    "MedicationKnowledge" -> Ok(AlltypesMedicationknowledge)
+    "MedicationRequest" -> Ok(AlltypesMedicationrequest)
+    "MedicationStatement" -> Ok(AlltypesMedicationstatement)
+    "MedicinalProduct" -> Ok(AlltypesMedicinalproduct)
+    "MedicinalProductAuthorization" -> Ok(AlltypesMedicinalproductauthorization)
+    "MedicinalProductContraindication" ->
+      Ok(AlltypesMedicinalproductcontraindication)
+    "MedicinalProductIndication" -> Ok(AlltypesMedicinalproductindication)
+    "MedicinalProductIngredient" -> Ok(AlltypesMedicinalproductingredient)
+    "MedicinalProductInteraction" -> Ok(AlltypesMedicinalproductinteraction)
+    "MedicinalProductManufactured" -> Ok(AlltypesMedicinalproductmanufactured)
+    "MedicinalProductPackaged" -> Ok(AlltypesMedicinalproductpackaged)
+    "MedicinalProductPharmaceutical" ->
+      Ok(AlltypesMedicinalproductpharmaceutical)
+    "MedicinalProductUndesirableEffect" ->
+      Ok(AlltypesMedicinalproductundesirableeffect)
+    "MessageDefinition" -> Ok(AlltypesMessagedefinition)
+    "MessageHeader" -> Ok(AlltypesMessageheader)
+    "MolecularSequence" -> Ok(AlltypesMolecularsequence)
+    "NamingSystem" -> Ok(AlltypesNamingsystem)
+    "NutritionOrder" -> Ok(AlltypesNutritionorder)
+    "Observation" -> Ok(AlltypesObservation)
+    "ObservationDefinition" -> Ok(AlltypesObservationdefinition)
+    "OperationDefinition" -> Ok(AlltypesOperationdefinition)
+    "OperationOutcome" -> Ok(AlltypesOperationoutcome)
+    "Organization" -> Ok(AlltypesOrganization)
+    "OrganizationAffiliation" -> Ok(AlltypesOrganizationaffiliation)
+    "Parameters" -> Ok(AlltypesParameters)
+    "Patient" -> Ok(AlltypesPatient)
+    "PaymentNotice" -> Ok(AlltypesPaymentnotice)
+    "PaymentReconciliation" -> Ok(AlltypesPaymentreconciliation)
+    "Person" -> Ok(AlltypesPerson)
+    "PlanDefinition" -> Ok(AlltypesPlandefinition)
+    "Practitioner" -> Ok(AlltypesPractitioner)
+    "PractitionerRole" -> Ok(AlltypesPractitionerrole)
+    "Procedure" -> Ok(AlltypesProcedure)
+    "Provenance" -> Ok(AlltypesProvenance)
+    "Questionnaire" -> Ok(AlltypesQuestionnaire)
+    "QuestionnaireResponse" -> Ok(AlltypesQuestionnaireresponse)
+    "RelatedPerson" -> Ok(AlltypesRelatedperson)
+    "RequestGroup" -> Ok(AlltypesRequestgroup)
+    "ResearchDefinition" -> Ok(AlltypesResearchdefinition)
+    "ResearchElementDefinition" -> Ok(AlltypesResearchelementdefinition)
+    "ResearchStudy" -> Ok(AlltypesResearchstudy)
+    "ResearchSubject" -> Ok(AlltypesResearchsubject)
+    "Resource" -> Ok(AlltypesResource)
+    "RiskAssessment" -> Ok(AlltypesRiskassessment)
+    "RiskEvidenceSynthesis" -> Ok(AlltypesRiskevidencesynthesis)
+    "Schedule" -> Ok(AlltypesSchedule)
+    "SearchParameter" -> Ok(AlltypesSearchparameter)
+    "ServiceRequest" -> Ok(AlltypesServicerequest)
+    "Slot" -> Ok(AlltypesSlot)
+    "Specimen" -> Ok(AlltypesSpecimen)
+    "SpecimenDefinition" -> Ok(AlltypesSpecimendefinition)
+    "StructureDefinition" -> Ok(AlltypesStructuredefinition)
+    "StructureMap" -> Ok(AlltypesStructuremap)
+    "Subscription" -> Ok(AlltypesSubscription)
+    "Substance" -> Ok(AlltypesSubstance)
+    "SubstanceNucleicAcid" -> Ok(AlltypesSubstancenucleicacid)
+    "SubstancePolymer" -> Ok(AlltypesSubstancepolymer)
+    "SubstanceProtein" -> Ok(AlltypesSubstanceprotein)
+    "SubstanceReferenceInformation" -> Ok(AlltypesSubstancereferenceinformation)
+    "SubstanceSourceMaterial" -> Ok(AlltypesSubstancesourcematerial)
+    "SubstanceSpecification" -> Ok(AlltypesSubstancespecification)
+    "SupplyDelivery" -> Ok(AlltypesSupplydelivery)
+    "SupplyRequest" -> Ok(AlltypesSupplyrequest)
+    "Task" -> Ok(AlltypesTask)
+    "TerminologyCapabilities" -> Ok(AlltypesTerminologycapabilities)
+    "TestReport" -> Ok(AlltypesTestreport)
+    "TestScript" -> Ok(AlltypesTestscript)
+    "ValueSet" -> Ok(AlltypesValueset)
+    "VerificationResult" -> Ok(AlltypesVerificationresult)
+    "VisionPrescription" -> Ok(AlltypesVisionprescription)
+    "Type" -> Ok(AlltypesType)
+    "Any" -> Ok(AlltypesAny)
+    _ -> Error(Nil)
   }
 }
 
@@ -7065,13 +10385,33 @@ pub type Consentstatecodes {
 }
 
 pub fn consentstatecodes_to_json(consentstatecodes: Consentstatecodes) -> Json {
+  json.string(consentstatecodes_to_string(consentstatecodes))
+}
+
+pub fn consentstatecodes_to_string(
+  consentstatecodes: Consentstatecodes,
+) -> String {
   case consentstatecodes {
-    ConsentstatecodesDraft -> json.string("draft")
-    ConsentstatecodesProposed -> json.string("proposed")
-    ConsentstatecodesActive -> json.string("active")
-    ConsentstatecodesRejected -> json.string("rejected")
-    ConsentstatecodesInactive -> json.string("inactive")
-    ConsentstatecodesEnteredinerror -> json.string("entered-in-error")
+    ConsentstatecodesDraft -> "draft"
+    ConsentstatecodesProposed -> "proposed"
+    ConsentstatecodesActive -> "active"
+    ConsentstatecodesRejected -> "rejected"
+    ConsentstatecodesInactive -> "inactive"
+    ConsentstatecodesEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn consentstatecodes_from_string(
+  s: String,
+) -> Result(Consentstatecodes, Nil) {
+  case s {
+    "draft" -> Ok(ConsentstatecodesDraft)
+    "proposed" -> Ok(ConsentstatecodesProposed)
+    "active" -> Ok(ConsentstatecodesActive)
+    "rejected" -> Ok(ConsentstatecodesRejected)
+    "inactive" -> Ok(ConsentstatecodesInactive)
+    "entered-in-error" -> Ok(ConsentstatecodesEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -7095,10 +10435,23 @@ pub type Liststatus {
 }
 
 pub fn liststatus_to_json(liststatus: Liststatus) -> Json {
+  json.string(liststatus_to_string(liststatus))
+}
+
+pub fn liststatus_to_string(liststatus: Liststatus) -> String {
   case liststatus {
-    ListstatusCurrent -> json.string("current")
-    ListstatusRetired -> json.string("retired")
-    ListstatusEnteredinerror -> json.string("entered-in-error")
+    ListstatusCurrent -> "current"
+    ListstatusRetired -> "retired"
+    ListstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn liststatus_from_string(s: String) -> Result(Liststatus, Nil) {
+  case s {
+    "current" -> Ok(ListstatusCurrent)
+    "retired" -> Ok(ListstatusRetired)
+    "entered-in-error" -> Ok(ListstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -7120,11 +10473,25 @@ pub type Contributortype {
 }
 
 pub fn contributortype_to_json(contributortype: Contributortype) -> Json {
+  json.string(contributortype_to_string(contributortype))
+}
+
+pub fn contributortype_to_string(contributortype: Contributortype) -> String {
   case contributortype {
-    ContributortypeAuthor -> json.string("author")
-    ContributortypeEditor -> json.string("editor")
-    ContributortypeReviewer -> json.string("reviewer")
-    ContributortypeEndorser -> json.string("endorser")
+    ContributortypeAuthor -> "author"
+    ContributortypeEditor -> "editor"
+    ContributortypeReviewer -> "reviewer"
+    ContributortypeEndorser -> "endorser"
+  }
+}
+
+pub fn contributortype_from_string(s: String) -> Result(Contributortype, Nil) {
+  case s {
+    "author" -> Ok(ContributortypeAuthor)
+    "editor" -> Ok(ContributortypeEditor)
+    "reviewer" -> Ok(ContributortypeReviewer)
+    "endorser" -> Ok(ContributortypeEndorser)
+    _ -> Error(Nil)
   }
 }
 
@@ -7147,9 +10514,25 @@ pub type Restfulcapabilitymode {
 pub fn restfulcapabilitymode_to_json(
   restfulcapabilitymode: Restfulcapabilitymode,
 ) -> Json {
+  json.string(restfulcapabilitymode_to_string(restfulcapabilitymode))
+}
+
+pub fn restfulcapabilitymode_to_string(
+  restfulcapabilitymode: Restfulcapabilitymode,
+) -> String {
   case restfulcapabilitymode {
-    RestfulcapabilitymodeClient -> json.string("client")
-    RestfulcapabilitymodeServer -> json.string("server")
+    RestfulcapabilitymodeClient -> "client"
+    RestfulcapabilitymodeServer -> "server"
+  }
+}
+
+pub fn restfulcapabilitymode_from_string(
+  s: String,
+) -> Result(Restfulcapabilitymode, Nil) {
+  case s {
+    "client" -> Ok(RestfulcapabilitymodeClient)
+    "server" -> Ok(RestfulcapabilitymodeServer)
+    _ -> Error(Nil)
   }
 }
 
@@ -7176,15 +10559,37 @@ pub type Medicationstatementstatus {
 pub fn medicationstatementstatus_to_json(
   medicationstatementstatus: Medicationstatementstatus,
 ) -> Json {
+  json.string(medicationstatementstatus_to_string(medicationstatementstatus))
+}
+
+pub fn medicationstatementstatus_to_string(
+  medicationstatementstatus: Medicationstatementstatus,
+) -> String {
   case medicationstatementstatus {
-    MedicationstatementstatusActive -> json.string("active")
-    MedicationstatementstatusCompleted -> json.string("completed")
-    MedicationstatementstatusEnteredinerror -> json.string("entered-in-error")
-    MedicationstatementstatusIntended -> json.string("intended")
-    MedicationstatementstatusStopped -> json.string("stopped")
-    MedicationstatementstatusOnhold -> json.string("on-hold")
-    MedicationstatementstatusUnknown -> json.string("unknown")
-    MedicationstatementstatusNottaken -> json.string("not-taken")
+    MedicationstatementstatusActive -> "active"
+    MedicationstatementstatusCompleted -> "completed"
+    MedicationstatementstatusEnteredinerror -> "entered-in-error"
+    MedicationstatementstatusIntended -> "intended"
+    MedicationstatementstatusStopped -> "stopped"
+    MedicationstatementstatusOnhold -> "on-hold"
+    MedicationstatementstatusUnknown -> "unknown"
+    MedicationstatementstatusNottaken -> "not-taken"
+  }
+}
+
+pub fn medicationstatementstatus_from_string(
+  s: String,
+) -> Result(Medicationstatementstatus, Nil) {
+  case s {
+    "active" -> Ok(MedicationstatementstatusActive)
+    "completed" -> Ok(MedicationstatementstatusCompleted)
+    "entered-in-error" -> Ok(MedicationstatementstatusEnteredinerror)
+    "intended" -> Ok(MedicationstatementstatusIntended)
+    "stopped" -> Ok(MedicationstatementstatusStopped)
+    "on-hold" -> Ok(MedicationstatementstatusOnhold)
+    "unknown" -> Ok(MedicationstatementstatusUnknown)
+    "not-taken" -> Ok(MedicationstatementstatusNottaken)
+    _ -> Error(Nil)
   }
 }
 
@@ -7220,13 +10625,33 @@ pub type Guidanceresponsestatus {
 pub fn guidanceresponsestatus_to_json(
   guidanceresponsestatus: Guidanceresponsestatus,
 ) -> Json {
+  json.string(guidanceresponsestatus_to_string(guidanceresponsestatus))
+}
+
+pub fn guidanceresponsestatus_to_string(
+  guidanceresponsestatus: Guidanceresponsestatus,
+) -> String {
   case guidanceresponsestatus {
-    GuidanceresponsestatusSuccess -> json.string("success")
-    GuidanceresponsestatusDatarequested -> json.string("data-requested")
-    GuidanceresponsestatusDatarequired -> json.string("data-required")
-    GuidanceresponsestatusInprogress -> json.string("in-progress")
-    GuidanceresponsestatusFailure -> json.string("failure")
-    GuidanceresponsestatusEnteredinerror -> json.string("entered-in-error")
+    GuidanceresponsestatusSuccess -> "success"
+    GuidanceresponsestatusDatarequested -> "data-requested"
+    GuidanceresponsestatusDatarequired -> "data-required"
+    GuidanceresponsestatusInprogress -> "in-progress"
+    GuidanceresponsestatusFailure -> "failure"
+    GuidanceresponsestatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn guidanceresponsestatus_from_string(
+  s: String,
+) -> Result(Guidanceresponsestatus, Nil) {
+  case s {
+    "success" -> Ok(GuidanceresponsestatusSuccess)
+    "data-requested" -> Ok(GuidanceresponsestatusDatarequested)
+    "data-required" -> Ok(GuidanceresponsestatusDatarequired)
+    "in-progress" -> Ok(GuidanceresponsestatusInprogress)
+    "failure" -> Ok(GuidanceresponsestatusFailure)
+    "entered-in-error" -> Ok(GuidanceresponsestatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -7251,9 +10676,25 @@ pub type Constraintseverity {
 pub fn constraintseverity_to_json(
   constraintseverity: Constraintseverity,
 ) -> Json {
+  json.string(constraintseverity_to_string(constraintseverity))
+}
+
+pub fn constraintseverity_to_string(
+  constraintseverity: Constraintseverity,
+) -> String {
   case constraintseverity {
-    ConstraintseverityError -> json.string("error")
-    ConstraintseverityWarning -> json.string("warning")
+    ConstraintseverityError -> "error"
+    ConstraintseverityWarning -> "warning"
+  }
+}
+
+pub fn constraintseverity_from_string(
+  s: String,
+) -> Result(Constraintseverity, Nil) {
+  case s {
+    "error" -> Ok(ConstraintseverityError)
+    "warning" -> Ok(ConstraintseverityWarning)
+    _ -> Error(Nil)
   }
 }
 
@@ -7276,11 +10717,31 @@ pub type Messageheaderresponserequest {
 pub fn messageheaderresponserequest_to_json(
   messageheaderresponserequest: Messageheaderresponserequest,
 ) -> Json {
+  json.string(messageheaderresponserequest_to_string(
+    messageheaderresponserequest,
+  ))
+}
+
+pub fn messageheaderresponserequest_to_string(
+  messageheaderresponserequest: Messageheaderresponserequest,
+) -> String {
   case messageheaderresponserequest {
-    MessageheaderresponserequestAlways -> json.string("always")
-    MessageheaderresponserequestOnerror -> json.string("on-error")
-    MessageheaderresponserequestNever -> json.string("never")
-    MessageheaderresponserequestOnsuccess -> json.string("on-success")
+    MessageheaderresponserequestAlways -> "always"
+    MessageheaderresponserequestOnerror -> "on-error"
+    MessageheaderresponserequestNever -> "never"
+    MessageheaderresponserequestOnsuccess -> "on-success"
+  }
+}
+
+pub fn messageheaderresponserequest_from_string(
+  s: String,
+) -> Result(Messageheaderresponserequest, Nil) {
+  case s {
+    "always" -> Ok(MessageheaderresponserequestAlways)
+    "on-error" -> Ok(MessageheaderresponserequestOnerror)
+    "never" -> Ok(MessageheaderresponserequestNever)
+    "on-success" -> Ok(MessageheaderresponserequestOnsuccess)
+    _ -> Error(Nil)
   }
 }
 
@@ -7322,22 +10783,51 @@ pub type Contractpublicationstatus {
 pub fn contractpublicationstatus_to_json(
   contractpublicationstatus: Contractpublicationstatus,
 ) -> Json {
+  json.string(contractpublicationstatus_to_string(contractpublicationstatus))
+}
+
+pub fn contractpublicationstatus_to_string(
+  contractpublicationstatus: Contractpublicationstatus,
+) -> String {
   case contractpublicationstatus {
-    ContractpublicationstatusAmended -> json.string("amended")
-    ContractpublicationstatusAppended -> json.string("appended")
-    ContractpublicationstatusCancelled -> json.string("cancelled")
-    ContractpublicationstatusDisputed -> json.string("disputed")
-    ContractpublicationstatusEnteredinerror -> json.string("entered-in-error")
-    ContractpublicationstatusExecutable -> json.string("executable")
-    ContractpublicationstatusExecuted -> json.string("executed")
-    ContractpublicationstatusNegotiable -> json.string("negotiable")
-    ContractpublicationstatusOffered -> json.string("offered")
-    ContractpublicationstatusPolicy -> json.string("policy")
-    ContractpublicationstatusRejected -> json.string("rejected")
-    ContractpublicationstatusRenewed -> json.string("renewed")
-    ContractpublicationstatusRevoked -> json.string("revoked")
-    ContractpublicationstatusResolved -> json.string("resolved")
-    ContractpublicationstatusTerminated -> json.string("terminated")
+    ContractpublicationstatusAmended -> "amended"
+    ContractpublicationstatusAppended -> "appended"
+    ContractpublicationstatusCancelled -> "cancelled"
+    ContractpublicationstatusDisputed -> "disputed"
+    ContractpublicationstatusEnteredinerror -> "entered-in-error"
+    ContractpublicationstatusExecutable -> "executable"
+    ContractpublicationstatusExecuted -> "executed"
+    ContractpublicationstatusNegotiable -> "negotiable"
+    ContractpublicationstatusOffered -> "offered"
+    ContractpublicationstatusPolicy -> "policy"
+    ContractpublicationstatusRejected -> "rejected"
+    ContractpublicationstatusRenewed -> "renewed"
+    ContractpublicationstatusRevoked -> "revoked"
+    ContractpublicationstatusResolved -> "resolved"
+    ContractpublicationstatusTerminated -> "terminated"
+  }
+}
+
+pub fn contractpublicationstatus_from_string(
+  s: String,
+) -> Result(Contractpublicationstatus, Nil) {
+  case s {
+    "amended" -> Ok(ContractpublicationstatusAmended)
+    "appended" -> Ok(ContractpublicationstatusAppended)
+    "cancelled" -> Ok(ContractpublicationstatusCancelled)
+    "disputed" -> Ok(ContractpublicationstatusDisputed)
+    "entered-in-error" -> Ok(ContractpublicationstatusEnteredinerror)
+    "executable" -> Ok(ContractpublicationstatusExecutable)
+    "executed" -> Ok(ContractpublicationstatusExecuted)
+    "negotiable" -> Ok(ContractpublicationstatusNegotiable)
+    "offered" -> Ok(ContractpublicationstatusOffered)
+    "policy" -> Ok(ContractpublicationstatusPolicy)
+    "rejected" -> Ok(ContractpublicationstatusRejected)
+    "renewed" -> Ok(ContractpublicationstatusRenewed)
+    "revoked" -> Ok(ContractpublicationstatusRevoked)
+    "resolved" -> Ok(ContractpublicationstatusResolved)
+    "terminated" -> Ok(ContractpublicationstatusTerminated)
+    _ -> Error(Nil)
   }
 }
 
@@ -7377,10 +10867,27 @@ pub type Immunizationstatus {
 pub fn immunizationstatus_to_json(
   immunizationstatus: Immunizationstatus,
 ) -> Json {
+  json.string(immunizationstatus_to_string(immunizationstatus))
+}
+
+pub fn immunizationstatus_to_string(
+  immunizationstatus: Immunizationstatus,
+) -> String {
   case immunizationstatus {
-    ImmunizationstatusCompleted -> json.string("completed")
-    ImmunizationstatusEnteredinerror -> json.string("entered-in-error")
-    ImmunizationstatusNotdone -> json.string("not-done")
+    ImmunizationstatusCompleted -> "completed"
+    ImmunizationstatusEnteredinerror -> "entered-in-error"
+    ImmunizationstatusNotdone -> "not-done"
+  }
+}
+
+pub fn immunizationstatus_from_string(
+  s: String,
+) -> Result(Immunizationstatus, Nil) {
+  case s {
+    "completed" -> Ok(ImmunizationstatusCompleted)
+    "entered-in-error" -> Ok(ImmunizationstatusEnteredinerror)
+    "not-done" -> Ok(ImmunizationstatusNotdone)
+    _ -> Error(Nil)
   }
 }
 
@@ -7405,14 +10912,31 @@ pub type Httpoperations {
 }
 
 pub fn httpoperations_to_json(httpoperations: Httpoperations) -> Json {
+  json.string(httpoperations_to_string(httpoperations))
+}
+
+pub fn httpoperations_to_string(httpoperations: Httpoperations) -> String {
   case httpoperations {
-    HttpoperationsDelete -> json.string("delete")
-    HttpoperationsGet -> json.string("get")
-    HttpoperationsOptions -> json.string("options")
-    HttpoperationsPatch -> json.string("patch")
-    HttpoperationsPost -> json.string("post")
-    HttpoperationsPut -> json.string("put")
-    HttpoperationsHead -> json.string("head")
+    HttpoperationsDelete -> "delete"
+    HttpoperationsGet -> "get"
+    HttpoperationsOptions -> "options"
+    HttpoperationsPatch -> "patch"
+    HttpoperationsPost -> "post"
+    HttpoperationsPut -> "put"
+    HttpoperationsHead -> "head"
+  }
+}
+
+pub fn httpoperations_from_string(s: String) -> Result(Httpoperations, Nil) {
+  case s {
+    "delete" -> Ok(HttpoperationsDelete)
+    "get" -> Ok(HttpoperationsGet)
+    "options" -> Ok(HttpoperationsOptions)
+    "patch" -> Ok(HttpoperationsPatch)
+    "post" -> Ok(HttpoperationsPost)
+    "put" -> Ok(HttpoperationsPut)
+    "head" -> Ok(HttpoperationsHead)
+    _ -> Error(Nil)
   }
 }
 
@@ -7440,11 +10964,29 @@ pub type Guidepagegeneration {
 pub fn guidepagegeneration_to_json(
   guidepagegeneration: Guidepagegeneration,
 ) -> Json {
+  json.string(guidepagegeneration_to_string(guidepagegeneration))
+}
+
+pub fn guidepagegeneration_to_string(
+  guidepagegeneration: Guidepagegeneration,
+) -> String {
   case guidepagegeneration {
-    GuidepagegenerationHtml -> json.string("html")
-    GuidepagegenerationMarkdown -> json.string("markdown")
-    GuidepagegenerationXml -> json.string("xml")
-    GuidepagegenerationGenerated -> json.string("generated")
+    GuidepagegenerationHtml -> "html"
+    GuidepagegenerationMarkdown -> "markdown"
+    GuidepagegenerationXml -> "xml"
+    GuidepagegenerationGenerated -> "generated"
+  }
+}
+
+pub fn guidepagegeneration_from_string(
+  s: String,
+) -> Result(Guidepagegeneration, Nil) {
+  case s {
+    "html" -> Ok(GuidepagegenerationHtml)
+    "markdown" -> Ok(GuidepagegenerationMarkdown)
+    "xml" -> Ok(GuidepagegenerationXml)
+    "generated" -> Ok(GuidepagegenerationGenerated)
+    _ -> Error(Nil)
   }
 }
 
@@ -7465,9 +11007,21 @@ pub type Locationmode {
 }
 
 pub fn locationmode_to_json(locationmode: Locationmode) -> Json {
+  json.string(locationmode_to_string(locationmode))
+}
+
+pub fn locationmode_to_string(locationmode: Locationmode) -> String {
   case locationmode {
-    LocationmodeInstance -> json.string("instance")
-    LocationmodeKind -> json.string("kind")
+    LocationmodeInstance -> "instance"
+    LocationmodeKind -> "kind"
+  }
+}
+
+pub fn locationmode_from_string(s: String) -> Result(Locationmode, Nil) {
+  case s {
+    "instance" -> Ok(LocationmodeInstance)
+    "kind" -> Ok(LocationmodeKind)
+    _ -> Error(Nil)
   }
 }
 
@@ -7489,12 +11043,27 @@ pub type Productcategory {
 }
 
 pub fn productcategory_to_json(productcategory: Productcategory) -> Json {
+  json.string(productcategory_to_string(productcategory))
+}
+
+pub fn productcategory_to_string(productcategory: Productcategory) -> String {
   case productcategory {
-    ProductcategoryOrgan -> json.string("organ")
-    ProductcategoryTissue -> json.string("tissue")
-    ProductcategoryFluid -> json.string("fluid")
-    ProductcategoryCells -> json.string("cells")
-    ProductcategoryBiologicalagent -> json.string("biologicalAgent")
+    ProductcategoryOrgan -> "organ"
+    ProductcategoryTissue -> "tissue"
+    ProductcategoryFluid -> "fluid"
+    ProductcategoryCells -> "cells"
+    ProductcategoryBiologicalagent -> "biologicalAgent"
+  }
+}
+
+pub fn productcategory_from_string(s: String) -> Result(Productcategory, Nil) {
+  case s {
+    "organ" -> Ok(ProductcategoryOrgan)
+    "tissue" -> Ok(ProductcategoryTissue)
+    "fluid" -> Ok(ProductcategoryFluid)
+    "cells" -> Ok(ProductcategoryCells)
+    "biologicalAgent" -> Ok(ProductcategoryBiologicalagent)
+    _ -> Error(Nil)
   }
 }
 
@@ -7520,11 +11089,29 @@ pub type Actionparticipanttype {
 pub fn actionparticipanttype_to_json(
   actionparticipanttype: Actionparticipanttype,
 ) -> Json {
+  json.string(actionparticipanttype_to_string(actionparticipanttype))
+}
+
+pub fn actionparticipanttype_to_string(
+  actionparticipanttype: Actionparticipanttype,
+) -> String {
   case actionparticipanttype {
-    ActionparticipanttypePatient -> json.string("patient")
-    ActionparticipanttypePractitioner -> json.string("practitioner")
-    ActionparticipanttypeRelatedperson -> json.string("related-person")
-    ActionparticipanttypeDevice -> json.string("device")
+    ActionparticipanttypePatient -> "patient"
+    ActionparticipanttypePractitioner -> "practitioner"
+    ActionparticipanttypeRelatedperson -> "related-person"
+    ActionparticipanttypeDevice -> "device"
+  }
+}
+
+pub fn actionparticipanttype_from_string(
+  s: String,
+) -> Result(Actionparticipanttype, Nil) {
+  case s {
+    "patient" -> Ok(ActionparticipanttypePatient)
+    "practitioner" -> Ok(ActionparticipanttypePractitioner)
+    "related-person" -> Ok(ActionparticipanttypeRelatedperson)
+    "device" -> Ok(ActionparticipanttypeDevice)
+    _ -> Error(Nil)
   }
 }
 
@@ -7547,11 +11134,25 @@ pub type Specimenstatus {
 }
 
 pub fn specimenstatus_to_json(specimenstatus: Specimenstatus) -> Json {
+  json.string(specimenstatus_to_string(specimenstatus))
+}
+
+pub fn specimenstatus_to_string(specimenstatus: Specimenstatus) -> String {
   case specimenstatus {
-    SpecimenstatusAvailable -> json.string("available")
-    SpecimenstatusUnavailable -> json.string("unavailable")
-    SpecimenstatusUnsatisfactory -> json.string("unsatisfactory")
-    SpecimenstatusEnteredinerror -> json.string("entered-in-error")
+    SpecimenstatusAvailable -> "available"
+    SpecimenstatusUnavailable -> "unavailable"
+    SpecimenstatusUnsatisfactory -> "unsatisfactory"
+    SpecimenstatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn specimenstatus_from_string(s: String) -> Result(Specimenstatus, Nil) {
+  case s {
+    "available" -> Ok(SpecimenstatusAvailable)
+    "unavailable" -> Ok(SpecimenstatusUnavailable)
+    "unsatisfactory" -> Ok(SpecimenstatusUnsatisfactory)
+    "entered-in-error" -> Ok(SpecimenstatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -7576,11 +11177,29 @@ pub type Namingsystemidentifiertype {
 pub fn namingsystemidentifiertype_to_json(
   namingsystemidentifiertype: Namingsystemidentifiertype,
 ) -> Json {
+  json.string(namingsystemidentifiertype_to_string(namingsystemidentifiertype))
+}
+
+pub fn namingsystemidentifiertype_to_string(
+  namingsystemidentifiertype: Namingsystemidentifiertype,
+) -> String {
   case namingsystemidentifiertype {
-    NamingsystemidentifiertypeOid -> json.string("oid")
-    NamingsystemidentifiertypeUuid -> json.string("uuid")
-    NamingsystemidentifiertypeUri -> json.string("uri")
-    NamingsystemidentifiertypeOther -> json.string("other")
+    NamingsystemidentifiertypeOid -> "oid"
+    NamingsystemidentifiertypeUuid -> "uuid"
+    NamingsystemidentifiertypeUri -> "uri"
+    NamingsystemidentifiertypeOther -> "other"
+  }
+}
+
+pub fn namingsystemidentifiertype_from_string(
+  s: String,
+) -> Result(Namingsystemidentifiertype, Nil) {
+  case s {
+    "oid" -> Ok(NamingsystemidentifiertypeOid)
+    "uuid" -> Ok(NamingsystemidentifiertypeUuid)
+    "uri" -> Ok(NamingsystemidentifiertypeUri)
+    "other" -> Ok(NamingsystemidentifiertypeOther)
+    _ -> Error(Nil)
   }
 }
 
@@ -7614,16 +11233,35 @@ pub type Goalstatus {
 }
 
 pub fn goalstatus_to_json(goalstatus: Goalstatus) -> Json {
+  json.string(goalstatus_to_string(goalstatus))
+}
+
+pub fn goalstatus_to_string(goalstatus: Goalstatus) -> String {
   case goalstatus {
-    GoalstatusProposed -> json.string("proposed")
-    GoalstatusPlanned -> json.string("planned")
-    GoalstatusAccepted -> json.string("accepted")
-    GoalstatusActive -> json.string("active")
-    GoalstatusOnhold -> json.string("on-hold")
-    GoalstatusCompleted -> json.string("completed")
-    GoalstatusCancelled -> json.string("cancelled")
-    GoalstatusEnteredinerror -> json.string("entered-in-error")
-    GoalstatusRejected -> json.string("rejected")
+    GoalstatusProposed -> "proposed"
+    GoalstatusPlanned -> "planned"
+    GoalstatusAccepted -> "accepted"
+    GoalstatusActive -> "active"
+    GoalstatusOnhold -> "on-hold"
+    GoalstatusCompleted -> "completed"
+    GoalstatusCancelled -> "cancelled"
+    GoalstatusEnteredinerror -> "entered-in-error"
+    GoalstatusRejected -> "rejected"
+  }
+}
+
+pub fn goalstatus_from_string(s: String) -> Result(Goalstatus, Nil) {
+  case s {
+    "proposed" -> Ok(GoalstatusProposed)
+    "planned" -> Ok(GoalstatusPlanned)
+    "accepted" -> Ok(GoalstatusAccepted)
+    "active" -> Ok(GoalstatusActive)
+    "on-hold" -> Ok(GoalstatusOnhold)
+    "completed" -> Ok(GoalstatusCompleted)
+    "cancelled" -> Ok(GoalstatusCancelled)
+    "entered-in-error" -> Ok(GoalstatusEnteredinerror)
+    "rejected" -> Ok(GoalstatusRejected)
+    _ -> Error(Nil)
   }
 }
 
@@ -7653,11 +11291,29 @@ pub type Administrativegender {
 pub fn administrativegender_to_json(
   administrativegender: Administrativegender,
 ) -> Json {
+  json.string(administrativegender_to_string(administrativegender))
+}
+
+pub fn administrativegender_to_string(
+  administrativegender: Administrativegender,
+) -> String {
   case administrativegender {
-    AdministrativegenderMale -> json.string("male")
-    AdministrativegenderFemale -> json.string("female")
-    AdministrativegenderOther -> json.string("other")
-    AdministrativegenderUnknown -> json.string("unknown")
+    AdministrativegenderMale -> "male"
+    AdministrativegenderFemale -> "female"
+    AdministrativegenderOther -> "other"
+    AdministrativegenderUnknown -> "unknown"
+  }
+}
+
+pub fn administrativegender_from_string(
+  s: String,
+) -> Result(Administrativegender, Nil) {
+  case s {
+    "male" -> Ok(AdministrativegenderMale)
+    "female" -> Ok(AdministrativegenderFemale)
+    "other" -> Ok(AdministrativegenderOther)
+    "unknown" -> Ok(AdministrativegenderUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -7680,11 +11336,25 @@ pub type Historystatus {
 }
 
 pub fn historystatus_to_json(historystatus: Historystatus) -> Json {
+  json.string(historystatus_to_string(historystatus))
+}
+
+pub fn historystatus_to_string(historystatus: Historystatus) -> String {
   case historystatus {
-    HistorystatusPartial -> json.string("partial")
-    HistorystatusCompleted -> json.string("completed")
-    HistorystatusEnteredinerror -> json.string("entered-in-error")
-    HistorystatusHealthunknown -> json.string("health-unknown")
+    HistorystatusPartial -> "partial"
+    HistorystatusCompleted -> "completed"
+    HistorystatusEnteredinerror -> "entered-in-error"
+    HistorystatusHealthunknown -> "health-unknown"
+  }
+}
+
+pub fn historystatus_from_string(s: String) -> Result(Historystatus, Nil) {
+  case s {
+    "partial" -> Ok(HistorystatusPartial)
+    "completed" -> Ok(HistorystatusCompleted)
+    "entered-in-error" -> Ok(HistorystatusEnteredinerror)
+    "health-unknown" -> Ok(HistorystatusHealthunknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -7708,10 +11378,27 @@ pub type Participantrequired {
 pub fn participantrequired_to_json(
   participantrequired: Participantrequired,
 ) -> Json {
+  json.string(participantrequired_to_string(participantrequired))
+}
+
+pub fn participantrequired_to_string(
+  participantrequired: Participantrequired,
+) -> String {
   case participantrequired {
-    ParticipantrequiredRequired -> json.string("required")
-    ParticipantrequiredOptional -> json.string("optional")
-    ParticipantrequiredInformationonly -> json.string("information-only")
+    ParticipantrequiredRequired -> "required"
+    ParticipantrequiredOptional -> "optional"
+    ParticipantrequiredInformationonly -> "information-only"
+  }
+}
+
+pub fn participantrequired_from_string(
+  s: String,
+) -> Result(Participantrequired, Nil) {
+  case s {
+    "required" -> Ok(ParticipantrequiredRequired)
+    "optional" -> Ok(ParticipantrequiredOptional)
+    "information-only" -> Ok(ParticipantrequiredInformationonly)
+    _ -> Error(Nil)
   }
 }
 
@@ -7731,9 +11418,21 @@ pub type Visioneyecodes {
 }
 
 pub fn visioneyecodes_to_json(visioneyecodes: Visioneyecodes) -> Json {
+  json.string(visioneyecodes_to_string(visioneyecodes))
+}
+
+pub fn visioneyecodes_to_string(visioneyecodes: Visioneyecodes) -> String {
   case visioneyecodes {
-    VisioneyecodesRight -> json.string("right")
-    VisioneyecodesLeft -> json.string("left")
+    VisioneyecodesRight -> "right"
+    VisioneyecodesLeft -> "left"
+  }
+}
+
+pub fn visioneyecodes_from_string(s: String) -> Result(Visioneyecodes, Nil) {
+  case s {
+    "right" -> Ok(VisioneyecodesRight)
+    "left" -> Ok(VisioneyecodesLeft)
+    _ -> Error(Nil)
   }
 }
 
@@ -7757,14 +11456,31 @@ pub type Daysofweek {
 }
 
 pub fn daysofweek_to_json(daysofweek: Daysofweek) -> Json {
+  json.string(daysofweek_to_string(daysofweek))
+}
+
+pub fn daysofweek_to_string(daysofweek: Daysofweek) -> String {
   case daysofweek {
-    DaysofweekMon -> json.string("mon")
-    DaysofweekTue -> json.string("tue")
-    DaysofweekWed -> json.string("wed")
-    DaysofweekThu -> json.string("thu")
-    DaysofweekFri -> json.string("fri")
-    DaysofweekSat -> json.string("sat")
-    DaysofweekSun -> json.string("sun")
+    DaysofweekMon -> "mon"
+    DaysofweekTue -> "tue"
+    DaysofweekWed -> "wed"
+    DaysofweekThu -> "thu"
+    DaysofweekFri -> "fri"
+    DaysofweekSat -> "sat"
+    DaysofweekSun -> "sun"
+  }
+}
+
+pub fn daysofweek_from_string(s: String) -> Result(Daysofweek, Nil) {
+  case s {
+    "mon" -> Ok(DaysofweekMon)
+    "tue" -> Ok(DaysofweekTue)
+    "wed" -> Ok(DaysofweekWed)
+    "thu" -> Ok(DaysofweekThu)
+    "fri" -> Ok(DaysofweekFri)
+    "sat" -> Ok(DaysofweekSat)
+    "sun" -> Ok(DaysofweekSun)
+    _ -> Error(Nil)
   }
 }
 
@@ -7802,23 +11518,49 @@ pub type Itemtype {
 }
 
 pub fn itemtype_to_json(itemtype: Itemtype) -> Json {
+  json.string(itemtype_to_string(itemtype))
+}
+
+pub fn itemtype_to_string(itemtype: Itemtype) -> String {
   case itemtype {
-    ItemtypeGroup -> json.string("group")
-    ItemtypeDisplay -> json.string("display")
-    ItemtypeBoolean -> json.string("boolean")
-    ItemtypeDecimal -> json.string("decimal")
-    ItemtypeInteger -> json.string("integer")
-    ItemtypeDate -> json.string("date")
-    ItemtypeDatetime -> json.string("dateTime")
-    ItemtypeTime -> json.string("time")
-    ItemtypeString -> json.string("string")
-    ItemtypeText -> json.string("text")
-    ItemtypeUrl -> json.string("url")
-    ItemtypeChoice -> json.string("choice")
-    ItemtypeOpenchoice -> json.string("open-choice")
-    ItemtypeAttachment -> json.string("attachment")
-    ItemtypeReference -> json.string("reference")
-    ItemtypeQuantity -> json.string("quantity")
+    ItemtypeGroup -> "group"
+    ItemtypeDisplay -> "display"
+    ItemtypeBoolean -> "boolean"
+    ItemtypeDecimal -> "decimal"
+    ItemtypeInteger -> "integer"
+    ItemtypeDate -> "date"
+    ItemtypeDatetime -> "dateTime"
+    ItemtypeTime -> "time"
+    ItemtypeString -> "string"
+    ItemtypeText -> "text"
+    ItemtypeUrl -> "url"
+    ItemtypeChoice -> "choice"
+    ItemtypeOpenchoice -> "open-choice"
+    ItemtypeAttachment -> "attachment"
+    ItemtypeReference -> "reference"
+    ItemtypeQuantity -> "quantity"
+  }
+}
+
+pub fn itemtype_from_string(s: String) -> Result(Itemtype, Nil) {
+  case s {
+    "group" -> Ok(ItemtypeGroup)
+    "display" -> Ok(ItemtypeDisplay)
+    "boolean" -> Ok(ItemtypeBoolean)
+    "decimal" -> Ok(ItemtypeDecimal)
+    "integer" -> Ok(ItemtypeInteger)
+    "date" -> Ok(ItemtypeDate)
+    "dateTime" -> Ok(ItemtypeDatetime)
+    "time" -> Ok(ItemtypeTime)
+    "string" -> Ok(ItemtypeString)
+    "text" -> Ok(ItemtypeText)
+    "url" -> Ok(ItemtypeUrl)
+    "choice" -> Ok(ItemtypeChoice)
+    "open-choice" -> Ok(ItemtypeOpenchoice)
+    "attachment" -> Ok(ItemtypeAttachment)
+    "reference" -> Ok(ItemtypeReference)
+    "quantity" -> Ok(ItemtypeQuantity)
+    _ -> Error(Nil)
   }
 }
 
@@ -7851,9 +11593,21 @@ pub type Mapcontexttype {
 }
 
 pub fn mapcontexttype_to_json(mapcontexttype: Mapcontexttype) -> Json {
+  json.string(mapcontexttype_to_string(mapcontexttype))
+}
+
+pub fn mapcontexttype_to_string(mapcontexttype: Mapcontexttype) -> String {
   case mapcontexttype {
-    MapcontexttypeType -> json.string("type")
-    MapcontexttypeVariable -> json.string("variable")
+    MapcontexttypeType -> "type"
+    MapcontexttypeVariable -> "variable"
+  }
+}
+
+pub fn mapcontexttype_from_string(s: String) -> Result(Mapcontexttype, Nil) {
+  case s {
+    "type" -> Ok(MapcontexttypeType)
+    "variable" -> Ok(MapcontexttypeVariable)
+    _ -> Error(Nil)
   }
 }
 
@@ -7873,10 +11627,23 @@ pub type Responsecode {
 }
 
 pub fn responsecode_to_json(responsecode: Responsecode) -> Json {
+  json.string(responsecode_to_string(responsecode))
+}
+
+pub fn responsecode_to_string(responsecode: Responsecode) -> String {
   case responsecode {
-    ResponsecodeOk -> json.string("ok")
-    ResponsecodeTransienterror -> json.string("transient-error")
-    ResponsecodeFatalerror -> json.string("fatal-error")
+    ResponsecodeOk -> "ok"
+    ResponsecodeTransienterror -> "transient-error"
+    ResponsecodeFatalerror -> "fatal-error"
+  }
+}
+
+pub fn responsecode_from_string(s: String) -> Result(Responsecode, Nil) {
+  case s {
+    "ok" -> Ok(ResponsecodeOk)
+    "transient-error" -> Ok(ResponsecodeTransienterror)
+    "fatal-error" -> Ok(ResponsecodeFatalerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -7920,33 +11687,69 @@ pub type Eventtiming {
 }
 
 pub fn eventtiming_to_json(eventtiming: Eventtiming) -> Json {
+  json.string(eventtiming_to_string(eventtiming))
+}
+
+pub fn eventtiming_to_string(eventtiming: Eventtiming) -> String {
   case eventtiming {
-    EventtimingMorn -> json.string("MORN")
-    EventtimingMornearly -> json.string("MORN.early")
-    EventtimingMornlate -> json.string("MORN.late")
-    EventtimingNoon -> json.string("NOON")
-    EventtimingAft -> json.string("AFT")
-    EventtimingAftearly -> json.string("AFT.early")
-    EventtimingAftlate -> json.string("AFT.late")
-    EventtimingEve -> json.string("EVE")
-    EventtimingEveearly -> json.string("EVE.early")
-    EventtimingEvelate -> json.string("EVE.late")
-    EventtimingNight -> json.string("NIGHT")
-    EventtimingPhs -> json.string("PHS")
-    EventtimingHs -> json.string("HS")
-    EventtimingWake -> json.string("WAKE")
-    EventtimingC -> json.string("C")
-    EventtimingCm -> json.string("CM")
-    EventtimingCd -> json.string("CD")
-    EventtimingCv -> json.string("CV")
-    EventtimingAc -> json.string("AC")
-    EventtimingAcm -> json.string("ACM")
-    EventtimingAcd -> json.string("ACD")
-    EventtimingAcv -> json.string("ACV")
-    EventtimingPc -> json.string("PC")
-    EventtimingPcm -> json.string("PCM")
-    EventtimingPcd -> json.string("PCD")
-    EventtimingPcv -> json.string("PCV")
+    EventtimingMorn -> "MORN"
+    EventtimingMornearly -> "MORN.early"
+    EventtimingMornlate -> "MORN.late"
+    EventtimingNoon -> "NOON"
+    EventtimingAft -> "AFT"
+    EventtimingAftearly -> "AFT.early"
+    EventtimingAftlate -> "AFT.late"
+    EventtimingEve -> "EVE"
+    EventtimingEveearly -> "EVE.early"
+    EventtimingEvelate -> "EVE.late"
+    EventtimingNight -> "NIGHT"
+    EventtimingPhs -> "PHS"
+    EventtimingHs -> "HS"
+    EventtimingWake -> "WAKE"
+    EventtimingC -> "C"
+    EventtimingCm -> "CM"
+    EventtimingCd -> "CD"
+    EventtimingCv -> "CV"
+    EventtimingAc -> "AC"
+    EventtimingAcm -> "ACM"
+    EventtimingAcd -> "ACD"
+    EventtimingAcv -> "ACV"
+    EventtimingPc -> "PC"
+    EventtimingPcm -> "PCM"
+    EventtimingPcd -> "PCD"
+    EventtimingPcv -> "PCV"
+  }
+}
+
+pub fn eventtiming_from_string(s: String) -> Result(Eventtiming, Nil) {
+  case s {
+    "MORN" -> Ok(EventtimingMorn)
+    "MORN.early" -> Ok(EventtimingMornearly)
+    "MORN.late" -> Ok(EventtimingMornlate)
+    "NOON" -> Ok(EventtimingNoon)
+    "AFT" -> Ok(EventtimingAft)
+    "AFT.early" -> Ok(EventtimingAftearly)
+    "AFT.late" -> Ok(EventtimingAftlate)
+    "EVE" -> Ok(EventtimingEve)
+    "EVE.early" -> Ok(EventtimingEveearly)
+    "EVE.late" -> Ok(EventtimingEvelate)
+    "NIGHT" -> Ok(EventtimingNight)
+    "PHS" -> Ok(EventtimingPhs)
+    "HS" -> Ok(EventtimingHs)
+    "WAKE" -> Ok(EventtimingWake)
+    "C" -> Ok(EventtimingC)
+    "CM" -> Ok(EventtimingCm)
+    "CD" -> Ok(EventtimingCd)
+    "CV" -> Ok(EventtimingCv)
+    "AC" -> Ok(EventtimingAc)
+    "ACM" -> Ok(EventtimingAcm)
+    "ACD" -> Ok(EventtimingAcd)
+    "ACV" -> Ok(EventtimingAcv)
+    "PC" -> Ok(EventtimingPc)
+    "PCM" -> Ok(EventtimingPcm)
+    "PCD" -> Ok(EventtimingPcd)
+    "PCV" -> Ok(EventtimingPcv)
+    _ -> Error(Nil)
   }
 }
 
@@ -7993,13 +11796,29 @@ pub type Groupmeasure {
 }
 
 pub fn groupmeasure_to_json(groupmeasure: Groupmeasure) -> Json {
+  json.string(groupmeasure_to_string(groupmeasure))
+}
+
+pub fn groupmeasure_to_string(groupmeasure: Groupmeasure) -> String {
   case groupmeasure {
-    GroupmeasureMean -> json.string("mean")
-    GroupmeasureMedian -> json.string("median")
-    GroupmeasureMeanofmean -> json.string("mean-of-mean")
-    GroupmeasureMeanofmedian -> json.string("mean-of-median")
-    GroupmeasureMedianofmean -> json.string("median-of-mean")
-    GroupmeasureMedianofmedian -> json.string("median-of-median")
+    GroupmeasureMean -> "mean"
+    GroupmeasureMedian -> "median"
+    GroupmeasureMeanofmean -> "mean-of-mean"
+    GroupmeasureMeanofmedian -> "mean-of-median"
+    GroupmeasureMedianofmean -> "median-of-mean"
+    GroupmeasureMedianofmedian -> "median-of-median"
+  }
+}
+
+pub fn groupmeasure_from_string(s: String) -> Result(Groupmeasure, Nil) {
+  case s {
+    "mean" -> Ok(GroupmeasureMean)
+    "median" -> Ok(GroupmeasureMedian)
+    "mean-of-mean" -> Ok(GroupmeasureMeanofmean)
+    "mean-of-median" -> Ok(GroupmeasureMeanofmedian)
+    "median-of-mean" -> Ok(GroupmeasureMedianofmean)
+    "median-of-median" -> Ok(GroupmeasureMedianofmedian)
+    _ -> Error(Nil)
   }
 }
 
@@ -8025,10 +11844,27 @@ pub type Referenceversionrules {
 pub fn referenceversionrules_to_json(
   referenceversionrules: Referenceversionrules,
 ) -> Json {
+  json.string(referenceversionrules_to_string(referenceversionrules))
+}
+
+pub fn referenceversionrules_to_string(
+  referenceversionrules: Referenceversionrules,
+) -> String {
   case referenceversionrules {
-    ReferenceversionrulesEither -> json.string("either")
-    ReferenceversionrulesIndependent -> json.string("independent")
-    ReferenceversionrulesSpecific -> json.string("specific")
+    ReferenceversionrulesEither -> "either"
+    ReferenceversionrulesIndependent -> "independent"
+    ReferenceversionrulesSpecific -> "specific"
+  }
+}
+
+pub fn referenceversionrules_from_string(
+  s: String,
+) -> Result(Referenceversionrules, Nil) {
+  case s {
+    "either" -> Ok(ReferenceversionrulesEither)
+    "independent" -> Ok(ReferenceversionrulesIndependent)
+    "specific" -> Ok(ReferenceversionrulesSpecific)
+    _ -> Error(Nil)
   }
 }
 
@@ -8053,12 +11889,31 @@ pub type Reportactionresultcodes {
 pub fn reportactionresultcodes_to_json(
   reportactionresultcodes: Reportactionresultcodes,
 ) -> Json {
+  json.string(reportactionresultcodes_to_string(reportactionresultcodes))
+}
+
+pub fn reportactionresultcodes_to_string(
+  reportactionresultcodes: Reportactionresultcodes,
+) -> String {
   case reportactionresultcodes {
-    ReportactionresultcodesPass -> json.string("pass")
-    ReportactionresultcodesSkip -> json.string("skip")
-    ReportactionresultcodesFail -> json.string("fail")
-    ReportactionresultcodesWarning -> json.string("warning")
-    ReportactionresultcodesError -> json.string("error")
+    ReportactionresultcodesPass -> "pass"
+    ReportactionresultcodesSkip -> "skip"
+    ReportactionresultcodesFail -> "fail"
+    ReportactionresultcodesWarning -> "warning"
+    ReportactionresultcodesError -> "error"
+  }
+}
+
+pub fn reportactionresultcodes_from_string(
+  s: String,
+) -> Result(Reportactionresultcodes, Nil) {
+  case s {
+    "pass" -> Ok(ReportactionresultcodesPass)
+    "skip" -> Ok(ReportactionresultcodesSkip)
+    "fail" -> Ok(ReportactionresultcodesFail)
+    "warning" -> Ok(ReportactionresultcodesWarning)
+    "error" -> Ok(ReportactionresultcodesError)
+    _ -> Error(Nil)
   }
 }
 
@@ -8081,10 +11936,23 @@ pub type Mapgrouptypemode {
 }
 
 pub fn mapgrouptypemode_to_json(mapgrouptypemode: Mapgrouptypemode) -> Json {
+  json.string(mapgrouptypemode_to_string(mapgrouptypemode))
+}
+
+pub fn mapgrouptypemode_to_string(mapgrouptypemode: Mapgrouptypemode) -> String {
   case mapgrouptypemode {
-    MapgrouptypemodeNone -> json.string("none")
-    MapgrouptypemodeTypes -> json.string("types")
-    MapgrouptypemodeTypeandtypes -> json.string("type-and-types")
+    MapgrouptypemodeNone -> "none"
+    MapgrouptypemodeTypes -> "types"
+    MapgrouptypemodeTypeandtypes -> "type-and-types"
+  }
+}
+
+pub fn mapgrouptypemode_from_string(s: String) -> Result(Mapgrouptypemode, Nil) {
+  case s {
+    "none" -> Ok(MapgrouptypemodeNone)
+    "types" -> Ok(MapgrouptypemodeTypes)
+    "type-and-types" -> Ok(MapgrouptypemodeTypeandtypes)
+    _ -> Error(Nil)
   }
 }
 
@@ -8113,18 +11981,43 @@ pub type Permitteddatatype {
 }
 
 pub fn permitteddatatype_to_json(permitteddatatype: Permitteddatatype) -> Json {
+  json.string(permitteddatatype_to_string(permitteddatatype))
+}
+
+pub fn permitteddatatype_to_string(
+  permitteddatatype: Permitteddatatype,
+) -> String {
   case permitteddatatype {
-    PermitteddatatypeQuantity -> json.string("Quantity")
-    PermitteddatatypeCodeableconcept -> json.string("CodeableConcept")
-    PermitteddatatypeString -> json.string("string")
-    PermitteddatatypeBoolean -> json.string("boolean")
-    PermitteddatatypeInteger -> json.string("integer")
-    PermitteddatatypeRange -> json.string("Range")
-    PermitteddatatypeRatio -> json.string("Ratio")
-    PermitteddatatypeSampleddata -> json.string("SampledData")
-    PermitteddatatypeTime -> json.string("time")
-    PermitteddatatypeDatetime -> json.string("dateTime")
-    PermitteddatatypePeriod -> json.string("Period")
+    PermitteddatatypeQuantity -> "Quantity"
+    PermitteddatatypeCodeableconcept -> "CodeableConcept"
+    PermitteddatatypeString -> "string"
+    PermitteddatatypeBoolean -> "boolean"
+    PermitteddatatypeInteger -> "integer"
+    PermitteddatatypeRange -> "Range"
+    PermitteddatatypeRatio -> "Ratio"
+    PermitteddatatypeSampleddata -> "SampledData"
+    PermitteddatatypeTime -> "time"
+    PermitteddatatypeDatetime -> "dateTime"
+    PermitteddatatypePeriod -> "Period"
+  }
+}
+
+pub fn permitteddatatype_from_string(
+  s: String,
+) -> Result(Permitteddatatype, Nil) {
+  case s {
+    "Quantity" -> Ok(PermitteddatatypeQuantity)
+    "CodeableConcept" -> Ok(PermitteddatatypeCodeableconcept)
+    "string" -> Ok(PermitteddatatypeString)
+    "boolean" -> Ok(PermitteddatatypeBoolean)
+    "integer" -> Ok(PermitteddatatypeInteger)
+    "Range" -> Ok(PermitteddatatypeRange)
+    "Ratio" -> Ok(PermitteddatatypeRatio)
+    "SampledData" -> Ok(PermitteddatatypeSampleddata)
+    "time" -> Ok(PermitteddatatypeTime)
+    "dateTime" -> Ok(PermitteddatatypeDatetime)
+    "Period" -> Ok(PermitteddatatypePeriod)
+    _ -> Error(Nil)
   }
 }
 
@@ -8156,11 +12049,29 @@ pub type Participationstatus {
 pub fn participationstatus_to_json(
   participationstatus: Participationstatus,
 ) -> Json {
+  json.string(participationstatus_to_string(participationstatus))
+}
+
+pub fn participationstatus_to_string(
+  participationstatus: Participationstatus,
+) -> String {
   case participationstatus {
-    ParticipationstatusAccepted -> json.string("accepted")
-    ParticipationstatusDeclined -> json.string("declined")
-    ParticipationstatusTentative -> json.string("tentative")
-    ParticipationstatusNeedsaction -> json.string("needs-action")
+    ParticipationstatusAccepted -> "accepted"
+    ParticipationstatusDeclined -> "declined"
+    ParticipationstatusTentative -> "tentative"
+    ParticipationstatusNeedsaction -> "needs-action"
+  }
+}
+
+pub fn participationstatus_from_string(
+  s: String,
+) -> Result(Participationstatus, Nil) {
+  case s {
+    "accepted" -> Ok(ParticipationstatusAccepted)
+    "declined" -> Ok(ParticipationstatusDeclined)
+    "tentative" -> Ok(ParticipationstatusTentative)
+    "needs-action" -> Ok(ParticipationstatusNeedsaction)
+    _ -> Error(Nil)
   }
 }
 
@@ -8185,11 +12096,29 @@ pub type Compositionattestationmode {
 pub fn compositionattestationmode_to_json(
   compositionattestationmode: Compositionattestationmode,
 ) -> Json {
+  json.string(compositionattestationmode_to_string(compositionattestationmode))
+}
+
+pub fn compositionattestationmode_to_string(
+  compositionattestationmode: Compositionattestationmode,
+) -> String {
   case compositionattestationmode {
-    CompositionattestationmodePersonal -> json.string("personal")
-    CompositionattestationmodeProfessional -> json.string("professional")
-    CompositionattestationmodeLegal -> json.string("legal")
-    CompositionattestationmodeOfficial -> json.string("official")
+    CompositionattestationmodePersonal -> "personal"
+    CompositionattestationmodeProfessional -> "professional"
+    CompositionattestationmodeLegal -> "legal"
+    CompositionattestationmodeOfficial -> "official"
+  }
+}
+
+pub fn compositionattestationmode_from_string(
+  s: String,
+) -> Result(Compositionattestationmode, Nil) {
+  case s {
+    "personal" -> Ok(CompositionattestationmodePersonal)
+    "professional" -> Ok(CompositionattestationmodeProfessional)
+    "legal" -> Ok(CompositionattestationmodeLegal)
+    "official" -> Ok(CompositionattestationmodeOfficial)
+    _ -> Error(Nil)
   }
 }
 
@@ -8218,11 +12147,29 @@ pub type Auditeventoutcome {
 }
 
 pub fn auditeventoutcome_to_json(auditeventoutcome: Auditeventoutcome) -> Json {
+  json.string(auditeventoutcome_to_string(auditeventoutcome))
+}
+
+pub fn auditeventoutcome_to_string(
+  auditeventoutcome: Auditeventoutcome,
+) -> String {
   case auditeventoutcome {
-    Auditeventoutcome0 -> json.string("0")
-    Auditeventoutcome4 -> json.string("4")
-    Auditeventoutcome8 -> json.string("8")
-    Auditeventoutcome12 -> json.string("12")
+    Auditeventoutcome0 -> "0"
+    Auditeventoutcome4 -> "4"
+    Auditeventoutcome8 -> "8"
+    Auditeventoutcome12 -> "12"
+  }
+}
+
+pub fn auditeventoutcome_from_string(
+  s: String,
+) -> Result(Auditeventoutcome, Nil) {
+  case s {
+    "0" -> Ok(Auditeventoutcome0)
+    "4" -> Ok(Auditeventoutcome4)
+    "8" -> Ok(Auditeventoutcome8)
+    "12" -> Ok(Auditeventoutcome12)
+    _ -> Error(Nil)
   }
 }
 
@@ -8587,358 +12534,713 @@ pub type Spdxlicense {
 }
 
 pub fn spdxlicense_to_json(spdxlicense: Spdxlicense) -> Json {
+  json.string(spdxlicense_to_string(spdxlicense))
+}
+
+pub fn spdxlicense_to_string(spdxlicense: Spdxlicense) -> String {
   case spdxlicense {
-    SpdxlicenseNotopensource -> json.string("not-open-source")
-    Spdxlicense0bsd -> json.string("0BSD")
-    SpdxlicenseAal -> json.string("AAL")
-    SpdxlicenseAbstyles -> json.string("Abstyles")
-    SpdxlicenseAdobe2006 -> json.string("Adobe-2006")
-    SpdxlicenseAdobeglyph -> json.string("Adobe-Glyph")
-    SpdxlicenseAdsl -> json.string("ADSL")
-    SpdxlicenseAfl11 -> json.string("AFL-1.1")
-    SpdxlicenseAfl12 -> json.string("AFL-1.2")
-    SpdxlicenseAfl20 -> json.string("AFL-2.0")
-    SpdxlicenseAfl21 -> json.string("AFL-2.1")
-    SpdxlicenseAfl30 -> json.string("AFL-3.0")
-    SpdxlicenseAfmparse -> json.string("Afmparse")
-    SpdxlicenseAgpl10only -> json.string("AGPL-1.0-only")
-    SpdxlicenseAgpl10orlater -> json.string("AGPL-1.0-or-later")
-    SpdxlicenseAgpl30only -> json.string("AGPL-3.0-only")
-    SpdxlicenseAgpl30orlater -> json.string("AGPL-3.0-or-later")
-    SpdxlicenseAladdin -> json.string("Aladdin")
-    SpdxlicenseAmdplpa -> json.string("AMDPLPA")
-    SpdxlicenseAml -> json.string("AML")
-    SpdxlicenseAmpas -> json.string("AMPAS")
-    SpdxlicenseAntlrpd -> json.string("ANTLR-PD")
-    SpdxlicenseApache10 -> json.string("Apache-1.0")
-    SpdxlicenseApache11 -> json.string("Apache-1.1")
-    SpdxlicenseApache20 -> json.string("Apache-2.0")
-    SpdxlicenseApafml -> json.string("APAFML")
-    SpdxlicenseApl10 -> json.string("APL-1.0")
-    SpdxlicenseApsl10 -> json.string("APSL-1.0")
-    SpdxlicenseApsl11 -> json.string("APSL-1.1")
-    SpdxlicenseApsl12 -> json.string("APSL-1.2")
-    SpdxlicenseApsl20 -> json.string("APSL-2.0")
-    SpdxlicenseArtistic10cl8 -> json.string("Artistic-1.0-cl8")
-    SpdxlicenseArtistic10perl -> json.string("Artistic-1.0-Perl")
-    SpdxlicenseArtistic10 -> json.string("Artistic-1.0")
-    SpdxlicenseArtistic20 -> json.string("Artistic-2.0")
-    SpdxlicenseBahyph -> json.string("Bahyph")
-    SpdxlicenseBarr -> json.string("Barr")
-    SpdxlicenseBeerware -> json.string("Beerware")
-    SpdxlicenseBittorrent10 -> json.string("BitTorrent-1.0")
-    SpdxlicenseBittorrent11 -> json.string("BitTorrent-1.1")
-    SpdxlicenseBorceux -> json.string("Borceux")
-    SpdxlicenseBsd1clause -> json.string("BSD-1-Clause")
-    SpdxlicenseBsd2clausefreebsd -> json.string("BSD-2-Clause-FreeBSD")
-    SpdxlicenseBsd2clausenetbsd -> json.string("BSD-2-Clause-NetBSD")
-    SpdxlicenseBsd2clausepatent -> json.string("BSD-2-Clause-Patent")
-    SpdxlicenseBsd2clause -> json.string("BSD-2-Clause")
-    SpdxlicenseBsd3clauseattribution -> json.string("BSD-3-Clause-Attribution")
-    SpdxlicenseBsd3clauseclear -> json.string("BSD-3-Clause-Clear")
-    SpdxlicenseBsd3clauselbnl -> json.string("BSD-3-Clause-LBNL")
+    SpdxlicenseNotopensource -> "not-open-source"
+    Spdxlicense0bsd -> "0BSD"
+    SpdxlicenseAal -> "AAL"
+    SpdxlicenseAbstyles -> "Abstyles"
+    SpdxlicenseAdobe2006 -> "Adobe-2006"
+    SpdxlicenseAdobeglyph -> "Adobe-Glyph"
+    SpdxlicenseAdsl -> "ADSL"
+    SpdxlicenseAfl11 -> "AFL-1.1"
+    SpdxlicenseAfl12 -> "AFL-1.2"
+    SpdxlicenseAfl20 -> "AFL-2.0"
+    SpdxlicenseAfl21 -> "AFL-2.1"
+    SpdxlicenseAfl30 -> "AFL-3.0"
+    SpdxlicenseAfmparse -> "Afmparse"
+    SpdxlicenseAgpl10only -> "AGPL-1.0-only"
+    SpdxlicenseAgpl10orlater -> "AGPL-1.0-or-later"
+    SpdxlicenseAgpl30only -> "AGPL-3.0-only"
+    SpdxlicenseAgpl30orlater -> "AGPL-3.0-or-later"
+    SpdxlicenseAladdin -> "Aladdin"
+    SpdxlicenseAmdplpa -> "AMDPLPA"
+    SpdxlicenseAml -> "AML"
+    SpdxlicenseAmpas -> "AMPAS"
+    SpdxlicenseAntlrpd -> "ANTLR-PD"
+    SpdxlicenseApache10 -> "Apache-1.0"
+    SpdxlicenseApache11 -> "Apache-1.1"
+    SpdxlicenseApache20 -> "Apache-2.0"
+    SpdxlicenseApafml -> "APAFML"
+    SpdxlicenseApl10 -> "APL-1.0"
+    SpdxlicenseApsl10 -> "APSL-1.0"
+    SpdxlicenseApsl11 -> "APSL-1.1"
+    SpdxlicenseApsl12 -> "APSL-1.2"
+    SpdxlicenseApsl20 -> "APSL-2.0"
+    SpdxlicenseArtistic10cl8 -> "Artistic-1.0-cl8"
+    SpdxlicenseArtistic10perl -> "Artistic-1.0-Perl"
+    SpdxlicenseArtistic10 -> "Artistic-1.0"
+    SpdxlicenseArtistic20 -> "Artistic-2.0"
+    SpdxlicenseBahyph -> "Bahyph"
+    SpdxlicenseBarr -> "Barr"
+    SpdxlicenseBeerware -> "Beerware"
+    SpdxlicenseBittorrent10 -> "BitTorrent-1.0"
+    SpdxlicenseBittorrent11 -> "BitTorrent-1.1"
+    SpdxlicenseBorceux -> "Borceux"
+    SpdxlicenseBsd1clause -> "BSD-1-Clause"
+    SpdxlicenseBsd2clausefreebsd -> "BSD-2-Clause-FreeBSD"
+    SpdxlicenseBsd2clausenetbsd -> "BSD-2-Clause-NetBSD"
+    SpdxlicenseBsd2clausepatent -> "BSD-2-Clause-Patent"
+    SpdxlicenseBsd2clause -> "BSD-2-Clause"
+    SpdxlicenseBsd3clauseattribution -> "BSD-3-Clause-Attribution"
+    SpdxlicenseBsd3clauseclear -> "BSD-3-Clause-Clear"
+    SpdxlicenseBsd3clauselbnl -> "BSD-3-Clause-LBNL"
     SpdxlicenseBsd3clausenonuclearlicense2014 ->
-      json.string("BSD-3-Clause-No-Nuclear-License-2014")
-    SpdxlicenseBsd3clausenonuclearlicense ->
-      json.string("BSD-3-Clause-No-Nuclear-License")
-    SpdxlicenseBsd3clausenonuclearwarranty ->
-      json.string("BSD-3-Clause-No-Nuclear-Warranty")
-    SpdxlicenseBsd3clause -> json.string("BSD-3-Clause")
-    SpdxlicenseBsd4clauseuc -> json.string("BSD-4-Clause-UC")
-    SpdxlicenseBsd4clause -> json.string("BSD-4-Clause")
-    SpdxlicenseBsdprotection -> json.string("BSD-Protection")
-    SpdxlicenseBsdsourcecode -> json.string("BSD-Source-Code")
-    SpdxlicenseBsl10 -> json.string("BSL-1.0")
-    SpdxlicenseBzip2105 -> json.string("bzip2-1.0.5")
-    SpdxlicenseBzip2106 -> json.string("bzip2-1.0.6")
-    SpdxlicenseCaldera -> json.string("Caldera")
-    SpdxlicenseCatosl11 -> json.string("CATOSL-1.1")
-    SpdxlicenseCcby10 -> json.string("CC-BY-1.0")
-    SpdxlicenseCcby20 -> json.string("CC-BY-2.0")
-    SpdxlicenseCcby25 -> json.string("CC-BY-2.5")
-    SpdxlicenseCcby30 -> json.string("CC-BY-3.0")
-    SpdxlicenseCcby40 -> json.string("CC-BY-4.0")
-    SpdxlicenseCcbync10 -> json.string("CC-BY-NC-1.0")
-    SpdxlicenseCcbync20 -> json.string("CC-BY-NC-2.0")
-    SpdxlicenseCcbync25 -> json.string("CC-BY-NC-2.5")
-    SpdxlicenseCcbync30 -> json.string("CC-BY-NC-3.0")
-    SpdxlicenseCcbync40 -> json.string("CC-BY-NC-4.0")
-    SpdxlicenseCcbyncnd10 -> json.string("CC-BY-NC-ND-1.0")
-    SpdxlicenseCcbyncnd20 -> json.string("CC-BY-NC-ND-2.0")
-    SpdxlicenseCcbyncnd25 -> json.string("CC-BY-NC-ND-2.5")
-    SpdxlicenseCcbyncnd30 -> json.string("CC-BY-NC-ND-3.0")
-    SpdxlicenseCcbyncnd40 -> json.string("CC-BY-NC-ND-4.0")
-    SpdxlicenseCcbyncsa10 -> json.string("CC-BY-NC-SA-1.0")
-    SpdxlicenseCcbyncsa20 -> json.string("CC-BY-NC-SA-2.0")
-    SpdxlicenseCcbyncsa25 -> json.string("CC-BY-NC-SA-2.5")
-    SpdxlicenseCcbyncsa30 -> json.string("CC-BY-NC-SA-3.0")
-    SpdxlicenseCcbyncsa40 -> json.string("CC-BY-NC-SA-4.0")
-    SpdxlicenseCcbynd10 -> json.string("CC-BY-ND-1.0")
-    SpdxlicenseCcbynd20 -> json.string("CC-BY-ND-2.0")
-    SpdxlicenseCcbynd25 -> json.string("CC-BY-ND-2.5")
-    SpdxlicenseCcbynd30 -> json.string("CC-BY-ND-3.0")
-    SpdxlicenseCcbynd40 -> json.string("CC-BY-ND-4.0")
-    SpdxlicenseCcbysa10 -> json.string("CC-BY-SA-1.0")
-    SpdxlicenseCcbysa20 -> json.string("CC-BY-SA-2.0")
-    SpdxlicenseCcbysa25 -> json.string("CC-BY-SA-2.5")
-    SpdxlicenseCcbysa30 -> json.string("CC-BY-SA-3.0")
-    SpdxlicenseCcbysa40 -> json.string("CC-BY-SA-4.0")
-    SpdxlicenseCc010 -> json.string("CC0-1.0")
-    SpdxlicenseCddl10 -> json.string("CDDL-1.0")
-    SpdxlicenseCddl11 -> json.string("CDDL-1.1")
-    SpdxlicenseCdlapermissive10 -> json.string("CDLA-Permissive-1.0")
-    SpdxlicenseCdlasharing10 -> json.string("CDLA-Sharing-1.0")
-    SpdxlicenseCecill10 -> json.string("CECILL-1.0")
-    SpdxlicenseCecill11 -> json.string("CECILL-1.1")
-    SpdxlicenseCecill20 -> json.string("CECILL-2.0")
-    SpdxlicenseCecill21 -> json.string("CECILL-2.1")
-    SpdxlicenseCecillb -> json.string("CECILL-B")
-    SpdxlicenseCecillc -> json.string("CECILL-C")
-    SpdxlicenseClartistic -> json.string("ClArtistic")
-    SpdxlicenseCnrijython -> json.string("CNRI-Jython")
-    SpdxlicenseCnripythongplcompatible ->
-      json.string("CNRI-Python-GPL-Compatible")
-    SpdxlicenseCnripython -> json.string("CNRI-Python")
-    SpdxlicenseCondor11 -> json.string("Condor-1.1")
-    SpdxlicenseCpal10 -> json.string("CPAL-1.0")
-    SpdxlicenseCpl10 -> json.string("CPL-1.0")
-    SpdxlicenseCpol102 -> json.string("CPOL-1.02")
-    SpdxlicenseCrossword -> json.string("Crossword")
-    SpdxlicenseCrystalstacker -> json.string("CrystalStacker")
-    SpdxlicenseCuaopl10 -> json.string("CUA-OPL-1.0")
-    SpdxlicenseCube -> json.string("Cube")
-    SpdxlicenseCurl -> json.string("curl")
-    SpdxlicenseDfsl10 -> json.string("D-FSL-1.0")
-    SpdxlicenseDiffmark -> json.string("diffmark")
-    SpdxlicenseDoc -> json.string("DOC")
-    SpdxlicenseDotseqn -> json.string("Dotseqn")
-    SpdxlicenseDsdp -> json.string("DSDP")
-    SpdxlicenseDvipdfm -> json.string("dvipdfm")
-    SpdxlicenseEcl10 -> json.string("ECL-1.0")
-    SpdxlicenseEcl20 -> json.string("ECL-2.0")
-    SpdxlicenseEfl10 -> json.string("EFL-1.0")
-    SpdxlicenseEfl20 -> json.string("EFL-2.0")
-    SpdxlicenseEgenix -> json.string("eGenix")
-    SpdxlicenseEntessa -> json.string("Entessa")
-    SpdxlicenseEpl10 -> json.string("EPL-1.0")
-    SpdxlicenseEpl20 -> json.string("EPL-2.0")
-    SpdxlicenseErlpl11 -> json.string("ErlPL-1.1")
-    SpdxlicenseEudatagrid -> json.string("EUDatagrid")
-    SpdxlicenseEupl10 -> json.string("EUPL-1.0")
-    SpdxlicenseEupl11 -> json.string("EUPL-1.1")
-    SpdxlicenseEupl12 -> json.string("EUPL-1.2")
-    SpdxlicenseEurosym -> json.string("Eurosym")
-    SpdxlicenseFair -> json.string("Fair")
-    SpdxlicenseFrameworx10 -> json.string("Frameworx-1.0")
-    SpdxlicenseFreeimage -> json.string("FreeImage")
-    SpdxlicenseFsfap -> json.string("FSFAP")
-    SpdxlicenseFsful -> json.string("FSFUL")
-    SpdxlicenseFsfullr -> json.string("FSFULLR")
-    SpdxlicenseFtl -> json.string("FTL")
-    SpdxlicenseGfdl11only -> json.string("GFDL-1.1-only")
-    SpdxlicenseGfdl11orlater -> json.string("GFDL-1.1-or-later")
-    SpdxlicenseGfdl12only -> json.string("GFDL-1.2-only")
-    SpdxlicenseGfdl12orlater -> json.string("GFDL-1.2-or-later")
-    SpdxlicenseGfdl13only -> json.string("GFDL-1.3-only")
-    SpdxlicenseGfdl13orlater -> json.string("GFDL-1.3-or-later")
-    SpdxlicenseGiftware -> json.string("Giftware")
-    SpdxlicenseGl2ps -> json.string("GL2PS")
-    SpdxlicenseGlide -> json.string("Glide")
-    SpdxlicenseGlulxe -> json.string("Glulxe")
-    SpdxlicenseGnuplot -> json.string("gnuplot")
-    SpdxlicenseGpl10only -> json.string("GPL-1.0-only")
-    SpdxlicenseGpl10orlater -> json.string("GPL-1.0-or-later")
-    SpdxlicenseGpl20only -> json.string("GPL-2.0-only")
-    SpdxlicenseGpl20orlater -> json.string("GPL-2.0-or-later")
-    SpdxlicenseGpl30only -> json.string("GPL-3.0-only")
-    SpdxlicenseGpl30orlater -> json.string("GPL-3.0-or-later")
-    SpdxlicenseGsoap13b -> json.string("gSOAP-1.3b")
-    SpdxlicenseHaskellreport -> json.string("HaskellReport")
-    SpdxlicenseHpnd -> json.string("HPND")
-    SpdxlicenseIbmpibs -> json.string("IBM-pibs")
-    SpdxlicenseIcu -> json.string("ICU")
-    SpdxlicenseIjg -> json.string("IJG")
-    SpdxlicenseImagemagick -> json.string("ImageMagick")
-    SpdxlicenseImatix -> json.string("iMatix")
-    SpdxlicenseImlib2 -> json.string("Imlib2")
-    SpdxlicenseInfozip -> json.string("Info-ZIP")
-    SpdxlicenseIntelacpi -> json.string("Intel-ACPI")
-    SpdxlicenseIntel -> json.string("Intel")
-    SpdxlicenseInterbase10 -> json.string("Interbase-1.0")
-    SpdxlicenseIpa -> json.string("IPA")
-    SpdxlicenseIpl10 -> json.string("IPL-1.0")
-    SpdxlicenseIsc -> json.string("ISC")
-    SpdxlicenseJasper20 -> json.string("JasPer-2.0")
-    SpdxlicenseJson -> json.string("JSON")
-    SpdxlicenseLal12 -> json.string("LAL-1.2")
-    SpdxlicenseLal13 -> json.string("LAL-1.3")
-    SpdxlicenseLatex2e -> json.string("Latex2e")
-    SpdxlicenseLeptonica -> json.string("Leptonica")
-    SpdxlicenseLgpl20only -> json.string("LGPL-2.0-only")
-    SpdxlicenseLgpl20orlater -> json.string("LGPL-2.0-or-later")
-    SpdxlicenseLgpl21only -> json.string("LGPL-2.1-only")
-    SpdxlicenseLgpl21orlater -> json.string("LGPL-2.1-or-later")
-    SpdxlicenseLgpl30only -> json.string("LGPL-3.0-only")
-    SpdxlicenseLgpl30orlater -> json.string("LGPL-3.0-or-later")
-    SpdxlicenseLgpllr -> json.string("LGPLLR")
-    SpdxlicenseLibpng -> json.string("Libpng")
-    SpdxlicenseLibtiff -> json.string("libtiff")
-    SpdxlicenseLiliqp11 -> json.string("LiLiQ-P-1.1")
-    SpdxlicenseLiliqr11 -> json.string("LiLiQ-R-1.1")
-    SpdxlicenseLiliqrplus11 -> json.string("LiLiQ-Rplus-1.1")
-    SpdxlicenseLinuxopenib -> json.string("Linux-OpenIB")
-    SpdxlicenseLpl10 -> json.string("LPL-1.0")
-    SpdxlicenseLpl102 -> json.string("LPL-1.02")
-    SpdxlicenseLppl10 -> json.string("LPPL-1.0")
-    SpdxlicenseLppl11 -> json.string("LPPL-1.1")
-    SpdxlicenseLppl12 -> json.string("LPPL-1.2")
-    SpdxlicenseLppl13a -> json.string("LPPL-1.3a")
-    SpdxlicenseLppl13c -> json.string("LPPL-1.3c")
-    SpdxlicenseMakeindex -> json.string("MakeIndex")
-    SpdxlicenseMiros -> json.string("MirOS")
-    SpdxlicenseMit0 -> json.string("MIT-0")
-    SpdxlicenseMitadvertising -> json.string("MIT-advertising")
-    SpdxlicenseMitcmu -> json.string("MIT-CMU")
-    SpdxlicenseMitenna -> json.string("MIT-enna")
-    SpdxlicenseMitfeh -> json.string("MIT-feh")
-    SpdxlicenseMit -> json.string("MIT")
-    SpdxlicenseMitnfa -> json.string("MITNFA")
-    SpdxlicenseMotosoto -> json.string("Motosoto")
-    SpdxlicenseMpich2 -> json.string("mpich2")
-    SpdxlicenseMpl10 -> json.string("MPL-1.0")
-    SpdxlicenseMpl11 -> json.string("MPL-1.1")
-    SpdxlicenseMpl20nocopyleftexception ->
-      json.string("MPL-2.0-no-copyleft-exception")
-    SpdxlicenseMpl20 -> json.string("MPL-2.0")
-    SpdxlicenseMspl -> json.string("MS-PL")
-    SpdxlicenseMsrl -> json.string("MS-RL")
-    SpdxlicenseMtll -> json.string("MTLL")
-    SpdxlicenseMultics -> json.string("Multics")
-    SpdxlicenseMup -> json.string("Mup")
-    SpdxlicenseNasa13 -> json.string("NASA-1.3")
-    SpdxlicenseNaumen -> json.string("Naumen")
-    SpdxlicenseNbpl10 -> json.string("NBPL-1.0")
-    SpdxlicenseNcsa -> json.string("NCSA")
-    SpdxlicenseNetsnmp -> json.string("Net-SNMP")
-    SpdxlicenseNetcdf -> json.string("NetCDF")
-    SpdxlicenseNewsletr -> json.string("Newsletr")
-    SpdxlicenseNgpl -> json.string("NGPL")
-    SpdxlicenseNlod10 -> json.string("NLOD-1.0")
-    SpdxlicenseNlpl -> json.string("NLPL")
-    SpdxlicenseNokia -> json.string("Nokia")
-    SpdxlicenseNosl -> json.string("NOSL")
-    SpdxlicenseNoweb -> json.string("Noweb")
-    SpdxlicenseNpl10 -> json.string("NPL-1.0")
-    SpdxlicenseNpl11 -> json.string("NPL-1.1")
-    SpdxlicenseNposl30 -> json.string("NPOSL-3.0")
-    SpdxlicenseNrl -> json.string("NRL")
-    SpdxlicenseNtp -> json.string("NTP")
-    SpdxlicenseOcctpl -> json.string("OCCT-PL")
-    SpdxlicenseOclc20 -> json.string("OCLC-2.0")
-    SpdxlicenseOdbl10 -> json.string("ODbL-1.0")
-    SpdxlicenseOfl10 -> json.string("OFL-1.0")
-    SpdxlicenseOfl11 -> json.string("OFL-1.1")
-    SpdxlicenseOgtsl -> json.string("OGTSL")
-    SpdxlicenseOldap11 -> json.string("OLDAP-1.1")
-    SpdxlicenseOldap12 -> json.string("OLDAP-1.2")
-    SpdxlicenseOldap13 -> json.string("OLDAP-1.3")
-    SpdxlicenseOldap14 -> json.string("OLDAP-1.4")
-    SpdxlicenseOldap201 -> json.string("OLDAP-2.0.1")
-    SpdxlicenseOldap20 -> json.string("OLDAP-2.0")
-    SpdxlicenseOldap21 -> json.string("OLDAP-2.1")
-    SpdxlicenseOldap221 -> json.string("OLDAP-2.2.1")
-    SpdxlicenseOldap222 -> json.string("OLDAP-2.2.2")
-    SpdxlicenseOldap22 -> json.string("OLDAP-2.2")
-    SpdxlicenseOldap23 -> json.string("OLDAP-2.3")
-    SpdxlicenseOldap24 -> json.string("OLDAP-2.4")
-    SpdxlicenseOldap25 -> json.string("OLDAP-2.5")
-    SpdxlicenseOldap26 -> json.string("OLDAP-2.6")
-    SpdxlicenseOldap27 -> json.string("OLDAP-2.7")
-    SpdxlicenseOldap28 -> json.string("OLDAP-2.8")
-    SpdxlicenseOml -> json.string("OML")
-    SpdxlicenseOpenssl -> json.string("OpenSSL")
-    SpdxlicenseOpl10 -> json.string("OPL-1.0")
-    SpdxlicenseOsetpl21 -> json.string("OSET-PL-2.1")
-    SpdxlicenseOsl10 -> json.string("OSL-1.0")
-    SpdxlicenseOsl11 -> json.string("OSL-1.1")
-    SpdxlicenseOsl20 -> json.string("OSL-2.0")
-    SpdxlicenseOsl21 -> json.string("OSL-2.1")
-    SpdxlicenseOsl30 -> json.string("OSL-3.0")
-    SpdxlicensePddl10 -> json.string("PDDL-1.0")
-    SpdxlicensePhp30 -> json.string("PHP-3.0")
-    SpdxlicensePhp301 -> json.string("PHP-3.01")
-    SpdxlicensePlexus -> json.string("Plexus")
-    SpdxlicensePostgresql -> json.string("PostgreSQL")
-    SpdxlicensePsfrag -> json.string("psfrag")
-    SpdxlicensePsutils -> json.string("psutils")
-    SpdxlicensePython20 -> json.string("Python-2.0")
-    SpdxlicenseQhull -> json.string("Qhull")
-    SpdxlicenseQpl10 -> json.string("QPL-1.0")
-    SpdxlicenseRdisc -> json.string("Rdisc")
-    SpdxlicenseRhecos11 -> json.string("RHeCos-1.1")
-    SpdxlicenseRpl11 -> json.string("RPL-1.1")
-    SpdxlicenseRpl15 -> json.string("RPL-1.5")
-    SpdxlicenseRpsl10 -> json.string("RPSL-1.0")
-    SpdxlicenseRsamd -> json.string("RSA-MD")
-    SpdxlicenseRscpl -> json.string("RSCPL")
-    SpdxlicenseRuby -> json.string("Ruby")
-    SpdxlicenseSaxpd -> json.string("SAX-PD")
-    SpdxlicenseSaxpath -> json.string("Saxpath")
-    SpdxlicenseScea -> json.string("SCEA")
-    SpdxlicenseSendmail -> json.string("Sendmail")
-    SpdxlicenseSgib10 -> json.string("SGI-B-1.0")
-    SpdxlicenseSgib11 -> json.string("SGI-B-1.1")
-    SpdxlicenseSgib20 -> json.string("SGI-B-2.0")
-    SpdxlicenseSimpl20 -> json.string("SimPL-2.0")
-    SpdxlicenseSissl12 -> json.string("SISSL-1.2")
-    SpdxlicenseSissl -> json.string("SISSL")
-    SpdxlicenseSleepycat -> json.string("Sleepycat")
-    SpdxlicenseSmlnj -> json.string("SMLNJ")
-    SpdxlicenseSmppl -> json.string("SMPPL")
-    SpdxlicenseSnia -> json.string("SNIA")
-    SpdxlicenseSpencer86 -> json.string("Spencer-86")
-    SpdxlicenseSpencer94 -> json.string("Spencer-94")
-    SpdxlicenseSpencer99 -> json.string("Spencer-99")
-    SpdxlicenseSpl10 -> json.string("SPL-1.0")
-    SpdxlicenseSugarcrm113 -> json.string("SugarCRM-1.1.3")
-    SpdxlicenseSwl -> json.string("SWL")
-    SpdxlicenseTcl -> json.string("TCL")
-    SpdxlicenseTcpwrappers -> json.string("TCP-wrappers")
-    SpdxlicenseTmate -> json.string("TMate")
-    SpdxlicenseTorque11 -> json.string("TORQUE-1.1")
-    SpdxlicenseTosl -> json.string("TOSL")
-    SpdxlicenseUnicodedfs2015 -> json.string("Unicode-DFS-2015")
-    SpdxlicenseUnicodedfs2016 -> json.string("Unicode-DFS-2016")
-    SpdxlicenseUnicodetou -> json.string("Unicode-TOU")
-    SpdxlicenseUnlicense -> json.string("Unlicense")
-    SpdxlicenseUpl10 -> json.string("UPL-1.0")
-    SpdxlicenseVim -> json.string("Vim")
-    SpdxlicenseVostrom -> json.string("VOSTROM")
-    SpdxlicenseVsl10 -> json.string("VSL-1.0")
-    SpdxlicenseW3c19980720 -> json.string("W3C-19980720")
-    SpdxlicenseW3c20150513 -> json.string("W3C-20150513")
-    SpdxlicenseW3c -> json.string("W3C")
-    SpdxlicenseWatcom10 -> json.string("Watcom-1.0")
-    SpdxlicenseWsuipa -> json.string("Wsuipa")
-    SpdxlicenseWtfpl -> json.string("WTFPL")
-    SpdxlicenseX11 -> json.string("X11")
-    SpdxlicenseXerox -> json.string("Xerox")
-    SpdxlicenseXfree8611 -> json.string("XFree86-1.1")
-    SpdxlicenseXinetd -> json.string("xinetd")
-    SpdxlicenseXnet -> json.string("Xnet")
-    SpdxlicenseXpp -> json.string("xpp")
-    SpdxlicenseXskat -> json.string("XSkat")
-    SpdxlicenseYpl10 -> json.string("YPL-1.0")
-    SpdxlicenseYpl11 -> json.string("YPL-1.1")
-    SpdxlicenseZed -> json.string("Zed")
-    SpdxlicenseZend20 -> json.string("Zend-2.0")
-    SpdxlicenseZimbra13 -> json.string("Zimbra-1.3")
-    SpdxlicenseZimbra14 -> json.string("Zimbra-1.4")
-    SpdxlicenseZlibacknowledgement -> json.string("zlib-acknowledgement")
-    SpdxlicenseZlib -> json.string("Zlib")
-    SpdxlicenseZpl11 -> json.string("ZPL-1.1")
-    SpdxlicenseZpl20 -> json.string("ZPL-2.0")
-    SpdxlicenseZpl21 -> json.string("ZPL-2.1")
+      "BSD-3-Clause-No-Nuclear-License-2014"
+    SpdxlicenseBsd3clausenonuclearlicense -> "BSD-3-Clause-No-Nuclear-License"
+    SpdxlicenseBsd3clausenonuclearwarranty -> "BSD-3-Clause-No-Nuclear-Warranty"
+    SpdxlicenseBsd3clause -> "BSD-3-Clause"
+    SpdxlicenseBsd4clauseuc -> "BSD-4-Clause-UC"
+    SpdxlicenseBsd4clause -> "BSD-4-Clause"
+    SpdxlicenseBsdprotection -> "BSD-Protection"
+    SpdxlicenseBsdsourcecode -> "BSD-Source-Code"
+    SpdxlicenseBsl10 -> "BSL-1.0"
+    SpdxlicenseBzip2105 -> "bzip2-1.0.5"
+    SpdxlicenseBzip2106 -> "bzip2-1.0.6"
+    SpdxlicenseCaldera -> "Caldera"
+    SpdxlicenseCatosl11 -> "CATOSL-1.1"
+    SpdxlicenseCcby10 -> "CC-BY-1.0"
+    SpdxlicenseCcby20 -> "CC-BY-2.0"
+    SpdxlicenseCcby25 -> "CC-BY-2.5"
+    SpdxlicenseCcby30 -> "CC-BY-3.0"
+    SpdxlicenseCcby40 -> "CC-BY-4.0"
+    SpdxlicenseCcbync10 -> "CC-BY-NC-1.0"
+    SpdxlicenseCcbync20 -> "CC-BY-NC-2.0"
+    SpdxlicenseCcbync25 -> "CC-BY-NC-2.5"
+    SpdxlicenseCcbync30 -> "CC-BY-NC-3.0"
+    SpdxlicenseCcbync40 -> "CC-BY-NC-4.0"
+    SpdxlicenseCcbyncnd10 -> "CC-BY-NC-ND-1.0"
+    SpdxlicenseCcbyncnd20 -> "CC-BY-NC-ND-2.0"
+    SpdxlicenseCcbyncnd25 -> "CC-BY-NC-ND-2.5"
+    SpdxlicenseCcbyncnd30 -> "CC-BY-NC-ND-3.0"
+    SpdxlicenseCcbyncnd40 -> "CC-BY-NC-ND-4.0"
+    SpdxlicenseCcbyncsa10 -> "CC-BY-NC-SA-1.0"
+    SpdxlicenseCcbyncsa20 -> "CC-BY-NC-SA-2.0"
+    SpdxlicenseCcbyncsa25 -> "CC-BY-NC-SA-2.5"
+    SpdxlicenseCcbyncsa30 -> "CC-BY-NC-SA-3.0"
+    SpdxlicenseCcbyncsa40 -> "CC-BY-NC-SA-4.0"
+    SpdxlicenseCcbynd10 -> "CC-BY-ND-1.0"
+    SpdxlicenseCcbynd20 -> "CC-BY-ND-2.0"
+    SpdxlicenseCcbynd25 -> "CC-BY-ND-2.5"
+    SpdxlicenseCcbynd30 -> "CC-BY-ND-3.0"
+    SpdxlicenseCcbynd40 -> "CC-BY-ND-4.0"
+    SpdxlicenseCcbysa10 -> "CC-BY-SA-1.0"
+    SpdxlicenseCcbysa20 -> "CC-BY-SA-2.0"
+    SpdxlicenseCcbysa25 -> "CC-BY-SA-2.5"
+    SpdxlicenseCcbysa30 -> "CC-BY-SA-3.0"
+    SpdxlicenseCcbysa40 -> "CC-BY-SA-4.0"
+    SpdxlicenseCc010 -> "CC0-1.0"
+    SpdxlicenseCddl10 -> "CDDL-1.0"
+    SpdxlicenseCddl11 -> "CDDL-1.1"
+    SpdxlicenseCdlapermissive10 -> "CDLA-Permissive-1.0"
+    SpdxlicenseCdlasharing10 -> "CDLA-Sharing-1.0"
+    SpdxlicenseCecill10 -> "CECILL-1.0"
+    SpdxlicenseCecill11 -> "CECILL-1.1"
+    SpdxlicenseCecill20 -> "CECILL-2.0"
+    SpdxlicenseCecill21 -> "CECILL-2.1"
+    SpdxlicenseCecillb -> "CECILL-B"
+    SpdxlicenseCecillc -> "CECILL-C"
+    SpdxlicenseClartistic -> "ClArtistic"
+    SpdxlicenseCnrijython -> "CNRI-Jython"
+    SpdxlicenseCnripythongplcompatible -> "CNRI-Python-GPL-Compatible"
+    SpdxlicenseCnripython -> "CNRI-Python"
+    SpdxlicenseCondor11 -> "Condor-1.1"
+    SpdxlicenseCpal10 -> "CPAL-1.0"
+    SpdxlicenseCpl10 -> "CPL-1.0"
+    SpdxlicenseCpol102 -> "CPOL-1.02"
+    SpdxlicenseCrossword -> "Crossword"
+    SpdxlicenseCrystalstacker -> "CrystalStacker"
+    SpdxlicenseCuaopl10 -> "CUA-OPL-1.0"
+    SpdxlicenseCube -> "Cube"
+    SpdxlicenseCurl -> "curl"
+    SpdxlicenseDfsl10 -> "D-FSL-1.0"
+    SpdxlicenseDiffmark -> "diffmark"
+    SpdxlicenseDoc -> "DOC"
+    SpdxlicenseDotseqn -> "Dotseqn"
+    SpdxlicenseDsdp -> "DSDP"
+    SpdxlicenseDvipdfm -> "dvipdfm"
+    SpdxlicenseEcl10 -> "ECL-1.0"
+    SpdxlicenseEcl20 -> "ECL-2.0"
+    SpdxlicenseEfl10 -> "EFL-1.0"
+    SpdxlicenseEfl20 -> "EFL-2.0"
+    SpdxlicenseEgenix -> "eGenix"
+    SpdxlicenseEntessa -> "Entessa"
+    SpdxlicenseEpl10 -> "EPL-1.0"
+    SpdxlicenseEpl20 -> "EPL-2.0"
+    SpdxlicenseErlpl11 -> "ErlPL-1.1"
+    SpdxlicenseEudatagrid -> "EUDatagrid"
+    SpdxlicenseEupl10 -> "EUPL-1.0"
+    SpdxlicenseEupl11 -> "EUPL-1.1"
+    SpdxlicenseEupl12 -> "EUPL-1.2"
+    SpdxlicenseEurosym -> "Eurosym"
+    SpdxlicenseFair -> "Fair"
+    SpdxlicenseFrameworx10 -> "Frameworx-1.0"
+    SpdxlicenseFreeimage -> "FreeImage"
+    SpdxlicenseFsfap -> "FSFAP"
+    SpdxlicenseFsful -> "FSFUL"
+    SpdxlicenseFsfullr -> "FSFULLR"
+    SpdxlicenseFtl -> "FTL"
+    SpdxlicenseGfdl11only -> "GFDL-1.1-only"
+    SpdxlicenseGfdl11orlater -> "GFDL-1.1-or-later"
+    SpdxlicenseGfdl12only -> "GFDL-1.2-only"
+    SpdxlicenseGfdl12orlater -> "GFDL-1.2-or-later"
+    SpdxlicenseGfdl13only -> "GFDL-1.3-only"
+    SpdxlicenseGfdl13orlater -> "GFDL-1.3-or-later"
+    SpdxlicenseGiftware -> "Giftware"
+    SpdxlicenseGl2ps -> "GL2PS"
+    SpdxlicenseGlide -> "Glide"
+    SpdxlicenseGlulxe -> "Glulxe"
+    SpdxlicenseGnuplot -> "gnuplot"
+    SpdxlicenseGpl10only -> "GPL-1.0-only"
+    SpdxlicenseGpl10orlater -> "GPL-1.0-or-later"
+    SpdxlicenseGpl20only -> "GPL-2.0-only"
+    SpdxlicenseGpl20orlater -> "GPL-2.0-or-later"
+    SpdxlicenseGpl30only -> "GPL-3.0-only"
+    SpdxlicenseGpl30orlater -> "GPL-3.0-or-later"
+    SpdxlicenseGsoap13b -> "gSOAP-1.3b"
+    SpdxlicenseHaskellreport -> "HaskellReport"
+    SpdxlicenseHpnd -> "HPND"
+    SpdxlicenseIbmpibs -> "IBM-pibs"
+    SpdxlicenseIcu -> "ICU"
+    SpdxlicenseIjg -> "IJG"
+    SpdxlicenseImagemagick -> "ImageMagick"
+    SpdxlicenseImatix -> "iMatix"
+    SpdxlicenseImlib2 -> "Imlib2"
+    SpdxlicenseInfozip -> "Info-ZIP"
+    SpdxlicenseIntelacpi -> "Intel-ACPI"
+    SpdxlicenseIntel -> "Intel"
+    SpdxlicenseInterbase10 -> "Interbase-1.0"
+    SpdxlicenseIpa -> "IPA"
+    SpdxlicenseIpl10 -> "IPL-1.0"
+    SpdxlicenseIsc -> "ISC"
+    SpdxlicenseJasper20 -> "JasPer-2.0"
+    SpdxlicenseJson -> "JSON"
+    SpdxlicenseLal12 -> "LAL-1.2"
+    SpdxlicenseLal13 -> "LAL-1.3"
+    SpdxlicenseLatex2e -> "Latex2e"
+    SpdxlicenseLeptonica -> "Leptonica"
+    SpdxlicenseLgpl20only -> "LGPL-2.0-only"
+    SpdxlicenseLgpl20orlater -> "LGPL-2.0-or-later"
+    SpdxlicenseLgpl21only -> "LGPL-2.1-only"
+    SpdxlicenseLgpl21orlater -> "LGPL-2.1-or-later"
+    SpdxlicenseLgpl30only -> "LGPL-3.0-only"
+    SpdxlicenseLgpl30orlater -> "LGPL-3.0-or-later"
+    SpdxlicenseLgpllr -> "LGPLLR"
+    SpdxlicenseLibpng -> "Libpng"
+    SpdxlicenseLibtiff -> "libtiff"
+    SpdxlicenseLiliqp11 -> "LiLiQ-P-1.1"
+    SpdxlicenseLiliqr11 -> "LiLiQ-R-1.1"
+    SpdxlicenseLiliqrplus11 -> "LiLiQ-Rplus-1.1"
+    SpdxlicenseLinuxopenib -> "Linux-OpenIB"
+    SpdxlicenseLpl10 -> "LPL-1.0"
+    SpdxlicenseLpl102 -> "LPL-1.02"
+    SpdxlicenseLppl10 -> "LPPL-1.0"
+    SpdxlicenseLppl11 -> "LPPL-1.1"
+    SpdxlicenseLppl12 -> "LPPL-1.2"
+    SpdxlicenseLppl13a -> "LPPL-1.3a"
+    SpdxlicenseLppl13c -> "LPPL-1.3c"
+    SpdxlicenseMakeindex -> "MakeIndex"
+    SpdxlicenseMiros -> "MirOS"
+    SpdxlicenseMit0 -> "MIT-0"
+    SpdxlicenseMitadvertising -> "MIT-advertising"
+    SpdxlicenseMitcmu -> "MIT-CMU"
+    SpdxlicenseMitenna -> "MIT-enna"
+    SpdxlicenseMitfeh -> "MIT-feh"
+    SpdxlicenseMit -> "MIT"
+    SpdxlicenseMitnfa -> "MITNFA"
+    SpdxlicenseMotosoto -> "Motosoto"
+    SpdxlicenseMpich2 -> "mpich2"
+    SpdxlicenseMpl10 -> "MPL-1.0"
+    SpdxlicenseMpl11 -> "MPL-1.1"
+    SpdxlicenseMpl20nocopyleftexception -> "MPL-2.0-no-copyleft-exception"
+    SpdxlicenseMpl20 -> "MPL-2.0"
+    SpdxlicenseMspl -> "MS-PL"
+    SpdxlicenseMsrl -> "MS-RL"
+    SpdxlicenseMtll -> "MTLL"
+    SpdxlicenseMultics -> "Multics"
+    SpdxlicenseMup -> "Mup"
+    SpdxlicenseNasa13 -> "NASA-1.3"
+    SpdxlicenseNaumen -> "Naumen"
+    SpdxlicenseNbpl10 -> "NBPL-1.0"
+    SpdxlicenseNcsa -> "NCSA"
+    SpdxlicenseNetsnmp -> "Net-SNMP"
+    SpdxlicenseNetcdf -> "NetCDF"
+    SpdxlicenseNewsletr -> "Newsletr"
+    SpdxlicenseNgpl -> "NGPL"
+    SpdxlicenseNlod10 -> "NLOD-1.0"
+    SpdxlicenseNlpl -> "NLPL"
+    SpdxlicenseNokia -> "Nokia"
+    SpdxlicenseNosl -> "NOSL"
+    SpdxlicenseNoweb -> "Noweb"
+    SpdxlicenseNpl10 -> "NPL-1.0"
+    SpdxlicenseNpl11 -> "NPL-1.1"
+    SpdxlicenseNposl30 -> "NPOSL-3.0"
+    SpdxlicenseNrl -> "NRL"
+    SpdxlicenseNtp -> "NTP"
+    SpdxlicenseOcctpl -> "OCCT-PL"
+    SpdxlicenseOclc20 -> "OCLC-2.0"
+    SpdxlicenseOdbl10 -> "ODbL-1.0"
+    SpdxlicenseOfl10 -> "OFL-1.0"
+    SpdxlicenseOfl11 -> "OFL-1.1"
+    SpdxlicenseOgtsl -> "OGTSL"
+    SpdxlicenseOldap11 -> "OLDAP-1.1"
+    SpdxlicenseOldap12 -> "OLDAP-1.2"
+    SpdxlicenseOldap13 -> "OLDAP-1.3"
+    SpdxlicenseOldap14 -> "OLDAP-1.4"
+    SpdxlicenseOldap201 -> "OLDAP-2.0.1"
+    SpdxlicenseOldap20 -> "OLDAP-2.0"
+    SpdxlicenseOldap21 -> "OLDAP-2.1"
+    SpdxlicenseOldap221 -> "OLDAP-2.2.1"
+    SpdxlicenseOldap222 -> "OLDAP-2.2.2"
+    SpdxlicenseOldap22 -> "OLDAP-2.2"
+    SpdxlicenseOldap23 -> "OLDAP-2.3"
+    SpdxlicenseOldap24 -> "OLDAP-2.4"
+    SpdxlicenseOldap25 -> "OLDAP-2.5"
+    SpdxlicenseOldap26 -> "OLDAP-2.6"
+    SpdxlicenseOldap27 -> "OLDAP-2.7"
+    SpdxlicenseOldap28 -> "OLDAP-2.8"
+    SpdxlicenseOml -> "OML"
+    SpdxlicenseOpenssl -> "OpenSSL"
+    SpdxlicenseOpl10 -> "OPL-1.0"
+    SpdxlicenseOsetpl21 -> "OSET-PL-2.1"
+    SpdxlicenseOsl10 -> "OSL-1.0"
+    SpdxlicenseOsl11 -> "OSL-1.1"
+    SpdxlicenseOsl20 -> "OSL-2.0"
+    SpdxlicenseOsl21 -> "OSL-2.1"
+    SpdxlicenseOsl30 -> "OSL-3.0"
+    SpdxlicensePddl10 -> "PDDL-1.0"
+    SpdxlicensePhp30 -> "PHP-3.0"
+    SpdxlicensePhp301 -> "PHP-3.01"
+    SpdxlicensePlexus -> "Plexus"
+    SpdxlicensePostgresql -> "PostgreSQL"
+    SpdxlicensePsfrag -> "psfrag"
+    SpdxlicensePsutils -> "psutils"
+    SpdxlicensePython20 -> "Python-2.0"
+    SpdxlicenseQhull -> "Qhull"
+    SpdxlicenseQpl10 -> "QPL-1.0"
+    SpdxlicenseRdisc -> "Rdisc"
+    SpdxlicenseRhecos11 -> "RHeCos-1.1"
+    SpdxlicenseRpl11 -> "RPL-1.1"
+    SpdxlicenseRpl15 -> "RPL-1.5"
+    SpdxlicenseRpsl10 -> "RPSL-1.0"
+    SpdxlicenseRsamd -> "RSA-MD"
+    SpdxlicenseRscpl -> "RSCPL"
+    SpdxlicenseRuby -> "Ruby"
+    SpdxlicenseSaxpd -> "SAX-PD"
+    SpdxlicenseSaxpath -> "Saxpath"
+    SpdxlicenseScea -> "SCEA"
+    SpdxlicenseSendmail -> "Sendmail"
+    SpdxlicenseSgib10 -> "SGI-B-1.0"
+    SpdxlicenseSgib11 -> "SGI-B-1.1"
+    SpdxlicenseSgib20 -> "SGI-B-2.0"
+    SpdxlicenseSimpl20 -> "SimPL-2.0"
+    SpdxlicenseSissl12 -> "SISSL-1.2"
+    SpdxlicenseSissl -> "SISSL"
+    SpdxlicenseSleepycat -> "Sleepycat"
+    SpdxlicenseSmlnj -> "SMLNJ"
+    SpdxlicenseSmppl -> "SMPPL"
+    SpdxlicenseSnia -> "SNIA"
+    SpdxlicenseSpencer86 -> "Spencer-86"
+    SpdxlicenseSpencer94 -> "Spencer-94"
+    SpdxlicenseSpencer99 -> "Spencer-99"
+    SpdxlicenseSpl10 -> "SPL-1.0"
+    SpdxlicenseSugarcrm113 -> "SugarCRM-1.1.3"
+    SpdxlicenseSwl -> "SWL"
+    SpdxlicenseTcl -> "TCL"
+    SpdxlicenseTcpwrappers -> "TCP-wrappers"
+    SpdxlicenseTmate -> "TMate"
+    SpdxlicenseTorque11 -> "TORQUE-1.1"
+    SpdxlicenseTosl -> "TOSL"
+    SpdxlicenseUnicodedfs2015 -> "Unicode-DFS-2015"
+    SpdxlicenseUnicodedfs2016 -> "Unicode-DFS-2016"
+    SpdxlicenseUnicodetou -> "Unicode-TOU"
+    SpdxlicenseUnlicense -> "Unlicense"
+    SpdxlicenseUpl10 -> "UPL-1.0"
+    SpdxlicenseVim -> "Vim"
+    SpdxlicenseVostrom -> "VOSTROM"
+    SpdxlicenseVsl10 -> "VSL-1.0"
+    SpdxlicenseW3c19980720 -> "W3C-19980720"
+    SpdxlicenseW3c20150513 -> "W3C-20150513"
+    SpdxlicenseW3c -> "W3C"
+    SpdxlicenseWatcom10 -> "Watcom-1.0"
+    SpdxlicenseWsuipa -> "Wsuipa"
+    SpdxlicenseWtfpl -> "WTFPL"
+    SpdxlicenseX11 -> "X11"
+    SpdxlicenseXerox -> "Xerox"
+    SpdxlicenseXfree8611 -> "XFree86-1.1"
+    SpdxlicenseXinetd -> "xinetd"
+    SpdxlicenseXnet -> "Xnet"
+    SpdxlicenseXpp -> "xpp"
+    SpdxlicenseXskat -> "XSkat"
+    SpdxlicenseYpl10 -> "YPL-1.0"
+    SpdxlicenseYpl11 -> "YPL-1.1"
+    SpdxlicenseZed -> "Zed"
+    SpdxlicenseZend20 -> "Zend-2.0"
+    SpdxlicenseZimbra13 -> "Zimbra-1.3"
+    SpdxlicenseZimbra14 -> "Zimbra-1.4"
+    SpdxlicenseZlibacknowledgement -> "zlib-acknowledgement"
+    SpdxlicenseZlib -> "Zlib"
+    SpdxlicenseZpl11 -> "ZPL-1.1"
+    SpdxlicenseZpl20 -> "ZPL-2.0"
+    SpdxlicenseZpl21 -> "ZPL-2.1"
+  }
+}
+
+pub fn spdxlicense_from_string(s: String) -> Result(Spdxlicense, Nil) {
+  case s {
+    "not-open-source" -> Ok(SpdxlicenseNotopensource)
+    "0BSD" -> Ok(Spdxlicense0bsd)
+    "AAL" -> Ok(SpdxlicenseAal)
+    "Abstyles" -> Ok(SpdxlicenseAbstyles)
+    "Adobe-2006" -> Ok(SpdxlicenseAdobe2006)
+    "Adobe-Glyph" -> Ok(SpdxlicenseAdobeglyph)
+    "ADSL" -> Ok(SpdxlicenseAdsl)
+    "AFL-1.1" -> Ok(SpdxlicenseAfl11)
+    "AFL-1.2" -> Ok(SpdxlicenseAfl12)
+    "AFL-2.0" -> Ok(SpdxlicenseAfl20)
+    "AFL-2.1" -> Ok(SpdxlicenseAfl21)
+    "AFL-3.0" -> Ok(SpdxlicenseAfl30)
+    "Afmparse" -> Ok(SpdxlicenseAfmparse)
+    "AGPL-1.0-only" -> Ok(SpdxlicenseAgpl10only)
+    "AGPL-1.0-or-later" -> Ok(SpdxlicenseAgpl10orlater)
+    "AGPL-3.0-only" -> Ok(SpdxlicenseAgpl30only)
+    "AGPL-3.0-or-later" -> Ok(SpdxlicenseAgpl30orlater)
+    "Aladdin" -> Ok(SpdxlicenseAladdin)
+    "AMDPLPA" -> Ok(SpdxlicenseAmdplpa)
+    "AML" -> Ok(SpdxlicenseAml)
+    "AMPAS" -> Ok(SpdxlicenseAmpas)
+    "ANTLR-PD" -> Ok(SpdxlicenseAntlrpd)
+    "Apache-1.0" -> Ok(SpdxlicenseApache10)
+    "Apache-1.1" -> Ok(SpdxlicenseApache11)
+    "Apache-2.0" -> Ok(SpdxlicenseApache20)
+    "APAFML" -> Ok(SpdxlicenseApafml)
+    "APL-1.0" -> Ok(SpdxlicenseApl10)
+    "APSL-1.0" -> Ok(SpdxlicenseApsl10)
+    "APSL-1.1" -> Ok(SpdxlicenseApsl11)
+    "APSL-1.2" -> Ok(SpdxlicenseApsl12)
+    "APSL-2.0" -> Ok(SpdxlicenseApsl20)
+    "Artistic-1.0-cl8" -> Ok(SpdxlicenseArtistic10cl8)
+    "Artistic-1.0-Perl" -> Ok(SpdxlicenseArtistic10perl)
+    "Artistic-1.0" -> Ok(SpdxlicenseArtistic10)
+    "Artistic-2.0" -> Ok(SpdxlicenseArtistic20)
+    "Bahyph" -> Ok(SpdxlicenseBahyph)
+    "Barr" -> Ok(SpdxlicenseBarr)
+    "Beerware" -> Ok(SpdxlicenseBeerware)
+    "BitTorrent-1.0" -> Ok(SpdxlicenseBittorrent10)
+    "BitTorrent-1.1" -> Ok(SpdxlicenseBittorrent11)
+    "Borceux" -> Ok(SpdxlicenseBorceux)
+    "BSD-1-Clause" -> Ok(SpdxlicenseBsd1clause)
+    "BSD-2-Clause-FreeBSD" -> Ok(SpdxlicenseBsd2clausefreebsd)
+    "BSD-2-Clause-NetBSD" -> Ok(SpdxlicenseBsd2clausenetbsd)
+    "BSD-2-Clause-Patent" -> Ok(SpdxlicenseBsd2clausepatent)
+    "BSD-2-Clause" -> Ok(SpdxlicenseBsd2clause)
+    "BSD-3-Clause-Attribution" -> Ok(SpdxlicenseBsd3clauseattribution)
+    "BSD-3-Clause-Clear" -> Ok(SpdxlicenseBsd3clauseclear)
+    "BSD-3-Clause-LBNL" -> Ok(SpdxlicenseBsd3clauselbnl)
+    "BSD-3-Clause-No-Nuclear-License-2014" ->
+      Ok(SpdxlicenseBsd3clausenonuclearlicense2014)
+    "BSD-3-Clause-No-Nuclear-License" ->
+      Ok(SpdxlicenseBsd3clausenonuclearlicense)
+    "BSD-3-Clause-No-Nuclear-Warranty" ->
+      Ok(SpdxlicenseBsd3clausenonuclearwarranty)
+    "BSD-3-Clause" -> Ok(SpdxlicenseBsd3clause)
+    "BSD-4-Clause-UC" -> Ok(SpdxlicenseBsd4clauseuc)
+    "BSD-4-Clause" -> Ok(SpdxlicenseBsd4clause)
+    "BSD-Protection" -> Ok(SpdxlicenseBsdprotection)
+    "BSD-Source-Code" -> Ok(SpdxlicenseBsdsourcecode)
+    "BSL-1.0" -> Ok(SpdxlicenseBsl10)
+    "bzip2-1.0.5" -> Ok(SpdxlicenseBzip2105)
+    "bzip2-1.0.6" -> Ok(SpdxlicenseBzip2106)
+    "Caldera" -> Ok(SpdxlicenseCaldera)
+    "CATOSL-1.1" -> Ok(SpdxlicenseCatosl11)
+    "CC-BY-1.0" -> Ok(SpdxlicenseCcby10)
+    "CC-BY-2.0" -> Ok(SpdxlicenseCcby20)
+    "CC-BY-2.5" -> Ok(SpdxlicenseCcby25)
+    "CC-BY-3.0" -> Ok(SpdxlicenseCcby30)
+    "CC-BY-4.0" -> Ok(SpdxlicenseCcby40)
+    "CC-BY-NC-1.0" -> Ok(SpdxlicenseCcbync10)
+    "CC-BY-NC-2.0" -> Ok(SpdxlicenseCcbync20)
+    "CC-BY-NC-2.5" -> Ok(SpdxlicenseCcbync25)
+    "CC-BY-NC-3.0" -> Ok(SpdxlicenseCcbync30)
+    "CC-BY-NC-4.0" -> Ok(SpdxlicenseCcbync40)
+    "CC-BY-NC-ND-1.0" -> Ok(SpdxlicenseCcbyncnd10)
+    "CC-BY-NC-ND-2.0" -> Ok(SpdxlicenseCcbyncnd20)
+    "CC-BY-NC-ND-2.5" -> Ok(SpdxlicenseCcbyncnd25)
+    "CC-BY-NC-ND-3.0" -> Ok(SpdxlicenseCcbyncnd30)
+    "CC-BY-NC-ND-4.0" -> Ok(SpdxlicenseCcbyncnd40)
+    "CC-BY-NC-SA-1.0" -> Ok(SpdxlicenseCcbyncsa10)
+    "CC-BY-NC-SA-2.0" -> Ok(SpdxlicenseCcbyncsa20)
+    "CC-BY-NC-SA-2.5" -> Ok(SpdxlicenseCcbyncsa25)
+    "CC-BY-NC-SA-3.0" -> Ok(SpdxlicenseCcbyncsa30)
+    "CC-BY-NC-SA-4.0" -> Ok(SpdxlicenseCcbyncsa40)
+    "CC-BY-ND-1.0" -> Ok(SpdxlicenseCcbynd10)
+    "CC-BY-ND-2.0" -> Ok(SpdxlicenseCcbynd20)
+    "CC-BY-ND-2.5" -> Ok(SpdxlicenseCcbynd25)
+    "CC-BY-ND-3.0" -> Ok(SpdxlicenseCcbynd30)
+    "CC-BY-ND-4.0" -> Ok(SpdxlicenseCcbynd40)
+    "CC-BY-SA-1.0" -> Ok(SpdxlicenseCcbysa10)
+    "CC-BY-SA-2.0" -> Ok(SpdxlicenseCcbysa20)
+    "CC-BY-SA-2.5" -> Ok(SpdxlicenseCcbysa25)
+    "CC-BY-SA-3.0" -> Ok(SpdxlicenseCcbysa30)
+    "CC-BY-SA-4.0" -> Ok(SpdxlicenseCcbysa40)
+    "CC0-1.0" -> Ok(SpdxlicenseCc010)
+    "CDDL-1.0" -> Ok(SpdxlicenseCddl10)
+    "CDDL-1.1" -> Ok(SpdxlicenseCddl11)
+    "CDLA-Permissive-1.0" -> Ok(SpdxlicenseCdlapermissive10)
+    "CDLA-Sharing-1.0" -> Ok(SpdxlicenseCdlasharing10)
+    "CECILL-1.0" -> Ok(SpdxlicenseCecill10)
+    "CECILL-1.1" -> Ok(SpdxlicenseCecill11)
+    "CECILL-2.0" -> Ok(SpdxlicenseCecill20)
+    "CECILL-2.1" -> Ok(SpdxlicenseCecill21)
+    "CECILL-B" -> Ok(SpdxlicenseCecillb)
+    "CECILL-C" -> Ok(SpdxlicenseCecillc)
+    "ClArtistic" -> Ok(SpdxlicenseClartistic)
+    "CNRI-Jython" -> Ok(SpdxlicenseCnrijython)
+    "CNRI-Python-GPL-Compatible" -> Ok(SpdxlicenseCnripythongplcompatible)
+    "CNRI-Python" -> Ok(SpdxlicenseCnripython)
+    "Condor-1.1" -> Ok(SpdxlicenseCondor11)
+    "CPAL-1.0" -> Ok(SpdxlicenseCpal10)
+    "CPL-1.0" -> Ok(SpdxlicenseCpl10)
+    "CPOL-1.02" -> Ok(SpdxlicenseCpol102)
+    "Crossword" -> Ok(SpdxlicenseCrossword)
+    "CrystalStacker" -> Ok(SpdxlicenseCrystalstacker)
+    "CUA-OPL-1.0" -> Ok(SpdxlicenseCuaopl10)
+    "Cube" -> Ok(SpdxlicenseCube)
+    "curl" -> Ok(SpdxlicenseCurl)
+    "D-FSL-1.0" -> Ok(SpdxlicenseDfsl10)
+    "diffmark" -> Ok(SpdxlicenseDiffmark)
+    "DOC" -> Ok(SpdxlicenseDoc)
+    "Dotseqn" -> Ok(SpdxlicenseDotseqn)
+    "DSDP" -> Ok(SpdxlicenseDsdp)
+    "dvipdfm" -> Ok(SpdxlicenseDvipdfm)
+    "ECL-1.0" -> Ok(SpdxlicenseEcl10)
+    "ECL-2.0" -> Ok(SpdxlicenseEcl20)
+    "EFL-1.0" -> Ok(SpdxlicenseEfl10)
+    "EFL-2.0" -> Ok(SpdxlicenseEfl20)
+    "eGenix" -> Ok(SpdxlicenseEgenix)
+    "Entessa" -> Ok(SpdxlicenseEntessa)
+    "EPL-1.0" -> Ok(SpdxlicenseEpl10)
+    "EPL-2.0" -> Ok(SpdxlicenseEpl20)
+    "ErlPL-1.1" -> Ok(SpdxlicenseErlpl11)
+    "EUDatagrid" -> Ok(SpdxlicenseEudatagrid)
+    "EUPL-1.0" -> Ok(SpdxlicenseEupl10)
+    "EUPL-1.1" -> Ok(SpdxlicenseEupl11)
+    "EUPL-1.2" -> Ok(SpdxlicenseEupl12)
+    "Eurosym" -> Ok(SpdxlicenseEurosym)
+    "Fair" -> Ok(SpdxlicenseFair)
+    "Frameworx-1.0" -> Ok(SpdxlicenseFrameworx10)
+    "FreeImage" -> Ok(SpdxlicenseFreeimage)
+    "FSFAP" -> Ok(SpdxlicenseFsfap)
+    "FSFUL" -> Ok(SpdxlicenseFsful)
+    "FSFULLR" -> Ok(SpdxlicenseFsfullr)
+    "FTL" -> Ok(SpdxlicenseFtl)
+    "GFDL-1.1-only" -> Ok(SpdxlicenseGfdl11only)
+    "GFDL-1.1-or-later" -> Ok(SpdxlicenseGfdl11orlater)
+    "GFDL-1.2-only" -> Ok(SpdxlicenseGfdl12only)
+    "GFDL-1.2-or-later" -> Ok(SpdxlicenseGfdl12orlater)
+    "GFDL-1.3-only" -> Ok(SpdxlicenseGfdl13only)
+    "GFDL-1.3-or-later" -> Ok(SpdxlicenseGfdl13orlater)
+    "Giftware" -> Ok(SpdxlicenseGiftware)
+    "GL2PS" -> Ok(SpdxlicenseGl2ps)
+    "Glide" -> Ok(SpdxlicenseGlide)
+    "Glulxe" -> Ok(SpdxlicenseGlulxe)
+    "gnuplot" -> Ok(SpdxlicenseGnuplot)
+    "GPL-1.0-only" -> Ok(SpdxlicenseGpl10only)
+    "GPL-1.0-or-later" -> Ok(SpdxlicenseGpl10orlater)
+    "GPL-2.0-only" -> Ok(SpdxlicenseGpl20only)
+    "GPL-2.0-or-later" -> Ok(SpdxlicenseGpl20orlater)
+    "GPL-3.0-only" -> Ok(SpdxlicenseGpl30only)
+    "GPL-3.0-or-later" -> Ok(SpdxlicenseGpl30orlater)
+    "gSOAP-1.3b" -> Ok(SpdxlicenseGsoap13b)
+    "HaskellReport" -> Ok(SpdxlicenseHaskellreport)
+    "HPND" -> Ok(SpdxlicenseHpnd)
+    "IBM-pibs" -> Ok(SpdxlicenseIbmpibs)
+    "ICU" -> Ok(SpdxlicenseIcu)
+    "IJG" -> Ok(SpdxlicenseIjg)
+    "ImageMagick" -> Ok(SpdxlicenseImagemagick)
+    "iMatix" -> Ok(SpdxlicenseImatix)
+    "Imlib2" -> Ok(SpdxlicenseImlib2)
+    "Info-ZIP" -> Ok(SpdxlicenseInfozip)
+    "Intel-ACPI" -> Ok(SpdxlicenseIntelacpi)
+    "Intel" -> Ok(SpdxlicenseIntel)
+    "Interbase-1.0" -> Ok(SpdxlicenseInterbase10)
+    "IPA" -> Ok(SpdxlicenseIpa)
+    "IPL-1.0" -> Ok(SpdxlicenseIpl10)
+    "ISC" -> Ok(SpdxlicenseIsc)
+    "JasPer-2.0" -> Ok(SpdxlicenseJasper20)
+    "JSON" -> Ok(SpdxlicenseJson)
+    "LAL-1.2" -> Ok(SpdxlicenseLal12)
+    "LAL-1.3" -> Ok(SpdxlicenseLal13)
+    "Latex2e" -> Ok(SpdxlicenseLatex2e)
+    "Leptonica" -> Ok(SpdxlicenseLeptonica)
+    "LGPL-2.0-only" -> Ok(SpdxlicenseLgpl20only)
+    "LGPL-2.0-or-later" -> Ok(SpdxlicenseLgpl20orlater)
+    "LGPL-2.1-only" -> Ok(SpdxlicenseLgpl21only)
+    "LGPL-2.1-or-later" -> Ok(SpdxlicenseLgpl21orlater)
+    "LGPL-3.0-only" -> Ok(SpdxlicenseLgpl30only)
+    "LGPL-3.0-or-later" -> Ok(SpdxlicenseLgpl30orlater)
+    "LGPLLR" -> Ok(SpdxlicenseLgpllr)
+    "Libpng" -> Ok(SpdxlicenseLibpng)
+    "libtiff" -> Ok(SpdxlicenseLibtiff)
+    "LiLiQ-P-1.1" -> Ok(SpdxlicenseLiliqp11)
+    "LiLiQ-R-1.1" -> Ok(SpdxlicenseLiliqr11)
+    "LiLiQ-Rplus-1.1" -> Ok(SpdxlicenseLiliqrplus11)
+    "Linux-OpenIB" -> Ok(SpdxlicenseLinuxopenib)
+    "LPL-1.0" -> Ok(SpdxlicenseLpl10)
+    "LPL-1.02" -> Ok(SpdxlicenseLpl102)
+    "LPPL-1.0" -> Ok(SpdxlicenseLppl10)
+    "LPPL-1.1" -> Ok(SpdxlicenseLppl11)
+    "LPPL-1.2" -> Ok(SpdxlicenseLppl12)
+    "LPPL-1.3a" -> Ok(SpdxlicenseLppl13a)
+    "LPPL-1.3c" -> Ok(SpdxlicenseLppl13c)
+    "MakeIndex" -> Ok(SpdxlicenseMakeindex)
+    "MirOS" -> Ok(SpdxlicenseMiros)
+    "MIT-0" -> Ok(SpdxlicenseMit0)
+    "MIT-advertising" -> Ok(SpdxlicenseMitadvertising)
+    "MIT-CMU" -> Ok(SpdxlicenseMitcmu)
+    "MIT-enna" -> Ok(SpdxlicenseMitenna)
+    "MIT-feh" -> Ok(SpdxlicenseMitfeh)
+    "MIT" -> Ok(SpdxlicenseMit)
+    "MITNFA" -> Ok(SpdxlicenseMitnfa)
+    "Motosoto" -> Ok(SpdxlicenseMotosoto)
+    "mpich2" -> Ok(SpdxlicenseMpich2)
+    "MPL-1.0" -> Ok(SpdxlicenseMpl10)
+    "MPL-1.1" -> Ok(SpdxlicenseMpl11)
+    "MPL-2.0-no-copyleft-exception" -> Ok(SpdxlicenseMpl20nocopyleftexception)
+    "MPL-2.0" -> Ok(SpdxlicenseMpl20)
+    "MS-PL" -> Ok(SpdxlicenseMspl)
+    "MS-RL" -> Ok(SpdxlicenseMsrl)
+    "MTLL" -> Ok(SpdxlicenseMtll)
+    "Multics" -> Ok(SpdxlicenseMultics)
+    "Mup" -> Ok(SpdxlicenseMup)
+    "NASA-1.3" -> Ok(SpdxlicenseNasa13)
+    "Naumen" -> Ok(SpdxlicenseNaumen)
+    "NBPL-1.0" -> Ok(SpdxlicenseNbpl10)
+    "NCSA" -> Ok(SpdxlicenseNcsa)
+    "Net-SNMP" -> Ok(SpdxlicenseNetsnmp)
+    "NetCDF" -> Ok(SpdxlicenseNetcdf)
+    "Newsletr" -> Ok(SpdxlicenseNewsletr)
+    "NGPL" -> Ok(SpdxlicenseNgpl)
+    "NLOD-1.0" -> Ok(SpdxlicenseNlod10)
+    "NLPL" -> Ok(SpdxlicenseNlpl)
+    "Nokia" -> Ok(SpdxlicenseNokia)
+    "NOSL" -> Ok(SpdxlicenseNosl)
+    "Noweb" -> Ok(SpdxlicenseNoweb)
+    "NPL-1.0" -> Ok(SpdxlicenseNpl10)
+    "NPL-1.1" -> Ok(SpdxlicenseNpl11)
+    "NPOSL-3.0" -> Ok(SpdxlicenseNposl30)
+    "NRL" -> Ok(SpdxlicenseNrl)
+    "NTP" -> Ok(SpdxlicenseNtp)
+    "OCCT-PL" -> Ok(SpdxlicenseOcctpl)
+    "OCLC-2.0" -> Ok(SpdxlicenseOclc20)
+    "ODbL-1.0" -> Ok(SpdxlicenseOdbl10)
+    "OFL-1.0" -> Ok(SpdxlicenseOfl10)
+    "OFL-1.1" -> Ok(SpdxlicenseOfl11)
+    "OGTSL" -> Ok(SpdxlicenseOgtsl)
+    "OLDAP-1.1" -> Ok(SpdxlicenseOldap11)
+    "OLDAP-1.2" -> Ok(SpdxlicenseOldap12)
+    "OLDAP-1.3" -> Ok(SpdxlicenseOldap13)
+    "OLDAP-1.4" -> Ok(SpdxlicenseOldap14)
+    "OLDAP-2.0.1" -> Ok(SpdxlicenseOldap201)
+    "OLDAP-2.0" -> Ok(SpdxlicenseOldap20)
+    "OLDAP-2.1" -> Ok(SpdxlicenseOldap21)
+    "OLDAP-2.2.1" -> Ok(SpdxlicenseOldap221)
+    "OLDAP-2.2.2" -> Ok(SpdxlicenseOldap222)
+    "OLDAP-2.2" -> Ok(SpdxlicenseOldap22)
+    "OLDAP-2.3" -> Ok(SpdxlicenseOldap23)
+    "OLDAP-2.4" -> Ok(SpdxlicenseOldap24)
+    "OLDAP-2.5" -> Ok(SpdxlicenseOldap25)
+    "OLDAP-2.6" -> Ok(SpdxlicenseOldap26)
+    "OLDAP-2.7" -> Ok(SpdxlicenseOldap27)
+    "OLDAP-2.8" -> Ok(SpdxlicenseOldap28)
+    "OML" -> Ok(SpdxlicenseOml)
+    "OpenSSL" -> Ok(SpdxlicenseOpenssl)
+    "OPL-1.0" -> Ok(SpdxlicenseOpl10)
+    "OSET-PL-2.1" -> Ok(SpdxlicenseOsetpl21)
+    "OSL-1.0" -> Ok(SpdxlicenseOsl10)
+    "OSL-1.1" -> Ok(SpdxlicenseOsl11)
+    "OSL-2.0" -> Ok(SpdxlicenseOsl20)
+    "OSL-2.1" -> Ok(SpdxlicenseOsl21)
+    "OSL-3.0" -> Ok(SpdxlicenseOsl30)
+    "PDDL-1.0" -> Ok(SpdxlicensePddl10)
+    "PHP-3.0" -> Ok(SpdxlicensePhp30)
+    "PHP-3.01" -> Ok(SpdxlicensePhp301)
+    "Plexus" -> Ok(SpdxlicensePlexus)
+    "PostgreSQL" -> Ok(SpdxlicensePostgresql)
+    "psfrag" -> Ok(SpdxlicensePsfrag)
+    "psutils" -> Ok(SpdxlicensePsutils)
+    "Python-2.0" -> Ok(SpdxlicensePython20)
+    "Qhull" -> Ok(SpdxlicenseQhull)
+    "QPL-1.0" -> Ok(SpdxlicenseQpl10)
+    "Rdisc" -> Ok(SpdxlicenseRdisc)
+    "RHeCos-1.1" -> Ok(SpdxlicenseRhecos11)
+    "RPL-1.1" -> Ok(SpdxlicenseRpl11)
+    "RPL-1.5" -> Ok(SpdxlicenseRpl15)
+    "RPSL-1.0" -> Ok(SpdxlicenseRpsl10)
+    "RSA-MD" -> Ok(SpdxlicenseRsamd)
+    "RSCPL" -> Ok(SpdxlicenseRscpl)
+    "Ruby" -> Ok(SpdxlicenseRuby)
+    "SAX-PD" -> Ok(SpdxlicenseSaxpd)
+    "Saxpath" -> Ok(SpdxlicenseSaxpath)
+    "SCEA" -> Ok(SpdxlicenseScea)
+    "Sendmail" -> Ok(SpdxlicenseSendmail)
+    "SGI-B-1.0" -> Ok(SpdxlicenseSgib10)
+    "SGI-B-1.1" -> Ok(SpdxlicenseSgib11)
+    "SGI-B-2.0" -> Ok(SpdxlicenseSgib20)
+    "SimPL-2.0" -> Ok(SpdxlicenseSimpl20)
+    "SISSL-1.2" -> Ok(SpdxlicenseSissl12)
+    "SISSL" -> Ok(SpdxlicenseSissl)
+    "Sleepycat" -> Ok(SpdxlicenseSleepycat)
+    "SMLNJ" -> Ok(SpdxlicenseSmlnj)
+    "SMPPL" -> Ok(SpdxlicenseSmppl)
+    "SNIA" -> Ok(SpdxlicenseSnia)
+    "Spencer-86" -> Ok(SpdxlicenseSpencer86)
+    "Spencer-94" -> Ok(SpdxlicenseSpencer94)
+    "Spencer-99" -> Ok(SpdxlicenseSpencer99)
+    "SPL-1.0" -> Ok(SpdxlicenseSpl10)
+    "SugarCRM-1.1.3" -> Ok(SpdxlicenseSugarcrm113)
+    "SWL" -> Ok(SpdxlicenseSwl)
+    "TCL" -> Ok(SpdxlicenseTcl)
+    "TCP-wrappers" -> Ok(SpdxlicenseTcpwrappers)
+    "TMate" -> Ok(SpdxlicenseTmate)
+    "TORQUE-1.1" -> Ok(SpdxlicenseTorque11)
+    "TOSL" -> Ok(SpdxlicenseTosl)
+    "Unicode-DFS-2015" -> Ok(SpdxlicenseUnicodedfs2015)
+    "Unicode-DFS-2016" -> Ok(SpdxlicenseUnicodedfs2016)
+    "Unicode-TOU" -> Ok(SpdxlicenseUnicodetou)
+    "Unlicense" -> Ok(SpdxlicenseUnlicense)
+    "UPL-1.0" -> Ok(SpdxlicenseUpl10)
+    "Vim" -> Ok(SpdxlicenseVim)
+    "VOSTROM" -> Ok(SpdxlicenseVostrom)
+    "VSL-1.0" -> Ok(SpdxlicenseVsl10)
+    "W3C-19980720" -> Ok(SpdxlicenseW3c19980720)
+    "W3C-20150513" -> Ok(SpdxlicenseW3c20150513)
+    "W3C" -> Ok(SpdxlicenseW3c)
+    "Watcom-1.0" -> Ok(SpdxlicenseWatcom10)
+    "Wsuipa" -> Ok(SpdxlicenseWsuipa)
+    "WTFPL" -> Ok(SpdxlicenseWtfpl)
+    "X11" -> Ok(SpdxlicenseX11)
+    "Xerox" -> Ok(SpdxlicenseXerox)
+    "XFree86-1.1" -> Ok(SpdxlicenseXfree8611)
+    "xinetd" -> Ok(SpdxlicenseXinetd)
+    "Xnet" -> Ok(SpdxlicenseXnet)
+    "xpp" -> Ok(SpdxlicenseXpp)
+    "XSkat" -> Ok(SpdxlicenseXskat)
+    "YPL-1.0" -> Ok(SpdxlicenseYpl10)
+    "YPL-1.1" -> Ok(SpdxlicenseYpl11)
+    "Zed" -> Ok(SpdxlicenseZed)
+    "Zend-2.0" -> Ok(SpdxlicenseZend20)
+    "Zimbra-1.3" -> Ok(SpdxlicenseZimbra13)
+    "Zimbra-1.4" -> Ok(SpdxlicenseZimbra14)
+    "zlib-acknowledgement" -> Ok(SpdxlicenseZlibacknowledgement)
+    "Zlib" -> Ok(SpdxlicenseZlib)
+    "ZPL-1.1" -> Ok(SpdxlicenseZpl11)
+    "ZPL-2.0" -> Ok(SpdxlicenseZpl20)
+    "ZPL-2.1" -> Ok(SpdxlicenseZpl21)
+    _ -> Error(Nil)
   }
 }
 
@@ -9311,11 +13613,29 @@ pub type Metriccalibrationtype {
 pub fn metriccalibrationtype_to_json(
   metriccalibrationtype: Metriccalibrationtype,
 ) -> Json {
+  json.string(metriccalibrationtype_to_string(metriccalibrationtype))
+}
+
+pub fn metriccalibrationtype_to_string(
+  metriccalibrationtype: Metriccalibrationtype,
+) -> String {
   case metriccalibrationtype {
-    MetriccalibrationtypeUnspecified -> json.string("unspecified")
-    MetriccalibrationtypeOffset -> json.string("offset")
-    MetriccalibrationtypeGain -> json.string("gain")
-    MetriccalibrationtypeTwopoint -> json.string("two-point")
+    MetriccalibrationtypeUnspecified -> "unspecified"
+    MetriccalibrationtypeOffset -> "offset"
+    MetriccalibrationtypeGain -> "gain"
+    MetriccalibrationtypeTwopoint -> "two-point"
+  }
+}
+
+pub fn metriccalibrationtype_from_string(
+  s: String,
+) -> Result(Metriccalibrationtype, Nil) {
+  case s {
+    "unspecified" -> Ok(MetriccalibrationtypeUnspecified)
+    "offset" -> Ok(MetriccalibrationtypeOffset)
+    "gain" -> Ok(MetriccalibrationtypeGain)
+    "two-point" -> Ok(MetriccalibrationtypeTwopoint)
+    _ -> Error(Nil)
   }
 }
 
@@ -9344,14 +13664,35 @@ pub type Medicationadminstatus {
 pub fn medicationadminstatus_to_json(
   medicationadminstatus: Medicationadminstatus,
 ) -> Json {
+  json.string(medicationadminstatus_to_string(medicationadminstatus))
+}
+
+pub fn medicationadminstatus_to_string(
+  medicationadminstatus: Medicationadminstatus,
+) -> String {
   case medicationadminstatus {
-    MedicationadminstatusInprogress -> json.string("in-progress")
-    MedicationadminstatusNotdone -> json.string("not-done")
-    MedicationadminstatusOnhold -> json.string("on-hold")
-    MedicationadminstatusCompleted -> json.string("completed")
-    MedicationadminstatusEnteredinerror -> json.string("entered-in-error")
-    MedicationadminstatusStopped -> json.string("stopped")
-    MedicationadminstatusUnknown -> json.string("unknown")
+    MedicationadminstatusInprogress -> "in-progress"
+    MedicationadminstatusNotdone -> "not-done"
+    MedicationadminstatusOnhold -> "on-hold"
+    MedicationadminstatusCompleted -> "completed"
+    MedicationadminstatusEnteredinerror -> "entered-in-error"
+    MedicationadminstatusStopped -> "stopped"
+    MedicationadminstatusUnknown -> "unknown"
+  }
+}
+
+pub fn medicationadminstatus_from_string(
+  s: String,
+) -> Result(Medicationadminstatus, Nil) {
+  case s {
+    "in-progress" -> Ok(MedicationadminstatusInprogress)
+    "not-done" -> Ok(MedicationadminstatusNotdone)
+    "on-hold" -> Ok(MedicationadminstatusOnhold)
+    "completed" -> Ok(MedicationadminstatusCompleted)
+    "entered-in-error" -> Ok(MedicationadminstatusEnteredinerror)
+    "stopped" -> Ok(MedicationadminstatusStopped)
+    "unknown" -> Ok(MedicationadminstatusUnknown)
+    _ -> Error(Nil)
   }
 }
 
@@ -9383,14 +13724,35 @@ pub type Episodeofcarestatus {
 pub fn episodeofcarestatus_to_json(
   episodeofcarestatus: Episodeofcarestatus,
 ) -> Json {
+  json.string(episodeofcarestatus_to_string(episodeofcarestatus))
+}
+
+pub fn episodeofcarestatus_to_string(
+  episodeofcarestatus: Episodeofcarestatus,
+) -> String {
   case episodeofcarestatus {
-    EpisodeofcarestatusPlanned -> json.string("planned")
-    EpisodeofcarestatusWaitlist -> json.string("waitlist")
-    EpisodeofcarestatusActive -> json.string("active")
-    EpisodeofcarestatusOnhold -> json.string("onhold")
-    EpisodeofcarestatusFinished -> json.string("finished")
-    EpisodeofcarestatusCancelled -> json.string("cancelled")
-    EpisodeofcarestatusEnteredinerror -> json.string("entered-in-error")
+    EpisodeofcarestatusPlanned -> "planned"
+    EpisodeofcarestatusWaitlist -> "waitlist"
+    EpisodeofcarestatusActive -> "active"
+    EpisodeofcarestatusOnhold -> "onhold"
+    EpisodeofcarestatusFinished -> "finished"
+    EpisodeofcarestatusCancelled -> "cancelled"
+    EpisodeofcarestatusEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn episodeofcarestatus_from_string(
+  s: String,
+) -> Result(Episodeofcarestatus, Nil) {
+  case s {
+    "planned" -> Ok(EpisodeofcarestatusPlanned)
+    "waitlist" -> Ok(EpisodeofcarestatusWaitlist)
+    "active" -> Ok(EpisodeofcarestatusActive)
+    "onhold" -> Ok(EpisodeofcarestatusOnhold)
+    "finished" -> Ok(EpisodeofcarestatusFinished)
+    "cancelled" -> Ok(EpisodeofcarestatusCancelled)
+    "entered-in-error" -> Ok(EpisodeofcarestatusEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -9415,10 +13777,23 @@ pub type Addresstype {
 }
 
 pub fn addresstype_to_json(addresstype: Addresstype) -> Json {
+  json.string(addresstype_to_string(addresstype))
+}
+
+pub fn addresstype_to_string(addresstype: Addresstype) -> String {
   case addresstype {
-    AddresstypePostal -> json.string("postal")
-    AddresstypePhysical -> json.string("physical")
-    AddresstypeBoth -> json.string("both")
+    AddresstypePostal -> "postal"
+    AddresstypePhysical -> "physical"
+    AddresstypeBoth -> "both"
+  }
+}
+
+pub fn addresstype_from_string(s: String) -> Result(Addresstype, Nil) {
+  case s {
+    "postal" -> Ok(AddresstypePostal)
+    "physical" -> Ok(AddresstypePhysical)
+    "both" -> Ok(AddresstypeBoth)
+    _ -> Error(Nil)
   }
 }
 
@@ -9442,11 +13817,29 @@ pub type Allergyintolerancecategory {
 pub fn allergyintolerancecategory_to_json(
   allergyintolerancecategory: Allergyintolerancecategory,
 ) -> Json {
+  json.string(allergyintolerancecategory_to_string(allergyintolerancecategory))
+}
+
+pub fn allergyintolerancecategory_to_string(
+  allergyintolerancecategory: Allergyintolerancecategory,
+) -> String {
   case allergyintolerancecategory {
-    AllergyintolerancecategoryFood -> json.string("food")
-    AllergyintolerancecategoryMedication -> json.string("medication")
-    AllergyintolerancecategoryEnvironment -> json.string("environment")
-    AllergyintolerancecategoryBiologic -> json.string("biologic")
+    AllergyintolerancecategoryFood -> "food"
+    AllergyintolerancecategoryMedication -> "medication"
+    AllergyintolerancecategoryEnvironment -> "environment"
+    AllergyintolerancecategoryBiologic -> "biologic"
+  }
+}
+
+pub fn allergyintolerancecategory_from_string(
+  s: String,
+) -> Result(Allergyintolerancecategory, Nil) {
+  case s {
+    "food" -> Ok(AllergyintolerancecategoryFood)
+    "medication" -> Ok(AllergyintolerancecategoryMedication)
+    "environment" -> Ok(AllergyintolerancecategoryEnvironment)
+    "biologic" -> Ok(AllergyintolerancecategoryBiologic)
+    _ -> Error(Nil)
   }
 }
 
@@ -9476,12 +13869,31 @@ pub type Reportstatuscodes {
 }
 
 pub fn reportstatuscodes_to_json(reportstatuscodes: Reportstatuscodes) -> Json {
+  json.string(reportstatuscodes_to_string(reportstatuscodes))
+}
+
+pub fn reportstatuscodes_to_string(
+  reportstatuscodes: Reportstatuscodes,
+) -> String {
   case reportstatuscodes {
-    ReportstatuscodesCompleted -> json.string("completed")
-    ReportstatuscodesInprogress -> json.string("in-progress")
-    ReportstatuscodesWaiting -> json.string("waiting")
-    ReportstatuscodesStopped -> json.string("stopped")
-    ReportstatuscodesEnteredinerror -> json.string("entered-in-error")
+    ReportstatuscodesCompleted -> "completed"
+    ReportstatuscodesInprogress -> "in-progress"
+    ReportstatuscodesWaiting -> "waiting"
+    ReportstatuscodesStopped -> "stopped"
+    ReportstatuscodesEnteredinerror -> "entered-in-error"
+  }
+}
+
+pub fn reportstatuscodes_from_string(
+  s: String,
+) -> Result(Reportstatuscodes, Nil) {
+  case s {
+    "completed" -> Ok(ReportstatuscodesCompleted)
+    "in-progress" -> Ok(ReportstatuscodesInprogress)
+    "waiting" -> Ok(ReportstatuscodesWaiting)
+    "stopped" -> Ok(ReportstatuscodesStopped)
+    "entered-in-error" -> Ok(ReportstatuscodesEnteredinerror)
+    _ -> Error(Nil)
   }
 }
 
@@ -9506,10 +13918,27 @@ pub type Resourceslicingrules {
 pub fn resourceslicingrules_to_json(
   resourceslicingrules: Resourceslicingrules,
 ) -> Json {
+  json.string(resourceslicingrules_to_string(resourceslicingrules))
+}
+
+pub fn resourceslicingrules_to_string(
+  resourceslicingrules: Resourceslicingrules,
+) -> String {
   case resourceslicingrules {
-    ResourceslicingrulesClosed -> json.string("closed")
-    ResourceslicingrulesOpen -> json.string("open")
-    ResourceslicingrulesOpenatend -> json.string("openAtEnd")
+    ResourceslicingrulesClosed -> "closed"
+    ResourceslicingrulesOpen -> "open"
+    ResourceslicingrulesOpenatend -> "openAtEnd"
+  }
+}
+
+pub fn resourceslicingrules_from_string(
+  s: String,
+) -> Result(Resourceslicingrules, Nil) {
+  case s {
+    "closed" -> Ok(ResourceslicingrulesClosed)
+    "open" -> Ok(ResourceslicingrulesOpen)
+    "openAtEnd" -> Ok(ResourceslicingrulesOpenatend)
+    _ -> Error(Nil)
   }
 }
 
@@ -9532,12 +13961,27 @@ pub type Contactpointuse {
 }
 
 pub fn contactpointuse_to_json(contactpointuse: Contactpointuse) -> Json {
+  json.string(contactpointuse_to_string(contactpointuse))
+}
+
+pub fn contactpointuse_to_string(contactpointuse: Contactpointuse) -> String {
   case contactpointuse {
-    ContactpointuseHome -> json.string("home")
-    ContactpointuseWork -> json.string("work")
-    ContactpointuseTemp -> json.string("temp")
-    ContactpointuseOld -> json.string("old")
-    ContactpointuseMobile -> json.string("mobile")
+    ContactpointuseHome -> "home"
+    ContactpointuseWork -> "work"
+    ContactpointuseTemp -> "temp"
+    ContactpointuseOld -> "old"
+    ContactpointuseMobile -> "mobile"
+  }
+}
+
+pub fn contactpointuse_from_string(s: String) -> Result(Contactpointuse, Nil) {
+  case s {
+    "home" -> Ok(ContactpointuseHome)
+    "work" -> Ok(ContactpointuseWork)
+    "temp" -> Ok(ContactpointuseTemp)
+    "old" -> Ok(ContactpointuseOld)
+    "mobile" -> Ok(ContactpointuseMobile)
+    _ -> Error(Nil)
   }
 }
 
@@ -9566,14 +14010,35 @@ pub type Conceptpropertytype {
 pub fn conceptpropertytype_to_json(
   conceptpropertytype: Conceptpropertytype,
 ) -> Json {
+  json.string(conceptpropertytype_to_string(conceptpropertytype))
+}
+
+pub fn conceptpropertytype_to_string(
+  conceptpropertytype: Conceptpropertytype,
+) -> String {
   case conceptpropertytype {
-    ConceptpropertytypeCode -> json.string("code")
-    ConceptpropertytypeCoding -> json.string("Coding")
-    ConceptpropertytypeString -> json.string("string")
-    ConceptpropertytypeInteger -> json.string("integer")
-    ConceptpropertytypeBoolean -> json.string("boolean")
-    ConceptpropertytypeDatetime -> json.string("dateTime")
-    ConceptpropertytypeDecimal -> json.string("decimal")
+    ConceptpropertytypeCode -> "code"
+    ConceptpropertytypeCoding -> "Coding"
+    ConceptpropertytypeString -> "string"
+    ConceptpropertytypeInteger -> "integer"
+    ConceptpropertytypeBoolean -> "boolean"
+    ConceptpropertytypeDatetime -> "dateTime"
+    ConceptpropertytypeDecimal -> "decimal"
+  }
+}
+
+pub fn conceptpropertytype_from_string(
+  s: String,
+) -> Result(Conceptpropertytype, Nil) {
+  case s {
+    "code" -> Ok(ConceptpropertytypeCode)
+    "Coding" -> Ok(ConceptpropertytypeCoding)
+    "string" -> Ok(ConceptpropertytypeString)
+    "integer" -> Ok(ConceptpropertytypeInteger)
+    "boolean" -> Ok(ConceptpropertytypeBoolean)
+    "dateTime" -> Ok(ConceptpropertytypeDatetime)
+    "decimal" -> Ok(ConceptpropertytypeDecimal)
+    _ -> Error(Nil)
   }
 }
 
@@ -9606,16 +14071,39 @@ pub type Typerestfulinteraction {
 pub fn typerestfulinteraction_to_json(
   typerestfulinteraction: Typerestfulinteraction,
 ) -> Json {
+  json.string(typerestfulinteraction_to_string(typerestfulinteraction))
+}
+
+pub fn typerestfulinteraction_to_string(
+  typerestfulinteraction: Typerestfulinteraction,
+) -> String {
   case typerestfulinteraction {
-    TyperestfulinteractionRead -> json.string("read")
-    TyperestfulinteractionVread -> json.string("vread")
-    TyperestfulinteractionUpdate -> json.string("update")
-    TyperestfulinteractionPatch -> json.string("patch")
-    TyperestfulinteractionDelete -> json.string("delete")
-    TyperestfulinteractionHistoryinstance -> json.string("history-instance")
-    TyperestfulinteractionHistorytype -> json.string("history-type")
-    TyperestfulinteractionCreate -> json.string("create")
-    TyperestfulinteractionSearchtype -> json.string("search-type")
+    TyperestfulinteractionRead -> "read"
+    TyperestfulinteractionVread -> "vread"
+    TyperestfulinteractionUpdate -> "update"
+    TyperestfulinteractionPatch -> "patch"
+    TyperestfulinteractionDelete -> "delete"
+    TyperestfulinteractionHistoryinstance -> "history-instance"
+    TyperestfulinteractionHistorytype -> "history-type"
+    TyperestfulinteractionCreate -> "create"
+    TyperestfulinteractionSearchtype -> "search-type"
+  }
+}
+
+pub fn typerestfulinteraction_from_string(
+  s: String,
+) -> Result(Typerestfulinteraction, Nil) {
+  case s {
+    "read" -> Ok(TyperestfulinteractionRead)
+    "vread" -> Ok(TyperestfulinteractionVread)
+    "update" -> Ok(TyperestfulinteractionUpdate)
+    "patch" -> Ok(TyperestfulinteractionPatch)
+    "delete" -> Ok(TyperestfulinteractionDelete)
+    "history-instance" -> Ok(TyperestfulinteractionHistoryinstance)
+    "history-type" -> Ok(TyperestfulinteractionHistorytype)
+    "create" -> Ok(TyperestfulinteractionCreate)
+    "search-type" -> Ok(TyperestfulinteractionSearchtype)
+    _ -> Error(Nil)
   }
 }
 
@@ -9646,14 +14134,31 @@ pub type Nameuse {
 }
 
 pub fn nameuse_to_json(nameuse: Nameuse) -> Json {
+  json.string(nameuse_to_string(nameuse))
+}
+
+pub fn nameuse_to_string(nameuse: Nameuse) -> String {
   case nameuse {
-    NameuseUsual -> json.string("usual")
-    NameuseOfficial -> json.string("official")
-    NameuseTemp -> json.string("temp")
-    NameuseNickname -> json.string("nickname")
-    NameuseAnonymous -> json.string("anonymous")
-    NameuseOld -> json.string("old")
-    NameuseMaiden -> json.string("maiden")
+    NameuseUsual -> "usual"
+    NameuseOfficial -> "official"
+    NameuseTemp -> "temp"
+    NameuseNickname -> "nickname"
+    NameuseAnonymous -> "anonymous"
+    NameuseOld -> "old"
+    NameuseMaiden -> "maiden"
+  }
+}
+
+pub fn nameuse_from_string(s: String) -> Result(Nameuse, Nil) {
+  case s {
+    "usual" -> Ok(NameuseUsual)
+    "official" -> Ok(NameuseOfficial)
+    "temp" -> Ok(NameuseTemp)
+    "nickname" -> Ok(NameuseNickname)
+    "anonymous" -> Ok(NameuseAnonymous)
+    "old" -> Ok(NameuseOld)
+    "maiden" -> Ok(NameuseMaiden)
+    _ -> Error(Nil)
   }
 }
 
@@ -9679,9 +14184,25 @@ pub type Eventcapabilitymode {
 pub fn eventcapabilitymode_to_json(
   eventcapabilitymode: Eventcapabilitymode,
 ) -> Json {
+  json.string(eventcapabilitymode_to_string(eventcapabilitymode))
+}
+
+pub fn eventcapabilitymode_to_string(
+  eventcapabilitymode: Eventcapabilitymode,
+) -> String {
   case eventcapabilitymode {
-    EventcapabilitymodeSender -> json.string("sender")
-    EventcapabilitymodeReceiver -> json.string("receiver")
+    EventcapabilitymodeSender -> "sender"
+    EventcapabilitymodeReceiver -> "receiver"
+  }
+}
+
+pub fn eventcapabilitymode_from_string(
+  s: String,
+) -> Result(Eventcapabilitymode, Nil) {
+  case s {
+    "sender" -> Ok(EventcapabilitymodeSender)
+    "receiver" -> Ok(EventcapabilitymodeReceiver)
+    _ -> Error(Nil)
   }
 }
 
@@ -9700,9 +14221,21 @@ pub type Sortdirection {
 }
 
 pub fn sortdirection_to_json(sortdirection: Sortdirection) -> Json {
+  json.string(sortdirection_to_string(sortdirection))
+}
+
+pub fn sortdirection_to_string(sortdirection: Sortdirection) -> String {
   case sortdirection {
-    SortdirectionAscending -> json.string("ascending")
-    SortdirectionDescending -> json.string("descending")
+    SortdirectionAscending -> "ascending"
+    SortdirectionDescending -> "descending"
+  }
+}
+
+pub fn sortdirection_from_string(s: String) -> Result(Sortdirection, Nil) {
+  case s {
+    "ascending" -> Ok(SortdirectionAscending)
+    "descending" -> Ok(SortdirectionDescending)
+    _ -> Error(Nil)
   }
 }
 
@@ -9725,11 +14258,29 @@ pub type Systemrestfulinteraction {
 pub fn systemrestfulinteraction_to_json(
   systemrestfulinteraction: Systemrestfulinteraction,
 ) -> Json {
+  json.string(systemrestfulinteraction_to_string(systemrestfulinteraction))
+}
+
+pub fn systemrestfulinteraction_to_string(
+  systemrestfulinteraction: Systemrestfulinteraction,
+) -> String {
   case systemrestfulinteraction {
-    SystemrestfulinteractionTransaction -> json.string("transaction")
-    SystemrestfulinteractionBatch -> json.string("batch")
-    SystemrestfulinteractionSearchsystem -> json.string("search-system")
-    SystemrestfulinteractionHistorysystem -> json.string("history-system")
+    SystemrestfulinteractionTransaction -> "transaction"
+    SystemrestfulinteractionBatch -> "batch"
+    SystemrestfulinteractionSearchsystem -> "search-system"
+    SystemrestfulinteractionHistorysystem -> "history-system"
+  }
+}
+
+pub fn systemrestfulinteraction_from_string(
+  s: String,
+) -> Result(Systemrestfulinteraction, Nil) {
+  case s {
+    "transaction" -> Ok(SystemrestfulinteractionTransaction)
+    "batch" -> Ok(SystemrestfulinteractionBatch)
+    "search-system" -> Ok(SystemrestfulinteractionSearchsystem)
+    "history-system" -> Ok(SystemrestfulinteractionHistorysystem)
+    _ -> Error(Nil)
   }
 }
 
@@ -9758,13 +14309,29 @@ pub type Udientrytype {
 }
 
 pub fn udientrytype_to_json(udientrytype: Udientrytype) -> Json {
+  json.string(udientrytype_to_string(udientrytype))
+}
+
+pub fn udientrytype_to_string(udientrytype: Udientrytype) -> String {
   case udientrytype {
-    UdientrytypeBarcode -> json.string("barcode")
-    UdientrytypeRfid -> json.string("rfid")
-    UdientrytypeManual -> json.string("manual")
-    UdientrytypeCard -> json.string("card")
-    UdientrytypeSelfreported -> json.string("self-reported")
-    UdientrytypeUnknown -> json.string("unknown")
+    UdientrytypeBarcode -> "barcode"
+    UdientrytypeRfid -> "rfid"
+    UdientrytypeManual -> "manual"
+    UdientrytypeCard -> "card"
+    UdientrytypeSelfreported -> "self-reported"
+    UdientrytypeUnknown -> "unknown"
+  }
+}
+
+pub fn udientrytype_from_string(s: String) -> Result(Udientrytype, Nil) {
+  case s {
+    "barcode" -> Ok(UdientrytypeBarcode)
+    "rfid" -> Ok(UdientrytypeRfid)
+    "manual" -> Ok(UdientrytypeManual)
+    "card" -> Ok(UdientrytypeCard)
+    "self-reported" -> Ok(UdientrytypeSelfreported)
+    "unknown" -> Ok(UdientrytypeUnknown)
+    _ -> Error(Nil)
   }
 }
 

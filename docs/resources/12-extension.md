@@ -113,7 +113,7 @@ pub type ExtensionValue {
                 {\"url\": \"acquisitionDate\", \"valueDateTime\": \"2005-12-06\"},
                 {
                     \"url\": \"sourceDocument\",
-                    \"valueCodeableReference\": { \"reference\": {\"reference\": \"DocumentReference/1\"} }
+                    \"valueReference\": {\"reference\": \"DocumentReference/1\"}
                 },
                 {\"url\": \"sourceField\", \"valueString\": \"SEX\"},
                 {
@@ -161,7 +161,7 @@ pub type ExtensionValue {
                 {\"url\": \"acquisitionDate\", \"valueDateTime\": \"2021-06-06\"},
                 {
                     \"url\": \"sourceDocument\",
-                    \"valueCodeableReference\": { \"reference\": {\"reference\": \"DocumentReference/2\"} }
+                    \"valueReference\": {\"reference\": \"DocumentReference/2\"}
                 },
                 {\"url\": \"sourceField\", \"valueString\": \"SEX\"},
                 {
@@ -213,7 +213,7 @@ pub type ExtensionValue {
                 {\"url\": \"acquisitionDate\", \"valueDateTime\": \"2005-12-06\"},
                 {
                     \"url\": \"sourceDocument\",
-                    \"valueCodeableReference\": { \"reference\": {\"reference\": \"DocumentReference/1\"} }
+                    \"valueReference\": {\"reference\": \"DocumentReference/1\"}
                 },
                 {
                     \"url\": \"jurisdiction\",
@@ -251,13 +251,11 @@ pub type ExtensionValue {
                 },
                 {
                     \"url\": \"supportingInfo\",
-                    \"valueCodeableReference\": { \"reference\": {\"reference\": \"Observation/1\"} }
+                    \"valueReference\": {\"reference\": \"Observation/1\"}
                 },
                 {
                     \"url\": \"supportingInfo\",
-                    \"valueCodeableReference\": {
-                        \"reference\": {\"reference\": \"MedicationStatement/2\"}
-                    }
+                    \"valueReference\": {\"reference\": \"MedicationStatement/2\"}
                 }
             ]
         }
@@ -285,32 +283,29 @@ pub type ExtensionValue {
     \"deceasedBoolean\": false,
     \"managingOrganization\": {\"reference\": \"Organization/1\"}
   }"
-  let assert Ok(patient) =
-    patient_example_sex_and_gender |> json.parse(r5.patient_decoder())
-  // note r5, on r4 this json would fail to decode because
-  // valueCodeableReference uses CodeableReference which is not in r4
+  let assert Ok(pat) =
+    json.parse(patient_example_sex_and_gender, r4.patient_decoder())
+
+  let rsg_extensions =
+    list.filter(pat.extension, fn(e) {
+      e.url
+      == "http://hl7.org/fhir/StructureDefinition/individual-recordedSexOrGender"
+    })
+
+  let assert [rsg, _, _] = rsg_extensions
+  let assert r4.ExtComplex(rsg_children) = rsg.ext
+
+  let assert Ok(value_child) =
+    list.find(rsg_children, fn(e) { e.url == "value" })
+  let assert r4.ExtSimple(value_ext) = value_child.ext
+  echo value_ext
+
+  let type_ext = list.find(rsg_children, fn(e) { e.url == "type" })
+  echo type_ext
+
+  let source_doc_ext =
+    list.find(rsg_children, fn(e) { e.url == "sourceDocument" })
+  echo source_doc_ext
 ```
 
-Primitive elements can also have extensions! Still figuring out how common this actually is, and how pleasant it will be to use/not interfere with unmodified primitive elements. If you have a good way of handling primitive elements in mind [please create an issue here](https://github.com/PotatoEMR/gleam-fhir/issues/new)
-
-```gleam
-  let name =
-    "
-  {
-      \"use\" : \"official\",
-      \"family\" : \"van Hentenryck\",
-      \"_family\" : {
-        \"extension\" : [{
-          \"url\" : \"http://hl7.org/fhir/StructureDefinition/humanname-own-prefix\",
-          \"valueString\" : \"van\"
-        }, {
-          \"url\" : \"http://hl7.org/fhir/StructureDefinition/humanname-own-name\",
-          \"valueString\" : \"Hentenryck\"
-        }]
-      },
-      \"given\" : [\"Karen\"]
-    }
-  "
-  // r4.humanname_decoder() should check the _family extension,
-  // but where should the decoded extension go?
-```
+While r4/r4b/r5 support any complex extension, they are somewhat verbose and require checking url strings. Generate a library version with [Custom Extension](https://hexdocs.pm/fhir/profiles/customextension.html) for nicer specific extensions. By default types do not have primitive extensions; see [Primitive Extension](https://hexdocs.pm/fhir/profiles/customextension.html) to use them.

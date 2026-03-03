@@ -125,6 +125,10 @@ gleam run
   </div>
 </div>
 
+## AI use
+
+AI in parts of codegen (which creates Gleam code from FHIR data) and some tests. No AI in API design or documentation. 
+
 ## Other FHIR Docs
 
 These pages provide only an intro to FHIR and the Gleam implementation. For comprehensive information, see the FHIR docs, e.g. for [R4 AllergyIntolerance](https://hl7.org/fhir/R4/allergyintolerance.html#resource).

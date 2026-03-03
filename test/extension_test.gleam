@@ -1,24 +1,9 @@
+import check_roundtrip
 import fhir/r5
 import gleam/dict
-import gleam/dynamic/decode
 import gleam/json
 import gleam/list
 import gleam/option.{None, Some}
-
-fn check_roundtrip(in: String, thing_dec: decode.Decoder(a), thing_to_json) {
-  let assert Ok(as_dynamic) = json.parse(in, decode.dynamic)
-    as { "check_roundtrip decode dynamic" }
-  let assert Ok(as_thing) = json.parse(in, thing_dec)
-    as { "check_roundtrip decode thing" }
-
-  let assert Ok(as_dynamic_roundtrip) =
-    as_thing
-    |> thing_to_json
-    |> json.to_string
-    |> json.parse(decode.dynamic)
-  assert as_dynamic == as_dynamic_roundtrip
-    as { "check_roundtrip decode + encode roundtrip" }
-}
 
 pub fn main() {
   let patient_example_sex_and_gender =
@@ -276,10 +261,11 @@ pub fn main() {
     \"deceasedBoolean\": false,
     \"managingOrganization\": {\"reference\": \"Organization/1\"}
   }"
-  check_roundtrip(
+  check_roundtrip.check_roundtrip(
     patient_example_sex_and_gender,
     r5.patient_decoder(),
     r5.patient_to_json,
+    "extension_test",
   )
   let assert Ok(pat) =
     json.parse(patient_example_sex_and_gender, r5.patient_decoder())
@@ -309,4 +295,33 @@ pub fn main() {
       pat_exts.exts_by_url,
       "http://hl7.org/fhir/StructureDefinition/individual-recordedSexOrGender",
     )
+
+  let assert Ok(r5.Extension(ext: r5.ExtComplex(ident_children), ..)) =
+    list.find(pat.extension, fn(e) {
+      e.url
+      == "http://hl7.org/fhir/StructureDefinition/individual-genderIdentity"
+    })
+  let assert Ok(r5.Extension(
+    ext: r5.ExtSimple(r5.ExtensionValueCodeableconcept(ident_cc)),
+    ..,
+  )) = list.find(ident_children, fn(e) { e.url == "value" })
+  let assert [ident_coding] = ident_cc.coding
+  assert ident_coding.code == Some("446141000124107")
+  let assert Ok(r5.Extension(
+    ext: r5.ExtSimple(r5.ExtensionValuePeriod(period)),
+    ..,
+  )) = list.find(ident_children, fn(e) { e.url == "period" })
+  assert period.start == Some("2001-05-06")
+  assert period.end == None
+  assert pat.extension
+    |> list.map(fn(e) { e.url })
+    |> list.unique
+    |> list.length
+    == 4
+  assert list.filter(pat.extension, fn(e) {
+      e.url
+      == "http://hl7.org/fhir/StructureDefinition/individual-recordedSexOrGender"
+    })
+    |> list.length
+    == 3
 }

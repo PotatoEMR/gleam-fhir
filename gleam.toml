@@ -39,7 +39,10 @@ pages = [
   { title = "- CRUD", path = "clients/crud.html", source = "./docs/clients/06-crud.md" },
   { title = "- Search", path = "clients/search.html", source = "./docs/clients/07-search.md" },
   { title = "- Operations", path = "clients/operations.html", source = "./docs/clients/08-operations.md" },
-  { title = "Gleam FHIR Profiles", path = "clients.html", source = "./docs/profiles/01-profiles.md" },
+  { title = "Gleam FHIR Profiles", path = "profiles.html", source = "./docs/profiles/01-profiles.md" },
+  { title = "- Custom Extension", path = "customextension.html", source = "./docs/profiles/02-customextension.md" },
+  { title = "- Primitive Extension", path = "primitiveextension.html", source = "./docs/profiles/01-primitiveextension.md" },
+  { title = "- Code Generation", path = "codegen.html", source = "./docs/profiles/04-codegen.md" },
 ]
 
 [dependencies]
