@@ -1,6 +1,5 @@
 import gleam/dynamic/decode
 import gleam/json
-import gleam/option.{None, Some}
 
 pub fn check_roundtrip(
   in: String,

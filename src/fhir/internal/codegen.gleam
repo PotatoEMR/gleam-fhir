@@ -2061,16 +2061,92 @@ fn file_to_types(
                   let from_ext_fields =
                     list.map(from_ext_parts, fn(p) { p.1 <> ":" })
                     |> string.join(", ")
-                  let to_ext_fn =
-                    "pub fn "
-                    <> snake_type
-                    <> "_to_ext(to_ext: "
-                    <> camel_type
-                    <> ") -> Extension { Extension(id: None, url: \""
-                    <> resource.url
-                    <> "\", ext: ExtComplex(list.flatten(["
-                    <> to_ext_children
-                    <> "]))) }"
+                  // A simple extension has a single field named "value" with
+                  // one type — value[x] lives directly on the extension (no
+                  // child extension slices). It must use ExtSimple, not
+                  // ExtComplex with a fake "value" child.
+                  let is_simple_ext = case fields {
+                    [elt] ->
+                      case elt.id |> string.split(".") |> list.last, elt.type_ {
+                        Ok("value"), [_] -> True
+                        _, _ -> False
+                      }
+                    _ -> False
+                  }
+                  let to_ext_fn = case is_simple_ext {
+                    False ->
+                      "pub fn "
+                      <> snake_type
+                      <> "_to_ext(to_ext: "
+                      <> camel_type
+                      <> ") -> Extension { Extension(id: None, url: \""
+                      <> resource.url
+                      <> "\", ext: ExtComplex(list.flatten(["
+                      <> to_ext_children
+                      <> "]))) }"
+                    True -> {
+                      let assert [elt] = fields
+                      let assert [Type(code:, ..)] = elt.type_
+                      let val_type = string.capitalise(code)
+                      let val_expr_1 = case code, elt.binding {
+                        "code",
+                          Some(Binding(
+                            strength: "required",
+                            value_set: Some(vs),
+                          ))
+                        -> {
+                          let assert [vs_url, ..] = string.split(vs, "|")
+                          fhir_version
+                          <> "_valuesets."
+                          <> string.lowercase(
+                            concept_name_from_url(Some(vs_url)),
+                          )
+                          <> "_to_string(to_ext.value)"
+                        }
+                        _, _ -> "to_ext.value"
+                      }
+                      let val_expr_opt = case code, elt.binding {
+                        "code",
+                          Some(Binding(
+                            strength: "required",
+                            value_set: Some(vs),
+                          ))
+                        -> {
+                          let assert [vs_url, ..] = string.split(vs, "|")
+                          fhir_version
+                          <> "_valuesets."
+                          <> string.lowercase(
+                            concept_name_from_url(Some(vs_url)),
+                          )
+                          <> "_to_string(c)"
+                        }
+                        _, _ -> "c"
+                      }
+                      let ext_body = case elt.min {
+                        1 ->
+                          "ExtSimple(ExtensionValue"
+                          <> val_type
+                          <> "("
+                          <> val_expr_1
+                          <> "))"
+                        _ ->
+                          "case to_ext.value { None -> ExtComplex([]) Some(c) -> ExtSimple(ExtensionValue"
+                          <> val_type
+                          <> "("
+                          <> val_expr_opt
+                          <> ")) }"
+                      }
+                      "pub fn "
+                      <> snake_type
+                      <> "_to_ext(to_ext: "
+                      <> camel_type
+                      <> ") -> Extension { Extension(id: None, url: \""
+                      <> resource.url
+                      <> "\", ext: "
+                      <> ext_body
+                      <> ") }"
+                    }
+                  }
                   let ext_to_json_fn =
                     "pub fn "
                     <> snake_type
@@ -2091,20 +2167,96 @@ fn file_to_types(
                     <> ", Extension)) { use ext <- decode.then(extension_decoder()) case "
                     <> snake_type
                     <> "_from_ext(ext) { Ok(result) -> decode.success(Ok(result)) Error(Nil) -> decode.success(Error(ext)) } }"
-                  let from_ext_fn =
-                    "pub fn "
-                    <> snake_type
-                    <> "_from_ext(ext: Extension) -> Result("
-                    <> camel_type
-                    <> ", Nil) { case ext.url, ext.ext { \""
-                    <> resource.url
-                    <> "\", ExtComplex(children) -> { let ext_dict = exts_to_extdict(children) "
-                    <> from_ext_use_chain
-                    <> " Ok("
-                    <> camel_type
-                    <> "("
-                    <> from_ext_fields
-                    <> ")) } _, _ -> Error(Nil) } }"
+                  let from_ext_fn = case is_simple_ext {
+                    False ->
+                      "pub fn "
+                      <> snake_type
+                      <> "_from_ext(ext: Extension) -> Result("
+                      <> camel_type
+                      <> ", Nil) { case ext.url, ext.ext { \""
+                      <> resource.url
+                      <> "\", ExtComplex(children) -> { let ext_dict = exts_to_extdict(children) "
+                      <> from_ext_use_chain
+                      <> " Ok("
+                      <> camel_type
+                      <> "("
+                      <> from_ext_fields
+                      <> ")) } _, _ -> Error(Nil) } }"
+                    True -> {
+                      let assert [elt] = fields
+                      let assert [Type(code:, ..)] = elt.type_
+                      let val_type = string.capitalise(code)
+                      let match_arm = case elt.min, code, elt.binding {
+                        1,
+                          "code",
+                          Some(Binding(
+                            strength: "required",
+                            value_set: Some(vs),
+                          ))
+                        -> {
+                          let assert [vs_url, ..] = string.split(vs, "|")
+                          let from_str =
+                            fhir_version
+                            <> "_valuesets."
+                            <> string.lowercase(
+                              concept_name_from_url(Some(vs_url)),
+                            )
+                            <> "_from_string"
+                          "ExtSimple(ExtensionValue"
+                          <> val_type
+                          <> "(s)) -> result.map("
+                          <> from_str
+                          <> "(s), "
+                          <> camel_type
+                          <> ")"
+                        }
+                        1, _, _ ->
+                          "ExtSimple(ExtensionValue"
+                          <> val_type
+                          <> "(v)) -> Ok("
+                          <> camel_type
+                          <> "(value: v))"
+                        _,
+                          "code",
+                          Some(Binding(
+                            strength: "required",
+                            value_set: Some(vs),
+                          ))
+                        -> {
+                          let assert [vs_url, ..] = string.split(vs, "|")
+                          let from_str =
+                            fhir_version
+                            <> "_valuesets."
+                            <> string.lowercase(
+                              concept_name_from_url(Some(vs_url)),
+                            )
+                            <> "_from_string"
+                          "ExtSimple(ExtensionValue"
+                          <> val_type
+                          <> "(s)) -> result.map("
+                          <> from_str
+                          <> "(s), fn(v){ "
+                          <> camel_type
+                          <> "(value: Some(v)) })"
+                        }
+                        _, _, _ ->
+                          "ExtSimple(ExtensionValue"
+                          <> val_type
+                          <> "(v)) -> Ok("
+                          <> camel_type
+                          <> "(value: Some(v)))"
+                      }
+                      "pub fn "
+                      <> snake_type
+                      <> "_from_ext(ext: Extension) -> Result("
+                      <> camel_type
+                      <> ", Nil) { case ext.url, ext.ext { \""
+                      <> resource.url
+                      <> "\", "
+                      <> match_arm
+                      <> " _, _ -> Error(Nil) } }"
+                    }
+                  }
                   string.join(
                     [
                       new_doc_link,

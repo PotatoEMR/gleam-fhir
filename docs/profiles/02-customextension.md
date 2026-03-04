@@ -266,7 +266,6 @@ pub fn main() {
   let assert Ok(pat) =
     json.parse(patient_example_sex_and_gender, r4us.patient_decoder())
 
-  assert list.length(pat.individual_recorded_sex_or_gender) == 3
   let assert [rsg, _, _] = pat.individual_recorded_sex_or_gender
 
   echo rsg.value
