@@ -1,6 +1,7 @@
 import check_roundtrip
 import fhir/r4us
 import gleam/json
+import gleam/option.{None, Some}
 
 pub fn main() {
   let birthsex_json =
@@ -32,4 +33,5 @@ pub fn main() {
   )
   let assert Ok(p) = json.parse(patient, r4us.patient_decoder())
   let assert [_bs] = p.us_core_birthsex
+  let assert [] = p.extension
 }

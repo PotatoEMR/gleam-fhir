@@ -523,6 +523,9 @@ type ProfileFiles {
   ProfileFiles(
     resources: dict.Dict(String, List(Resource)),
     extensions: dict.Dict(String, List(#(String, String))),
+    // simple_exts: ext_name -> value[x] Element, for simple extensions
+    // (those with a value[x] directly on Extension, no child slices)
+    simple_exts: dict.Dict(String, Element),
   )
 }
 
@@ -538,41 +541,73 @@ fn file_to_types(
   // to be used when looping through resources to generate
   // if this is just vanilla r4/r4b/r5 and not a profile, will not change anything
   let profile_structures = case custom_profile_name {
-    None -> ProfileFiles(dict.new(), dict.new())
+    None -> ProfileFiles(dict.new(), dict.new(), dict.new())
     Some(_) -> {
       let assert Ok(files) = simplifile.read_directory(profiles_dir)
         as { "maybe run with download, custom profile not in " <> profiles_dir }
       files
       |> list.filter(fn(f) { string.starts_with(f, "StructureDefinition") })
-      |> list.fold(ProfileFiles(dict.new(), dict.new()), fn(acc, f) {
+      |> list.fold(ProfileFiles(dict.new(), dict.new(), dict.new()), fn(acc, f) {
         let fname = profiles_dir |> filepath.join(f)
         let assert Ok(profile_structuredef) = simplifile.read(fname)
         let assert Ok(r) =
           json.parse(from: profile_structuredef, using: resource_decoder())
         let assert Some(type_) = r.type_
-        let ext = case type_ {
+        let #(ext, new_simple_exts) = case type_ {
           "Extension" -> {
-            list.fold(
-              from: acc.extensions,
-              over: r.context,
-              with: fn(ext_acc, ext_ctx) {
-                let entry = #(r.url, r.id |> string.replace("-", "_"))
-                case dict.get(ext_acc, ext_ctx.expression) {
-                  Ok(exprs) ->
-                    dict.insert(ext_acc, ext_ctx.expression, [entry, ..exprs])
-                  Error(_) -> dict.insert(ext_acc, ext_ctx.expression, [entry])
+            let assert Some(snapshot) = r.snapshot
+            let slices =
+              list.filter(snapshot.element, fn(e) {
+                case string.split(e.id, ":") {
+                  [_, _] -> True
+                  _ -> False
                 }
-              },
-            )
+              })
+            let new_simple_exts = case slices {
+              [] ->
+                case
+                  list.find(snapshot.element, fn(e) {
+                    e.id == "Extension.value[x]"
+                  })
+                {
+                  Ok(velt) ->
+                    case velt.type_ {
+                      [_] ->
+                        dict.insert(
+                          acc.simple_exts,
+                          r.id |> string.replace("-", "_"),
+                          velt,
+                        )
+                      _ -> acc.simple_exts
+                    }
+                  Error(_) -> acc.simple_exts
+                }
+              _ -> acc.simple_exts
+            }
+            let new_ext =
+              list.fold(
+                from: acc.extensions,
+                over: r.context,
+                with: fn(ext_acc, ext_ctx) {
+                  let entry = #(r.url, r.id |> string.replace("-", "_"))
+                  case dict.get(ext_acc, ext_ctx.expression) {
+                    Ok(exprs) ->
+                      dict.insert(ext_acc, ext_ctx.expression, [entry, ..exprs])
+                    Error(_) ->
+                      dict.insert(ext_acc, ext_ctx.expression, [entry])
+                  }
+                },
+              )
+            #(new_ext, new_simple_exts)
           }
-          _ -> acc.extensions
+          _ -> #(acc.extensions, acc.simple_exts)
         }
         let res = case dict.get(acc.resources, type_) {
           Ok(profile_resources) ->
             dict.insert(acc.resources, type_, [r, ..profile_resources])
           Error(_) -> dict.insert(acc.resources, type_, [r])
         }
-        ProfileFiles(res, ext)
+        ProfileFiles(res, ext, new_simple_exts)
       })
     }
   }
@@ -868,6 +903,24 @@ fn file_to_types(
               //profiles get rid of elements by setting cardinality max 0
               elt.max != "0"
             })
+          // simple extension: one field named "value" with a single type,
+          // value[x] lives directly on Extension (no child slices)
+          let is_simple_ext = case resource.base_definition {
+            None -> False
+            Some(bd) ->
+              case string.contains(bd, "StructureDefinition/Extension") {
+                False -> False
+                True ->
+                  case fields {
+                    [elt] ->
+                      case elt.id |> string.split(".") |> list.last, elt.type_ {
+                        Ok("value"), [_] -> True
+                        _, _ -> False
+                      }
+                    _ -> False
+                  }
+              }
+          }
           // this tuple is important - all the stuff you generate for each field
           // should probably be a custom type
           // also choice fields do one more fold within this, on their type possibilities
@@ -931,13 +984,31 @@ fn file_to_types(
                   camel_type <> string.capitalise(elt_last_part)
                 let field_type = case elt.type_ {
                   [one_type] ->
-                    string_to_type(
-                      one_type.code,
-                      allparts,
-                      fhir_version,
-                      elt,
-                      gen_vsfile,
-                    )
+                    // For simple extension fields, use the value type directly
+                    // instead of the wrapper type name
+                    case
+                      string.contains(one_type.code, "_"),
+                      dict.get(profile_structures.simple_exts, one_type.code)
+                    {
+                      True, Ok(velt) -> {
+                        let assert [Type(code: val_code, ..)] = velt.type_
+                        string_to_type(
+                          val_code,
+                          ["Extension", "value"],
+                          fhir_version,
+                          velt,
+                          gen_vsfile,
+                        )
+                      }
+                      _, _ ->
+                        string_to_type(
+                          one_type.code,
+                          allparts,
+                          fhir_version,
+                          elt,
+                          gen_vsfile,
+                        )
+                    }
                   [] -> {
                     link_type_from(elt.content_reference, resource.name)
                     |> to_camel_case
@@ -1567,16 +1638,20 @@ fn file_to_types(
             }
           }
 
-          let type_newfields =
-            string.concat([
-              "pub type ",
-              camel_type,
-              "\n{\n",
-              camel_type,
-              "(",
-              field_list,
-              ")\n}",
-            ])
+          let type_newfields = case is_simple_ext {
+            // Simple extensions need no wrapper type; the value type is used directly
+            True -> ""
+            False ->
+              string.concat([
+                "pub type ",
+                camel_type,
+                "\n{\n",
+                camel_type,
+                "(",
+                field_list,
+                ")\n}",
+              ])
+          }
           let type_new_newfunc =
             string.concat([
               "pub fn ",
@@ -2061,18 +2136,8 @@ fn file_to_types(
                   let from_ext_fields =
                     list.map(from_ext_parts, fn(p) { p.1 <> ":" })
                     |> string.join(", ")
-                  // A simple extension has a single field named "value" with
-                  // one type — value[x] lives directly on the extension (no
-                  // child extension slices). It must use ExtSimple, not
-                  // ExtComplex with a fake "value" child.
-                  let is_simple_ext = case fields {
-                    [elt] ->
-                      case elt.id |> string.split(".") |> list.last, elt.type_ {
-                        Ok("value"), [_] -> True
-                        _, _ -> False
-                      }
-                    _ -> False
-                  }
+                  // is_simple_ext is computed early (before the field fold)
+                  // and reused here
                   let to_ext_fn = case is_simple_ext {
                     False ->
                       "pub fn "
@@ -2088,7 +2153,15 @@ fn file_to_types(
                       let assert [elt] = fields
                       let assert [Type(code:, ..)] = elt.type_
                       let val_type = string.capitalise(code)
-                      let val_expr_1 = case code, elt.binding {
+                      let gleam_val_type =
+                        string_to_type(
+                          code,
+                          ["Extension", "value"],
+                          fhir_version,
+                          elt,
+                          gen_vsfile,
+                        )
+                      let val_expr = case code, elt.binding {
                         "code",
                           Some(Binding(
                             strength: "required",
@@ -2101,78 +2174,89 @@ fn file_to_types(
                           <> string.lowercase(
                             concept_name_from_url(Some(vs_url)),
                           )
-                          <> "_to_string(to_ext.value)"
+                          <> "_to_string(value)"
                         }
-                        _, _ -> "to_ext.value"
-                      }
-                      let val_expr_opt = case code, elt.binding {
-                        "code",
-                          Some(Binding(
-                            strength: "required",
-                            value_set: Some(vs),
-                          ))
-                        -> {
-                          let assert [vs_url, ..] = string.split(vs, "|")
-                          fhir_version
-                          <> "_valuesets."
-                          <> string.lowercase(
-                            concept_name_from_url(Some(vs_url)),
-                          )
-                          <> "_to_string(c)"
-                        }
-                        _, _ -> "c"
-                      }
-                      let ext_body = case elt.min {
-                        1 ->
-                          "ExtSimple(ExtensionValue"
-                          <> val_type
-                          <> "("
-                          <> val_expr_1
-                          <> "))"
-                        _ ->
-                          "case to_ext.value { None -> ExtComplex([]) Some(c) -> ExtSimple(ExtensionValue"
-                          <> val_type
-                          <> "("
-                          <> val_expr_opt
-                          <> ")) }"
+                        _, _ -> "value"
                       }
                       "pub fn "
                       <> snake_type
-                      <> "_to_ext(to_ext: "
-                      <> camel_type
+                      <> "_to_ext(value: "
+                      <> gleam_val_type
                       <> ") -> Extension { Extension(id: None, url: \""
                       <> resource.url
-                      <> "\", ext: "
-                      <> ext_body
-                      <> ") }"
+                      <> "\", ext: ExtSimple(ExtensionValue"
+                      <> val_type
+                      <> "("
+                      <> val_expr
+                      <> "))) }"
                     }
                   }
-                  let ext_to_json_fn =
-                    "pub fn "
-                    <> snake_type
-                    <> "_to_json("
-                    <> snake_type
-                    <> ": "
-                    <> camel_type
-                    <> ") -> Json { extension_to_json("
-                    <> snake_type
-                    <> "_to_ext("
-                    <> snake_type
-                    <> ")) }"
-                  let ext_decoder_fn =
-                    "pub fn "
-                    <> snake_type
-                    <> "_decoder() -> Decoder(Result("
-                    <> camel_type
-                    <> ", Extension)) { use ext <- decode.then(extension_decoder()) case "
-                    <> snake_type
-                    <> "_from_ext(ext) { Ok(result) -> decode.success(Ok(result)) Error(Nil) -> decode.success(Error(ext)) } }"
+                  let #(ext_type_for_sig, ext_to_json_fn, ext_decoder_fn) = case
+                    is_simple_ext
+                  {
+                    False -> {
+                      let to_json =
+                        "pub fn "
+                        <> snake_type
+                        <> "_to_json("
+                        <> snake_type
+                        <> ": "
+                        <> camel_type
+                        <> ") -> Json { extension_to_json("
+                        <> snake_type
+                        <> "_to_ext("
+                        <> snake_type
+                        <> ")) }"
+                      let decoder =
+                        "pub fn "
+                        <> snake_type
+                        <> "_decoder() -> Decoder(Result("
+                        <> camel_type
+                        <> ", Extension)) { use ext <- decode.then(extension_decoder()) case "
+                        <> snake_type
+                        <> "_from_ext(ext) { Ok(result) -> decode.success(Ok(result)) Error(Nil) -> decode.success(Error(ext)) } }"
+                      #(camel_type, to_json, decoder)
+                    }
+                    True -> {
+                      let assert [elt] = fields
+                      let assert [Type(code:, ..)] = elt.type_
+                      let gleam_val_type =
+                        string_to_type(
+                          code,
+                          ["Extension", "value"],
+                          fhir_version,
+                          elt,
+                          gen_vsfile,
+                        )
+                      let to_json =
+                        "pub fn "
+                        <> snake_type
+                        <> "_to_json("
+                        <> snake_type
+                        <> ": "
+                        <> gleam_val_type
+                        <> ") -> Json { extension_to_json("
+                        <> snake_type
+                        <> "_to_ext("
+                        <> snake_type
+                        <> ")) }"
+                      let decoder =
+                        "pub fn "
+                        <> snake_type
+                        <> "_decoder() -> Decoder(Result("
+                        <> gleam_val_type
+                        <> ", Extension)) { use ext <- decode.then(extension_decoder()) case "
+                        <> snake_type
+                        <> "_from_ext(ext) { Ok(result) -> decode.success(Ok(result)) Error(Nil) -> decode.success(Error(ext)) } }"
+                      #(gleam_val_type, to_json, decoder)
+                    }
+                  }
                   let from_ext_fn = case is_simple_ext {
                     False ->
                       "pub fn "
                       <> snake_type
                       <> "_from_ext(ext: Extension) -> Result("
-                      <> camel_type
+                      <> ext_type_for_sig
                       <> ", Nil) { case ext.url, ext.ext { \""
                       <> resource.url
                       <> "\", ExtComplex(children) -> { let ext_dict = exts_to_extdict(children) "
@@ -2186,9 +2270,8 @@ fn file_to_types(
                       let assert [elt] = fields
                       let assert [Type(code:, ..)] = elt.type_
                       let val_type = string.capitalise(code)
-                      let match_arm = case elt.min, code, elt.binding {
-                        1,
-                          "code",
+                      let match_arm = case code, elt.binding {
+                        "code",
                           Some(Binding(
                             strength: "required",
                             value_set: Some(vs),
@@ -2204,52 +2287,19 @@ fn file_to_types(
                             <> "_from_string"
                           "ExtSimple(ExtensionValue"
                           <> val_type
-                          <> "(s)) -> result.map("
+                          <> "(s)) -> "
                           <> from_str
-                          <> "(s), "
-                          <> camel_type
-                          <> ")"
+                          <> "(s)"
                         }
-                        1, _, _ ->
+                        _, _ ->
                           "ExtSimple(ExtensionValue"
                           <> val_type
-                          <> "(v)) -> Ok("
-                          <> camel_type
-                          <> "(value: v))"
-                        _,
-                          "code",
-                          Some(Binding(
-                            strength: "required",
-                            value_set: Some(vs),
-                          ))
-                        -> {
-                          let assert [vs_url, ..] = string.split(vs, "|")
-                          let from_str =
-                            fhir_version
-                            <> "_valuesets."
-                            <> string.lowercase(
-                              concept_name_from_url(Some(vs_url)),
-                            )
-                            <> "_from_string"
-                          "ExtSimple(ExtensionValue"
-                          <> val_type
-                          <> "(s)) -> result.map("
-                          <> from_str
-                          <> "(s), fn(v){ "
-                          <> camel_type
-                          <> "(value: Some(v)) })"
-                        }
-                        _, _, _ ->
-                          "ExtSimple(ExtensionValue"
-                          <> val_type
-                          <> "(v)) -> Ok("
-                          <> camel_type
-                          <> "(value: Some(v)))"
+                          <> "(v)) -> Ok(v)"
                       }
                       "pub fn "
                       <> snake_type
                       <> "_from_ext(ext: Extension) -> Result("
-                      <> camel_type
+                      <> ext_type_for_sig
                       <> ", Nil) { case ext.url, ext.ext { \""
                       <> resource.url
                       <> "\", "
