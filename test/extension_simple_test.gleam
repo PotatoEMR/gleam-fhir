@@ -1,7 +1,6 @@
 import check_roundtrip
 import fhir/r4us
 import gleam/json
-import gleam/option.{None, Some}
 
 pub fn main() {
   let birthsex_json =

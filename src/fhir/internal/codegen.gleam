@@ -343,6 +343,22 @@ fn gen_fhir(
   let gen_into_dir = const_gen_into_dir()
   let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
 
+  let _ = case custom_profile_name {
+    None -> Nil
+    Some(_) -> {
+      let prim_ext_file =
+        filepath.directory_name(const_download_dir())
+        |> filepath.join("primitive_extension_list.txt")
+      case simplifile.read(prim_ext_file) {
+        Error(_) -> Nil
+        Ok(contents) ->
+          contents
+          |> string.split("\n")
+          |> list.each(io.println)
+      }
+    }
+  }
+
   let _ = case download_files {
     True -> {
       let assert Ok(_) = simplifile.create_directory_all(extract_dir_ver)
@@ -482,6 +498,65 @@ fn gen_fhir(
           }
         }
       }
+
+
+    pub type PrimitiveWithExtension(a) {
+      PrimitiveWithExtension(id: Option(String), ext: List(Extension), value: Option(a))
+    }
+
+    pub type ExtAndId {
+      ExtAndId(id: Option(String), ext: List(Extension)) 
+    }
+
+    pub fn primitive_ext_part_to_json(p: PrimitiveWithExtension(_)) {
+      let PrimitiveWithExtension(id, ext, _) = p
+      let fields = []
+      let fields = case id {
+        Some(v) -> [#(\"id\", json.string(v)), ..fields]
+        None -> fields
+      }
+      let fields = case ext {
+        [] -> fields
+        _ -> [#(\"extension\", json.array(ext, extension_to_json)), ..fields]
+      }
+      json.object(fields)
+    }
+
+    pub fn primitive_ext_part_decoder(){
+      use ext <- decode.optional_field(
+        \"extension\",
+        [],
+        decode.list(extension_decoder()),
+      )
+      use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
+      decode.success(ExtAndId(
+        ext:,
+        id:,
+      ))
+    }
+
+    pub fn primitives_to_json(old_fields: List(#(String, Json)), field: List(PrimitiveWithExtension(a)), field_to_json: fn(a) -> Json, name: String){
+        let old_fields = case list.any(vals, fn(j: PrimitiveWithExtension){ j.value != None}){
+            False -> old_fields
+            True -> {
+                let arr = json.array(nullable(primitive.value, field_to_json))
+                [#(name, arr), ..old_fields]
+            }
+        }
+        case list.any(vals, fn(j: PrimitiveWithExtension){j.id != None || j.ext != []}){
+            False -> old_fields
+            True -> {
+                let arr = json.array(vals, fn(primitive) {
+                case primitive.id, primitive.ext {
+                    None, [] -> json.null()
+                    _, _ -> primitive_ext_part_to_json(primitive)
+                }
+                })
+                [#(\"_\" <> name, arr), ..old_fields]
+            }
+        }
+    }
+
       ",
     ])
   let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: all_types)
