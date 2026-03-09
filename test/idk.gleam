@@ -1,12 +1,17 @@
 import fhir/r4
 import gleam/dynamic/decode
-import gleam/json
+import gleam/json.{type Json}
 import gleam/option.{type Option, None, Some}
 import gleam/list
 
 pub type PrimitiveWithExtension(a) {
-  PrimitiveWithExtension(id: Option(String), ext: List(r4.Extension), value: a)
+  PrimitiveWithExtension(id: Option(String), ext: List(r4.Extension), value: Option(a))
 }
+
+pub type PrimitiveExtPart {
+  PrimitiveExtPart(id: Option(String), ext: List(r4.Extension))
+}
+
 
 pub fn primitive_ext_part_to_json(p: PrimitiveWithExtension(_)) {
   let PrimitiveWithExtension(id, ext, _) = p
@@ -22,19 +27,9 @@ pub fn primitive_ext_part_to_json(p: PrimitiveWithExtension(_)) {
   json.object(fields)
 }
 
-pub fn primitive_ext_part_decoder(value: a) {
-  use ext <- decode.optional_field(
-    "extension",
-    [],
-    decode.list(r4.extension_decoder()),
-  )
-  use id <- decode.optional_field("id", None, decode.optional(decode.string))
-  decode.success(PrimitiveWithExtension(ext:, id:, value:))
-}
-
 pub fn primitives_to_json(old_fields: List(#(String, Json)), field: List(PrimitiveWithExtension(a)), field_to_json: fn(a) -> Json, name: String){
     let vals = list.map(field, fn(primitive){
-        nullable(primitive.value, field_to_json)
+        json.nullable(primitive.value, field_to_json)
     })
     let exts = list.map(field, fn(primitive){
         case primitive.id, primitive.ext {
@@ -50,4 +45,28 @@ pub fn primitives_to_json(old_fields: List(#(String, Json)), field: List(Primiti
         False -> old_fields
         True -> [#("_" <> name, json.preprocessed_array(exts)), ..old_fields]
     }
+}
+
+
+pub fn primitive_ext_part_decoder() {
+  use ext <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(r4.extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(PrimitiveExtPart(ext:, id:))
+}
+
+pub fn primitives_decoder(name: String, thing_decoder){
+    use values <- decode.optional_field(name, [], decode.list(decode.optional(thing_decoder())))
+    use pwes <- decode.optional_field("_" <> name, [], decode.list(decode.optional(primitive_ext_part_decoder())))
+    let together = list.map2(pwes, values, fn(pwe, value){
+        let #(id, ext) = case pwe {
+            None -> #(None, [])
+            Some(pwe) -> #(pwe.id, pwe.ext)
+        }
+        PrimitiveWithExtension(id:, ext:, value:,)
+    })
+    decode.success(together)
 }
