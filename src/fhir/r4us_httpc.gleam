@@ -304,66 +304,61 @@ pub fn adverseevent_search(
   })
 }
 
-pub fn us_core_allergyintolerance_create(
-  resource: r4us.UsCoreAllergyintolerance,
+pub fn allergyintolerance_create(
+  resource: r4us.Allergyintolerance,
   client: FhirClient,
-) -> Result(r4us.UsCoreAllergyintolerance, Err) {
+) -> Result(r4us.Allergyintolerance, Err) {
   any_create(
-    r4us.us_core_allergyintolerance_to_json(resource),
+    r4us.allergyintolerance_to_json(resource),
     "AllergyIntolerance",
-    r4us.us_core_allergyintolerance_decoder(),
+    r4us.allergyintolerance_decoder(),
     client,
   )
 }
 
-pub fn us_core_allergyintolerance_read(
+pub fn allergyintolerance_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreAllergyintolerance, Err) {
-  any_read(
-    id,
-    client,
-    "AllergyIntolerance",
-    r4us.us_core_allergyintolerance_decoder(),
-  )
+) -> Result(r4us.Allergyintolerance, Err) {
+  any_read(id, client, "AllergyIntolerance", r4us.allergyintolerance_decoder())
 }
 
-pub fn us_core_allergyintolerance_update(
-  resource: r4us.UsCoreAllergyintolerance,
+pub fn allergyintolerance_update(
+  resource: r4us.Allergyintolerance,
   client: FhirClient,
-) -> Result(r4us.UsCoreAllergyintolerance, Err) {
+) -> Result(r4us.Allergyintolerance, Err) {
   any_update(
     resource.id,
-    r4us.us_core_allergyintolerance_to_json(resource),
+    r4us.allergyintolerance_to_json(resource),
     "AllergyIntolerance",
-    r4us.us_core_allergyintolerance_decoder(),
+    r4us.allergyintolerance_decoder(),
     client,
   )
 }
 
-pub fn us_core_allergyintolerance_delete(
-  resource: r4us.UsCoreAllergyintolerance,
+pub fn allergyintolerance_delete(
+  resource: r4us.Allergyintolerance,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "AllergyIntolerance", client)
 }
 
-pub fn us_core_allergyintolerance_search_bundled(
-  sp: r4us_sansio.SpUsCoreAllergyintolerance,
+pub fn allergyintolerance_search_bundled(
+  sp: r4us_sansio.SpAllergyintolerance,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_allergyintolerance_search_req(sp, client)
+  let req = r4us_sansio.allergyintolerance_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_allergyintolerance_search(
-  sp: r4us_sansio.SpUsCoreAllergyintolerance,
+pub fn allergyintolerance_search(
+  sp: r4us_sansio.SpAllergyintolerance,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreAllergyintolerance), Err) {
-  let req = r4us_sansio.us_core_allergyintolerance_search_req(sp, client)
+) -> Result(List(r4us.Allergyintolerance), Err) {
+  let req = r4us_sansio.allergyintolerance_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_allergyintolerance
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.allergyintolerance
   })
 }
 
@@ -886,119 +881,113 @@ pub fn capabilitystatement_search(
   })
 }
 
-pub fn us_core_careplan_create(
-  resource: r4us.UsCoreCareplan,
+pub fn careplan_create(
+  resource: r4us.Careplan,
   client: FhirClient,
-) -> Result(r4us.UsCoreCareplan, Err) {
+) -> Result(r4us.Careplan, Err) {
   any_create(
-    r4us.us_core_careplan_to_json(resource),
+    r4us.careplan_to_json(resource),
     "CarePlan",
-    r4us.us_core_careplan_decoder(),
+    r4us.careplan_decoder(),
     client,
   )
 }
 
-pub fn us_core_careplan_read(
+pub fn careplan_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreCareplan, Err) {
-  any_read(id, client, "CarePlan", r4us.us_core_careplan_decoder())
+) -> Result(r4us.Careplan, Err) {
+  any_read(id, client, "CarePlan", r4us.careplan_decoder())
 }
 
-pub fn us_core_careplan_update(
-  resource: r4us.UsCoreCareplan,
+pub fn careplan_update(
+  resource: r4us.Careplan,
   client: FhirClient,
-) -> Result(r4us.UsCoreCareplan, Err) {
+) -> Result(r4us.Careplan, Err) {
   any_update(
     resource.id,
-    r4us.us_core_careplan_to_json(resource),
+    r4us.careplan_to_json(resource),
     "CarePlan",
-    r4us.us_core_careplan_decoder(),
+    r4us.careplan_decoder(),
     client,
   )
 }
 
-pub fn us_core_careplan_delete(
-  resource: r4us.UsCoreCareplan,
+pub fn careplan_delete(
+  resource: r4us.Careplan,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "CarePlan", client)
 }
 
-pub fn us_core_careplan_search_bundled(
-  sp: r4us_sansio.SpUsCoreCareplan,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_careplan_search_req(sp, client)
+pub fn careplan_search_bundled(sp: r4us_sansio.SpCareplan, client: FhirClient) {
+  let req = r4us_sansio.careplan_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_careplan_search(
-  sp: r4us_sansio.SpUsCoreCareplan,
+pub fn careplan_search(
+  sp: r4us_sansio.SpCareplan,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreCareplan), Err) {
-  let req = r4us_sansio.us_core_careplan_search_req(sp, client)
+) -> Result(List(r4us.Careplan), Err) {
+  let req = r4us_sansio.careplan_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_careplan
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.careplan
   })
 }
 
-pub fn us_core_careteam_create(
-  resource: r4us.UsCoreCareteam,
+pub fn careteam_create(
+  resource: r4us.Careteam,
   client: FhirClient,
-) -> Result(r4us.UsCoreCareteam, Err) {
+) -> Result(r4us.Careteam, Err) {
   any_create(
-    r4us.us_core_careteam_to_json(resource),
+    r4us.careteam_to_json(resource),
     "CareTeam",
-    r4us.us_core_careteam_decoder(),
+    r4us.careteam_decoder(),
     client,
   )
 }
 
-pub fn us_core_careteam_read(
+pub fn careteam_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreCareteam, Err) {
-  any_read(id, client, "CareTeam", r4us.us_core_careteam_decoder())
+) -> Result(r4us.Careteam, Err) {
+  any_read(id, client, "CareTeam", r4us.careteam_decoder())
 }
 
-pub fn us_core_careteam_update(
-  resource: r4us.UsCoreCareteam,
+pub fn careteam_update(
+  resource: r4us.Careteam,
   client: FhirClient,
-) -> Result(r4us.UsCoreCareteam, Err) {
+) -> Result(r4us.Careteam, Err) {
   any_update(
     resource.id,
-    r4us.us_core_careteam_to_json(resource),
+    r4us.careteam_to_json(resource),
     "CareTeam",
-    r4us.us_core_careteam_decoder(),
+    r4us.careteam_decoder(),
     client,
   )
 }
 
-pub fn us_core_careteam_delete(
-  resource: r4us.UsCoreCareteam,
+pub fn careteam_delete(
+  resource: r4us.Careteam,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "CareTeam", client)
 }
 
-pub fn us_core_careteam_search_bundled(
-  sp: r4us_sansio.SpUsCoreCareteam,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_careteam_search_req(sp, client)
+pub fn careteam_search_bundled(sp: r4us_sansio.SpCareteam, client: FhirClient) {
+  let req = r4us_sansio.careteam_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_careteam_search(
-  sp: r4us_sansio.SpUsCoreCareteam,
+pub fn careteam_search(
+  sp: r4us_sansio.SpCareteam,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreCareteam), Err) {
-  let req = r4us_sansio.us_core_careteam_search_req(sp, client)
+) -> Result(List(r4us.Careteam), Err) {
+  let req = r4us_sansio.careteam_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_careteam
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.careteam
   })
 }
 
@@ -1707,139 +1696,58 @@ pub fn conceptmap_search(
   })
 }
 
-pub fn us_core_condition_encounter_diagnosis_create(
-  resource: r4us.UsCoreConditionEncounterDiagnosis,
+pub fn condition_create(
+  resource: r4us.Condition,
   client: FhirClient,
-) -> Result(r4us.UsCoreConditionEncounterDiagnosis, Err) {
+) -> Result(r4us.Condition, Err) {
   any_create(
-    r4us.us_core_condition_encounter_diagnosis_to_json(resource),
+    r4us.condition_to_json(resource),
     "Condition",
-    r4us.us_core_condition_encounter_diagnosis_decoder(),
+    r4us.condition_decoder(),
     client,
   )
 }
 
-pub fn us_core_condition_encounter_diagnosis_read(
+pub fn condition_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreConditionEncounterDiagnosis, Err) {
-  any_read(
-    id,
-    client,
-    "Condition",
-    r4us.us_core_condition_encounter_diagnosis_decoder(),
-  )
+) -> Result(r4us.Condition, Err) {
+  any_read(id, client, "Condition", r4us.condition_decoder())
 }
 
-pub fn us_core_condition_encounter_diagnosis_update(
-  resource: r4us.UsCoreConditionEncounterDiagnosis,
+pub fn condition_update(
+  resource: r4us.Condition,
   client: FhirClient,
-) -> Result(r4us.UsCoreConditionEncounterDiagnosis, Err) {
+) -> Result(r4us.Condition, Err) {
   any_update(
     resource.id,
-    r4us.us_core_condition_encounter_diagnosis_to_json(resource),
+    r4us.condition_to_json(resource),
     "Condition",
-    r4us.us_core_condition_encounter_diagnosis_decoder(),
+    r4us.condition_decoder(),
     client,
   )
 }
 
-pub fn us_core_condition_encounter_diagnosis_delete(
-  resource: r4us.UsCoreConditionEncounterDiagnosis,
+pub fn condition_delete(
+  resource: r4us.Condition,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Condition", client)
 }
 
-pub fn us_core_condition_encounter_diagnosis_search_bundled(
-  sp: r4us_sansio.SpUsCoreConditionEncounterDiagnosis,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.us_core_condition_encounter_diagnosis_search_req(sp, client)
+pub fn condition_search_bundled(sp: r4us_sansio.SpCondition, client: FhirClient) {
+  let req = r4us_sansio.condition_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_condition_encounter_diagnosis_search(
-  sp: r4us_sansio.SpUsCoreConditionEncounterDiagnosis,
+pub fn condition_search(
+  sp: r4us_sansio.SpCondition,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreConditionEncounterDiagnosis), Err) {
-  let req =
-    r4us_sansio.us_core_condition_encounter_diagnosis_search_req(sp, client)
+) -> Result(List(r4us.Condition), Err) {
+  let req = r4us_sansio.condition_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_condition_encounter_diagnosis
-  })
-}
-
-pub fn us_core_condition_problems_health_concerns_create(
-  resource: r4us.UsCoreConditionProblemsHealthConcerns,
-  client: FhirClient,
-) -> Result(r4us.UsCoreConditionProblemsHealthConcerns, Err) {
-  any_create(
-    r4us.us_core_condition_problems_health_concerns_to_json(resource),
-    "Condition",
-    r4us.us_core_condition_problems_health_concerns_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_condition_problems_health_concerns_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreConditionProblemsHealthConcerns, Err) {
-  any_read(
-    id,
-    client,
-    "Condition",
-    r4us.us_core_condition_problems_health_concerns_decoder(),
-  )
-}
-
-pub fn us_core_condition_problems_health_concerns_update(
-  resource: r4us.UsCoreConditionProblemsHealthConcerns,
-  client: FhirClient,
-) -> Result(r4us.UsCoreConditionProblemsHealthConcerns, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_condition_problems_health_concerns_to_json(resource),
-    "Condition",
-    r4us.us_core_condition_problems_health_concerns_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_condition_problems_health_concerns_delete(
-  resource: r4us.UsCoreConditionProblemsHealthConcerns,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Condition", client)
-}
-
-pub fn us_core_condition_problems_health_concerns_search_bundled(
-  sp: r4us_sansio.SpUsCoreConditionProblemsHealthConcerns,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.us_core_condition_problems_health_concerns_search_req(
-      sp,
-      client,
-    )
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_condition_problems_health_concerns_search(
-  sp: r4us_sansio.SpUsCoreConditionProblemsHealthConcerns,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreConditionProblemsHealthConcerns), Err) {
-  let req =
-    r4us_sansio.us_core_condition_problems_health_concerns_search_req(
-      sp,
-      client,
-    )
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_condition_problems_health_concerns
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.condition
   })
 }
 
@@ -1950,61 +1858,58 @@ pub fn contract_search(
   })
 }
 
-pub fn us_core_coverage_create(
-  resource: r4us.UsCoreCoverage,
+pub fn coverage_create(
+  resource: r4us.Coverage,
   client: FhirClient,
-) -> Result(r4us.UsCoreCoverage, Err) {
+) -> Result(r4us.Coverage, Err) {
   any_create(
-    r4us.us_core_coverage_to_json(resource),
+    r4us.coverage_to_json(resource),
     "Coverage",
-    r4us.us_core_coverage_decoder(),
+    r4us.coverage_decoder(),
     client,
   )
 }
 
-pub fn us_core_coverage_read(
+pub fn coverage_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreCoverage, Err) {
-  any_read(id, client, "Coverage", r4us.us_core_coverage_decoder())
+) -> Result(r4us.Coverage, Err) {
+  any_read(id, client, "Coverage", r4us.coverage_decoder())
 }
 
-pub fn us_core_coverage_update(
-  resource: r4us.UsCoreCoverage,
+pub fn coverage_update(
+  resource: r4us.Coverage,
   client: FhirClient,
-) -> Result(r4us.UsCoreCoverage, Err) {
+) -> Result(r4us.Coverage, Err) {
   any_update(
     resource.id,
-    r4us.us_core_coverage_to_json(resource),
+    r4us.coverage_to_json(resource),
     "Coverage",
-    r4us.us_core_coverage_decoder(),
+    r4us.coverage_decoder(),
     client,
   )
 }
 
-pub fn us_core_coverage_delete(
-  resource: r4us.UsCoreCoverage,
+pub fn coverage_delete(
+  resource: r4us.Coverage,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Coverage", client)
 }
 
-pub fn us_core_coverage_search_bundled(
-  sp: r4us_sansio.SpUsCoreCoverage,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_coverage_search_req(sp, client)
+pub fn coverage_search_bundled(sp: r4us_sansio.SpCoverage, client: FhirClient) {
+  let req = r4us_sansio.coverage_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_coverage_search(
-  sp: r4us_sansio.SpUsCoreCoverage,
+pub fn coverage_search(
+  sp: r4us_sansio.SpCoverage,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreCoverage), Err) {
-  let req = r4us_sansio.us_core_coverage_search_req(sp, client)
+) -> Result(List(r4us.Coverage), Err) {
+  let req = r4us_sansio.coverage_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_coverage
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.coverage
   })
 }
 
@@ -2192,61 +2097,55 @@ pub fn detectedissue_search(
   })
 }
 
-pub fn us_core_device_create(
-  resource: r4us.UsCoreDevice,
+pub fn device_create(
+  resource: r4us.Device,
   client: FhirClient,
-) -> Result(r4us.UsCoreDevice, Err) {
+) -> Result(r4us.Device, Err) {
   any_create(
-    r4us.us_core_device_to_json(resource),
+    r4us.device_to_json(resource),
     "Device",
-    r4us.us_core_device_decoder(),
+    r4us.device_decoder(),
     client,
   )
 }
 
-pub fn us_core_device_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreDevice, Err) {
-  any_read(id, client, "Device", r4us.us_core_device_decoder())
+pub fn device_read(id: String, client: FhirClient) -> Result(r4us.Device, Err) {
+  any_read(id, client, "Device", r4us.device_decoder())
 }
 
-pub fn us_core_device_update(
-  resource: r4us.UsCoreDevice,
+pub fn device_update(
+  resource: r4us.Device,
   client: FhirClient,
-) -> Result(r4us.UsCoreDevice, Err) {
+) -> Result(r4us.Device, Err) {
   any_update(
     resource.id,
-    r4us.us_core_device_to_json(resource),
+    r4us.device_to_json(resource),
     "Device",
-    r4us.us_core_device_decoder(),
+    r4us.device_decoder(),
     client,
   )
 }
 
-pub fn us_core_device_delete(
-  resource: r4us.UsCoreDevice,
+pub fn device_delete(
+  resource: r4us.Device,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Device", client)
 }
 
-pub fn us_core_device_search_bundled(
-  sp: r4us_sansio.SpUsCoreDevice,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_device_search_req(sp, client)
+pub fn device_search_bundled(sp: r4us_sansio.SpDevice, client: FhirClient) {
+  let req = r4us_sansio.device_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_device_search(
-  sp: r4us_sansio.SpUsCoreDevice,
+pub fn device_search(
+  sp: r4us_sansio.SpDevice,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreDevice), Err) {
-  let req = r4us_sansio.us_core_device_search_req(sp, client)
+) -> Result(List(r4us.Device), Err) {
+  let req = r4us_sansio.device_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_device
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.device
   })
 }
 
@@ -2482,129 +2381,61 @@ pub fn deviceusestatement_search(
   })
 }
 
-pub fn us_core_diagnosticreport_lab_create(
-  resource: r4us.UsCoreDiagnosticreportLab,
+pub fn diagnosticreport_create(
+  resource: r4us.Diagnosticreport,
   client: FhirClient,
-) -> Result(r4us.UsCoreDiagnosticreportLab, Err) {
+) -> Result(r4us.Diagnosticreport, Err) {
   any_create(
-    r4us.us_core_diagnosticreport_lab_to_json(resource),
+    r4us.diagnosticreport_to_json(resource),
     "DiagnosticReport",
-    r4us.us_core_diagnosticreport_lab_decoder(),
+    r4us.diagnosticreport_decoder(),
     client,
   )
 }
 
-pub fn us_core_diagnosticreport_lab_read(
+pub fn diagnosticreport_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreDiagnosticreportLab, Err) {
-  any_read(
-    id,
-    client,
-    "DiagnosticReport",
-    r4us.us_core_diagnosticreport_lab_decoder(),
-  )
+) -> Result(r4us.Diagnosticreport, Err) {
+  any_read(id, client, "DiagnosticReport", r4us.diagnosticreport_decoder())
 }
 
-pub fn us_core_diagnosticreport_lab_update(
-  resource: r4us.UsCoreDiagnosticreportLab,
+pub fn diagnosticreport_update(
+  resource: r4us.Diagnosticreport,
   client: FhirClient,
-) -> Result(r4us.UsCoreDiagnosticreportLab, Err) {
+) -> Result(r4us.Diagnosticreport, Err) {
   any_update(
     resource.id,
-    r4us.us_core_diagnosticreport_lab_to_json(resource),
+    r4us.diagnosticreport_to_json(resource),
     "DiagnosticReport",
-    r4us.us_core_diagnosticreport_lab_decoder(),
+    r4us.diagnosticreport_decoder(),
     client,
   )
 }
 
-pub fn us_core_diagnosticreport_lab_delete(
-  resource: r4us.UsCoreDiagnosticreportLab,
+pub fn diagnosticreport_delete(
+  resource: r4us.Diagnosticreport,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "DiagnosticReport", client)
 }
 
-pub fn us_core_diagnosticreport_lab_search_bundled(
-  sp: r4us_sansio.SpUsCoreDiagnosticreportLab,
+pub fn diagnosticreport_search_bundled(
+  sp: r4us_sansio.SpDiagnosticreport,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_diagnosticreport_lab_search_req(sp, client)
+  let req = r4us_sansio.diagnosticreport_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_diagnosticreport_lab_search(
-  sp: r4us_sansio.SpUsCoreDiagnosticreportLab,
+pub fn diagnosticreport_search(
+  sp: r4us_sansio.SpDiagnosticreport,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreDiagnosticreportLab), Err) {
-  let req = r4us_sansio.us_core_diagnosticreport_lab_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_diagnosticreport_lab
-  })
-}
-
-pub fn us_core_diagnosticreport_note_create(
-  resource: r4us.UsCoreDiagnosticreportNote,
-  client: FhirClient,
-) -> Result(r4us.UsCoreDiagnosticreportNote, Err) {
-  any_create(
-    r4us.us_core_diagnosticreport_note_to_json(resource),
-    "DiagnosticReport",
-    r4us.us_core_diagnosticreport_note_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_diagnosticreport_note_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreDiagnosticreportNote, Err) {
-  any_read(
-    id,
-    client,
-    "DiagnosticReport",
-    r4us.us_core_diagnosticreport_note_decoder(),
-  )
-}
-
-pub fn us_core_diagnosticreport_note_update(
-  resource: r4us.UsCoreDiagnosticreportNote,
-  client: FhirClient,
-) -> Result(r4us.UsCoreDiagnosticreportNote, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_diagnosticreport_note_to_json(resource),
-    "DiagnosticReport",
-    r4us.us_core_diagnosticreport_note_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_diagnosticreport_note_delete(
-  resource: r4us.UsCoreDiagnosticreportNote,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "DiagnosticReport", client)
-}
-
-pub fn us_core_diagnosticreport_note_search_bundled(
-  sp: r4us_sansio.SpUsCoreDiagnosticreportNote,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_diagnosticreport_note_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_diagnosticreport_note_search(
-  sp: r4us_sansio.SpUsCoreDiagnosticreportNote,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreDiagnosticreportNote), Err) {
-  let req = r4us_sansio.us_core_diagnosticreport_note_search_req(sp, client)
+) -> Result(List(r4us.Diagnosticreport), Err) {
+  let req = r4us_sansio.diagnosticreport_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_diagnosticreport_note
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.diagnosticreport
   })
 }
 
@@ -2666,129 +2497,61 @@ pub fn documentmanifest_search(
   })
 }
 
-pub fn us_core_documentreference_create(
-  resource: r4us.UsCoreDocumentreference,
+pub fn documentreference_create(
+  resource: r4us.Documentreference,
   client: FhirClient,
-) -> Result(r4us.UsCoreDocumentreference, Err) {
+) -> Result(r4us.Documentreference, Err) {
   any_create(
-    r4us.us_core_documentreference_to_json(resource),
+    r4us.documentreference_to_json(resource),
     "DocumentReference",
-    r4us.us_core_documentreference_decoder(),
+    r4us.documentreference_decoder(),
     client,
   )
 }
 
-pub fn us_core_documentreference_read(
+pub fn documentreference_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreDocumentreference, Err) {
-  any_read(
-    id,
-    client,
-    "DocumentReference",
-    r4us.us_core_documentreference_decoder(),
-  )
+) -> Result(r4us.Documentreference, Err) {
+  any_read(id, client, "DocumentReference", r4us.documentreference_decoder())
 }
 
-pub fn us_core_documentreference_update(
-  resource: r4us.UsCoreDocumentreference,
+pub fn documentreference_update(
+  resource: r4us.Documentreference,
   client: FhirClient,
-) -> Result(r4us.UsCoreDocumentreference, Err) {
+) -> Result(r4us.Documentreference, Err) {
   any_update(
     resource.id,
-    r4us.us_core_documentreference_to_json(resource),
+    r4us.documentreference_to_json(resource),
     "DocumentReference",
-    r4us.us_core_documentreference_decoder(),
+    r4us.documentreference_decoder(),
     client,
   )
 }
 
-pub fn us_core_documentreference_delete(
-  resource: r4us.UsCoreDocumentreference,
+pub fn documentreference_delete(
+  resource: r4us.Documentreference,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "DocumentReference", client)
 }
 
-pub fn us_core_documentreference_search_bundled(
-  sp: r4us_sansio.SpUsCoreDocumentreference,
+pub fn documentreference_search_bundled(
+  sp: r4us_sansio.SpDocumentreference,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_documentreference_search_req(sp, client)
+  let req = r4us_sansio.documentreference_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_documentreference_search(
-  sp: r4us_sansio.SpUsCoreDocumentreference,
+pub fn documentreference_search(
+  sp: r4us_sansio.SpDocumentreference,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreDocumentreference), Err) {
-  let req = r4us_sansio.us_core_documentreference_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_documentreference
-  })
-}
-
-pub fn us_core_adi_documentreference_create(
-  resource: r4us.UsCoreAdiDocumentreference,
-  client: FhirClient,
-) -> Result(r4us.UsCoreAdiDocumentreference, Err) {
-  any_create(
-    r4us.us_core_adi_documentreference_to_json(resource),
-    "DocumentReference",
-    r4us.us_core_adi_documentreference_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_adi_documentreference_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreAdiDocumentreference, Err) {
-  any_read(
-    id,
-    client,
-    "DocumentReference",
-    r4us.us_core_adi_documentreference_decoder(),
-  )
-}
-
-pub fn us_core_adi_documentreference_update(
-  resource: r4us.UsCoreAdiDocumentreference,
-  client: FhirClient,
-) -> Result(r4us.UsCoreAdiDocumentreference, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_adi_documentreference_to_json(resource),
-    "DocumentReference",
-    r4us.us_core_adi_documentreference_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_adi_documentreference_delete(
-  resource: r4us.UsCoreAdiDocumentreference,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "DocumentReference", client)
-}
-
-pub fn us_core_adi_documentreference_search_bundled(
-  sp: r4us_sansio.SpUsCoreAdiDocumentreference,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_adi_documentreference_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_adi_documentreference_search(
-  sp: r4us_sansio.SpUsCoreAdiDocumentreference,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreAdiDocumentreference), Err) {
-  let req = r4us_sansio.us_core_adi_documentreference_search_req(sp, client)
+) -> Result(List(r4us.Documentreference), Err) {
+  let req = r4us_sansio.documentreference_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_adi_documentreference
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.documentreference
   })
 }
 
@@ -2855,61 +2618,58 @@ pub fn effectevidencesynthesis_search(
   })
 }
 
-pub fn us_core_encounter_create(
-  resource: r4us.UsCoreEncounter,
+pub fn encounter_create(
+  resource: r4us.Encounter,
   client: FhirClient,
-) -> Result(r4us.UsCoreEncounter, Err) {
+) -> Result(r4us.Encounter, Err) {
   any_create(
-    r4us.us_core_encounter_to_json(resource),
+    r4us.encounter_to_json(resource),
     "Encounter",
-    r4us.us_core_encounter_decoder(),
+    r4us.encounter_decoder(),
     client,
   )
 }
 
-pub fn us_core_encounter_read(
+pub fn encounter_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreEncounter, Err) {
-  any_read(id, client, "Encounter", r4us.us_core_encounter_decoder())
+) -> Result(r4us.Encounter, Err) {
+  any_read(id, client, "Encounter", r4us.encounter_decoder())
 }
 
-pub fn us_core_encounter_update(
-  resource: r4us.UsCoreEncounter,
+pub fn encounter_update(
+  resource: r4us.Encounter,
   client: FhirClient,
-) -> Result(r4us.UsCoreEncounter, Err) {
+) -> Result(r4us.Encounter, Err) {
   any_update(
     resource.id,
-    r4us.us_core_encounter_to_json(resource),
+    r4us.encounter_to_json(resource),
     "Encounter",
-    r4us.us_core_encounter_decoder(),
+    r4us.encounter_decoder(),
     client,
   )
 }
 
-pub fn us_core_encounter_delete(
-  resource: r4us.UsCoreEncounter,
+pub fn encounter_delete(
+  resource: r4us.Encounter,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Encounter", client)
 }
 
-pub fn us_core_encounter_search_bundled(
-  sp: r4us_sansio.SpUsCoreEncounter,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_encounter_search_req(sp, client)
+pub fn encounter_search_bundled(sp: r4us_sansio.SpEncounter, client: FhirClient) {
+  let req = r4us_sansio.encounter_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_encounter_search(
-  sp: r4us_sansio.SpUsCoreEncounter,
+pub fn encounter_search(
+  sp: r4us_sansio.SpEncounter,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreEncounter), Err) {
-  let req = r4us_sansio.us_core_encounter_search_req(sp, client)
+) -> Result(List(r4us.Encounter), Err) {
+  let req = r4us_sansio.encounter_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_encounter
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.encounter
   })
 }
 
@@ -3434,66 +3194,66 @@ pub fn explanationofbenefit_search(
   })
 }
 
-pub fn us_core_familymemberhistory_create(
-  resource: r4us.UsCoreFamilymemberhistory,
+pub fn familymemberhistory_create(
+  resource: r4us.Familymemberhistory,
   client: FhirClient,
-) -> Result(r4us.UsCoreFamilymemberhistory, Err) {
+) -> Result(r4us.Familymemberhistory, Err) {
   any_create(
-    r4us.us_core_familymemberhistory_to_json(resource),
+    r4us.familymemberhistory_to_json(resource),
     "FamilyMemberHistory",
-    r4us.us_core_familymemberhistory_decoder(),
+    r4us.familymemberhistory_decoder(),
     client,
   )
 }
 
-pub fn us_core_familymemberhistory_read(
+pub fn familymemberhistory_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreFamilymemberhistory, Err) {
+) -> Result(r4us.Familymemberhistory, Err) {
   any_read(
     id,
     client,
     "FamilyMemberHistory",
-    r4us.us_core_familymemberhistory_decoder(),
+    r4us.familymemberhistory_decoder(),
   )
 }
 
-pub fn us_core_familymemberhistory_update(
-  resource: r4us.UsCoreFamilymemberhistory,
+pub fn familymemberhistory_update(
+  resource: r4us.Familymemberhistory,
   client: FhirClient,
-) -> Result(r4us.UsCoreFamilymemberhistory, Err) {
+) -> Result(r4us.Familymemberhistory, Err) {
   any_update(
     resource.id,
-    r4us.us_core_familymemberhistory_to_json(resource),
+    r4us.familymemberhistory_to_json(resource),
     "FamilyMemberHistory",
-    r4us.us_core_familymemberhistory_decoder(),
+    r4us.familymemberhistory_decoder(),
     client,
   )
 }
 
-pub fn us_core_familymemberhistory_delete(
-  resource: r4us.UsCoreFamilymemberhistory,
+pub fn familymemberhistory_delete(
+  resource: r4us.Familymemberhistory,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "FamilyMemberHistory", client)
 }
 
-pub fn us_core_familymemberhistory_search_bundled(
-  sp: r4us_sansio.SpUsCoreFamilymemberhistory,
+pub fn familymemberhistory_search_bundled(
+  sp: r4us_sansio.SpFamilymemberhistory,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_familymemberhistory_search_req(sp, client)
+  let req = r4us_sansio.familymemberhistory_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_familymemberhistory_search(
-  sp: r4us_sansio.SpUsCoreFamilymemberhistory,
+pub fn familymemberhistory_search(
+  sp: r4us_sansio.SpFamilymemberhistory,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreFamilymemberhistory), Err) {
-  let req = r4us_sansio.us_core_familymemberhistory_search_req(sp, client)
+) -> Result(List(r4us.Familymemberhistory), Err) {
+  let req = r4us_sansio.familymemberhistory_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_familymemberhistory
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.familymemberhistory
   })
 }
 
@@ -3544,61 +3304,50 @@ pub fn flag_search(
   })
 }
 
-pub fn us_core_goal_create(
-  resource: r4us.UsCoreGoal,
+pub fn goal_create(
+  resource: r4us.Goal,
   client: FhirClient,
-) -> Result(r4us.UsCoreGoal, Err) {
-  any_create(
-    r4us.us_core_goal_to_json(resource),
-    "Goal",
-    r4us.us_core_goal_decoder(),
-    client,
-  )
+) -> Result(r4us.Goal, Err) {
+  any_create(r4us.goal_to_json(resource), "Goal", r4us.goal_decoder(), client)
 }
 
-pub fn us_core_goal_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreGoal, Err) {
-  any_read(id, client, "Goal", r4us.us_core_goal_decoder())
+pub fn goal_read(id: String, client: FhirClient) -> Result(r4us.Goal, Err) {
+  any_read(id, client, "Goal", r4us.goal_decoder())
 }
 
-pub fn us_core_goal_update(
-  resource: r4us.UsCoreGoal,
+pub fn goal_update(
+  resource: r4us.Goal,
   client: FhirClient,
-) -> Result(r4us.UsCoreGoal, Err) {
+) -> Result(r4us.Goal, Err) {
   any_update(
     resource.id,
-    r4us.us_core_goal_to_json(resource),
+    r4us.goal_to_json(resource),
     "Goal",
-    r4us.us_core_goal_decoder(),
+    r4us.goal_decoder(),
     client,
   )
 }
 
-pub fn us_core_goal_delete(
-  resource: r4us.UsCoreGoal,
+pub fn goal_delete(
+  resource: r4us.Goal,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Goal", client)
 }
 
-pub fn us_core_goal_search_bundled(
-  sp: r4us_sansio.SpUsCoreGoal,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_goal_search_req(sp, client)
+pub fn goal_search_bundled(sp: r4us_sansio.SpGoal, client: FhirClient) {
+  let req = r4us_sansio.goal_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_goal_search(
-  sp: r4us_sansio.SpUsCoreGoal,
+pub fn goal_search(
+  sp: r4us_sansio.SpGoal,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreGoal), Err) {
-  let req = r4us_sansio.us_core_goal_search_req(sp, client)
+) -> Result(List(r4us.Goal), Err) {
+  let req = r4us_sansio.goal_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_goal
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.goal
   })
 }
 
@@ -3886,61 +3635,61 @@ pub fn imagingstudy_search(
   })
 }
 
-pub fn us_core_immunization_create(
-  resource: r4us.UsCoreImmunization,
+pub fn immunization_create(
+  resource: r4us.Immunization,
   client: FhirClient,
-) -> Result(r4us.UsCoreImmunization, Err) {
+) -> Result(r4us.Immunization, Err) {
   any_create(
-    r4us.us_core_immunization_to_json(resource),
+    r4us.immunization_to_json(resource),
     "Immunization",
-    r4us.us_core_immunization_decoder(),
+    r4us.immunization_decoder(),
     client,
   )
 }
 
-pub fn us_core_immunization_read(
+pub fn immunization_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreImmunization, Err) {
-  any_read(id, client, "Immunization", r4us.us_core_immunization_decoder())
+) -> Result(r4us.Immunization, Err) {
+  any_read(id, client, "Immunization", r4us.immunization_decoder())
 }
 
-pub fn us_core_immunization_update(
-  resource: r4us.UsCoreImmunization,
+pub fn immunization_update(
+  resource: r4us.Immunization,
   client: FhirClient,
-) -> Result(r4us.UsCoreImmunization, Err) {
+) -> Result(r4us.Immunization, Err) {
   any_update(
     resource.id,
-    r4us.us_core_immunization_to_json(resource),
+    r4us.immunization_to_json(resource),
     "Immunization",
-    r4us.us_core_immunization_decoder(),
+    r4us.immunization_decoder(),
     client,
   )
 }
 
-pub fn us_core_immunization_delete(
-  resource: r4us.UsCoreImmunization,
+pub fn immunization_delete(
+  resource: r4us.Immunization,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Immunization", client)
 }
 
-pub fn us_core_immunization_search_bundled(
-  sp: r4us_sansio.SpUsCoreImmunization,
+pub fn immunization_search_bundled(
+  sp: r4us_sansio.SpImmunization,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_immunization_search_req(sp, client)
+  let req = r4us_sansio.immunization_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_immunization_search(
-  sp: r4us_sansio.SpUsCoreImmunization,
+pub fn immunization_search(
+  sp: r4us_sansio.SpImmunization,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreImmunization), Err) {
-  let req = r4us_sansio.us_core_immunization_search_req(sp, client)
+) -> Result(List(r4us.Immunization), Err) {
+  let req = r4us_sansio.immunization_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_immunization
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.immunization
   })
 }
 
@@ -4402,61 +4151,58 @@ pub fn listfhir_search(
   })
 }
 
-pub fn us_core_location_create(
-  resource: r4us.UsCoreLocation,
+pub fn location_create(
+  resource: r4us.Location,
   client: FhirClient,
-) -> Result(r4us.UsCoreLocation, Err) {
+) -> Result(r4us.Location, Err) {
   any_create(
-    r4us.us_core_location_to_json(resource),
+    r4us.location_to_json(resource),
     "Location",
-    r4us.us_core_location_decoder(),
+    r4us.location_decoder(),
     client,
   )
 }
 
-pub fn us_core_location_read(
+pub fn location_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreLocation, Err) {
-  any_read(id, client, "Location", r4us.us_core_location_decoder())
+) -> Result(r4us.Location, Err) {
+  any_read(id, client, "Location", r4us.location_decoder())
 }
 
-pub fn us_core_location_update(
-  resource: r4us.UsCoreLocation,
+pub fn location_update(
+  resource: r4us.Location,
   client: FhirClient,
-) -> Result(r4us.UsCoreLocation, Err) {
+) -> Result(r4us.Location, Err) {
   any_update(
     resource.id,
-    r4us.us_core_location_to_json(resource),
+    r4us.location_to_json(resource),
     "Location",
-    r4us.us_core_location_decoder(),
+    r4us.location_decoder(),
     client,
   )
 }
 
-pub fn us_core_location_delete(
-  resource: r4us.UsCoreLocation,
+pub fn location_delete(
+  resource: r4us.Location,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Location", client)
 }
 
-pub fn us_core_location_search_bundled(
-  sp: r4us_sansio.SpUsCoreLocation,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_location_search_req(sp, client)
+pub fn location_search_bundled(sp: r4us_sansio.SpLocation, client: FhirClient) {
+  let req = r4us_sansio.location_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_location_search(
-  sp: r4us_sansio.SpUsCoreLocation,
+pub fn location_search(
+  sp: r4us_sansio.SpLocation,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreLocation), Err) {
-  let req = r4us_sansio.us_core_location_search_req(sp, client)
+) -> Result(List(r4us.Location), Err) {
+  let req = r4us_sansio.location_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_location
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.location
   })
 }
 
@@ -4622,61 +4368,61 @@ pub fn media_search(
   })
 }
 
-pub fn us_core_medication_create(
-  resource: r4us.UsCoreMedication,
+pub fn medication_create(
+  resource: r4us.Medication,
   client: FhirClient,
-) -> Result(r4us.UsCoreMedication, Err) {
+) -> Result(r4us.Medication, Err) {
   any_create(
-    r4us.us_core_medication_to_json(resource),
+    r4us.medication_to_json(resource),
     "Medication",
-    r4us.us_core_medication_decoder(),
+    r4us.medication_decoder(),
     client,
   )
 }
 
-pub fn us_core_medication_read(
+pub fn medication_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreMedication, Err) {
-  any_read(id, client, "Medication", r4us.us_core_medication_decoder())
+) -> Result(r4us.Medication, Err) {
+  any_read(id, client, "Medication", r4us.medication_decoder())
 }
 
-pub fn us_core_medication_update(
-  resource: r4us.UsCoreMedication,
+pub fn medication_update(
+  resource: r4us.Medication,
   client: FhirClient,
-) -> Result(r4us.UsCoreMedication, Err) {
+) -> Result(r4us.Medication, Err) {
   any_update(
     resource.id,
-    r4us.us_core_medication_to_json(resource),
+    r4us.medication_to_json(resource),
     "Medication",
-    r4us.us_core_medication_decoder(),
+    r4us.medication_decoder(),
     client,
   )
 }
 
-pub fn us_core_medication_delete(
-  resource: r4us.UsCoreMedication,
+pub fn medication_delete(
+  resource: r4us.Medication,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Medication", client)
 }
 
-pub fn us_core_medication_search_bundled(
-  sp: r4us_sansio.SpUsCoreMedication,
+pub fn medication_search_bundled(
+  sp: r4us_sansio.SpMedication,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_medication_search_req(sp, client)
+  let req = r4us_sansio.medication_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_medication_search(
-  sp: r4us_sansio.SpUsCoreMedication,
+pub fn medication_search(
+  sp: r4us_sansio.SpMedication,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreMedication), Err) {
-  let req = r4us_sansio.us_core_medication_search_req(sp, client)
+) -> Result(List(r4us.Medication), Err) {
+  let req = r4us_sansio.medication_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_medication
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.medication
   })
 }
 
@@ -4743,66 +4489,61 @@ pub fn medicationadministration_search(
   })
 }
 
-pub fn us_core_medicationdispense_create(
-  resource: r4us.UsCoreMedicationdispense,
+pub fn medicationdispense_create(
+  resource: r4us.Medicationdispense,
   client: FhirClient,
-) -> Result(r4us.UsCoreMedicationdispense, Err) {
+) -> Result(r4us.Medicationdispense, Err) {
   any_create(
-    r4us.us_core_medicationdispense_to_json(resource),
+    r4us.medicationdispense_to_json(resource),
     "MedicationDispense",
-    r4us.us_core_medicationdispense_decoder(),
+    r4us.medicationdispense_decoder(),
     client,
   )
 }
 
-pub fn us_core_medicationdispense_read(
+pub fn medicationdispense_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreMedicationdispense, Err) {
-  any_read(
-    id,
-    client,
-    "MedicationDispense",
-    r4us.us_core_medicationdispense_decoder(),
-  )
+) -> Result(r4us.Medicationdispense, Err) {
+  any_read(id, client, "MedicationDispense", r4us.medicationdispense_decoder())
 }
 
-pub fn us_core_medicationdispense_update(
-  resource: r4us.UsCoreMedicationdispense,
+pub fn medicationdispense_update(
+  resource: r4us.Medicationdispense,
   client: FhirClient,
-) -> Result(r4us.UsCoreMedicationdispense, Err) {
+) -> Result(r4us.Medicationdispense, Err) {
   any_update(
     resource.id,
-    r4us.us_core_medicationdispense_to_json(resource),
+    r4us.medicationdispense_to_json(resource),
     "MedicationDispense",
-    r4us.us_core_medicationdispense_decoder(),
+    r4us.medicationdispense_decoder(),
     client,
   )
 }
 
-pub fn us_core_medicationdispense_delete(
-  resource: r4us.UsCoreMedicationdispense,
+pub fn medicationdispense_delete(
+  resource: r4us.Medicationdispense,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "MedicationDispense", client)
 }
 
-pub fn us_core_medicationdispense_search_bundled(
-  sp: r4us_sansio.SpUsCoreMedicationdispense,
+pub fn medicationdispense_search_bundled(
+  sp: r4us_sansio.SpMedicationdispense,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_medicationdispense_search_req(sp, client)
+  let req = r4us_sansio.medicationdispense_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_medicationdispense_search(
-  sp: r4us_sansio.SpUsCoreMedicationdispense,
+pub fn medicationdispense_search(
+  sp: r4us_sansio.SpMedicationdispense,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreMedicationdispense), Err) {
-  let req = r4us_sansio.us_core_medicationdispense_search_req(sp, client)
+) -> Result(List(r4us.Medicationdispense), Err) {
+  let req = r4us_sansio.medicationdispense_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_medicationdispense
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.medicationdispense
   })
 }
 
@@ -4869,66 +4610,61 @@ pub fn medicationknowledge_search(
   })
 }
 
-pub fn us_core_medicationrequest_create(
-  resource: r4us.UsCoreMedicationrequest,
+pub fn medicationrequest_create(
+  resource: r4us.Medicationrequest,
   client: FhirClient,
-) -> Result(r4us.UsCoreMedicationrequest, Err) {
+) -> Result(r4us.Medicationrequest, Err) {
   any_create(
-    r4us.us_core_medicationrequest_to_json(resource),
+    r4us.medicationrequest_to_json(resource),
     "MedicationRequest",
-    r4us.us_core_medicationrequest_decoder(),
+    r4us.medicationrequest_decoder(),
     client,
   )
 }
 
-pub fn us_core_medicationrequest_read(
+pub fn medicationrequest_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreMedicationrequest, Err) {
-  any_read(
-    id,
-    client,
-    "MedicationRequest",
-    r4us.us_core_medicationrequest_decoder(),
-  )
+) -> Result(r4us.Medicationrequest, Err) {
+  any_read(id, client, "MedicationRequest", r4us.medicationrequest_decoder())
 }
 
-pub fn us_core_medicationrequest_update(
-  resource: r4us.UsCoreMedicationrequest,
+pub fn medicationrequest_update(
+  resource: r4us.Medicationrequest,
   client: FhirClient,
-) -> Result(r4us.UsCoreMedicationrequest, Err) {
+) -> Result(r4us.Medicationrequest, Err) {
   any_update(
     resource.id,
-    r4us.us_core_medicationrequest_to_json(resource),
+    r4us.medicationrequest_to_json(resource),
     "MedicationRequest",
-    r4us.us_core_medicationrequest_decoder(),
+    r4us.medicationrequest_decoder(),
     client,
   )
 }
 
-pub fn us_core_medicationrequest_delete(
-  resource: r4us.UsCoreMedicationrequest,
+pub fn medicationrequest_delete(
+  resource: r4us.Medicationrequest,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "MedicationRequest", client)
 }
 
-pub fn us_core_medicationrequest_search_bundled(
-  sp: r4us_sansio.SpUsCoreMedicationrequest,
+pub fn medicationrequest_search_bundled(
+  sp: r4us_sansio.SpMedicationrequest,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_medicationrequest_search_req(sp, client)
+  let req = r4us_sansio.medicationrequest_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_medicationrequest_search(
-  sp: r4us_sansio.SpUsCoreMedicationrequest,
+pub fn medicationrequest_search(
+  sp: r4us_sansio.SpMedicationrequest,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreMedicationrequest), Err) {
-  let req = r4us_sansio.us_core_medicationrequest_search_req(sp, client)
+) -> Result(List(r4us.Medicationrequest), Err) {
+  let req = r4us_sansio.medicationrequest_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_medicationrequest
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.medicationrequest
   })
 }
 
@@ -5910,1595 +5646,61 @@ pub fn nutritionorder_search(
   })
 }
 
-pub fn us_core_body_temperature_create(
-  resource: r4us.UsCoreBodyTemperature,
+pub fn observation_create(
+  resource: r4us.Observation,
   client: FhirClient,
-) -> Result(r4us.UsCoreBodyTemperature, Err) {
+) -> Result(r4us.Observation, Err) {
   any_create(
-    r4us.us_core_body_temperature_to_json(resource),
+    r4us.observation_to_json(resource),
     "Observation",
-    r4us.us_core_body_temperature_decoder(),
+    r4us.observation_decoder(),
     client,
   )
 }
 
-pub fn us_core_body_temperature_read(
+pub fn observation_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreBodyTemperature, Err) {
-  any_read(id, client, "Observation", r4us.us_core_body_temperature_decoder())
+) -> Result(r4us.Observation, Err) {
+  any_read(id, client, "Observation", r4us.observation_decoder())
 }
 
-pub fn us_core_body_temperature_update(
-  resource: r4us.UsCoreBodyTemperature,
+pub fn observation_update(
+  resource: r4us.Observation,
   client: FhirClient,
-) -> Result(r4us.UsCoreBodyTemperature, Err) {
+) -> Result(r4us.Observation, Err) {
   any_update(
     resource.id,
-    r4us.us_core_body_temperature_to_json(resource),
+    r4us.observation_to_json(resource),
     "Observation",
-    r4us.us_core_body_temperature_decoder(),
+    r4us.observation_decoder(),
     client,
   )
 }
 
-pub fn us_core_body_temperature_delete(
-  resource: r4us.UsCoreBodyTemperature,
+pub fn observation_delete(
+  resource: r4us.Observation,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Observation", client)
 }
 
-pub fn us_core_body_temperature_search_bundled(
-  sp: r4us_sansio.SpUsCoreBodyTemperature,
+pub fn observation_search_bundled(
+  sp: r4us_sansio.SpObservation,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_body_temperature_search_req(sp, client)
+  let req = r4us_sansio.observation_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_body_temperature_search(
-  sp: r4us_sansio.SpUsCoreBodyTemperature,
+pub fn observation_search(
+  sp: r4us_sansio.SpObservation,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreBodyTemperature), Err) {
-  let req = r4us_sansio.us_core_body_temperature_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_body_temperature
-  })
-}
-
-pub fn us_core_observation_clinical_result_create(
-  resource: r4us.UsCoreObservationClinicalResult,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationClinicalResult, Err) {
-  any_create(
-    r4us.us_core_observation_clinical_result_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_clinical_result_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_clinical_result_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationClinicalResult, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.us_core_observation_clinical_result_decoder(),
-  )
-}
-
-pub fn us_core_observation_clinical_result_update(
-  resource: r4us.UsCoreObservationClinicalResult,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationClinicalResult, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_clinical_result_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_clinical_result_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_clinical_result_delete(
-  resource: r4us.UsCoreObservationClinicalResult,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_observation_clinical_result_search_bundled(
-  sp: r4us_sansio.SpUsCoreObservationClinicalResult,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.us_core_observation_clinical_result_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_observation_clinical_result_search(
-  sp: r4us_sansio.SpUsCoreObservationClinicalResult,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreObservationClinicalResult), Err) {
-  let req =
-    r4us_sansio.us_core_observation_clinical_result_search_req(sp, client)
+) -> Result(List(r4us.Observation), Err) {
+  let req = r4us_sansio.observation_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_clinical_result
-  })
-}
-
-pub fn us_core_observation_lab_create(
-  resource: r4us.UsCoreObservationLab,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationLab, Err) {
-  any_create(
-    r4us.us_core_observation_lab_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_lab_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_lab_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationLab, Err) {
-  any_read(id, client, "Observation", r4us.us_core_observation_lab_decoder())
-}
-
-pub fn us_core_observation_lab_update(
-  resource: r4us.UsCoreObservationLab,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationLab, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_lab_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_lab_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_lab_delete(
-  resource: r4us.UsCoreObservationLab,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_observation_lab_search_bundled(
-  sp: r4us_sansio.SpUsCoreObservationLab,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_observation_lab_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_observation_lab_search(
-  sp: r4us_sansio.SpUsCoreObservationLab,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreObservationLab), Err) {
-  let req = r4us_sansio.us_core_observation_lab_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_lab
-  })
-}
-
-pub fn us_core_treatment_intervention_preference_create(
-  resource: r4us.UsCoreTreatmentInterventionPreference,
-  client: FhirClient,
-) -> Result(r4us.UsCoreTreatmentInterventionPreference, Err) {
-  any_create(
-    r4us.us_core_treatment_intervention_preference_to_json(resource),
-    "Observation",
-    r4us.us_core_treatment_intervention_preference_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_treatment_intervention_preference_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreTreatmentInterventionPreference, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.us_core_treatment_intervention_preference_decoder(),
-  )
-}
-
-pub fn us_core_treatment_intervention_preference_update(
-  resource: r4us.UsCoreTreatmentInterventionPreference,
-  client: FhirClient,
-) -> Result(r4us.UsCoreTreatmentInterventionPreference, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_treatment_intervention_preference_to_json(resource),
-    "Observation",
-    r4us.us_core_treatment_intervention_preference_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_treatment_intervention_preference_delete(
-  resource: r4us.UsCoreTreatmentInterventionPreference,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_treatment_intervention_preference_search_bundled(
-  sp: r4us_sansio.SpUsCoreTreatmentInterventionPreference,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.us_core_treatment_intervention_preference_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_treatment_intervention_preference_search(
-  sp: r4us_sansio.SpUsCoreTreatmentInterventionPreference,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreTreatmentInterventionPreference), Err) {
-  let req =
-    r4us_sansio.us_core_treatment_intervention_preference_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_treatment_intervention_preference
-  })
-}
-
-pub fn us_core_observation_pregnancyintent_create(
-  resource: r4us.UsCoreObservationPregnancyintent,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationPregnancyintent, Err) {
-  any_create(
-    r4us.us_core_observation_pregnancyintent_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_pregnancyintent_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_pregnancyintent_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationPregnancyintent, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.us_core_observation_pregnancyintent_decoder(),
-  )
-}
-
-pub fn us_core_observation_pregnancyintent_update(
-  resource: r4us.UsCoreObservationPregnancyintent,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationPregnancyintent, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_pregnancyintent_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_pregnancyintent_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_pregnancyintent_delete(
-  resource: r4us.UsCoreObservationPregnancyintent,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_observation_pregnancyintent_search_bundled(
-  sp: r4us_sansio.SpUsCoreObservationPregnancyintent,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.us_core_observation_pregnancyintent_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_observation_pregnancyintent_search(
-  sp: r4us_sansio.SpUsCoreObservationPregnancyintent,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreObservationPregnancyintent), Err) {
-  let req =
-    r4us_sansio.us_core_observation_pregnancyintent_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_pregnancyintent
-  })
-}
-
-pub fn us_core_simple_observation_create(
-  resource: r4us.UsCoreSimpleObservation,
-  client: FhirClient,
-) -> Result(r4us.UsCoreSimpleObservation, Err) {
-  any_create(
-    r4us.us_core_simple_observation_to_json(resource),
-    "Observation",
-    r4us.us_core_simple_observation_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_simple_observation_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreSimpleObservation, Err) {
-  any_read(id, client, "Observation", r4us.us_core_simple_observation_decoder())
-}
-
-pub fn us_core_simple_observation_update(
-  resource: r4us.UsCoreSimpleObservation,
-  client: FhirClient,
-) -> Result(r4us.UsCoreSimpleObservation, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_simple_observation_to_json(resource),
-    "Observation",
-    r4us.us_core_simple_observation_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_simple_observation_delete(
-  resource: r4us.UsCoreSimpleObservation,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_simple_observation_search_bundled(
-  sp: r4us_sansio.SpUsCoreSimpleObservation,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_simple_observation_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_simple_observation_search(
-  sp: r4us_sansio.SpUsCoreSimpleObservation,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreSimpleObservation), Err) {
-  let req = r4us_sansio.us_core_simple_observation_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_simple_observation
-  })
-}
-
-pub fn us_core_respiratory_rate_create(
-  resource: r4us.UsCoreRespiratoryRate,
-  client: FhirClient,
-) -> Result(r4us.UsCoreRespiratoryRate, Err) {
-  any_create(
-    r4us.us_core_respiratory_rate_to_json(resource),
-    "Observation",
-    r4us.us_core_respiratory_rate_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_respiratory_rate_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreRespiratoryRate, Err) {
-  any_read(id, client, "Observation", r4us.us_core_respiratory_rate_decoder())
-}
-
-pub fn us_core_respiratory_rate_update(
-  resource: r4us.UsCoreRespiratoryRate,
-  client: FhirClient,
-) -> Result(r4us.UsCoreRespiratoryRate, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_respiratory_rate_to_json(resource),
-    "Observation",
-    r4us.us_core_respiratory_rate_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_respiratory_rate_delete(
-  resource: r4us.UsCoreRespiratoryRate,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_respiratory_rate_search_bundled(
-  sp: r4us_sansio.SpUsCoreRespiratoryRate,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_respiratory_rate_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_respiratory_rate_search(
-  sp: r4us_sansio.SpUsCoreRespiratoryRate,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreRespiratoryRate), Err) {
-  let req = r4us_sansio.us_core_respiratory_rate_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_respiratory_rate
-  })
-}
-
-pub fn us_core_observation_occupation_create(
-  resource: r4us.UsCoreObservationOccupation,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationOccupation, Err) {
-  any_create(
-    r4us.us_core_observation_occupation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_occupation_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_occupation_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationOccupation, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.us_core_observation_occupation_decoder(),
-  )
-}
-
-pub fn us_core_observation_occupation_update(
-  resource: r4us.UsCoreObservationOccupation,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationOccupation, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_occupation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_occupation_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_occupation_delete(
-  resource: r4us.UsCoreObservationOccupation,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_observation_occupation_search_bundled(
-  sp: r4us_sansio.SpUsCoreObservationOccupation,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_observation_occupation_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_observation_occupation_search(
-  sp: r4us_sansio.SpUsCoreObservationOccupation,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreObservationOccupation), Err) {
-  let req = r4us_sansio.us_core_observation_occupation_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_occupation
-  })
-}
-
-pub fn us_core_vital_signs_create(
-  resource: r4us.UsCoreVitalSigns,
-  client: FhirClient,
-) -> Result(r4us.UsCoreVitalSigns, Err) {
-  any_create(
-    r4us.us_core_vital_signs_to_json(resource),
-    "Observation",
-    r4us.us_core_vital_signs_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_vital_signs_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreVitalSigns, Err) {
-  any_read(id, client, "Observation", r4us.us_core_vital_signs_decoder())
-}
-
-pub fn us_core_vital_signs_update(
-  resource: r4us.UsCoreVitalSigns,
-  client: FhirClient,
-) -> Result(r4us.UsCoreVitalSigns, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_vital_signs_to_json(resource),
-    "Observation",
-    r4us.us_core_vital_signs_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_vital_signs_delete(
-  resource: r4us.UsCoreVitalSigns,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_vital_signs_search_bundled(
-  sp: r4us_sansio.SpUsCoreVitalSigns,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_vital_signs_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_vital_signs_search(
-  sp: r4us_sansio.SpUsCoreVitalSigns,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreVitalSigns), Err) {
-  let req = r4us_sansio.us_core_vital_signs_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_vital_signs
-  })
-}
-
-pub fn us_core_body_weight_create(
-  resource: r4us.UsCoreBodyWeight,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBodyWeight, Err) {
-  any_create(
-    r4us.us_core_body_weight_to_json(resource),
-    "Observation",
-    r4us.us_core_body_weight_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_body_weight_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBodyWeight, Err) {
-  any_read(id, client, "Observation", r4us.us_core_body_weight_decoder())
-}
-
-pub fn us_core_body_weight_update(
-  resource: r4us.UsCoreBodyWeight,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBodyWeight, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_body_weight_to_json(resource),
-    "Observation",
-    r4us.us_core_body_weight_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_body_weight_delete(
-  resource: r4us.UsCoreBodyWeight,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_body_weight_search_bundled(
-  sp: r4us_sansio.SpUsCoreBodyWeight,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_body_weight_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_body_weight_search(
-  sp: r4us_sansio.SpUsCoreBodyWeight,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreBodyWeight), Err) {
-  let req = r4us_sansio.us_core_body_weight_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_body_weight
-  })
-}
-
-pub fn us_core_observation_pregnancystatus_create(
-  resource: r4us.UsCoreObservationPregnancystatus,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationPregnancystatus, Err) {
-  any_create(
-    r4us.us_core_observation_pregnancystatus_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_pregnancystatus_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_pregnancystatus_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationPregnancystatus, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.us_core_observation_pregnancystatus_decoder(),
-  )
-}
-
-pub fn us_core_observation_pregnancystatus_update(
-  resource: r4us.UsCoreObservationPregnancystatus,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationPregnancystatus, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_pregnancystatus_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_pregnancystatus_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_pregnancystatus_delete(
-  resource: r4us.UsCoreObservationPregnancystatus,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_observation_pregnancystatus_search_bundled(
-  sp: r4us_sansio.SpUsCoreObservationPregnancystatus,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.us_core_observation_pregnancystatus_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_observation_pregnancystatus_search(
-  sp: r4us_sansio.SpUsCoreObservationPregnancystatus,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreObservationPregnancystatus), Err) {
-  let req =
-    r4us_sansio.us_core_observation_pregnancystatus_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_pregnancystatus
-  })
-}
-
-pub fn us_core_blood_pressure_create(
-  resource: r4us.UsCoreBloodPressure,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBloodPressure, Err) {
-  any_create(
-    r4us.us_core_blood_pressure_to_json(resource),
-    "Observation",
-    r4us.us_core_blood_pressure_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_blood_pressure_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBloodPressure, Err) {
-  any_read(id, client, "Observation", r4us.us_core_blood_pressure_decoder())
-}
-
-pub fn us_core_blood_pressure_update(
-  resource: r4us.UsCoreBloodPressure,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBloodPressure, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_blood_pressure_to_json(resource),
-    "Observation",
-    r4us.us_core_blood_pressure_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_blood_pressure_delete(
-  resource: r4us.UsCoreBloodPressure,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_blood_pressure_search_bundled(
-  sp: r4us_sansio.SpUsCoreBloodPressure,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_blood_pressure_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_blood_pressure_search(
-  sp: r4us_sansio.SpUsCoreBloodPressure,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreBloodPressure), Err) {
-  let req = r4us_sansio.us_core_blood_pressure_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_blood_pressure
-  })
-}
-
-pub fn pediatric_bmi_for_age_create(
-  resource: r4us.PediatricBmiForAge,
-  client: FhirClient,
-) -> Result(r4us.PediatricBmiForAge, Err) {
-  any_create(
-    r4us.pediatric_bmi_for_age_to_json(resource),
-    "Observation",
-    r4us.pediatric_bmi_for_age_decoder(),
-    client,
-  )
-}
-
-pub fn pediatric_bmi_for_age_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.PediatricBmiForAge, Err) {
-  any_read(id, client, "Observation", r4us.pediatric_bmi_for_age_decoder())
-}
-
-pub fn pediatric_bmi_for_age_update(
-  resource: r4us.PediatricBmiForAge,
-  client: FhirClient,
-) -> Result(r4us.PediatricBmiForAge, Err) {
-  any_update(
-    resource.id,
-    r4us.pediatric_bmi_for_age_to_json(resource),
-    "Observation",
-    r4us.pediatric_bmi_for_age_decoder(),
-    client,
-  )
-}
-
-pub fn pediatric_bmi_for_age_delete(
-  resource: r4us.PediatricBmiForAge,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn pediatric_bmi_for_age_search_bundled(
-  sp: r4us_sansio.SpPediatricBmiForAge,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.pediatric_bmi_for_age_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn pediatric_bmi_for_age_search(
-  sp: r4us_sansio.SpPediatricBmiForAge,
-  client: FhirClient,
-) -> Result(List(r4us.PediatricBmiForAge), Err) {
-  let req = r4us_sansio.pediatric_bmi_for_age_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.pediatric_bmi_for_age
-  })
-}
-
-pub fn us_core_care_experience_preference_create(
-  resource: r4us.UsCoreCareExperiencePreference,
-  client: FhirClient,
-) -> Result(r4us.UsCoreCareExperiencePreference, Err) {
-  any_create(
-    r4us.us_core_care_experience_preference_to_json(resource),
-    "Observation",
-    r4us.us_core_care_experience_preference_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_care_experience_preference_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreCareExperiencePreference, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.us_core_care_experience_preference_decoder(),
-  )
-}
-
-pub fn us_core_care_experience_preference_update(
-  resource: r4us.UsCoreCareExperiencePreference,
-  client: FhirClient,
-) -> Result(r4us.UsCoreCareExperiencePreference, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_care_experience_preference_to_json(resource),
-    "Observation",
-    r4us.us_core_care_experience_preference_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_care_experience_preference_delete(
-  resource: r4us.UsCoreCareExperiencePreference,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_care_experience_preference_search_bundled(
-  sp: r4us_sansio.SpUsCoreCareExperiencePreference,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.us_core_care_experience_preference_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_care_experience_preference_search(
-  sp: r4us_sansio.SpUsCoreCareExperiencePreference,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreCareExperiencePreference), Err) {
-  let req =
-    r4us_sansio.us_core_care_experience_preference_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_care_experience_preference
-  })
-}
-
-pub fn us_core_observation_screening_assessment_create(
-  resource: r4us.UsCoreObservationScreeningAssessment,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationScreeningAssessment, Err) {
-  any_create(
-    r4us.us_core_observation_screening_assessment_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_screening_assessment_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_screening_assessment_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationScreeningAssessment, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.us_core_observation_screening_assessment_decoder(),
-  )
-}
-
-pub fn us_core_observation_screening_assessment_update(
-  resource: r4us.UsCoreObservationScreeningAssessment,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationScreeningAssessment, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_screening_assessment_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_screening_assessment_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_screening_assessment_delete(
-  resource: r4us.UsCoreObservationScreeningAssessment,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_observation_screening_assessment_search_bundled(
-  sp: r4us_sansio.SpUsCoreObservationScreeningAssessment,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.us_core_observation_screening_assessment_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_observation_screening_assessment_search(
-  sp: r4us_sansio.SpUsCoreObservationScreeningAssessment,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreObservationScreeningAssessment), Err) {
-  let req =
-    r4us_sansio.us_core_observation_screening_assessment_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_screening_assessment
-  })
-}
-
-pub fn us_core_head_circumference_create(
-  resource: r4us.UsCoreHeadCircumference,
-  client: FhirClient,
-) -> Result(r4us.UsCoreHeadCircumference, Err) {
-  any_create(
-    r4us.us_core_head_circumference_to_json(resource),
-    "Observation",
-    r4us.us_core_head_circumference_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_head_circumference_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreHeadCircumference, Err) {
-  any_read(id, client, "Observation", r4us.us_core_head_circumference_decoder())
-}
-
-pub fn us_core_head_circumference_update(
-  resource: r4us.UsCoreHeadCircumference,
-  client: FhirClient,
-) -> Result(r4us.UsCoreHeadCircumference, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_head_circumference_to_json(resource),
-    "Observation",
-    r4us.us_core_head_circumference_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_head_circumference_delete(
-  resource: r4us.UsCoreHeadCircumference,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_head_circumference_search_bundled(
-  sp: r4us_sansio.SpUsCoreHeadCircumference,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_head_circumference_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_head_circumference_search(
-  sp: r4us_sansio.SpUsCoreHeadCircumference,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreHeadCircumference), Err) {
-  let req = r4us_sansio.us_core_head_circumference_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_head_circumference
-  })
-}
-
-pub fn us_core_heart_rate_create(
-  resource: r4us.UsCoreHeartRate,
-  client: FhirClient,
-) -> Result(r4us.UsCoreHeartRate, Err) {
-  any_create(
-    r4us.us_core_heart_rate_to_json(resource),
-    "Observation",
-    r4us.us_core_heart_rate_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_heart_rate_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreHeartRate, Err) {
-  any_read(id, client, "Observation", r4us.us_core_heart_rate_decoder())
-}
-
-pub fn us_core_heart_rate_update(
-  resource: r4us.UsCoreHeartRate,
-  client: FhirClient,
-) -> Result(r4us.UsCoreHeartRate, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_heart_rate_to_json(resource),
-    "Observation",
-    r4us.us_core_heart_rate_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_heart_rate_delete(
-  resource: r4us.UsCoreHeartRate,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_heart_rate_search_bundled(
-  sp: r4us_sansio.SpUsCoreHeartRate,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_heart_rate_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_heart_rate_search(
-  sp: r4us_sansio.SpUsCoreHeartRate,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreHeartRate), Err) {
-  let req = r4us_sansio.us_core_heart_rate_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_heart_rate
-  })
-}
-
-pub fn us_core_observation_sexual_orientation_create(
-  resource: r4us.UsCoreObservationSexualOrientation,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationSexualOrientation, Err) {
-  any_create(
-    r4us.us_core_observation_sexual_orientation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_sexual_orientation_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_sexual_orientation_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationSexualOrientation, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.us_core_observation_sexual_orientation_decoder(),
-  )
-}
-
-pub fn us_core_observation_sexual_orientation_update(
-  resource: r4us.UsCoreObservationSexualOrientation,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationSexualOrientation, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_sexual_orientation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_sexual_orientation_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_sexual_orientation_delete(
-  resource: r4us.UsCoreObservationSexualOrientation,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_observation_sexual_orientation_search_bundled(
-  sp: r4us_sansio.SpUsCoreObservationSexualOrientation,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.us_core_observation_sexual_orientation_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_observation_sexual_orientation_search(
-  sp: r4us_sansio.SpUsCoreObservationSexualOrientation,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreObservationSexualOrientation), Err) {
-  let req =
-    r4us_sansio.us_core_observation_sexual_orientation_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_sexual_orientation
-  })
-}
-
-pub fn pediatric_weight_for_height_create(
-  resource: r4us.PediatricWeightForHeight,
-  client: FhirClient,
-) -> Result(r4us.PediatricWeightForHeight, Err) {
-  any_create(
-    r4us.pediatric_weight_for_height_to_json(resource),
-    "Observation",
-    r4us.pediatric_weight_for_height_decoder(),
-    client,
-  )
-}
-
-pub fn pediatric_weight_for_height_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.PediatricWeightForHeight, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.pediatric_weight_for_height_decoder(),
-  )
-}
-
-pub fn pediatric_weight_for_height_update(
-  resource: r4us.PediatricWeightForHeight,
-  client: FhirClient,
-) -> Result(r4us.PediatricWeightForHeight, Err) {
-  any_update(
-    resource.id,
-    r4us.pediatric_weight_for_height_to_json(resource),
-    "Observation",
-    r4us.pediatric_weight_for_height_decoder(),
-    client,
-  )
-}
-
-pub fn pediatric_weight_for_height_delete(
-  resource: r4us.PediatricWeightForHeight,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn pediatric_weight_for_height_search_bundled(
-  sp: r4us_sansio.SpPediatricWeightForHeight,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.pediatric_weight_for_height_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn pediatric_weight_for_height_search(
-  sp: r4us_sansio.SpPediatricWeightForHeight,
-  client: FhirClient,
-) -> Result(List(r4us.PediatricWeightForHeight), Err) {
-  let req = r4us_sansio.pediatric_weight_for_height_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.pediatric_weight_for_height
-  })
-}
-
-pub fn us_core_bmi_create(
-  resource: r4us.UsCoreBmi,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBmi, Err) {
-  any_create(
-    r4us.us_core_bmi_to_json(resource),
-    "Observation",
-    r4us.us_core_bmi_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_bmi_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBmi, Err) {
-  any_read(id, client, "Observation", r4us.us_core_bmi_decoder())
-}
-
-pub fn us_core_bmi_update(
-  resource: r4us.UsCoreBmi,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBmi, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_bmi_to_json(resource),
-    "Observation",
-    r4us.us_core_bmi_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_bmi_delete(
-  resource: r4us.UsCoreBmi,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_bmi_search_bundled(
-  sp: r4us_sansio.SpUsCoreBmi,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_bmi_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_bmi_search(
-  sp: r4us_sansio.SpUsCoreBmi,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreBmi), Err) {
-  let req = r4us_sansio.us_core_bmi_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_bmi
-  })
-}
-
-pub fn us_core_body_height_create(
-  resource: r4us.UsCoreBodyHeight,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBodyHeight, Err) {
-  any_create(
-    r4us.us_core_body_height_to_json(resource),
-    "Observation",
-    r4us.us_core_body_height_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_body_height_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBodyHeight, Err) {
-  any_read(id, client, "Observation", r4us.us_core_body_height_decoder())
-}
-
-pub fn us_core_body_height_update(
-  resource: r4us.UsCoreBodyHeight,
-  client: FhirClient,
-) -> Result(r4us.UsCoreBodyHeight, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_body_height_to_json(resource),
-    "Observation",
-    r4us.us_core_body_height_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_body_height_delete(
-  resource: r4us.UsCoreBodyHeight,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_body_height_search_bundled(
-  sp: r4us_sansio.SpUsCoreBodyHeight,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_body_height_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_body_height_search(
-  sp: r4us_sansio.SpUsCoreBodyHeight,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreBodyHeight), Err) {
-  let req = r4us_sansio.us_core_body_height_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_body_height
-  })
-}
-
-pub fn us_core_smokingstatus_create(
-  resource: r4us.UsCoreSmokingstatus,
-  client: FhirClient,
-) -> Result(r4us.UsCoreSmokingstatus, Err) {
-  any_create(
-    r4us.us_core_smokingstatus_to_json(resource),
-    "Observation",
-    r4us.us_core_smokingstatus_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_smokingstatus_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreSmokingstatus, Err) {
-  any_read(id, client, "Observation", r4us.us_core_smokingstatus_decoder())
-}
-
-pub fn us_core_smokingstatus_update(
-  resource: r4us.UsCoreSmokingstatus,
-  client: FhirClient,
-) -> Result(r4us.UsCoreSmokingstatus, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_smokingstatus_to_json(resource),
-    "Observation",
-    r4us.us_core_smokingstatus_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_smokingstatus_delete(
-  resource: r4us.UsCoreSmokingstatus,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_smokingstatus_search_bundled(
-  sp: r4us_sansio.SpUsCoreSmokingstatus,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_smokingstatus_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_smokingstatus_search(
-  sp: r4us_sansio.SpUsCoreSmokingstatus,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreSmokingstatus), Err) {
-  let req = r4us_sansio.us_core_smokingstatus_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_smokingstatus
-  })
-}
-
-pub fn us_core_pulse_oximetry_create(
-  resource: r4us.UsCorePulseOximetry,
-  client: FhirClient,
-) -> Result(r4us.UsCorePulseOximetry, Err) {
-  any_create(
-    r4us.us_core_pulse_oximetry_to_json(resource),
-    "Observation",
-    r4us.us_core_pulse_oximetry_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_pulse_oximetry_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCorePulseOximetry, Err) {
-  any_read(id, client, "Observation", r4us.us_core_pulse_oximetry_decoder())
-}
-
-pub fn us_core_pulse_oximetry_update(
-  resource: r4us.UsCorePulseOximetry,
-  client: FhirClient,
-) -> Result(r4us.UsCorePulseOximetry, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_pulse_oximetry_to_json(resource),
-    "Observation",
-    r4us.us_core_pulse_oximetry_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_pulse_oximetry_delete(
-  resource: r4us.UsCorePulseOximetry,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_pulse_oximetry_search_bundled(
-  sp: r4us_sansio.SpUsCorePulseOximetry,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_pulse_oximetry_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_pulse_oximetry_search(
-  sp: r4us_sansio.SpUsCorePulseOximetry,
-  client: FhirClient,
-) -> Result(List(r4us.UsCorePulseOximetry), Err) {
-  let req = r4us_sansio.us_core_pulse_oximetry_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_pulse_oximetry
-  })
-}
-
-pub fn head_occipital_frontal_circumference_percentile_create(
-  resource: r4us.HeadOccipitalFrontalCircumferencePercentile,
-  client: FhirClient,
-) -> Result(r4us.HeadOccipitalFrontalCircumferencePercentile, Err) {
-  any_create(
-    r4us.head_occipital_frontal_circumference_percentile_to_json(resource),
-    "Observation",
-    r4us.head_occipital_frontal_circumference_percentile_decoder(),
-    client,
-  )
-}
-
-pub fn head_occipital_frontal_circumference_percentile_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.HeadOccipitalFrontalCircumferencePercentile, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.head_occipital_frontal_circumference_percentile_decoder(),
-  )
-}
-
-pub fn head_occipital_frontal_circumference_percentile_update(
-  resource: r4us.HeadOccipitalFrontalCircumferencePercentile,
-  client: FhirClient,
-) -> Result(r4us.HeadOccipitalFrontalCircumferencePercentile, Err) {
-  any_update(
-    resource.id,
-    r4us.head_occipital_frontal_circumference_percentile_to_json(resource),
-    "Observation",
-    r4us.head_occipital_frontal_circumference_percentile_decoder(),
-    client,
-  )
-}
-
-pub fn head_occipital_frontal_circumference_percentile_delete(
-  resource: r4us.HeadOccipitalFrontalCircumferencePercentile,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn head_occipital_frontal_circumference_percentile_search_bundled(
-  sp: r4us_sansio.SpHeadOccipitalFrontalCircumferencePercentile,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.head_occipital_frontal_circumference_percentile_search_req(
-      sp,
-      client,
-    )
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn head_occipital_frontal_circumference_percentile_search(
-  sp: r4us_sansio.SpHeadOccipitalFrontalCircumferencePercentile,
-  client: FhirClient,
-) -> Result(List(r4us.HeadOccipitalFrontalCircumferencePercentile), Err) {
-  let req =
-    r4us_sansio.head_occipital_frontal_circumference_percentile_search_req(
-      sp,
-      client,
-    )
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.head_occipital_frontal_circumference_percentile
-  })
-}
-
-pub fn us_core_average_blood_pressure_create(
-  resource: r4us.UsCoreAverageBloodPressure,
-  client: FhirClient,
-) -> Result(r4us.UsCoreAverageBloodPressure, Err) {
-  any_create(
-    r4us.us_core_average_blood_pressure_to_json(resource),
-    "Observation",
-    r4us.us_core_average_blood_pressure_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_average_blood_pressure_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreAverageBloodPressure, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.us_core_average_blood_pressure_decoder(),
-  )
-}
-
-pub fn us_core_average_blood_pressure_update(
-  resource: r4us.UsCoreAverageBloodPressure,
-  client: FhirClient,
-) -> Result(r4us.UsCoreAverageBloodPressure, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_average_blood_pressure_to_json(resource),
-    "Observation",
-    r4us.us_core_average_blood_pressure_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_average_blood_pressure_delete(
-  resource: r4us.UsCoreAverageBloodPressure,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_average_blood_pressure_search_bundled(
-  sp: r4us_sansio.SpUsCoreAverageBloodPressure,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_average_blood_pressure_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_average_blood_pressure_search(
-  sp: r4us_sansio.SpUsCoreAverageBloodPressure,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreAverageBloodPressure), Err) {
-  let req = r4us_sansio.us_core_average_blood_pressure_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_average_blood_pressure
-  })
-}
-
-pub fn us_core_observation_adi_documentation_create(
-  resource: r4us.UsCoreObservationAdiDocumentation,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationAdiDocumentation, Err) {
-  any_create(
-    r4us.us_core_observation_adi_documentation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_adi_documentation_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_adi_documentation_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationAdiDocumentation, Err) {
-  any_read(
-    id,
-    client,
-    "Observation",
-    r4us.us_core_observation_adi_documentation_decoder(),
-  )
-}
-
-pub fn us_core_observation_adi_documentation_update(
-  resource: r4us.UsCoreObservationAdiDocumentation,
-  client: FhirClient,
-) -> Result(r4us.UsCoreObservationAdiDocumentation, Err) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_adi_documentation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_adi_documentation_decoder(),
-    client,
-  )
-}
-
-pub fn us_core_observation_adi_documentation_delete(
-  resource: r4us.UsCoreObservationAdiDocumentation,
-  client: FhirClient,
-) -> Result(r4us.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
-}
-
-pub fn us_core_observation_adi_documentation_search_bundled(
-  sp: r4us_sansio.SpUsCoreObservationAdiDocumentation,
-  client: FhirClient,
-) {
-  let req =
-    r4us_sansio.us_core_observation_adi_documentation_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-}
-
-pub fn us_core_observation_adi_documentation_search(
-  sp: r4us_sansio.SpUsCoreObservationAdiDocumentation,
-  client: FhirClient,
-) -> Result(List(r4us.UsCoreObservationAdiDocumentation), Err) {
-  let req =
-    r4us_sansio.us_core_observation_adi_documentation_search_req(sp, client)
-  sendreq_parseresource(req, r4us.bundle_decoder())
-  |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_adi_documentation
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.observation
   })
 }
 
@@ -7686,61 +5888,61 @@ pub fn operationoutcome_search(
   })
 }
 
-pub fn us_core_organization_create(
-  resource: r4us.UsCoreOrganization,
+pub fn organization_create(
+  resource: r4us.Organization,
   client: FhirClient,
-) -> Result(r4us.UsCoreOrganization, Err) {
+) -> Result(r4us.Organization, Err) {
   any_create(
-    r4us.us_core_organization_to_json(resource),
+    r4us.organization_to_json(resource),
     "Organization",
-    r4us.us_core_organization_decoder(),
+    r4us.organization_decoder(),
     client,
   )
 }
 
-pub fn us_core_organization_read(
+pub fn organization_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreOrganization, Err) {
-  any_read(id, client, "Organization", r4us.us_core_organization_decoder())
+) -> Result(r4us.Organization, Err) {
+  any_read(id, client, "Organization", r4us.organization_decoder())
 }
 
-pub fn us_core_organization_update(
-  resource: r4us.UsCoreOrganization,
+pub fn organization_update(
+  resource: r4us.Organization,
   client: FhirClient,
-) -> Result(r4us.UsCoreOrganization, Err) {
+) -> Result(r4us.Organization, Err) {
   any_update(
     resource.id,
-    r4us.us_core_organization_to_json(resource),
+    r4us.organization_to_json(resource),
     "Organization",
-    r4us.us_core_organization_decoder(),
+    r4us.organization_decoder(),
     client,
   )
 }
 
-pub fn us_core_organization_delete(
-  resource: r4us.UsCoreOrganization,
+pub fn organization_delete(
+  resource: r4us.Organization,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Organization", client)
 }
 
-pub fn us_core_organization_search_bundled(
-  sp: r4us_sansio.SpUsCoreOrganization,
+pub fn organization_search_bundled(
+  sp: r4us_sansio.SpOrganization,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_organization_search_req(sp, client)
+  let req = r4us_sansio.organization_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_organization_search(
-  sp: r4us_sansio.SpUsCoreOrganization,
+pub fn organization_search(
+  sp: r4us_sansio.SpOrganization,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreOrganization), Err) {
-  let req = r4us_sansio.us_core_organization_search_req(sp, client)
+) -> Result(List(r4us.Organization), Err) {
+  let req = r4us_sansio.organization_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_organization
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.organization
   })
 }
 
@@ -7807,61 +6009,55 @@ pub fn organizationaffiliation_search(
   })
 }
 
-pub fn us_core_patient_create(
-  resource: r4us.UsCorePatient,
+pub fn patient_create(
+  resource: r4us.Patient,
   client: FhirClient,
-) -> Result(r4us.UsCorePatient, Err) {
+) -> Result(r4us.Patient, Err) {
   any_create(
-    r4us.us_core_patient_to_json(resource),
+    r4us.patient_to_json(resource),
     "Patient",
-    r4us.us_core_patient_decoder(),
+    r4us.patient_decoder(),
     client,
   )
 }
 
-pub fn us_core_patient_read(
-  id: String,
-  client: FhirClient,
-) -> Result(r4us.UsCorePatient, Err) {
-  any_read(id, client, "Patient", r4us.us_core_patient_decoder())
+pub fn patient_read(id: String, client: FhirClient) -> Result(r4us.Patient, Err) {
+  any_read(id, client, "Patient", r4us.patient_decoder())
 }
 
-pub fn us_core_patient_update(
-  resource: r4us.UsCorePatient,
+pub fn patient_update(
+  resource: r4us.Patient,
   client: FhirClient,
-) -> Result(r4us.UsCorePatient, Err) {
+) -> Result(r4us.Patient, Err) {
   any_update(
     resource.id,
-    r4us.us_core_patient_to_json(resource),
+    r4us.patient_to_json(resource),
     "Patient",
-    r4us.us_core_patient_decoder(),
+    r4us.patient_decoder(),
     client,
   )
 }
 
-pub fn us_core_patient_delete(
-  resource: r4us.UsCorePatient,
+pub fn patient_delete(
+  resource: r4us.Patient,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Patient", client)
 }
 
-pub fn us_core_patient_search_bundled(
-  sp: r4us_sansio.SpUsCorePatient,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_patient_search_req(sp, client)
+pub fn patient_search_bundled(sp: r4us_sansio.SpPatient, client: FhirClient) {
+  let req = r4us_sansio.patient_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_patient_search(
-  sp: r4us_sansio.SpUsCorePatient,
+pub fn patient_search(
+  sp: r4us_sansio.SpPatient,
   client: FhirClient,
-) -> Result(List(r4us.UsCorePatient), Err) {
-  let req = r4us_sansio.us_core_patient_search_req(sp, client)
+) -> Result(List(r4us.Patient), Err) {
+  let req = r4us_sansio.patient_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_patient
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.patient
   })
 }
 
@@ -8096,240 +6292,232 @@ pub fn plandefinition_search(
   })
 }
 
-pub fn us_core_practitioner_create(
-  resource: r4us.UsCorePractitioner,
+pub fn practitioner_create(
+  resource: r4us.Practitioner,
   client: FhirClient,
-) -> Result(r4us.UsCorePractitioner, Err) {
+) -> Result(r4us.Practitioner, Err) {
   any_create(
-    r4us.us_core_practitioner_to_json(resource),
+    r4us.practitioner_to_json(resource),
     "Practitioner",
-    r4us.us_core_practitioner_decoder(),
+    r4us.practitioner_decoder(),
     client,
   )
 }
 
-pub fn us_core_practitioner_read(
+pub fn practitioner_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCorePractitioner, Err) {
-  any_read(id, client, "Practitioner", r4us.us_core_practitioner_decoder())
+) -> Result(r4us.Practitioner, Err) {
+  any_read(id, client, "Practitioner", r4us.practitioner_decoder())
 }
 
-pub fn us_core_practitioner_update(
-  resource: r4us.UsCorePractitioner,
+pub fn practitioner_update(
+  resource: r4us.Practitioner,
   client: FhirClient,
-) -> Result(r4us.UsCorePractitioner, Err) {
+) -> Result(r4us.Practitioner, Err) {
   any_update(
     resource.id,
-    r4us.us_core_practitioner_to_json(resource),
+    r4us.practitioner_to_json(resource),
     "Practitioner",
-    r4us.us_core_practitioner_decoder(),
+    r4us.practitioner_decoder(),
     client,
   )
 }
 
-pub fn us_core_practitioner_delete(
-  resource: r4us.UsCorePractitioner,
+pub fn practitioner_delete(
+  resource: r4us.Practitioner,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Practitioner", client)
 }
 
-pub fn us_core_practitioner_search_bundled(
-  sp: r4us_sansio.SpUsCorePractitioner,
+pub fn practitioner_search_bundled(
+  sp: r4us_sansio.SpPractitioner,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_practitioner_search_req(sp, client)
+  let req = r4us_sansio.practitioner_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_practitioner_search(
-  sp: r4us_sansio.SpUsCorePractitioner,
+pub fn practitioner_search(
+  sp: r4us_sansio.SpPractitioner,
   client: FhirClient,
-) -> Result(List(r4us.UsCorePractitioner), Err) {
-  let req = r4us_sansio.us_core_practitioner_search_req(sp, client)
+) -> Result(List(r4us.Practitioner), Err) {
+  let req = r4us_sansio.practitioner_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_practitioner
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.practitioner
   })
 }
 
-pub fn us_core_practitionerrole_create(
-  resource: r4us.UsCorePractitionerrole,
+pub fn practitionerrole_create(
+  resource: r4us.Practitionerrole,
   client: FhirClient,
-) -> Result(r4us.UsCorePractitionerrole, Err) {
+) -> Result(r4us.Practitionerrole, Err) {
   any_create(
-    r4us.us_core_practitionerrole_to_json(resource),
+    r4us.practitionerrole_to_json(resource),
     "PractitionerRole",
-    r4us.us_core_practitionerrole_decoder(),
+    r4us.practitionerrole_decoder(),
     client,
   )
 }
 
-pub fn us_core_practitionerrole_read(
+pub fn practitionerrole_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCorePractitionerrole, Err) {
-  any_read(
-    id,
-    client,
-    "PractitionerRole",
-    r4us.us_core_practitionerrole_decoder(),
-  )
+) -> Result(r4us.Practitionerrole, Err) {
+  any_read(id, client, "PractitionerRole", r4us.practitionerrole_decoder())
 }
 
-pub fn us_core_practitionerrole_update(
-  resource: r4us.UsCorePractitionerrole,
+pub fn practitionerrole_update(
+  resource: r4us.Practitionerrole,
   client: FhirClient,
-) -> Result(r4us.UsCorePractitionerrole, Err) {
+) -> Result(r4us.Practitionerrole, Err) {
   any_update(
     resource.id,
-    r4us.us_core_practitionerrole_to_json(resource),
+    r4us.practitionerrole_to_json(resource),
     "PractitionerRole",
-    r4us.us_core_practitionerrole_decoder(),
+    r4us.practitionerrole_decoder(),
     client,
   )
 }
 
-pub fn us_core_practitionerrole_delete(
-  resource: r4us.UsCorePractitionerrole,
+pub fn practitionerrole_delete(
+  resource: r4us.Practitionerrole,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "PractitionerRole", client)
 }
 
-pub fn us_core_practitionerrole_search_bundled(
-  sp: r4us_sansio.SpUsCorePractitionerrole,
+pub fn practitionerrole_search_bundled(
+  sp: r4us_sansio.SpPractitionerrole,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_practitionerrole_search_req(sp, client)
+  let req = r4us_sansio.practitionerrole_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_practitionerrole_search(
-  sp: r4us_sansio.SpUsCorePractitionerrole,
+pub fn practitionerrole_search(
+  sp: r4us_sansio.SpPractitionerrole,
   client: FhirClient,
-) -> Result(List(r4us.UsCorePractitionerrole), Err) {
-  let req = r4us_sansio.us_core_practitionerrole_search_req(sp, client)
+) -> Result(List(r4us.Practitionerrole), Err) {
+  let req = r4us_sansio.practitionerrole_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_practitionerrole
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.practitionerrole
   })
 }
 
-pub fn us_core_procedure_create(
-  resource: r4us.UsCoreProcedure,
+pub fn procedure_create(
+  resource: r4us.Procedure,
   client: FhirClient,
-) -> Result(r4us.UsCoreProcedure, Err) {
+) -> Result(r4us.Procedure, Err) {
   any_create(
-    r4us.us_core_procedure_to_json(resource),
+    r4us.procedure_to_json(resource),
     "Procedure",
-    r4us.us_core_procedure_decoder(),
+    r4us.procedure_decoder(),
     client,
   )
 }
 
-pub fn us_core_procedure_read(
+pub fn procedure_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreProcedure, Err) {
-  any_read(id, client, "Procedure", r4us.us_core_procedure_decoder())
+) -> Result(r4us.Procedure, Err) {
+  any_read(id, client, "Procedure", r4us.procedure_decoder())
 }
 
-pub fn us_core_procedure_update(
-  resource: r4us.UsCoreProcedure,
+pub fn procedure_update(
+  resource: r4us.Procedure,
   client: FhirClient,
-) -> Result(r4us.UsCoreProcedure, Err) {
+) -> Result(r4us.Procedure, Err) {
   any_update(
     resource.id,
-    r4us.us_core_procedure_to_json(resource),
+    r4us.procedure_to_json(resource),
     "Procedure",
-    r4us.us_core_procedure_decoder(),
+    r4us.procedure_decoder(),
     client,
   )
 }
 
-pub fn us_core_procedure_delete(
-  resource: r4us.UsCoreProcedure,
+pub fn procedure_delete(
+  resource: r4us.Procedure,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Procedure", client)
 }
 
-pub fn us_core_procedure_search_bundled(
-  sp: r4us_sansio.SpUsCoreProcedure,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_procedure_search_req(sp, client)
+pub fn procedure_search_bundled(sp: r4us_sansio.SpProcedure, client: FhirClient) {
+  let req = r4us_sansio.procedure_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_procedure_search(
-  sp: r4us_sansio.SpUsCoreProcedure,
+pub fn procedure_search(
+  sp: r4us_sansio.SpProcedure,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreProcedure), Err) {
-  let req = r4us_sansio.us_core_procedure_search_req(sp, client)
+) -> Result(List(r4us.Procedure), Err) {
+  let req = r4us_sansio.procedure_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_procedure
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.procedure
   })
 }
 
-pub fn us_core_provenance_create(
-  resource: r4us.UsCoreProvenance,
+pub fn provenance_create(
+  resource: r4us.Provenance,
   client: FhirClient,
-) -> Result(r4us.UsCoreProvenance, Err) {
+) -> Result(r4us.Provenance, Err) {
   any_create(
-    r4us.us_core_provenance_to_json(resource),
+    r4us.provenance_to_json(resource),
     "Provenance",
-    r4us.us_core_provenance_decoder(),
+    r4us.provenance_decoder(),
     client,
   )
 }
 
-pub fn us_core_provenance_read(
+pub fn provenance_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreProvenance, Err) {
-  any_read(id, client, "Provenance", r4us.us_core_provenance_decoder())
+) -> Result(r4us.Provenance, Err) {
+  any_read(id, client, "Provenance", r4us.provenance_decoder())
 }
 
-pub fn us_core_provenance_update(
-  resource: r4us.UsCoreProvenance,
+pub fn provenance_update(
+  resource: r4us.Provenance,
   client: FhirClient,
-) -> Result(r4us.UsCoreProvenance, Err) {
+) -> Result(r4us.Provenance, Err) {
   any_update(
     resource.id,
-    r4us.us_core_provenance_to_json(resource),
+    r4us.provenance_to_json(resource),
     "Provenance",
-    r4us.us_core_provenance_decoder(),
+    r4us.provenance_decoder(),
     client,
   )
 }
 
-pub fn us_core_provenance_delete(
-  resource: r4us.UsCoreProvenance,
+pub fn provenance_delete(
+  resource: r4us.Provenance,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Provenance", client)
 }
 
-pub fn us_core_provenance_search_bundled(
-  sp: r4us_sansio.SpUsCoreProvenance,
+pub fn provenance_search_bundled(
+  sp: r4us_sansio.SpProvenance,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_provenance_search_req(sp, client)
+  let req = r4us_sansio.provenance_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_provenance_search(
-  sp: r4us_sansio.SpUsCoreProvenance,
+pub fn provenance_search(
+  sp: r4us_sansio.SpProvenance,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreProvenance), Err) {
-  let req = r4us_sansio.us_core_provenance_search_req(sp, client)
+) -> Result(List(r4us.Provenance), Err) {
+  let req = r4us_sansio.provenance_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_provenance
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.provenance
   })
 }
 
@@ -8391,124 +6579,124 @@ pub fn questionnaire_search(
   })
 }
 
-pub fn us_core_questionnaireresponse_create(
-  resource: r4us.UsCoreQuestionnaireresponse,
+pub fn questionnaireresponse_create(
+  resource: r4us.Questionnaireresponse,
   client: FhirClient,
-) -> Result(r4us.UsCoreQuestionnaireresponse, Err) {
+) -> Result(r4us.Questionnaireresponse, Err) {
   any_create(
-    r4us.us_core_questionnaireresponse_to_json(resource),
+    r4us.questionnaireresponse_to_json(resource),
     "QuestionnaireResponse",
-    r4us.us_core_questionnaireresponse_decoder(),
+    r4us.questionnaireresponse_decoder(),
     client,
   )
 }
 
-pub fn us_core_questionnaireresponse_read(
+pub fn questionnaireresponse_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreQuestionnaireresponse, Err) {
+) -> Result(r4us.Questionnaireresponse, Err) {
   any_read(
     id,
     client,
     "QuestionnaireResponse",
-    r4us.us_core_questionnaireresponse_decoder(),
+    r4us.questionnaireresponse_decoder(),
   )
 }
 
-pub fn us_core_questionnaireresponse_update(
-  resource: r4us.UsCoreQuestionnaireresponse,
+pub fn questionnaireresponse_update(
+  resource: r4us.Questionnaireresponse,
   client: FhirClient,
-) -> Result(r4us.UsCoreQuestionnaireresponse, Err) {
+) -> Result(r4us.Questionnaireresponse, Err) {
   any_update(
     resource.id,
-    r4us.us_core_questionnaireresponse_to_json(resource),
+    r4us.questionnaireresponse_to_json(resource),
     "QuestionnaireResponse",
-    r4us.us_core_questionnaireresponse_decoder(),
+    r4us.questionnaireresponse_decoder(),
     client,
   )
 }
 
-pub fn us_core_questionnaireresponse_delete(
-  resource: r4us.UsCoreQuestionnaireresponse,
+pub fn questionnaireresponse_delete(
+  resource: r4us.Questionnaireresponse,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "QuestionnaireResponse", client)
 }
 
-pub fn us_core_questionnaireresponse_search_bundled(
-  sp: r4us_sansio.SpUsCoreQuestionnaireresponse,
+pub fn questionnaireresponse_search_bundled(
+  sp: r4us_sansio.SpQuestionnaireresponse,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_questionnaireresponse_search_req(sp, client)
+  let req = r4us_sansio.questionnaireresponse_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_questionnaireresponse_search(
-  sp: r4us_sansio.SpUsCoreQuestionnaireresponse,
+pub fn questionnaireresponse_search(
+  sp: r4us_sansio.SpQuestionnaireresponse,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreQuestionnaireresponse), Err) {
-  let req = r4us_sansio.us_core_questionnaireresponse_search_req(sp, client)
+) -> Result(List(r4us.Questionnaireresponse), Err) {
+  let req = r4us_sansio.questionnaireresponse_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_questionnaireresponse
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.questionnaireresponse
   })
 }
 
-pub fn us_core_relatedperson_create(
-  resource: r4us.UsCoreRelatedperson,
+pub fn relatedperson_create(
+  resource: r4us.Relatedperson,
   client: FhirClient,
-) -> Result(r4us.UsCoreRelatedperson, Err) {
+) -> Result(r4us.Relatedperson, Err) {
   any_create(
-    r4us.us_core_relatedperson_to_json(resource),
+    r4us.relatedperson_to_json(resource),
     "RelatedPerson",
-    r4us.us_core_relatedperson_decoder(),
+    r4us.relatedperson_decoder(),
     client,
   )
 }
 
-pub fn us_core_relatedperson_read(
+pub fn relatedperson_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreRelatedperson, Err) {
-  any_read(id, client, "RelatedPerson", r4us.us_core_relatedperson_decoder())
+) -> Result(r4us.Relatedperson, Err) {
+  any_read(id, client, "RelatedPerson", r4us.relatedperson_decoder())
 }
 
-pub fn us_core_relatedperson_update(
-  resource: r4us.UsCoreRelatedperson,
+pub fn relatedperson_update(
+  resource: r4us.Relatedperson,
   client: FhirClient,
-) -> Result(r4us.UsCoreRelatedperson, Err) {
+) -> Result(r4us.Relatedperson, Err) {
   any_update(
     resource.id,
-    r4us.us_core_relatedperson_to_json(resource),
+    r4us.relatedperson_to_json(resource),
     "RelatedPerson",
-    r4us.us_core_relatedperson_decoder(),
+    r4us.relatedperson_decoder(),
     client,
   )
 }
 
-pub fn us_core_relatedperson_delete(
-  resource: r4us.UsCoreRelatedperson,
+pub fn relatedperson_delete(
+  resource: r4us.Relatedperson,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "RelatedPerson", client)
 }
 
-pub fn us_core_relatedperson_search_bundled(
-  sp: r4us_sansio.SpUsCoreRelatedperson,
+pub fn relatedperson_search_bundled(
+  sp: r4us_sansio.SpRelatedperson,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_relatedperson_search_req(sp, client)
+  let req = r4us_sansio.relatedperson_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_relatedperson_search(
-  sp: r4us_sansio.SpUsCoreRelatedperson,
+pub fn relatedperson_search(
+  sp: r4us_sansio.SpRelatedperson,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreRelatedperson), Err) {
-  let req = r4us_sansio.us_core_relatedperson_search_req(sp, client)
+) -> Result(List(r4us.Relatedperson), Err) {
+  let req = r4us_sansio.relatedperson_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_relatedperson
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.relatedperson
   })
 }
 
@@ -9041,61 +7229,61 @@ pub fn searchparameter_search(
   })
 }
 
-pub fn us_core_servicerequest_create(
-  resource: r4us.UsCoreServicerequest,
+pub fn servicerequest_create(
+  resource: r4us.Servicerequest,
   client: FhirClient,
-) -> Result(r4us.UsCoreServicerequest, Err) {
+) -> Result(r4us.Servicerequest, Err) {
   any_create(
-    r4us.us_core_servicerequest_to_json(resource),
+    r4us.servicerequest_to_json(resource),
     "ServiceRequest",
-    r4us.us_core_servicerequest_decoder(),
+    r4us.servicerequest_decoder(),
     client,
   )
 }
 
-pub fn us_core_servicerequest_read(
+pub fn servicerequest_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreServicerequest, Err) {
-  any_read(id, client, "ServiceRequest", r4us.us_core_servicerequest_decoder())
+) -> Result(r4us.Servicerequest, Err) {
+  any_read(id, client, "ServiceRequest", r4us.servicerequest_decoder())
 }
 
-pub fn us_core_servicerequest_update(
-  resource: r4us.UsCoreServicerequest,
+pub fn servicerequest_update(
+  resource: r4us.Servicerequest,
   client: FhirClient,
-) -> Result(r4us.UsCoreServicerequest, Err) {
+) -> Result(r4us.Servicerequest, Err) {
   any_update(
     resource.id,
-    r4us.us_core_servicerequest_to_json(resource),
+    r4us.servicerequest_to_json(resource),
     "ServiceRequest",
-    r4us.us_core_servicerequest_decoder(),
+    r4us.servicerequest_decoder(),
     client,
   )
 }
 
-pub fn us_core_servicerequest_delete(
-  resource: r4us.UsCoreServicerequest,
+pub fn servicerequest_delete(
+  resource: r4us.Servicerequest,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "ServiceRequest", client)
 }
 
-pub fn us_core_servicerequest_search_bundled(
-  sp: r4us_sansio.SpUsCoreServicerequest,
+pub fn servicerequest_search_bundled(
+  sp: r4us_sansio.SpServicerequest,
   client: FhirClient,
 ) {
-  let req = r4us_sansio.us_core_servicerequest_search_req(sp, client)
+  let req = r4us_sansio.servicerequest_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_servicerequest_search(
-  sp: r4us_sansio.SpUsCoreServicerequest,
+pub fn servicerequest_search(
+  sp: r4us_sansio.SpServicerequest,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreServicerequest), Err) {
-  let req = r4us_sansio.us_core_servicerequest_search_req(sp, client)
+) -> Result(List(r4us.Servicerequest), Err) {
+  let req = r4us_sansio.servicerequest_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_servicerequest
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.servicerequest
   })
 }
 
@@ -9146,61 +7334,58 @@ pub fn slot_search(
   })
 }
 
-pub fn us_core_specimen_create(
-  resource: r4us.UsCoreSpecimen,
+pub fn specimen_create(
+  resource: r4us.Specimen,
   client: FhirClient,
-) -> Result(r4us.UsCoreSpecimen, Err) {
+) -> Result(r4us.Specimen, Err) {
   any_create(
-    r4us.us_core_specimen_to_json(resource),
+    r4us.specimen_to_json(resource),
     "Specimen",
-    r4us.us_core_specimen_decoder(),
+    r4us.specimen_decoder(),
     client,
   )
 }
 
-pub fn us_core_specimen_read(
+pub fn specimen_read(
   id: String,
   client: FhirClient,
-) -> Result(r4us.UsCoreSpecimen, Err) {
-  any_read(id, client, "Specimen", r4us.us_core_specimen_decoder())
+) -> Result(r4us.Specimen, Err) {
+  any_read(id, client, "Specimen", r4us.specimen_decoder())
 }
 
-pub fn us_core_specimen_update(
-  resource: r4us.UsCoreSpecimen,
+pub fn specimen_update(
+  resource: r4us.Specimen,
   client: FhirClient,
-) -> Result(r4us.UsCoreSpecimen, Err) {
+) -> Result(r4us.Specimen, Err) {
   any_update(
     resource.id,
-    r4us.us_core_specimen_to_json(resource),
+    r4us.specimen_to_json(resource),
     "Specimen",
-    r4us.us_core_specimen_decoder(),
+    r4us.specimen_decoder(),
     client,
   )
 }
 
-pub fn us_core_specimen_delete(
-  resource: r4us.UsCoreSpecimen,
+pub fn specimen_delete(
+  resource: r4us.Specimen,
   client: FhirClient,
 ) -> Result(r4us.Operationoutcome, Err) {
   any_delete(resource.id, "Specimen", client)
 }
 
-pub fn us_core_specimen_search_bundled(
-  sp: r4us_sansio.SpUsCoreSpecimen,
-  client: FhirClient,
-) {
-  let req = r4us_sansio.us_core_specimen_search_req(sp, client)
+pub fn specimen_search_bundled(sp: r4us_sansio.SpSpecimen, client: FhirClient) {
+  let req = r4us_sansio.specimen_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
 }
 
-pub fn us_core_specimen_search(
-  sp: r4us_sansio.SpUsCoreSpecimen,
+pub fn specimen_search(
+  sp: r4us_sansio.SpSpecimen,
   client: FhirClient,
-) -> Result(List(r4us.UsCoreSpecimen), Err) {
-  let req = r4us_sansio.us_core_specimen_search_req(sp, client)
+) -> Result(List(r4us.Specimen), Err) {
+  let req = r4us_sansio.specimen_search_req(sp, client)
   sendreq_parseresource(req, r4us.bundle_decoder())
   |> result.map(fn(bundle) {
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_specimen
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.specimen
   })
 }
 

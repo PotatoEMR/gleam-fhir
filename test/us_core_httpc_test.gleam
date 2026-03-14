@@ -19,11 +19,10 @@ pub fn main() {
       family: Some("Armstrong"),
     )
   let joe =
-    r4us.UsCorePatient(
-      ..r4us.us_core_patient_new(
-        identifier: r4us.List1(one_id, []),
-        name: r4us.List1(one_name, []),
-      ),
+    r4us.Patient(
+      ..r4us.patient_new(),
+      identifier: [one_id],
+      name: [one_name],
       gender: Some(r4us_valuesets.AdministrativegenderMale),
       marital_status: Some(
         r4us.Codeableconcept(..r4us.codeableconcept_new(), coding: [
@@ -46,7 +45,7 @@ pub fn main() {
     r4us.Parameters(..r4us.parameters_new(), parameter: [
       r4us.ParametersParameter(
         ..r4us.parameters_parameter_new("resource"),
-        resource: Some(r4us.ResourceUsCorePatient(joe)),
+        resource: Some(r4us.ResourcePatient(joe)),
       ),
     ])
   let assert Ok(_) =
@@ -59,19 +58,19 @@ pub fn main() {
       client:,
     )
 
-  let assert Ok(created) = r4us_httpc.us_core_patient_create(joe, client)
+  let assert Ok(created) = r4us_httpc.patient_create(joe, client)
   let assert Some(id) = created.id
-  let assert Ok(read) = r4us_httpc.us_core_patient_read(id, client)
+  let assert Ok(read) = r4us_httpc.patient_read(id, client)
   let rip =
-    r4us.UsCorePatient(
+    r4us.Patient(
       ..read,
-      deceased: Some(r4us.UsCorePatientDeceasedBoolean(True)),
+      deceased: Some(r4us.PatientDeceasedBoolean(True)),
     )
-  let assert Ok(updated) = r4us_httpc.us_core_patient_update(rip, client)
+  let assert Ok(updated) = r4us_httpc.patient_update(rip, client)
   let assert Ok(pats) =
-    r4us_httpc.us_core_patient_search(
-      r4us_sansio.SpUsCorePatient(
-        ..r4us_sansio.sp_us_core_patient_new(),
+    r4us_httpc.patient_search(
+      r4us_sansio.SpPatient(
+        ..r4us_sansio.sp_patient_new(),
         name: Some("Armstrong"),
       ),
       client,
@@ -81,7 +80,7 @@ pub fn main() {
   let assert Ok(bundle) =
     r4us_httpc.search_any("name=Armstrong", "Patient", client)
   let pats =
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_patient
+    { bundle |> r4us_sansio.bundle_to_groupedresources }.patient
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
 
   let assert Ok(_) =
@@ -93,5 +92,5 @@ pub fn main() {
       res_decoder: r4us.bundle_decoder(),
       client:,
     )
-  let assert Ok(_) = r4us_httpc.us_core_patient_delete(updated, client)
+  let assert Ok(_) = r4us_httpc.patient_delete(updated, client)
 }

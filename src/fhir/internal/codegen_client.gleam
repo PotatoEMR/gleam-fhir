@@ -172,11 +172,11 @@ fn search_param_decoder() -> decode.Decoder(SearchParam) {
 //   decode.success(OpdefEntry(resource:))
 // }
 
-fn profile_sd_decoder() -> decode.Decoder(#(String, String)) {
-  use id <- decode.field("id", decode.string)
-  use type_ <- decode.field("type", decode.string)
-  decode.success(#(id, type_))
-}
+//fn profile_sd_decoder() -> decode.Decoder(#(String, String)) {
+//  use id <- decode.field("id", decode.string)
+//  use type_ <- decode.field("type", decode.string)
+//  decode.success(#(id, type_))
+//}
 
 pub fn gen(
   spec_file spec_file: String,
@@ -184,7 +184,12 @@ pub fn gen(
   pkg_prefix pkg_prefix: String,
   custom_profile_name custom_profile_name: Option(String),
   profiles_dir profiles_dir: String,
+  all_primitive_ext all_primitive_ext: Bool,
 ) {
+  let resource_id = case all_primitive_ext {
+    True -> "resource.id.value"
+    False -> "resource.id"
+  }
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in src/fhir/internal/downloads/{r4 r4b r5}, run with download arg if not"
   // you could use generated bundle decoder here
@@ -259,29 +264,32 @@ pub fn gen(
       }
     })
 
-  let profile_substitutions = case custom_profile_name {
-    None -> dict.new()
-    Some(_) -> {
-      let assert Ok(files) = simplifile.read_directory(profiles_dir)
-      files
-      |> list.filter(fn(f) { string.starts_with(f, "StructureDefinition") })
-      |> list.fold(dict.new(), fn(acc, f) {
-        let fname = filepath.join(profiles_dir, f)
-        case simplifile.read(fname) {
-          Error(_) -> acc
-          Ok(content) ->
-            case json.parse(content, profile_sd_decoder()) {
-              Error(_) -> acc
-              Ok(#(id, type_)) ->
-                case dict.get(acc, type_) {
-                  Ok(ids) -> dict.insert(acc, type_, [id, ..ids])
-                  Error(_) -> dict.insert(acc, type_, [id])
-                }
-            }
-        }
-      })
-    }
-  }
+  //  let profile_substitutions = case custom_profile_name {
+  //    None -> dict.new()
+  //    Some(_) -> {
+  //      let assert Ok(files) = simplifile.read_directory(profiles_dir)
+  //      files
+  //      |> list.filter(fn(f) { string.starts_with(f, "StructureDefinition") })
+  //      |> list.fold(dict.new(), fn(acc, f) {
+  //        let fname = filepath.join(profiles_dir, f)
+  //        case simplifile.read(fname) {
+  //          Error(_) -> acc
+  //          Ok(content) ->
+  //            case json.parse(content, profile_sd_decoder()) {
+  //              Error(_) -> acc
+  //              Ok(#(id, type_)) ->
+  //                case dict.get(acc, type_) {
+  //                  Ok(ids) -> dict.insert(acc, type_, [id, ..ids])
+  //                  Error(_) -> dict.insert(acc, type_, [id])
+  //                }
+  //            }
+  //        }
+  //      })
+  //    }
+  //  }
+
+  let profile_substitutions = dict.new()
+  //temp todo see codegen.gleam too hard to do profiles
 
   let entries =
     list.flat_map(entries, fn(entry) {
@@ -313,7 +321,7 @@ pub fn gen(
           }
 
           pub fn NAMELOWER_update_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Result(Request(String), Err) {
-            any_update_req(resource.id, FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
+            any_update_req(RESOURCEID, FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
           }
 
           pub fn NAMELOWER_delete_req(id: Option(String), client: FhirClient) -> Result(Request(String), Err) {
@@ -547,6 +555,7 @@ pub fn gen(
       bundle_to_gt,
     ])
     |> string.replace("FHIRVERSION", pkg_prefix)
+    |> string.replace("RESOURCEID", resource_id)
 
   //region httpc
   let res_specific_crud =
@@ -577,7 +586,7 @@ pub fn gen(
               client: FhirClient,
             ) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
               any_update(
-                resource.id,
+                RESOURCEID,
                 FHIRVERSION.NAMELOWER_to_json(resource),
                 \"NAMEUPPER\",
                 FHIRVERSION.NAMELOWER_decoder(),
@@ -589,7 +598,7 @@ pub fn gen(
               resource: FHIRVERSION.NAMECAPITAL,
               client: FhirClient,
             ) -> Result(FHIRVERSION.Operationoutcome, Err) {
-              any_delete(resource.id, \"NAMEUPPER\", client)
+              any_delete(RESOURCEID, \"NAMEUPPER\", client)
             }
 
             pub fn NAMELOWER_search_bundled(sp: FHIRVERSION_sansio.SpNAMECAPITAL, client: FhirClient) {
@@ -616,6 +625,7 @@ pub fn gen(
   let httpc_layer =
     string.concat([file_text, res_specific_crud])
     |> string.replace("FHIRVERSION", pkg_prefix)
+    |> string.replace("RESOURCEID", resource_id)
 
   let rsvp_res_specific_crud =
     gen_specific_crud(
@@ -649,7 +659,7 @@ pub fn gen(
               handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, Err)) -> a,
             ) -> Result(Effect(a), ErrNoId) {
               any_update(
-                resource.id,
+                RESOURCEID,
                 FHIRVERSION.NAMELOWER_to_json(resource),
                 \"NAMEUPPER\",
                 FHIRVERSION.NAMELOWER_decoder(),
@@ -663,7 +673,7 @@ pub fn gen(
               client: FhirClient,
               handle_response: fn(Result(FHIRVERSION.Operationoutcome, Err)) -> a,
             ) -> Result(Effect(a), ErrNoId) {
-              any_delete(resource.id, \"NAMEUPPER\", client, handle_response)
+              any_delete(RESOURCEID, \"NAMEUPPER\", client, handle_response)
             }
 
             pub fn NAMELOWER_search_bundled(
@@ -700,6 +710,7 @@ pub fn gen(
   let rsvp_layer =
     string.concat([file_text, rsvp_res_specific_crud])
     |> string.replace("FHIRVERSION", pkg_prefix)
+    |> string.replace("RESOURCEID", resource_id)
 
   #(sansio, httpc_layer, rsvp_layer)
 }

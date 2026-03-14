@@ -1,2 +1,0 @@
-Patient.name
-Patient.birthDate

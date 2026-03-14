@@ -60,6 +60,7 @@ pub fn main() {
   }
 
   let download_files = list.contains(args_lower, "download")
+  let all_primitive_ext = list.contains(args_lower, "allprimitiveext")
   let download_dir = const_download_dir()
 
   let _ = case download_files {
@@ -143,7 +144,13 @@ pub fn main() {
 
   let _ = case list.contains(args_lower, fhir_version) {
     True ->
-      gen_fhir(fhir_version, download_files, custom_profile_name, profiles_dir)
+      gen_fhir(
+        fhir_version,
+        download_files,
+        custom_profile_name,
+        profiles_dir,
+        all_primitive_ext,
+      )
     False -> Nil
   }
   Nil
@@ -339,6 +346,7 @@ fn gen_fhir(
   download_files: Bool,
   custom_profile_name: Option(String),
   profiles_dir: String,
+  all_primitive_ext: Bool,
 ) -> Nil {
   let gen_into_dir = const_gen_into_dir()
   let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
@@ -420,6 +428,7 @@ fn gen_fhir(
         vsfile: gen_vsfile,
         profiles_dir: profiles_dir,
         custom_profile_name: custom_profile_name,
+        all_primitive_ext: all_primitive_ext,
       ),
       file_to_types(
         spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
@@ -427,6 +436,7 @@ fn gen_fhir(
         vsfile: gen_vsfile,
         profiles_dir: profiles_dir,
         custom_profile_name: custom_profile_name,
+        all_primitive_ext: all_primitive_ext,
       ),
       "
       //std lib decode.optional supports myfield: null but what if myfield is omitted from json entirely?
@@ -499,63 +509,115 @@ fn gen_fhir(
         }
       }
 
-
-    pub type PrimitiveWithExtension(a) {
-      PrimitiveWithExtension(id: Option(String), ext: List(Extension), value: Option(a))
-    }
-
-    pub type ExtAndId {
-      ExtAndId(id: Option(String), ext: List(Extension)) 
-    }
-
-    pub fn primitive_ext_part_to_json(p: PrimitiveWithExtension(_)) {
-      let PrimitiveWithExtension(id, ext, _) = p
-      let fields = []
-      let fields = case id {
-        Some(v) -> [#(\"id\", json.string(v)), ..fields]
-        None -> fields
+      pub type Primitive(a) {
+        Primitive(id: Option(String), ext: List(Extension), value: Option(a))
       }
-      let fields = case ext {
-        [] -> fields
-        _ -> [#(\"extension\", json.array(ext, extension_to_json)), ..fields]
+
+      pub type PrimitiveExtPart {
+        PrimitiveExtPart(id: Option(String), ext: List(Extension))
       }
-      json.object(fields)
-    }
 
-    pub fn primitive_ext_part_decoder(){
-      use ext <- decode.optional_field(
-        \"extension\",
-        [],
-        decode.list(extension_decoder()),
-      )
-      use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
-      decode.success(ExtAndId(
-        ext:,
-        id:,
-      ))
-    }
+      pub fn primitive_ext_part_to_json(p: Primitive(_)) {
+        let Primitive(id, ext, _) = p
+        let fields = []
+        let fields = case id {
+          Some(v) -> [#(\"id\", json.string(v)), ..fields]
+          None -> fields
+        }
+        let fields = case ext {
+          [] -> fields
+          _ -> [#(\"extension\", json.array(ext, extension_to_json)), ..fields]
+        }
+        json.object(fields)
+      }
 
-    pub fn primitives_to_json(old_fields: List(#(String, Json)), field: List(PrimitiveWithExtension(a)), field_to_json: fn(a) -> Json, name: String){
-        let old_fields = case list.any(vals, fn(j: PrimitiveWithExtension){ j.value != None}){
-            False -> old_fields
-            True -> {
-                let arr = json.array(nullable(primitive.value, field_to_json))
-                [#(name, arr), ..old_fields]
-            }
+      pub fn primitive_to_json(old_fields: List(#(String, Json)), primitive: Primitive(a), field_to_json: fn(a) -> Json, name: String){
+        let old_fields = case primitive.id, primitive.ext {
+            None, [] -> old_fields
+            _, _ -> [#(\"_\" <> name, primitive_ext_part_to_json(primitive)), ..old_fields]
         }
-        case list.any(vals, fn(j: PrimitiveWithExtension){j.id != None || j.ext != []}){
-            False -> old_fields
-            True -> {
-                let arr = json.array(vals, fn(primitive) {
-                case primitive.id, primitive.ext {
-                    None, [] -> json.null()
-                    _, _ -> primitive_ext_part_to_json(primitive)
-                }
-                })
-                [#(\"_\" <> name, arr), ..old_fields]
-            }
+        case primitive.value {
+            None -> old_fields
+            Some(v) -> [#(name, field_to_json(v)), ..old_fields]
         }
-    }
+      }
+
+      pub fn primitives_to_json(old_fields: List(#(String, Json)), field: List(Primitive(a)), field_to_json: fn(a) -> Json, name: String){
+          let vals = list.map(field, fn(primitive){
+              json.nullable(primitive.value, field_to_json)
+          })
+          let exts = list.map(field, fn(primitive){
+              case primitive.id, primitive.ext {
+                  None, [] -> json.null()
+                  _, _ -> primitive_ext_part_to_json(primitive)
+              }
+          })
+          let old_fields = case list.any(vals, fn(j){j != json.null()}){
+              False -> old_fields
+              True -> [#(name, json.preprocessed_array(vals)), ..old_fields]
+          }
+          case list.any(exts, fn(j){j != json.null()}){
+              False -> old_fields
+              True -> [#(\"_\" <> name, json.preprocessed_array(exts)), ..old_fields]
+          }
+      }
+
+      pub fn primitive_ext_part_decoder() {
+        use ext <- decode.optional_field(
+          \"extension\",
+          [],
+          decode.list(extension_decoder()),
+        )
+        use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
+        decode.success(PrimitiveExtPart(ext:, id:))
+      }
+
+      pub fn primitive_decoder(name: String, thing_decoder: Decoder(a), next: fn(Primitive(a)) -> Decoder(b)) -> Decoder(b){
+          use value <- decode.optional_field(name, None, decode.optional(thing_decoder))
+          use pwe <- decode.optional_field(\"_\" <> name, None, decode.optional(primitive_ext_part_decoder()))
+          let #(id, ext) = case pwe {
+            None -> #(None, [])
+            Some(PrimitiveExtPart(id, ext)) -> #(id, ext)
+          }
+          let together = Primitive(id:, ext:, value:,)
+          next(together)
+      }
+
+      pub fn primitives_decoder(
+        name: String,
+        thing_decoder: Decoder(a),
+        next: fn(List(Primitive(a))) -> Decoder(b),
+      ) -> Decoder(b) {
+          use values <- decode.optional_field(name, [], decode.list(decode.optional(thing_decoder)))
+          use pwes <- decode.optional_field(\"_\" <> name, [], decode.list(decode.optional(primitive_ext_part_decoder())))
+          let together = map2_fillnone(pwes, values, fn(pwe, value){
+              let #(id, ext) = case pwe {
+                  None -> #(None, [])
+                  Some(PrimitiveExtPart(id, ext)) -> #(id, ext)
+              }
+              Primitive(id:, ext:, value:,)
+          })
+          next(together)
+      }
+
+      pub fn map2_fillnone(list1: List(Option(a)), list2: List(Option(b)), with fun: fn(Option(a), Option(b)) -> c) -> List(c) {
+        map2_fillnone_loop(list1, list2, fun, [])
+      }
+
+      fn map2_fillnone_loop(
+        list1: List(Option(a)),
+        list2: List(Option(b)),
+        fun: fn(Option(a), Option(b)) -> c,
+        acc: List(c),
+      ) -> List(c) {
+        case list1, list2 {
+          [], [] -> list.reverse(acc)
+          [a, ..as_], [] -> map2_fillnone_loop(as_, [], fun, [fun(a, None), ..acc])
+          [], [b, ..bs] -> map2_fillnone_loop([], bs, fun, [fun(None, b), ..acc])
+          [a, ..as_], [b, ..bs] -> map2_fillnone_loop(as_, bs, fun, [fun(a, b), ..acc])
+        }
+      }
+
 
       ",
     ])
@@ -575,6 +637,7 @@ fn gen_fhir(
       pkg_prefix: pkg_prefix,
       custom_profile_name: custom_profile_name,
       profiles_dir: profiles_dir,
+      all_primitive_ext: all_primitive_ext,
     )
   let f_sansio = gen_prefix <> "_sansio.gleam"
   let assert Ok(_) = simplifile.write(to: f_sansio, contents: sansio)
@@ -610,6 +673,7 @@ fn file_to_types(
   vsfile gen_vsfile: String,
   profiles_dir profiles_dir: String,
   custom_profile_name custom_profile_name: Option(String),
+  all_primitive_ext all_primitive_ext: Bool,
 ) -> String {
   // if doing profile it will define new versions of resources
   // so store the new versions in a resourcename -> structure dict
@@ -684,6 +748,41 @@ fn file_to_types(
         }
         ProfileFiles(res, ext, new_simple_exts)
       })
+    }
+  }
+
+  // temp todo xddd
+  let profile_structures =
+    ProfileFiles(
+      ..profile_structures,
+      resources: case dict.get(profile_structures.resources, "Extension") {
+        Ok(exts) -> dict.new() |> dict.insert("Extension", exts)
+        Error(_) -> dict.new()
+      },
+    )
+  // first profile resources are broken eg avg blood pressure
+  // but even if not broken idk how to parse
+  // can do discriminator like 5 different ways, and maybe not even required to have a discriminator??
+  // whereas extensions are very obvious to parse into custom type because they have url
+  // so it is much harder to do custom types for slices
+  // hence todo
+  // emptying resources dict despite parsing all the StructureDefinition files downloaded
+  io.println("not generating from profile StructureDefinition files")
+
+  let primitive_ext_ids = case custom_profile_name {
+    None -> []
+    Some(_) -> {
+      let prim_ext_file =
+        filepath.directory_name(const_download_dir())
+        |> filepath.join("primitive_extension_list.txt")
+      case simplifile.read(prim_ext_file) {
+        Error(_) -> []
+        Ok(contents) ->
+          contents
+          |> string.split("\n")
+          |> list.map(string.trim)
+          |> list.filter(fn(s) { s != "" })
+      }
     }
   }
 
@@ -898,7 +997,7 @@ fn file_to_types(
               Ok(_) ->
                 case is_primitive {
                   False -> Nil
-                  True -> io.println(elt.id)
+                  True -> io.println("primitive extension on " <> elt.id)
                 }
             }
             // done checking if we have any extensions on this element
@@ -1057,6 +1156,37 @@ fn file_to_types(
                 }
                 let field_name_new =
                   camel_type <> string.capitalise(elt_last_part)
+                let is_primitive = case elt.type_ {
+                  [Type(code: fst_code, ..)] ->
+                    case fst_code {
+                      "base64Binary"
+                      | "boolean"
+                      | "canonical"
+                      | "code"
+                      | "date"
+                      | "dateTime"
+                      | "decimal"
+                      | "id"
+                      | "instant"
+                      | "integer"
+                      | "integer64"
+                      | "markdown"
+                      | "oid"
+                      | "positiveInt"
+                      | "string"
+                      | "time"
+                      | "unsignedInt"
+                      | "uri"
+                      | "url"
+                      | "uuid"
+                      | "xhtml"
+                      | "http://hl7.org/fhirpath/System.String" ->
+                        all_primitive_ext
+                        || list.contains(primitive_ext_ids, elt.id)
+                      _ -> False
+                    }
+                  _ -> False
+                }
                 let field_type = case elt.type_ {
                   [one_type] ->
                     // For simple extension fields, use the value type directly
@@ -1075,14 +1205,20 @@ fn file_to_types(
                           gen_vsfile,
                         )
                       }
-                      _, _ ->
-                        string_to_type(
-                          one_type.code,
-                          allparts,
-                          fhir_version,
-                          elt,
-                          gen_vsfile,
-                        )
+                      _, _ -> {
+                        let base_type =
+                          string_to_type(
+                            one_type.code,
+                            allparts,
+                            fhir_version,
+                            elt,
+                            gen_vsfile,
+                          )
+                        case is_primitive {
+                          True -> "Primitive(" <> base_type <> ")"
+                          False -> base_type
+                        }
+                      }
                     }
                   [] -> {
                     link_type_from(elt.content_reference, resource.name)
@@ -1091,11 +1227,16 @@ fn file_to_types(
                   _ -> field_name_new
                 }
                 let elt_snake = to_snake_case(elt_last_part)
+                let card_min = case is_primitive, elt.max {
+                  True, "*" -> 0
+                  True, _ -> 1
+                  False, _ -> elt.min
+                }
                 let this_type_fields =
                   string.concat([
                     elt_snake,
                     ": ",
-                    cardinality(field_type, elt.min, elt.max),
+                    cardinality(field_type, card_min, elt.max),
                     ",\n",
                     fields_acc,
                   ])
@@ -1215,19 +1356,23 @@ fn file_to_types(
                 }
                 let #(newfunc_arg, newfunc_field) = case elt.min, elt.max {
                   0, "*" -> #("", elt_snake <> ": [],")
-                  1, "*" -> {
-                    let arg =
-                      string.concat([
-                        elt_snake,
-                        " ",
-                        elt_snake,
-                        ": List1(",
-                        field_type,
-                        "),",
-                      ])
-                    let field = elt_snake <> ":,"
-                    #(arg, field)
-                  }
+                  1, "*" ->
+                    case is_primitive {
+                      True -> #("", elt_snake <> ": [],")
+                      False -> {
+                        let arg =
+                          string.concat([
+                            elt_snake,
+                            " ",
+                            elt_snake,
+                            ": List1(",
+                            field_type,
+                            "),",
+                          ])
+                        let field = elt_snake <> ":,"
+                        #(arg, field)
+                      }
+                    }
                   2, "*" -> {
                     let arg =
                       string.concat([
@@ -1254,20 +1399,37 @@ fn file_to_types(
                     let field = elt_snake <> ":,"
                     #(arg, field)
                   }
-                  0, _ -> #("", elt_snake <> ": None,")
-                  1, _ -> {
-                    let arg =
-                      string.concat([
-                        elt_snake,
-                        " ",
-                        elt_snake,
-                        ": ",
-                        field_type,
-                        ",",
-                      ])
-                    let field = elt_snake <> ":,"
-                    #(arg, field)
-                  }
+                  0, _ -> #(
+                    "",
+                    elt_snake
+                      <> ": "
+                      <> case is_primitive {
+                      True -> "Primitive(id: None, ext: [], value: None)"
+                      False -> "None"
+                    }
+                      <> ",",
+                  )
+                  1, _ ->
+                    case is_primitive {
+                      True -> #(
+                        "",
+                        elt_snake
+                          <> ": Primitive(id: None, ext: [], value: None),",
+                      )
+                      False -> {
+                        let arg =
+                          string.concat([
+                            elt_snake,
+                            " ",
+                            elt_snake,
+                            ": ",
+                            field_type,
+                            ",",
+                          ])
+                        let field = elt_snake <> ":,"
+                        #(arg, field)
+                      }
+                    }
                   _, _ -> panic as "cardinality panic 2"
                 }
                 //all the fields for encoder to convert to json
@@ -1311,39 +1473,85 @@ fn file_to_types(
                   )
                   False ->
                     case elt.min, elt.max {
-                      0, "*" -> {
-                        //0..* list: omit from json if empty
-                        let opts =
-                          encoder_optional_acc
-                          <> "\nlet fields = case "
-                          <> elt_snake
-                          <> " {
+                      0, "*" ->
+                        case is_primitive {
+                          True -> {
+                            let opts =
+                              encoder_optional_acc
+                              <> "\nlet fields = primitives_to_json(fields, "
+                              <> elt_snake
+                              <> ", "
+                              <> field_type_encoder
+                              <> ", \""
+                              <> elt_last_part_withgleamtype
+                              <> "\")"
+                            #(
+                              opts,
+                              encoder_always_acc,
+                              decoder_always_failure_acc,
+                            )
+                          }
+                          False -> {
+                            //0..* list: omit from json if empty
+                            let opts =
+                              encoder_optional_acc
+                              <> "\nlet fields = case "
+                              <> elt_snake
+                              <> " {
                         [] -> fields
                         _ -> [#(\""
-                          <> elt_last_part_withgleamtype
-                          <> "\", json.array("
-                          <> elt_snake
-                          <> ","
-                          <> field_type_encoder
-                          <> ")), ..fields]
+                              <> elt_last_part_withgleamtype
+                              <> "\", json.array("
+                              <> elt_snake
+                              <> ","
+                              <> field_type_encoder
+                              <> ")), ..fields]
                           }"
-                        #(opts, encoder_always_acc, decoder_always_failure_acc)
-                      }
-                      1, "*" -> {
-                        //1..* list: always present, destructure List1
-                        let always =
-                          encoder_always_acc
-                          <> "#(\""
-                          <> elt_last_part_withgleamtype
-                          <> "\", list1_to_json("
-                          <> elt_snake
-                          <> ","
-                          <> field_type_encoder
-                          <> ")),"
-                        let decoder_always_failure =
-                          decoder_always_failure_acc <> elt_snake <> ":, "
-                        #(encoder_optional_acc, always, decoder_always_failure)
-                      }
+                            #(
+                              opts,
+                              encoder_always_acc,
+                              decoder_always_failure_acc,
+                            )
+                          }
+                        }
+                      1, "*" ->
+                        case is_primitive {
+                          True -> {
+                            let opts =
+                              encoder_optional_acc
+                              <> "\nlet fields = primitives_to_json(fields, "
+                              <> elt_snake
+                              <> ", "
+                              <> field_type_encoder
+                              <> ", \""
+                              <> elt_last_part_withgleamtype
+                              <> "\")"
+                            #(
+                              opts,
+                              encoder_always_acc,
+                              decoder_always_failure_acc,
+                            )
+                          }
+                          False -> {
+                            //1..* list: always present, destructure List1
+                            let always =
+                              encoder_always_acc
+                              <> "#(\""
+                              <> elt_last_part_withgleamtype
+                              <> "\", list1_to_json("
+                              <> elt_snake
+                              <> ","
+                              <> field_type_encoder
+                              <> ")),"
+                            let decoder_always_failure =
+                              decoder_always_failure_acc <> elt_snake <> ":, "
+                            #(
+                              encoder_optional_acc,
+                              always,
+                              decoder_always_failure,
+                            )
+                          }
+                        }
                       2, "*" -> {
                         //2..* list: always present, destructure List2
                         let always =
@@ -1374,71 +1582,117 @@ fn file_to_types(
                           decoder_always_failure_acc <> elt_snake <> ":, "
                         #(encoder_optional_acc, always, decoder_always_failure)
                       }
-                      0, "1" -> {
-                        //optional case to json, in Some case add to fields list
-                        let choicetype_suffixes = case elt.type_ {
-                          // choice type encoder requires onsetAge onsetString onsetPeriod whatever to be suffix in json
-                          [_, _, ..] ->
-                            string.concat([
-                              " <> case v {",
-                              list.fold(
-                                from: "",
-                                over: elt.type_,
-                                with: fn(suffixes_acc, ct) {
-                                  let assert [first_letter, ..rest] =
-                                    ct.code |> string.to_graphemes
-                                  // unlike string.capitalise this doesnt make everything after first lowercase
-                                  // so createdDateTime doesnt become createdDatetime
-                                  let capital_ct =
-                                    string.concat([
-                                      string.uppercase(first_letter),
-                                      ..rest
-                                    ])
-                                  suffixes_acc
-                                  <> field_name_new
-                                  <> string.capitalise(ct.code)
-                                  <> "(_) -> \""
-                                  <> capital_ct
-                                  <> "\"\n"
-                                },
-                              ),
-                              "}",
-                            ])
-                          //normal type encoder (not choice type)
-                          _ -> ""
-                        }
-                        let opts =
-                          encoder_optional_acc
-                          <> "\nlet fields = case "
-                          <> elt_snake
-                          <> " {
+                      0, "1" ->
+                        case is_primitive {
+                          True -> {
+                            let opts =
+                              encoder_optional_acc
+                              <> "\nlet fields = primitive_to_json(fields, "
+                              <> elt_snake
+                              <> ", "
+                              <> field_type_encoder
+                              <> ", \""
+                              <> elt_last_part_withgleamtype
+                              <> "\")"
+                            #(
+                              opts,
+                              encoder_always_acc,
+                              decoder_always_failure_acc,
+                            )
+                          }
+                          False -> {
+                            //optional case to json, in Some case add to fields list
+                            let choicetype_suffixes = case elt.type_ {
+                              // choice type encoder requires onsetAge onsetString onsetPeriod whatever to be suffix in json
+                              [_, _, ..] ->
+                                string.concat([
+                                  " <> case v {",
+                                  list.fold(
+                                    from: "",
+                                    over: elt.type_,
+                                    with: fn(suffixes_acc, ct) {
+                                      let assert [first_letter, ..rest] =
+                                        ct.code |> string.to_graphemes
+                                      // unlike string.capitalise this doesnt make everything after first lowercase
+                                      // so createdDateTime doesnt become createdDatetime
+                                      let capital_ct =
+                                        string.concat([
+                                          string.uppercase(first_letter),
+                                          ..rest
+                                        ])
+                                      suffixes_acc
+                                      <> field_name_new
+                                      <> string.capitalise(ct.code)
+                                      <> "(_) -> \""
+                                      <> capital_ct
+                                      <> "\"\n"
+                                    },
+                                  ),
+                                  "}",
+                                ])
+                              //normal type encoder (not choice type)
+                              _ -> ""
+                            }
+                            let opts =
+                              encoder_optional_acc
+                              <> "\nlet fields = case "
+                              <> elt_snake
+                              <> " {
                         Some(v) -> [#(\""
-                          <> elt_last_part_withgleamtype
-                          <> "\""
-                          <> choicetype_suffixes
-                          <> ", "
-                          <> field_type_encoder
-                          <> "(v)), ..fields]
+                              <> elt_last_part_withgleamtype
+                              <> "\""
+                              <> choicetype_suffixes
+                              <> ", "
+                              <> field_type_encoder
+                              <> "(v)), ..fields]
                           None -> fields
                         }"
-                        #(opts, encoder_always_acc, decoder_always_failure_acc)
-                      }
-                      1, "1" -> {
-                        //mandatory case to json, put in first fields list
-                        let always =
-                          encoder_always_acc
-                          <> "#(\""
-                          <> elt_last_part_withgleamtype
-                          <> "\", "
-                          <> field_type_encoder
-                          <> "("
-                          <> elt_snake
-                          <> ")"
-                          <> "),"
-                        let decoder_always_failure =
-                          decoder_always_failure_acc <> elt_snake <> ":, "
-                        #(encoder_optional_acc, always, decoder_always_failure)
-                      }
+                            #(
+                              opts,
+                              encoder_always_acc,
+                              decoder_always_failure_acc,
+                            )
+                          }
+                        }
+                      1, "1" ->
+                        case is_primitive {
+                          True -> {
+                            let opts =
+                              encoder_optional_acc
+                              <> "\nlet fields = primitive_to_json(fields, "
+                              <> elt_snake
+                              <> ", "
+                              <> field_type_encoder
+                              <> ", \""
+                              <> elt_last_part_withgleamtype
+                              <> "\")"
+                            #(
+                              opts,
+                              encoder_always_acc,
+                              decoder_always_failure_acc,
+                            )
+                          }
+                          False -> {
+                            //mandatory case to json, put in first fields list
+                            let always =
+                              encoder_always_acc
+                              <> "#(\""
+                              <> elt_last_part_withgleamtype
+                              <> "\", "
+                              <> field_type_encoder
+                              <> "("
+                              <> elt_snake
+                              <> ")"
+                              <> "),"
+                            let decoder_always_failure =
+                              decoder_always_failure_acc <> elt_snake <> ":, "
+                            #(
+                              encoder_optional_acc,
+                              always,
+                              decoder_always_failure,
+                            )
+                          }
+                        }
                       _, _ -> panic as "cardinality panic 72"
                     }
                 }
@@ -1474,17 +1728,35 @@ fn file_to_types(
                           "*" ->
                             case elt.min {
                               0 ->
-                                "decode.optional_field(\""
-                                <> elt_last_part_withgleamtype
-                                <> "\", [], decode.list("
-                                <> decoder_itself
-                                <> "))"
+                                case is_primitive {
+                                  True ->
+                                    "primitives_decoder(\""
+                                    <> elt_last_part_withgleamtype
+                                    <> "\","
+                                    <> decoder_itself
+                                    <> ")"
+                                  False ->
+                                    "decode.optional_field(\""
+                                    <> elt_last_part_withgleamtype
+                                    <> "\", [], decode.list("
+                                    <> decoder_itself
+                                    <> "))"
+                                }
                               1 ->
-                                "list1_decoder(\""
-                                <> elt_last_part_withgleamtype
-                                <> "\","
-                                <> decoder_itself
-                                <> ")"
+                                case is_primitive {
+                                  True ->
+                                    "primitives_decoder(\""
+                                    <> elt_last_part_withgleamtype
+                                    <> "\","
+                                    <> decoder_itself
+                                    <> ")"
+                                  False ->
+                                    "list1_decoder(\""
+                                    <> elt_last_part_withgleamtype
+                                    <> "\","
+                                    <> decoder_itself
+                                    <> ")"
+                                }
                               2 ->
                                 "list2_decoder(\""
                                 <> elt_last_part_withgleamtype
@@ -1501,20 +1773,36 @@ fn file_to_types(
                             }
                           _ ->
                             case elt.min {
-                              0 -> {
-                                "decode.optional_field(\""
-                                <> elt_last_part_withgleamtype
-                                <> "\", None, decode.optional("
-                                <> decoder_itself
-                                <> "))"
-                              }
-                              1 -> {
-                                "decode.field(\""
-                                <> elt_last_part_withgleamtype
-                                <> "\","
-                                <> decoder_itself
-                                <> ")"
-                              }
+                              0 ->
+                                case is_primitive {
+                                  True ->
+                                    "primitive_decoder(\""
+                                    <> elt_last_part_withgleamtype
+                                    <> "\","
+                                    <> decoder_itself
+                                    <> ")"
+                                  False ->
+                                    "decode.optional_field(\""
+                                    <> elt_last_part_withgleamtype
+                                    <> "\", None, decode.optional("
+                                    <> decoder_itself
+                                    <> "))"
+                                }
+                              1 ->
+                                case is_primitive {
+                                  True ->
+                                    "primitive_decoder(\""
+                                    <> elt_last_part_withgleamtype
+                                    <> "\","
+                                    <> decoder_itself
+                                    <> ")"
+                                  False ->
+                                    "decode.field(\""
+                                    <> elt_last_part_withgleamtype
+                                    <> "\","
+                                    <> decoder_itself
+                                    <> ")"
+                                }
                               _ -> panic as "cardinality panic 3"
                             }
                         }
@@ -1982,27 +2270,65 @@ fn file_to_types(
                             }
                           }
                         }
+                        let is_prim_ext =
+                          all_primitive_ext
+                          && case elt.type_ {
+                            [Type(code: c, ..)] ->
+                              case c {
+                                "base64Binary"
+                                | "boolean"
+                                | "canonical"
+                                | "code"
+                                | "date"
+                                | "dateTime"
+                                | "decimal"
+                                | "id"
+                                | "instant"
+                                | "integer"
+                                | "integer64"
+                                | "markdown"
+                                | "oid"
+                                | "positiveInt"
+                                | "string"
+                                | "time"
+                                | "unsignedInt"
+                                | "uri"
+                                | "url"
+                                | "uuid"
+                                | "xhtml"
+                                | "http://hl7.org/fhirpath/System.String" ->
+                                  True
+                                _ -> False
+                              }
+                            _ -> False
+                          }
                         case elt.type_ {
                           [] -> acc
                           _ -> {
-                            let list_expr = case elt.min, elt.max {
-                              0, "1" ->
+                            let list_expr = case is_prim_ext, elt.min, elt.max {
+                              True, _, "1" ->
+                                "case to_ext."
+                                <> elt_snake2
+                                <> ".value { None -> [] Some(c) -> ["
+                                <> make_child_ext("c")
+                                <> "] }"
+                              False, 0, "1" ->
                                 "case to_ext."
                                 <> elt_snake2
                                 <> " { None -> [] Some(c) -> ["
                                 <> make_child_ext("c")
                                 <> "] }"
-                              0, _ ->
+                              _, 0, _ ->
                                 "to_ext."
                                 <> elt_snake2
                                 <> " |> list.map(fn(c){ "
                                 <> make_child_ext("c")
                                 <> " })"
-                              1, _ ->
+                              _, 1, _ ->
                                 "["
                                 <> make_child_ext("to_ext." <> elt_snake2)
                                 <> "]"
-                              _, _ -> ""
+                              _, _, _ -> ""
                             }
                             [list_expr, ..acc]
                           }
@@ -2092,16 +2418,74 @@ fn file_to_types(
                                       "ExtDictSimple(ExtensionValue"
                                       <> val_type
                                       <> "(v))"
-                                    case elt.min, elt.max {
-                                      0, "1" ->
+                                    let is_prim_ext =
+                                      all_primitive_ext
+                                      && case code {
+                                        "base64Binary"
+                                        | "boolean"
+                                        | "canonical"
+                                        | "code"
+                                        | "date"
+                                        | "dateTime"
+                                        | "decimal"
+                                        | "id"
+                                        | "instant"
+                                        | "integer"
+                                        | "integer64"
+                                        | "markdown"
+                                        | "oid"
+                                        | "positiveInt"
+                                        | "string"
+                                        | "time"
+                                        | "unsignedInt"
+                                        | "uri"
+                                        | "url"
+                                        | "uuid"
+                                        | "xhtml"
+                                        | "http://hl7.org/fhirpath/System.String" ->
+                                          True
+                                        _ -> False
+                                      }
+                                    let #(ok_none, ok_some, ok_val) = case
+                                      is_prim_ext
+                                    {
+                                      True -> #(
+                                        "Ok(Primitive(id: None, ext: [], value: None))",
+                                        "Ok(Primitive(id: None, ext: [], value: Some(v)))",
+                                        "Ok(Primitive(id: None, ext: [], value: Some(v)))",
+                                      )
+                                      False -> #(
+                                        "Ok(None)",
+                                        "Ok(Some(v))",
+                                        "Ok(v)",
+                                      )
+                                    }
+                                    case is_prim_ext, elt.min, elt.max {
+                                      True, _, "1" ->
                                         "use "
                                         <> elt_snake2
                                         <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
                                         <> slice_url
-                                        <> "\") { Error(_) -> Ok(None) Ok([ExtDictContent(content: "
+                                        <> "\") { Error(_) -> "
+                                        <> ok_none
+                                        <> " Ok([ExtDictContent(content: "
                                         <> ext_pat
-                                        <> ", ..)]) -> Ok(Some(v)) Ok(_) -> Error(Nil) })"
-                                      0, _ ->
+                                        <> ", ..)]) -> "
+                                        <> ok_some
+                                        <> " Ok(_) -> Error(Nil) })"
+                                      False, 0, "1" ->
+                                        "use "
+                                        <> elt_snake2
+                                        <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
+                                        <> slice_url
+                                        <> "\") { Error(_) -> "
+                                        <> ok_none
+                                        <> " Ok([ExtDictContent(content: "
+                                        <> ext_pat
+                                        <> ", ..)]) -> "
+                                        <> ok_some
+                                        <> " Ok(_) -> Error(Nil) })"
+                                      _, 0, _ ->
                                         "use "
                                         <> elt_snake2
                                         <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
@@ -2109,15 +2493,17 @@ fn file_to_types(
                                         <> "\") { Error(_) -> Ok([]) Ok(entries) -> list.fold(from: Ok([]), over: entries, with: fn(acc, entry) { use so_far <- result.try(acc) case entry.content { "
                                         <> ext_pat
                                         <> " -> Ok([v, ..so_far]) _ -> Error(Nil) } }) })"
-                                      1, _ ->
+                                      _, 1, _ ->
                                         "use "
                                         <> elt_snake2
                                         <> " <- result.try(case dict.get(ext_dict.exts_by_url, \""
                                         <> slice_url
                                         <> "\") { Error(_) -> Error(Nil) Ok([ExtDictContent(content: "
                                         <> ext_pat
-                                        <> ", ..)]) -> Ok(v) Ok(_) -> Error(Nil) })"
-                                      _, _ -> ""
+                                        <> ", ..)]) -> "
+                                        <> ok_val
+                                        <> " Ok(_) -> Error(Nil) })"
+                                      _, _, _ -> ""
                                     }
                                   }
                                 }

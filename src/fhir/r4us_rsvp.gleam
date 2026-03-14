@@ -399,83 +399,79 @@ pub fn adverseevent_search(
   )
 }
 
-pub fn us_core_allergyintolerance_create(
-  resource: r4us.UsCoreAllergyintolerance,
+pub fn allergyintolerance_create(
+  resource: r4us.Allergyintolerance,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreAllergyintolerance, Err)) -> a,
+  handle_response: fn(Result(r4us.Allergyintolerance, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_allergyintolerance_to_json(resource),
+    r4us.allergyintolerance_to_json(resource),
     "AllergyIntolerance",
-    r4us.us_core_allergyintolerance_decoder(),
+    r4us.allergyintolerance_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_allergyintolerance_read(
+pub fn allergyintolerance_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreAllergyintolerance, Err)) -> a,
+  handle_response: fn(Result(r4us.Allergyintolerance, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "AllergyIntolerance",
-    r4us.us_core_allergyintolerance_decoder(),
+    r4us.allergyintolerance_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_allergyintolerance_update(
-  resource: r4us.UsCoreAllergyintolerance,
+pub fn allergyintolerance_update(
+  resource: r4us.Allergyintolerance,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreAllergyintolerance, Err)) -> a,
+  handle_response: fn(Result(r4us.Allergyintolerance, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_allergyintolerance_to_json(resource),
+    r4us.allergyintolerance_to_json(resource),
     "AllergyIntolerance",
-    r4us.us_core_allergyintolerance_decoder(),
+    r4us.allergyintolerance_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_allergyintolerance_delete(
-  resource: r4us.UsCoreAllergyintolerance,
+pub fn allergyintolerance_delete(
+  resource: r4us.Allergyintolerance,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "AllergyIntolerance", client, handle_response)
 }
 
-pub fn us_core_allergyintolerance_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreAllergyintolerance,
+pub fn allergyintolerance_search_bundled(
+  search_for search_args: r4us_sansio.SpAllergyintolerance,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_allergyintolerance_search_req(search_args, client)
+  let req = r4us_sansio.allergyintolerance_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_allergyintolerance_search(
-  search_for search_args: r4us_sansio.SpUsCoreAllergyintolerance,
+pub fn allergyintolerance_search(
+  search_for search_args: r4us_sansio.SpAllergyintolerance,
   with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreAllergyintolerance), Err),
-  ) ->
+  response_msg handle_response: fn(Result(List(r4us.Allergyintolerance), Err)) ->
     msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_allergyintolerance_search_req(search_args, client)
+  let req = r4us_sansio.allergyintolerance_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_allergyintolerance
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.allergyintolerance
     },
   )
 }
@@ -1141,157 +1137,139 @@ pub fn capabilitystatement_search(
   )
 }
 
-pub fn us_core_careplan_create(
-  resource: r4us.UsCoreCareplan,
+pub fn careplan_create(
+  resource: r4us.Careplan,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCareplan, Err)) -> a,
+  handle_response: fn(Result(r4us.Careplan, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_careplan_to_json(resource),
+    r4us.careplan_to_json(resource),
     "CarePlan",
-    r4us.us_core_careplan_decoder(),
+    r4us.careplan_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_careplan_read(
+pub fn careplan_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCareplan, Err)) -> a,
+  handle_response: fn(Result(r4us.Careplan, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "CarePlan",
-    r4us.us_core_careplan_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "CarePlan", r4us.careplan_decoder(), client, handle_response)
 }
 
-pub fn us_core_careplan_update(
-  resource: r4us.UsCoreCareplan,
+pub fn careplan_update(
+  resource: r4us.Careplan,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCareplan, Err)) -> a,
+  handle_response: fn(Result(r4us.Careplan, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_careplan_to_json(resource),
+    r4us.careplan_to_json(resource),
     "CarePlan",
-    r4us.us_core_careplan_decoder(),
+    r4us.careplan_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_careplan_delete(
-  resource: r4us.UsCoreCareplan,
+pub fn careplan_delete(
+  resource: r4us.Careplan,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "CarePlan", client, handle_response)
 }
 
-pub fn us_core_careplan_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreCareplan,
+pub fn careplan_search_bundled(
+  search_for search_args: r4us_sansio.SpCareplan,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_careplan_search_req(search_args, client)
+  let req = r4us_sansio.careplan_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_careplan_search(
-  search_for search_args: r4us_sansio.SpUsCoreCareplan,
+pub fn careplan_search(
+  search_for search_args: r4us_sansio.SpCareplan,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreCareplan), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Careplan), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_careplan_search_req(search_args, client)
+  let req = r4us_sansio.careplan_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_careplan
-    },
+    fn(bundle) { { bundle |> r4us_sansio.bundle_to_groupedresources }.careplan },
   )
 }
 
-pub fn us_core_careteam_create(
-  resource: r4us.UsCoreCareteam,
+pub fn careteam_create(
+  resource: r4us.Careteam,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCareteam, Err)) -> a,
+  handle_response: fn(Result(r4us.Careteam, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_careteam_to_json(resource),
+    r4us.careteam_to_json(resource),
     "CareTeam",
-    r4us.us_core_careteam_decoder(),
+    r4us.careteam_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_careteam_read(
+pub fn careteam_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCareteam, Err)) -> a,
+  handle_response: fn(Result(r4us.Careteam, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "CareTeam",
-    r4us.us_core_careteam_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "CareTeam", r4us.careteam_decoder(), client, handle_response)
 }
 
-pub fn us_core_careteam_update(
-  resource: r4us.UsCoreCareteam,
+pub fn careteam_update(
+  resource: r4us.Careteam,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCareteam, Err)) -> a,
+  handle_response: fn(Result(r4us.Careteam, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_careteam_to_json(resource),
+    r4us.careteam_to_json(resource),
     "CareTeam",
-    r4us.us_core_careteam_decoder(),
+    r4us.careteam_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_careteam_delete(
-  resource: r4us.UsCoreCareteam,
+pub fn careteam_delete(
+  resource: r4us.Careteam,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "CareTeam", client, handle_response)
 }
 
-pub fn us_core_careteam_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreCareteam,
+pub fn careteam_search_bundled(
+  search_for search_args: r4us_sansio.SpCareteam,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_careteam_search_req(search_args, client)
+  let req = r4us_sansio.careteam_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_careteam_search(
-  search_for search_args: r4us_sansio.SpUsCoreCareteam,
+pub fn careteam_search(
+  search_for search_args: r4us_sansio.SpCareteam,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreCareteam), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Careteam), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_careteam_search_req(search_args, client)
+  let req = r4us_sansio.careteam_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_careteam
-    },
+    fn(bundle) { { bundle |> r4us_sansio.bundle_to_groupedresources }.careteam },
   )
 }
 
@@ -2187,179 +2165,72 @@ pub fn conceptmap_search(
   )
 }
 
-pub fn us_core_condition_encounter_diagnosis_create(
-  resource: r4us.UsCoreConditionEncounterDiagnosis,
+pub fn condition_create(
+  resource: r4us.Condition,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreConditionEncounterDiagnosis, Err)) -> a,
+  handle_response: fn(Result(r4us.Condition, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_condition_encounter_diagnosis_to_json(resource),
+    r4us.condition_to_json(resource),
     "Condition",
-    r4us.us_core_condition_encounter_diagnosis_decoder(),
+    r4us.condition_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_condition_encounter_diagnosis_read(
+pub fn condition_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreConditionEncounterDiagnosis, Err)) -> a,
+  handle_response: fn(Result(r4us.Condition, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "Condition",
-    r4us.us_core_condition_encounter_diagnosis_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "Condition", r4us.condition_decoder(), client, handle_response)
 }
 
-pub fn us_core_condition_encounter_diagnosis_update(
-  resource: r4us.UsCoreConditionEncounterDiagnosis,
+pub fn condition_update(
+  resource: r4us.Condition,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreConditionEncounterDiagnosis, Err)) -> a,
+  handle_response: fn(Result(r4us.Condition, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_condition_encounter_diagnosis_to_json(resource),
+    r4us.condition_to_json(resource),
     "Condition",
-    r4us.us_core_condition_encounter_diagnosis_decoder(),
+    r4us.condition_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_condition_encounter_diagnosis_delete(
-  resource: r4us.UsCoreConditionEncounterDiagnosis,
+pub fn condition_delete(
+  resource: r4us.Condition,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Condition", client, handle_response)
 }
 
-pub fn us_core_condition_encounter_diagnosis_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreConditionEncounterDiagnosis,
+pub fn condition_search_bundled(
+  search_for search_args: r4us_sansio.SpCondition,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_condition_encounter_diagnosis_search_req(
-      search_args,
-      client,
-    )
+  let req = r4us_sansio.condition_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_condition_encounter_diagnosis_search(
-  search_for search_args: r4us_sansio.SpUsCoreConditionEncounterDiagnosis,
+pub fn condition_search(
+  search_for search_args: r4us_sansio.SpCondition,
   with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreConditionEncounterDiagnosis), Err),
-  ) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Condition), Err)) -> msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_condition_encounter_diagnosis_search_req(
-      search_args,
-      client,
-    )
+  let req = r4us_sansio.condition_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_condition_encounter_diagnosis
-    },
-  )
-}
-
-pub fn us_core_condition_problems_health_concerns_create(
-  resource: r4us.UsCoreConditionProblemsHealthConcerns,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreConditionProblemsHealthConcerns, Err)) ->
-    a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_condition_problems_health_concerns_to_json(resource),
-    "Condition",
-    r4us.us_core_condition_problems_health_concerns_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_condition_problems_health_concerns_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreConditionProblemsHealthConcerns, Err)) ->
-    a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Condition",
-    r4us.us_core_condition_problems_health_concerns_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_condition_problems_health_concerns_update(
-  resource: r4us.UsCoreConditionProblemsHealthConcerns,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreConditionProblemsHealthConcerns, Err)) ->
-    a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_condition_problems_health_concerns_to_json(resource),
-    "Condition",
-    r4us.us_core_condition_problems_health_concerns_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_condition_problems_health_concerns_delete(
-  resource: r4us.UsCoreConditionProblemsHealthConcerns,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Condition", client, handle_response)
-}
-
-pub fn us_core_condition_problems_health_concerns_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreConditionProblemsHealthConcerns,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_condition_problems_health_concerns_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_condition_problems_health_concerns_search(
-  search_for search_args: r4us_sansio.SpUsCoreConditionProblemsHealthConcerns,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreConditionProblemsHealthConcerns), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_condition_problems_health_concerns_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_condition_problems_health_concerns
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.condition
     },
   )
 }
@@ -2500,80 +2371,71 @@ pub fn contract_search(
   )
 }
 
-pub fn us_core_coverage_create(
-  resource: r4us.UsCoreCoverage,
+pub fn coverage_create(
+  resource: r4us.Coverage,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCoverage, Err)) -> a,
+  handle_response: fn(Result(r4us.Coverage, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_coverage_to_json(resource),
+    r4us.coverage_to_json(resource),
     "Coverage",
-    r4us.us_core_coverage_decoder(),
+    r4us.coverage_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_coverage_read(
+pub fn coverage_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCoverage, Err)) -> a,
+  handle_response: fn(Result(r4us.Coverage, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "Coverage",
-    r4us.us_core_coverage_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "Coverage", r4us.coverage_decoder(), client, handle_response)
 }
 
-pub fn us_core_coverage_update(
-  resource: r4us.UsCoreCoverage,
+pub fn coverage_update(
+  resource: r4us.Coverage,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCoverage, Err)) -> a,
+  handle_response: fn(Result(r4us.Coverage, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_coverage_to_json(resource),
+    r4us.coverage_to_json(resource),
     "Coverage",
-    r4us.us_core_coverage_decoder(),
+    r4us.coverage_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_coverage_delete(
-  resource: r4us.UsCoreCoverage,
+pub fn coverage_delete(
+  resource: r4us.Coverage,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Coverage", client, handle_response)
 }
 
-pub fn us_core_coverage_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreCoverage,
+pub fn coverage_search_bundled(
+  search_for search_args: r4us_sansio.SpCoverage,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_coverage_search_req(search_args, client)
+  let req = r4us_sansio.coverage_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_coverage_search(
-  search_for search_args: r4us_sansio.SpUsCoreCoverage,
+pub fn coverage_search(
+  search_for search_args: r4us_sansio.SpCoverage,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreCoverage), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Coverage), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_coverage_search_req(search_args, client)
+  let req = r4us_sansio.coverage_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_coverage
-    },
+    fn(bundle) { { bundle |> r4us_sansio.bundle_to_groupedresources }.coverage },
   )
 }
 
@@ -2820,73 +2682,71 @@ pub fn detectedissue_search(
   )
 }
 
-pub fn us_core_device_create(
-  resource: r4us.UsCoreDevice,
+pub fn device_create(
+  resource: r4us.Device,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDevice, Err)) -> a,
+  handle_response: fn(Result(r4us.Device, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_device_to_json(resource),
+    r4us.device_to_json(resource),
     "Device",
-    r4us.us_core_device_decoder(),
+    r4us.device_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_device_read(
+pub fn device_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDevice, Err)) -> a,
+  handle_response: fn(Result(r4us.Device, Err)) -> a,
 ) -> Effect(a) {
-  any_read(id, "Device", r4us.us_core_device_decoder(), client, handle_response)
+  any_read(id, "Device", r4us.device_decoder(), client, handle_response)
 }
 
-pub fn us_core_device_update(
-  resource: r4us.UsCoreDevice,
+pub fn device_update(
+  resource: r4us.Device,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDevice, Err)) -> a,
+  handle_response: fn(Result(r4us.Device, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_device_to_json(resource),
+    r4us.device_to_json(resource),
     "Device",
-    r4us.us_core_device_decoder(),
+    r4us.device_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_device_delete(
-  resource: r4us.UsCoreDevice,
+pub fn device_delete(
+  resource: r4us.Device,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Device", client, handle_response)
 }
 
-pub fn us_core_device_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreDevice,
+pub fn device_search_bundled(
+  search_for search_args: r4us_sansio.SpDevice,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_device_search_req(search_args, client)
+  let req = r4us_sansio.device_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_device_search(
-  search_for search_args: r4us_sansio.SpUsCoreDevice,
+pub fn device_search(
+  search_for search_args: r4us_sansio.SpDevice,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreDevice), Err)) -> msg,
+  response_msg handle_response: fn(Result(List(r4us.Device), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_device_search_req(search_args, client)
+  let req = r4us_sansio.device_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_device
-    },
+    fn(bundle) { { bundle |> r4us_sansio.bundle_to_groupedresources }.device },
   )
 }
 
@@ -3196,164 +3056,79 @@ pub fn deviceusestatement_search(
   )
 }
 
-pub fn us_core_diagnosticreport_lab_create(
-  resource: r4us.UsCoreDiagnosticreportLab,
+pub fn diagnosticreport_create(
+  resource: r4us.Diagnosticreport,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDiagnosticreportLab, Err)) -> a,
+  handle_response: fn(Result(r4us.Diagnosticreport, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_diagnosticreport_lab_to_json(resource),
+    r4us.diagnosticreport_to_json(resource),
     "DiagnosticReport",
-    r4us.us_core_diagnosticreport_lab_decoder(),
+    r4us.diagnosticreport_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_diagnosticreport_lab_read(
+pub fn diagnosticreport_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDiagnosticreportLab, Err)) -> a,
+  handle_response: fn(Result(r4us.Diagnosticreport, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "DiagnosticReport",
-    r4us.us_core_diagnosticreport_lab_decoder(),
+    r4us.diagnosticreport_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_diagnosticreport_lab_update(
-  resource: r4us.UsCoreDiagnosticreportLab,
+pub fn diagnosticreport_update(
+  resource: r4us.Diagnosticreport,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDiagnosticreportLab, Err)) -> a,
+  handle_response: fn(Result(r4us.Diagnosticreport, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_diagnosticreport_lab_to_json(resource),
+    r4us.diagnosticreport_to_json(resource),
     "DiagnosticReport",
-    r4us.us_core_diagnosticreport_lab_decoder(),
+    r4us.diagnosticreport_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_diagnosticreport_lab_delete(
-  resource: r4us.UsCoreDiagnosticreportLab,
+pub fn diagnosticreport_delete(
+  resource: r4us.Diagnosticreport,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "DiagnosticReport", client, handle_response)
 }
 
-pub fn us_core_diagnosticreport_lab_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreDiagnosticreportLab,
+pub fn diagnosticreport_search_bundled(
+  search_for search_args: r4us_sansio.SpDiagnosticreport,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_diagnosticreport_lab_search_req(search_args, client)
+  let req = r4us_sansio.diagnosticreport_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_diagnosticreport_lab_search(
-  search_for search_args: r4us_sansio.SpUsCoreDiagnosticreportLab,
+pub fn diagnosticreport_search(
+  search_for search_args: r4us_sansio.SpDiagnosticreport,
   with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreDiagnosticreportLab), Err),
-  ) ->
+  response_msg handle_response: fn(Result(List(r4us.Diagnosticreport), Err)) ->
     msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_diagnosticreport_lab_search_req(search_args, client)
+  let req = r4us_sansio.diagnosticreport_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_diagnosticreport_lab
-    },
-  )
-}
-
-pub fn us_core_diagnosticreport_note_create(
-  resource: r4us.UsCoreDiagnosticreportNote,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDiagnosticreportNote, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_diagnosticreport_note_to_json(resource),
-    "DiagnosticReport",
-    r4us.us_core_diagnosticreport_note_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_diagnosticreport_note_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDiagnosticreportNote, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "DiagnosticReport",
-    r4us.us_core_diagnosticreport_note_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_diagnosticreport_note_update(
-  resource: r4us.UsCoreDiagnosticreportNote,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDiagnosticreportNote, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_diagnosticreport_note_to_json(resource),
-    "DiagnosticReport",
-    r4us.us_core_diagnosticreport_note_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_diagnosticreport_note_delete(
-  resource: r4us.UsCoreDiagnosticreportNote,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "DiagnosticReport", client, handle_response)
-}
-
-pub fn us_core_diagnosticreport_note_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreDiagnosticreportNote,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_diagnosticreport_note_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_diagnosticreport_note_search(
-  search_for search_args: r4us_sansio.SpUsCoreDiagnosticreportNote,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreDiagnosticreportNote), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_diagnosticreport_note_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_diagnosticreport_note
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.diagnosticreport
     },
   )
 }
@@ -3435,164 +3210,79 @@ pub fn documentmanifest_search(
   )
 }
 
-pub fn us_core_documentreference_create(
-  resource: r4us.UsCoreDocumentreference,
+pub fn documentreference_create(
+  resource: r4us.Documentreference,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDocumentreference, Err)) -> a,
+  handle_response: fn(Result(r4us.Documentreference, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_documentreference_to_json(resource),
+    r4us.documentreference_to_json(resource),
     "DocumentReference",
-    r4us.us_core_documentreference_decoder(),
+    r4us.documentreference_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_documentreference_read(
+pub fn documentreference_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDocumentreference, Err)) -> a,
+  handle_response: fn(Result(r4us.Documentreference, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "DocumentReference",
-    r4us.us_core_documentreference_decoder(),
+    r4us.documentreference_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_documentreference_update(
-  resource: r4us.UsCoreDocumentreference,
+pub fn documentreference_update(
+  resource: r4us.Documentreference,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreDocumentreference, Err)) -> a,
+  handle_response: fn(Result(r4us.Documentreference, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_documentreference_to_json(resource),
+    r4us.documentreference_to_json(resource),
     "DocumentReference",
-    r4us.us_core_documentreference_decoder(),
+    r4us.documentreference_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_documentreference_delete(
-  resource: r4us.UsCoreDocumentreference,
+pub fn documentreference_delete(
+  resource: r4us.Documentreference,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "DocumentReference", client, handle_response)
 }
 
-pub fn us_core_documentreference_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreDocumentreference,
+pub fn documentreference_search_bundled(
+  search_for search_args: r4us_sansio.SpDocumentreference,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_documentreference_search_req(search_args, client)
+  let req = r4us_sansio.documentreference_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_documentreference_search(
-  search_for search_args: r4us_sansio.SpUsCoreDocumentreference,
+pub fn documentreference_search(
+  search_for search_args: r4us_sansio.SpDocumentreference,
   with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreDocumentreference), Err),
-  ) ->
+  response_msg handle_response: fn(Result(List(r4us.Documentreference), Err)) ->
     msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_documentreference_search_req(search_args, client)
+  let req = r4us_sansio.documentreference_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_documentreference
-    },
-  )
-}
-
-pub fn us_core_adi_documentreference_create(
-  resource: r4us.UsCoreAdiDocumentreference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreAdiDocumentreference, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_adi_documentreference_to_json(resource),
-    "DocumentReference",
-    r4us.us_core_adi_documentreference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_adi_documentreference_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreAdiDocumentreference, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "DocumentReference",
-    r4us.us_core_adi_documentreference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_adi_documentreference_update(
-  resource: r4us.UsCoreAdiDocumentreference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreAdiDocumentreference, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_adi_documentreference_to_json(resource),
-    "DocumentReference",
-    r4us.us_core_adi_documentreference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_adi_documentreference_delete(
-  resource: r4us.UsCoreAdiDocumentreference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "DocumentReference", client, handle_response)
-}
-
-pub fn us_core_adi_documentreference_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreAdiDocumentreference,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_adi_documentreference_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_adi_documentreference_search(
-  search_for search_args: r4us_sansio.SpUsCoreAdiDocumentreference,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreAdiDocumentreference), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_adi_documentreference_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_adi_documentreference
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.documentreference
     },
   )
 }
@@ -3676,79 +3366,72 @@ pub fn effectevidencesynthesis_search(
   )
 }
 
-pub fn us_core_encounter_create(
-  resource: r4us.UsCoreEncounter,
+pub fn encounter_create(
+  resource: r4us.Encounter,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreEncounter, Err)) -> a,
+  handle_response: fn(Result(r4us.Encounter, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_encounter_to_json(resource),
+    r4us.encounter_to_json(resource),
     "Encounter",
-    r4us.us_core_encounter_decoder(),
+    r4us.encounter_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_encounter_read(
+pub fn encounter_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreEncounter, Err)) -> a,
+  handle_response: fn(Result(r4us.Encounter, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "Encounter",
-    r4us.us_core_encounter_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "Encounter", r4us.encounter_decoder(), client, handle_response)
 }
 
-pub fn us_core_encounter_update(
-  resource: r4us.UsCoreEncounter,
+pub fn encounter_update(
+  resource: r4us.Encounter,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreEncounter, Err)) -> a,
+  handle_response: fn(Result(r4us.Encounter, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_encounter_to_json(resource),
+    r4us.encounter_to_json(resource),
     "Encounter",
-    r4us.us_core_encounter_decoder(),
+    r4us.encounter_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_encounter_delete(
-  resource: r4us.UsCoreEncounter,
+pub fn encounter_delete(
+  resource: r4us.Encounter,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Encounter", client, handle_response)
 }
 
-pub fn us_core_encounter_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreEncounter,
+pub fn encounter_search_bundled(
+  search_for search_args: r4us_sansio.SpEncounter,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_encounter_search_req(search_args, client)
+  let req = r4us_sansio.encounter_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_encounter_search(
-  search_for search_args: r4us_sansio.SpUsCoreEncounter,
+pub fn encounter_search(
+  search_for search_args: r4us_sansio.SpEncounter,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreEncounter), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Encounter), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_encounter_search_req(search_args, client)
+  let req = r4us_sansio.encounter_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_encounter
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.encounter
     },
   )
 }
@@ -4427,83 +4110,79 @@ pub fn explanationofbenefit_search(
   )
 }
 
-pub fn us_core_familymemberhistory_create(
-  resource: r4us.UsCoreFamilymemberhistory,
+pub fn familymemberhistory_create(
+  resource: r4us.Familymemberhistory,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreFamilymemberhistory, Err)) -> a,
+  handle_response: fn(Result(r4us.Familymemberhistory, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_familymemberhistory_to_json(resource),
+    r4us.familymemberhistory_to_json(resource),
     "FamilyMemberHistory",
-    r4us.us_core_familymemberhistory_decoder(),
+    r4us.familymemberhistory_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_familymemberhistory_read(
+pub fn familymemberhistory_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreFamilymemberhistory, Err)) -> a,
+  handle_response: fn(Result(r4us.Familymemberhistory, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "FamilyMemberHistory",
-    r4us.us_core_familymemberhistory_decoder(),
+    r4us.familymemberhistory_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_familymemberhistory_update(
-  resource: r4us.UsCoreFamilymemberhistory,
+pub fn familymemberhistory_update(
+  resource: r4us.Familymemberhistory,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreFamilymemberhistory, Err)) -> a,
+  handle_response: fn(Result(r4us.Familymemberhistory, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_familymemberhistory_to_json(resource),
+    r4us.familymemberhistory_to_json(resource),
     "FamilyMemberHistory",
-    r4us.us_core_familymemberhistory_decoder(),
+    r4us.familymemberhistory_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_familymemberhistory_delete(
-  resource: r4us.UsCoreFamilymemberhistory,
+pub fn familymemberhistory_delete(
+  resource: r4us.Familymemberhistory,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "FamilyMemberHistory", client, handle_response)
 }
 
-pub fn us_core_familymemberhistory_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreFamilymemberhistory,
+pub fn familymemberhistory_search_bundled(
+  search_for search_args: r4us_sansio.SpFamilymemberhistory,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_familymemberhistory_search_req(search_args, client)
+  let req = r4us_sansio.familymemberhistory_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_familymemberhistory_search(
-  search_for search_args: r4us_sansio.SpUsCoreFamilymemberhistory,
+pub fn familymemberhistory_search(
+  search_for search_args: r4us_sansio.SpFamilymemberhistory,
   with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreFamilymemberhistory), Err),
-  ) ->
+  response_msg handle_response: fn(Result(List(r4us.Familymemberhistory), Err)) ->
     msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_familymemberhistory_search_req(search_args, client)
+  let req = r4us_sansio.familymemberhistory_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_familymemberhistory
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.familymemberhistory
     },
   )
 }
@@ -4576,73 +4255,71 @@ pub fn flag_search(
   )
 }
 
-pub fn us_core_goal_create(
-  resource: r4us.UsCoreGoal,
+pub fn goal_create(
+  resource: r4us.Goal,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreGoal, Err)) -> a,
+  handle_response: fn(Result(r4us.Goal, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_goal_to_json(resource),
+    r4us.goal_to_json(resource),
     "Goal",
-    r4us.us_core_goal_decoder(),
+    r4us.goal_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_goal_read(
+pub fn goal_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreGoal, Err)) -> a,
+  handle_response: fn(Result(r4us.Goal, Err)) -> a,
 ) -> Effect(a) {
-  any_read(id, "Goal", r4us.us_core_goal_decoder(), client, handle_response)
+  any_read(id, "Goal", r4us.goal_decoder(), client, handle_response)
 }
 
-pub fn us_core_goal_update(
-  resource: r4us.UsCoreGoal,
+pub fn goal_update(
+  resource: r4us.Goal,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreGoal, Err)) -> a,
+  handle_response: fn(Result(r4us.Goal, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_goal_to_json(resource),
+    r4us.goal_to_json(resource),
     "Goal",
-    r4us.us_core_goal_decoder(),
+    r4us.goal_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_goal_delete(
-  resource: r4us.UsCoreGoal,
+pub fn goal_delete(
+  resource: r4us.Goal,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Goal", client, handle_response)
 }
 
-pub fn us_core_goal_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreGoal,
+pub fn goal_search_bundled(
+  search_for search_args: r4us_sansio.SpGoal,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_goal_search_req(search_args, client)
+  let req = r4us_sansio.goal_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_goal_search(
-  search_for search_args: r4us_sansio.SpUsCoreGoal,
+pub fn goal_search(
+  search_for search_args: r4us_sansio.SpGoal,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreGoal), Err)) -> msg,
+  response_msg handle_response: fn(Result(List(r4us.Goal), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_goal_search_req(search_args, client)
+  let req = r4us_sansio.goal_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_goal
-    },
+    fn(bundle) { { bundle |> r4us_sansio.bundle_to_groupedresources }.goal },
   )
 }
 
@@ -5021,79 +4698,78 @@ pub fn imagingstudy_search(
   )
 }
 
-pub fn us_core_immunization_create(
-  resource: r4us.UsCoreImmunization,
+pub fn immunization_create(
+  resource: r4us.Immunization,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreImmunization, Err)) -> a,
+  handle_response: fn(Result(r4us.Immunization, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_immunization_to_json(resource),
+    r4us.immunization_to_json(resource),
     "Immunization",
-    r4us.us_core_immunization_decoder(),
+    r4us.immunization_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_immunization_read(
+pub fn immunization_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreImmunization, Err)) -> a,
+  handle_response: fn(Result(r4us.Immunization, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "Immunization",
-    r4us.us_core_immunization_decoder(),
+    r4us.immunization_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_immunization_update(
-  resource: r4us.UsCoreImmunization,
+pub fn immunization_update(
+  resource: r4us.Immunization,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreImmunization, Err)) -> a,
+  handle_response: fn(Result(r4us.Immunization, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_immunization_to_json(resource),
+    r4us.immunization_to_json(resource),
     "Immunization",
-    r4us.us_core_immunization_decoder(),
+    r4us.immunization_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_immunization_delete(
-  resource: r4us.UsCoreImmunization,
+pub fn immunization_delete(
+  resource: r4us.Immunization,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Immunization", client, handle_response)
 }
 
-pub fn us_core_immunization_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreImmunization,
+pub fn immunization_search_bundled(
+  search_for search_args: r4us_sansio.SpImmunization,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_immunization_search_req(search_args, client)
+  let req = r4us_sansio.immunization_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_immunization_search(
-  search_for search_args: r4us_sansio.SpUsCoreImmunization,
+pub fn immunization_search(
+  search_for search_args: r4us_sansio.SpImmunization,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreImmunization), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Immunization), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_immunization_search_req(search_args, client)
+  let req = r4us_sansio.immunization_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_immunization
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.immunization
     },
   )
 }
@@ -5683,80 +5359,71 @@ pub fn listfhir_search(
   )
 }
 
-pub fn us_core_location_create(
-  resource: r4us.UsCoreLocation,
+pub fn location_create(
+  resource: r4us.Location,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreLocation, Err)) -> a,
+  handle_response: fn(Result(r4us.Location, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_location_to_json(resource),
+    r4us.location_to_json(resource),
     "Location",
-    r4us.us_core_location_decoder(),
+    r4us.location_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_location_read(
+pub fn location_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreLocation, Err)) -> a,
+  handle_response: fn(Result(r4us.Location, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "Location",
-    r4us.us_core_location_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "Location", r4us.location_decoder(), client, handle_response)
 }
 
-pub fn us_core_location_update(
-  resource: r4us.UsCoreLocation,
+pub fn location_update(
+  resource: r4us.Location,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreLocation, Err)) -> a,
+  handle_response: fn(Result(r4us.Location, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_location_to_json(resource),
+    r4us.location_to_json(resource),
     "Location",
-    r4us.us_core_location_decoder(),
+    r4us.location_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_location_delete(
-  resource: r4us.UsCoreLocation,
+pub fn location_delete(
+  resource: r4us.Location,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Location", client, handle_response)
 }
 
-pub fn us_core_location_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreLocation,
+pub fn location_search_bundled(
+  search_for search_args: r4us_sansio.SpLocation,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_location_search_req(search_args, client)
+  let req = r4us_sansio.location_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_location_search(
-  search_for search_args: r4us_sansio.SpUsCoreLocation,
+pub fn location_search(
+  search_for search_args: r4us_sansio.SpLocation,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreLocation), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Location), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_location_search_req(search_args, client)
+  let req = r4us_sansio.location_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_location
-    },
+    fn(bundle) { { bundle |> r4us_sansio.bundle_to_groupedresources }.location },
   )
 }
 
@@ -5972,79 +5639,72 @@ pub fn media_search(
   )
 }
 
-pub fn us_core_medication_create(
-  resource: r4us.UsCoreMedication,
+pub fn medication_create(
+  resource: r4us.Medication,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreMedication, Err)) -> a,
+  handle_response: fn(Result(r4us.Medication, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_medication_to_json(resource),
+    r4us.medication_to_json(resource),
     "Medication",
-    r4us.us_core_medication_decoder(),
+    r4us.medication_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_medication_read(
+pub fn medication_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreMedication, Err)) -> a,
+  handle_response: fn(Result(r4us.Medication, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "Medication",
-    r4us.us_core_medication_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "Medication", r4us.medication_decoder(), client, handle_response)
 }
 
-pub fn us_core_medication_update(
-  resource: r4us.UsCoreMedication,
+pub fn medication_update(
+  resource: r4us.Medication,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreMedication, Err)) -> a,
+  handle_response: fn(Result(r4us.Medication, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_medication_to_json(resource),
+    r4us.medication_to_json(resource),
     "Medication",
-    r4us.us_core_medication_decoder(),
+    r4us.medication_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_medication_delete(
-  resource: r4us.UsCoreMedication,
+pub fn medication_delete(
+  resource: r4us.Medication,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Medication", client, handle_response)
 }
 
-pub fn us_core_medication_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreMedication,
+pub fn medication_search_bundled(
+  search_for search_args: r4us_sansio.SpMedication,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_medication_search_req(search_args, client)
+  let req = r4us_sansio.medication_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_medication_search(
-  search_for search_args: r4us_sansio.SpUsCoreMedication,
+pub fn medication_search(
+  search_for search_args: r4us_sansio.SpMedication,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreMedication), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Medication), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_medication_search_req(search_args, client)
+  let req = r4us_sansio.medication_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_medication
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.medication
     },
   )
 }
@@ -6128,83 +5788,79 @@ pub fn medicationadministration_search(
   )
 }
 
-pub fn us_core_medicationdispense_create(
-  resource: r4us.UsCoreMedicationdispense,
+pub fn medicationdispense_create(
+  resource: r4us.Medicationdispense,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreMedicationdispense, Err)) -> a,
+  handle_response: fn(Result(r4us.Medicationdispense, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_medicationdispense_to_json(resource),
+    r4us.medicationdispense_to_json(resource),
     "MedicationDispense",
-    r4us.us_core_medicationdispense_decoder(),
+    r4us.medicationdispense_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_medicationdispense_read(
+pub fn medicationdispense_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreMedicationdispense, Err)) -> a,
+  handle_response: fn(Result(r4us.Medicationdispense, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "MedicationDispense",
-    r4us.us_core_medicationdispense_decoder(),
+    r4us.medicationdispense_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_medicationdispense_update(
-  resource: r4us.UsCoreMedicationdispense,
+pub fn medicationdispense_update(
+  resource: r4us.Medicationdispense,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreMedicationdispense, Err)) -> a,
+  handle_response: fn(Result(r4us.Medicationdispense, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_medicationdispense_to_json(resource),
+    r4us.medicationdispense_to_json(resource),
     "MedicationDispense",
-    r4us.us_core_medicationdispense_decoder(),
+    r4us.medicationdispense_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_medicationdispense_delete(
-  resource: r4us.UsCoreMedicationdispense,
+pub fn medicationdispense_delete(
+  resource: r4us.Medicationdispense,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "MedicationDispense", client, handle_response)
 }
 
-pub fn us_core_medicationdispense_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreMedicationdispense,
+pub fn medicationdispense_search_bundled(
+  search_for search_args: r4us_sansio.SpMedicationdispense,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_medicationdispense_search_req(search_args, client)
+  let req = r4us_sansio.medicationdispense_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_medicationdispense_search(
-  search_for search_args: r4us_sansio.SpUsCoreMedicationdispense,
+pub fn medicationdispense_search(
+  search_for search_args: r4us_sansio.SpMedicationdispense,
   with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreMedicationdispense), Err),
-  ) ->
+  response_msg handle_response: fn(Result(List(r4us.Medicationdispense), Err)) ->
     msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_medicationdispense_search_req(search_args, client)
+  let req = r4us_sansio.medicationdispense_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_medicationdispense
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.medicationdispense
     },
   )
 }
@@ -6286,83 +5942,79 @@ pub fn medicationknowledge_search(
   )
 }
 
-pub fn us_core_medicationrequest_create(
-  resource: r4us.UsCoreMedicationrequest,
+pub fn medicationrequest_create(
+  resource: r4us.Medicationrequest,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreMedicationrequest, Err)) -> a,
+  handle_response: fn(Result(r4us.Medicationrequest, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_medicationrequest_to_json(resource),
+    r4us.medicationrequest_to_json(resource),
     "MedicationRequest",
-    r4us.us_core_medicationrequest_decoder(),
+    r4us.medicationrequest_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_medicationrequest_read(
+pub fn medicationrequest_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreMedicationrequest, Err)) -> a,
+  handle_response: fn(Result(r4us.Medicationrequest, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "MedicationRequest",
-    r4us.us_core_medicationrequest_decoder(),
+    r4us.medicationrequest_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_medicationrequest_update(
-  resource: r4us.UsCoreMedicationrequest,
+pub fn medicationrequest_update(
+  resource: r4us.Medicationrequest,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreMedicationrequest, Err)) -> a,
+  handle_response: fn(Result(r4us.Medicationrequest, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_medicationrequest_to_json(resource),
+    r4us.medicationrequest_to_json(resource),
     "MedicationRequest",
-    r4us.us_core_medicationrequest_decoder(),
+    r4us.medicationrequest_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_medicationrequest_delete(
-  resource: r4us.UsCoreMedicationrequest,
+pub fn medicationrequest_delete(
+  resource: r4us.Medicationrequest,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "MedicationRequest", client, handle_response)
 }
 
-pub fn us_core_medicationrequest_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreMedicationrequest,
+pub fn medicationrequest_search_bundled(
+  search_for search_args: r4us_sansio.SpMedicationrequest,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_medicationrequest_search_req(search_args, client)
+  let req = r4us_sansio.medicationrequest_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_medicationrequest_search(
-  search_for search_args: r4us_sansio.SpUsCoreMedicationrequest,
+pub fn medicationrequest_search(
+  search_for search_args: r4us_sansio.SpMedicationrequest,
   with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreMedicationrequest), Err),
-  ) ->
+  response_msg handle_response: fn(Result(List(r4us.Medicationrequest), Err)) ->
     msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_medicationrequest_search_req(search_args, client)
+  let req = r4us_sansio.medicationrequest_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_medicationrequest
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.medicationrequest
     },
   )
 }
@@ -7667,2132 +7319,78 @@ pub fn nutritionorder_search(
   )
 }
 
-pub fn us_core_body_temperature_create(
-  resource: r4us.UsCoreBodyTemperature,
+pub fn observation_create(
+  resource: r4us.Observation,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBodyTemperature, Err)) -> a,
+  handle_response: fn(Result(r4us.Observation, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_body_temperature_to_json(resource),
+    r4us.observation_to_json(resource),
     "Observation",
-    r4us.us_core_body_temperature_decoder(),
+    r4us.observation_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_body_temperature_read(
+pub fn observation_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBodyTemperature, Err)) -> a,
+  handle_response: fn(Result(r4us.Observation, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "Observation",
-    r4us.us_core_body_temperature_decoder(),
+    r4us.observation_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_body_temperature_update(
-  resource: r4us.UsCoreBodyTemperature,
+pub fn observation_update(
+  resource: r4us.Observation,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBodyTemperature, Err)) -> a,
+  handle_response: fn(Result(r4us.Observation, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_body_temperature_to_json(resource),
+    r4us.observation_to_json(resource),
     "Observation",
-    r4us.us_core_body_temperature_decoder(),
+    r4us.observation_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_body_temperature_delete(
-  resource: r4us.UsCoreBodyTemperature,
+pub fn observation_delete(
+  resource: r4us.Observation,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Observation", client, handle_response)
 }
 
-pub fn us_core_body_temperature_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreBodyTemperature,
+pub fn observation_search_bundled(
+  search_for search_args: r4us_sansio.SpObservation,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_body_temperature_search_req(search_args, client)
+  let req = r4us_sansio.observation_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_body_temperature_search(
-  search_for search_args: r4us_sansio.SpUsCoreBodyTemperature,
+pub fn observation_search(
+  search_for search_args: r4us_sansio.SpObservation,
   with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreBodyTemperature), Err),
-  ) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Observation), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_body_temperature_search_req(search_args, client)
+  let req = r4us_sansio.observation_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_body_temperature
-    },
-  )
-}
-
-pub fn us_core_observation_clinical_result_create(
-  resource: r4us.UsCoreObservationClinicalResult,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationClinicalResult, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_observation_clinical_result_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_clinical_result_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_clinical_result_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationClinicalResult, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_observation_clinical_result_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_clinical_result_update(
-  resource: r4us.UsCoreObservationClinicalResult,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationClinicalResult, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_clinical_result_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_clinical_result_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_clinical_result_delete(
-  resource: r4us.UsCoreObservationClinicalResult,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_observation_clinical_result_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreObservationClinicalResult,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_clinical_result_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_observation_clinical_result_search(
-  search_for search_args: r4us_sansio.SpUsCoreObservationClinicalResult,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreObservationClinicalResult), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_clinical_result_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_clinical_result
-    },
-  )
-}
-
-pub fn us_core_observation_lab_create(
-  resource: r4us.UsCoreObservationLab,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationLab, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_observation_lab_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_lab_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_lab_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationLab, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_observation_lab_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_lab_update(
-  resource: r4us.UsCoreObservationLab,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationLab, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_lab_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_lab_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_lab_delete(
-  resource: r4us.UsCoreObservationLab,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_observation_lab_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreObservationLab,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_observation_lab_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_observation_lab_search(
-  search_for search_args: r4us_sansio.SpUsCoreObservationLab,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreObservationLab), Err)) ->
-    msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_observation_lab_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_lab
-    },
-  )
-}
-
-pub fn us_core_treatment_intervention_preference_create(
-  resource: r4us.UsCoreTreatmentInterventionPreference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreTreatmentInterventionPreference, Err)) ->
-    a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_treatment_intervention_preference_to_json(resource),
-    "Observation",
-    r4us.us_core_treatment_intervention_preference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_treatment_intervention_preference_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreTreatmentInterventionPreference, Err)) ->
-    a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_treatment_intervention_preference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_treatment_intervention_preference_update(
-  resource: r4us.UsCoreTreatmentInterventionPreference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreTreatmentInterventionPreference, Err)) ->
-    a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_treatment_intervention_preference_to_json(resource),
-    "Observation",
-    r4us.us_core_treatment_intervention_preference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_treatment_intervention_preference_delete(
-  resource: r4us.UsCoreTreatmentInterventionPreference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_treatment_intervention_preference_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreTreatmentInterventionPreference,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_treatment_intervention_preference_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_treatment_intervention_preference_search(
-  search_for search_args: r4us_sansio.SpUsCoreTreatmentInterventionPreference,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreTreatmentInterventionPreference), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_treatment_intervention_preference_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_treatment_intervention_preference
-    },
-  )
-}
-
-pub fn us_core_observation_pregnancyintent_create(
-  resource: r4us.UsCoreObservationPregnancyintent,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationPregnancyintent, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_observation_pregnancyintent_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_pregnancyintent_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_pregnancyintent_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationPregnancyintent, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_observation_pregnancyintent_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_pregnancyintent_update(
-  resource: r4us.UsCoreObservationPregnancyintent,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationPregnancyintent, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_pregnancyintent_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_pregnancyintent_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_pregnancyintent_delete(
-  resource: r4us.UsCoreObservationPregnancyintent,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_observation_pregnancyintent_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreObservationPregnancyintent,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_pregnancyintent_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_observation_pregnancyintent_search(
-  search_for search_args: r4us_sansio.SpUsCoreObservationPregnancyintent,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreObservationPregnancyintent), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_pregnancyintent_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_pregnancyintent
-    },
-  )
-}
-
-pub fn us_core_simple_observation_create(
-  resource: r4us.UsCoreSimpleObservation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreSimpleObservation, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_simple_observation_to_json(resource),
-    "Observation",
-    r4us.us_core_simple_observation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_simple_observation_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreSimpleObservation, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_simple_observation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_simple_observation_update(
-  resource: r4us.UsCoreSimpleObservation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreSimpleObservation, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_simple_observation_to_json(resource),
-    "Observation",
-    r4us.us_core_simple_observation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_simple_observation_delete(
-  resource: r4us.UsCoreSimpleObservation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_simple_observation_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreSimpleObservation,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_simple_observation_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_simple_observation_search(
-  search_for search_args: r4us_sansio.SpUsCoreSimpleObservation,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreSimpleObservation), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_simple_observation_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_simple_observation
-    },
-  )
-}
-
-pub fn us_core_respiratory_rate_create(
-  resource: r4us.UsCoreRespiratoryRate,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreRespiratoryRate, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_respiratory_rate_to_json(resource),
-    "Observation",
-    r4us.us_core_respiratory_rate_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_respiratory_rate_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreRespiratoryRate, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_respiratory_rate_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_respiratory_rate_update(
-  resource: r4us.UsCoreRespiratoryRate,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreRespiratoryRate, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_respiratory_rate_to_json(resource),
-    "Observation",
-    r4us.us_core_respiratory_rate_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_respiratory_rate_delete(
-  resource: r4us.UsCoreRespiratoryRate,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_respiratory_rate_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreRespiratoryRate,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_respiratory_rate_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_respiratory_rate_search(
-  search_for search_args: r4us_sansio.SpUsCoreRespiratoryRate,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreRespiratoryRate), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_respiratory_rate_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_respiratory_rate
-    },
-  )
-}
-
-pub fn us_core_observation_occupation_create(
-  resource: r4us.UsCoreObservationOccupation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationOccupation, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_observation_occupation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_occupation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_occupation_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationOccupation, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_observation_occupation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_occupation_update(
-  resource: r4us.UsCoreObservationOccupation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationOccupation, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_occupation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_occupation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_occupation_delete(
-  resource: r4us.UsCoreObservationOccupation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_observation_occupation_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreObservationOccupation,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_occupation_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_observation_occupation_search(
-  search_for search_args: r4us_sansio.SpUsCoreObservationOccupation,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreObservationOccupation), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_occupation_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_occupation
-    },
-  )
-}
-
-pub fn us_core_vital_signs_create(
-  resource: r4us.UsCoreVitalSigns,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreVitalSigns, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_vital_signs_to_json(resource),
-    "Observation",
-    r4us.us_core_vital_signs_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_vital_signs_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreVitalSigns, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_vital_signs_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_vital_signs_update(
-  resource: r4us.UsCoreVitalSigns,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreVitalSigns, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_vital_signs_to_json(resource),
-    "Observation",
-    r4us.us_core_vital_signs_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_vital_signs_delete(
-  resource: r4us.UsCoreVitalSigns,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_vital_signs_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreVitalSigns,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_vital_signs_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_vital_signs_search(
-  search_for search_args: r4us_sansio.SpUsCoreVitalSigns,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreVitalSigns), Err)) ->
-    msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_vital_signs_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_vital_signs
-    },
-  )
-}
-
-pub fn us_core_body_weight_create(
-  resource: r4us.UsCoreBodyWeight,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBodyWeight, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_body_weight_to_json(resource),
-    "Observation",
-    r4us.us_core_body_weight_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_body_weight_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBodyWeight, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_body_weight_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_body_weight_update(
-  resource: r4us.UsCoreBodyWeight,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBodyWeight, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_body_weight_to_json(resource),
-    "Observation",
-    r4us.us_core_body_weight_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_body_weight_delete(
-  resource: r4us.UsCoreBodyWeight,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_body_weight_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreBodyWeight,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_body_weight_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_body_weight_search(
-  search_for search_args: r4us_sansio.SpUsCoreBodyWeight,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreBodyWeight), Err)) ->
-    msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_body_weight_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_body_weight
-    },
-  )
-}
-
-pub fn us_core_observation_pregnancystatus_create(
-  resource: r4us.UsCoreObservationPregnancystatus,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationPregnancystatus, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_observation_pregnancystatus_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_pregnancystatus_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_pregnancystatus_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationPregnancystatus, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_observation_pregnancystatus_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_pregnancystatus_update(
-  resource: r4us.UsCoreObservationPregnancystatus,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationPregnancystatus, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_pregnancystatus_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_pregnancystatus_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_pregnancystatus_delete(
-  resource: r4us.UsCoreObservationPregnancystatus,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_observation_pregnancystatus_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreObservationPregnancystatus,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_pregnancystatus_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_observation_pregnancystatus_search(
-  search_for search_args: r4us_sansio.SpUsCoreObservationPregnancystatus,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreObservationPregnancystatus), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_pregnancystatus_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_pregnancystatus
-    },
-  )
-}
-
-pub fn us_core_blood_pressure_create(
-  resource: r4us.UsCoreBloodPressure,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBloodPressure, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_blood_pressure_to_json(resource),
-    "Observation",
-    r4us.us_core_blood_pressure_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_blood_pressure_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBloodPressure, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_blood_pressure_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_blood_pressure_update(
-  resource: r4us.UsCoreBloodPressure,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBloodPressure, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_blood_pressure_to_json(resource),
-    "Observation",
-    r4us.us_core_blood_pressure_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_blood_pressure_delete(
-  resource: r4us.UsCoreBloodPressure,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_blood_pressure_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreBloodPressure,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_blood_pressure_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_blood_pressure_search(
-  search_for search_args: r4us_sansio.SpUsCoreBloodPressure,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreBloodPressure), Err)) ->
-    msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_blood_pressure_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_blood_pressure
-    },
-  )
-}
-
-pub fn pediatric_bmi_for_age_create(
-  resource: r4us.PediatricBmiForAge,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.PediatricBmiForAge, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.pediatric_bmi_for_age_to_json(resource),
-    "Observation",
-    r4us.pediatric_bmi_for_age_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn pediatric_bmi_for_age_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.PediatricBmiForAge, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.pediatric_bmi_for_age_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn pediatric_bmi_for_age_update(
-  resource: r4us.PediatricBmiForAge,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.PediatricBmiForAge, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.pediatric_bmi_for_age_to_json(resource),
-    "Observation",
-    r4us.pediatric_bmi_for_age_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn pediatric_bmi_for_age_delete(
-  resource: r4us.PediatricBmiForAge,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn pediatric_bmi_for_age_search_bundled(
-  search_for search_args: r4us_sansio.SpPediatricBmiForAge,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.pediatric_bmi_for_age_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn pediatric_bmi_for_age_search(
-  search_for search_args: r4us_sansio.SpPediatricBmiForAge,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.PediatricBmiForAge), Err)) ->
-    msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.pediatric_bmi_for_age_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.pediatric_bmi_for_age
-    },
-  )
-}
-
-pub fn us_core_care_experience_preference_create(
-  resource: r4us.UsCoreCareExperiencePreference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCareExperiencePreference, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_care_experience_preference_to_json(resource),
-    "Observation",
-    r4us.us_core_care_experience_preference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_care_experience_preference_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCareExperiencePreference, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_care_experience_preference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_care_experience_preference_update(
-  resource: r4us.UsCoreCareExperiencePreference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreCareExperiencePreference, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_care_experience_preference_to_json(resource),
-    "Observation",
-    r4us.us_core_care_experience_preference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_care_experience_preference_delete(
-  resource: r4us.UsCoreCareExperiencePreference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_care_experience_preference_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreCareExperiencePreference,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_care_experience_preference_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_care_experience_preference_search(
-  search_for search_args: r4us_sansio.SpUsCoreCareExperiencePreference,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreCareExperiencePreference), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_care_experience_preference_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_care_experience_preference
-    },
-  )
-}
-
-pub fn us_core_observation_screening_assessment_create(
-  resource: r4us.UsCoreObservationScreeningAssessment,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationScreeningAssessment, Err)) ->
-    a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_observation_screening_assessment_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_screening_assessment_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_screening_assessment_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationScreeningAssessment, Err)) ->
-    a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_observation_screening_assessment_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_screening_assessment_update(
-  resource: r4us.UsCoreObservationScreeningAssessment,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationScreeningAssessment, Err)) ->
-    a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_screening_assessment_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_screening_assessment_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_screening_assessment_delete(
-  resource: r4us.UsCoreObservationScreeningAssessment,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_observation_screening_assessment_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreObservationScreeningAssessment,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_screening_assessment_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_observation_screening_assessment_search(
-  search_for search_args: r4us_sansio.SpUsCoreObservationScreeningAssessment,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreObservationScreeningAssessment), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_screening_assessment_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_screening_assessment
-    },
-  )
-}
-
-pub fn us_core_head_circumference_create(
-  resource: r4us.UsCoreHeadCircumference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreHeadCircumference, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_head_circumference_to_json(resource),
-    "Observation",
-    r4us.us_core_head_circumference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_head_circumference_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreHeadCircumference, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_head_circumference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_head_circumference_update(
-  resource: r4us.UsCoreHeadCircumference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreHeadCircumference, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_head_circumference_to_json(resource),
-    "Observation",
-    r4us.us_core_head_circumference_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_head_circumference_delete(
-  resource: r4us.UsCoreHeadCircumference,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_head_circumference_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreHeadCircumference,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_head_circumference_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_head_circumference_search(
-  search_for search_args: r4us_sansio.SpUsCoreHeadCircumference,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreHeadCircumference), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_head_circumference_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_head_circumference
-    },
-  )
-}
-
-pub fn us_core_heart_rate_create(
-  resource: r4us.UsCoreHeartRate,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreHeartRate, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_heart_rate_to_json(resource),
-    "Observation",
-    r4us.us_core_heart_rate_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_heart_rate_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreHeartRate, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_heart_rate_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_heart_rate_update(
-  resource: r4us.UsCoreHeartRate,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreHeartRate, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_heart_rate_to_json(resource),
-    "Observation",
-    r4us.us_core_heart_rate_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_heart_rate_delete(
-  resource: r4us.UsCoreHeartRate,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_heart_rate_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreHeartRate,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_heart_rate_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_heart_rate_search(
-  search_for search_args: r4us_sansio.SpUsCoreHeartRate,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreHeartRate), Err)) ->
-    msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_heart_rate_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_heart_rate
-    },
-  )
-}
-
-pub fn us_core_observation_sexual_orientation_create(
-  resource: r4us.UsCoreObservationSexualOrientation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationSexualOrientation, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_observation_sexual_orientation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_sexual_orientation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_sexual_orientation_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationSexualOrientation, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_observation_sexual_orientation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_sexual_orientation_update(
-  resource: r4us.UsCoreObservationSexualOrientation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationSexualOrientation, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_sexual_orientation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_sexual_orientation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_sexual_orientation_delete(
-  resource: r4us.UsCoreObservationSexualOrientation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_observation_sexual_orientation_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreObservationSexualOrientation,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_sexual_orientation_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_observation_sexual_orientation_search(
-  search_for search_args: r4us_sansio.SpUsCoreObservationSexualOrientation,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreObservationSexualOrientation), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_sexual_orientation_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_sexual_orientation
-    },
-  )
-}
-
-pub fn pediatric_weight_for_height_create(
-  resource: r4us.PediatricWeightForHeight,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.PediatricWeightForHeight, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.pediatric_weight_for_height_to_json(resource),
-    "Observation",
-    r4us.pediatric_weight_for_height_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn pediatric_weight_for_height_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.PediatricWeightForHeight, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.pediatric_weight_for_height_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn pediatric_weight_for_height_update(
-  resource: r4us.PediatricWeightForHeight,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.PediatricWeightForHeight, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.pediatric_weight_for_height_to_json(resource),
-    "Observation",
-    r4us.pediatric_weight_for_height_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn pediatric_weight_for_height_delete(
-  resource: r4us.PediatricWeightForHeight,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn pediatric_weight_for_height_search_bundled(
-  search_for search_args: r4us_sansio.SpPediatricWeightForHeight,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.pediatric_weight_for_height_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn pediatric_weight_for_height_search(
-  search_for search_args: r4us_sansio.SpPediatricWeightForHeight,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.PediatricWeightForHeight), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.pediatric_weight_for_height_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.pediatric_weight_for_height
-    },
-  )
-}
-
-pub fn us_core_bmi_create(
-  resource: r4us.UsCoreBmi,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBmi, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_bmi_to_json(resource),
-    "Observation",
-    r4us.us_core_bmi_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_bmi_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBmi, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_bmi_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_bmi_update(
-  resource: r4us.UsCoreBmi,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBmi, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_bmi_to_json(resource),
-    "Observation",
-    r4us.us_core_bmi_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_bmi_delete(
-  resource: r4us.UsCoreBmi,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_bmi_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreBmi,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_bmi_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_bmi_search(
-  search_for search_args: r4us_sansio.SpUsCoreBmi,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreBmi), Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_bmi_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_bmi
-    },
-  )
-}
-
-pub fn us_core_body_height_create(
-  resource: r4us.UsCoreBodyHeight,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBodyHeight, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_body_height_to_json(resource),
-    "Observation",
-    r4us.us_core_body_height_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_body_height_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBodyHeight, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_body_height_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_body_height_update(
-  resource: r4us.UsCoreBodyHeight,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreBodyHeight, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_body_height_to_json(resource),
-    "Observation",
-    r4us.us_core_body_height_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_body_height_delete(
-  resource: r4us.UsCoreBodyHeight,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_body_height_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreBodyHeight,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_body_height_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_body_height_search(
-  search_for search_args: r4us_sansio.SpUsCoreBodyHeight,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreBodyHeight), Err)) ->
-    msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_body_height_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_body_height
-    },
-  )
-}
-
-pub fn us_core_smokingstatus_create(
-  resource: r4us.UsCoreSmokingstatus,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreSmokingstatus, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_smokingstatus_to_json(resource),
-    "Observation",
-    r4us.us_core_smokingstatus_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_smokingstatus_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreSmokingstatus, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_smokingstatus_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_smokingstatus_update(
-  resource: r4us.UsCoreSmokingstatus,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreSmokingstatus, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_smokingstatus_to_json(resource),
-    "Observation",
-    r4us.us_core_smokingstatus_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_smokingstatus_delete(
-  resource: r4us.UsCoreSmokingstatus,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_smokingstatus_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreSmokingstatus,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_smokingstatus_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_smokingstatus_search(
-  search_for search_args: r4us_sansio.SpUsCoreSmokingstatus,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreSmokingstatus), Err)) ->
-    msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_smokingstatus_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_smokingstatus
-    },
-  )
-}
-
-pub fn us_core_pulse_oximetry_create(
-  resource: r4us.UsCorePulseOximetry,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePulseOximetry, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_pulse_oximetry_to_json(resource),
-    "Observation",
-    r4us.us_core_pulse_oximetry_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_pulse_oximetry_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePulseOximetry, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_pulse_oximetry_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_pulse_oximetry_update(
-  resource: r4us.UsCorePulseOximetry,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePulseOximetry, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_pulse_oximetry_to_json(resource),
-    "Observation",
-    r4us.us_core_pulse_oximetry_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_pulse_oximetry_delete(
-  resource: r4us.UsCorePulseOximetry,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_pulse_oximetry_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCorePulseOximetry,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_pulse_oximetry_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_pulse_oximetry_search(
-  search_for search_args: r4us_sansio.SpUsCorePulseOximetry,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCorePulseOximetry), Err)) ->
-    msg,
-) -> Effect(msg) {
-  let req = r4us_sansio.us_core_pulse_oximetry_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_pulse_oximetry
-    },
-  )
-}
-
-pub fn head_occipital_frontal_circumference_percentile_create(
-  resource: r4us.HeadOccipitalFrontalCircumferencePercentile,
-  client: FhirClient,
-  handle_response: fn(
-    Result(r4us.HeadOccipitalFrontalCircumferencePercentile, Err),
-  ) ->
-    a,
-) -> Effect(a) {
-  any_create(
-    r4us.head_occipital_frontal_circumference_percentile_to_json(resource),
-    "Observation",
-    r4us.head_occipital_frontal_circumference_percentile_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn head_occipital_frontal_circumference_percentile_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(
-    Result(r4us.HeadOccipitalFrontalCircumferencePercentile, Err),
-  ) ->
-    a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.head_occipital_frontal_circumference_percentile_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn head_occipital_frontal_circumference_percentile_update(
-  resource: r4us.HeadOccipitalFrontalCircumferencePercentile,
-  client: FhirClient,
-  handle_response: fn(
-    Result(r4us.HeadOccipitalFrontalCircumferencePercentile, Err),
-  ) ->
-    a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.head_occipital_frontal_circumference_percentile_to_json(resource),
-    "Observation",
-    r4us.head_occipital_frontal_circumference_percentile_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn head_occipital_frontal_circumference_percentile_delete(
-  resource: r4us.HeadOccipitalFrontalCircumferencePercentile,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn head_occipital_frontal_circumference_percentile_search_bundled(
-  search_for search_args: r4us_sansio.SpHeadOccipitalFrontalCircumferencePercentile,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.head_occipital_frontal_circumference_percentile_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn head_occipital_frontal_circumference_percentile_search(
-  search_for search_args: r4us_sansio.SpHeadOccipitalFrontalCircumferencePercentile,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.HeadOccipitalFrontalCircumferencePercentile), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.head_occipital_frontal_circumference_percentile_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.head_occipital_frontal_circumference_percentile
-    },
-  )
-}
-
-pub fn us_core_average_blood_pressure_create(
-  resource: r4us.UsCoreAverageBloodPressure,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreAverageBloodPressure, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_average_blood_pressure_to_json(resource),
-    "Observation",
-    r4us.us_core_average_blood_pressure_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_average_blood_pressure_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreAverageBloodPressure, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_average_blood_pressure_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_average_blood_pressure_update(
-  resource: r4us.UsCoreAverageBloodPressure,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreAverageBloodPressure, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_average_blood_pressure_to_json(resource),
-    "Observation",
-    r4us.us_core_average_blood_pressure_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_average_blood_pressure_delete(
-  resource: r4us.UsCoreAverageBloodPressure,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_average_blood_pressure_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreAverageBloodPressure,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_average_blood_pressure_search_req(search_args, client)
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_average_blood_pressure_search(
-  search_for search_args: r4us_sansio.SpUsCoreAverageBloodPressure,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreAverageBloodPressure), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_average_blood_pressure_search_req(search_args, client)
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_average_blood_pressure
-    },
-  )
-}
-
-pub fn us_core_observation_adi_documentation_create(
-  resource: r4us.UsCoreObservationAdiDocumentation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationAdiDocumentation, Err)) -> a,
-) -> Effect(a) {
-  any_create(
-    r4us.us_core_observation_adi_documentation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_adi_documentation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_adi_documentation_read(
-  id: String,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationAdiDocumentation, Err)) -> a,
-) -> Effect(a) {
-  any_read(
-    id,
-    "Observation",
-    r4us.us_core_observation_adi_documentation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_adi_documentation_update(
-  resource: r4us.UsCoreObservationAdiDocumentation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreObservationAdiDocumentation, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_update(
-    resource.id,
-    r4us.us_core_observation_adi_documentation_to_json(resource),
-    "Observation",
-    r4us.us_core_observation_adi_documentation_decoder(),
-    client,
-    handle_response,
-  )
-}
-
-pub fn us_core_observation_adi_documentation_delete(
-  resource: r4us.UsCoreObservationAdiDocumentation,
-  client: FhirClient,
-  handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
-) -> Result(Effect(a), ErrNoId) {
-  any_delete(resource.id, "Observation", client, handle_response)
-}
-
-pub fn us_core_observation_adi_documentation_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreObservationAdiDocumentation,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_adi_documentation_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
-}
-
-pub fn us_core_observation_adi_documentation_search(
-  search_for search_args: r4us_sansio.SpUsCoreObservationAdiDocumentation,
-  with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCoreObservationAdiDocumentation), Err),
-  ) ->
-    msg,
-) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_observation_adi_documentation_search_req(
-      search_args,
-      client,
-    )
-  sendreq_handleresponse_andprocess(
-    req,
-    r4us.bundle_decoder(),
-    handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_observation_adi_documentation
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.observation
     },
   )
 }
@@ -10030,79 +7628,78 @@ pub fn operationoutcome_search(
   )
 }
 
-pub fn us_core_organization_create(
-  resource: r4us.UsCoreOrganization,
+pub fn organization_create(
+  resource: r4us.Organization,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreOrganization, Err)) -> a,
+  handle_response: fn(Result(r4us.Organization, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_organization_to_json(resource),
+    r4us.organization_to_json(resource),
     "Organization",
-    r4us.us_core_organization_decoder(),
+    r4us.organization_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_organization_read(
+pub fn organization_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreOrganization, Err)) -> a,
+  handle_response: fn(Result(r4us.Organization, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "Organization",
-    r4us.us_core_organization_decoder(),
+    r4us.organization_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_organization_update(
-  resource: r4us.UsCoreOrganization,
+pub fn organization_update(
+  resource: r4us.Organization,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreOrganization, Err)) -> a,
+  handle_response: fn(Result(r4us.Organization, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_organization_to_json(resource),
+    r4us.organization_to_json(resource),
     "Organization",
-    r4us.us_core_organization_decoder(),
+    r4us.organization_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_organization_delete(
-  resource: r4us.UsCoreOrganization,
+pub fn organization_delete(
+  resource: r4us.Organization,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Organization", client, handle_response)
 }
 
-pub fn us_core_organization_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreOrganization,
+pub fn organization_search_bundled(
+  search_for search_args: r4us_sansio.SpOrganization,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_organization_search_req(search_args, client)
+  let req = r4us_sansio.organization_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_organization_search(
-  search_for search_args: r4us_sansio.SpUsCoreOrganization,
+pub fn organization_search(
+  search_for search_args: r4us_sansio.SpOrganization,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreOrganization), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Organization), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_organization_search_req(search_args, client)
+  let req = r4us_sansio.organization_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_organization
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.organization
     },
   )
 }
@@ -10186,79 +7783,71 @@ pub fn organizationaffiliation_search(
   )
 }
 
-pub fn us_core_patient_create(
-  resource: r4us.UsCorePatient,
+pub fn patient_create(
+  resource: r4us.Patient,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePatient, Err)) -> a,
+  handle_response: fn(Result(r4us.Patient, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_patient_to_json(resource),
+    r4us.patient_to_json(resource),
     "Patient",
-    r4us.us_core_patient_decoder(),
+    r4us.patient_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_patient_read(
+pub fn patient_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePatient, Err)) -> a,
+  handle_response: fn(Result(r4us.Patient, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "Patient",
-    r4us.us_core_patient_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "Patient", r4us.patient_decoder(), client, handle_response)
 }
 
-pub fn us_core_patient_update(
-  resource: r4us.UsCorePatient,
+pub fn patient_update(
+  resource: r4us.Patient,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePatient, Err)) -> a,
+  handle_response: fn(Result(r4us.Patient, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_patient_to_json(resource),
+    r4us.patient_to_json(resource),
     "Patient",
-    r4us.us_core_patient_decoder(),
+    r4us.patient_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_patient_delete(
-  resource: r4us.UsCorePatient,
+pub fn patient_delete(
+  resource: r4us.Patient,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Patient", client, handle_response)
 }
 
-pub fn us_core_patient_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCorePatient,
+pub fn patient_search_bundled(
+  search_for search_args: r4us_sansio.SpPatient,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_patient_search_req(search_args, client)
+  let req = r4us_sansio.patient_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_patient_search(
-  search_for search_args: r4us_sansio.SpUsCorePatient,
+pub fn patient_search(
+  search_for search_args: r4us_sansio.SpPatient,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCorePatient), Err)) -> msg,
+  response_msg handle_response: fn(Result(List(r4us.Patient), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_patient_search_req(search_args, client)
+  let req = r4us_sansio.patient_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_patient
-    },
+    fn(bundle) { { bundle |> r4us_sansio.bundle_to_groupedresources }.patient },
   )
 }
 
@@ -10562,312 +8151,295 @@ pub fn plandefinition_search(
   )
 }
 
-pub fn us_core_practitioner_create(
-  resource: r4us.UsCorePractitioner,
+pub fn practitioner_create(
+  resource: r4us.Practitioner,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePractitioner, Err)) -> a,
+  handle_response: fn(Result(r4us.Practitioner, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_practitioner_to_json(resource),
+    r4us.practitioner_to_json(resource),
     "Practitioner",
-    r4us.us_core_practitioner_decoder(),
+    r4us.practitioner_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_practitioner_read(
+pub fn practitioner_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePractitioner, Err)) -> a,
+  handle_response: fn(Result(r4us.Practitioner, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "Practitioner",
-    r4us.us_core_practitioner_decoder(),
+    r4us.practitioner_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_practitioner_update(
-  resource: r4us.UsCorePractitioner,
+pub fn practitioner_update(
+  resource: r4us.Practitioner,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePractitioner, Err)) -> a,
+  handle_response: fn(Result(r4us.Practitioner, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_practitioner_to_json(resource),
+    r4us.practitioner_to_json(resource),
     "Practitioner",
-    r4us.us_core_practitioner_decoder(),
+    r4us.practitioner_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_practitioner_delete(
-  resource: r4us.UsCorePractitioner,
+pub fn practitioner_delete(
+  resource: r4us.Practitioner,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Practitioner", client, handle_response)
 }
 
-pub fn us_core_practitioner_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCorePractitioner,
+pub fn practitioner_search_bundled(
+  search_for search_args: r4us_sansio.SpPractitioner,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_practitioner_search_req(search_args, client)
+  let req = r4us_sansio.practitioner_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_practitioner_search(
-  search_for search_args: r4us_sansio.SpUsCorePractitioner,
+pub fn practitioner_search(
+  search_for search_args: r4us_sansio.SpPractitioner,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCorePractitioner), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Practitioner), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_practitioner_search_req(search_args, client)
+  let req = r4us_sansio.practitioner_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_practitioner
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.practitioner
     },
   )
 }
 
-pub fn us_core_practitionerrole_create(
-  resource: r4us.UsCorePractitionerrole,
+pub fn practitionerrole_create(
+  resource: r4us.Practitionerrole,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePractitionerrole, Err)) -> a,
+  handle_response: fn(Result(r4us.Practitionerrole, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_practitionerrole_to_json(resource),
+    r4us.practitionerrole_to_json(resource),
     "PractitionerRole",
-    r4us.us_core_practitionerrole_decoder(),
+    r4us.practitionerrole_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_practitionerrole_read(
+pub fn practitionerrole_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePractitionerrole, Err)) -> a,
+  handle_response: fn(Result(r4us.Practitionerrole, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "PractitionerRole",
-    r4us.us_core_practitionerrole_decoder(),
+    r4us.practitionerrole_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_practitionerrole_update(
-  resource: r4us.UsCorePractitionerrole,
+pub fn practitionerrole_update(
+  resource: r4us.Practitionerrole,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCorePractitionerrole, Err)) -> a,
+  handle_response: fn(Result(r4us.Practitionerrole, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_practitionerrole_to_json(resource),
+    r4us.practitionerrole_to_json(resource),
     "PractitionerRole",
-    r4us.us_core_practitionerrole_decoder(),
+    r4us.practitionerrole_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_practitionerrole_delete(
-  resource: r4us.UsCorePractitionerrole,
+pub fn practitionerrole_delete(
+  resource: r4us.Practitionerrole,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "PractitionerRole", client, handle_response)
 }
 
-pub fn us_core_practitionerrole_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCorePractitionerrole,
+pub fn practitionerrole_search_bundled(
+  search_for search_args: r4us_sansio.SpPractitionerrole,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_practitionerrole_search_req(search_args, client)
+  let req = r4us_sansio.practitionerrole_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_practitionerrole_search(
-  search_for search_args: r4us_sansio.SpUsCorePractitionerrole,
+pub fn practitionerrole_search(
+  search_for search_args: r4us_sansio.SpPractitionerrole,
   with_client client: FhirClient,
-  response_msg handle_response: fn(
-    Result(List(r4us.UsCorePractitionerrole), Err),
-  ) ->
+  response_msg handle_response: fn(Result(List(r4us.Practitionerrole), Err)) ->
     msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_practitionerrole_search_req(search_args, client)
+  let req = r4us_sansio.practitionerrole_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_practitionerrole
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.practitionerrole
     },
   )
 }
 
-pub fn us_core_procedure_create(
-  resource: r4us.UsCoreProcedure,
+pub fn procedure_create(
+  resource: r4us.Procedure,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreProcedure, Err)) -> a,
+  handle_response: fn(Result(r4us.Procedure, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_procedure_to_json(resource),
+    r4us.procedure_to_json(resource),
     "Procedure",
-    r4us.us_core_procedure_decoder(),
+    r4us.procedure_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_procedure_read(
+pub fn procedure_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreProcedure, Err)) -> a,
+  handle_response: fn(Result(r4us.Procedure, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "Procedure",
-    r4us.us_core_procedure_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "Procedure", r4us.procedure_decoder(), client, handle_response)
 }
 
-pub fn us_core_procedure_update(
-  resource: r4us.UsCoreProcedure,
+pub fn procedure_update(
+  resource: r4us.Procedure,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreProcedure, Err)) -> a,
+  handle_response: fn(Result(r4us.Procedure, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_procedure_to_json(resource),
+    r4us.procedure_to_json(resource),
     "Procedure",
-    r4us.us_core_procedure_decoder(),
+    r4us.procedure_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_procedure_delete(
-  resource: r4us.UsCoreProcedure,
+pub fn procedure_delete(
+  resource: r4us.Procedure,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Procedure", client, handle_response)
 }
 
-pub fn us_core_procedure_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreProcedure,
+pub fn procedure_search_bundled(
+  search_for search_args: r4us_sansio.SpProcedure,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_procedure_search_req(search_args, client)
+  let req = r4us_sansio.procedure_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_procedure_search(
-  search_for search_args: r4us_sansio.SpUsCoreProcedure,
+pub fn procedure_search(
+  search_for search_args: r4us_sansio.SpProcedure,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreProcedure), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Procedure), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_procedure_search_req(search_args, client)
+  let req = r4us_sansio.procedure_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_procedure
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.procedure
     },
   )
 }
 
-pub fn us_core_provenance_create(
-  resource: r4us.UsCoreProvenance,
+pub fn provenance_create(
+  resource: r4us.Provenance,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreProvenance, Err)) -> a,
+  handle_response: fn(Result(r4us.Provenance, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_provenance_to_json(resource),
+    r4us.provenance_to_json(resource),
     "Provenance",
-    r4us.us_core_provenance_decoder(),
+    r4us.provenance_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_provenance_read(
+pub fn provenance_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreProvenance, Err)) -> a,
+  handle_response: fn(Result(r4us.Provenance, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "Provenance",
-    r4us.us_core_provenance_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "Provenance", r4us.provenance_decoder(), client, handle_response)
 }
 
-pub fn us_core_provenance_update(
-  resource: r4us.UsCoreProvenance,
+pub fn provenance_update(
+  resource: r4us.Provenance,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreProvenance, Err)) -> a,
+  handle_response: fn(Result(r4us.Provenance, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_provenance_to_json(resource),
+    r4us.provenance_to_json(resource),
     "Provenance",
-    r4us.us_core_provenance_decoder(),
+    r4us.provenance_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_provenance_delete(
-  resource: r4us.UsCoreProvenance,
+pub fn provenance_delete(
+  resource: r4us.Provenance,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Provenance", client, handle_response)
 }
 
-pub fn us_core_provenance_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreProvenance,
+pub fn provenance_search_bundled(
+  search_for search_args: r4us_sansio.SpProvenance,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_provenance_search_req(search_args, client)
+  let req = r4us_sansio.provenance_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_provenance_search(
-  search_for search_args: r4us_sansio.SpUsCoreProvenance,
+pub fn provenance_search(
+  search_for search_args: r4us_sansio.SpProvenance,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreProvenance), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Provenance), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_provenance_search_req(search_args, client)
+  let req = r4us_sansio.provenance_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_provenance
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.provenance
     },
   )
 }
@@ -10948,160 +8520,157 @@ pub fn questionnaire_search(
   )
 }
 
-pub fn us_core_questionnaireresponse_create(
-  resource: r4us.UsCoreQuestionnaireresponse,
+pub fn questionnaireresponse_create(
+  resource: r4us.Questionnaireresponse,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreQuestionnaireresponse, Err)) -> a,
+  handle_response: fn(Result(r4us.Questionnaireresponse, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_questionnaireresponse_to_json(resource),
+    r4us.questionnaireresponse_to_json(resource),
     "QuestionnaireResponse",
-    r4us.us_core_questionnaireresponse_decoder(),
+    r4us.questionnaireresponse_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_questionnaireresponse_read(
+pub fn questionnaireresponse_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreQuestionnaireresponse, Err)) -> a,
+  handle_response: fn(Result(r4us.Questionnaireresponse, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "QuestionnaireResponse",
-    r4us.us_core_questionnaireresponse_decoder(),
+    r4us.questionnaireresponse_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_questionnaireresponse_update(
-  resource: r4us.UsCoreQuestionnaireresponse,
+pub fn questionnaireresponse_update(
+  resource: r4us.Questionnaireresponse,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreQuestionnaireresponse, Err)) -> a,
+  handle_response: fn(Result(r4us.Questionnaireresponse, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_questionnaireresponse_to_json(resource),
+    r4us.questionnaireresponse_to_json(resource),
     "QuestionnaireResponse",
-    r4us.us_core_questionnaireresponse_decoder(),
+    r4us.questionnaireresponse_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_questionnaireresponse_delete(
-  resource: r4us.UsCoreQuestionnaireresponse,
+pub fn questionnaireresponse_delete(
+  resource: r4us.Questionnaireresponse,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "QuestionnaireResponse", client, handle_response)
 }
 
-pub fn us_core_questionnaireresponse_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreQuestionnaireresponse,
+pub fn questionnaireresponse_search_bundled(
+  search_for search_args: r4us_sansio.SpQuestionnaireresponse,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_questionnaireresponse_search_req(search_args, client)
+  let req = r4us_sansio.questionnaireresponse_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_questionnaireresponse_search(
-  search_for search_args: r4us_sansio.SpUsCoreQuestionnaireresponse,
+pub fn questionnaireresponse_search(
+  search_for search_args: r4us_sansio.SpQuestionnaireresponse,
   with_client client: FhirClient,
   response_msg handle_response: fn(
-    Result(List(r4us.UsCoreQuestionnaireresponse), Err),
+    Result(List(r4us.Questionnaireresponse), Err),
   ) ->
     msg,
 ) -> Effect(msg) {
-  let req =
-    r4us_sansio.us_core_questionnaireresponse_search_req(search_args, client)
+  let req = r4us_sansio.questionnaireresponse_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_questionnaireresponse
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.questionnaireresponse
     },
   )
 }
 
-pub fn us_core_relatedperson_create(
-  resource: r4us.UsCoreRelatedperson,
+pub fn relatedperson_create(
+  resource: r4us.Relatedperson,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreRelatedperson, Err)) -> a,
+  handle_response: fn(Result(r4us.Relatedperson, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_relatedperson_to_json(resource),
+    r4us.relatedperson_to_json(resource),
     "RelatedPerson",
-    r4us.us_core_relatedperson_decoder(),
+    r4us.relatedperson_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_relatedperson_read(
+pub fn relatedperson_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreRelatedperson, Err)) -> a,
+  handle_response: fn(Result(r4us.Relatedperson, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "RelatedPerson",
-    r4us.us_core_relatedperson_decoder(),
+    r4us.relatedperson_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_relatedperson_update(
-  resource: r4us.UsCoreRelatedperson,
+pub fn relatedperson_update(
+  resource: r4us.Relatedperson,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreRelatedperson, Err)) -> a,
+  handle_response: fn(Result(r4us.Relatedperson, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_relatedperson_to_json(resource),
+    r4us.relatedperson_to_json(resource),
     "RelatedPerson",
-    r4us.us_core_relatedperson_decoder(),
+    r4us.relatedperson_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_relatedperson_delete(
-  resource: r4us.UsCoreRelatedperson,
+pub fn relatedperson_delete(
+  resource: r4us.Relatedperson,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "RelatedPerson", client, handle_response)
 }
 
-pub fn us_core_relatedperson_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreRelatedperson,
+pub fn relatedperson_search_bundled(
+  search_for search_args: r4us_sansio.SpRelatedperson,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_relatedperson_search_req(search_args, client)
+  let req = r4us_sansio.relatedperson_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_relatedperson_search(
-  search_for search_args: r4us_sansio.SpUsCoreRelatedperson,
+pub fn relatedperson_search(
+  search_for search_args: r4us_sansio.SpRelatedperson,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreRelatedperson), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Relatedperson), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_relatedperson_search_req(search_args, client)
+  let req = r4us_sansio.relatedperson_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_relatedperson
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.relatedperson
     },
   )
 }
@@ -11794,79 +9363,79 @@ pub fn searchparameter_search(
   )
 }
 
-pub fn us_core_servicerequest_create(
-  resource: r4us.UsCoreServicerequest,
+pub fn servicerequest_create(
+  resource: r4us.Servicerequest,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreServicerequest, Err)) -> a,
+  handle_response: fn(Result(r4us.Servicerequest, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_servicerequest_to_json(resource),
+    r4us.servicerequest_to_json(resource),
     "ServiceRequest",
-    r4us.us_core_servicerequest_decoder(),
+    r4us.servicerequest_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_servicerequest_read(
+pub fn servicerequest_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreServicerequest, Err)) -> a,
+  handle_response: fn(Result(r4us.Servicerequest, Err)) -> a,
 ) -> Effect(a) {
   any_read(
     id,
     "ServiceRequest",
-    r4us.us_core_servicerequest_decoder(),
+    r4us.servicerequest_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_servicerequest_update(
-  resource: r4us.UsCoreServicerequest,
+pub fn servicerequest_update(
+  resource: r4us.Servicerequest,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreServicerequest, Err)) -> a,
+  handle_response: fn(Result(r4us.Servicerequest, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_servicerequest_to_json(resource),
+    r4us.servicerequest_to_json(resource),
     "ServiceRequest",
-    r4us.us_core_servicerequest_decoder(),
+    r4us.servicerequest_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_servicerequest_delete(
-  resource: r4us.UsCoreServicerequest,
+pub fn servicerequest_delete(
+  resource: r4us.Servicerequest,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "ServiceRequest", client, handle_response)
 }
 
-pub fn us_core_servicerequest_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreServicerequest,
+pub fn servicerequest_search_bundled(
+  search_for search_args: r4us_sansio.SpServicerequest,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_servicerequest_search_req(search_args, client)
+  let req = r4us_sansio.servicerequest_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_servicerequest_search(
-  search_for search_args: r4us_sansio.SpUsCoreServicerequest,
+pub fn servicerequest_search(
+  search_for search_args: r4us_sansio.SpServicerequest,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreServicerequest), Err)) ->
+  response_msg handle_response: fn(Result(List(r4us.Servicerequest), Err)) ->
     msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_servicerequest_search_req(search_args, client)
+  let req = r4us_sansio.servicerequest_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
     fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_servicerequest
+      { bundle |> r4us_sansio.bundle_to_groupedresources }.servicerequest
     },
   )
 }
@@ -11939,80 +9508,71 @@ pub fn slot_search(
   )
 }
 
-pub fn us_core_specimen_create(
-  resource: r4us.UsCoreSpecimen,
+pub fn specimen_create(
+  resource: r4us.Specimen,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreSpecimen, Err)) -> a,
+  handle_response: fn(Result(r4us.Specimen, Err)) -> a,
 ) -> Effect(a) {
   any_create(
-    r4us.us_core_specimen_to_json(resource),
+    r4us.specimen_to_json(resource),
     "Specimen",
-    r4us.us_core_specimen_decoder(),
+    r4us.specimen_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_specimen_read(
+pub fn specimen_read(
   id: String,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreSpecimen, Err)) -> a,
+  handle_response: fn(Result(r4us.Specimen, Err)) -> a,
 ) -> Effect(a) {
-  any_read(
-    id,
-    "Specimen",
-    r4us.us_core_specimen_decoder(),
-    client,
-    handle_response,
-  )
+  any_read(id, "Specimen", r4us.specimen_decoder(), client, handle_response)
 }
 
-pub fn us_core_specimen_update(
-  resource: r4us.UsCoreSpecimen,
+pub fn specimen_update(
+  resource: r4us.Specimen,
   client: FhirClient,
-  handle_response: fn(Result(r4us.UsCoreSpecimen, Err)) -> a,
+  handle_response: fn(Result(r4us.Specimen, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_update(
     resource.id,
-    r4us.us_core_specimen_to_json(resource),
+    r4us.specimen_to_json(resource),
     "Specimen",
-    r4us.us_core_specimen_decoder(),
+    r4us.specimen_decoder(),
     client,
     handle_response,
   )
 }
 
-pub fn us_core_specimen_delete(
-  resource: r4us.UsCoreSpecimen,
+pub fn specimen_delete(
+  resource: r4us.Specimen,
   client: FhirClient,
   handle_response: fn(Result(r4us.Operationoutcome, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
   any_delete(resource.id, "Specimen", client, handle_response)
 }
 
-pub fn us_core_specimen_search_bundled(
-  search_for search_args: r4us_sansio.SpUsCoreSpecimen,
+pub fn specimen_search_bundled(
+  search_for search_args: r4us_sansio.SpSpecimen,
   with_client client: FhirClient,
   response_msg handle_response: fn(Result(r4us.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_specimen_search_req(search_args, client)
+  let req = r4us_sansio.specimen_search_req(search_args, client)
   sendreq_handleresponse(req, r4us.bundle_decoder(), handle_response)
 }
 
-pub fn us_core_specimen_search(
-  search_for search_args: r4us_sansio.SpUsCoreSpecimen,
+pub fn specimen_search(
+  search_for search_args: r4us_sansio.SpSpecimen,
   with_client client: FhirClient,
-  response_msg handle_response: fn(Result(List(r4us.UsCoreSpecimen), Err)) ->
-    msg,
+  response_msg handle_response: fn(Result(List(r4us.Specimen), Err)) -> msg,
 ) -> Effect(msg) {
-  let req = r4us_sansio.us_core_specimen_search_req(search_args, client)
+  let req = r4us_sansio.specimen_search_req(search_args, client)
   sendreq_handleresponse_andprocess(
     req,
     r4us.bundle_decoder(),
     handle_response,
-    fn(bundle) {
-      { bundle |> r4us_sansio.bundle_to_groupedresources }.us_core_specimen
-    },
+    fn(bundle) { { bundle |> r4us_sansio.bundle_to_groupedresources }.specimen },
   )
 }
 
