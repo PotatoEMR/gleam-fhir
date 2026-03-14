@@ -62,10 +62,7 @@ pub fn main() {
   let assert Some(id) = created.id
   let assert Ok(read) = r4us_httpc.patient_read(id, client)
   let rip =
-    r4us.Patient(
-      ..read,
-      deceased: Some(r4us.PatientDeceasedBoolean(True)),
-    )
+    r4us.Patient(..read, deceased: Some(r4us.PatientDeceasedBoolean(True)))
   let assert Ok(updated) = r4us_httpc.patient_update(rip, client)
   let assert Ok(pats) =
     r4us_httpc.patient_search(
@@ -79,8 +76,7 @@ pub fn main() {
 
   let assert Ok(bundle) =
     r4us_httpc.search_any("name=Armstrong", "Patient", client)
-  let pats =
-    { bundle |> r4us_sansio.bundle_to_groupedresources }.patient
+  let pats = { bundle |> r4us_sansio.bundle_to_groupedresources }.patient
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
 
   let assert Ok(_) =
