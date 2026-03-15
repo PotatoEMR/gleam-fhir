@@ -17,7 +17,7 @@ import gleam/option.{None, Some}
 // I have seen these pass sometimes and fail sometimes
 // so idk
 // this doesn't end in _test so it isn't run as part of gleam test
-pub fn main(){
+pub fn main() {
   normal_r4()
   us_core()
 }

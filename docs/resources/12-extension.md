@@ -308,4 +308,4 @@ pub type ExtensionValue {
   echo source_doc_ext
 ```
 
-While r4/r4b/r5 support any complex extension, they are somewhat verbose and require checking url strings. Generate a library version with [Custom Extension](https://hexdocs.pm/fhir/profiles/customextension.html) for nicer specific extensions. By default types do not have primitive extensions; see [Primitive Extension](https://hexdocs.pm/fhir/profiles/customextension.html) to use them.
+While r4/r4b/r5 support any complex extension, they are somewhat verbose and require checking url strings. Generate a library version with [Custom Extension](https://hexdocs.pm/fhir/profiles/customextension.html) for nicer specific extensions. By default types do not have primitive extensions; see [Primitive Extension](https://hexdocs.pm/fhir/codegen/primitiveextension.html) to use them.
