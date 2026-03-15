@@ -9,7 +9,7 @@ import gleam/option.{None, Some}
 // r4us custom type example uses R4 which lacks CodeableReference
 // so the extension can't have valueCodeableReference
 // r4 only has valueCodeableConcept or valueReference
-pub fn main() {
+pub fn extension_notcustom_test() {
   let patient_example_sex_and_gender =
     "{
     \"resourceType\": \"Patient\",

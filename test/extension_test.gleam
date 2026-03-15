@@ -5,7 +5,7 @@ import gleam/json
 import gleam/list
 import gleam/option.{None, Some}
 
-pub fn main() {
+pub fn extension_test() {
   let patient_example_sex_and_gender =
     "{
     \"resourceType\": \"Patient\",

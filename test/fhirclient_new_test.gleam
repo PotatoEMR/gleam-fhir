@@ -1,6 +1,6 @@
 import fhir/r4_sansio
 
-pub fn main() {
+pub fn fhirclient_new_test() {
   let assert Ok(_) = r4_sansio.fhirclient_new("r4.smarthealthit.org/")
   let assert Ok(_) = r4_sansio.fhirclient_new("https://r4.smarthealthit.org/")
   let assert Ok(_) = r4_sansio.fhirclient_new("https://hapi.fhir.org/baseR4")

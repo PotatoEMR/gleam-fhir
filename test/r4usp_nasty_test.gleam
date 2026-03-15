@@ -1,7 +1,7 @@
-import check_roundtrip
+//import check_roundtrip
 import fhir/r4usp
-import fhir/r4usp_valuesets
-import gleam/io
+//import fhir/r4usp_valuesets
+//import gleam/io
 import gleam/json
 
 const pat_json = "{
@@ -219,8 +219,8 @@ const pat_json = "{
   }]
 }"
 
-pub fn main() {
-  let assert Ok(pat) = json.parse(pat_json, r4usp.patient_decoder())
+pub fn r4usp_nasty_test() {
+  let assert Ok(_pat) = json.parse(pat_json, r4usp.patient_decoder())
   // pat |> r4usp.patient_to_json |> json.to_string |> io.println
   // check_roundtrip.check_roundtrip(
   //   pat_json,

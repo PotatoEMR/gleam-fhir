@@ -15,7 +15,7 @@ pub type Timeout(a) {
 // https://gearsco.de/blog/gleam-test-timeouts/
 // a test ending with underscore _test_ can set timeout
 // this one parses a lot of jsons so it takes longer
-pub fn json_examples_test_() {
+pub fn json_examples_test() {
   use <- Timeout(1200)
   parse_json_in_dir("r4", r4.resource_decoder(), r4.resource_to_json)
   parse_json_in_dir("r4b", r4b.resource_decoder(), r4b.resource_to_json)

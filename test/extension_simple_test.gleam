@@ -2,7 +2,7 @@ import check_roundtrip
 import fhir/r4us
 import gleam/json
 
-pub fn main() {
+pub fn extension_simple_test() {
   let birthsex_json =
     "{
       \"url\": \"http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex\",
