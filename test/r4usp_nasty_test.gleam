@@ -1,0 +1,231 @@
+import check_roundtrip
+import fhir/r4usp
+import fhir/r4usp_valuesets
+import gleam/io
+import gleam/json
+
+const pat_json = "{
+  \"resourceType\" : \"Patient\",
+  \"id\" : \"example\",
+  \"meta\" : {
+    \"profile\" : [\"http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient|9.0.0\"]
+  },
+  \"text\" : {
+    \"status\" : \"generated\",
+    \"div\" : \"<div>https://build.fhir.org/ig/HL7/US-Core/Patient-example.html</div>\"
+  },
+  \"extension\" : [{
+    \"extension\" : [{
+      \"url\" : \"ombCategory\",
+      \"valueCoding\" : {
+        \"system\" : \"urn:oid:2.16.840.1.113883.6.238\",
+        \"code\" : \"2106-3\",
+        \"display\" : \"White\"
+      }
+    },
+    {
+      \"url\" : \"ombCategory\",
+      \"valueCoding\" : {
+        \"system\" : \"urn:oid:2.16.840.1.113883.6.238\",
+        \"code\" : \"1002-5\",
+        \"display\" : \"American Indian or Alaska Native\"
+      }
+    },
+    {
+      \"url\" : \"ombCategory\",
+      \"valueCoding\" : {
+        \"system\" : \"urn:oid:2.16.840.1.113883.6.238\",
+        \"code\" : \"2028-9\",
+        \"display\" : \"Asian\"
+      }
+    },
+    {
+      \"url\" : \"detailed\",
+      \"valueCoding\" : {
+        \"system\" : \"urn:oid:2.16.840.1.113883.6.238\",
+        \"code\" : \"1586-7\",
+        \"display\" : \"Shoshone\"
+      }
+    },
+    {
+      \"url\" : \"detailed\",
+      \"valueCoding\" : {
+        \"system\" : \"urn:oid:2.16.840.1.113883.6.238\",
+        \"code\" : \"2036-2\",
+        \"display\" : \"Filipino\"
+      }
+    },
+    {
+      \"url\" : \"text\",
+      \"valueString\" : \"Mixed\"
+    }],
+    \"url\" : \"http://hl7.org/fhir/us/core/StructureDefinition/us-core-race\"
+  },
+  {
+    \"extension\" : [{
+      \"url\" : \"ombCategory\",
+      \"valueCoding\" : {
+        \"system\" : \"urn:oid:2.16.840.1.113883.6.238\",
+        \"code\" : \"2135-2\",
+        \"display\" : \"Hispanic or Latino\"
+      }
+    },
+    {
+      \"url\" : \"detailed\",
+      \"valueCoding\" : {
+        \"system\" : \"urn:oid:2.16.840.1.113883.6.238\",
+        \"code\" : \"2184-0\",
+        \"display\" : \"Dominican\"
+      }
+    },
+    {
+      \"url\" : \"detailed\",
+      \"valueCoding\" : {
+        \"system\" : \"urn:oid:2.16.840.1.113883.6.238\",
+        \"code\" : \"2148-5\",
+        \"display\" : \"Mexican\"
+      }
+    },
+    {
+      \"url\" : \"text\",
+      \"valueString\" : \"Hispanic or Latino\"
+    }],
+    \"url\" : \"http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity\"
+  },
+  {
+    \"extension\" : [{
+      \"url\" : \"tribalAffiliation\",
+      \"valueCodeableConcept\" : {
+        \"coding\" : [{
+          \"system\" : \"http://terminology.hl7.org/CodeSystem/v3-TribalEntityUS\",
+          \"code\" : \"187\",
+          \"display\" : \"Paiute-Shoshone Tribe of the Fallon Reservation and Colony, Nevada\"
+        }],
+        \"text\" : \"Shoshone\"
+      }
+    },
+    {
+      \"url\" : \"isEnrolled\",
+      \"valueBoolean\" : false
+    }],
+    \"url\" : \"http://hl7.org/fhir/us/core/StructureDefinition/us-core-tribal-affiliation\"
+  },
+  {
+    \"url\" : \"http://hl7.org/fhir/us/core/StructureDefinition/us-core-individual-sex\",
+    \"valueCoding\" : {
+      \"system\" : \"http://snomed.info/sct\",
+      \"code\" : \"248152002\",
+      \"display\" : \"Female (finding)\"
+    }
+  },
+  {
+    \"url\" : \"http://hl7.org/fhir/us/core/StructureDefinition/us-core-interpreter-needed\",
+    \"valueCoding\" : {
+      \"system\" : \"http://snomed.info/sct\",
+      \"code\" : \"373066001\"
+    }
+  }],
+  \"identifier\" : [{
+    \"use\" : \"usual\",
+    \"type\" : {
+      \"coding\" : [{
+        \"system\" : \"http://terminology.hl7.org/CodeSystem/v2-0203\",
+        \"code\" : \"MR\",
+        \"display\" : \"Medical Record Number\"
+      }],
+      \"text\" : \"Medical Record Number\"
+    },
+    \"system\" : \"http://example.org/patient/identifiers\",
+    \"value\" : \"1032702\"
+  }],
+  \"active\" : true,
+  \"name\" : [{
+    \"use\" : \"old\",
+    \"family\" : \"Shaw\",
+    \"given\" : [\"Amy\",
+    \"V.\"],
+    \"period\" : {
+      \"start\" : \"2016-12-06\",
+      \"end\" : \"2020-07-22\"
+    }
+  },
+  {
+    \"use\" : \"usual\",
+    \"family\" : \"Baxter\",
+    \"given\" : [\"Amy\",
+    \"V.\"],
+    \"suffix\" : [\"PharmD\"],
+    \"period\" : {
+      \"start\" : \"2020-07-22\"
+    }
+  }],
+  \"telecom\" : [{
+    \"system\" : \"phone\",
+    \"value\" : \"555-555-5555\",
+    \"use\" : \"home\"
+  },
+  {
+    \"system\" : \"email\",
+    \"value\" : \"amy.shaw@example.com\"
+  }],
+  \"birthDate\" : \"1987-02-20\",
+  \"address\" : [{
+    \"use\" : \"old\",
+    \"line\" : [\"49 MEADOW ST\"],
+    \"city\" : \"MOUNDS\",
+    \"state\" : \"OK\",
+    \"postalCode\" : \"74047\",
+    \"country\" : \"US\",
+    \"period\" : {
+      \"start\" : \"2016-12-06\",
+      \"end\" : \"2020-07-22\"
+    }
+  },
+  {
+    \"line\" : [\"183 MOUNTAIN VIEW ST\"],
+    \"city\" : \"MOUNDS\",
+    \"state\" : \"OK\",
+    \"postalCode\" : \"74048\",
+    \"country\" : \"US\",
+    \"period\" : {
+      \"start\" : \"2020-07-22\"
+    }
+  }],
+  \"communication\" : [{
+    \"language\" : {
+      \"coding\" : [{
+        \"system\" : \"urn:ietf:bcp:47\",
+        \"code\" : \"es\",
+        \"display\" : \"Spanish\"
+      }]
+    },
+    \"preferred\" : true,
+    \"_preferred\": {
+      \"extension\": [
+        {
+          \"url\": \"https://gleam.run/idk1\",
+          \"valueString\": \"Smith\"
+        },
+        {
+          \"url\": \"https://gleam.run/idk2\",
+          \"valueString\": \"4.00\"
+        },
+        {
+          \"url\": \"https://gleam.run/idk3\",
+          \"valueDateTime\": \"2026-03-14\"
+        }
+      ]
+    }
+  }]
+}"
+
+pub fn main() {
+  let assert Ok(pat) = json.parse(pat_json, r4usp.patient_decoder())
+  // pat |> r4usp.patient_to_json |> json.to_string |> io.println
+  // check_roundtrip.check_roundtrip(
+  //   pat_json,
+  //   r4usp.patient_decoder(),
+  //   r4usp.patient_to_json,
+  //   "r4usp",
+  // )
+}
