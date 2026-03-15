@@ -1,3 +1,7 @@
+## 0.21.0 Mar 15, 2026
+- Add primitive extensions
+- Add custom types for complex extensions
+
 ## 0.1.0 Feb 07, 2026
 - Breaking change: integer64 from `Int` to `String` in Gleam, as integer64 is sent as string in JSON, and is relatively uncommon, R5 only
 - Breaking change: remove unused `SpInclude` with _include and _revinclude from resource search params 
