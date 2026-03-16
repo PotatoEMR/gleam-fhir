@@ -8,6 +8,8 @@
 
 ## Warning
 
+!!! fhir@0.2.0 (current version) supports r4us ONLY; r4/r4b/r5 are not available, because of hex.pm package size limits. !!!
+
 Breaking changes are planned for at least primitive extensions, implicit precision in decimal types, and date/datetime, possibly more. This package is published to get feedback on the most convenient ways to implement these. Lots of stuff will break until a version 1.
 
 ## Welcome
