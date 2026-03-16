@@ -40,7 +40,7 @@ pages = [
   { title = "Custom Codegen", path = "codegen/codegen.html", source = "./docs/codegen/01-codegen.md" },
   { title = "- Custom Extension", path = "codegen/customextension.html", source = "./docs/codegen/02-customextension.md" },
   { title = "- Primitive Extension", path = "codegen/primitiveextension.html", source = "./docs/codegen/03-primitiveextension.md" },
-  { title = "- Code Generation", path = "codegen/profiles.html", source = "./docs/codegen/04-profiles.md" },
+  { title = "- Profiles", path = "codegen/profiles.html", source = "./docs/codegen/04-profiles.md" },
 ]
 
 [dependencies]
