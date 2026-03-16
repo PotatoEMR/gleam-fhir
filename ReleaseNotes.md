@@ -1,6 +1,9 @@
 ## 0.21.0 Mar 15, 2026
-- Add primitive extensions
+- Breaking change: remove r4 and r4b to fit in hex.pm size limit (probably due to recent change https://github.com/hexpm/hex_core/commit/4383e1b08aaf7d6dd325154d02f91e37f55b16b4, modules need to be reorganized at some point for package size and compilation/LSP speed)
 - Add custom types for complex extensions
+- Add primitive extensions
+- Add r4us with us core extensions
+- Generate r4usp, but not publish due to size limit
 
 ## 0.1.0 Feb 07, 2026
 - Breaking change: integer64 from `Int` to `String` in Gleam, as integer64 is sent as string in JSON, and is relatively uncommon, R5 only
