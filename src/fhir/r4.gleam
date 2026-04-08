@@ -3736,7 +3736,63 @@ pub fn elementdefinition_example_to_json(
   let ElementdefinitionExample(value:, label:, extension:, id:) =
     elementdefinition_example
   let fields = [
-    #("value", elementdefinition_example_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        ElementdefinitionExampleValueBase64binary(_) -> "Base64Binary"
+        ElementdefinitionExampleValueBoolean(_) -> "Boolean"
+        ElementdefinitionExampleValueCanonical(_) -> "Canonical"
+        ElementdefinitionExampleValueCode(_) -> "Code"
+        ElementdefinitionExampleValueDate(_) -> "Date"
+        ElementdefinitionExampleValueDatetime(_) -> "DateTime"
+        ElementdefinitionExampleValueDecimal(_) -> "Decimal"
+        ElementdefinitionExampleValueId(_) -> "Id"
+        ElementdefinitionExampleValueInstant(_) -> "Instant"
+        ElementdefinitionExampleValueInteger(_) -> "Integer"
+        ElementdefinitionExampleValueMarkdown(_) -> "Markdown"
+        ElementdefinitionExampleValueOid(_) -> "Oid"
+        ElementdefinitionExampleValuePositiveint(_) -> "PositiveInt"
+        ElementdefinitionExampleValueString(_) -> "String"
+        ElementdefinitionExampleValueTime(_) -> "Time"
+        ElementdefinitionExampleValueUnsignedint(_) -> "UnsignedInt"
+        ElementdefinitionExampleValueUri(_) -> "Uri"
+        ElementdefinitionExampleValueUrl(_) -> "Url"
+        ElementdefinitionExampleValueUuid(_) -> "Uuid"
+        ElementdefinitionExampleValueAddress(_) -> "Address"
+        ElementdefinitionExampleValueAge(_) -> "Age"
+        ElementdefinitionExampleValueAnnotation(_) -> "Annotation"
+        ElementdefinitionExampleValueAttachment(_) -> "Attachment"
+        ElementdefinitionExampleValueCodeableconcept(_) -> "CodeableConcept"
+        ElementdefinitionExampleValueCoding(_) -> "Coding"
+        ElementdefinitionExampleValueContactpoint(_) -> "ContactPoint"
+        ElementdefinitionExampleValueCount(_) -> "Count"
+        ElementdefinitionExampleValueDistance(_) -> "Distance"
+        ElementdefinitionExampleValueDuration(_) -> "Duration"
+        ElementdefinitionExampleValueHumanname(_) -> "HumanName"
+        ElementdefinitionExampleValueIdentifier(_) -> "Identifier"
+        ElementdefinitionExampleValueMoney(_) -> "Money"
+        ElementdefinitionExampleValuePeriod(_) -> "Period"
+        ElementdefinitionExampleValueQuantity(_) -> "Quantity"
+        ElementdefinitionExampleValueRange(_) -> "Range"
+        ElementdefinitionExampleValueRatio(_) -> "Ratio"
+        ElementdefinitionExampleValueReference(_) -> "Reference"
+        ElementdefinitionExampleValueSampleddata(_) -> "SampledData"
+        ElementdefinitionExampleValueSignature(_) -> "Signature"
+        ElementdefinitionExampleValueTiming(_) -> "Timing"
+        ElementdefinitionExampleValueContactdetail(_) -> "ContactDetail"
+        ElementdefinitionExampleValueContributor(_) -> "Contributor"
+        ElementdefinitionExampleValueDatarequirement(_) -> "DataRequirement"
+        ElementdefinitionExampleValueExpression(_) -> "Expression"
+        ElementdefinitionExampleValueParameterdefinition(_) ->
+          "ParameterDefinition"
+        ElementdefinitionExampleValueRelatedartifact(_) -> "RelatedArtifact"
+        ElementdefinitionExampleValueTriggerdefinition(_) -> "TriggerDefinition"
+        ElementdefinitionExampleValueUsagecontext(_) -> "UsageContext"
+        ElementdefinitionExampleValueDosage(_) -> "Dosage"
+        ElementdefinitionExampleValueMeta(_) -> "Meta"
+      },
+      elementdefinition_example_value_to_json(value),
+    ),
     #("label", json.string(label)),
   ]
   let fields = case extension {
@@ -7858,7 +7914,16 @@ pub fn usagecontext_new(
 pub fn usagecontext_to_json(usagecontext: Usagecontext) -> Json {
   let Usagecontext(value:, code:, extension:, id:) = usagecontext
   let fields = [
-    #("value", usagecontext_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        UsagecontextValueCodeableconcept(_) -> "CodeableConcept"
+        UsagecontextValueQuantity(_) -> "Quantity"
+        UsagecontextValueRange(_) -> "Range"
+        UsagecontextValueReference(_) -> "Reference"
+      },
+      usagecontext_value_to_json(value),
+    ),
     #("code", coding_to_json(code)),
   ]
   let fields = case extension {
@@ -11839,7 +11904,14 @@ pub fn auditevent_entity_detail_to_json(
     id:,
   ) = auditevent_entity_detail
   let fields = [
-    #("value", auditevent_entity_detail_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        AuditeventEntityDetailValueString(_) -> "String"
+        AuditeventEntityDetailValueBase64binary(_) -> "Base64Binary"
+      },
+      auditevent_entity_detail_value_to_json(value),
+    ),
     #("type", json.string(type_)),
   ]
   let fields = case modifier_extension {
@@ -21411,7 +21483,14 @@ pub fn claim_procedure_to_json(claim_procedure: ClaimProcedure) -> Json {
     id:,
   ) = claim_procedure
   let fields = [
-    #("procedure", claim_procedure_procedure_to_json(procedure)),
+    #(
+      "procedure"
+        <> case procedure {
+        ClaimProcedureProcedureCodeableconcept(_) -> "CodeableConcept"
+        ClaimProcedureProcedureReference(_) -> "Reference"
+      },
+      claim_procedure_procedure_to_json(procedure),
+    ),
     #("sequence", json.int(sequence)),
   ]
   let fields = case udi {
@@ -21494,7 +21573,14 @@ pub fn claim_diagnosis_to_json(claim_diagnosis: ClaimDiagnosis) -> Json {
     id:,
   ) = claim_diagnosis
   let fields = [
-    #("diagnosis", claim_diagnosis_diagnosis_to_json(diagnosis)),
+    #(
+      "diagnosis"
+        <> case diagnosis {
+        ClaimDiagnosisDiagnosisCodeableconcept(_) -> "CodeableConcept"
+        ClaimDiagnosisDiagnosisReference(_) -> "Reference"
+      },
+      claim_diagnosis_diagnosis_to_json(diagnosis),
+    ),
     #("sequence", json.int(sequence)),
   ]
   let fields = case package_code {
@@ -25438,7 +25524,19 @@ pub fn codesystem_concept_property_to_json(
     id:,
   ) = codesystem_concept_property
   let fields = [
-    #("value", codesystem_concept_property_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        CodesystemConceptPropertyValueCode(_) -> "Code"
+        CodesystemConceptPropertyValueCoding(_) -> "Coding"
+        CodesystemConceptPropertyValueString(_) -> "String"
+        CodesystemConceptPropertyValueInteger(_) -> "Integer"
+        CodesystemConceptPropertyValueBoolean(_) -> "Boolean"
+        CodesystemConceptPropertyValueDatetime(_) -> "DateTime"
+        CodesystemConceptPropertyValueDecimal(_) -> "Decimal"
+      },
+      codesystem_concept_property_value_to_json(value),
+    ),
     #("code", json.string(code)),
   ]
   let fields = case modifier_extension {
@@ -26348,7 +26446,15 @@ pub fn communication_payload_to_json(
   let CommunicationPayload(content:, modifier_extension:, extension:, id:) =
     communication_payload
   let fields = [
-    #("content", communication_payload_content_to_json(content)),
+    #(
+      "content"
+        <> case content {
+        CommunicationPayloadContentString(_) -> "String"
+        CommunicationPayloadContentAttachment(_) -> "Attachment"
+        CommunicationPayloadContentReference(_) -> "Reference"
+      },
+      communication_payload_content_to_json(content),
+    ),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -26935,7 +27041,15 @@ pub fn communicationrequest_payload_to_json(
     id:,
   ) = communicationrequest_payload
   let fields = [
-    #("content", communicationrequest_payload_content_to_json(content)),
+    #(
+      "content"
+        <> case content {
+        CommunicationrequestPayloadContentString(_) -> "String"
+        CommunicationrequestPayloadContentAttachment(_) -> "Attachment"
+        CommunicationrequestPayloadContentReference(_) -> "Reference"
+      },
+      communicationrequest_payload_content_to_json(content),
+    ),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -28196,7 +28310,14 @@ pub fn composition_relatesto_to_json(
   let CompositionRelatesto(target:, code:, modifier_extension:, extension:, id:) =
     composition_relatesto
   let fields = [
-    #("target", composition_relatesto_target_to_json(target)),
+    #(
+      "target"
+        <> case target {
+        CompositionRelatestoTargetIdentifier(_) -> "Identifier"
+        CompositionRelatestoTargetReference(_) -> "Reference"
+      },
+      composition_relatesto_target_to_json(target),
+    ),
     #("code", r4_valuesets.documentrelationshiptype_to_json(code)),
   ]
   let fields = case modifier_extension {
@@ -31972,7 +32093,14 @@ pub fn contract_rule_to_json(contract_rule: ContractRule) -> Json {
   let ContractRule(content:, modifier_extension:, extension:, id:) =
     contract_rule
   let fields = [
-    #("content", contract_rule_content_to_json(content)),
+    #(
+      "content"
+        <> case content {
+        ContractRuleContentAttachment(_) -> "Attachment"
+        ContractRuleContentReference(_) -> "Reference"
+      },
+      contract_rule_content_to_json(content),
+    ),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -32013,7 +32141,14 @@ pub fn contract_legal_to_json(contract_legal: ContractLegal) -> Json {
   let ContractLegal(content:, modifier_extension:, extension:, id:) =
     contract_legal
   let fields = [
-    #("content", contract_legal_content_to_json(content)),
+    #(
+      "content"
+        <> case content {
+        ContractLegalContentAttachment(_) -> "Attachment"
+        ContractLegalContentReference(_) -> "Reference"
+      },
+      contract_legal_content_to_json(content),
+    ),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -32054,7 +32189,14 @@ pub fn contract_friendly_to_json(contract_friendly: ContractFriendly) -> Json {
   let ContractFriendly(content:, modifier_extension:, extension:, id:) =
     contract_friendly
   let fields = [
-    #("content", contract_friendly_content_to_json(content)),
+    #(
+      "content"
+        <> case content {
+        ContractFriendlyContentAttachment(_) -> "Attachment"
+        ContractFriendlyContentReference(_) -> "Reference"
+      },
+      contract_friendly_content_to_json(content),
+    ),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -33030,7 +33172,24 @@ pub fn contract_term_offer_answer_to_json(
   let ContractTermOfferAnswer(value:, modifier_extension:, extension:, id:) =
     contract_term_offer_answer
   let fields = [
-    #("value", contract_term_offer_answer_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        ContractTermOfferAnswerValueBoolean(_) -> "Boolean"
+        ContractTermOfferAnswerValueDecimal(_) -> "Decimal"
+        ContractTermOfferAnswerValueInteger(_) -> "Integer"
+        ContractTermOfferAnswerValueDate(_) -> "Date"
+        ContractTermOfferAnswerValueDatetime(_) -> "DateTime"
+        ContractTermOfferAnswerValueTime(_) -> "Time"
+        ContractTermOfferAnswerValueString(_) -> "String"
+        ContractTermOfferAnswerValueUri(_) -> "Uri"
+        ContractTermOfferAnswerValueAttachment(_) -> "Attachment"
+        ContractTermOfferAnswerValueCoding(_) -> "Coding"
+        ContractTermOfferAnswerValueQuantity(_) -> "Quantity"
+        ContractTermOfferAnswerValueReference(_) -> "Reference"
+      },
+      contract_term_offer_answer_value_to_json(value),
+    ),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -34402,7 +34561,14 @@ pub fn coverage_costtobeneficiary_to_json(
     id:,
   ) = coverage_costtobeneficiary
   let fields = [
-    #("value", coverage_costtobeneficiary_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        CoverageCosttobeneficiaryValueQuantity(_) -> "Quantity"
+        CoverageCosttobeneficiaryValueMoney(_) -> "Money"
+      },
+      coverage_costtobeneficiary_value_to_json(value),
+    ),
   ]
   let fields = case exception {
     [] -> fields
@@ -39974,7 +40140,14 @@ pub fn devicerequest_to_json(devicerequest: Devicerequest) -> Json {
   ) = devicerequest
   let fields = [
     #("subject", reference_to_json(subject)),
-    #("code", devicerequest_code_to_json(code)),
+    #(
+      "code"
+        <> case code {
+        DevicerequestCodeReference(_) -> "Reference"
+        DevicerequestCodeCodeableconcept(_) -> "CodeableConcept"
+      },
+      devicerequest_code_to_json(code),
+    ),
     #("intent", r4_valuesets.requestintent_to_json(intent)),
   ]
   let fields = case relevant_history {
@@ -47282,7 +47455,18 @@ pub fn evidencevariable_characteristic_to_json(
   ) = evidencevariable_characteristic
   let fields = [
     #(
-      "definition",
+      "definition"
+        <> case definition {
+        EvidencevariableCharacteristicDefinitionReference(_) -> "Reference"
+        EvidencevariableCharacteristicDefinitionCanonical(_) -> "Canonical"
+        EvidencevariableCharacteristicDefinitionCodeableconcept(_) ->
+          "CodeableConcept"
+        EvidencevariableCharacteristicDefinitionExpression(_) -> "Expression"
+        EvidencevariableCharacteristicDefinitionDatarequirement(_) ->
+          "DataRequirement"
+        EvidencevariableCharacteristicDefinitionTriggerdefinition(_) ->
+          "TriggerDefinition"
+      },
       evidencevariable_characteristic_definition_to_json(definition),
     ),
   ]
@@ -52412,7 +52596,15 @@ pub fn explanationofbenefit_procedure_to_json(
     id:,
   ) = explanationofbenefit_procedure
   let fields = [
-    #("procedure", explanationofbenefit_procedure_procedure_to_json(procedure)),
+    #(
+      "procedure"
+        <> case procedure {
+        ExplanationofbenefitProcedureProcedureCodeableconcept(_) ->
+          "CodeableConcept"
+        ExplanationofbenefitProcedureProcedureReference(_) -> "Reference"
+      },
+      explanationofbenefit_procedure_procedure_to_json(procedure),
+    ),
     #("sequence", json.int(sequence)),
   ]
   let fields = case udi {
@@ -52501,7 +52693,15 @@ pub fn explanationofbenefit_diagnosis_to_json(
     id:,
   ) = explanationofbenefit_diagnosis
   let fields = [
-    #("diagnosis", explanationofbenefit_diagnosis_diagnosis_to_json(diagnosis)),
+    #(
+      "diagnosis"
+        <> case diagnosis {
+        ExplanationofbenefitDiagnosisDiagnosisCodeableconcept(_) ->
+          "CodeableConcept"
+        ExplanationofbenefitDiagnosisDiagnosisReference(_) -> "Reference"
+      },
+      explanationofbenefit_diagnosis_diagnosis_to_json(diagnosis),
+    ),
     #("sequence", json.int(sequence)),
   ]
   let fields = case package_code {
@@ -55940,7 +56140,17 @@ pub fn group_characteristic_to_json(
   ) = group_characteristic
   let fields = [
     #("exclude", json.bool(exclude)),
-    #("value", group_characteristic_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        GroupCharacteristicValueCodeableconcept(_) -> "CodeableConcept"
+        GroupCharacteristicValueBoolean(_) -> "Boolean"
+        GroupCharacteristicValueQuantity(_) -> "Quantity"
+        GroupCharacteristicValueRange(_) -> "Range"
+        GroupCharacteristicValueReference(_) -> "Reference"
+      },
+      group_characteristic_value_to_json(value),
+    ),
     #("code", codeableconcept_to_json(code)),
   ]
   let fields = case period {
@@ -56327,7 +56537,15 @@ pub fn guidanceresponse_to_json(guidanceresponse: Guidanceresponse) -> Json {
   ) = guidanceresponse
   let fields = [
     #("status", r4_valuesets.guidanceresponsestatus_to_json(status)),
-    #("module", guidanceresponse_module_to_json(module)),
+    #(
+      "module"
+        <> case module {
+        GuidanceresponseModuleUri(_) -> "Uri"
+        GuidanceresponseModuleCanonical(_) -> "Canonical"
+        GuidanceresponseModuleCodeableconcept(_) -> "CodeableConcept"
+      },
+      guidanceresponse_module_to_json(module),
+    ),
   ]
   let fields = case data_requirement {
     [] -> fields
@@ -58465,7 +58683,11 @@ pub fn immunization_protocolapplied_to_json(
   ) = immunization_protocolapplied
   let fields = [
     #(
-      "doseNumber",
+      "doseNumber"
+        <> case dose_number {
+        ImmunizationProtocolappliedDosenumberPositiveint(_) -> "PositiveInt"
+        ImmunizationProtocolappliedDosenumberString(_) -> "String"
+      },
       immunization_protocolapplied_dosenumber_to_json(dose_number),
     ),
   ]
@@ -58838,7 +59060,14 @@ pub fn immunization_to_json(immunization: Immunization) -> Json {
     id:,
   ) = immunization
   let fields = [
-    #("occurrence", immunization_occurrence_to_json(occurrence)),
+    #(
+      "occurrence"
+        <> case occurrence {
+        ImmunizationOccurrenceDatetime(_) -> "DateTime"
+        ImmunizationOccurrenceString(_) -> "String"
+      },
+      immunization_occurrence_to_json(occurrence),
+    ),
     #("patient", reference_to_json(patient)),
     #("vaccineCode", codeableconcept_to_json(vaccine_code)),
     #("status", r4_valuesets.immunizationstatus_to_json(status)),
@@ -61076,7 +61305,14 @@ pub fn implementationguide_definition_page_to_json(
   let fields = [
     #("generation", r4_valuesets.guidepagegeneration_to_json(generation)),
     #("title", json.string(title)),
-    #("name", implementationguide_definition_page_name_to_json(name)),
+    #(
+      "name"
+        <> case name {
+        ImplementationguideDefinitionPageNameUrl(_) -> "Url"
+        ImplementationguideDefinitionPageNameReference(_) -> "Reference"
+      },
+      implementationguide_definition_page_name_to_json(name),
+    ),
   ]
   let fields = case page {
     [] -> fields
@@ -63490,7 +63726,14 @@ pub fn invoice_lineitem_to_json(invoice_lineitem: InvoiceLineitem) -> Json {
     id:,
   ) = invoice_lineitem
   let fields = [
-    #("chargeItem", invoice_lineitem_chargeitem_to_json(charge_item)),
+    #(
+      "chargeItem"
+        <> case charge_item {
+        InvoiceLineitemChargeitemReference(_) -> "Reference"
+        InvoiceLineitemChargeitemCodeableconcept(_) -> "CodeableConcept"
+      },
+      invoice_lineitem_chargeitem_to_json(charge_item),
+    ),
   ]
   let fields = case price_component {
     [] -> fields
@@ -68502,7 +68745,14 @@ pub fn medication_ingredient_to_json(
     id:,
   ) = medication_ingredient
   let fields = [
-    #("item", medication_ingredient_item_to_json(item)),
+    #(
+      "item"
+        <> case item {
+        MedicationIngredientItemCodeableconcept(_) -> "CodeableConcept"
+        MedicationIngredientItemReference(_) -> "Reference"
+      },
+      medication_ingredient_item_to_json(item),
+    ),
   ]
   let fields = case strength {
     Some(v) -> [#("strength", ratio_to_json(v)), ..fields]
@@ -69194,9 +69444,24 @@ pub fn medicationadministration_to_json(
     id:,
   ) = medicationadministration
   let fields = [
-    #("effective", medicationadministration_effective_to_json(effective)),
+    #(
+      "effective"
+        <> case effective {
+        MedicationadministrationEffectiveDatetime(_) -> "DateTime"
+        MedicationadministrationEffectivePeriod(_) -> "Period"
+      },
+      medicationadministration_effective_to_json(effective),
+    ),
     #("subject", reference_to_json(subject)),
-    #("medication", medicationadministration_medication_to_json(medication)),
+    #(
+      "medication"
+        <> case medication {
+        MedicationadministrationMedicationCodeableconcept(_) ->
+          "CodeableConcept"
+        MedicationadministrationMedicationReference(_) -> "Reference"
+      },
+      medicationadministration_medication_to_json(medication),
+    ),
     #("status", r4_valuesets.medicationadminstatus_to_json(status)),
   ]
   let fields = case event_history {
@@ -69874,7 +70139,14 @@ pub fn medicationdispense_to_json(
     id:,
   ) = medicationdispense
   let fields = [
-    #("medication", medicationdispense_medication_to_json(medication)),
+    #(
+      "medication"
+        <> case medication {
+        MedicationdispenseMedicationCodeableconcept(_) -> "CodeableConcept"
+        MedicationdispenseMedicationReference(_) -> "Reference"
+      },
+      medicationdispense_medication_to_json(medication),
+    ),
     #("status", r4_valuesets.medicationdispensestatus_to_json(status)),
   ]
   let fields = case event_history {
@@ -71451,7 +71723,15 @@ pub fn medicationknowledge_administrationguidelines_patientcharacteristics_to_js
   ) = medicationknowledge_administrationguidelines_patientcharacteristics
   let fields = [
     #(
-      "characteristic",
+      "characteristic"
+        <> case characteristic {
+        MedicationknowledgeAdministrationguidelinesPatientcharacteristicsCharacteristicCodeableconcept(
+          _,
+        ) -> "CodeableConcept"
+        MedicationknowledgeAdministrationguidelinesPatientcharacteristicsCharacteristicQuantity(
+          _,
+        ) -> "Quantity"
+      },
       medicationknowledge_administrationguidelines_patientcharacteristics_characteristic_to_json(
         characteristic,
       ),
@@ -71832,7 +72112,14 @@ pub fn medicationknowledge_ingredient_to_json(
     id:,
   ) = medicationknowledge_ingredient
   let fields = [
-    #("item", medicationknowledge_ingredient_item_to_json(item)),
+    #(
+      "item"
+        <> case item {
+        MedicationknowledgeIngredientItemCodeableconcept(_) -> "CodeableConcept"
+        MedicationknowledgeIngredientItemReference(_) -> "Reference"
+      },
+      medicationknowledge_ingredient_item_to_json(item),
+    ),
   ]
   let fields = case strength {
     Some(v) -> [#("strength", ratio_to_json(v)), ..fields]
@@ -72741,7 +73028,15 @@ pub fn medicationrequest_substitution_to_json(
     id:,
   ) = medicationrequest_substitution
   let fields = [
-    #("allowed", medicationrequest_substitution_allowed_to_json(allowed)),
+    #(
+      "allowed"
+        <> case allowed {
+        MedicationrequestSubstitutionAllowedBoolean(_) -> "Boolean"
+        MedicationrequestSubstitutionAllowedCodeableconcept(_) ->
+          "CodeableConcept"
+      },
+      medicationrequest_substitution_allowed_to_json(allowed),
+    ),
   ]
   let fields = case reason {
     Some(v) -> [#("reason", codeableconcept_to_json(v)), ..fields]
@@ -73040,7 +73335,14 @@ pub fn medicationrequest_to_json(medicationrequest: Medicationrequest) -> Json {
   ) = medicationrequest
   let fields = [
     #("subject", reference_to_json(subject)),
-    #("medication", medicationrequest_medication_to_json(medication)),
+    #(
+      "medication"
+        <> case medication {
+        MedicationrequestMedicationCodeableconcept(_) -> "CodeableConcept"
+        MedicationrequestMedicationReference(_) -> "Reference"
+      },
+      medicationrequest_medication_to_json(medication),
+    ),
     #("intent", r4_valuesets.medicationrequestintent_to_json(intent)),
     #("status", r4_valuesets.medicationrequeststatus_to_json(status)),
   ]
@@ -73644,7 +73946,14 @@ pub fn medicationstatement_to_json(
   ) = medicationstatement
   let fields = [
     #("subject", reference_to_json(subject)),
-    #("medication", medicationstatement_medication_to_json(medication)),
+    #(
+      "medication"
+        <> case medication {
+        MedicationstatementMedicationCodeableconcept(_) -> "CodeableConcept"
+        MedicationstatementMedicationReference(_) -> "Reference"
+      },
+      medicationstatement_medication_to_json(medication),
+    ),
     #("status", r4_valuesets.medicationstatementstatus_to_json(status)),
   ]
   let fields = case dosage {
@@ -75793,7 +76102,13 @@ pub fn medicinalproductcontraindication_othertherapy_to_json(
   ) = medicinalproductcontraindication_othertherapy
   let fields = [
     #(
-      "medication",
+      "medication"
+        <> case medication {
+        MedicinalproductcontraindicationOthertherapyMedicationCodeableconcept(_) ->
+          "CodeableConcept"
+        MedicinalproductcontraindicationOthertherapyMedicationReference(_) ->
+          "Reference"
+      },
       medicinalproductcontraindication_othertherapy_medication_to_json(
         medication,
       ),
@@ -76182,7 +76497,13 @@ pub fn medicinalproductindication_othertherapy_to_json(
   ) = medicinalproductindication_othertherapy
   let fields = [
     #(
-      "medication",
+      "medication"
+        <> case medication {
+        MedicinalproductindicationOthertherapyMedicationCodeableconcept(_) ->
+          "CodeableConcept"
+        MedicinalproductindicationOthertherapyMedicationReference(_) ->
+          "Reference"
+      },
       medicinalproductindication_othertherapy_medication_to_json(medication),
     ),
     #(
@@ -77321,7 +77642,15 @@ pub fn medicinalproductinteraction_interactant_to_json(
     id:,
   ) = medicinalproductinteraction_interactant
   let fields = [
-    #("item", medicinalproductinteraction_interactant_item_to_json(item)),
+    #(
+      "item"
+        <> case item {
+        MedicinalproductinteractionInteractantItemReference(_) -> "Reference"
+        MedicinalproductinteractionInteractantItemCodeableconcept(_) ->
+          "CodeableConcept"
+      },
+      medicinalproductinteraction_interactant_item_to_json(item),
+    ),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -79665,7 +79994,14 @@ pub fn messagedefinition_to_json(messagedefinition: Messagedefinition) -> Json {
     id:,
   ) = messagedefinition
   let fields = [
-    #("event", messagedefinition_event_to_json(event)),
+    #(
+      "event"
+        <> case event {
+        MessagedefinitionEventCoding(_) -> "Coding"
+        MessagedefinitionEventUri(_) -> "Uri"
+      },
+      messagedefinition_event_to_json(event),
+    ),
     #("date", json.string(date)),
     #("status", r4_valuesets.publicationstatus_to_json(status)),
   ]
@@ -80425,7 +80761,14 @@ pub fn messageheader_to_json(messageheader: Messageheader) -> Json {
   ) = messageheader
   let fields = [
     #("source", messageheader_source_to_json(source)),
-    #("event", messageheader_event_to_json(event)),
+    #(
+      "event"
+        <> case event {
+        MessageheaderEventCoding(_) -> "Coding"
+        MessageheaderEventUri(_) -> "Uri"
+      },
+      messageheader_event_to_json(event),
+    ),
   ]
   let fields = case definition {
     Some(v) -> [#("definition", json.string(v)), ..fields]
@@ -94042,7 +94385,24 @@ pub fn questionnaire_item_initial_to_json(
   let QuestionnaireItemInitial(value:, modifier_extension:, extension:, id:) =
     questionnaire_item_initial
   let fields = [
-    #("value", questionnaire_item_initial_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        QuestionnaireItemInitialValueBoolean(_) -> "Boolean"
+        QuestionnaireItemInitialValueDecimal(_) -> "Decimal"
+        QuestionnaireItemInitialValueInteger(_) -> "Integer"
+        QuestionnaireItemInitialValueDate(_) -> "Date"
+        QuestionnaireItemInitialValueDatetime(_) -> "DateTime"
+        QuestionnaireItemInitialValueTime(_) -> "Time"
+        QuestionnaireItemInitialValueString(_) -> "String"
+        QuestionnaireItemInitialValueUri(_) -> "Uri"
+        QuestionnaireItemInitialValueAttachment(_) -> "Attachment"
+        QuestionnaireItemInitialValueCoding(_) -> "Coding"
+        QuestionnaireItemInitialValueQuantity(_) -> "Quantity"
+        QuestionnaireItemInitialValueReference(_) -> "Reference"
+      },
+      questionnaire_item_initial_value_to_json(value),
+    ),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -94095,7 +94455,18 @@ pub fn questionnaire_item_answeroption_to_json(
     id:,
   ) = questionnaire_item_answeroption
   let fields = [
-    #("value", questionnaire_item_answeroption_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        QuestionnaireItemAnsweroptionValueInteger(_) -> "Integer"
+        QuestionnaireItemAnsweroptionValueDate(_) -> "Date"
+        QuestionnaireItemAnsweroptionValueTime(_) -> "Time"
+        QuestionnaireItemAnsweroptionValueString(_) -> "String"
+        QuestionnaireItemAnsweroptionValueCoding(_) -> "Coding"
+        QuestionnaireItemAnsweroptionValueReference(_) -> "Reference"
+      },
+      questionnaire_item_answeroption_value_to_json(value),
+    ),
   ]
   let fields = case initial_selected {
     Some(v) -> [#("initialSelected", json.bool(v)), ..fields]
@@ -94161,7 +94532,22 @@ pub fn questionnaire_item_enablewhen_to_json(
     id:,
   ) = questionnaire_item_enablewhen
   let fields = [
-    #("answer", questionnaire_item_enablewhen_answer_to_json(answer)),
+    #(
+      "answer"
+        <> case answer {
+        QuestionnaireItemEnablewhenAnswerBoolean(_) -> "Boolean"
+        QuestionnaireItemEnablewhenAnswerDecimal(_) -> "Decimal"
+        QuestionnaireItemEnablewhenAnswerInteger(_) -> "Integer"
+        QuestionnaireItemEnablewhenAnswerDate(_) -> "Date"
+        QuestionnaireItemEnablewhenAnswerDatetime(_) -> "DateTime"
+        QuestionnaireItemEnablewhenAnswerTime(_) -> "Time"
+        QuestionnaireItemEnablewhenAnswerString(_) -> "String"
+        QuestionnaireItemEnablewhenAnswerCoding(_) -> "Coding"
+        QuestionnaireItemEnablewhenAnswerQuantity(_) -> "Quantity"
+        QuestionnaireItemEnablewhenAnswerReference(_) -> "Reference"
+      },
+      questionnaire_item_enablewhen_answer_to_json(answer),
+    ),
     #("operator", r4_valuesets.questionnaireenableoperator_to_json(operator)),
     #("question", json.string(question)),
   ]
@@ -97772,7 +98158,17 @@ pub fn researchelementdefinition_characteristic_to_json(
   ) = researchelementdefinition_characteristic
   let fields = [
     #(
-      "definition",
+      "definition"
+        <> case definition {
+        ResearchelementdefinitionCharacteristicDefinitionCodeableconcept(_) ->
+          "CodeableConcept"
+        ResearchelementdefinitionCharacteristicDefinitionCanonical(_) ->
+          "Canonical"
+        ResearchelementdefinitionCharacteristicDefinitionExpression(_) ->
+          "Expression"
+        ResearchelementdefinitionCharacteristicDefinitionDatarequirement(_) ->
+          "DataRequirement"
+      },
       researchelementdefinition_characteristic_definition_to_json(definition),
     ),
   ]
@@ -104056,7 +104452,13 @@ pub fn specimendefinition_typetested_container_additive_to_json(
   ) = specimendefinition_typetested_container_additive
   let fields = [
     #(
-      "additive",
+      "additive"
+        <> case additive {
+        SpecimendefinitionTypetestedContainerAdditiveAdditiveCodeableconcept(_) ->
+          "CodeableConcept"
+        SpecimendefinitionTypetestedContainerAdditiveAdditiveReference(_) ->
+          "Reference"
+      },
       specimendefinition_typetested_container_additive_additive_to_json(
         additive,
       ),
@@ -106156,7 +106558,17 @@ pub fn structuremap_group_rule_target_parameter_to_json(
     id:,
   ) = structuremap_group_rule_target_parameter
   let fields = [
-    #("value", structuremap_group_rule_target_parameter_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        StructuremapGroupRuleTargetParameterValueId(_) -> "Id"
+        StructuremapGroupRuleTargetParameterValueString(_) -> "String"
+        StructuremapGroupRuleTargetParameterValueBoolean(_) -> "Boolean"
+        StructuremapGroupRuleTargetParameterValueInteger(_) -> "Integer"
+        StructuremapGroupRuleTargetParameterValueDecimal(_) -> "Decimal"
+      },
+      structuremap_group_rule_target_parameter_value_to_json(value),
+    ),
   ]
   let fields = case modifier_extension {
     [] -> fields
@@ -107668,7 +108080,14 @@ pub fn substance_ingredient_to_json(
     id:,
   ) = substance_ingredient
   let fields = [
-    #("substance", substance_ingredient_substance_to_json(substance)),
+    #(
+      "substance"
+        <> case substance {
+        SubstanceIngredientSubstanceCodeableconcept(_) -> "CodeableConcept"
+        SubstanceIngredientSubstanceReference(_) -> "Reference"
+      },
+      substance_ingredient_substance_to_json(substance),
+    ),
   ]
   let fields = case quantity {
     Some(v) -> [#("quantity", ratio_to_json(v)), ..fields]
@@ -114538,7 +114957,14 @@ pub fn supplyrequest_to_json(supplyrequest: Supplyrequest) -> Json {
   ) = supplyrequest
   let fields = [
     #("quantity", quantity_to_json(quantity)),
-    #("item", supplyrequest_item_to_json(item)),
+    #(
+      "item"
+        <> case item {
+        SupplyrequestItemCodeableconcept(_) -> "CodeableConcept"
+        SupplyrequestItemReference(_) -> "Reference"
+      },
+      supplyrequest_item_to_json(item),
+    ),
   ]
   let fields = case deliver_to {
     Some(v) -> [#("deliverTo", reference_to_json(v)), ..fields]
@@ -115428,7 +115854,62 @@ pub fn task_output_to_json(task_output: TaskOutput) -> Json {
   let TaskOutput(value:, type_:, modifier_extension:, extension:, id:) =
     task_output
   let fields = [
-    #("value", task_output_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        TaskOutputValueBase64binary(_) -> "Base64Binary"
+        TaskOutputValueBoolean(_) -> "Boolean"
+        TaskOutputValueCanonical(_) -> "Canonical"
+        TaskOutputValueCode(_) -> "Code"
+        TaskOutputValueDate(_) -> "Date"
+        TaskOutputValueDatetime(_) -> "DateTime"
+        TaskOutputValueDecimal(_) -> "Decimal"
+        TaskOutputValueId(_) -> "Id"
+        TaskOutputValueInstant(_) -> "Instant"
+        TaskOutputValueInteger(_) -> "Integer"
+        TaskOutputValueMarkdown(_) -> "Markdown"
+        TaskOutputValueOid(_) -> "Oid"
+        TaskOutputValuePositiveint(_) -> "PositiveInt"
+        TaskOutputValueString(_) -> "String"
+        TaskOutputValueTime(_) -> "Time"
+        TaskOutputValueUnsignedint(_) -> "UnsignedInt"
+        TaskOutputValueUri(_) -> "Uri"
+        TaskOutputValueUrl(_) -> "Url"
+        TaskOutputValueUuid(_) -> "Uuid"
+        TaskOutputValueAddress(_) -> "Address"
+        TaskOutputValueAge(_) -> "Age"
+        TaskOutputValueAnnotation(_) -> "Annotation"
+        TaskOutputValueAttachment(_) -> "Attachment"
+        TaskOutputValueCodeableconcept(_) -> "CodeableConcept"
+        TaskOutputValueCoding(_) -> "Coding"
+        TaskOutputValueContactpoint(_) -> "ContactPoint"
+        TaskOutputValueCount(_) -> "Count"
+        TaskOutputValueDistance(_) -> "Distance"
+        TaskOutputValueDuration(_) -> "Duration"
+        TaskOutputValueHumanname(_) -> "HumanName"
+        TaskOutputValueIdentifier(_) -> "Identifier"
+        TaskOutputValueMoney(_) -> "Money"
+        TaskOutputValuePeriod(_) -> "Period"
+        TaskOutputValueQuantity(_) -> "Quantity"
+        TaskOutputValueRange(_) -> "Range"
+        TaskOutputValueRatio(_) -> "Ratio"
+        TaskOutputValueReference(_) -> "Reference"
+        TaskOutputValueSampleddata(_) -> "SampledData"
+        TaskOutputValueSignature(_) -> "Signature"
+        TaskOutputValueTiming(_) -> "Timing"
+        TaskOutputValueContactdetail(_) -> "ContactDetail"
+        TaskOutputValueContributor(_) -> "Contributor"
+        TaskOutputValueDatarequirement(_) -> "DataRequirement"
+        TaskOutputValueExpression(_) -> "Expression"
+        TaskOutputValueParameterdefinition(_) -> "ParameterDefinition"
+        TaskOutputValueRelatedartifact(_) -> "RelatedArtifact"
+        TaskOutputValueTriggerdefinition(_) -> "TriggerDefinition"
+        TaskOutputValueUsagecontext(_) -> "UsageContext"
+        TaskOutputValueDosage(_) -> "Dosage"
+        TaskOutputValueMeta(_) -> "Meta"
+      },
+      task_output_value_to_json(value),
+    ),
     #("type", codeableconcept_to_json(type_)),
   ]
   let fields = case modifier_extension {
@@ -115477,7 +115958,62 @@ pub fn task_input_to_json(task_input: TaskInput) -> Json {
   let TaskInput(value:, type_:, modifier_extension:, extension:, id:) =
     task_input
   let fields = [
-    #("value", task_input_value_to_json(value)),
+    #(
+      "value"
+        <> case value {
+        TaskInputValueBase64binary(_) -> "Base64Binary"
+        TaskInputValueBoolean(_) -> "Boolean"
+        TaskInputValueCanonical(_) -> "Canonical"
+        TaskInputValueCode(_) -> "Code"
+        TaskInputValueDate(_) -> "Date"
+        TaskInputValueDatetime(_) -> "DateTime"
+        TaskInputValueDecimal(_) -> "Decimal"
+        TaskInputValueId(_) -> "Id"
+        TaskInputValueInstant(_) -> "Instant"
+        TaskInputValueInteger(_) -> "Integer"
+        TaskInputValueMarkdown(_) -> "Markdown"
+        TaskInputValueOid(_) -> "Oid"
+        TaskInputValuePositiveint(_) -> "PositiveInt"
+        TaskInputValueString(_) -> "String"
+        TaskInputValueTime(_) -> "Time"
+        TaskInputValueUnsignedint(_) -> "UnsignedInt"
+        TaskInputValueUri(_) -> "Uri"
+        TaskInputValueUrl(_) -> "Url"
+        TaskInputValueUuid(_) -> "Uuid"
+        TaskInputValueAddress(_) -> "Address"
+        TaskInputValueAge(_) -> "Age"
+        TaskInputValueAnnotation(_) -> "Annotation"
+        TaskInputValueAttachment(_) -> "Attachment"
+        TaskInputValueCodeableconcept(_) -> "CodeableConcept"
+        TaskInputValueCoding(_) -> "Coding"
+        TaskInputValueContactpoint(_) -> "ContactPoint"
+        TaskInputValueCount(_) -> "Count"
+        TaskInputValueDistance(_) -> "Distance"
+        TaskInputValueDuration(_) -> "Duration"
+        TaskInputValueHumanname(_) -> "HumanName"
+        TaskInputValueIdentifier(_) -> "Identifier"
+        TaskInputValueMoney(_) -> "Money"
+        TaskInputValuePeriod(_) -> "Period"
+        TaskInputValueQuantity(_) -> "Quantity"
+        TaskInputValueRange(_) -> "Range"
+        TaskInputValueRatio(_) -> "Ratio"
+        TaskInputValueReference(_) -> "Reference"
+        TaskInputValueSampleddata(_) -> "SampledData"
+        TaskInputValueSignature(_) -> "Signature"
+        TaskInputValueTiming(_) -> "Timing"
+        TaskInputValueContactdetail(_) -> "ContactDetail"
+        TaskInputValueContributor(_) -> "Contributor"
+        TaskInputValueDatarequirement(_) -> "DataRequirement"
+        TaskInputValueExpression(_) -> "Expression"
+        TaskInputValueParameterdefinition(_) -> "ParameterDefinition"
+        TaskInputValueRelatedartifact(_) -> "RelatedArtifact"
+        TaskInputValueTriggerdefinition(_) -> "TriggerDefinition"
+        TaskInputValueUsagecontext(_) -> "UsageContext"
+        TaskInputValueDosage(_) -> "Dosage"
+        TaskInputValueMeta(_) -> "Meta"
+      },
+      task_input_value_to_json(value),
+    ),
     #("type", codeableconcept_to_json(type_)),
   ]
   let fields = case modifier_extension {
@@ -124325,5 +124861,151 @@ pub fn list3_decoder(
         ),
       )
     }
+  }
+}
+
+pub type Primitive(a) {
+  Primitive(id: Option(String), ext: List(Extension), value: Option(a))
+}
+
+pub type PrimitiveExtPart {
+  PrimitiveExtPart(id: Option(String), ext: List(Extension))
+}
+
+pub fn primitive_ext_part_to_json(p: Primitive(_)) {
+  let Primitive(id, ext, _) = p
+  let fields = []
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case ext {
+    [] -> fields
+    _ -> [#("extension", json.array(ext, extension_to_json)), ..fields]
+  }
+  json.object(fields)
+}
+
+pub fn primitive_to_json(
+  old_fields: List(#(String, Json)),
+  primitive: Primitive(a),
+  field_to_json: fn(a) -> Json,
+  name: String,
+) {
+  let old_fields = case primitive.id, primitive.ext {
+    None, [] -> old_fields
+    _, _ -> [
+      #("_" <> name, primitive_ext_part_to_json(primitive)),
+      ..old_fields
+    ]
+  }
+  case primitive.value {
+    None -> old_fields
+    Some(v) -> [#(name, field_to_json(v)), ..old_fields]
+  }
+}
+
+pub fn primitives_to_json(
+  old_fields: List(#(String, Json)),
+  field: List(Primitive(a)),
+  field_to_json: fn(a) -> Json,
+  name: String,
+) {
+  let vals =
+    list.map(field, fn(primitive) {
+      json.nullable(primitive.value, field_to_json)
+    })
+  let exts =
+    list.map(field, fn(primitive) {
+      case primitive.id, primitive.ext {
+        None, [] -> json.null()
+        _, _ -> primitive_ext_part_to_json(primitive)
+      }
+    })
+  let old_fields = case list.any(vals, fn(j) { j != json.null() }) {
+    False -> old_fields
+    True -> [#(name, json.preprocessed_array(vals)), ..old_fields]
+  }
+  case list.any(exts, fn(j) { j != json.null() }) {
+    False -> old_fields
+    True -> [#("_" <> name, json.preprocessed_array(exts)), ..old_fields]
+  }
+}
+
+pub fn primitive_ext_part_decoder() {
+  use ext <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(PrimitiveExtPart(ext:, id:))
+}
+
+pub fn primitive_decoder(
+  name: String,
+  thing_decoder: Decoder(a),
+  next: fn(Primitive(a)) -> Decoder(b),
+) -> Decoder(b) {
+  use value <- decode.optional_field(name, None, decode.optional(thing_decoder))
+  use pwe <- decode.optional_field(
+    "_" <> name,
+    None,
+    decode.optional(primitive_ext_part_decoder()),
+  )
+  let #(id, ext) = case pwe {
+    None -> #(None, [])
+    Some(PrimitiveExtPart(id, ext)) -> #(id, ext)
+  }
+  let together = Primitive(id:, ext:, value:)
+  next(together)
+}
+
+pub fn primitives_decoder(
+  name: String,
+  thing_decoder: Decoder(a),
+  next: fn(List(Primitive(a))) -> Decoder(b),
+) -> Decoder(b) {
+  use values <- decode.optional_field(
+    name,
+    [],
+    decode.list(decode.optional(thing_decoder)),
+  )
+  use pwes <- decode.optional_field(
+    "_" <> name,
+    [],
+    decode.list(decode.optional(primitive_ext_part_decoder())),
+  )
+  let together =
+    map2_fillnone(pwes, values, fn(pwe, value) {
+      let #(id, ext) = case pwe {
+        None -> #(None, [])
+        Some(PrimitiveExtPart(id, ext)) -> #(id, ext)
+      }
+      Primitive(id:, ext:, value:)
+    })
+  next(together)
+}
+
+pub fn map2_fillnone(
+  list1: List(Option(a)),
+  list2: List(Option(b)),
+  with fun: fn(Option(a), Option(b)) -> c,
+) -> List(c) {
+  map2_fillnone_loop(list1, list2, fun, [])
+}
+
+fn map2_fillnone_loop(
+  list1: List(Option(a)),
+  list2: List(Option(b)),
+  fun: fn(Option(a), Option(b)) -> c,
+  acc: List(c),
+) -> List(c) {
+  case list1, list2 {
+    [], [] -> list.reverse(acc)
+    [a, ..as_], [] -> map2_fillnone_loop(as_, [], fun, [fun(a, None), ..acc])
+    [], [b, ..bs] -> map2_fillnone_loop([], bs, fun, [fun(None, b), ..acc])
+    [a, ..as_], [b, ..bs] ->
+      map2_fillnone_loop(as_, bs, fun, [fun(a, b), ..acc])
   }
 }

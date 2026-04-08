@@ -1602,37 +1602,12 @@ fn file_to_types(
                           }
                           False -> {
                             //optional case to json, in Some case add to fields list
-                            let choicetype_suffixes = case elt.type_ {
-                              // choice type encoder requires onsetAge onsetString onsetPeriod whatever to be suffix in json
-                              [_, _, ..] ->
-                                string.concat([
-                                  " <> case v {",
-                                  list.fold(
-                                    from: "",
-                                    over: elt.type_,
-                                    with: fn(suffixes_acc, ct) {
-                                      let assert [first_letter, ..rest] =
-                                        ct.code |> string.to_graphemes
-                                      // unlike string.capitalise this doesnt make everything after first lowercase
-                                      // so createdDateTime doesnt become createdDatetime
-                                      let capital_ct =
-                                        string.concat([
-                                          string.uppercase(first_letter),
-                                          ..rest
-                                        ])
-                                      suffixes_acc
-                                      <> field_name_new
-                                      <> string.capitalise(ct.code)
-                                      <> "(_) -> \""
-                                      <> capital_ct
-                                      <> "\"\n"
-                                    },
-                                  ),
-                                  "}",
-                                ])
-                              //normal type encoder (not choice type)
-                              _ -> ""
-                            }
+                            let choicetype_suffixes =
+                              gen_choicetype_suffixes(
+                                "v",
+                                elt.type_,
+                                field_name_new,
+                              )
                             let opts =
                               encoder_optional_acc
                               <> "\nlet fields = case "
@@ -1674,11 +1649,19 @@ fn file_to_types(
                           }
                           False -> {
                             //mandatory case to json, put in first fields list
+                            let choicetype_suffixes =
+                              gen_choicetype_suffixes(
+                                elt_snake,
+                                elt.type_,
+                                field_name_new,
+                              )
                             let always =
                               encoder_always_acc
                               <> "#(\""
                               <> elt_last_part_withgleamtype
-                              <> "\", "
+                              <> "\""
+                              <> choicetype_suffixes
+                              <> ", "
                               <> field_type_encoder
                               <> "("
                               <> elt_snake
@@ -3201,6 +3184,38 @@ fn string_to_encoder_type(
       <> "_to_json"
     }
     //encoder for backbone element eg visionprescription_lensspecification_encoder()
+  }
+}
+
+fn gen_choicetype_suffixes(
+  match_var: String,
+  types: List(Type),
+  field_name_new: String,
+) -> String {
+  case types {
+    // choice type encoder requires onsetAge onsetString onsetPeriod whatever to be suffix in json
+    [_, _, ..] ->
+      string.concat([
+        " <> case ",
+        match_var,
+        " {",
+        list.fold(from: "", over: types, with: fn(suffixes_acc, ct) {
+          let assert [first_letter, ..rest] = ct.code |> string.to_graphemes
+          // unlike string.capitalise this doesnt make everything after first lowercase
+          // so createdDateTime doesnt become createdDatetime
+          let capital_ct =
+            string.concat([string.uppercase(first_letter), ..rest])
+          suffixes_acc
+          <> field_name_new
+          <> string.capitalise(ct.code)
+          <> "(_) -> \""
+          <> capital_ct
+          <> "\"\n"
+        }),
+        "}",
+      ])
+    //normal type encoder (not choice type)
+    _ -> ""
   }
 }
 
