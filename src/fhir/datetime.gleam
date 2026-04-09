@@ -26,8 +26,6 @@ const byte_nine: Int = 0x39
 
 const byte_t_uppercase: Int = 0x54
 
-const byte_z_lowercase: Int = 0x7A
-
 const byte_z_uppercase: Int = 0x5A
 
 // [FHIR dateTime](https://build.fhir.org/datatypes.html#dateTime)
@@ -206,22 +204,16 @@ fn parse_fraction_as_nanoseconds_loop(
   }
 }
 
-fn parse_timezone(
-  bytes: BitArray,
-) -> Result(#(Timezone, BitArray), Nil) {
+fn parse_timezone(bytes: BitArray) -> Result(#(Timezone, BitArray), Nil) {
   case bytes {
-    <<byte, rest:bytes>>
-      if byte == byte_z_uppercase || byte == byte_z_lowercase
-    -> Ok(#(Utc, rest))
+    <<byte, rest:bytes>> if byte == byte_z_uppercase -> Ok(#(Utc, rest))
     <<byte, _:bytes>> if byte == byte_plus || byte == byte_minus ->
       parse_timezone_offset(bytes)
     _ -> Error(Nil)
   }
 }
 
-fn parse_timezone_offset(
-  bytes: BitArray,
-) -> Result(#(Timezone, BitArray), Nil) {
+fn parse_timezone_offset(bytes: BitArray) -> Result(#(Timezone, BitArray), Nil) {
   use #(sign, bytes) <- result.try(parse_sign(bytes))
   use #(hours, bytes) <- result.try(parse_digits(from: bytes, count: 2))
   case bytes {
@@ -308,7 +300,13 @@ fn validate_minute(minute: Int) -> Result(Nil, Nil) {
 }
 
 fn validate_second(second: Int) -> Result(Nil, Nil) {
-  case second >= 0 && second <= 59 {
+  // https://github.com/lpil/datetime_iso8601/blob/c3feaceafb515ebabb9f382dff0e1a1ebdd7efa4/src/datetime_iso8601.gleam#L697
+  // limits to 59, but leap seconds allowed by https://build.fhir.org/datatypes.html#dateTime
+  // Leap second are allowed in the datetime, instant and time types.
+  // Note, though, that many systems and libraries do not support leap seconds.
+  // Applications reading times SHOULD accept and handle leap seconds gracefully,
+  // and applications producing them MAY choose to avoid encoding leap seconds.
+  case second >= 0 && second <= 60 {
     True -> Ok(Nil)
     False -> Error(Nil)
   }
