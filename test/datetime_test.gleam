@@ -1,4 +1,4 @@
-import fhir/datetime
+import fhir/primitive_types/datetime
 import gleam/list
 
 pub fn main() {
