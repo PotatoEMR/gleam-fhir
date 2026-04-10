@@ -92,9 +92,9 @@ gleam run
 (for each of r4, r4b, r5)
 
 - [r4_valuesets](https://hexdocs.pm/fhir/fhir/r4_valuesets.html) Enums for valuesets with required binding
-  - ↪ [r4](https://hexdocs.pm/fhir/fhir/r4.html) Resources, data types, fns for new, decoder, to_json
-    - ↪ [r4_sansio](https://hexdocs.pm/fhir/fhir/r4_sansio.html) Prepare http request and parse http response
-      - ↪ Clients [r4_httpc](https://hexdocs.pm/fhir/fhir/r4_httpc.html) for httpc (Erlang) and [r4_rsvp](https://hexdocs.pm/fhir/fhir/r4_rsvp.html) for rsvp (Lustre apps)
+  - [r4](https://hexdocs.pm/fhir/fhir/r4.html) Resources, data types, fns for new, decoder, to_json
+    - [r4_sansio](https://hexdocs.pm/fhir/fhir/r4_sansio.html) Prepare http request and parse http response
+      - Clients [r4_httpc](https://hexdocs.pm/fhir/fhir/r4_httpc.html) for httpc (Erlang) and [r4_rsvp](https://hexdocs.pm/fhir/fhir/r4_rsvp.html) for rsvp (Lustre apps)
 
 ## AI use
 
