@@ -1,5 +1,9 @@
 ////[https://hl7.org/fhir/r4](https://hl7.org/fhir/r4) resources
 
+import fhir/primitive_types/date.{type Date}
+import fhir/primitive_types/datetime.{type DateTime}
+import fhir/primitive_types/instant.{type Instant}
+import fhir/primitive_types/time.{type Time}
 import fhir/r4usp_valuesets
 import gleam/bool
 import gleam/dict.{type Dict}
@@ -207,7 +211,7 @@ pub type Annotation {
     id: Primitive(String),
     extension: List(Extension),
     author: Option(AnnotationAuthor),
-    time: Primitive(String),
+    time: Primitive(DateTime),
     text: Primitive(String),
   )
 }
@@ -250,7 +254,7 @@ pub fn annotation_to_json(annotation: Annotation) -> Json {
   let Annotation(text:, time:, author:, extension:, id:) = annotation
   let fields = []
   let fields = primitive_to_json(fields, text, json.string, "text")
-  let fields = primitive_to_json(fields, time, json.string, "time")
+  let fields = primitive_to_json(fields, time, datetime.to_json, "time")
   let fields = case author {
     Some(v) -> [
       #(
@@ -276,7 +280,7 @@ pub fn annotation_to_json(annotation: Annotation) -> Json {
 pub fn annotation_decoder() -> Decoder(Annotation) {
   use <- decode.recursive
   use text <- primitive_decoder("text", decode.string)
-  use time <- primitive_decoder("time", decode.string)
+  use time <- primitive_decoder("time", datetime.decoder())
   use author <- decode.then(none_if_omitted(annotation_author_decoder()))
   use extension <- decode.optional_field(
     "extension",
@@ -299,7 +303,7 @@ pub type Attachment {
     size: Primitive(Int),
     hash: Primitive(String),
     title: Primitive(String),
-    creation: Primitive(String),
+    creation: Primitive(DateTime),
   )
 }
 
@@ -332,7 +336,7 @@ pub fn attachment_to_json(attachment: Attachment) -> Json {
     id:,
   ) = attachment
   let fields = []
-  let fields = primitive_to_json(fields, creation, json.string, "creation")
+  let fields = primitive_to_json(fields, creation, datetime.to_json, "creation")
   let fields = primitive_to_json(fields, title, json.string, "title")
   let fields = primitive_to_json(fields, hash, json.string, "hash")
   let fields = primitive_to_json(fields, size, json.int, "size")
@@ -351,7 +355,7 @@ pub fn attachment_to_json(attachment: Attachment) -> Json {
 
 pub fn attachment_decoder() -> Decoder(Attachment) {
   use <- decode.recursive
-  use creation <- primitive_decoder("creation", decode.string)
+  use creation <- primitive_decoder("creation", datetime.decoder())
   use title <- primitive_decoder("title", decode.string)
   use hash <- primitive_decoder("hash", decode.string)
   use size <- primitive_decoder("size", decode.int)
@@ -904,7 +908,7 @@ pub type DatarequirementDatefilter {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementDatefilterValue {
-  DatarequirementDatefilterValueDatetime(value: String)
+  DatarequirementDatefilterValueDatetime(value: DateTime)
   DatarequirementDatefilterValuePeriod(value: Period)
   DatarequirementDatefilterValueDuration(value: Duration)
 }
@@ -913,7 +917,7 @@ pub fn datarequirement_datefilter_value_to_json(
   elt: DatarequirementDatefilterValue,
 ) -> Json {
   case elt {
-    DatarequirementDatefilterValueDatetime(v) -> json.string(v)
+    DatarequirementDatefilterValueDatetime(v) -> datetime.to_json(v)
     DatarequirementDatefilterValuePeriod(v) -> period_to_json(v)
     DatarequirementDatefilterValueDuration(v) -> duration_to_json(v)
   }
@@ -923,7 +927,7 @@ pub fn datarequirement_datefilter_value_decoder() -> Decoder(
   DatarequirementDatefilterValue,
 ) {
   decode.one_of(
-    decode.field("valueDateTime", decode.string, decode.success)
+    decode.field("valueDateTime", datetime.decoder(), decode.success)
       |> decode.map(DatarequirementDatefilterValueDatetime),
     [
       decode.field("valuePeriod", period_decoder(), decode.success)
@@ -1812,17 +1816,17 @@ pub type ElementdefinitionDefaultvalue {
   ElementdefinitionDefaultvalueBoolean(default_value: Bool)
   ElementdefinitionDefaultvalueCanonical(default_value: String)
   ElementdefinitionDefaultvalueCode(default_value: String)
-  ElementdefinitionDefaultvalueDate(default_value: String)
-  ElementdefinitionDefaultvalueDatetime(default_value: String)
+  ElementdefinitionDefaultvalueDate(default_value: Date)
+  ElementdefinitionDefaultvalueDatetime(default_value: DateTime)
   ElementdefinitionDefaultvalueDecimal(default_value: Float)
   ElementdefinitionDefaultvalueId(default_value: String)
-  ElementdefinitionDefaultvalueInstant(default_value: String)
+  ElementdefinitionDefaultvalueInstant(default_value: Instant)
   ElementdefinitionDefaultvalueInteger(default_value: Int)
   ElementdefinitionDefaultvalueMarkdown(default_value: String)
   ElementdefinitionDefaultvalueOid(default_value: String)
   ElementdefinitionDefaultvaluePositiveint(default_value: Int)
   ElementdefinitionDefaultvalueString(default_value: String)
-  ElementdefinitionDefaultvalueTime(default_value: String)
+  ElementdefinitionDefaultvalueTime(default_value: Time)
   ElementdefinitionDefaultvalueUnsignedint(default_value: Int)
   ElementdefinitionDefaultvalueUri(default_value: String)
   ElementdefinitionDefaultvalueUrl(default_value: String)
@@ -1872,17 +1876,17 @@ pub fn elementdefinition_defaultvalue_to_json(
     ElementdefinitionDefaultvalueBoolean(v) -> json.bool(v)
     ElementdefinitionDefaultvalueCanonical(v) -> json.string(v)
     ElementdefinitionDefaultvalueCode(v) -> json.string(v)
-    ElementdefinitionDefaultvalueDate(v) -> json.string(v)
-    ElementdefinitionDefaultvalueDatetime(v) -> json.string(v)
+    ElementdefinitionDefaultvalueDate(v) -> date.to_json(v)
+    ElementdefinitionDefaultvalueDatetime(v) -> datetime.to_json(v)
     ElementdefinitionDefaultvalueDecimal(v) -> json.float(v)
     ElementdefinitionDefaultvalueId(v) -> json.string(v)
-    ElementdefinitionDefaultvalueInstant(v) -> json.string(v)
+    ElementdefinitionDefaultvalueInstant(v) -> instant.to_json(v)
     ElementdefinitionDefaultvalueInteger(v) -> json.int(v)
     ElementdefinitionDefaultvalueMarkdown(v) -> json.string(v)
     ElementdefinitionDefaultvalueOid(v) -> json.string(v)
     ElementdefinitionDefaultvaluePositiveint(v) -> json.int(v)
     ElementdefinitionDefaultvalueString(v) -> json.string(v)
-    ElementdefinitionDefaultvalueTime(v) -> json.string(v)
+    ElementdefinitionDefaultvalueTime(v) -> time.to_json(v)
     ElementdefinitionDefaultvalueUnsignedint(v) -> json.int(v)
     ElementdefinitionDefaultvalueUri(v) -> json.string(v)
     ElementdefinitionDefaultvalueUrl(v) -> json.string(v)
@@ -1939,15 +1943,15 @@ pub fn elementdefinition_defaultvalue_decoder() -> Decoder(
         |> decode.map(ElementdefinitionDefaultvalueCanonical),
       decode.field("defaultValueCode", decode.string, decode.success)
         |> decode.map(ElementdefinitionDefaultvalueCode),
-      decode.field("defaultValueDate", decode.string, decode.success)
+      decode.field("defaultValueDate", date.decoder(), decode.success)
         |> decode.map(ElementdefinitionDefaultvalueDate),
-      decode.field("defaultValueDateTime", decode.string, decode.success)
+      decode.field("defaultValueDateTime", datetime.decoder(), decode.success)
         |> decode.map(ElementdefinitionDefaultvalueDatetime),
       decode.field("defaultValueDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionDefaultvalueDecimal),
       decode.field("defaultValueId", decode.string, decode.success)
         |> decode.map(ElementdefinitionDefaultvalueId),
-      decode.field("defaultValueInstant", decode.string, decode.success)
+      decode.field("defaultValueInstant", instant.decoder(), decode.success)
         |> decode.map(ElementdefinitionDefaultvalueInstant),
       decode.field("defaultValueInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionDefaultvalueInteger),
@@ -1959,7 +1963,7 @@ pub fn elementdefinition_defaultvalue_decoder() -> Decoder(
         |> decode.map(ElementdefinitionDefaultvaluePositiveint),
       decode.field("defaultValueString", decode.string, decode.success)
         |> decode.map(ElementdefinitionDefaultvalueString),
-      decode.field("defaultValueTime", decode.string, decode.success)
+      decode.field("defaultValueTime", time.decoder(), decode.success)
         |> decode.map(ElementdefinitionDefaultvalueTime),
       decode.field("defaultValueUnsignedInt", decode.int, decode.success)
         |> decode.map(ElementdefinitionDefaultvalueUnsignedint),
@@ -2097,17 +2101,17 @@ pub type ElementdefinitionFixed {
   ElementdefinitionFixedBoolean(fixed: Bool)
   ElementdefinitionFixedCanonical(fixed: String)
   ElementdefinitionFixedCode(fixed: String)
-  ElementdefinitionFixedDate(fixed: String)
-  ElementdefinitionFixedDatetime(fixed: String)
+  ElementdefinitionFixedDate(fixed: Date)
+  ElementdefinitionFixedDatetime(fixed: DateTime)
   ElementdefinitionFixedDecimal(fixed: Float)
   ElementdefinitionFixedId(fixed: String)
-  ElementdefinitionFixedInstant(fixed: String)
+  ElementdefinitionFixedInstant(fixed: Instant)
   ElementdefinitionFixedInteger(fixed: Int)
   ElementdefinitionFixedMarkdown(fixed: String)
   ElementdefinitionFixedOid(fixed: String)
   ElementdefinitionFixedPositiveint(fixed: Int)
   ElementdefinitionFixedString(fixed: String)
-  ElementdefinitionFixedTime(fixed: String)
+  ElementdefinitionFixedTime(fixed: Time)
   ElementdefinitionFixedUnsignedint(fixed: Int)
   ElementdefinitionFixedUri(fixed: String)
   ElementdefinitionFixedUrl(fixed: String)
@@ -2151,17 +2155,17 @@ pub fn elementdefinition_fixed_to_json(elt: ElementdefinitionFixed) -> Json {
     ElementdefinitionFixedBoolean(v) -> json.bool(v)
     ElementdefinitionFixedCanonical(v) -> json.string(v)
     ElementdefinitionFixedCode(v) -> json.string(v)
-    ElementdefinitionFixedDate(v) -> json.string(v)
-    ElementdefinitionFixedDatetime(v) -> json.string(v)
+    ElementdefinitionFixedDate(v) -> date.to_json(v)
+    ElementdefinitionFixedDatetime(v) -> datetime.to_json(v)
     ElementdefinitionFixedDecimal(v) -> json.float(v)
     ElementdefinitionFixedId(v) -> json.string(v)
-    ElementdefinitionFixedInstant(v) -> json.string(v)
+    ElementdefinitionFixedInstant(v) -> instant.to_json(v)
     ElementdefinitionFixedInteger(v) -> json.int(v)
     ElementdefinitionFixedMarkdown(v) -> json.string(v)
     ElementdefinitionFixedOid(v) -> json.string(v)
     ElementdefinitionFixedPositiveint(v) -> json.int(v)
     ElementdefinitionFixedString(v) -> json.string(v)
-    ElementdefinitionFixedTime(v) -> json.string(v)
+    ElementdefinitionFixedTime(v) -> time.to_json(v)
     ElementdefinitionFixedUnsignedint(v) -> json.int(v)
     ElementdefinitionFixedUri(v) -> json.string(v)
     ElementdefinitionFixedUrl(v) -> json.string(v)
@@ -2212,15 +2216,15 @@ pub fn elementdefinition_fixed_decoder() -> Decoder(ElementdefinitionFixed) {
         |> decode.map(ElementdefinitionFixedCanonical),
       decode.field("fixedCode", decode.string, decode.success)
         |> decode.map(ElementdefinitionFixedCode),
-      decode.field("fixedDate", decode.string, decode.success)
+      decode.field("fixedDate", date.decoder(), decode.success)
         |> decode.map(ElementdefinitionFixedDate),
-      decode.field("fixedDateTime", decode.string, decode.success)
+      decode.field("fixedDateTime", datetime.decoder(), decode.success)
         |> decode.map(ElementdefinitionFixedDatetime),
       decode.field("fixedDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionFixedDecimal),
       decode.field("fixedId", decode.string, decode.success)
         |> decode.map(ElementdefinitionFixedId),
-      decode.field("fixedInstant", decode.string, decode.success)
+      decode.field("fixedInstant", instant.decoder(), decode.success)
         |> decode.map(ElementdefinitionFixedInstant),
       decode.field("fixedInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionFixedInteger),
@@ -2232,7 +2236,7 @@ pub fn elementdefinition_fixed_decoder() -> Decoder(ElementdefinitionFixed) {
         |> decode.map(ElementdefinitionFixedPositiveint),
       decode.field("fixedString", decode.string, decode.success)
         |> decode.map(ElementdefinitionFixedString),
-      decode.field("fixedTime", decode.string, decode.success)
+      decode.field("fixedTime", time.decoder(), decode.success)
         |> decode.map(ElementdefinitionFixedTime),
       decode.field("fixedUnsignedInt", decode.int, decode.success)
         |> decode.map(ElementdefinitionFixedUnsignedint),
@@ -2338,17 +2342,17 @@ pub type ElementdefinitionPattern {
   ElementdefinitionPatternBoolean(pattern: Bool)
   ElementdefinitionPatternCanonical(pattern: String)
   ElementdefinitionPatternCode(pattern: String)
-  ElementdefinitionPatternDate(pattern: String)
-  ElementdefinitionPatternDatetime(pattern: String)
+  ElementdefinitionPatternDate(pattern: Date)
+  ElementdefinitionPatternDatetime(pattern: DateTime)
   ElementdefinitionPatternDecimal(pattern: Float)
   ElementdefinitionPatternId(pattern: String)
-  ElementdefinitionPatternInstant(pattern: String)
+  ElementdefinitionPatternInstant(pattern: Instant)
   ElementdefinitionPatternInteger(pattern: Int)
   ElementdefinitionPatternMarkdown(pattern: String)
   ElementdefinitionPatternOid(pattern: String)
   ElementdefinitionPatternPositiveint(pattern: Int)
   ElementdefinitionPatternString(pattern: String)
-  ElementdefinitionPatternTime(pattern: String)
+  ElementdefinitionPatternTime(pattern: Time)
   ElementdefinitionPatternUnsignedint(pattern: Int)
   ElementdefinitionPatternUri(pattern: String)
   ElementdefinitionPatternUrl(pattern: String)
@@ -2392,17 +2396,17 @@ pub fn elementdefinition_pattern_to_json(elt: ElementdefinitionPattern) -> Json 
     ElementdefinitionPatternBoolean(v) -> json.bool(v)
     ElementdefinitionPatternCanonical(v) -> json.string(v)
     ElementdefinitionPatternCode(v) -> json.string(v)
-    ElementdefinitionPatternDate(v) -> json.string(v)
-    ElementdefinitionPatternDatetime(v) -> json.string(v)
+    ElementdefinitionPatternDate(v) -> date.to_json(v)
+    ElementdefinitionPatternDatetime(v) -> datetime.to_json(v)
     ElementdefinitionPatternDecimal(v) -> json.float(v)
     ElementdefinitionPatternId(v) -> json.string(v)
-    ElementdefinitionPatternInstant(v) -> json.string(v)
+    ElementdefinitionPatternInstant(v) -> instant.to_json(v)
     ElementdefinitionPatternInteger(v) -> json.int(v)
     ElementdefinitionPatternMarkdown(v) -> json.string(v)
     ElementdefinitionPatternOid(v) -> json.string(v)
     ElementdefinitionPatternPositiveint(v) -> json.int(v)
     ElementdefinitionPatternString(v) -> json.string(v)
-    ElementdefinitionPatternTime(v) -> json.string(v)
+    ElementdefinitionPatternTime(v) -> time.to_json(v)
     ElementdefinitionPatternUnsignedint(v) -> json.int(v)
     ElementdefinitionPatternUri(v) -> json.string(v)
     ElementdefinitionPatternUrl(v) -> json.string(v)
@@ -2453,15 +2457,15 @@ pub fn elementdefinition_pattern_decoder() -> Decoder(ElementdefinitionPattern) 
         |> decode.map(ElementdefinitionPatternCanonical),
       decode.field("patternCode", decode.string, decode.success)
         |> decode.map(ElementdefinitionPatternCode),
-      decode.field("patternDate", decode.string, decode.success)
+      decode.field("patternDate", date.decoder(), decode.success)
         |> decode.map(ElementdefinitionPatternDate),
-      decode.field("patternDateTime", decode.string, decode.success)
+      decode.field("patternDateTime", datetime.decoder(), decode.success)
         |> decode.map(ElementdefinitionPatternDatetime),
       decode.field("patternDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionPatternDecimal),
       decode.field("patternId", decode.string, decode.success)
         |> decode.map(ElementdefinitionPatternId),
-      decode.field("patternInstant", decode.string, decode.success)
+      decode.field("patternInstant", instant.decoder(), decode.success)
         |> decode.map(ElementdefinitionPatternInstant),
       decode.field("patternInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionPatternInteger),
@@ -2473,7 +2477,7 @@ pub fn elementdefinition_pattern_decoder() -> Decoder(ElementdefinitionPattern) 
         |> decode.map(ElementdefinitionPatternPositiveint),
       decode.field("patternString", decode.string, decode.success)
         |> decode.map(ElementdefinitionPatternString),
-      decode.field("patternTime", decode.string, decode.success)
+      decode.field("patternTime", time.decoder(), decode.success)
         |> decode.map(ElementdefinitionPatternTime),
       decode.field("patternUnsignedInt", decode.int, decode.success)
         |> decode.map(ElementdefinitionPatternUnsignedint),
@@ -2583,10 +2587,10 @@ pub fn elementdefinition_pattern_decoder() -> Decoder(ElementdefinitionPattern) 
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionMinvalue {
-  ElementdefinitionMinvalueDate(min_value: String)
-  ElementdefinitionMinvalueDatetime(min_value: String)
-  ElementdefinitionMinvalueInstant(min_value: String)
-  ElementdefinitionMinvalueTime(min_value: String)
+  ElementdefinitionMinvalueDate(min_value: Date)
+  ElementdefinitionMinvalueDatetime(min_value: DateTime)
+  ElementdefinitionMinvalueInstant(min_value: Instant)
+  ElementdefinitionMinvalueTime(min_value: Time)
   ElementdefinitionMinvalueDecimal(min_value: Float)
   ElementdefinitionMinvalueInteger(min_value: Int)
   ElementdefinitionMinvaluePositiveint(min_value: Int)
@@ -2598,10 +2602,10 @@ pub fn elementdefinition_minvalue_to_json(
   elt: ElementdefinitionMinvalue,
 ) -> Json {
   case elt {
-    ElementdefinitionMinvalueDate(v) -> json.string(v)
-    ElementdefinitionMinvalueDatetime(v) -> json.string(v)
-    ElementdefinitionMinvalueInstant(v) -> json.string(v)
-    ElementdefinitionMinvalueTime(v) -> json.string(v)
+    ElementdefinitionMinvalueDate(v) -> date.to_json(v)
+    ElementdefinitionMinvalueDatetime(v) -> datetime.to_json(v)
+    ElementdefinitionMinvalueInstant(v) -> instant.to_json(v)
+    ElementdefinitionMinvalueTime(v) -> time.to_json(v)
     ElementdefinitionMinvalueDecimal(v) -> json.float(v)
     ElementdefinitionMinvalueInteger(v) -> json.int(v)
     ElementdefinitionMinvaluePositiveint(v) -> json.int(v)
@@ -2614,14 +2618,14 @@ pub fn elementdefinition_minvalue_decoder() -> Decoder(
   ElementdefinitionMinvalue,
 ) {
   decode.one_of(
-    decode.field("minValueDate", decode.string, decode.success)
+    decode.field("minValueDate", date.decoder(), decode.success)
       |> decode.map(ElementdefinitionMinvalueDate),
     [
-      decode.field("minValueDateTime", decode.string, decode.success)
+      decode.field("minValueDateTime", datetime.decoder(), decode.success)
         |> decode.map(ElementdefinitionMinvalueDatetime),
-      decode.field("minValueInstant", decode.string, decode.success)
+      decode.field("minValueInstant", instant.decoder(), decode.success)
         |> decode.map(ElementdefinitionMinvalueInstant),
-      decode.field("minValueTime", decode.string, decode.success)
+      decode.field("minValueTime", time.decoder(), decode.success)
         |> decode.map(ElementdefinitionMinvalueTime),
       decode.field("minValueDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionMinvalueDecimal),
@@ -2639,10 +2643,10 @@ pub fn elementdefinition_minvalue_decoder() -> Decoder(
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionMaxvalue {
-  ElementdefinitionMaxvalueDate(max_value: String)
-  ElementdefinitionMaxvalueDatetime(max_value: String)
-  ElementdefinitionMaxvalueInstant(max_value: String)
-  ElementdefinitionMaxvalueTime(max_value: String)
+  ElementdefinitionMaxvalueDate(max_value: Date)
+  ElementdefinitionMaxvalueDatetime(max_value: DateTime)
+  ElementdefinitionMaxvalueInstant(max_value: Instant)
+  ElementdefinitionMaxvalueTime(max_value: Time)
   ElementdefinitionMaxvalueDecimal(max_value: Float)
   ElementdefinitionMaxvalueInteger(max_value: Int)
   ElementdefinitionMaxvaluePositiveint(max_value: Int)
@@ -2654,10 +2658,10 @@ pub fn elementdefinition_maxvalue_to_json(
   elt: ElementdefinitionMaxvalue,
 ) -> Json {
   case elt {
-    ElementdefinitionMaxvalueDate(v) -> json.string(v)
-    ElementdefinitionMaxvalueDatetime(v) -> json.string(v)
-    ElementdefinitionMaxvalueInstant(v) -> json.string(v)
-    ElementdefinitionMaxvalueTime(v) -> json.string(v)
+    ElementdefinitionMaxvalueDate(v) -> date.to_json(v)
+    ElementdefinitionMaxvalueDatetime(v) -> datetime.to_json(v)
+    ElementdefinitionMaxvalueInstant(v) -> instant.to_json(v)
+    ElementdefinitionMaxvalueTime(v) -> time.to_json(v)
     ElementdefinitionMaxvalueDecimal(v) -> json.float(v)
     ElementdefinitionMaxvalueInteger(v) -> json.int(v)
     ElementdefinitionMaxvaluePositiveint(v) -> json.int(v)
@@ -2670,14 +2674,14 @@ pub fn elementdefinition_maxvalue_decoder() -> Decoder(
   ElementdefinitionMaxvalue,
 ) {
   decode.one_of(
-    decode.field("maxValueDate", decode.string, decode.success)
+    decode.field("maxValueDate", date.decoder(), decode.success)
       |> decode.map(ElementdefinitionMaxvalueDate),
     [
-      decode.field("maxValueDateTime", decode.string, decode.success)
+      decode.field("maxValueDateTime", datetime.decoder(), decode.success)
         |> decode.map(ElementdefinitionMaxvalueDatetime),
-      decode.field("maxValueInstant", decode.string, decode.success)
+      decode.field("maxValueInstant", instant.decoder(), decode.success)
         |> decode.map(ElementdefinitionMaxvalueInstant),
-      decode.field("maxValueTime", decode.string, decode.success)
+      decode.field("maxValueTime", time.decoder(), decode.success)
         |> decode.map(ElementdefinitionMaxvalueTime),
       decode.field("maxValueDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionMaxvalueDecimal),
@@ -2840,17 +2844,17 @@ pub type ElementdefinitionExampleValue {
   ElementdefinitionExampleValueBoolean(value: Bool)
   ElementdefinitionExampleValueCanonical(value: String)
   ElementdefinitionExampleValueCode(value: String)
-  ElementdefinitionExampleValueDate(value: String)
-  ElementdefinitionExampleValueDatetime(value: String)
+  ElementdefinitionExampleValueDate(value: Date)
+  ElementdefinitionExampleValueDatetime(value: DateTime)
   ElementdefinitionExampleValueDecimal(value: Float)
   ElementdefinitionExampleValueId(value: String)
-  ElementdefinitionExampleValueInstant(value: String)
+  ElementdefinitionExampleValueInstant(value: Instant)
   ElementdefinitionExampleValueInteger(value: Int)
   ElementdefinitionExampleValueMarkdown(value: String)
   ElementdefinitionExampleValueOid(value: String)
   ElementdefinitionExampleValuePositiveint(value: Int)
   ElementdefinitionExampleValueString(value: String)
-  ElementdefinitionExampleValueTime(value: String)
+  ElementdefinitionExampleValueTime(value: Time)
   ElementdefinitionExampleValueUnsignedint(value: Int)
   ElementdefinitionExampleValueUri(value: String)
   ElementdefinitionExampleValueUrl(value: String)
@@ -2896,17 +2900,17 @@ pub fn elementdefinition_example_value_to_json(
     ElementdefinitionExampleValueBoolean(v) -> json.bool(v)
     ElementdefinitionExampleValueCanonical(v) -> json.string(v)
     ElementdefinitionExampleValueCode(v) -> json.string(v)
-    ElementdefinitionExampleValueDate(v) -> json.string(v)
-    ElementdefinitionExampleValueDatetime(v) -> json.string(v)
+    ElementdefinitionExampleValueDate(v) -> date.to_json(v)
+    ElementdefinitionExampleValueDatetime(v) -> datetime.to_json(v)
     ElementdefinitionExampleValueDecimal(v) -> json.float(v)
     ElementdefinitionExampleValueId(v) -> json.string(v)
-    ElementdefinitionExampleValueInstant(v) -> json.string(v)
+    ElementdefinitionExampleValueInstant(v) -> instant.to_json(v)
     ElementdefinitionExampleValueInteger(v) -> json.int(v)
     ElementdefinitionExampleValueMarkdown(v) -> json.string(v)
     ElementdefinitionExampleValueOid(v) -> json.string(v)
     ElementdefinitionExampleValuePositiveint(v) -> json.int(v)
     ElementdefinitionExampleValueString(v) -> json.string(v)
-    ElementdefinitionExampleValueTime(v) -> json.string(v)
+    ElementdefinitionExampleValueTime(v) -> time.to_json(v)
     ElementdefinitionExampleValueUnsignedint(v) -> json.int(v)
     ElementdefinitionExampleValueUri(v) -> json.string(v)
     ElementdefinitionExampleValueUrl(v) -> json.string(v)
@@ -2963,15 +2967,15 @@ pub fn elementdefinition_example_value_decoder() -> Decoder(
         |> decode.map(ElementdefinitionExampleValueCanonical),
       decode.field("valueCode", decode.string, decode.success)
         |> decode.map(ElementdefinitionExampleValueCode),
-      decode.field("valueDate", decode.string, decode.success)
+      decode.field("valueDate", date.decoder(), decode.success)
         |> decode.map(ElementdefinitionExampleValueDate),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(ElementdefinitionExampleValueDatetime),
       decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(ElementdefinitionExampleValueDecimal),
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(ElementdefinitionExampleValueId),
-      decode.field("valueInstant", decode.string, decode.success)
+      decode.field("valueInstant", instant.decoder(), decode.success)
         |> decode.map(ElementdefinitionExampleValueInstant),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(ElementdefinitionExampleValueInteger),
@@ -2983,7 +2987,7 @@ pub fn elementdefinition_example_value_decoder() -> Decoder(
         |> decode.map(ElementdefinitionExampleValuePositiveint),
       decode.field("valueString", decode.string, decode.success)
         |> decode.map(ElementdefinitionExampleValueString),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(ElementdefinitionExampleValueTime),
       decode.field("valueUnsignedInt", decode.int, decode.success)
         |> decode.map(ElementdefinitionExampleValueUnsignedint),
@@ -4459,7 +4463,7 @@ pub type IndividualRecordedsexorgender {
     source_field: Primitive(String),
     source_document: Option(IndividualRecordedsexorgenderSourcedocument),
     source: Option(IndividualRecordedsexorgenderSource),
-    acquisition_date: Primitive(String),
+    acquisition_date: Primitive(DateTime),
     effective_period: Option(Period),
     type_: Option(Codeableconcept),
     value: Codeableconcept,
@@ -4907,7 +4911,7 @@ pub fn us_core_birthsex_from_ext(
 }
 
 ///[http://hl7.org/fhir/r4usp/us/core/StructureDefinition/us-core-authentication-time#resource](http://hl7.org/fhir/r4usp/us/core/StructureDefinition/us-core-authentication-time#resource)
-pub fn us_core_authentication_time_to_ext(value: String) -> Extension {
+pub fn us_core_authentication_time_to_ext(value: DateTime) -> Extension {
   Extension(
     id: None,
     url: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-authentication-time",
@@ -4916,7 +4920,7 @@ pub fn us_core_authentication_time_to_ext(value: String) -> Extension {
 }
 
 pub fn us_core_authentication_time_to_json(
-  us_core_authentication_time: String,
+  us_core_authentication_time: DateTime,
 ) -> Json {
   extension_to_json(us_core_authentication_time_to_ext(
     us_core_authentication_time,
@@ -4924,7 +4928,7 @@ pub fn us_core_authentication_time_to_json(
 }
 
 pub fn us_core_authentication_time_decoder() -> Decoder(
-  Result(String, Extension),
+  Result(DateTime, Extension),
 ) {
   use ext <- decode.then(extension_decoder())
   case us_core_authentication_time_from_ext(ext) {
@@ -4935,7 +4939,7 @@ pub fn us_core_authentication_time_decoder() -> Decoder(
 
 pub fn us_core_authentication_time_from_ext(
   ext: Extension,
-) -> Result(String, Nil) {
+) -> Result(DateTime, Nil) {
   case ext.url, ext.ext {
     "http://hl7.org/fhir/us/core/StructureDefinition/us-core-authentication-time",
       ExtSimple(ExtensionValueDatetime(v))
@@ -5184,7 +5188,7 @@ pub fn us_core_genderidentity_from_ext(
 pub type UsCoreMedicationAdherence {
   UsCoreMedicationAdherence(
     information_source: List(Codeableconcept),
-    date_asserted: Primitive(String),
+    date_asserted: Primitive(DateTime),
     medication_adherence: Codeableconcept,
   )
 }
@@ -5478,17 +5482,17 @@ pub type ExtensionValue {
   ExtensionValueBoolean(value: Bool)
   ExtensionValueCanonical(value: String)
   ExtensionValueCode(value: String)
-  ExtensionValueDate(value: String)
-  ExtensionValueDatetime(value: String)
+  ExtensionValueDate(value: Date)
+  ExtensionValueDatetime(value: DateTime)
   ExtensionValueDecimal(value: Float)
   ExtensionValueId(value: String)
-  ExtensionValueInstant(value: String)
+  ExtensionValueInstant(value: Instant)
   ExtensionValueInteger(value: Int)
   ExtensionValueMarkdown(value: String)
   ExtensionValueOid(value: String)
   ExtensionValuePositiveint(value: Int)
   ExtensionValueString(value: String)
-  ExtensionValueTime(value: String)
+  ExtensionValueTime(value: Time)
   ExtensionValueUnsignedint(value: Int)
   ExtensionValueUri(value: String)
   ExtensionValueUrl(value: String)
@@ -5612,17 +5616,17 @@ pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
     ExtensionValueBoolean(v) -> json.bool(v)
     ExtensionValueCanonical(v) -> json.string(v)
     ExtensionValueCode(v) -> json.string(v)
-    ExtensionValueDate(v) -> json.string(v)
-    ExtensionValueDatetime(v) -> json.string(v)
+    ExtensionValueDate(v) -> date.to_json(v)
+    ExtensionValueDatetime(v) -> datetime.to_json(v)
     ExtensionValueDecimal(v) -> json.float(v)
     ExtensionValueId(v) -> json.string(v)
-    ExtensionValueInstant(v) -> json.string(v)
+    ExtensionValueInstant(v) -> instant.to_json(v)
     ExtensionValueInteger(v) -> json.int(v)
     ExtensionValueMarkdown(v) -> json.string(v)
     ExtensionValueOid(v) -> json.string(v)
     ExtensionValuePositiveint(v) -> json.int(v)
     ExtensionValueString(v) -> json.string(v)
-    ExtensionValueTime(v) -> json.string(v)
+    ExtensionValueTime(v) -> time.to_json(v)
     ExtensionValueUnsignedint(v) -> json.int(v)
     ExtensionValueUri(v) -> json.string(v)
     ExtensionValueUrl(v) -> json.string(v)
@@ -5685,10 +5689,10 @@ pub fn ext_simple_or_complex_decoder() {
       decode.field("valueCode", decode.string, decode.success)
         |> decode.map(ExtensionValueCode)
         |> decode.map(ExtSimple),
-      decode.field("valueDate", decode.string, decode.success)
+      decode.field("valueDate", date.decoder(), decode.success)
         |> decode.map(ExtensionValueDate)
         |> decode.map(ExtSimple),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(ExtensionValueDatetime)
         |> decode.map(ExtSimple),
       decode.field("valueDecimal", decode_number(), decode.success)
@@ -5697,7 +5701,7 @@ pub fn ext_simple_or_complex_decoder() {
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(ExtensionValueId)
         |> decode.map(ExtSimple),
-      decode.field("valueInstant", decode.string, decode.success)
+      decode.field("valueInstant", instant.decoder(), decode.success)
         |> decode.map(ExtensionValueInstant)
         |> decode.map(ExtSimple),
       decode.field("valueInteger", decode.int, decode.success)
@@ -5715,7 +5719,7 @@ pub fn ext_simple_or_complex_decoder() {
       decode.field("valueString", decode.string, decode.success)
         |> decode.map(ExtensionValueString)
         |> decode.map(ExtSimple),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(ExtensionValueTime)
         |> decode.map(ExtSimple),
       decode.field("valueUnsignedInt", decode.int, decode.success)
@@ -6060,7 +6064,7 @@ pub type Marketingstatus {
     jurisdiction: Option(Codeableconcept),
     status: Codeableconcept,
     date_range: Period,
-    restore_date: Primitive(String),
+    restore_date: Primitive(DateTime),
   )
 }
 
@@ -6098,7 +6102,7 @@ pub fn marketingstatus_to_json(marketingstatus: Marketingstatus) -> Json {
     #("country", codeableconcept_to_json(country)),
   ]
   let fields =
-    primitive_to_json(fields, restore_date, json.string, "restoreDate")
+    primitive_to_json(fields, restore_date, datetime.to_json, "restoreDate")
   let fields = case jurisdiction {
     Some(v) -> [#("jurisdiction", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -6120,7 +6124,7 @@ pub fn marketingstatus_to_json(marketingstatus: Marketingstatus) -> Json {
 
 pub fn marketingstatus_decoder() -> Decoder(Marketingstatus) {
   use <- decode.recursive
-  use restore_date <- primitive_decoder("restoreDate", decode.string)
+  use restore_date <- primitive_decoder("restoreDate", datetime.decoder())
   use date_range <- decode.field("dateRange", period_decoder())
   use status <- decode.field("status", codeableconcept_decoder())
   use jurisdiction <- decode.optional_field(
@@ -6158,7 +6162,7 @@ pub type Meta {
     id: Primitive(String),
     extension: List(Extension),
     version_id: Primitive(String),
-    last_updated: Primitive(String),
+    last_updated: Primitive(Instant),
     source: Primitive(String),
     profile: List(Primitive(String)),
     security: List(Coding),
@@ -6202,7 +6206,7 @@ pub fn meta_to_json(meta: Meta) -> Json {
   let fields = primitives_to_json(fields, profile, json.string, "profile")
   let fields = primitive_to_json(fields, source, json.string, "source")
   let fields =
-    primitive_to_json(fields, last_updated, json.string, "lastUpdated")
+    primitive_to_json(fields, last_updated, instant.to_json, "lastUpdated")
   let fields = primitive_to_json(fields, version_id, json.string, "versionId")
   let fields = case extension {
     [] -> fields
@@ -6222,7 +6226,7 @@ pub fn meta_decoder() -> Decoder(Meta) {
   )
   use profile <- primitives_decoder("profile", decode.string)
   use source <- primitive_decoder("source", decode.string)
-  use last_updated <- primitive_decoder("lastUpdated", decode.string)
+  use last_updated <- primitive_decoder("lastUpdated", instant.decoder())
   use version_id <- primitive_decoder("versionId", decode.string)
   use extension <- decode.optional_field(
     "extension",
@@ -6444,8 +6448,8 @@ pub type Period {
   Period(
     id: Primitive(String),
     extension: List(Extension),
-    start: Primitive(String),
-    end: Primitive(String),
+    start: Primitive(DateTime),
+    end: Primitive(DateTime),
   )
 }
 
@@ -6461,8 +6465,8 @@ pub fn period_new() -> Period {
 pub fn period_to_json(period: Period) -> Json {
   let Period(end:, start:, extension:, id:) = period
   let fields = []
-  let fields = primitive_to_json(fields, end, json.string, "end")
-  let fields = primitive_to_json(fields, start, json.string, "start")
+  let fields = primitive_to_json(fields, end, datetime.to_json, "end")
+  let fields = primitive_to_json(fields, start, datetime.to_json, "start")
   let fields = case extension {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
@@ -6473,8 +6477,8 @@ pub fn period_to_json(period: Period) -> Json {
 
 pub fn period_decoder() -> Decoder(Period) {
   use <- decode.recursive
-  use end <- primitive_decoder("end", decode.string)
-  use start <- primitive_decoder("start", decode.string)
+  use end <- primitive_decoder("end", datetime.decoder())
+  use start <- primitive_decoder("start", datetime.decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -7376,7 +7380,7 @@ pub type Signature {
     id: Primitive(String),
     extension: List(Extension),
     type_: List1(Coding),
-    when: Primitive(String),
+    when: Primitive(Instant),
     who: Reference,
     on_behalf_of: Option(Reference),
     target_format: Primitive(String),
@@ -7426,7 +7430,7 @@ pub fn signature_to_json(signature: Signature) -> Json {
     Some(v) -> [#("onBehalfOf", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, when, json.string, "when")
+  let fields = primitive_to_json(fields, when, instant.to_json, "when")
   let fields = case extension {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
@@ -7446,7 +7450,7 @@ pub fn signature_decoder() -> Decoder(Signature) {
     decode.optional(reference_decoder()),
   )
   use who <- decode.field("who", reference_decoder())
-  use when <- primitive_decoder("when", decode.string)
+  use when <- primitive_decoder("when", instant.decoder())
   use type_ <- list1_decoder("type", coding_decoder())
   use extension <- decode.optional_field(
     "extension",
@@ -7684,7 +7688,7 @@ pub type Timing {
     id: Primitive(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    event: List(Primitive(String)),
+    event: List(Primitive(DateTime)),
     repeat: Option(TimingRepeat),
     code: Option(Codeableconcept),
   )
@@ -7718,7 +7722,7 @@ pub type TimingRepeat {
     period_max: Primitive(Float),
     period_unit: Primitive(r4usp_valuesets.Unitsoftime),
     day_of_week: List(Primitive(r4usp_valuesets.Daysofweek)),
-    time_of_day: List(Primitive(String)),
+    time_of_day: List(Primitive(Time)),
     when: List(Primitive(r4usp_valuesets.Eventtiming)),
     offset: Primitive(Int),
   )
@@ -7803,7 +7807,8 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
       r4usp_valuesets.eventtiming_to_json,
       "when",
     )
-  let fields = primitives_to_json(fields, time_of_day, json.string, "timeOfDay")
+  let fields =
+    primitives_to_json(fields, time_of_day, time.to_json, "timeOfDay")
   let fields =
     primitives_to_json(
       fields,
@@ -7862,7 +7867,7 @@ pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
   use <- decode.recursive
   use offset <- primitive_decoder("offset", decode.int)
   use when <- primitives_decoder("when", r4usp_valuesets.eventtiming_decoder())
-  use time_of_day <- primitives_decoder("timeOfDay", decode.string)
+  use time_of_day <- primitives_decoder("timeOfDay", time.decoder())
   use day_of_week <- primitives_decoder(
     "dayOfWeek",
     r4usp_valuesets.daysofweek_decoder(),
@@ -7923,7 +7928,7 @@ pub fn timing_to_json(timing: Timing) -> Json {
     Some(v) -> [#("repeat", timing_repeat_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitives_to_json(fields, event, json.string, "event")
+  let fields = primitives_to_json(fields, event, datetime.to_json, "event")
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -7951,7 +7956,7 @@ pub fn timing_decoder() -> Decoder(Timing) {
     None,
     decode.optional(timing_repeat_decoder()),
   )
-  use event <- primitives_decoder("event", decode.string)
+  use event <- primitives_decoder("event", datetime.decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -7990,16 +7995,16 @@ pub type Triggerdefinition {
 pub type TriggerdefinitionTiming {
   TriggerdefinitionTimingTiming(timing: Timing)
   TriggerdefinitionTimingReference(timing: Reference)
-  TriggerdefinitionTimingDate(timing: String)
-  TriggerdefinitionTimingDatetime(timing: String)
+  TriggerdefinitionTimingDate(timing: Date)
+  TriggerdefinitionTimingDatetime(timing: DateTime)
 }
 
 pub fn triggerdefinition_timing_to_json(elt: TriggerdefinitionTiming) -> Json {
   case elt {
     TriggerdefinitionTimingTiming(v) -> timing_to_json(v)
     TriggerdefinitionTimingReference(v) -> reference_to_json(v)
-    TriggerdefinitionTimingDate(v) -> json.string(v)
-    TriggerdefinitionTimingDatetime(v) -> json.string(v)
+    TriggerdefinitionTimingDate(v) -> date.to_json(v)
+    TriggerdefinitionTimingDatetime(v) -> datetime.to_json(v)
   }
 }
 
@@ -8010,9 +8015,9 @@ pub fn triggerdefinition_timing_decoder() -> Decoder(TriggerdefinitionTiming) {
     [
       decode.field("timingReference", reference_decoder(), decode.success)
         |> decode.map(TriggerdefinitionTimingReference),
-      decode.field("timingDate", decode.string, decode.success)
+      decode.field("timingDate", date.decoder(), decode.success)
         |> decode.map(TriggerdefinitionTimingDate),
-      decode.field("timingDateTime", decode.string, decode.success)
+      decode.field("timingDateTime", datetime.decoder(), decode.success)
         |> decode.map(TriggerdefinitionTimingDatetime),
     ],
   )
@@ -8769,7 +8774,7 @@ pub type Activitydefinition {
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
     subject: Option(ActivitydefinitionSubject),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -8778,8 +8783,8 @@ pub type Activitydefinition {
     purpose: Primitive(String),
     usage: Primitive(String),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -8844,7 +8849,7 @@ pub fn activitydefinition_subject_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ActivityDefinition#resource)
 pub type ActivitydefinitionTiming {
   ActivitydefinitionTimingTiming(timing: Timing)
-  ActivitydefinitionTimingDatetime(timing: String)
+  ActivitydefinitionTimingDatetime(timing: DateTime)
   ActivitydefinitionTimingAge(timing: Age)
   ActivitydefinitionTimingPeriod(timing: Period)
   ActivitydefinitionTimingRange(timing: Range)
@@ -8854,7 +8859,7 @@ pub type ActivitydefinitionTiming {
 pub fn activitydefinition_timing_to_json(elt: ActivitydefinitionTiming) -> Json {
   case elt {
     ActivitydefinitionTimingTiming(v) -> timing_to_json(v)
-    ActivitydefinitionTimingDatetime(v) -> json.string(v)
+    ActivitydefinitionTimingDatetime(v) -> datetime.to_json(v)
     ActivitydefinitionTimingAge(v) -> age_to_json(v)
     ActivitydefinitionTimingPeriod(v) -> period_to_json(v)
     ActivitydefinitionTimingRange(v) -> range_to_json(v)
@@ -8867,7 +8872,7 @@ pub fn activitydefinition_timing_decoder() -> Decoder(ActivitydefinitionTiming) 
     decode.field("timingTiming", timing_decoder(), decode.success)
       |> decode.map(ActivitydefinitionTimingTiming),
     [
-      decode.field("timingDateTime", decode.string, decode.success)
+      decode.field("timingDateTime", datetime.decoder(), decode.success)
         |> decode.map(ActivitydefinitionTimingDatetime),
       decode.field("timingAge", age_decoder(), decode.success)
         |> decode.map(ActivitydefinitionTimingAge),
@@ -9367,9 +9372,9 @@ pub fn activitydefinition_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = primitive_to_json(fields, usage, json.string, "usage")
   let fields = primitive_to_json(fields, purpose, json.string, "purpose")
@@ -9394,7 +9399,7 @@ pub fn activitydefinition_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case subject {
     Some(v) -> [
       #(
@@ -9567,8 +9572,8 @@ pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use usage <- primitive_decoder("usage", decode.string)
   use purpose <- primitive_decoder("purpose", decode.string)
@@ -9589,7 +9594,7 @@ pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use subject <- decode.then(
     none_if_omitted(activitydefinition_subject_decoder()),
   )
@@ -9717,9 +9722,9 @@ pub type Adverseevent {
     event: Option(Codeableconcept),
     subject: Reference,
     encounter: Option(Reference),
-    date: Primitive(String),
-    detected: Primitive(String),
-    recorded_date: Primitive(String),
+    date: Primitive(DateTime),
+    detected: Primitive(DateTime),
+    recorded_date: Primitive(DateTime),
     resulting_condition: List(Reference),
     location: Option(Reference),
     seriousness: Option(Codeableconcept),
@@ -10078,9 +10083,9 @@ pub fn adverseevent_to_json(adverseevent: Adverseevent) -> Json {
     ]
   }
   let fields =
-    primitive_to_json(fields, recorded_date, json.string, "recordedDate")
-  let fields = primitive_to_json(fields, detected, json.string, "detected")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+    primitive_to_json(fields, recorded_date, datetime.to_json, "recordedDate")
+  let fields = primitive_to_json(fields, detected, datetime.to_json, "detected")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
@@ -10195,9 +10200,9 @@ pub fn adverseevent_decoder() -> Decoder(Adverseevent) {
     [],
     decode.list(reference_decoder()),
   )
-  use recorded_date <- primitive_decoder("recordedDate", decode.string)
-  use detected <- primitive_decoder("detected", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use recorded_date <- primitive_decoder("recordedDate", datetime.decoder())
+  use detected <- primitive_decoder("detected", datetime.decoder())
+  use date <- primitive_decoder("date", datetime.decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
@@ -10310,10 +10315,10 @@ pub type Allergyintolerance {
     patient: Reference,
     encounter: Option(Reference),
     onset: Option(AllergyintoleranceOnset),
-    recorded_date: Primitive(String),
+    recorded_date: Primitive(DateTime),
     recorder: Option(Reference),
     asserter: Option(Reference),
-    last_occurrence: Primitive(String),
+    last_occurrence: Primitive(DateTime),
     note: List(Annotation),
     reaction: List(AllergyintoleranceReaction),
   )
@@ -10321,7 +10326,7 @@ pub type Allergyintolerance {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AllergyIntolerance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AllergyIntolerance#resource)
 pub type AllergyintoleranceOnset {
-  AllergyintoleranceOnsetDatetime(onset: String)
+  AllergyintoleranceOnsetDatetime(onset: DateTime)
   AllergyintoleranceOnsetAge(onset: Age)
   AllergyintoleranceOnsetPeriod(onset: Period)
   AllergyintoleranceOnsetRange(onset: Range)
@@ -10330,7 +10335,7 @@ pub type AllergyintoleranceOnset {
 
 pub fn allergyintolerance_onset_to_json(elt: AllergyintoleranceOnset) -> Json {
   case elt {
-    AllergyintoleranceOnsetDatetime(v) -> json.string(v)
+    AllergyintoleranceOnsetDatetime(v) -> datetime.to_json(v)
     AllergyintoleranceOnsetAge(v) -> age_to_json(v)
     AllergyintoleranceOnsetPeriod(v) -> period_to_json(v)
     AllergyintoleranceOnsetRange(v) -> range_to_json(v)
@@ -10340,7 +10345,7 @@ pub fn allergyintolerance_onset_to_json(elt: AllergyintoleranceOnset) -> Json {
 
 pub fn allergyintolerance_onset_decoder() -> Decoder(AllergyintoleranceOnset) {
   decode.one_of(
-    decode.field("onsetDateTime", decode.string, decode.success)
+    decode.field("onsetDateTime", datetime.decoder(), decode.success)
       |> decode.map(AllergyintoleranceOnsetDatetime),
     [
       decode.field("onsetAge", age_decoder(), decode.success)
@@ -10393,7 +10398,7 @@ pub type AllergyintoleranceReaction {
     substance: Option(Codeableconcept),
     manifestation: List1(Codeableconcept),
     description: Primitive(String),
-    onset: Primitive(String),
+    onset: Primitive(DateTime),
     severity: Primitive(r4usp_valuesets.Reactioneventseverity),
     exposure_route: Option(Codeableconcept),
     note: List(Annotation),
@@ -10450,7 +10455,7 @@ pub fn allergyintolerance_reaction_to_json(
       r4usp_valuesets.reactioneventseverity_to_json,
       "severity",
     )
-  let fields = primitive_to_json(fields, onset, json.string, "onset")
+  let fields = primitive_to_json(fields, onset, datetime.to_json, "onset")
   let fields =
     primitive_to_json(fields, description, json.string, "description")
   let fields = case substance {
@@ -10490,7 +10495,7 @@ pub fn allergyintolerance_reaction_decoder() -> Decoder(
     "severity",
     r4usp_valuesets.reactioneventseverity_decoder(),
   )
-  use onset <- primitive_decoder("onset", decode.string)
+  use onset <- primitive_decoder("onset", datetime.decoder())
   use description <- primitive_decoder("description", decode.string)
   use manifestation <- list1_decoder("manifestation", codeableconcept_decoder())
   use substance <- decode.optional_field(
@@ -10567,7 +10572,12 @@ pub fn allergyintolerance_to_json(
     _ -> [#("note", json.array(note, annotation_to_json)), ..fields]
   }
   let fields =
-    primitive_to_json(fields, last_occurrence, json.string, "lastOccurrence")
+    primitive_to_json(
+      fields,
+      last_occurrence,
+      datetime.to_json,
+      "lastOccurrence",
+    )
   let fields = case asserter {
     Some(v) -> [#("asserter", reference_to_json(v)), ..fields]
     None -> fields
@@ -10577,7 +10587,7 @@ pub fn allergyintolerance_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, recorded_date, json.string, "recordedDate")
+    primitive_to_json(fields, recorded_date, datetime.to_json, "recordedDate")
   let fields = case onset {
     Some(v) -> [
       #(
@@ -10679,7 +10689,7 @@ pub fn allergyintolerance_decoder() -> Decoder(Allergyintolerance) {
     [],
     decode.list(annotation_decoder()),
   )
-  use last_occurrence <- primitive_decoder("lastOccurrence", decode.string)
+  use last_occurrence <- primitive_decoder("lastOccurrence", datetime.decoder())
   use asserter <- decode.optional_field(
     "asserter",
     None,
@@ -10690,7 +10700,7 @@ pub fn allergyintolerance_decoder() -> Decoder(Allergyintolerance) {
     None,
     decode.optional(reference_decoder()),
   )
-  use recorded_date <- primitive_decoder("recordedDate", decode.string)
+  use recorded_date <- primitive_decoder("recordedDate", datetime.decoder())
   use onset <- decode.then(none_if_omitted(allergyintolerance_onset_decoder()))
   use encounter <- decode.optional_field(
     "encounter",
@@ -10815,11 +10825,11 @@ pub type Appointment {
     priority: Primitive(Int),
     description: Primitive(String),
     supporting_information: List(Reference),
-    start: Primitive(String),
-    end: Primitive(String),
+    start: Primitive(Instant),
+    end: Primitive(Instant),
     minutes_duration: Primitive(Int),
     slot: List(Reference),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     comment: Primitive(String),
     patient_instruction: Primitive(String),
     based_on: List(Reference),
@@ -11053,15 +11063,15 @@ pub fn appointment_to_json(appointment: Appointment) -> Json {
       "patientInstruction",
     )
   let fields = primitive_to_json(fields, comment, json.string, "comment")
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields = case slot {
     [] -> fields
     _ -> [#("slot", json.array(slot, reference_to_json)), ..fields]
   }
   let fields =
     primitive_to_json(fields, minutes_duration, json.int, "minutesDuration")
-  let fields = primitive_to_json(fields, end, json.string, "end")
-  let fields = primitive_to_json(fields, start, json.string, "start")
+  let fields = primitive_to_json(fields, end, instant.to_json, "end")
+  let fields = primitive_to_json(fields, start, instant.to_json, "start")
   let fields = case supporting_information {
     [] -> fields
     _ -> [
@@ -11184,15 +11194,15 @@ pub fn appointment_decoder() -> Decoder(Appointment) {
     decode.string,
   )
   use comment <- primitive_decoder("comment", decode.string)
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use slot <- decode.optional_field(
     "slot",
     [],
     decode.list(reference_decoder()),
   )
   use minutes_duration <- primitive_decoder("minutesDuration", decode.int)
-  use end <- primitive_decoder("end", decode.string)
-  use start <- primitive_decoder("start", decode.string)
+  use end <- primitive_decoder("end", instant.decoder())
+  use start <- primitive_decoder("start", instant.decoder())
   use supporting_information <- decode.optional_field(
     "supportingInformation",
     [],
@@ -11325,8 +11335,8 @@ pub type Appointmentresponse {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     appointment: Reference,
-    start: Primitive(String),
-    end: Primitive(String),
+    start: Primitive(Instant),
+    end: Primitive(Instant),
     participant_type: List(Codeableconcept),
     actor: Option(Reference),
     participant_status: Primitive(r4usp_valuesets.Participationstatus),
@@ -11403,8 +11413,8 @@ pub fn appointmentresponse_to_json(
       ..fields
     ]
   }
-  let fields = primitive_to_json(fields, end, json.string, "end")
-  let fields = primitive_to_json(fields, start, json.string, "start")
+  let fields = primitive_to_json(fields, end, instant.to_json, "end")
+  let fields = primitive_to_json(fields, start, instant.to_json, "start")
   let fields = case identifier {
     [] -> fields
     _ -> [#("identifier", json.array(identifier, identifier_to_json)), ..fields]
@@ -11457,8 +11467,8 @@ pub fn appointmentresponse_decoder() -> Decoder(Appointmentresponse) {
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use end <- primitive_decoder("end", decode.string)
-  use start <- primitive_decoder("start", decode.string)
+  use end <- primitive_decoder("end", instant.decoder())
+  use start <- primitive_decoder("start", instant.decoder())
   use appointment <- decode.field("appointment", reference_decoder())
   use identifier <- decode.optional_field(
     "identifier",
@@ -11534,7 +11544,7 @@ pub type Auditevent {
     subtype: List(Coding),
     action: Primitive(r4usp_valuesets.Auditeventaction),
     period: Option(Period),
-    recorded: Primitive(String),
+    recorded: Primitive(Instant),
     outcome: Primitive(r4usp_valuesets.Auditeventoutcome),
     outcome_desc: Primitive(String),
     purpose_of_event: List(Codeableconcept),
@@ -12229,7 +12239,7 @@ pub fn auditevent_to_json(auditevent: Auditevent) -> Json {
       r4usp_valuesets.auditeventoutcome_to_json,
       "outcome",
     )
-  let fields = primitive_to_json(fields, recorded, json.string, "recorded")
+  let fields = primitive_to_json(fields, recorded, instant.to_json, "recorded")
   let fields = case period {
     Some(v) -> [#("period", period_to_json(v)), ..fields]
     None -> fields
@@ -12295,7 +12305,7 @@ pub fn auditevent_decoder() -> Decoder(Auditevent) {
     "outcome",
     r4usp_valuesets.auditeventoutcome_decoder(),
   )
-  use recorded <- primitive_decoder("recorded", decode.string)
+  use recorded <- primitive_decoder("recorded", instant.decoder())
   use period <- decode.optional_field(
     "period",
     None,
@@ -12382,7 +12392,7 @@ pub type Basic {
     identifier: List(Identifier),
     code: Codeableconcept,
     subject: Option(Reference),
-    created: Primitive(String),
+    created: Primitive(Date),
     author: Option(Reference),
   )
 }
@@ -12428,7 +12438,7 @@ pub fn basic_to_json(basic: Basic) -> Json {
     Some(v) -> [#("author", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, date.to_json, "created")
   let fields = case subject {
     Some(v) -> [#("subject", reference_to_json(v)), ..fields]
     None -> fields
@@ -12475,7 +12485,7 @@ pub fn basic_decoder() -> Decoder(Basic) {
     None,
     decode.optional(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", date.decoder())
   use subject <- decode.optional_field(
     "subject",
     None,
@@ -12690,7 +12700,7 @@ pub type BiologicallyderivedproductCollection {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductCollectionCollected {
-  BiologicallyderivedproductCollectionCollectedDatetime(collected: String)
+  BiologicallyderivedproductCollectionCollectedDatetime(collected: DateTime)
   BiologicallyderivedproductCollectionCollectedPeriod(collected: Period)
 }
 
@@ -12698,7 +12708,8 @@ pub fn biologicallyderivedproduct_collection_collected_to_json(
   elt: BiologicallyderivedproductCollectionCollected,
 ) -> Json {
   case elt {
-    BiologicallyderivedproductCollectionCollectedDatetime(v) -> json.string(v)
+    BiologicallyderivedproductCollectionCollectedDatetime(v) ->
+      datetime.to_json(v)
     BiologicallyderivedproductCollectionCollectedPeriod(v) -> period_to_json(v)
   }
 }
@@ -12707,7 +12718,7 @@ pub fn biologicallyderivedproduct_collection_collected_decoder() -> Decoder(
   BiologicallyderivedproductCollectionCollected,
 ) {
   decode.one_of(
-    decode.field("collectedDateTime", decode.string, decode.success)
+    decode.field("collectedDateTime", datetime.decoder(), decode.success)
       |> decode.map(BiologicallyderivedproductCollectionCollectedDatetime),
     [
       decode.field("collectedPeriod", period_decoder(), decode.success)
@@ -12742,7 +12753,7 @@ pub type BiologicallyderivedproductProcessing {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductProcessingTime {
-  BiologicallyderivedproductProcessingTimeDatetime(time: String)
+  BiologicallyderivedproductProcessingTimeDatetime(time: DateTime)
   BiologicallyderivedproductProcessingTimePeriod(time: Period)
 }
 
@@ -12750,7 +12761,7 @@ pub fn biologicallyderivedproduct_processing_time_to_json(
   elt: BiologicallyderivedproductProcessingTime,
 ) -> Json {
   case elt {
-    BiologicallyderivedproductProcessingTimeDatetime(v) -> json.string(v)
+    BiologicallyderivedproductProcessingTimeDatetime(v) -> datetime.to_json(v)
     BiologicallyderivedproductProcessingTimePeriod(v) -> period_to_json(v)
   }
 }
@@ -12759,7 +12770,7 @@ pub fn biologicallyderivedproduct_processing_time_decoder() -> Decoder(
   BiologicallyderivedproductProcessingTime,
 ) {
   decode.one_of(
-    decode.field("timeDateTime", decode.string, decode.success)
+    decode.field("timeDateTime", datetime.decoder(), decode.success)
       |> decode.map(BiologicallyderivedproductProcessingTimeDatetime),
     [
       decode.field("timePeriod", period_decoder(), decode.success)
@@ -12793,7 +12804,7 @@ pub type BiologicallyderivedproductManipulation {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductManipulationTime {
-  BiologicallyderivedproductManipulationTimeDatetime(time: String)
+  BiologicallyderivedproductManipulationTimeDatetime(time: DateTime)
   BiologicallyderivedproductManipulationTimePeriod(time: Period)
 }
 
@@ -12801,7 +12812,7 @@ pub fn biologicallyderivedproduct_manipulation_time_to_json(
   elt: BiologicallyderivedproductManipulationTime,
 ) -> Json {
   case elt {
-    BiologicallyderivedproductManipulationTimeDatetime(v) -> json.string(v)
+    BiologicallyderivedproductManipulationTimeDatetime(v) -> datetime.to_json(v)
     BiologicallyderivedproductManipulationTimePeriod(v) -> period_to_json(v)
   }
 }
@@ -12810,7 +12821,7 @@ pub fn biologicallyderivedproduct_manipulation_time_decoder() -> Decoder(
   BiologicallyderivedproductManipulationTime,
 ) {
   decode.one_of(
-    decode.field("timeDateTime", decode.string, decode.success)
+    decode.field("timeDateTime", datetime.decoder(), decode.success)
       |> decode.map(BiologicallyderivedproductManipulationTimeDatetime),
     [
       decode.field("timePeriod", period_decoder(), decode.success)
@@ -13634,7 +13645,7 @@ pub type Bundle {
     language: Primitive(String),
     identifier: Option(Identifier),
     type_: Primitive(r4usp_valuesets.Bundletype),
-    timestamp: Primitive(String),
+    timestamp: Primitive(Instant),
     total: Primitive(Int),
     link: List(BundleLink),
     entry: List(BundleEntry),
@@ -13738,7 +13749,7 @@ pub type BundleEntryRequest {
     method: Primitive(r4usp_valuesets.Httpverb),
     url: Primitive(String),
     if_none_match: Primitive(String),
-    if_modified_since: Primitive(String),
+    if_modified_since: Primitive(Instant),
     if_match: Primitive(String),
     if_none_exist: Primitive(String),
   )
@@ -13767,7 +13778,7 @@ pub type BundleEntryResponse {
     status: Primitive(String),
     location: Primitive(String),
     etag: Primitive(String),
-    last_modified: Primitive(String),
+    last_modified: Primitive(Instant),
     outcome: Option(Resource),
   )
 }
@@ -13804,7 +13815,7 @@ pub fn bundle_entry_response_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_modified, json.string, "lastModified")
+    primitive_to_json(fields, last_modified, instant.to_json, "lastModified")
   let fields = primitive_to_json(fields, etag, json.string, "etag")
   let fields = primitive_to_json(fields, location, json.string, "location")
   let fields = primitive_to_json(fields, status, json.string, "status")
@@ -13830,7 +13841,7 @@ pub fn bundle_entry_response_decoder() -> Decoder(BundleEntryResponse) {
     None,
     decode.optional(resource_decoder()),
   )
-  use last_modified <- primitive_decoder("lastModified", decode.string)
+  use last_modified <- primitive_decoder("lastModified", instant.decoder())
   use etag <- primitive_decoder("etag", decode.string)
   use location <- primitive_decoder("location", decode.string)
   use status <- primitive_decoder("status", decode.string)
@@ -13876,7 +13887,12 @@ pub fn bundle_entry_request_to_json(
     primitive_to_json(fields, if_none_exist, json.string, "ifNoneExist")
   let fields = primitive_to_json(fields, if_match, json.string, "ifMatch")
   let fields =
-    primitive_to_json(fields, if_modified_since, json.string, "ifModifiedSince")
+    primitive_to_json(
+      fields,
+      if_modified_since,
+      instant.to_json,
+      "ifModifiedSince",
+    )
   let fields =
     primitive_to_json(fields, if_none_match, json.string, "ifNoneMatch")
   let fields = primitive_to_json(fields, url, json.string, "url")
@@ -13906,7 +13922,10 @@ pub fn bundle_entry_request_decoder() -> Decoder(BundleEntryRequest) {
   use <- decode.recursive
   use if_none_exist <- primitive_decoder("ifNoneExist", decode.string)
   use if_match <- primitive_decoder("ifMatch", decode.string)
-  use if_modified_since <- primitive_decoder("ifModifiedSince", decode.string)
+  use if_modified_since <- primitive_decoder(
+    "ifModifiedSince",
+    instant.decoder(),
+  )
   use if_none_match <- primitive_decoder("ifNoneMatch", decode.string)
   use url <- primitive_decoder("url", decode.string)
   use method <- primitive_decoder("method", r4usp_valuesets.httpverb_decoder())
@@ -14164,7 +14183,8 @@ pub fn bundle_to_json(bundle: Bundle) -> Json {
     _ -> [#("link", json.array(link, bundle_link_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, total, json.int, "total")
-  let fields = primitive_to_json(fields, timestamp, json.string, "timestamp")
+  let fields =
+    primitive_to_json(fields, timestamp, instant.to_json, "timestamp")
   let fields =
     primitive_to_json(fields, type_, r4usp_valuesets.bundletype_to_json, "type")
   let fields = case identifier {
@@ -14201,7 +14221,7 @@ pub fn bundle_decoder() -> Decoder(Bundle) {
     decode.list(bundle_link_decoder()),
   )
   use total <- primitive_decoder("total", decode.int)
-  use timestamp <- primitive_decoder("timestamp", decode.string)
+  use timestamp <- primitive_decoder("timestamp", instant.decoder())
   use type_ <- primitive_decoder("type", r4usp_valuesets.bundletype_decoder())
   use identifier <- decode.optional_field(
     "identifier",
@@ -14254,7 +14274,7 @@ pub type Capabilitystatement {
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -14324,7 +14344,7 @@ pub type CapabilitystatementSoftware {
     modifier_extension: List(Extension),
     name: Primitive(String),
     version: Primitive(String),
-    release_date: Primitive(String),
+    release_date: Primitive(DateTime),
   )
 }
 
@@ -15723,7 +15743,7 @@ pub fn capabilitystatement_software_to_json(
   ) = capabilitystatement_software
   let fields = []
   let fields =
-    primitive_to_json(fields, release_date, json.string, "releaseDate")
+    primitive_to_json(fields, release_date, datetime.to_json, "releaseDate")
   let fields = primitive_to_json(fields, version, json.string, "version")
   let fields = primitive_to_json(fields, name, json.string, "name")
   let fields = case modifier_extension {
@@ -15745,7 +15765,7 @@ pub fn capabilitystatement_software_decoder() -> Decoder(
   CapabilitystatementSoftware,
 ) {
   use <- decode.recursive
-  use release_date <- primitive_decoder("releaseDate", decode.string)
+  use release_date <- primitive_decoder("releaseDate", datetime.decoder())
   use version <- primitive_decoder("version", decode.string)
   use name <- primitive_decoder("name", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -15897,7 +15917,7 @@ pub fn capabilitystatement_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -16004,7 +16024,7 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -16111,7 +16131,7 @@ pub type Careplan {
     subject: Reference,
     encounter: Option(Reference),
     period: Option(Period),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     author: Option(Reference),
     contributor: List(Reference),
     care_team: List(Reference),
@@ -16728,7 +16748,7 @@ pub fn careplan_to_json(careplan: Careplan) -> Json {
     Some(v) -> [#("author", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields = case period {
     Some(v) -> [#("period", period_to_json(v)), ..fields]
     None -> fields
@@ -16859,7 +16879,7 @@ pub fn careplan_decoder() -> Decoder(Careplan) {
     None,
     decode.optional(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use period <- decode.optional_field(
     "period",
     None,
@@ -17412,8 +17432,8 @@ pub type Catalogentry {
     classification: List(Codeableconcept),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     validity_period: Option(Period),
-    valid_to: Primitive(String),
-    last_updated: Primitive(String),
+    valid_to: Primitive(DateTime),
+    last_updated: Primitive(DateTime),
     additional_characteristic: List(Codeableconcept),
     additional_classification: List(Codeableconcept),
     related_entry: List(CatalogentryRelatedentry),
@@ -17591,8 +17611,8 @@ pub fn catalogentry_to_json(catalogentry: Catalogentry) -> Json {
     ]
   }
   let fields =
-    primitive_to_json(fields, last_updated, json.string, "lastUpdated")
-  let fields = primitive_to_json(fields, valid_to, json.string, "validTo")
+    primitive_to_json(fields, last_updated, datetime.to_json, "lastUpdated")
+  let fields = primitive_to_json(fields, valid_to, datetime.to_json, "validTo")
   let fields = case validity_period {
     Some(v) -> [#("validityPeriod", period_to_json(v)), ..fields]
     None -> fields
@@ -17678,8 +17698,8 @@ pub fn catalogentry_decoder() -> Decoder(Catalogentry) {
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use last_updated <- primitive_decoder("lastUpdated", decode.string)
-  use valid_to <- primitive_decoder("validTo", decode.string)
+  use last_updated <- primitive_decoder("lastUpdated", datetime.decoder())
+  use valid_to <- primitive_decoder("validTo", datetime.decoder())
   use validity_period <- decode.optional_field(
     "validityPeriod",
     None,
@@ -17800,7 +17820,7 @@ pub type Chargeitem {
     price_override: Option(Money),
     override_reason: Primitive(String),
     enterer: Option(Reference),
-    entered_date: Primitive(String),
+    entered_date: Primitive(DateTime),
     reason: List(Codeableconcept),
     service: List(Reference),
     product: Option(ChargeitemProduct),
@@ -17812,14 +17832,14 @@ pub type Chargeitem {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItem#resource)
 pub type ChargeitemOccurrence {
-  ChargeitemOccurrenceDatetime(occurrence: String)
+  ChargeitemOccurrenceDatetime(occurrence: DateTime)
   ChargeitemOccurrencePeriod(occurrence: Period)
   ChargeitemOccurrenceTiming(occurrence: Timing)
 }
 
 pub fn chargeitem_occurrence_to_json(elt: ChargeitemOccurrence) -> Json {
   case elt {
-    ChargeitemOccurrenceDatetime(v) -> json.string(v)
+    ChargeitemOccurrenceDatetime(v) -> datetime.to_json(v)
     ChargeitemOccurrencePeriod(v) -> period_to_json(v)
     ChargeitemOccurrenceTiming(v) -> timing_to_json(v)
   }
@@ -17827,7 +17847,7 @@ pub fn chargeitem_occurrence_to_json(elt: ChargeitemOccurrence) -> Json {
 
 pub fn chargeitem_occurrence_decoder() -> Decoder(ChargeitemOccurrence) {
   decode.one_of(
-    decode.field("occurrenceDateTime", decode.string, decode.success)
+    decode.field("occurrenceDateTime", datetime.decoder(), decode.success)
       |> decode.map(ChargeitemOccurrenceDatetime),
     [
       decode.field("occurrencePeriod", period_decoder(), decode.success)
@@ -18071,7 +18091,7 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
     _ -> [#("reason", json.array(reason, codeableconcept_to_json)), ..fields]
   }
   let fields =
-    primitive_to_json(fields, entered_date, json.string, "enteredDate")
+    primitive_to_json(fields, entered_date, datetime.to_json, "enteredDate")
   let fields = case enterer {
     Some(v) -> [#("enterer", reference_to_json(v)), ..fields]
     None -> fields
@@ -18216,7 +18236,7 @@ pub fn chargeitem_decoder() -> Decoder(Chargeitem) {
     [],
     decode.list(codeableconcept_decoder()),
   )
-  use entered_date <- primitive_decoder("enteredDate", decode.string)
+  use entered_date <- primitive_decoder("enteredDate", datetime.decoder())
   use enterer <- decode.optional_field(
     "enterer",
     None,
@@ -18380,15 +18400,15 @@ pub type Chargeitemdefinition {
     replaces: List(Primitive(String)),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
     use_context: List(Usagecontext),
     jurisdiction: List(Codeableconcept),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     code: Option(Codeableconcept),
     instance: List(Reference),
@@ -18799,9 +18819,9 @@ pub fn chargeitemdefinition_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = case jurisdiction {
     [] -> fields
@@ -18824,7 +18844,7 @@ pub fn chargeitemdefinition_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -18906,8 +18926,8 @@ pub fn chargeitemdefinition_decoder() -> Decoder(Chargeitemdefinition) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use jurisdiction <- decode.optional_field(
     "jurisdiction",
@@ -18926,7 +18946,7 @@ pub fn chargeitemdefinition_decoder() -> Decoder(Chargeitemdefinition) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -19030,7 +19050,7 @@ pub type Claim {
     use_: Primitive(r4usp_valuesets.Claimuse),
     patient: Reference,
     billable_period: Option(Period),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     enterer: Option(Reference),
     insurer: Option(Reference),
     provider: Reference,
@@ -19187,7 +19207,7 @@ pub type ClaimSupportinginfo {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimSupportinginfoTiming {
-  ClaimSupportinginfoTimingDate(timing: String)
+  ClaimSupportinginfoTimingDate(timing: Date)
   ClaimSupportinginfoTimingPeriod(timing: Period)
 }
 
@@ -19195,7 +19215,7 @@ pub fn claim_supportinginfo_timing_to_json(
   elt: ClaimSupportinginfoTiming,
 ) -> Json {
   case elt {
-    ClaimSupportinginfoTimingDate(v) -> json.string(v)
+    ClaimSupportinginfoTimingDate(v) -> date.to_json(v)
     ClaimSupportinginfoTimingPeriod(v) -> period_to_json(v)
   }
 }
@@ -19204,7 +19224,7 @@ pub fn claim_supportinginfo_timing_decoder() -> Decoder(
   ClaimSupportinginfoTiming,
 ) {
   decode.one_of(
-    decode.field("timingDate", decode.string, decode.success)
+    decode.field("timingDate", date.decoder(), decode.success)
       |> decode.map(ClaimSupportinginfoTimingDate),
     [
       decode.field("timingPeriod", period_decoder(), decode.success)
@@ -19330,7 +19350,7 @@ pub type ClaimProcedure {
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
     type_: List(Codeableconcept),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     procedure: ClaimProcedureProcedure,
     udi: List(Reference),
   )
@@ -19416,7 +19436,7 @@ pub type ClaimAccident {
     id: Primitive(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    date: Primitive(String),
+    date: Primitive(Date),
     type_: Option(Codeableconcept),
     location: Option(ClaimAccidentLocation),
   )
@@ -19489,20 +19509,20 @@ pub type ClaimItem {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimItemServiced {
-  ClaimItemServicedDate(serviced: String)
+  ClaimItemServicedDate(serviced: Date)
   ClaimItemServicedPeriod(serviced: Period)
 }
 
 pub fn claim_item_serviced_to_json(elt: ClaimItemServiced) -> Json {
   case elt {
-    ClaimItemServicedDate(v) -> json.string(v)
+    ClaimItemServicedDate(v) -> date.to_json(v)
     ClaimItemServicedPeriod(v) -> period_to_json(v)
   }
 }
 
 pub fn claim_item_serviced_decoder() -> Decoder(ClaimItemServiced) {
   decode.one_of(
-    decode.field("servicedDate", decode.string, decode.success)
+    decode.field("servicedDate", date.decoder(), decode.success)
       |> decode.map(ClaimItemServicedDate),
     [
       decode.field("servicedPeriod", period_decoder(), decode.success)
@@ -20268,7 +20288,7 @@ pub fn claim_accident_to_json(claim_accident: ClaimAccident) -> Json {
     Some(v) -> [#("type", codeableconcept_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, date.to_json, "date")
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -20294,7 +20314,7 @@ pub fn claim_accident_decoder() -> Decoder(ClaimAccident) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", date.decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -20436,7 +20456,7 @@ pub fn claim_procedure_to_json(claim_procedure: ClaimProcedure) -> Json {
     [] -> fields
     _ -> [#("udi", json.array(udi, reference_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case type_ {
     [] -> fields
     _ -> [#("type", json.array(type_, codeableconcept_to_json)), ..fields]
@@ -20461,7 +20481,7 @@ pub fn claim_procedure_decoder() -> Decoder(ClaimProcedure) {
   use <- decode.recursive
   use udi <- decode.optional_field("udi", [], decode.list(reference_decoder()))
   use procedure <- decode.then(claim_procedure_procedure_decoder())
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use type_ <- decode.optional_field(
     "type",
     [],
@@ -21027,7 +21047,7 @@ pub fn claim_to_json(claim: Claim) -> Json {
     Some(v) -> [#("enterer", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields = case billable_period {
     Some(v) -> [#("billablePeriod", period_to_json(v)), ..fields]
     None -> fields
@@ -21165,7 +21185,7 @@ pub fn claim_decoder() -> Decoder(Claim) {
     None,
     decode.optional(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use billable_period <- decode.optional_field(
     "billablePeriod",
     None,
@@ -21278,7 +21298,7 @@ pub type Claimresponse {
     sub_type: Option(Codeableconcept),
     use_: Primitive(r4usp_valuesets.Claimuse),
     patient: Reference,
-    created: Primitive(String),
+    created: Primitive(DateTime),
     insurer: Reference,
     requestor: Option(Reference),
     request: Option(Reference),
@@ -21479,7 +21499,7 @@ pub type ClaimresponseAdditem {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseAdditemServiced {
-  ClaimresponseAdditemServicedDate(serviced: String)
+  ClaimresponseAdditemServicedDate(serviced: Date)
   ClaimresponseAdditemServicedPeriod(serviced: Period)
 }
 
@@ -21487,7 +21507,7 @@ pub fn claimresponse_additem_serviced_to_json(
   elt: ClaimresponseAdditemServiced,
 ) -> Json {
   case elt {
-    ClaimresponseAdditemServicedDate(v) -> json.string(v)
+    ClaimresponseAdditemServicedDate(v) -> date.to_json(v)
     ClaimresponseAdditemServicedPeriod(v) -> period_to_json(v)
   }
 }
@@ -21496,7 +21516,7 @@ pub fn claimresponse_additem_serviced_decoder() -> Decoder(
   ClaimresponseAdditemServiced,
 ) {
   decode.one_of(
-    decode.field("servicedDate", decode.string, decode.success)
+    decode.field("servicedDate", date.decoder(), decode.success)
       |> decode.map(ClaimresponseAdditemServicedDate),
     [
       decode.field("servicedPeriod", period_decoder(), decode.success)
@@ -21677,7 +21697,7 @@ pub type ClaimresponsePayment {
     type_: Codeableconcept,
     adjustment: Option(Money),
     adjustment_reason: Option(Codeableconcept),
-    date: Primitive(String),
+    date: Primitive(Date),
     amount: Money,
     identifier: Option(Identifier),
   )
@@ -22019,7 +22039,7 @@ pub fn claimresponse_payment_to_json(
     Some(v) -> [#("identifier", identifier_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, date.to_json, "date")
   let fields = case adjustment_reason {
     Some(v) -> [#("adjustmentReason", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -22051,7 +22071,7 @@ pub fn claimresponse_payment_decoder() -> Decoder(ClaimresponsePayment) {
     decode.optional(identifier_decoder()),
   )
   use amount <- decode.field("amount", money_decoder())
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", date.decoder())
   use adjustment_reason <- decode.optional_field(
     "adjustmentReason",
     None,
@@ -23085,7 +23105,7 @@ pub fn claimresponse_to_json(claimresponse: Claimresponse) -> Json {
     Some(v) -> [#("requestor", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields =
     primitive_to_json(fields, use_, r4usp_valuesets.claimuse_to_json, "use")
   let fields = case sub_type {
@@ -23223,7 +23243,7 @@ pub fn claimresponse_decoder() -> Decoder(Claimresponse) {
     decode.optional(reference_decoder()),
   )
   use insurer <- decode.field("insurer", reference_decoder())
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use patient <- decode.field("patient", reference_decoder())
   use use_ <- primitive_decoder("use", r4usp_valuesets.claimuse_decoder())
   use sub_type <- decode.optional_field(
@@ -23333,7 +23353,7 @@ pub type Clinicalimpression {
     subject: Reference,
     encounter: Option(Reference),
     effective: Option(ClinicalimpressionEffective),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     assessor: Option(Reference),
     previous: Option(Reference),
     problem: List(Reference),
@@ -23350,7 +23370,7 @@ pub type Clinicalimpression {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClinicalImpression#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClinicalImpression#resource)
 pub type ClinicalimpressionEffective {
-  ClinicalimpressionEffectiveDatetime(effective: String)
+  ClinicalimpressionEffectiveDatetime(effective: DateTime)
   ClinicalimpressionEffectivePeriod(effective: Period)
 }
 
@@ -23358,7 +23378,7 @@ pub fn clinicalimpression_effective_to_json(
   elt: ClinicalimpressionEffective,
 ) -> Json {
   case elt {
-    ClinicalimpressionEffectiveDatetime(v) -> json.string(v)
+    ClinicalimpressionEffectiveDatetime(v) -> datetime.to_json(v)
     ClinicalimpressionEffectivePeriod(v) -> period_to_json(v)
   }
 }
@@ -23367,7 +23387,7 @@ pub fn clinicalimpression_effective_decoder() -> Decoder(
   ClinicalimpressionEffective,
 ) {
   decode.one_of(
-    decode.field("effectiveDateTime", decode.string, decode.success)
+    decode.field("effectiveDateTime", datetime.decoder(), decode.success)
       |> decode.map(ClinicalimpressionEffectiveDatetime),
     [
       decode.field("effectivePeriod", period_decoder(), decode.success)
@@ -23687,7 +23707,7 @@ pub fn clinicalimpression_to_json(
     Some(v) -> [#("assessor", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case effective {
     Some(v) -> [
       #(
@@ -23807,7 +23827,7 @@ pub fn clinicalimpression_decoder() -> Decoder(Clinicalimpression) {
     None,
     decode.optional(reference_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use effective <- decode.then(
     none_if_omitted(clinicalimpression_effective_decoder()),
   )
@@ -23921,7 +23941,7 @@ pub type Codesystem {
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -24102,7 +24122,7 @@ pub type CodesystemConceptPropertyValue {
   CodesystemConceptPropertyValueString(value: String)
   CodesystemConceptPropertyValueInteger(value: Int)
   CodesystemConceptPropertyValueBoolean(value: Bool)
-  CodesystemConceptPropertyValueDatetime(value: String)
+  CodesystemConceptPropertyValueDatetime(value: DateTime)
   CodesystemConceptPropertyValueDecimal(value: Float)
 }
 
@@ -24115,7 +24135,7 @@ pub fn codesystem_concept_property_value_to_json(
     CodesystemConceptPropertyValueString(v) -> json.string(v)
     CodesystemConceptPropertyValueInteger(v) -> json.int(v)
     CodesystemConceptPropertyValueBoolean(v) -> json.bool(v)
-    CodesystemConceptPropertyValueDatetime(v) -> json.string(v)
+    CodesystemConceptPropertyValueDatetime(v) -> datetime.to_json(v)
     CodesystemConceptPropertyValueDecimal(v) -> json.float(v)
   }
 }
@@ -24135,7 +24155,7 @@ pub fn codesystem_concept_property_value_decoder() -> Decoder(
         |> decode.map(CodesystemConceptPropertyValueInteger),
       decode.field("valueBoolean", decode.bool, decode.success)
         |> decode.map(CodesystemConceptPropertyValueBoolean),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(CodesystemConceptPropertyValueDatetime),
       decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(CodesystemConceptPropertyValueDecimal),
@@ -24627,7 +24647,7 @@ pub fn codesystem_to_json(codesystem: Codesystem) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -24726,7 +24746,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -24839,8 +24859,8 @@ pub type Communication {
     topic: Option(Codeableconcept),
     about: List(Reference),
     encounter: Option(Reference),
-    sent: Primitive(String),
-    received: Primitive(String),
+    sent: Primitive(DateTime),
+    received: Primitive(DateTime),
     recipient: List(Reference),
     sender: Option(Reference),
     reason_code: List(Codeableconcept),
@@ -25060,8 +25080,8 @@ pub fn communication_to_json(communication: Communication) -> Json {
     [] -> fields
     _ -> [#("recipient", json.array(recipient, reference_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, received, json.string, "received")
-  let fields = primitive_to_json(fields, sent, json.string, "sent")
+  let fields = primitive_to_json(fields, received, datetime.to_json, "received")
+  let fields = primitive_to_json(fields, sent, datetime.to_json, "sent")
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
@@ -25198,8 +25218,8 @@ pub fn communication_decoder() -> Decoder(Communication) {
     [],
     decode.list(reference_decoder()),
   )
-  use received <- primitive_decoder("received", decode.string)
-  use sent <- primitive_decoder("sent", decode.string)
+  use received <- primitive_decoder("received", datetime.decoder())
+  use sent <- primitive_decoder("sent", datetime.decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
@@ -25363,7 +25383,7 @@ pub type Communicationrequest {
     encounter: Option(Reference),
     payload: List(CommunicationrequestPayload),
     occurrence: Option(CommunicationrequestOccurrence),
-    authored_on: Primitive(String),
+    authored_on: Primitive(DateTime),
     requester: Option(Reference),
     recipient: List(Reference),
     sender: Option(Reference),
@@ -25375,7 +25395,7 @@ pub type Communicationrequest {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CommunicationRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CommunicationRequest#resource)
 pub type CommunicationrequestOccurrence {
-  CommunicationrequestOccurrenceDatetime(occurrence: String)
+  CommunicationrequestOccurrenceDatetime(occurrence: DateTime)
   CommunicationrequestOccurrencePeriod(occurrence: Period)
 }
 
@@ -25383,7 +25403,7 @@ pub fn communicationrequest_occurrence_to_json(
   elt: CommunicationrequestOccurrence,
 ) -> Json {
   case elt {
-    CommunicationrequestOccurrenceDatetime(v) -> json.string(v)
+    CommunicationrequestOccurrenceDatetime(v) -> datetime.to_json(v)
     CommunicationrequestOccurrencePeriod(v) -> period_to_json(v)
   }
 }
@@ -25392,7 +25412,7 @@ pub fn communicationrequest_occurrence_decoder() -> Decoder(
   CommunicationrequestOccurrence,
 ) {
   decode.one_of(
-    decode.field("occurrenceDateTime", decode.string, decode.success)
+    decode.field("occurrenceDateTime", datetime.decoder(), decode.success)
       |> decode.map(CommunicationrequestOccurrenceDatetime),
     [
       decode.field("occurrencePeriod", period_decoder(), decode.success)
@@ -25614,7 +25634,8 @@ pub fn communicationrequest_to_json(
     Some(v) -> [#("requester", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, authored_on, json.string, "authoredOn")
+  let fields =
+    primitive_to_json(fields, authored_on, datetime.to_json, "authoredOn")
   let fields = case occurrence {
     Some(v) -> [
       #(
@@ -25761,7 +25782,7 @@ pub fn communicationrequest_decoder() -> Decoder(Communicationrequest) {
     None,
     decode.optional(reference_decoder()),
   )
-  use authored_on <- primitive_decoder("authoredOn", decode.string)
+  use authored_on <- primitive_decoder("authoredOn", datetime.decoder())
   use occurrence <- decode.then(
     none_if_omitted(communicationrequest_occurrence_decoder()),
   )
@@ -25913,7 +25934,7 @@ pub type Compartmentdefinition {
     name: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -26101,7 +26122,7 @@ pub fn compartmentdefinition_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -26173,7 +26194,7 @@ pub fn compartmentdefinition_decoder() -> Decoder(Compartmentdefinition) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -26259,7 +26280,7 @@ pub type Composition {
     category: List(Codeableconcept),
     subject: Option(Reference),
     encounter: Option(Reference),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     author: List1(Reference),
     title: Primitive(String),
     confidentiality: Primitive(String),
@@ -26309,7 +26330,7 @@ pub type CompositionAttester {
     extension: List(Extension),
     modifier_extension: List(Extension),
     mode: Primitive(r4usp_valuesets.Compositionattestationmode),
-    time: Primitive(String),
+    time: Primitive(DateTime),
     party: Option(Reference),
   )
 }
@@ -26735,7 +26756,7 @@ pub fn composition_attester_to_json(
     Some(v) -> [#("party", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, time, json.string, "time")
+  let fields = primitive_to_json(fields, time, datetime.to_json, "time")
   let fields =
     primitive_to_json(
       fields,
@@ -26765,7 +26786,7 @@ pub fn composition_attester_decoder() -> Decoder(CompositionAttester) {
     None,
     decode.optional(reference_decoder()),
   )
-  use time <- primitive_decoder("time", decode.string)
+  use time <- primitive_decoder("time", datetime.decoder())
   use mode <- primitive_decoder(
     "mode",
     r4usp_valuesets.compositionattestationmode_decoder(),
@@ -26853,7 +26874,7 @@ pub fn composition_to_json(composition: Composition) -> Json {
   let fields =
     primitive_to_json(fields, confidentiality, json.string, "confidentiality")
   let fields = primitive_to_json(fields, title, json.string, "title")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
@@ -26941,7 +26962,7 @@ pub fn composition_decoder() -> Decoder(Composition) {
   use confidentiality <- primitive_decoder("confidentiality", decode.string)
   use title <- primitive_decoder("title", decode.string)
   use author <- list1_decoder("author", reference_decoder())
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
@@ -27046,7 +27067,7 @@ pub type Conceptmap {
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -27738,7 +27759,7 @@ pub fn conceptmap_to_json(conceptmap: Conceptmap) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -27815,7 +27836,7 @@ pub fn conceptmap_decoder() -> Decoder(Conceptmap) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -27916,7 +27937,7 @@ pub type Condition {
     encounter: Option(Reference),
     onset: Option(ConditionOnset),
     abatement: Option(ConditionAbatement),
-    recorded_date: Primitive(String),
+    recorded_date: Primitive(DateTime),
     recorder: Option(Reference),
     asserter: Option(Reference),
     stage: List(ConditionStage),
@@ -27927,7 +27948,7 @@ pub type Condition {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Condition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Condition#resource)
 pub type ConditionOnset {
-  ConditionOnsetDatetime(onset: String)
+  ConditionOnsetDatetime(onset: DateTime)
   ConditionOnsetAge(onset: Age)
   ConditionOnsetPeriod(onset: Period)
   ConditionOnsetRange(onset: Range)
@@ -27936,7 +27957,7 @@ pub type ConditionOnset {
 
 pub fn condition_onset_to_json(elt: ConditionOnset) -> Json {
   case elt {
-    ConditionOnsetDatetime(v) -> json.string(v)
+    ConditionOnsetDatetime(v) -> datetime.to_json(v)
     ConditionOnsetAge(v) -> age_to_json(v)
     ConditionOnsetPeriod(v) -> period_to_json(v)
     ConditionOnsetRange(v) -> range_to_json(v)
@@ -27946,7 +27967,7 @@ pub fn condition_onset_to_json(elt: ConditionOnset) -> Json {
 
 pub fn condition_onset_decoder() -> Decoder(ConditionOnset) {
   decode.one_of(
-    decode.field("onsetDateTime", decode.string, decode.success)
+    decode.field("onsetDateTime", datetime.decoder(), decode.success)
       |> decode.map(ConditionOnsetDatetime),
     [
       decode.field("onsetAge", age_decoder(), decode.success)
@@ -27963,7 +27984,7 @@ pub fn condition_onset_decoder() -> Decoder(ConditionOnset) {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Condition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Condition#resource)
 pub type ConditionAbatement {
-  ConditionAbatementDatetime(abatement: String)
+  ConditionAbatementDatetime(abatement: DateTime)
   ConditionAbatementAge(abatement: Age)
   ConditionAbatementPeriod(abatement: Period)
   ConditionAbatementRange(abatement: Range)
@@ -27972,7 +27993,7 @@ pub type ConditionAbatement {
 
 pub fn condition_abatement_to_json(elt: ConditionAbatement) -> Json {
   case elt {
-    ConditionAbatementDatetime(v) -> json.string(v)
+    ConditionAbatementDatetime(v) -> datetime.to_json(v)
     ConditionAbatementAge(v) -> age_to_json(v)
     ConditionAbatementPeriod(v) -> period_to_json(v)
     ConditionAbatementRange(v) -> range_to_json(v)
@@ -27982,7 +28003,7 @@ pub fn condition_abatement_to_json(elt: ConditionAbatement) -> Json {
 
 pub fn condition_abatement_decoder() -> Decoder(ConditionAbatement) {
   decode.one_of(
-    decode.field("abatementDateTime", decode.string, decode.success)
+    decode.field("abatementDateTime", datetime.decoder(), decode.success)
       |> decode.map(ConditionAbatementDatetime),
     [
       decode.field("abatementAge", age_decoder(), decode.success)
@@ -28260,7 +28281,7 @@ pub fn condition_to_json(condition: Condition) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, recorded_date, json.string, "recordedDate")
+    primitive_to_json(fields, recorded_date, datetime.to_json, "recordedDate")
   let fields = case abatement {
     Some(v) -> [
       #(
@@ -28391,7 +28412,7 @@ pub fn condition_decoder() -> Decoder(Condition) {
     None,
     decode.optional(reference_decoder()),
   )
-  use recorded_date <- primitive_decoder("recordedDate", decode.string)
+  use recorded_date <- primitive_decoder("recordedDate", datetime.decoder())
   use abatement <- decode.then(none_if_omitted(condition_abatement_decoder()))
   use onset <- decode.then(none_if_omitted(condition_onset_decoder()))
   use encounter <- decode.optional_field(
@@ -28514,7 +28535,7 @@ pub type Consent {
     scope: Codeableconcept,
     category: List1(Codeableconcept),
     patient: Option(Reference),
-    date_time: Primitive(String),
+    date_time: Primitive(DateTime),
     performer: List(Reference),
     organization: List(Reference),
     source: Option(ConsentSource),
@@ -28607,7 +28628,7 @@ pub type ConsentVerification {
     modifier_extension: List(Extension),
     verified: Primitive(Bool),
     verified_with: Option(Reference),
-    verification_date: Primitive(String),
+    verification_date: Primitive(DateTime),
   )
 }
 
@@ -29009,7 +29030,7 @@ pub fn consent_verification_to_json(
     primitive_to_json(
       fields,
       verification_date,
-      json.string,
+      datetime.to_json,
       "verificationDate",
     )
   let fields = case verified_with {
@@ -29034,7 +29055,10 @@ pub fn consent_verification_to_json(
 
 pub fn consent_verification_decoder() -> Decoder(ConsentVerification) {
   use <- decode.recursive
-  use verification_date <- primitive_decoder("verificationDate", decode.string)
+  use verification_date <- primitive_decoder(
+    "verificationDate",
+    datetime.decoder(),
+  )
   use verified_with <- decode.optional_field(
     "verifiedWith",
     None,
@@ -29179,7 +29203,8 @@ pub fn consent_to_json(consent: Consent) -> Json {
     [] -> fields
     _ -> [#("performer", json.array(performer, reference_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, date_time, json.string, "dateTime")
+  let fields =
+    primitive_to_json(fields, date_time, datetime.to_json, "dateTime")
   let fields = case patient {
     Some(v) -> [#("patient", reference_to_json(v)), ..fields]
     None -> fields
@@ -29259,7 +29284,7 @@ pub fn consent_decoder() -> Decoder(Consent) {
     [],
     decode.list(reference_decoder()),
   )
-  use date_time <- primitive_decoder("dateTime", decode.string)
+  use date_time <- primitive_decoder("dateTime", datetime.decoder())
   use patient <- decode.optional_field(
     "patient",
     None,
@@ -29354,7 +29379,7 @@ pub type Contract {
     instantiates_canonical: Option(Reference),
     instantiates_uri: Primitive(String),
     content_derivative: Option(Codeableconcept),
-    issued: Primitive(String),
+    issued: Primitive(DateTime),
     applies: Option(Period),
     expiration_type: Option(Codeableconcept),
     subject: List(Reference),
@@ -29497,7 +29522,7 @@ pub type ContractContentdefinition {
     type_: Codeableconcept,
     sub_type: Option(Codeableconcept),
     publisher: Option(Reference),
-    publication_date: Primitive(String),
+    publication_date: Primitive(DateTime),
     publication_status: Primitive(r4usp_valuesets.Contractpublicationstatus),
     copyright: Primitive(String),
   )
@@ -29526,7 +29551,7 @@ pub type ContractTerm {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
-    issued: Primitive(String),
+    issued: Primitive(DateTime),
     applies: Option(Period),
     topic: Option(ContractTermTopic),
     type_: Option(Codeableconcept),
@@ -29691,9 +29716,9 @@ pub type ContractTermOfferAnswerValue {
   ContractTermOfferAnswerValueBoolean(value: Bool)
   ContractTermOfferAnswerValueDecimal(value: Float)
   ContractTermOfferAnswerValueInteger(value: Int)
-  ContractTermOfferAnswerValueDate(value: String)
-  ContractTermOfferAnswerValueDatetime(value: String)
-  ContractTermOfferAnswerValueTime(value: String)
+  ContractTermOfferAnswerValueDate(value: Date)
+  ContractTermOfferAnswerValueDatetime(value: DateTime)
+  ContractTermOfferAnswerValueTime(value: Time)
   ContractTermOfferAnswerValueString(value: String)
   ContractTermOfferAnswerValueUri(value: String)
   ContractTermOfferAnswerValueAttachment(value: Attachment)
@@ -29709,9 +29734,9 @@ pub fn contract_term_offer_answer_value_to_json(
     ContractTermOfferAnswerValueBoolean(v) -> json.bool(v)
     ContractTermOfferAnswerValueDecimal(v) -> json.float(v)
     ContractTermOfferAnswerValueInteger(v) -> json.int(v)
-    ContractTermOfferAnswerValueDate(v) -> json.string(v)
-    ContractTermOfferAnswerValueDatetime(v) -> json.string(v)
-    ContractTermOfferAnswerValueTime(v) -> json.string(v)
+    ContractTermOfferAnswerValueDate(v) -> date.to_json(v)
+    ContractTermOfferAnswerValueDatetime(v) -> datetime.to_json(v)
+    ContractTermOfferAnswerValueTime(v) -> time.to_json(v)
     ContractTermOfferAnswerValueString(v) -> json.string(v)
     ContractTermOfferAnswerValueUri(v) -> json.string(v)
     ContractTermOfferAnswerValueAttachment(v) -> attachment_to_json(v)
@@ -29732,11 +29757,11 @@ pub fn contract_term_offer_answer_value_decoder() -> Decoder(
         |> decode.map(ContractTermOfferAnswerValueDecimal),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(ContractTermOfferAnswerValueInteger),
-      decode.field("valueDate", decode.string, decode.success)
+      decode.field("valueDate", date.decoder(), decode.success)
         |> decode.map(ContractTermOfferAnswerValueDate),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(ContractTermOfferAnswerValueDatetime),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(ContractTermOfferAnswerValueTime),
       decode.field("valueString", decode.string, decode.success)
         |> decode.map(ContractTermOfferAnswerValueString),
@@ -29843,14 +29868,14 @@ pub type ContractTermAssetValueditem {
     modifier_extension: List(Extension),
     entity: Option(ContractTermAssetValueditemEntity),
     identifier: Option(Identifier),
-    effective_time: Primitive(String),
+    effective_time: Primitive(DateTime),
     quantity: Option(Quantity),
     unit_price: Option(Money),
     factor: Primitive(Float),
     points: Primitive(Float),
     net: Option(Money),
     payment: Primitive(String),
-    payment_date: Primitive(String),
+    payment_date: Primitive(DateTime),
     responsible: Option(Reference),
     recipient: Option(Reference),
     link_id: List(Primitive(String)),
@@ -29945,7 +29970,7 @@ pub type ContractTermAction {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTermActionOccurrence {
-  ContractTermActionOccurrenceDatetime(occurrence: String)
+  ContractTermActionOccurrenceDatetime(occurrence: DateTime)
   ContractTermActionOccurrencePeriod(occurrence: Period)
   ContractTermActionOccurrenceTiming(occurrence: Timing)
 }
@@ -29954,7 +29979,7 @@ pub fn contract_term_action_occurrence_to_json(
   elt: ContractTermActionOccurrence,
 ) -> Json {
   case elt {
-    ContractTermActionOccurrenceDatetime(v) -> json.string(v)
+    ContractTermActionOccurrenceDatetime(v) -> datetime.to_json(v)
     ContractTermActionOccurrencePeriod(v) -> period_to_json(v)
     ContractTermActionOccurrenceTiming(v) -> timing_to_json(v)
   }
@@ -29964,7 +29989,7 @@ pub fn contract_term_action_occurrence_decoder() -> Decoder(
   ContractTermActionOccurrence,
 ) {
   decode.one_of(
-    decode.field("occurrenceDateTime", decode.string, decode.success)
+    decode.field("occurrenceDateTime", datetime.decoder(), decode.success)
       |> decode.map(ContractTermActionOccurrenceDatetime),
     [
       decode.field("occurrencePeriod", period_decoder(), decode.success)
@@ -30732,7 +30757,7 @@ pub fn contract_term_asset_valueditem_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, payment_date, json.string, "paymentDate")
+    primitive_to_json(fields, payment_date, datetime.to_json, "paymentDate")
   let fields = primitive_to_json(fields, payment, json.string, "payment")
   let fields = case net {
     Some(v) -> [#("net", money_to_json(v)), ..fields]
@@ -30749,7 +30774,7 @@ pub fn contract_term_asset_valueditem_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, effective_time, json.string, "effectiveTime")
+    primitive_to_json(fields, effective_time, datetime.to_json, "effectiveTime")
   let fields = case identifier {
     Some(v) -> [#("identifier", identifier_to_json(v)), ..fields]
     None -> fields
@@ -30803,7 +30828,7 @@ pub fn contract_term_asset_valueditem_decoder() -> Decoder(
     None,
     decode.optional(reference_decoder()),
   )
-  use payment_date <- primitive_decoder("paymentDate", decode.string)
+  use payment_date <- primitive_decoder("paymentDate", datetime.decoder())
   use payment <- primitive_decoder("payment", decode.string)
   use net <- decode.optional_field(
     "net",
@@ -30822,7 +30847,7 @@ pub fn contract_term_asset_valueditem_decoder() -> Decoder(
     None,
     decode.optional(quantity_decoder()),
   )
-  use effective_time <- primitive_decoder("effectiveTime", decode.string)
+  use effective_time <- primitive_decoder("effectiveTime", datetime.decoder())
   use identifier <- decode.optional_field(
     "identifier",
     None,
@@ -31559,7 +31584,7 @@ pub fn contract_term_to_json(contract_term: ContractTerm) -> Json {
     Some(v) -> [#("applies", period_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, issued, json.string, "issued")
+  let fields = primitive_to_json(fields, issued, datetime.to_json, "issued")
   let fields = case identifier {
     Some(v) -> [#("identifier", identifier_to_json(v)), ..fields]
     None -> fields
@@ -31619,7 +31644,7 @@ pub fn contract_term_decoder() -> Decoder(ContractTerm) {
     None,
     decode.optional(period_decoder()),
   )
-  use issued <- primitive_decoder("issued", decode.string)
+  use issued <- primitive_decoder("issued", datetime.decoder())
   use identifier <- decode.optional_field(
     "identifier",
     None,
@@ -31681,7 +31706,12 @@ pub fn contract_contentdefinition_to_json(
       "publicationStatus",
     )
   let fields =
-    primitive_to_json(fields, publication_date, json.string, "publicationDate")
+    primitive_to_json(
+      fields,
+      publication_date,
+      datetime.to_json,
+      "publicationDate",
+    )
   let fields = case publisher {
     Some(v) -> [#("publisher", reference_to_json(v)), ..fields]
     None -> fields
@@ -31714,7 +31744,10 @@ pub fn contract_contentdefinition_decoder() -> Decoder(
     "publicationStatus",
     r4usp_valuesets.contractpublicationstatus_decoder(),
   )
-  use publication_date <- primitive_decoder("publicationDate", decode.string)
+  use publication_date <- primitive_decoder(
+    "publicationDate",
+    datetime.decoder(),
+  )
   use publisher <- decode.optional_field(
     "publisher",
     None,
@@ -31911,7 +31944,7 @@ pub fn contract_to_json(contract: Contract) -> Json {
     Some(v) -> [#("applies", period_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, issued, json.string, "issued")
+  let fields = primitive_to_json(fields, issued, datetime.to_json, "issued")
   let fields = case content_derivative {
     Some(v) -> [#("contentDerivative", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -32070,7 +32103,7 @@ pub fn contract_decoder() -> Decoder(Contract) {
     None,
     decode.optional(period_decoder()),
   )
-  use issued <- primitive_decoder("issued", decode.string)
+  use issued <- primitive_decoder("issued", datetime.decoder())
   use content_derivative <- decode.optional_field(
     "contentDerivative",
     None,
@@ -32790,7 +32823,7 @@ pub type Coverageeligibilityrequest {
     purpose: List(Primitive(r4usp_valuesets.Eligibilityrequestpurpose)),
     patient: Reference,
     serviced: Option(CoverageeligibilityrequestServiced),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     enterer: Option(Reference),
     provider: Option(Reference),
     insurer: Reference,
@@ -32803,7 +32836,7 @@ pub type Coverageeligibilityrequest {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestServiced {
-  CoverageeligibilityrequestServicedDate(serviced: String)
+  CoverageeligibilityrequestServicedDate(serviced: Date)
   CoverageeligibilityrequestServicedPeriod(serviced: Period)
 }
 
@@ -32811,7 +32844,7 @@ pub fn coverageeligibilityrequest_serviced_to_json(
   elt: CoverageeligibilityrequestServiced,
 ) -> Json {
   case elt {
-    CoverageeligibilityrequestServicedDate(v) -> json.string(v)
+    CoverageeligibilityrequestServicedDate(v) -> date.to_json(v)
     CoverageeligibilityrequestServicedPeriod(v) -> period_to_json(v)
   }
 }
@@ -32820,7 +32853,7 @@ pub fn coverageeligibilityrequest_serviced_decoder() -> Decoder(
   CoverageeligibilityrequestServiced,
 ) {
   decode.one_of(
-    decode.field("servicedDate", decode.string, decode.success)
+    decode.field("servicedDate", date.decoder(), decode.success)
       |> decode.map(CoverageeligibilityrequestServicedDate),
     [
       decode.field("servicedPeriod", period_decoder(), decode.success)
@@ -33442,7 +33475,7 @@ pub fn coverageeligibilityrequest_to_json(
     Some(v) -> [#("enterer", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields = case serviced {
     Some(v) -> [
       #(
@@ -33548,7 +33581,7 @@ pub fn coverageeligibilityrequest_decoder() -> Decoder(
     None,
     decode.optional(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use serviced <- decode.then(
     none_if_omitted(coverageeligibilityrequest_serviced_decoder()),
   )
@@ -33647,7 +33680,7 @@ pub type Coverageeligibilityresponse {
     purpose: List(Primitive(r4usp_valuesets.Eligibilityresponsepurpose)),
     patient: Reference,
     serviced: Option(CoverageeligibilityresponseServiced),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     requestor: Option(Reference),
     request: Reference,
     outcome: Primitive(r4usp_valuesets.Remittanceoutcome),
@@ -33662,7 +33695,7 @@ pub type Coverageeligibilityresponse {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseServiced {
-  CoverageeligibilityresponseServicedDate(serviced: String)
+  CoverageeligibilityresponseServicedDate(serviced: Date)
   CoverageeligibilityresponseServicedPeriod(serviced: Period)
 }
 
@@ -33670,7 +33703,7 @@ pub fn coverageeligibilityresponse_serviced_to_json(
   elt: CoverageeligibilityresponseServiced,
 ) -> Json {
   case elt {
-    CoverageeligibilityresponseServicedDate(v) -> json.string(v)
+    CoverageeligibilityresponseServicedDate(v) -> date.to_json(v)
     CoverageeligibilityresponseServicedPeriod(v) -> period_to_json(v)
   }
 }
@@ -33679,7 +33712,7 @@ pub fn coverageeligibilityresponse_serviced_decoder() -> Decoder(
   CoverageeligibilityresponseServiced,
 ) {
   decode.one_of(
-    decode.field("servicedDate", decode.string, decode.success)
+    decode.field("servicedDate", date.decoder(), decode.success)
       |> decode.map(CoverageeligibilityresponseServicedDate),
     [
       decode.field("servicedPeriod", period_decoder(), decode.success)
@@ -34420,7 +34453,7 @@ pub fn coverageeligibilityresponse_to_json(
     Some(v) -> [#("requestor", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields = case serviced {
     Some(v) -> [
       #(
@@ -34519,7 +34552,7 @@ pub fn coverageeligibilityresponse_decoder() -> Decoder(
     None,
     decode.optional(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use serviced <- decode.then(
     none_if_omitted(coverageeligibilityresponse_serviced_decoder()),
   )
@@ -34626,20 +34659,20 @@ pub type Detectedissue {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DetectedIssue#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DetectedIssue#resource)
 pub type DetectedissueIdentified {
-  DetectedissueIdentifiedDatetime(identified: String)
+  DetectedissueIdentifiedDatetime(identified: DateTime)
   DetectedissueIdentifiedPeriod(identified: Period)
 }
 
 pub fn detectedissue_identified_to_json(elt: DetectedissueIdentified) -> Json {
   case elt {
-    DetectedissueIdentifiedDatetime(v) -> json.string(v)
+    DetectedissueIdentifiedDatetime(v) -> datetime.to_json(v)
     DetectedissueIdentifiedPeriod(v) -> period_to_json(v)
   }
 }
 
 pub fn detectedissue_identified_decoder() -> Decoder(DetectedissueIdentified) {
   decode.one_of(
-    decode.field("identifiedDateTime", decode.string, decode.success)
+    decode.field("identifiedDateTime", datetime.decoder(), decode.success)
       |> decode.map(DetectedissueIdentifiedDatetime),
     [
       decode.field("identifiedPeriod", period_decoder(), decode.success)
@@ -34701,7 +34734,7 @@ pub type DetectedissueMitigation {
     extension: List(Extension),
     modifier_extension: List(Extension),
     action: Codeableconcept,
-    date: Primitive(String),
+    date: Primitive(DateTime),
     author: Option(Reference),
   )
 }
@@ -34737,7 +34770,7 @@ pub fn detectedissue_mitigation_to_json(
     Some(v) -> [#("author", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -34760,7 +34793,7 @@ pub fn detectedissue_mitigation_decoder() -> Decoder(DetectedissueMitigation) {
     None,
     decode.optional(reference_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use action <- decode.field("action", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -35094,8 +35127,8 @@ pub type Device {
     status_reason: List(Codeableconcept),
     distinct_identifier: Primitive(String),
     manufacturer: Primitive(String),
-    manufacture_date: Primitive(String),
-    expiration_date: Primitive(String),
+    manufacture_date: Primitive(DateTime),
+    expiration_date: Primitive(DateTime),
     lot_number: Primitive(String),
     serial_number: Primitive(String),
     device_name: List(DeviceDevicename),
@@ -35713,9 +35746,19 @@ pub fn device_to_json(device: Device) -> Json {
     primitive_to_json(fields, serial_number, json.string, "serialNumber")
   let fields = primitive_to_json(fields, lot_number, json.string, "lotNumber")
   let fields =
-    primitive_to_json(fields, expiration_date, json.string, "expirationDate")
+    primitive_to_json(
+      fields,
+      expiration_date,
+      datetime.to_json,
+      "expirationDate",
+    )
   let fields =
-    primitive_to_json(fields, manufacture_date, json.string, "manufactureDate")
+    primitive_to_json(
+      fields,
+      manufacture_date,
+      datetime.to_json,
+      "manufactureDate",
+    )
   let fields =
     primitive_to_json(fields, manufacturer, json.string, "manufacturer")
   let fields =
@@ -35852,8 +35895,11 @@ pub fn device_decoder() -> Decoder(Device) {
   )
   use serial_number <- primitive_decoder("serialNumber", decode.string)
   use lot_number <- primitive_decoder("lotNumber", decode.string)
-  use expiration_date <- primitive_decoder("expirationDate", decode.string)
-  use manufacture_date <- primitive_decoder("manufactureDate", decode.string)
+  use expiration_date <- primitive_decoder("expirationDate", datetime.decoder())
+  use manufacture_date <- primitive_decoder(
+    "manufactureDate",
+    datetime.decoder(),
+  )
   use manufacturer <- primitive_decoder("manufacturer", decode.string)
   use distinct_identifier <- primitive_decoder(
     "distinctIdentifier",
@@ -37005,7 +37051,7 @@ pub type DevicemetricCalibration {
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Metriccalibrationtype),
     state: Primitive(r4usp_valuesets.Metriccalibrationstate),
-    time: Primitive(String),
+    time: Primitive(Instant),
   )
 }
 
@@ -37032,7 +37078,7 @@ pub fn devicemetric_calibration_to_json(
     id:,
   ) = devicemetric_calibration
   let fields = []
-  let fields = primitive_to_json(fields, time, json.string, "time")
+  let fields = primitive_to_json(fields, time, instant.to_json, "time")
   let fields =
     primitive_to_json(
       fields,
@@ -37064,7 +37110,7 @@ pub fn devicemetric_calibration_to_json(
 
 pub fn devicemetric_calibration_decoder() -> Decoder(DevicemetricCalibration) {
   use <- decode.recursive
-  use time <- primitive_decoder("time", decode.string)
+  use time <- primitive_decoder("time", instant.decoder())
   use state <- primitive_decoder(
     "state",
     r4usp_valuesets.metriccalibrationstate_decoder(),
@@ -37323,7 +37369,7 @@ pub type Devicerequest {
     subject: Reference,
     encounter: Option(Reference),
     occurrence: Option(DevicerequestOccurrence),
-    authored_on: Primitive(String),
+    authored_on: Primitive(DateTime),
     requester: Option(Reference),
     performer_type: Option(Codeableconcept),
     performer: Option(Reference),
@@ -37366,14 +37412,14 @@ pub fn devicerequest_code_decoder() -> Decoder(DevicerequestCode) {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceRequest#resource)
 pub type DevicerequestOccurrence {
-  DevicerequestOccurrenceDatetime(occurrence: String)
+  DevicerequestOccurrenceDatetime(occurrence: DateTime)
   DevicerequestOccurrencePeriod(occurrence: Period)
   DevicerequestOccurrenceTiming(occurrence: Timing)
 }
 
 pub fn devicerequest_occurrence_to_json(elt: DevicerequestOccurrence) -> Json {
   case elt {
-    DevicerequestOccurrenceDatetime(v) -> json.string(v)
+    DevicerequestOccurrenceDatetime(v) -> datetime.to_json(v)
     DevicerequestOccurrencePeriod(v) -> period_to_json(v)
     DevicerequestOccurrenceTiming(v) -> timing_to_json(v)
   }
@@ -37381,7 +37427,7 @@ pub fn devicerequest_occurrence_to_json(elt: DevicerequestOccurrence) -> Json {
 
 pub fn devicerequest_occurrence_decoder() -> Decoder(DevicerequestOccurrence) {
   decode.one_of(
-    decode.field("occurrenceDateTime", decode.string, decode.success)
+    decode.field("occurrenceDateTime", datetime.decoder(), decode.success)
       |> decode.map(DevicerequestOccurrenceDatetime),
     [
       decode.field("occurrencePeriod", period_decoder(), decode.success)
@@ -37663,7 +37709,8 @@ pub fn devicerequest_to_json(devicerequest: Devicerequest) -> Json {
     Some(v) -> [#("requester", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, authored_on, json.string, "authoredOn")
+  let fields =
+    primitive_to_json(fields, authored_on, datetime.to_json, "authoredOn")
   let fields = case occurrence {
     Some(v) -> [
       #(
@@ -37817,7 +37864,7 @@ pub fn devicerequest_decoder() -> Decoder(Devicerequest) {
     None,
     decode.optional(reference_decoder()),
   )
-  use authored_on <- primitive_decoder("authoredOn", decode.string)
+  use authored_on <- primitive_decoder("authoredOn", datetime.decoder())
   use occurrence <- decode.then(
     none_if_omitted(devicerequest_occurrence_decoder()),
   )
@@ -37957,7 +38004,7 @@ pub type Deviceusestatement {
     subject: Reference,
     derived_from: List(Reference),
     timing: Option(DeviceusestatementTiming),
-    recorded_on: Primitive(String),
+    recorded_on: Primitive(DateTime),
     source: Option(Reference),
     device: Reference,
     reason_code: List(Codeableconcept),
@@ -37971,14 +38018,14 @@ pub type Deviceusestatement {
 pub type DeviceusestatementTiming {
   DeviceusestatementTimingTiming(timing: Timing)
   DeviceusestatementTimingPeriod(timing: Period)
-  DeviceusestatementTimingDatetime(timing: String)
+  DeviceusestatementTimingDatetime(timing: DateTime)
 }
 
 pub fn deviceusestatement_timing_to_json(elt: DeviceusestatementTiming) -> Json {
   case elt {
     DeviceusestatementTimingTiming(v) -> timing_to_json(v)
     DeviceusestatementTimingPeriod(v) -> period_to_json(v)
-    DeviceusestatementTimingDatetime(v) -> json.string(v)
+    DeviceusestatementTimingDatetime(v) -> datetime.to_json(v)
   }
 }
 
@@ -37989,7 +38036,7 @@ pub fn deviceusestatement_timing_decoder() -> Decoder(DeviceusestatementTiming) 
     [
       decode.field("timingPeriod", period_decoder(), decode.success)
         |> decode.map(DeviceusestatementTimingPeriod),
-      decode.field("timingDateTime", decode.string, decode.success)
+      decode.field("timingDateTime", datetime.decoder(), decode.success)
         |> decode.map(DeviceusestatementTimingDatetime),
     ],
   )
@@ -38080,7 +38127,8 @@ pub fn deviceusestatement_to_json(
     Some(v) -> [#("source", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, recorded_on, json.string, "recordedOn")
+  let fields =
+    primitive_to_json(fields, recorded_on, datetime.to_json, "recordedOn")
   let fields = case timing {
     Some(v) -> [
       #(
@@ -38177,7 +38225,7 @@ pub fn deviceusestatement_decoder() -> Decoder(Deviceusestatement) {
     None,
     decode.optional(reference_decoder()),
   )
-  use recorded_on <- primitive_decoder("recordedOn", decode.string)
+  use recorded_on <- primitive_decoder("recordedOn", datetime.decoder())
   use timing <- decode.then(
     none_if_omitted(deviceusestatement_timing_decoder()),
   )
@@ -38279,7 +38327,7 @@ pub type Diagnosticreport {
     subject: Option(Reference),
     encounter: Option(Reference),
     effective: Option(DiagnosticreportEffective),
-    issued: Primitive(String),
+    issued: Primitive(Instant),
     performer: List(Reference),
     results_interpreter: List(Reference),
     specimen: List(Reference),
@@ -38294,7 +38342,7 @@ pub type Diagnosticreport {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DiagnosticReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DiagnosticReport#resource)
 pub type DiagnosticreportEffective {
-  DiagnosticreportEffectiveDatetime(effective: String)
+  DiagnosticreportEffectiveDatetime(effective: DateTime)
   DiagnosticreportEffectivePeriod(effective: Period)
 }
 
@@ -38302,7 +38350,7 @@ pub fn diagnosticreport_effective_to_json(
   elt: DiagnosticreportEffective,
 ) -> Json {
   case elt {
-    DiagnosticreportEffectiveDatetime(v) -> json.string(v)
+    DiagnosticreportEffectiveDatetime(v) -> datetime.to_json(v)
     DiagnosticreportEffectivePeriod(v) -> period_to_json(v)
   }
 }
@@ -38311,7 +38359,7 @@ pub fn diagnosticreport_effective_decoder() -> Decoder(
   DiagnosticreportEffective,
 ) {
   decode.one_of(
-    decode.field("effectiveDateTime", decode.string, decode.success)
+    decode.field("effectiveDateTime", datetime.decoder(), decode.success)
       |> decode.map(DiagnosticreportEffectiveDatetime),
     [
       decode.field("effectivePeriod", period_decoder(), decode.success)
@@ -38508,7 +38556,7 @@ pub fn diagnosticreport_to_json(diagnosticreport: Diagnosticreport) -> Json {
     [] -> fields
     _ -> [#("performer", json.array(performer, reference_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, issued, json.string, "issued")
+  let fields = primitive_to_json(fields, issued, instant.to_json, "issued")
   let fields = case effective {
     Some(v) -> [
       #(
@@ -38627,7 +38675,7 @@ pub fn diagnosticreport_decoder() -> Decoder(Diagnosticreport) {
     [],
     decode.list(reference_decoder()),
   )
-  use issued <- primitive_decoder("issued", decode.string)
+  use issued <- primitive_decoder("issued", instant.decoder())
   use effective <- decode.then(
     none_if_omitted(diagnosticreport_effective_decoder()),
   )
@@ -38741,7 +38789,7 @@ pub type Documentmanifest {
     status: Primitive(r4usp_valuesets.Documentreferencestatus),
     type_: Option(Codeableconcept),
     subject: Option(Reference),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     author: List(Reference),
     recipient: List(Reference),
     source: Primitive(String),
@@ -38909,7 +38957,7 @@ pub fn documentmanifest_to_json(documentmanifest: Documentmanifest) -> Json {
     [] -> fields
     _ -> [#("author", json.array(author, reference_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields = case subject {
     Some(v) -> [#("subject", reference_to_json(v)), ..fields]
     None -> fields
@@ -38984,7 +39032,7 @@ pub fn documentmanifest_decoder() -> Decoder(Documentmanifest) {
     [],
     decode.list(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use subject <- decode.optional_field(
     "subject",
     None,
@@ -39070,7 +39118,7 @@ pub fn documentmanifest_decoder() -> Decoder(Documentmanifest) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DocumentReference#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DocumentReference#resource)
 pub type Documentreference {
   Documentreference(
-    us_core_authentication_time: List(String),
+    us_core_authentication_time: List(DateTime),
     id: Primitive(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
@@ -39086,7 +39134,7 @@ pub type Documentreference {
     type_: Option(Codeableconcept),
     category: List(Codeableconcept),
     subject: Option(Reference),
-    date: Primitive(String),
+    date: Primitive(Instant),
     author: List(Reference),
     authenticator: Option(Reference),
     custodian: Option(Reference),
@@ -39523,7 +39571,7 @@ pub fn documentreference_to_json(documentreference: Documentreference) -> Json {
     [] -> fields
     _ -> [#("author", json.array(author, reference_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, instant.to_json, "date")
   let fields = case subject {
     Some(v) -> [#("subject", reference_to_json(v)), ..fields]
     None -> fields
@@ -39626,7 +39674,7 @@ pub fn documentreference_decoder() -> Decoder(Documentreference) {
     [],
     decode.list(reference_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", instant.decoder())
   use subject <- decode.optional_field(
     "subject",
     None,
@@ -39867,7 +39915,7 @@ pub type Effectevidencesynthesis {
     name: Primitive(String),
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -39875,8 +39923,8 @@ pub type Effectevidencesynthesis {
     use_context: List(Usagecontext),
     jurisdiction: List(Codeableconcept),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -40740,9 +40788,9 @@ pub fn effectevidencesynthesis_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = case jurisdiction {
     [] -> fields
@@ -40769,7 +40817,7 @@ pub fn effectevidencesynthesis_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(
       fields,
@@ -40893,8 +40941,8 @@ pub fn effectevidencesynthesis_decoder() -> Decoder(Effectevidencesynthesis) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use jurisdiction <- decode.optional_field(
     "jurisdiction",
@@ -40918,7 +40966,7 @@ pub fn effectevidencesynthesis_decoder() -> Decoder(Effectevidencesynthesis) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use status <- primitive_decoder(
     "status",
     r4usp_valuesets.publicationstatus_decoder(),
@@ -42384,7 +42432,7 @@ pub type Enrollmentrequest {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     status: Primitive(r4usp_valuesets.Fmstatus),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     insurer: Option(Reference),
     provider: Option(Reference),
     candidate: Option(Reference),
@@ -42447,7 +42495,7 @@ pub fn enrollmentrequest_to_json(enrollmentrequest: Enrollmentrequest) -> Json {
     Some(v) -> [#("insurer", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields =
     primitive_to_json(
       fields,
@@ -42512,7 +42560,7 @@ pub fn enrollmentrequest_decoder() -> Decoder(Enrollmentrequest) {
     None,
     decode.optional(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use status <- primitive_decoder("status", r4usp_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",
@@ -42588,7 +42636,7 @@ pub type Enrollmentresponse {
     request: Option(Reference),
     outcome: Primitive(r4usp_valuesets.Remittanceoutcome),
     disposition: Primitive(String),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     organization: Option(Reference),
     request_provider: Option(Reference),
   )
@@ -42645,7 +42693,7 @@ pub fn enrollmentresponse_to_json(
     Some(v) -> [#("organization", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields =
     primitive_to_json(fields, disposition, json.string, "disposition")
   let fields =
@@ -42713,7 +42761,7 @@ pub fn enrollmentresponse_decoder() -> Decoder(Enrollmentresponse) {
     None,
     decode.optional(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use disposition <- primitive_decoder("disposition", decode.string)
   use outcome <- primitive_decoder(
     "outcome",
@@ -43262,7 +43310,7 @@ pub type Eventdefinition {
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
     subject: Option(EventdefinitionSubject),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -43271,8 +43319,8 @@ pub type Eventdefinition {
     purpose: Primitive(String),
     usage: Primitive(String),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -43432,9 +43480,9 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = primitive_to_json(fields, usage, json.string, "usage")
   let fields = primitive_to_json(fields, purpose, json.string, "purpose")
@@ -43459,7 +43507,7 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case subject {
     Some(v) -> [
       #(
@@ -43561,8 +43609,8 @@ pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use usage <- primitive_decoder("usage", decode.string)
   use purpose <- primitive_decoder("purpose", decode.string)
@@ -43583,7 +43631,7 @@ pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use subject <- decode.then(none_if_omitted(eventdefinition_subject_decoder()))
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
@@ -43693,7 +43741,7 @@ pub type Evidence {
     short_title: Primitive(String),
     subtitle: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -43701,8 +43749,8 @@ pub type Evidence {
     use_context: List(Usagecontext),
     jurisdiction: List(Codeableconcept),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -43847,9 +43895,9 @@ pub fn evidence_to_json(evidence: Evidence) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = case jurisdiction {
     [] -> fields
@@ -43876,7 +43924,7 @@ pub fn evidence_to_json(evidence: Evidence) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(
       fields,
@@ -43976,8 +44024,8 @@ pub fn evidence_decoder() -> Decoder(Evidence) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use jurisdiction <- decode.optional_field(
     "jurisdiction",
@@ -44001,7 +44049,7 @@ pub fn evidence_decoder() -> Decoder(Evidence) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use status <- primitive_decoder(
     "status",
     r4usp_valuesets.publicationstatus_decoder(),
@@ -44110,7 +44158,7 @@ pub type Evidencevariable {
     short_title: Primitive(String),
     subtitle: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -44118,8 +44166,8 @@ pub type Evidencevariable {
     use_context: List(Usagecontext),
     jurisdiction: List(Codeableconcept),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -44261,7 +44309,7 @@ pub fn evidencevariable_characteristic_definition_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCharacteristicParticipanteffective {
   EvidencevariableCharacteristicParticipanteffectiveDatetime(
-    participant_effective: String,
+    participant_effective: DateTime,
   )
   EvidencevariableCharacteristicParticipanteffectivePeriod(
     participant_effective: Period,
@@ -44279,7 +44327,7 @@ pub fn evidencevariable_characteristic_participanteffective_to_json(
 ) -> Json {
   case elt {
     EvidencevariableCharacteristicParticipanteffectiveDatetime(v) ->
-      json.string(v)
+      datetime.to_json(v)
     EvidencevariableCharacteristicParticipanteffectivePeriod(v) ->
       period_to_json(v)
     EvidencevariableCharacteristicParticipanteffectiveDuration(v) ->
@@ -44293,7 +44341,11 @@ pub fn evidencevariable_characteristic_participanteffective_decoder() -> Decoder
   EvidencevariableCharacteristicParticipanteffective,
 ) {
   decode.one_of(
-    decode.field("participantEffectiveDateTime", decode.string, decode.success)
+    decode.field(
+      "participantEffectiveDateTime",
+      datetime.decoder(),
+      decode.success,
+    )
       |> decode.map(EvidencevariableCharacteristicParticipanteffectiveDatetime),
     [
       decode.field(
@@ -44564,9 +44616,9 @@ pub fn evidencevariable_to_json(evidencevariable: Evidencevariable) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = case jurisdiction {
     [] -> fields
@@ -44593,7 +44645,7 @@ pub fn evidencevariable_to_json(evidencevariable: Evidencevariable) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(
       fields,
@@ -44684,8 +44736,8 @@ pub fn evidencevariable_decoder() -> Decoder(Evidencevariable) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use jurisdiction <- decode.optional_field(
     "jurisdiction",
@@ -44709,7 +44761,7 @@ pub fn evidencevariable_decoder() -> Decoder(Evidencevariable) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use status <- primitive_decoder(
     "status",
     r4usp_valuesets.publicationstatus_decoder(),
@@ -44815,7 +44867,7 @@ pub type Examplescenario {
     name: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     use_context: List(Usagecontext),
@@ -45778,7 +45830,7 @@ pub fn examplescenario_to_json(examplescenario: Examplescenario) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -45862,7 +45914,7 @@ pub fn examplescenario_decoder() -> Decoder(Examplescenario) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -45957,7 +46009,7 @@ pub type Explanationofbenefit {
     use_: Primitive(r4usp_valuesets.Claimuse),
     patient: Reference,
     billable_period: Option(Period),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     enterer: Option(Reference),
     insurer: Reference,
     provider: Reference,
@@ -46148,7 +46200,7 @@ pub type ExplanationofbenefitSupportinginfo {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitSupportinginfoTiming {
-  ExplanationofbenefitSupportinginfoTimingDate(timing: String)
+  ExplanationofbenefitSupportinginfoTimingDate(timing: Date)
   ExplanationofbenefitSupportinginfoTimingPeriod(timing: Period)
 }
 
@@ -46156,7 +46208,7 @@ pub fn explanationofbenefit_supportinginfo_timing_to_json(
   elt: ExplanationofbenefitSupportinginfoTiming,
 ) -> Json {
   case elt {
-    ExplanationofbenefitSupportinginfoTimingDate(v) -> json.string(v)
+    ExplanationofbenefitSupportinginfoTimingDate(v) -> date.to_json(v)
     ExplanationofbenefitSupportinginfoTimingPeriod(v) -> period_to_json(v)
   }
 }
@@ -46165,7 +46217,7 @@ pub fn explanationofbenefit_supportinginfo_timing_decoder() -> Decoder(
   ExplanationofbenefitSupportinginfoTiming,
 ) {
   decode.one_of(
-    decode.field("timingDate", decode.string, decode.success)
+    decode.field("timingDate", date.decoder(), decode.success)
       |> decode.map(ExplanationofbenefitSupportinginfoTimingDate),
     [
       decode.field("timingPeriod", period_decoder(), decode.success)
@@ -46303,7 +46355,7 @@ pub type ExplanationofbenefitProcedure {
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
     type_: List(Codeableconcept),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     procedure: ExplanationofbenefitProcedureProcedure,
     udi: List(Reference),
   )
@@ -46390,7 +46442,7 @@ pub type ExplanationofbenefitAccident {
     id: Primitive(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    date: Primitive(String),
+    date: Primitive(Date),
     type_: Option(Codeableconcept),
     location: Option(ExplanationofbenefitAccidentLocation),
   )
@@ -46469,7 +46521,7 @@ pub type ExplanationofbenefitItem {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemServiced {
-  ExplanationofbenefitItemServicedDate(serviced: String)
+  ExplanationofbenefitItemServicedDate(serviced: Date)
   ExplanationofbenefitItemServicedPeriod(serviced: Period)
 }
 
@@ -46477,7 +46529,7 @@ pub fn explanationofbenefit_item_serviced_to_json(
   elt: ExplanationofbenefitItemServiced,
 ) -> Json {
   case elt {
-    ExplanationofbenefitItemServicedDate(v) -> json.string(v)
+    ExplanationofbenefitItemServicedDate(v) -> date.to_json(v)
     ExplanationofbenefitItemServicedPeriod(v) -> period_to_json(v)
   }
 }
@@ -46486,7 +46538,7 @@ pub fn explanationofbenefit_item_serviced_decoder() -> Decoder(
   ExplanationofbenefitItemServiced,
 ) {
   decode.one_of(
-    decode.field("servicedDate", decode.string, decode.success)
+    decode.field("servicedDate", date.decoder(), decode.success)
       |> decode.map(ExplanationofbenefitItemServicedDate),
     [
       decode.field("servicedPeriod", period_decoder(), decode.success)
@@ -46713,7 +46765,7 @@ pub type ExplanationofbenefitAdditem {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAdditemServiced {
-  ExplanationofbenefitAdditemServicedDate(serviced: String)
+  ExplanationofbenefitAdditemServicedDate(serviced: Date)
   ExplanationofbenefitAdditemServicedPeriod(serviced: Period)
 }
 
@@ -46721,7 +46773,7 @@ pub fn explanationofbenefit_additem_serviced_to_json(
   elt: ExplanationofbenefitAdditemServiced,
 ) -> Json {
   case elt {
-    ExplanationofbenefitAdditemServicedDate(v) -> json.string(v)
+    ExplanationofbenefitAdditemServicedDate(v) -> date.to_json(v)
     ExplanationofbenefitAdditemServicedPeriod(v) -> period_to_json(v)
   }
 }
@@ -46730,7 +46782,7 @@ pub fn explanationofbenefit_additem_serviced_decoder() -> Decoder(
   ExplanationofbenefitAdditemServiced,
 ) {
   decode.one_of(
-    decode.field("servicedDate", decode.string, decode.success)
+    decode.field("servicedDate", date.decoder(), decode.success)
       |> decode.map(ExplanationofbenefitAdditemServicedDate),
     [
       decode.field("servicedPeriod", period_decoder(), decode.success)
@@ -46909,7 +46961,7 @@ pub type ExplanationofbenefitPayment {
     type_: Option(Codeableconcept),
     adjustment: Option(Money),
     adjustment_reason: Option(Codeableconcept),
-    date: Primitive(String),
+    date: Primitive(Date),
     amount: Option(Money),
     identifier: Option(Identifier),
   )
@@ -47386,7 +47438,7 @@ pub fn explanationofbenefit_payment_to_json(
     Some(v) -> [#("amount", money_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, date.to_json, "date")
   let fields = case adjustment_reason {
     Some(v) -> [#("adjustmentReason", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -47428,7 +47480,7 @@ pub fn explanationofbenefit_payment_decoder() -> Decoder(
     None,
     decode.optional(money_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", date.decoder())
   use adjustment_reason <- decode.optional_field(
     "adjustmentReason",
     None,
@@ -48814,7 +48866,7 @@ pub fn explanationofbenefit_accident_to_json(
     Some(v) -> [#("type", codeableconcept_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, date.to_json, "date")
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -48842,7 +48894,7 @@ pub fn explanationofbenefit_accident_decoder() -> Decoder(
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", date.decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -48952,7 +49004,7 @@ pub fn explanationofbenefit_procedure_to_json(
     [] -> fields
     _ -> [#("udi", json.array(udi, reference_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case type_ {
     [] -> fields
     _ -> [#("type", json.array(type_, codeableconcept_to_json)), ..fields]
@@ -48981,7 +49033,7 @@ pub fn explanationofbenefit_procedure_decoder() -> Decoder(
   use procedure <- decode.then(
     explanationofbenefit_procedure_procedure_decoder(),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use type_ <- decode.optional_field(
     "type",
     [],
@@ -49708,7 +49760,7 @@ pub fn explanationofbenefit_to_json(
     Some(v) -> [#("enterer", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields = case billable_period {
     Some(v) -> [#("billablePeriod", period_to_json(v)), ..fields]
     None -> fields
@@ -49919,7 +49971,7 @@ pub fn explanationofbenefit_decoder() -> Decoder(Explanationofbenefit) {
     None,
     decode.optional(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use billable_period <- decode.optional_field(
     "billablePeriod",
     None,
@@ -50062,7 +50114,7 @@ pub type Familymemberhistory {
     status: Primitive(r4usp_valuesets.Historystatus),
     data_absent_reason: Option(Codeableconcept),
     patient: Reference,
-    date: Primitive(String),
+    date: Primitive(DateTime),
     name: Primitive(String),
     relationship: Codeableconcept,
     sex: Option(Codeableconcept),
@@ -50080,14 +50132,14 @@ pub type Familymemberhistory {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r4usp/StructureDefinition/FamilyMemberHistory#resource)
 pub type FamilymemberhistoryBorn {
   FamilymemberhistoryBornPeriod(born: Period)
-  FamilymemberhistoryBornDate(born: String)
+  FamilymemberhistoryBornDate(born: Date)
   FamilymemberhistoryBornString(born: String)
 }
 
 pub fn familymemberhistory_born_to_json(elt: FamilymemberhistoryBorn) -> Json {
   case elt {
     FamilymemberhistoryBornPeriod(v) -> period_to_json(v)
-    FamilymemberhistoryBornDate(v) -> json.string(v)
+    FamilymemberhistoryBornDate(v) -> date.to_json(v)
     FamilymemberhistoryBornString(v) -> json.string(v)
   }
 }
@@ -50097,7 +50149,7 @@ pub fn familymemberhistory_born_decoder() -> Decoder(FamilymemberhistoryBorn) {
     decode.field("bornPeriod", period_decoder(), decode.success)
       |> decode.map(FamilymemberhistoryBornPeriod),
     [
-      decode.field("bornDate", decode.string, decode.success)
+      decode.field("bornDate", date.decoder(), decode.success)
         |> decode.map(FamilymemberhistoryBornDate),
       decode.field("bornString", decode.string, decode.success)
         |> decode.map(FamilymemberhistoryBornString),
@@ -50138,7 +50190,7 @@ pub type FamilymemberhistoryDeceased {
   FamilymemberhistoryDeceasedBoolean(deceased: Bool)
   FamilymemberhistoryDeceasedAge(deceased: Age)
   FamilymemberhistoryDeceasedRange(deceased: Range)
-  FamilymemberhistoryDeceasedDate(deceased: String)
+  FamilymemberhistoryDeceasedDate(deceased: Date)
   FamilymemberhistoryDeceasedString(deceased: String)
 }
 
@@ -50149,7 +50201,7 @@ pub fn familymemberhistory_deceased_to_json(
     FamilymemberhistoryDeceasedBoolean(v) -> json.bool(v)
     FamilymemberhistoryDeceasedAge(v) -> age_to_json(v)
     FamilymemberhistoryDeceasedRange(v) -> range_to_json(v)
-    FamilymemberhistoryDeceasedDate(v) -> json.string(v)
+    FamilymemberhistoryDeceasedDate(v) -> date.to_json(v)
     FamilymemberhistoryDeceasedString(v) -> json.string(v)
   }
 }
@@ -50165,7 +50217,7 @@ pub fn familymemberhistory_deceased_decoder() -> Decoder(
         |> decode.map(FamilymemberhistoryDeceasedAge),
       decode.field("deceasedRange", range_decoder(), decode.success)
         |> decode.map(FamilymemberhistoryDeceasedRange),
-      decode.field("deceasedDate", decode.string, decode.success)
+      decode.field("deceasedDate", date.decoder(), decode.success)
         |> decode.map(FamilymemberhistoryDeceasedDate),
       decode.field("deceasedString", decode.string, decode.success)
         |> decode.map(FamilymemberhistoryDeceasedString),
@@ -50518,7 +50570,7 @@ pub fn familymemberhistory_to_json(
     None -> fields
   }
   let fields = primitive_to_json(fields, name, json.string, "name")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case data_absent_reason {
     Some(v) -> [#("dataAbsentReason", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -50609,7 +50661,7 @@ pub fn familymemberhistory_decoder() -> Decoder(Familymemberhistory) {
   )
   use relationship <- decode.field("relationship", codeableconcept_decoder())
   use name <- primitive_decoder("name", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use patient <- decode.field("patient", reference_decoder())
   use data_absent_reason <- decode.optional_field(
     "dataAbsentReason",
@@ -50977,7 +51029,7 @@ pub type Goal {
     subject: Reference,
     start: Option(GoalStart),
     target: List(GoalTarget),
-    status_date: Primitive(String),
+    status_date: Primitive(Date),
     status_reason: Primitive(String),
     expressed_by: Option(Reference),
     addresses: List(Reference),
@@ -50989,20 +51041,20 @@ pub type Goal {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Goal#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Goal#resource)
 pub type GoalStart {
-  GoalStartDate(start: String)
+  GoalStartDate(start: Date)
   GoalStartCodeableconcept(start: Codeableconcept)
 }
 
 pub fn goal_start_to_json(elt: GoalStart) -> Json {
   case elt {
-    GoalStartDate(v) -> json.string(v)
+    GoalStartDate(v) -> date.to_json(v)
     GoalStartCodeableconcept(v) -> codeableconcept_to_json(v)
   }
 }
 
 pub fn goal_start_decoder() -> Decoder(GoalStart) {
   decode.one_of(
-    decode.field("startDate", decode.string, decode.success)
+    decode.field("startDate", date.decoder(), decode.success)
       |> decode.map(GoalStartDate),
     [
       decode.field(
@@ -51109,20 +51161,20 @@ pub fn goal_target_detail_decoder() -> Decoder(GoalTargetDetail) {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Goal#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Goal#resource)
 pub type GoalTargetDue {
-  GoalTargetDueDate(due: String)
+  GoalTargetDueDate(due: Date)
   GoalTargetDueDuration(due: Duration)
 }
 
 pub fn goal_target_due_to_json(elt: GoalTargetDue) -> Json {
   case elt {
-    GoalTargetDueDate(v) -> json.string(v)
+    GoalTargetDueDate(v) -> date.to_json(v)
     GoalTargetDueDuration(v) -> duration_to_json(v)
   }
 }
 
 pub fn goal_target_due_decoder() -> Decoder(GoalTargetDue) {
   decode.one_of(
-    decode.field("dueDate", decode.string, decode.success)
+    decode.field("dueDate", date.decoder(), decode.success)
       |> decode.map(GoalTargetDueDate),
     [
       decode.field("dueDuration", duration_decoder(), decode.success)
@@ -51287,7 +51339,8 @@ pub fn goal_to_json(goal: Goal) -> Json {
   }
   let fields =
     primitive_to_json(fields, status_reason, json.string, "statusReason")
-  let fields = primitive_to_json(fields, status_date, json.string, "statusDate")
+  let fields =
+    primitive_to_json(fields, status_date, date.to_json, "statusDate")
   let fields = case target {
     [] -> fields
     _ -> [#("target", json.array(target, goal_target_to_json)), ..fields]
@@ -51391,7 +51444,7 @@ pub fn goal_decoder() -> Decoder(Goal) {
     decode.optional(reference_decoder()),
   )
   use status_reason <- primitive_decoder("statusReason", decode.string)
-  use status_date <- primitive_decoder("statusDate", decode.string)
+  use status_date <- primitive_decoder("statusDate", date.decoder())
   use target <- decode.optional_field(
     "target",
     [],
@@ -51502,7 +51555,7 @@ pub type Graphdefinition {
     name: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -51955,7 +52008,7 @@ pub fn graphdefinition_to_json(graphdefinition: Graphdefinition) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -52029,7 +52082,7 @@ pub fn graphdefinition_decoder() -> Decoder(Graphdefinition) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -52564,7 +52617,7 @@ pub type Guidanceresponse {
     status: Primitive(r4usp_valuesets.Guidanceresponsestatus),
     subject: Option(Reference),
     encounter: Option(Reference),
-    occurrence_date_time: Primitive(String),
+    occurrence_date_time: Primitive(DateTime),
     performer: Option(Reference),
     reason_code: List(Codeableconcept),
     reason_reference: List(Reference),
@@ -52726,7 +52779,7 @@ pub fn guidanceresponse_to_json(guidanceresponse: Guidanceresponse) -> Json {
     primitive_to_json(
       fields,
       occurrence_date_time,
-      json.string,
+      datetime.to_json,
       "occurrenceDateTime",
     )
   let fields = case encounter {
@@ -52827,7 +52880,7 @@ pub fn guidanceresponse_decoder() -> Decoder(Guidanceresponse) {
   )
   use occurrence_date_time <- primitive_decoder(
     "occurrenceDateTime",
-    decode.string,
+    datetime.decoder(),
   )
   use encounter <- decode.optional_field(
     "encounter",
@@ -53019,8 +53072,8 @@ pub type HealthcareserviceAvailabletime {
     modifier_extension: List(Extension),
     days_of_week: List(Primitive(r4usp_valuesets.Daysofweek)),
     all_day: Primitive(Bool),
-    available_start_time: Primitive(String),
-    available_end_time: Primitive(String),
+    available_start_time: Primitive(Time),
+    available_end_time: Primitive(Time),
   )
 }
 
@@ -53136,14 +53189,14 @@ pub fn healthcareservice_availabletime_to_json(
     primitive_to_json(
       fields,
       available_end_time,
-      json.string,
+      time.to_json,
       "availableEndTime",
     )
   let fields =
     primitive_to_json(
       fields,
       available_start_time,
-      json.string,
+      time.to_json,
       "availableStartTime",
     )
   let fields = primitive_to_json(fields, all_day, json.bool, "allDay")
@@ -53173,10 +53226,13 @@ pub fn healthcareservice_availabletime_decoder() -> Decoder(
   HealthcareserviceAvailabletime,
 ) {
   use <- decode.recursive
-  use available_end_time <- primitive_decoder("availableEndTime", decode.string)
+  use available_end_time <- primitive_decoder(
+    "availableEndTime",
+    time.decoder(),
+  )
   use available_start_time <- primitive_decoder(
     "availableStartTime",
-    decode.string,
+    time.decoder(),
   )
   use all_day <- primitive_decoder("allDay", decode.bool)
   use days_of_week <- primitives_decoder(
@@ -53656,7 +53712,7 @@ pub type Imagingstudy {
     modality: List(Coding),
     subject: Reference,
     encounter: Option(Reference),
-    started: Primitive(String),
+    started: Primitive(DateTime),
     based_on: List(Reference),
     referrer: Option(Reference),
     interpreter: List(Reference),
@@ -53722,7 +53778,7 @@ pub type ImagingstudySeries {
     body_site: Option(Coding),
     laterality: Option(Coding),
     specimen: List(Reference),
-    started: Primitive(String),
+    started: Primitive(DateTime),
     performer: List(ImagingstudySeriesPerformer),
     instance: List(ImagingstudySeriesInstance),
   )
@@ -53963,7 +54019,7 @@ pub fn imagingstudy_series_to_json(
       ..fields
     ]
   }
-  let fields = primitive_to_json(fields, started, json.string, "started")
+  let fields = primitive_to_json(fields, started, datetime.to_json, "started")
   let fields = case specimen {
     [] -> fields
     _ -> [#("specimen", json.array(specimen, reference_to_json)), ..fields]
@@ -54018,7 +54074,7 @@ pub fn imagingstudy_series_decoder() -> Decoder(ImagingstudySeries) {
     [],
     decode.list(imagingstudy_series_performer_decoder()),
   )
-  use started <- primitive_decoder("started", decode.string)
+  use started <- primitive_decoder("started", datetime.decoder())
   use specimen <- decode.optional_field(
     "specimen",
     [],
@@ -54178,7 +54234,7 @@ pub fn imagingstudy_to_json(imagingstudy: Imagingstudy) -> Json {
     [] -> fields
     _ -> [#("basedOn", json.array(based_on, reference_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, started, json.string, "started")
+  let fields = primitive_to_json(fields, started, datetime.to_json, "started")
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
@@ -54289,7 +54345,7 @@ pub fn imagingstudy_decoder() -> Decoder(Imagingstudy) {
     [],
     decode.list(reference_decoder()),
   )
-  use started <- primitive_decoder("started", decode.string)
+  use started <- primitive_decoder("started", datetime.decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
@@ -54394,13 +54450,13 @@ pub type Immunization {
     patient: Reference,
     encounter: Option(Reference),
     occurrence: ImmunizationOccurrence,
-    recorded: Primitive(String),
+    recorded: Primitive(DateTime),
     primary_source: Primitive(Bool),
     report_origin: Option(Codeableconcept),
     location: Option(Reference),
     manufacturer: Option(Reference),
     lot_number: Primitive(String),
-    expiration_date: Primitive(String),
+    expiration_date: Primitive(Date),
     site: Option(Codeableconcept),
     route: Option(Codeableconcept),
     dose_quantity: Option(Quantity),
@@ -54420,20 +54476,20 @@ pub type Immunization {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource)
 pub type ImmunizationOccurrence {
-  ImmunizationOccurrenceDatetime(occurrence: String)
+  ImmunizationOccurrenceDatetime(occurrence: DateTime)
   ImmunizationOccurrenceString(occurrence: String)
 }
 
 pub fn immunization_occurrence_to_json(elt: ImmunizationOccurrence) -> Json {
   case elt {
-    ImmunizationOccurrenceDatetime(v) -> json.string(v)
+    ImmunizationOccurrenceDatetime(v) -> datetime.to_json(v)
     ImmunizationOccurrenceString(v) -> json.string(v)
   }
 }
 
 pub fn immunization_occurrence_decoder() -> Decoder(ImmunizationOccurrence) {
   decode.one_of(
-    decode.field("occurrenceDateTime", decode.string, decode.success)
+    decode.field("occurrenceDateTime", datetime.decoder(), decode.success)
       |> decode.map(ImmunizationOccurrenceDatetime),
     [
       decode.field("occurrenceString", decode.string, decode.success)
@@ -54518,8 +54574,8 @@ pub type ImmunizationEducation {
     modifier_extension: List(Extension),
     document_type: Primitive(String),
     reference: Primitive(String),
-    publication_date: Primitive(String),
-    presentation_date: Primitive(String),
+    publication_date: Primitive(DateTime),
+    presentation_date: Primitive(DateTime),
   )
 }
 
@@ -54541,7 +54597,7 @@ pub type ImmunizationReaction {
     id: Primitive(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     detail: Option(Reference),
     reported: Primitive(Bool),
   )
@@ -54768,7 +54824,7 @@ pub fn immunization_reaction_to_json(
     Some(v) -> [#("detail", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -54792,7 +54848,7 @@ pub fn immunization_reaction_decoder() -> Decoder(ImmunizationReaction) {
     None,
     decode.optional(reference_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -54831,11 +54887,16 @@ pub fn immunization_education_to_json(
     primitive_to_json(
       fields,
       presentation_date,
-      json.string,
+      datetime.to_json,
       "presentationDate",
     )
   let fields =
-    primitive_to_json(fields, publication_date, json.string, "publicationDate")
+    primitive_to_json(
+      fields,
+      publication_date,
+      datetime.to_json,
+      "publicationDate",
+    )
   let fields = primitive_to_json(fields, reference, json.string, "reference")
   let fields =
     primitive_to_json(fields, document_type, json.string, "documentType")
@@ -54856,8 +54917,14 @@ pub fn immunization_education_to_json(
 
 pub fn immunization_education_decoder() -> Decoder(ImmunizationEducation) {
   use <- decode.recursive
-  use presentation_date <- primitive_decoder("presentationDate", decode.string)
-  use publication_date <- primitive_decoder("publicationDate", decode.string)
+  use presentation_date <- primitive_decoder(
+    "presentationDate",
+    datetime.decoder(),
+  )
+  use publication_date <- primitive_decoder(
+    "publicationDate",
+    datetime.decoder(),
+  )
   use reference <- primitive_decoder("reference", decode.string)
   use document_type <- primitive_decoder("documentType", decode.string)
   use modifier_extension <- decode.optional_field(
@@ -55080,7 +55147,7 @@ pub fn immunization_to_json(immunization: Immunization) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, expiration_date, json.string, "expirationDate")
+    primitive_to_json(fields, expiration_date, date.to_json, "expirationDate")
   let fields = primitive_to_json(fields, lot_number, json.string, "lotNumber")
   let fields = case manufacturer {
     Some(v) -> [#("manufacturer", reference_to_json(v)), ..fields]
@@ -55096,7 +55163,7 @@ pub fn immunization_to_json(immunization: Immunization) -> Json {
   }
   let fields =
     primitive_to_json(fields, primary_source, json.bool, "primarySource")
-  let fields = primitive_to_json(fields, recorded, json.string, "recorded")
+  let fields = primitive_to_json(fields, recorded, datetime.to_json, "recorded")
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
@@ -55215,7 +55282,7 @@ pub fn immunization_decoder() -> Decoder(Immunization) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use expiration_date <- primitive_decoder("expirationDate", decode.string)
+  use expiration_date <- primitive_decoder("expirationDate", date.decoder())
   use lot_number <- primitive_decoder("lotNumber", decode.string)
   use manufacturer <- decode.optional_field(
     "manufacturer",
@@ -55233,7 +55300,7 @@ pub fn immunization_decoder() -> Decoder(Immunization) {
     decode.optional(codeableconcept_decoder()),
   )
   use primary_source <- primitive_decoder("primarySource", decode.bool)
-  use recorded <- primitive_decoder("recorded", decode.string)
+  use recorded <- primitive_decoder("recorded", datetime.decoder())
   use occurrence <- decode.then(immunization_occurrence_decoder())
   use encounter <- decode.optional_field(
     "encounter",
@@ -55347,7 +55414,7 @@ pub type Immunizationevaluation {
     identifier: List(Identifier),
     status: Primitive(r4usp_valuesets.Immunizationevaluationstatus),
     patient: Reference,
-    date: Primitive(String),
+    date: Primitive(DateTime),
     authority: Option(Reference),
     target_disease: Codeableconcept,
     immunization_event: Reference,
@@ -55524,7 +55591,7 @@ pub fn immunizationevaluation_to_json(
     Some(v) -> [#("authority", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(
       fields,
@@ -55596,7 +55663,7 @@ pub fn immunizationevaluation_decoder() -> Decoder(Immunizationevaluation) {
     None,
     decode.optional(reference_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use patient <- decode.field("patient", reference_decoder())
   use status <- primitive_decoder(
     "status",
@@ -55687,7 +55754,7 @@ pub type Immunizationrecommendation {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     patient: Reference,
-    date: Primitive(String),
+    date: Primitive(DateTime),
     authority: Option(Reference),
     recommendation: List1(ImmunizationrecommendationRecommendation),
   )
@@ -55834,7 +55901,7 @@ pub type ImmunizationrecommendationRecommendationDatecriterion {
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
-    value: Primitive(String),
+    value: Primitive(DateTime),
   )
 }
 
@@ -55863,7 +55930,7 @@ pub fn immunizationrecommendation_recommendation_datecriterion_to_json(
   let fields = [
     #("code", codeableconcept_to_json(code)),
   ]
-  let fields = primitive_to_json(fields, value, json.string, "value")
+  let fields = primitive_to_json(fields, value, datetime.to_json, "value")
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -55883,7 +55950,7 @@ pub fn immunizationrecommendation_recommendation_datecriterion_decoder() -> Deco
   ImmunizationrecommendationRecommendationDatecriterion,
 ) {
   use <- decode.recursive
-  use value <- primitive_decoder("value", decode.string)
+  use value <- primitive_decoder("value", datetime.decoder())
   use code <- decode.field("code", codeableconcept_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -56158,7 +56225,7 @@ pub fn immunizationrecommendation_to_json(
     Some(v) -> [#("authority", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case identifier {
     [] -> fields
     _ -> [#("identifier", json.array(identifier, identifier_to_json)), ..fields]
@@ -56210,7 +56277,7 @@ pub fn immunizationrecommendation_decoder() -> Decoder(
     None,
     decode.optional(reference_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use patient <- decode.field("patient", reference_decoder())
   use identifier <- decode.optional_field(
     "identifier",
@@ -56288,7 +56355,7 @@ pub type Implementationguide {
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -57618,7 +57685,7 @@ pub fn implementationguide_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -57712,7 +57779,7 @@ pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -59044,7 +59111,7 @@ pub type Invoice {
     type_: Option(Codeableconcept),
     subject: Option(Reference),
     recipient: Option(Reference),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     participant: List(InvoiceParticipant),
     issuer: Option(Reference),
     account: Option(Reference),
@@ -59481,7 +59548,7 @@ pub fn invoice_to_json(invoice: Invoice) -> Json {
       ..fields
     ]
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case recipient {
     Some(v) -> [#("recipient", reference_to_json(v)), ..fields]
     None -> fields
@@ -59581,7 +59648,7 @@ pub fn invoice_decoder() -> Decoder(Invoice) {
     [],
     decode.list(invoice_participant_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use recipient <- decode.optional_field(
     "recipient",
     None,
@@ -59690,7 +59757,7 @@ pub type Library {
     experimental: Primitive(Bool),
     type_: Codeableconcept,
     subject: Option(LibrarySubject),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -59699,8 +59766,8 @@ pub type Library {
     purpose: Primitive(String),
     usage: Primitive(String),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -59887,9 +59954,9 @@ pub fn library_to_json(library: Library) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = primitive_to_json(fields, usage, json.string, "usage")
   let fields = primitive_to_json(fields, purpose, json.string, "purpose")
@@ -59914,7 +59981,7 @@ pub fn library_to_json(library: Library) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case subject {
     Some(v) -> [
       #(
@@ -60030,8 +60097,8 @@ pub fn library_decoder() -> Decoder(Library) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use usage <- primitive_decoder("usage", decode.string)
   use purpose <- primitive_decoder("purpose", decode.string)
@@ -60052,7 +60119,7 @@ pub fn library_decoder() -> Decoder(Library) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use subject <- decode.then(none_if_omitted(library_subject_decoder()))
   use type_ <- decode.field("type", codeableconcept_decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
@@ -60382,7 +60449,7 @@ pub type Listfhir {
     code: Option(Codeableconcept),
     subject: Option(Reference),
     encounter: Option(Reference),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     source: Option(Reference),
     ordered_by: Option(Codeableconcept),
     note: List(Annotation),
@@ -60425,7 +60492,7 @@ pub type ListEntry {
     modifier_extension: List(Extension),
     flag: Option(Codeableconcept),
     deleted: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     item: Reference,
   )
 }
@@ -60455,7 +60522,7 @@ pub fn list_entry_to_json(list_entry: ListEntry) -> Json {
   let fields = [
     #("item", reference_to_json(item)),
   ]
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = primitive_to_json(fields, deleted, json.bool, "deleted")
   let fields = case flag {
     Some(v) -> [#("flag", codeableconcept_to_json(v)), ..fields]
@@ -60479,7 +60546,7 @@ pub fn list_entry_to_json(list_entry: ListEntry) -> Json {
 pub fn list_entry_decoder() -> Decoder(ListEntry) {
   use <- decode.recursive
   use item <- decode.field("item", reference_decoder())
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use deleted <- primitive_decoder("deleted", decode.bool)
   use flag <- decode.optional_field(
     "flag",
@@ -60553,7 +60620,7 @@ pub fn listfhir_to_json(listfhir: Listfhir) -> Json {
     Some(v) -> [#("source", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
@@ -60638,7 +60705,7 @@ pub fn listfhir_decoder() -> Decoder(Listfhir) {
     None,
     decode.optional(reference_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
@@ -60816,8 +60883,8 @@ pub type LocationHoursofoperation {
     modifier_extension: List(Extension),
     days_of_week: List(Primitive(r4usp_valuesets.Daysofweek)),
     all_day: Primitive(Bool),
-    opening_time: Primitive(String),
-    closing_time: Primitive(String),
+    opening_time: Primitive(Time),
+    closing_time: Primitive(Time),
   )
 }
 
@@ -60847,9 +60914,9 @@ pub fn location_hoursofoperation_to_json(
   ) = location_hoursofoperation
   let fields = []
   let fields =
-    primitive_to_json(fields, closing_time, json.string, "closingTime")
+    primitive_to_json(fields, closing_time, time.to_json, "closingTime")
   let fields =
-    primitive_to_json(fields, opening_time, json.string, "openingTime")
+    primitive_to_json(fields, opening_time, time.to_json, "openingTime")
   let fields = primitive_to_json(fields, all_day, json.bool, "allDay")
   let fields =
     primitives_to_json(
@@ -60875,8 +60942,8 @@ pub fn location_hoursofoperation_to_json(
 
 pub fn location_hoursofoperation_decoder() -> Decoder(LocationHoursofoperation) {
   use <- decode.recursive
-  use closing_time <- primitive_decoder("closingTime", decode.string)
-  use opening_time <- primitive_decoder("openingTime", decode.string)
+  use closing_time <- primitive_decoder("closingTime", time.decoder())
+  use opening_time <- primitive_decoder("openingTime", time.decoder())
   use all_day <- primitive_decoder("allDay", decode.bool)
   use days_of_week <- primitives_decoder(
     "daysOfWeek",
@@ -61245,7 +61312,7 @@ pub type Measure {
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
     subject: Option(MeasureSubject),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -61254,8 +61321,8 @@ pub type Measure {
     purpose: Primitive(String),
     usage: Primitive(String),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -62005,9 +62072,9 @@ pub fn measure_to_json(measure: Measure) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = primitive_to_json(fields, usage, json.string, "usage")
   let fields = primitive_to_json(fields, purpose, json.string, "purpose")
@@ -62032,7 +62099,7 @@ pub fn measure_to_json(measure: Measure) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case subject {
     Some(v) -> [
       #(
@@ -62174,8 +62241,8 @@ pub fn measure_decoder() -> Decoder(Measure) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use usage <- primitive_decoder("usage", decode.string)
   use purpose <- primitive_decoder("purpose", decode.string)
@@ -62196,7 +62263,7 @@ pub fn measure_decoder() -> Decoder(Measure) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use subject <- decode.then(none_if_omitted(measure_subject_decoder()))
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
@@ -62316,7 +62383,7 @@ pub type Measurereport {
     type_: Primitive(r4usp_valuesets.Measurereporttype),
     measure: Primitive(String),
     subject: Option(Reference),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     reporter: Option(Reference),
     period: Period,
     improvement_notation: Option(Codeableconcept),
@@ -63015,7 +63082,7 @@ pub fn measurereport_to_json(measurereport: Measurereport) -> Json {
     Some(v) -> [#("reporter", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case subject {
     Some(v) -> [#("subject", reference_to_json(v)), ..fields]
     None -> fields
@@ -63093,7 +63160,7 @@ pub fn measurereport_decoder() -> Decoder(Measurereport) {
     None,
     decode.optional(reference_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use subject <- decode.optional_field(
     "subject",
     None,
@@ -63191,7 +63258,7 @@ pub type Media {
     subject: Option(Reference),
     encounter: Option(Reference),
     created: Option(MediaCreated),
-    issued: Primitive(String),
+    issued: Primitive(Instant),
     operator: Option(Reference),
     reason_code: List(Codeableconcept),
     body_site: Option(Codeableconcept),
@@ -63208,20 +63275,20 @@ pub type Media {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Media#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Media#resource)
 pub type MediaCreated {
-  MediaCreatedDatetime(created: String)
+  MediaCreatedDatetime(created: DateTime)
   MediaCreatedPeriod(created: Period)
 }
 
 pub fn media_created_to_json(elt: MediaCreated) -> Json {
   case elt {
-    MediaCreatedDatetime(v) -> json.string(v)
+    MediaCreatedDatetime(v) -> datetime.to_json(v)
     MediaCreatedPeriod(v) -> period_to_json(v)
   }
 }
 
 pub fn media_created_decoder() -> Decoder(MediaCreated) {
   decode.one_of(
-    decode.field("createdDateTime", decode.string, decode.success)
+    decode.field("createdDateTime", datetime.decoder(), decode.success)
       |> decode.map(MediaCreatedDatetime),
     [
       decode.field("createdPeriod", period_decoder(), decode.success)
@@ -63329,7 +63396,7 @@ pub fn media_to_json(media: Media) -> Json {
     Some(v) -> [#("operator", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, issued, json.string, "issued")
+  let fields = primitive_to_json(fields, issued, instant.to_json, "issued")
   let fields = case created {
     Some(v) -> [
       #(
@@ -63447,7 +63514,7 @@ pub fn media_decoder() -> Decoder(Media) {
     None,
     decode.optional(reference_decoder()),
   )
-  use issued <- primitive_decoder("issued", decode.string)
+  use issued <- primitive_decoder("issued", instant.decoder())
   use created <- decode.then(none_if_omitted(media_created_decoder()))
   use encounter <- decode.optional_field(
     "encounter",
@@ -63664,7 +63731,7 @@ pub type MedicationBatch {
     extension: List(Extension),
     modifier_extension: List(Extension),
     lot_number: Primitive(String),
-    expiration_date: Primitive(String),
+    expiration_date: Primitive(DateTime),
   )
 }
 
@@ -63688,7 +63755,12 @@ pub fn medication_batch_to_json(medication_batch: MedicationBatch) -> Json {
   ) = medication_batch
   let fields = []
   let fields =
-    primitive_to_json(fields, expiration_date, json.string, "expirationDate")
+    primitive_to_json(
+      fields,
+      expiration_date,
+      datetime.to_json,
+      "expirationDate",
+    )
   let fields = primitive_to_json(fields, lot_number, json.string, "lotNumber")
   let fields = case modifier_extension {
     [] -> fields
@@ -63707,7 +63779,7 @@ pub fn medication_batch_to_json(medication_batch: MedicationBatch) -> Json {
 
 pub fn medication_batch_decoder() -> Decoder(MedicationBatch) {
   use <- decode.recursive
-  use expiration_date <- primitive_decoder("expirationDate", decode.string)
+  use expiration_date <- primitive_decoder("expirationDate", datetime.decoder())
   use lot_number <- primitive_decoder("lotNumber", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -64052,7 +64124,7 @@ pub fn medicationadministration_medication_decoder() -> Decoder(
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationAdministration#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationAdministration#resource)
 pub type MedicationadministrationEffective {
-  MedicationadministrationEffectiveDatetime(effective: String)
+  MedicationadministrationEffectiveDatetime(effective: DateTime)
   MedicationadministrationEffectivePeriod(effective: Period)
 }
 
@@ -64060,7 +64132,7 @@ pub fn medicationadministration_effective_to_json(
   elt: MedicationadministrationEffective,
 ) -> Json {
   case elt {
-    MedicationadministrationEffectiveDatetime(v) -> json.string(v)
+    MedicationadministrationEffectiveDatetime(v) -> datetime.to_json(v)
     MedicationadministrationEffectivePeriod(v) -> period_to_json(v)
   }
 }
@@ -64069,7 +64141,7 @@ pub fn medicationadministration_effective_decoder() -> Decoder(
   MedicationadministrationEffective,
 ) {
   decode.one_of(
-    decode.field("effectiveDateTime", decode.string, decode.success)
+    decode.field("effectiveDateTime", datetime.decoder(), decode.success)
       |> decode.map(MedicationadministrationEffectiveDatetime),
     [
       decode.field("effectivePeriod", period_decoder(), decode.success)
@@ -64721,8 +64793,8 @@ pub type Medicationdispense {
     type_: Option(Codeableconcept),
     quantity: Option(Quantity),
     days_supply: Option(Quantity),
-    when_prepared: Primitive(String),
-    when_handed_over: Primitive(String),
+    when_prepared: Primitive(DateTime),
+    when_handed_over: Primitive(DateTime),
     destination: Option(Reference),
     receiver: List(Reference),
     note: List(Annotation),
@@ -65122,9 +65194,14 @@ pub fn medicationdispense_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, when_handed_over, json.string, "whenHandedOver")
+    primitive_to_json(
+      fields,
+      when_handed_over,
+      datetime.to_json,
+      "whenHandedOver",
+    )
   let fields =
-    primitive_to_json(fields, when_prepared, json.string, "whenPrepared")
+    primitive_to_json(fields, when_prepared, datetime.to_json, "whenPrepared")
   let fields = case days_supply {
     Some(v) -> [#("daysSupply", quantity_to_json(v)), ..fields]
     None -> fields
@@ -65280,8 +65357,11 @@ pub fn medicationdispense_decoder() -> Decoder(Medicationdispense) {
     None,
     decode.optional(reference_decoder()),
   )
-  use when_handed_over <- primitive_decoder("whenHandedOver", decode.string)
-  use when_prepared <- primitive_decoder("whenPrepared", decode.string)
+  use when_handed_over <- primitive_decoder(
+    "whenHandedOver",
+    datetime.decoder(),
+  )
+  use when_prepared <- primitive_decoder("whenPrepared", datetime.decoder())
   use days_supply <- decode.optional_field(
     "daysSupply",
     None,
@@ -67593,7 +67673,7 @@ pub type Medicationrequest {
     subject: Reference,
     encounter: Option(Reference),
     supporting_information: List(Reference),
-    authored_on: Primitive(String),
+    authored_on: Primitive(DateTime),
     requester: Option(Reference),
     performer: Option(Reference),
     performer_type: Option(Codeableconcept),
@@ -68260,7 +68340,8 @@ pub fn medicationrequest_to_json(medicationrequest: Medicationrequest) -> Json {
     Some(v) -> [#("requester", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, authored_on, json.string, "authoredOn")
+  let fields =
+    primitive_to_json(fields, authored_on, datetime.to_json, "authoredOn")
   let fields = case supporting_information {
     [] -> fields
     _ -> [
@@ -68450,7 +68531,7 @@ pub fn medicationrequest_decoder() -> Decoder(Medicationrequest) {
     None,
     decode.optional(reference_decoder()),
   )
-  use authored_on <- primitive_decoder("authoredOn", decode.string)
+  use authored_on <- primitive_decoder("authoredOn", datetime.decoder())
   use supporting_information <- decode.optional_field(
     "supportingInformation",
     [],
@@ -68603,7 +68684,7 @@ pub type Medicationstatement {
     subject: Reference,
     context: Option(Reference),
     effective: Option(MedicationstatementEffective),
-    date_asserted: Primitive(String),
+    date_asserted: Primitive(DateTime),
     information_source: Option(Reference),
     derived_from: List(Reference),
     reason_code: List(Codeableconcept),
@@ -68648,7 +68729,7 @@ pub fn medicationstatement_medication_decoder() -> Decoder(
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationStatement#resource)
 pub type MedicationstatementEffective {
-  MedicationstatementEffectiveDatetime(effective: String)
+  MedicationstatementEffectiveDatetime(effective: DateTime)
   MedicationstatementEffectivePeriod(effective: Period)
 }
 
@@ -68656,7 +68737,7 @@ pub fn medicationstatement_effective_to_json(
   elt: MedicationstatementEffective,
 ) -> Json {
   case elt {
-    MedicationstatementEffectiveDatetime(v) -> json.string(v)
+    MedicationstatementEffectiveDatetime(v) -> datetime.to_json(v)
     MedicationstatementEffectivePeriod(v) -> period_to_json(v)
   }
 }
@@ -68665,7 +68746,7 @@ pub fn medicationstatement_effective_decoder() -> Decoder(
   MedicationstatementEffective,
 ) {
   decode.one_of(
-    decode.field("effectiveDateTime", decode.string, decode.success)
+    decode.field("effectiveDateTime", datetime.decoder(), decode.success)
       |> decode.map(MedicationstatementEffectiveDatetime),
     [
       decode.field("effectivePeriod", period_decoder(), decode.success)
@@ -68782,7 +68863,7 @@ pub fn medicationstatement_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, date_asserted, json.string, "dateAsserted")
+    primitive_to_json(fields, date_asserted, datetime.to_json, "dateAsserted")
   let fields = case effective {
     Some(v) -> [
       #(
@@ -68894,7 +68975,7 @@ pub fn medicationstatement_decoder() -> Decoder(Medicationstatement) {
     None,
     decode.optional(reference_decoder()),
   )
-  use date_asserted <- primitive_decoder("dateAsserted", decode.string)
+  use date_asserted <- primitive_decoder("dateAsserted", datetime.decoder())
   use effective <- decode.then(
     none_if_omitted(medicationstatement_effective_decoder()),
   )
@@ -69151,7 +69232,7 @@ pub type MedicinalproductManufacturingbusinessoperation {
     modifier_extension: List(Extension),
     operation_type: Option(Codeableconcept),
     authorisation_reference_number: Option(Identifier),
-    effective_date: Primitive(String),
+    effective_date: Primitive(DateTime),
     confidentiality_indicator: Option(Codeableconcept),
     manufacturer: List(Reference),
     regulator: Option(Reference),
@@ -69183,7 +69264,7 @@ pub type MedicinalproductSpecialdesignation {
     intended_use: Option(Codeableconcept),
     indication: Option(MedicinalproductSpecialdesignationIndication),
     status: Option(Codeableconcept),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     species: Option(Codeableconcept),
   )
 }
@@ -69259,7 +69340,7 @@ pub fn medicinalproduct_specialdesignation_to_json(
     Some(v) -> [#("species", codeableconcept_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case status {
     Some(v) -> [#("status", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -69316,7 +69397,7 @@ pub fn medicinalproduct_specialdesignation_decoder() -> Decoder(
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use status <- decode.optional_field(
     "status",
     None,
@@ -69399,7 +69480,7 @@ pub fn medicinalproduct_manufacturingbusinessoperation_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, effective_date, json.string, "effectiveDate")
+    primitive_to_json(fields, effective_date, datetime.to_json, "effectiveDate")
   let fields = case authorisation_reference_number {
     Some(v) -> [
       #("authorisationReferenceNumber", identifier_to_json(v)),
@@ -69445,7 +69526,7 @@ pub fn medicinalproduct_manufacturingbusinessoperation_decoder() -> Decoder(
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use effective_date <- primitive_decoder("effectiveDate", decode.string)
+  use effective_date <- primitive_decoder("effectiveDate", datetime.decoder())
   use authorisation_reference_number <- decode.optional_field(
     "authorisationReferenceNumber",
     None,
@@ -70062,12 +70143,12 @@ pub type Medicinalproductauthorization {
     country: List(Codeableconcept),
     jurisdiction: List(Codeableconcept),
     status: Option(Codeableconcept),
-    status_date: Primitive(String),
-    restore_date: Primitive(String),
+    status_date: Primitive(DateTime),
+    restore_date: Primitive(DateTime),
     validity_period: Option(Period),
     data_exclusivity_period: Option(Period),
-    date_of_first_authorization: Primitive(String),
-    international_birth_date: Primitive(String),
+    date_of_first_authorization: Primitive(DateTime),
+    international_birth_date: Primitive(DateTime),
     legal_basis: Option(Codeableconcept),
     jurisdictional_authorization: List(
       MedicinalproductauthorizationJurisdictionalauthorization,
@@ -70150,7 +70231,7 @@ pub type MedicinalproductauthorizationProcedure {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductAuthorization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductAuthorization#resource)
 pub type MedicinalproductauthorizationProcedureDate {
   MedicinalproductauthorizationProcedureDatePeriod(date: Period)
-  MedicinalproductauthorizationProcedureDateDatetime(date: String)
+  MedicinalproductauthorizationProcedureDateDatetime(date: DateTime)
 }
 
 pub fn medicinalproductauthorization_procedure_date_to_json(
@@ -70158,7 +70239,7 @@ pub fn medicinalproductauthorization_procedure_date_to_json(
 ) -> Json {
   case elt {
     MedicinalproductauthorizationProcedureDatePeriod(v) -> period_to_json(v)
-    MedicinalproductauthorizationProcedureDateDatetime(v) -> json.string(v)
+    MedicinalproductauthorizationProcedureDateDatetime(v) -> datetime.to_json(v)
   }
 }
 
@@ -70169,7 +70250,7 @@ pub fn medicinalproductauthorization_procedure_date_decoder() -> Decoder(
     decode.field("datePeriod", period_decoder(), decode.success)
       |> decode.map(MedicinalproductauthorizationProcedureDatePeriod),
     [
-      decode.field("dateDateTime", decode.string, decode.success)
+      decode.field("dateDateTime", datetime.decoder(), decode.success)
       |> decode.map(MedicinalproductauthorizationProcedureDateDatetime),
     ],
   )
@@ -70457,14 +70538,14 @@ pub fn medicinalproductauthorization_to_json(
     primitive_to_json(
       fields,
       international_birth_date,
-      json.string,
+      datetime.to_json,
       "internationalBirthDate",
     )
   let fields =
     primitive_to_json(
       fields,
       date_of_first_authorization,
-      json.string,
+      datetime.to_json,
       "dateOfFirstAuthorization",
     )
   let fields = case data_exclusivity_period {
@@ -70476,8 +70557,9 @@ pub fn medicinalproductauthorization_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, restore_date, json.string, "restoreDate")
-  let fields = primitive_to_json(fields, status_date, json.string, "statusDate")
+    primitive_to_json(fields, restore_date, datetime.to_json, "restoreDate")
+  let fields =
+    primitive_to_json(fields, status_date, datetime.to_json, "statusDate")
   let fields = case status {
     Some(v) -> [#("status", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -70568,11 +70650,11 @@ pub fn medicinalproductauthorization_decoder() -> Decoder(
   )
   use international_birth_date <- primitive_decoder(
     "internationalBirthDate",
-    decode.string,
+    datetime.decoder(),
   )
   use date_of_first_authorization <- primitive_decoder(
     "dateOfFirstAuthorization",
-    decode.string,
+    datetime.decoder(),
   )
   use data_exclusivity_period <- decode.optional_field(
     "dataExclusivityPeriod",
@@ -70584,8 +70666,8 @@ pub fn medicinalproductauthorization_decoder() -> Decoder(
     None,
     decode.optional(period_decoder()),
   )
-  use restore_date <- primitive_decoder("restoreDate", decode.string)
-  use status_date <- primitive_decoder("statusDate", decode.string)
+  use restore_date <- primitive_decoder("restoreDate", datetime.decoder())
+  use status_date <- primitive_decoder("statusDate", datetime.decoder())
   use status <- decode.optional_field(
     "status",
     None,
@@ -74197,7 +74279,7 @@ pub type Messagedefinition {
     replaces: List(Primitive(String)),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -74547,7 +74629,7 @@ pub fn messagedefinition_to_json(messagedefinition: Messagedefinition) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -74640,7 +74722,7 @@ pub fn messagedefinition_decoder() -> Decoder(Messagedefinition) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -76583,7 +76665,7 @@ pub type Namingsystem {
     name: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     kind: Primitive(r4usp_valuesets.Namingsystemtype),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     responsible: Primitive(String),
@@ -76786,7 +76868,7 @@ pub fn namingsystem_to_json(namingsystem: Namingsystem) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(
       fields,
@@ -76860,7 +76942,7 @@ pub fn namingsystem_decoder() -> Decoder(Namingsystem) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use kind <- primitive_decoder(
     "kind",
     r4usp_valuesets.namingsystemtype_decoder(),
@@ -76948,7 +77030,7 @@ pub type Nutritionorder {
     intent: Primitive(r4usp_valuesets.Requestintent),
     patient: Reference,
     encounter: Option(Reference),
-    date_time: Primitive(String),
+    date_time: Primitive(DateTime),
     orderer: Option(Reference),
     allergy_intolerance: List(Reference),
     food_preference_modifier: List(Codeableconcept),
@@ -77855,7 +77937,8 @@ pub fn nutritionorder_to_json(nutritionorder: Nutritionorder) -> Json {
     Some(v) -> [#("orderer", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date_time, json.string, "dateTime")
+  let fields =
+    primitive_to_json(fields, date_time, datetime.to_json, "dateTime")
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
@@ -77962,7 +78045,7 @@ pub fn nutritionorder_decoder() -> Decoder(Nutritionorder) {
     None,
     decode.optional(reference_decoder()),
   )
-  use date_time <- primitive_decoder("dateTime", decode.string)
+  use date_time <- primitive_decoder("dateTime", datetime.decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
@@ -78072,7 +78155,7 @@ pub type Observation {
     focus: List(Reference),
     encounter: Option(Reference),
     effective: Option(ObservationEffective),
-    issued: Primitive(String),
+    issued: Primitive(Instant),
     performer: List(Reference),
     value: Option(ObservationValue),
     data_absent_reason: Option(Codeableconcept),
@@ -78091,31 +78174,31 @@ pub type Observation {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Observation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Observation#resource)
 pub type ObservationEffective {
-  ObservationEffectiveDatetime(effective: String)
+  ObservationEffectiveDatetime(effective: DateTime)
   ObservationEffectivePeriod(effective: Period)
   ObservationEffectiveTiming(effective: Timing)
-  ObservationEffectiveInstant(effective: String)
+  ObservationEffectiveInstant(effective: Instant)
 }
 
 pub fn observation_effective_to_json(elt: ObservationEffective) -> Json {
   case elt {
-    ObservationEffectiveDatetime(v) -> json.string(v)
+    ObservationEffectiveDatetime(v) -> datetime.to_json(v)
     ObservationEffectivePeriod(v) -> period_to_json(v)
     ObservationEffectiveTiming(v) -> timing_to_json(v)
-    ObservationEffectiveInstant(v) -> json.string(v)
+    ObservationEffectiveInstant(v) -> instant.to_json(v)
   }
 }
 
 pub fn observation_effective_decoder() -> Decoder(ObservationEffective) {
   decode.one_of(
-    decode.field("effectiveDateTime", decode.string, decode.success)
+    decode.field("effectiveDateTime", datetime.decoder(), decode.success)
       |> decode.map(ObservationEffectiveDatetime),
     [
       decode.field("effectivePeriod", period_decoder(), decode.success)
         |> decode.map(ObservationEffectivePeriod),
       decode.field("effectiveTiming", timing_decoder(), decode.success)
         |> decode.map(ObservationEffectiveTiming),
-      decode.field("effectiveInstant", decode.string, decode.success)
+      decode.field("effectiveInstant", instant.decoder(), decode.success)
         |> decode.map(ObservationEffectiveInstant),
     ],
   )
@@ -78131,8 +78214,8 @@ pub type ObservationValue {
   ObservationValueRange(value: Range)
   ObservationValueRatio(value: Ratio)
   ObservationValueSampleddata(value: Sampleddata)
-  ObservationValueTime(value: String)
-  ObservationValueDatetime(value: String)
+  ObservationValueTime(value: Time)
+  ObservationValueDatetime(value: DateTime)
   ObservationValuePeriod(value: Period)
 }
 
@@ -78146,8 +78229,8 @@ pub fn observation_value_to_json(elt: ObservationValue) -> Json {
     ObservationValueRange(v) -> range_to_json(v)
     ObservationValueRatio(v) -> ratio_to_json(v)
     ObservationValueSampleddata(v) -> sampleddata_to_json(v)
-    ObservationValueTime(v) -> json.string(v)
-    ObservationValueDatetime(v) -> json.string(v)
+    ObservationValueTime(v) -> time.to_json(v)
+    ObservationValueDatetime(v) -> datetime.to_json(v)
     ObservationValuePeriod(v) -> period_to_json(v)
   }
 }
@@ -78175,9 +78258,9 @@ pub fn observation_value_decoder() -> Decoder(ObservationValue) {
         |> decode.map(ObservationValueRatio),
       decode.field("valueSampledData", sampleddata_decoder(), decode.success)
         |> decode.map(ObservationValueSampleddata),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(ObservationValueTime),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(ObservationValueDatetime),
       decode.field("valuePeriod", period_decoder(), decode.success)
         |> decode.map(ObservationValuePeriod),
@@ -78275,8 +78358,8 @@ pub type ObservationComponentValue {
   ObservationComponentValueRange(value: Range)
   ObservationComponentValueRatio(value: Ratio)
   ObservationComponentValueSampleddata(value: Sampleddata)
-  ObservationComponentValueTime(value: String)
-  ObservationComponentValueDatetime(value: String)
+  ObservationComponentValueTime(value: Time)
+  ObservationComponentValueDatetime(value: DateTime)
   ObservationComponentValuePeriod(value: Period)
 }
 
@@ -78292,8 +78375,8 @@ pub fn observation_component_value_to_json(
     ObservationComponentValueRange(v) -> range_to_json(v)
     ObservationComponentValueRatio(v) -> ratio_to_json(v)
     ObservationComponentValueSampleddata(v) -> sampleddata_to_json(v)
-    ObservationComponentValueTime(v) -> json.string(v)
-    ObservationComponentValueDatetime(v) -> json.string(v)
+    ObservationComponentValueTime(v) -> time.to_json(v)
+    ObservationComponentValueDatetime(v) -> datetime.to_json(v)
     ObservationComponentValuePeriod(v) -> period_to_json(v)
   }
 }
@@ -78323,9 +78406,9 @@ pub fn observation_component_value_decoder() -> Decoder(
         |> decode.map(ObservationComponentValueRatio),
       decode.field("valueSampledData", sampleddata_decoder(), decode.success)
         |> decode.map(ObservationComponentValueSampleddata),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(ObservationComponentValueTime),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(ObservationComponentValueDatetime),
       decode.field("valuePeriod", period_decoder(), decode.success)
         |> decode.map(ObservationComponentValuePeriod),
@@ -78699,7 +78782,7 @@ pub fn observation_to_json(observation: Observation) -> Json {
     [] -> fields
     _ -> [#("performer", json.array(performer, reference_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, issued, json.string, "issued")
+  let fields = primitive_to_json(fields, issued, instant.to_json, "issued")
   let fields = case effective {
     Some(v) -> [
       #(
@@ -78848,7 +78931,7 @@ pub fn observation_decoder() -> Decoder(Observation) {
     [],
     decode.list(reference_decoder()),
   )
-  use issued <- primitive_decoder("issued", decode.string)
+  use issued <- primitive_decoder("issued", instant.decoder())
   use effective <- decode.then(none_if_omitted(observation_effective_decoder()))
   use encounter <- decode.optional_field(
     "encounter",
@@ -79563,7 +79646,7 @@ pub type Operationdefinition {
     status: Primitive(r4usp_valuesets.Publicationstatus),
     kind: Primitive(r4usp_valuesets.Operationkind),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -80143,7 +80226,7 @@ pub fn operationdefinition_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -80238,7 +80321,7 @@ pub fn operationdefinition_decoder() -> Decoder(Operationdefinition) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use kind <- primitive_decoder("kind", r4usp_valuesets.operationkind_decoder())
   use status <- primitive_decoder(
@@ -81224,17 +81307,17 @@ pub type ParametersParameterValue {
   ParametersParameterValueBoolean(value: Bool)
   ParametersParameterValueCanonical(value: String)
   ParametersParameterValueCode(value: String)
-  ParametersParameterValueDate(value: String)
-  ParametersParameterValueDatetime(value: String)
+  ParametersParameterValueDate(value: Date)
+  ParametersParameterValueDatetime(value: DateTime)
   ParametersParameterValueDecimal(value: Float)
   ParametersParameterValueId(value: String)
-  ParametersParameterValueInstant(value: String)
+  ParametersParameterValueInstant(value: Instant)
   ParametersParameterValueInteger(value: Int)
   ParametersParameterValueMarkdown(value: String)
   ParametersParameterValueOid(value: String)
   ParametersParameterValuePositiveint(value: Int)
   ParametersParameterValueString(value: String)
-  ParametersParameterValueTime(value: String)
+  ParametersParameterValueTime(value: Time)
   ParametersParameterValueUnsignedint(value: Int)
   ParametersParameterValueUri(value: String)
   ParametersParameterValueUrl(value: String)
@@ -81278,17 +81361,17 @@ pub fn parameters_parameter_value_to_json(elt: ParametersParameterValue) -> Json
     ParametersParameterValueBoolean(v) -> json.bool(v)
     ParametersParameterValueCanonical(v) -> json.string(v)
     ParametersParameterValueCode(v) -> json.string(v)
-    ParametersParameterValueDate(v) -> json.string(v)
-    ParametersParameterValueDatetime(v) -> json.string(v)
+    ParametersParameterValueDate(v) -> date.to_json(v)
+    ParametersParameterValueDatetime(v) -> datetime.to_json(v)
     ParametersParameterValueDecimal(v) -> json.float(v)
     ParametersParameterValueId(v) -> json.string(v)
-    ParametersParameterValueInstant(v) -> json.string(v)
+    ParametersParameterValueInstant(v) -> instant.to_json(v)
     ParametersParameterValueInteger(v) -> json.int(v)
     ParametersParameterValueMarkdown(v) -> json.string(v)
     ParametersParameterValueOid(v) -> json.string(v)
     ParametersParameterValuePositiveint(v) -> json.int(v)
     ParametersParameterValueString(v) -> json.string(v)
-    ParametersParameterValueTime(v) -> json.string(v)
+    ParametersParameterValueTime(v) -> time.to_json(v)
     ParametersParameterValueUnsignedint(v) -> json.int(v)
     ParametersParameterValueUri(v) -> json.string(v)
     ParametersParameterValueUrl(v) -> json.string(v)
@@ -81339,15 +81422,15 @@ pub fn parameters_parameter_value_decoder() -> Decoder(ParametersParameterValue)
         |> decode.map(ParametersParameterValueCanonical),
       decode.field("valueCode", decode.string, decode.success)
         |> decode.map(ParametersParameterValueCode),
-      decode.field("valueDate", decode.string, decode.success)
+      decode.field("valueDate", date.decoder(), decode.success)
         |> decode.map(ParametersParameterValueDate),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(ParametersParameterValueDatetime),
       decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(ParametersParameterValueDecimal),
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(ParametersParameterValueId),
-      decode.field("valueInstant", decode.string, decode.success)
+      decode.field("valueInstant", instant.decoder(), decode.success)
         |> decode.map(ParametersParameterValueInstant),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(ParametersParameterValueInteger),
@@ -81359,7 +81442,7 @@ pub fn parameters_parameter_value_decoder() -> Decoder(ParametersParameterValue)
         |> decode.map(ParametersParameterValuePositiveint),
       decode.field("valueString", decode.string, decode.success)
         |> decode.map(ParametersParameterValueString),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(ParametersParameterValueTime),
       decode.field("valueUnsignedInt", decode.int, decode.success)
         |> decode.map(ParametersParameterValueUnsignedint),
@@ -81681,7 +81764,7 @@ pub type Patient {
     name: List(Humanname),
     telecom: List(Contactpoint),
     gender: Primitive(r4usp_valuesets.Administrativegender),
-    birth_date: Primitive(String),
+    birth_date: Primitive(Date),
     deceased: Option(PatientDeceased),
     address: List(Address),
     marital_status: Option(Codeableconcept),
@@ -81698,13 +81781,13 @@ pub type Patient {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Patient#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Patient#resource)
 pub type PatientDeceased {
   PatientDeceasedBoolean(deceased: Bool)
-  PatientDeceasedDatetime(deceased: String)
+  PatientDeceasedDatetime(deceased: DateTime)
 }
 
 pub fn patient_deceased_to_json(elt: PatientDeceased) -> Json {
   case elt {
     PatientDeceasedBoolean(v) -> json.bool(v)
-    PatientDeceasedDatetime(v) -> json.string(v)
+    PatientDeceasedDatetime(v) -> datetime.to_json(v)
   }
 }
 
@@ -81713,7 +81796,7 @@ pub fn patient_deceased_decoder() -> Decoder(PatientDeceased) {
     decode.field("deceasedBoolean", decode.bool, decode.success)
       |> decode.map(PatientDeceasedBoolean),
     [
-      decode.field("deceasedDateTime", decode.string, decode.success)
+      decode.field("deceasedDateTime", datetime.decoder(), decode.success)
       |> decode.map(PatientDeceasedDatetime),
     ],
   )
@@ -82205,7 +82288,7 @@ pub fn patient_to_json(patient: Patient) -> Json {
     ]
     None -> fields
   }
-  let fields = primitive_to_json(fields, birth_date, json.string, "birthDate")
+  let fields = primitive_to_json(fields, birth_date, date.to_json, "birthDate")
   let fields =
     primitive_to_json(
       fields,
@@ -82303,7 +82386,7 @@ pub fn patient_decoder() -> Decoder(Patient) {
     decode.list(address_decoder()),
   )
   use deceased <- decode.then(none_if_omitted(patient_deceased_decoder()))
-  use birth_date <- primitive_decoder("birthDate", decode.string)
+  use birth_date <- primitive_decoder("birthDate", date.decoder())
   use gender <- primitive_decoder(
     "gender",
     r4usp_valuesets.administrativegender_decoder(),
@@ -82555,10 +82638,10 @@ pub type Paymentnotice {
     status: Primitive(r4usp_valuesets.Fmstatus),
     request: Option(Reference),
     response: Option(Reference),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     provider: Option(Reference),
     payment: Reference,
-    payment_date: Primitive(String),
+    payment_date: Primitive(Date),
     payee: Option(Reference),
     recipient: Reference,
     amount: Money,
@@ -82632,12 +82715,12 @@ pub fn paymentnotice_to_json(paymentnotice: Paymentnotice) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, payment_date, json.string, "paymentDate")
+    primitive_to_json(fields, payment_date, date.to_json, "paymentDate")
   let fields = case provider {
     Some(v) -> [#("provider", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields = case response {
     Some(v) -> [#("response", reference_to_json(v)), ..fields]
     None -> fields
@@ -82702,14 +82785,14 @@ pub fn paymentnotice_decoder() -> Decoder(Paymentnotice) {
     None,
     decode.optional(reference_decoder()),
   )
-  use payment_date <- primitive_decoder("paymentDate", decode.string)
+  use payment_date <- primitive_decoder("paymentDate", date.decoder())
   use payment <- decode.field("payment", reference_decoder())
   use provider <- decode.optional_field(
     "provider",
     None,
     decode.optional(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use response <- decode.optional_field(
     "response",
     None,
@@ -82801,13 +82884,13 @@ pub type Paymentreconciliation {
     identifier: List(Identifier),
     status: Primitive(r4usp_valuesets.Fmstatus),
     period: Option(Period),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     payment_issuer: Option(Reference),
     request: Option(Reference),
     requestor: Option(Reference),
     outcome: Primitive(r4usp_valuesets.Remittanceoutcome),
     disposition: Primitive(String),
-    payment_date: Primitive(String),
+    payment_date: Primitive(Date),
     payment_amount: Money,
     payment_identifier: Option(Identifier),
     detail: List(PaymentreconciliationDetail),
@@ -82858,7 +82941,7 @@ pub type PaymentreconciliationDetail {
     request: Option(Reference),
     submitter: Option(Reference),
     response: Option(Reference),
-    date: Primitive(String),
+    date: Primitive(Date),
     responsible: Option(Reference),
     payee: Option(Reference),
     amount: Option(Money),
@@ -82994,7 +83077,7 @@ pub fn paymentreconciliation_detail_to_json(
     Some(v) -> [#("responsible", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, date.to_json, "date")
   let fields = case response {
     Some(v) -> [#("response", reference_to_json(v)), ..fields]
     None -> fields
@@ -83049,7 +83132,7 @@ pub fn paymentreconciliation_detail_decoder() -> Decoder(
     None,
     decode.optional(reference_decoder()),
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", date.decoder())
   use response <- decode.optional_field(
     "response",
     None,
@@ -83161,7 +83244,7 @@ pub fn paymentreconciliation_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, payment_date, json.string, "paymentDate")
+    primitive_to_json(fields, payment_date, date.to_json, "paymentDate")
   let fields =
     primitive_to_json(fields, disposition, json.string, "disposition")
   let fields =
@@ -83183,7 +83266,7 @@ pub fn paymentreconciliation_to_json(
     Some(v) -> [#("paymentIssuer", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields = case period {
     Some(v) -> [#("period", period_to_json(v)), ..fields]
     None -> fields
@@ -83256,7 +83339,7 @@ pub fn paymentreconciliation_decoder() -> Decoder(Paymentreconciliation) {
     decode.optional(identifier_decoder()),
   )
   use payment_amount <- decode.field("paymentAmount", money_decoder())
-  use payment_date <- primitive_decoder("paymentDate", decode.string)
+  use payment_date <- primitive_decoder("paymentDate", date.decoder())
   use disposition <- primitive_decoder("disposition", decode.string)
   use outcome <- primitive_decoder(
     "outcome",
@@ -83277,7 +83360,7 @@ pub fn paymentreconciliation_decoder() -> Decoder(Paymentreconciliation) {
     None,
     decode.optional(reference_decoder()),
   )
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use period <- decode.optional_field(
     "period",
     None,
@@ -83371,7 +83454,7 @@ pub type Person {
     name: List(Humanname),
     telecom: List(Contactpoint),
     gender: Primitive(r4usp_valuesets.Administrativegender),
-    birth_date: Primitive(String),
+    birth_date: Primitive(Date),
     address: List(Address),
     photo: Option(Attachment),
     managing_organization: Option(Reference),
@@ -83543,7 +83626,7 @@ pub fn person_to_json(person: Person) -> Json {
     [] -> fields
     _ -> [#("address", json.array(address, address_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, birth_date, json.string, "birthDate")
+  let fields = primitive_to_json(fields, birth_date, date.to_json, "birthDate")
   let fields =
     primitive_to_json(
       fields,
@@ -83617,7 +83700,7 @@ pub fn person_decoder() -> Decoder(Person) {
     [],
     decode.list(address_decoder()),
   )
-  use birth_date <- primitive_decoder("birthDate", decode.string)
+  use birth_date <- primitive_decoder("birthDate", date.decoder())
   use gender <- primitive_decoder(
     "gender",
     r4usp_valuesets.administrativegender_decoder(),
@@ -83769,7 +83852,7 @@ pub type Plandefinition {
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
     subject: Option(PlandefinitionSubject),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -83778,8 +83861,8 @@ pub type Plandefinition {
     purpose: Primitive(String),
     usage: Primitive(String),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -84028,7 +84111,7 @@ pub fn plandefinition_action_subject_decoder() -> Decoder(
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionTiming {
-  PlandefinitionActionTimingDatetime(timing: String)
+  PlandefinitionActionTimingDatetime(timing: DateTime)
   PlandefinitionActionTimingAge(timing: Age)
   PlandefinitionActionTimingPeriod(timing: Period)
   PlandefinitionActionTimingDuration(timing: Duration)
@@ -84040,7 +84123,7 @@ pub fn plandefinition_action_timing_to_json(
   elt: PlandefinitionActionTiming,
 ) -> Json {
   case elt {
-    PlandefinitionActionTimingDatetime(v) -> json.string(v)
+    PlandefinitionActionTimingDatetime(v) -> datetime.to_json(v)
     PlandefinitionActionTimingAge(v) -> age_to_json(v)
     PlandefinitionActionTimingPeriod(v) -> period_to_json(v)
     PlandefinitionActionTimingDuration(v) -> duration_to_json(v)
@@ -84053,7 +84136,7 @@ pub fn plandefinition_action_timing_decoder() -> Decoder(
   PlandefinitionActionTiming,
 ) {
   decode.one_of(
-    decode.field("timingDateTime", decode.string, decode.success)
+    decode.field("timingDateTime", datetime.decoder(), decode.success)
       |> decode.map(PlandefinitionActionTimingDatetime),
     [
       decode.field("timingAge", age_decoder(), decode.success)
@@ -85204,9 +85287,9 @@ pub fn plandefinition_to_json(plandefinition: Plandefinition) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = primitive_to_json(fields, usage, json.string, "usage")
   let fields = primitive_to_json(fields, purpose, json.string, "purpose")
@@ -85231,7 +85314,7 @@ pub fn plandefinition_to_json(plandefinition: Plandefinition) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case subject {
     Some(v) -> [
       #(
@@ -85347,8 +85430,8 @@ pub fn plandefinition_decoder() -> Decoder(Plandefinition) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use usage <- primitive_decoder("usage", decode.string)
   use purpose <- primitive_decoder("purpose", decode.string)
@@ -85369,7 +85452,7 @@ pub fn plandefinition_decoder() -> Decoder(Plandefinition) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use subject <- decode.then(none_if_omitted(plandefinition_subject_decoder()))
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
@@ -85492,7 +85575,7 @@ pub type Practitioner {
     telecom: List(Contactpoint),
     address: List(Address),
     gender: Primitive(r4usp_valuesets.Administrativegender),
-    birth_date: Primitive(String),
+    birth_date: Primitive(Date),
     photo: List(Attachment),
     qualification: List(PractitionerQualification),
     communication: List(Codeableconcept),
@@ -85704,7 +85787,7 @@ pub fn practitioner_to_json(practitioner: Practitioner) -> Json {
     [] -> fields
     _ -> [#("photo", json.array(photo, attachment_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, birth_date, json.string, "birthDate")
+  let fields = primitive_to_json(fields, birth_date, date.to_json, "birthDate")
   let fields =
     primitive_to_json(
       fields,
@@ -85777,7 +85860,7 @@ pub fn practitioner_decoder() -> Decoder(Practitioner) {
     [],
     decode.list(attachment_decoder()),
   )
-  use birth_date <- primitive_decoder("birthDate", decode.string)
+  use birth_date <- primitive_decoder("birthDate", date.decoder())
   use gender <- primitive_decoder(
     "gender",
     r4usp_valuesets.administrativegender_decoder(),
@@ -86002,8 +86085,8 @@ pub type PractitionerroleAvailabletime {
     modifier_extension: List(Extension),
     days_of_week: List(Primitive(r4usp_valuesets.Daysofweek)),
     all_day: Primitive(Bool),
-    available_start_time: Primitive(String),
-    available_end_time: Primitive(String),
+    available_start_time: Primitive(Time),
+    available_end_time: Primitive(Time),
   )
 }
 
@@ -86119,14 +86202,14 @@ pub fn practitionerrole_availabletime_to_json(
     primitive_to_json(
       fields,
       available_end_time,
-      json.string,
+      time.to_json,
       "availableEndTime",
     )
   let fields =
     primitive_to_json(
       fields,
       available_start_time,
-      json.string,
+      time.to_json,
       "availableStartTime",
     )
   let fields = primitive_to_json(fields, all_day, json.bool, "allDay")
@@ -86156,10 +86239,13 @@ pub fn practitionerrole_availabletime_decoder() -> Decoder(
   PractitionerroleAvailabletime,
 ) {
   use <- decode.recursive
-  use available_end_time <- primitive_decoder("availableEndTime", decode.string)
+  use available_end_time <- primitive_decoder(
+    "availableEndTime",
+    time.decoder(),
+  )
   use available_start_time <- primitive_decoder(
     "availableStartTime",
-    decode.string,
+    time.decoder(),
   )
   use all_day <- primitive_decoder("allDay", decode.bool)
   use days_of_week <- primitives_decoder(
@@ -86490,7 +86576,7 @@ pub type Procedure {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Procedure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Procedure#resource)
 pub type ProcedurePerformed {
-  ProcedurePerformedDatetime(performed: String)
+  ProcedurePerformedDatetime(performed: DateTime)
   ProcedurePerformedPeriod(performed: Period)
   ProcedurePerformedString(performed: String)
   ProcedurePerformedAge(performed: Age)
@@ -86499,7 +86585,7 @@ pub type ProcedurePerformed {
 
 pub fn procedure_performed_to_json(elt: ProcedurePerformed) -> Json {
   case elt {
-    ProcedurePerformedDatetime(v) -> json.string(v)
+    ProcedurePerformedDatetime(v) -> datetime.to_json(v)
     ProcedurePerformedPeriod(v) -> period_to_json(v)
     ProcedurePerformedString(v) -> json.string(v)
     ProcedurePerformedAge(v) -> age_to_json(v)
@@ -86509,7 +86595,7 @@ pub fn procedure_performed_to_json(elt: ProcedurePerformed) -> Json {
 
 pub fn procedure_performed_decoder() -> Decoder(ProcedurePerformed) {
   decode.one_of(
-    decode.field("performedDateTime", decode.string, decode.success)
+    decode.field("performedDateTime", datetime.decoder(), decode.success)
       |> decode.map(ProcedurePerformedDatetime),
     [
       decode.field("performedPeriod", period_decoder(), decode.success)
@@ -87188,7 +87274,7 @@ pub type Provenance {
     modifier_extension: List(Extension),
     target: List1(Reference),
     occurred: Option(ProvenanceOccurred),
-    recorded: Primitive(String),
+    recorded: Primitive(Instant),
     policy: List(Primitive(String)),
     location: Option(Reference),
     reason: List(Codeableconcept),
@@ -87202,13 +87288,13 @@ pub type Provenance {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Provenance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Provenance#resource)
 pub type ProvenanceOccurred {
   ProvenanceOccurredPeriod(occurred: Period)
-  ProvenanceOccurredDatetime(occurred: String)
+  ProvenanceOccurredDatetime(occurred: DateTime)
 }
 
 pub fn provenance_occurred_to_json(elt: ProvenanceOccurred) -> Json {
   case elt {
     ProvenanceOccurredPeriod(v) -> period_to_json(v)
-    ProvenanceOccurredDatetime(v) -> json.string(v)
+    ProvenanceOccurredDatetime(v) -> datetime.to_json(v)
   }
 }
 
@@ -87217,7 +87303,7 @@ pub fn provenance_occurred_decoder() -> Decoder(ProvenanceOccurred) {
     decode.field("occurredPeriod", period_decoder(), decode.success)
       |> decode.map(ProvenanceOccurredPeriod),
     [
-      decode.field("occurredDateTime", decode.string, decode.success)
+      decode.field("occurredDateTime", datetime.decoder(), decode.success)
       |> decode.map(ProvenanceOccurredDatetime),
     ],
   )
@@ -87494,7 +87580,7 @@ pub fn provenance_to_json(provenance: Provenance) -> Json {
     None -> fields
   }
   let fields = primitives_to_json(fields, policy, json.string, "policy")
-  let fields = primitive_to_json(fields, recorded, json.string, "recorded")
+  let fields = primitive_to_json(fields, recorded, instant.to_json, "recorded")
   let fields = case occurred {
     Some(v) -> [
       #(
@@ -87569,7 +87655,7 @@ pub fn provenance_decoder() -> Decoder(Provenance) {
     decode.optional(reference_decoder()),
   )
   use policy <- primitives_decoder("policy", decode.string)
-  use recorded <- primitive_decoder("recorded", decode.string)
+  use recorded <- primitive_decoder("recorded", instant.decoder())
   use occurred <- decode.then(none_if_omitted(provenance_occurred_decoder()))
   use target <- list1_decoder("target", reference_decoder())
   use modifier_extension <- decode.optional_field(
@@ -87648,7 +87734,7 @@ pub type Questionnaire {
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
     subject_type: List(Primitive(r4usp_valuesets.Resourcetypes)),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -87656,8 +87742,8 @@ pub type Questionnaire {
     jurisdiction: List(Codeableconcept),
     purpose: Primitive(String),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     code: List(Coding),
     item: List(QuestionnaireItem),
@@ -87765,9 +87851,9 @@ pub type QuestionnaireItemEnablewhenAnswer {
   QuestionnaireItemEnablewhenAnswerBoolean(answer: Bool)
   QuestionnaireItemEnablewhenAnswerDecimal(answer: Float)
   QuestionnaireItemEnablewhenAnswerInteger(answer: Int)
-  QuestionnaireItemEnablewhenAnswerDate(answer: String)
-  QuestionnaireItemEnablewhenAnswerDatetime(answer: String)
-  QuestionnaireItemEnablewhenAnswerTime(answer: String)
+  QuestionnaireItemEnablewhenAnswerDate(answer: Date)
+  QuestionnaireItemEnablewhenAnswerDatetime(answer: DateTime)
+  QuestionnaireItemEnablewhenAnswerTime(answer: Time)
   QuestionnaireItemEnablewhenAnswerString(answer: String)
   QuestionnaireItemEnablewhenAnswerCoding(answer: Coding)
   QuestionnaireItemEnablewhenAnswerQuantity(answer: Quantity)
@@ -87781,9 +87867,9 @@ pub fn questionnaire_item_enablewhen_answer_to_json(
     QuestionnaireItemEnablewhenAnswerBoolean(v) -> json.bool(v)
     QuestionnaireItemEnablewhenAnswerDecimal(v) -> json.float(v)
     QuestionnaireItemEnablewhenAnswerInteger(v) -> json.int(v)
-    QuestionnaireItemEnablewhenAnswerDate(v) -> json.string(v)
-    QuestionnaireItemEnablewhenAnswerDatetime(v) -> json.string(v)
-    QuestionnaireItemEnablewhenAnswerTime(v) -> json.string(v)
+    QuestionnaireItemEnablewhenAnswerDate(v) -> date.to_json(v)
+    QuestionnaireItemEnablewhenAnswerDatetime(v) -> datetime.to_json(v)
+    QuestionnaireItemEnablewhenAnswerTime(v) -> time.to_json(v)
     QuestionnaireItemEnablewhenAnswerString(v) -> json.string(v)
     QuestionnaireItemEnablewhenAnswerCoding(v) -> coding_to_json(v)
     QuestionnaireItemEnablewhenAnswerQuantity(v) -> quantity_to_json(v)
@@ -87802,11 +87888,11 @@ pub fn questionnaire_item_enablewhen_answer_decoder() -> Decoder(
         |> decode.map(QuestionnaireItemEnablewhenAnswerDecimal),
       decode.field("answerInteger", decode.int, decode.success)
         |> decode.map(QuestionnaireItemEnablewhenAnswerInteger),
-      decode.field("answerDate", decode.string, decode.success)
+      decode.field("answerDate", date.decoder(), decode.success)
         |> decode.map(QuestionnaireItemEnablewhenAnswerDate),
-      decode.field("answerDateTime", decode.string, decode.success)
+      decode.field("answerDateTime", datetime.decoder(), decode.success)
         |> decode.map(QuestionnaireItemEnablewhenAnswerDatetime),
-      decode.field("answerTime", decode.string, decode.success)
+      decode.field("answerTime", time.decoder(), decode.success)
         |> decode.map(QuestionnaireItemEnablewhenAnswerTime),
       decode.field("answerString", decode.string, decode.success)
         |> decode.map(QuestionnaireItemEnablewhenAnswerString),
@@ -87847,8 +87933,8 @@ pub type QuestionnaireItemAnsweroption {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItemAnsweroptionValue {
   QuestionnaireItemAnsweroptionValueInteger(value: Int)
-  QuestionnaireItemAnsweroptionValueDate(value: String)
-  QuestionnaireItemAnsweroptionValueTime(value: String)
+  QuestionnaireItemAnsweroptionValueDate(value: Date)
+  QuestionnaireItemAnsweroptionValueTime(value: Time)
   QuestionnaireItemAnsweroptionValueString(value: String)
   QuestionnaireItemAnsweroptionValueCoding(value: Coding)
   QuestionnaireItemAnsweroptionValueReference(value: Reference)
@@ -87859,8 +87945,8 @@ pub fn questionnaire_item_answeroption_value_to_json(
 ) -> Json {
   case elt {
     QuestionnaireItemAnsweroptionValueInteger(v) -> json.int(v)
-    QuestionnaireItemAnsweroptionValueDate(v) -> json.string(v)
-    QuestionnaireItemAnsweroptionValueTime(v) -> json.string(v)
+    QuestionnaireItemAnsweroptionValueDate(v) -> date.to_json(v)
+    QuestionnaireItemAnsweroptionValueTime(v) -> time.to_json(v)
     QuestionnaireItemAnsweroptionValueString(v) -> json.string(v)
     QuestionnaireItemAnsweroptionValueCoding(v) -> coding_to_json(v)
     QuestionnaireItemAnsweroptionValueReference(v) -> reference_to_json(v)
@@ -87874,9 +87960,9 @@ pub fn questionnaire_item_answeroption_value_decoder() -> Decoder(
     decode.field("valueInteger", decode.int, decode.success)
       |> decode.map(QuestionnaireItemAnsweroptionValueInteger),
     [
-      decode.field("valueDate", decode.string, decode.success)
+      decode.field("valueDate", date.decoder(), decode.success)
         |> decode.map(QuestionnaireItemAnsweroptionValueDate),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(QuestionnaireItemAnsweroptionValueTime),
       decode.field("valueString", decode.string, decode.success)
         |> decode.map(QuestionnaireItemAnsweroptionValueString),
@@ -87915,9 +88001,9 @@ pub type QuestionnaireItemInitialValue {
   QuestionnaireItemInitialValueBoolean(value: Bool)
   QuestionnaireItemInitialValueDecimal(value: Float)
   QuestionnaireItemInitialValueInteger(value: Int)
-  QuestionnaireItemInitialValueDate(value: String)
-  QuestionnaireItemInitialValueDatetime(value: String)
-  QuestionnaireItemInitialValueTime(value: String)
+  QuestionnaireItemInitialValueDate(value: Date)
+  QuestionnaireItemInitialValueDatetime(value: DateTime)
+  QuestionnaireItemInitialValueTime(value: Time)
   QuestionnaireItemInitialValueString(value: String)
   QuestionnaireItemInitialValueUri(value: String)
   QuestionnaireItemInitialValueAttachment(value: Attachment)
@@ -87933,9 +88019,9 @@ pub fn questionnaire_item_initial_value_to_json(
     QuestionnaireItemInitialValueBoolean(v) -> json.bool(v)
     QuestionnaireItemInitialValueDecimal(v) -> json.float(v)
     QuestionnaireItemInitialValueInteger(v) -> json.int(v)
-    QuestionnaireItemInitialValueDate(v) -> json.string(v)
-    QuestionnaireItemInitialValueDatetime(v) -> json.string(v)
-    QuestionnaireItemInitialValueTime(v) -> json.string(v)
+    QuestionnaireItemInitialValueDate(v) -> date.to_json(v)
+    QuestionnaireItemInitialValueDatetime(v) -> datetime.to_json(v)
+    QuestionnaireItemInitialValueTime(v) -> time.to_json(v)
     QuestionnaireItemInitialValueString(v) -> json.string(v)
     QuestionnaireItemInitialValueUri(v) -> json.string(v)
     QuestionnaireItemInitialValueAttachment(v) -> attachment_to_json(v)
@@ -87956,11 +88042,11 @@ pub fn questionnaire_item_initial_value_decoder() -> Decoder(
         |> decode.map(QuestionnaireItemInitialValueDecimal),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(QuestionnaireItemInitialValueInteger),
-      decode.field("valueDate", decode.string, decode.success)
+      decode.field("valueDate", date.decoder(), decode.success)
         |> decode.map(QuestionnaireItemInitialValueDate),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(QuestionnaireItemInitialValueDatetime),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(QuestionnaireItemInitialValueTime),
       decode.field("valueString", decode.string, decode.success)
         |> decode.map(QuestionnaireItemInitialValueString),
@@ -88411,9 +88497,9 @@ pub fn questionnaire_to_json(questionnaire: Questionnaire) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = primitive_to_json(fields, purpose, json.string, "purpose")
   let fields = case jurisdiction {
@@ -88437,7 +88523,7 @@ pub fn questionnaire_to_json(questionnaire: Questionnaire) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitives_to_json(
       fields,
@@ -88508,8 +88594,8 @@ pub fn questionnaire_decoder() -> Decoder(Questionnaire) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use purpose <- primitive_decoder("purpose", decode.string)
   use jurisdiction <- decode.optional_field(
@@ -88529,7 +88615,7 @@ pub fn questionnaire_decoder() -> Decoder(Questionnaire) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use subject_type <- primitives_decoder(
     "subjectType",
     r4usp_valuesets.resourcetypes_decoder(),
@@ -88635,7 +88721,7 @@ pub type Questionnaireresponse {
     status: Primitive(r4usp_valuesets.Questionnaireanswersstatus),
     subject: Option(Reference),
     encounter: Option(Reference),
-    authored: Primitive(String),
+    authored: Primitive(DateTime),
     author: Option(Reference),
     source: Option(Reference),
     item: List(QuestionnaireresponseItem),
@@ -88709,9 +88795,9 @@ pub type QuestionnaireresponseItemAnswerValue {
   QuestionnaireresponseItemAnswerValueBoolean(value: Bool)
   QuestionnaireresponseItemAnswerValueDecimal(value: Float)
   QuestionnaireresponseItemAnswerValueInteger(value: Int)
-  QuestionnaireresponseItemAnswerValueDate(value: String)
-  QuestionnaireresponseItemAnswerValueDatetime(value: String)
-  QuestionnaireresponseItemAnswerValueTime(value: String)
+  QuestionnaireresponseItemAnswerValueDate(value: Date)
+  QuestionnaireresponseItemAnswerValueDatetime(value: DateTime)
+  QuestionnaireresponseItemAnswerValueTime(value: Time)
   QuestionnaireresponseItemAnswerValueString(value: String)
   QuestionnaireresponseItemAnswerValueUri(value: String)
   QuestionnaireresponseItemAnswerValueAttachment(value: Attachment)
@@ -88727,9 +88813,9 @@ pub fn questionnaireresponse_item_answer_value_to_json(
     QuestionnaireresponseItemAnswerValueBoolean(v) -> json.bool(v)
     QuestionnaireresponseItemAnswerValueDecimal(v) -> json.float(v)
     QuestionnaireresponseItemAnswerValueInteger(v) -> json.int(v)
-    QuestionnaireresponseItemAnswerValueDate(v) -> json.string(v)
-    QuestionnaireresponseItemAnswerValueDatetime(v) -> json.string(v)
-    QuestionnaireresponseItemAnswerValueTime(v) -> json.string(v)
+    QuestionnaireresponseItemAnswerValueDate(v) -> date.to_json(v)
+    QuestionnaireresponseItemAnswerValueDatetime(v) -> datetime.to_json(v)
+    QuestionnaireresponseItemAnswerValueTime(v) -> time.to_json(v)
     QuestionnaireresponseItemAnswerValueString(v) -> json.string(v)
     QuestionnaireresponseItemAnswerValueUri(v) -> json.string(v)
     QuestionnaireresponseItemAnswerValueAttachment(v) -> attachment_to_json(v)
@@ -88750,11 +88836,11 @@ pub fn questionnaireresponse_item_answer_value_decoder() -> Decoder(
         |> decode.map(QuestionnaireresponseItemAnswerValueDecimal),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(QuestionnaireresponseItemAnswerValueInteger),
-      decode.field("valueDate", decode.string, decode.success)
+      decode.field("valueDate", date.decoder(), decode.success)
         |> decode.map(QuestionnaireresponseItemAnswerValueDate),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(QuestionnaireresponseItemAnswerValueDatetime),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(QuestionnaireresponseItemAnswerValueTime),
       decode.field("valueString", decode.string, decode.success)
         |> decode.map(QuestionnaireresponseItemAnswerValueString),
@@ -88997,7 +89083,7 @@ pub fn questionnaireresponse_to_json(
     Some(v) -> [#("author", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, authored, json.string, "authored")
+  let fields = primitive_to_json(fields, authored, datetime.to_json, "authored")
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
@@ -89078,7 +89164,7 @@ pub fn questionnaireresponse_decoder() -> Decoder(Questionnaireresponse) {
     None,
     decode.optional(reference_decoder()),
   )
-  use authored <- primitive_decoder("authored", decode.string)
+  use authored <- primitive_decoder("authored", datetime.decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
@@ -89191,7 +89277,7 @@ pub type Relatedperson {
     name: List(Humanname),
     telecom: List(Contactpoint),
     gender: Primitive(r4usp_valuesets.Administrativegender),
-    birth_date: Primitive(String),
+    birth_date: Primitive(Date),
     address: List(Address),
     photo: List(Attachment),
     period: Option(Period),
@@ -89378,7 +89464,7 @@ pub fn relatedperson_to_json(relatedperson: Relatedperson) -> Json {
     [] -> fields
     _ -> [#("address", json.array(address, address_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, birth_date, json.string, "birthDate")
+  let fields = primitive_to_json(fields, birth_date, date.to_json, "birthDate")
   let fields =
     primitive_to_json(
       fields,
@@ -89459,7 +89545,7 @@ pub fn relatedperson_decoder() -> Decoder(Relatedperson) {
     [],
     decode.list(address_decoder()),
   )
-  use birth_date <- primitive_decoder("birthDate", decode.string)
+  use birth_date <- primitive_decoder("birthDate", date.decoder())
   use gender <- primitive_decoder(
     "gender",
     r4usp_valuesets.administrativegender_decoder(),
@@ -89647,7 +89733,7 @@ pub type Requestgroup {
     code: Option(Codeableconcept),
     subject: Option(Reference),
     encounter: Option(Reference),
-    authored_on: Primitive(String),
+    authored_on: Primitive(DateTime),
     author: Option(Reference),
     reason_code: List(Codeableconcept),
     reason_reference: List(Reference),
@@ -89717,7 +89803,7 @@ pub type RequestgroupAction {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RequestGroup#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RequestGroup#resource)
 pub type RequestgroupActionTiming {
-  RequestgroupActionTimingDatetime(timing: String)
+  RequestgroupActionTimingDatetime(timing: DateTime)
   RequestgroupActionTimingAge(timing: Age)
   RequestgroupActionTimingPeriod(timing: Period)
   RequestgroupActionTimingDuration(timing: Duration)
@@ -89727,7 +89813,7 @@ pub type RequestgroupActionTiming {
 
 pub fn requestgroup_action_timing_to_json(elt: RequestgroupActionTiming) -> Json {
   case elt {
-    RequestgroupActionTimingDatetime(v) -> json.string(v)
+    RequestgroupActionTimingDatetime(v) -> datetime.to_json(v)
     RequestgroupActionTimingAge(v) -> age_to_json(v)
     RequestgroupActionTimingPeriod(v) -> period_to_json(v)
     RequestgroupActionTimingDuration(v) -> duration_to_json(v)
@@ -89738,7 +89824,7 @@ pub fn requestgroup_action_timing_to_json(elt: RequestgroupActionTiming) -> Json
 
 pub fn requestgroup_action_timing_decoder() -> Decoder(RequestgroupActionTiming) {
   decode.one_of(
-    decode.field("timingDateTime", decode.string, decode.success)
+    decode.field("timingDateTime", datetime.decoder(), decode.success)
       |> decode.map(RequestgroupActionTimingDatetime),
     [
       decode.field("timingAge", age_decoder(), decode.success)
@@ -90337,7 +90423,8 @@ pub fn requestgroup_to_json(requestgroup: Requestgroup) -> Json {
     Some(v) -> [#("author", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, authored_on, json.string, "authoredOn")
+  let fields =
+    primitive_to_json(fields, authored_on, datetime.to_json, "authoredOn")
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
@@ -90454,7 +90541,7 @@ pub fn requestgroup_decoder() -> Decoder(Requestgroup) {
     None,
     decode.optional(reference_decoder()),
   )
-  use authored_on <- primitive_decoder("authoredOn", decode.string)
+  use authored_on <- primitive_decoder("authoredOn", datetime.decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
@@ -90592,7 +90679,7 @@ pub type Researchdefinition {
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
     subject: Option(ResearchdefinitionSubject),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -90602,8 +90689,8 @@ pub type Researchdefinition {
     purpose: Primitive(String),
     usage: Primitive(String),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -90798,9 +90885,9 @@ pub fn researchdefinition_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = primitive_to_json(fields, usage, json.string, "usage")
   let fields = primitive_to_json(fields, purpose, json.string, "purpose")
@@ -90826,7 +90913,7 @@ pub fn researchdefinition_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case subject {
     Some(v) -> [
       #(
@@ -90945,8 +91032,8 @@ pub fn researchdefinition_decoder() -> Decoder(Researchdefinition) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use usage <- primitive_decoder("usage", decode.string)
   use purpose <- primitive_decoder("purpose", decode.string)
@@ -90968,7 +91055,7 @@ pub fn researchdefinition_decoder() -> Decoder(Researchdefinition) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use subject <- decode.then(
     none_if_omitted(researchdefinition_subject_decoder()),
   )
@@ -91089,7 +91176,7 @@ pub type Researchelementdefinition {
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
     subject: Option(ResearchelementdefinitionSubject),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -91099,8 +91186,8 @@ pub type Researchelementdefinition {
     purpose: Primitive(String),
     usage: Primitive(String),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -91286,7 +91373,7 @@ pub fn researchelementdefinition_characteristic_definition_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ResearchElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ResearchElementDefinition#resource)
 pub type ResearchelementdefinitionCharacteristicStudyeffective {
   ResearchelementdefinitionCharacteristicStudyeffectiveDatetime(
-    study_effective: String,
+    study_effective: DateTime,
   )
   ResearchelementdefinitionCharacteristicStudyeffectivePeriod(
     study_effective: Period,
@@ -91304,7 +91391,7 @@ pub fn researchelementdefinition_characteristic_studyeffective_to_json(
 ) -> Json {
   case elt {
     ResearchelementdefinitionCharacteristicStudyeffectiveDatetime(v) ->
-      json.string(v)
+      datetime.to_json(v)
     ResearchelementdefinitionCharacteristicStudyeffectivePeriod(v) ->
       period_to_json(v)
     ResearchelementdefinitionCharacteristicStudyeffectiveDuration(v) ->
@@ -91318,7 +91405,7 @@ pub fn researchelementdefinition_characteristic_studyeffective_decoder() -> Deco
   ResearchelementdefinitionCharacteristicStudyeffective,
 ) {
   decode.one_of(
-    decode.field("studyEffectiveDateTime", decode.string, decode.success)
+    decode.field("studyEffectiveDateTime", datetime.decoder(), decode.success)
       |> decode.map(
         ResearchelementdefinitionCharacteristicStudyeffectiveDatetime,
       ),
@@ -91342,7 +91429,7 @@ pub fn researchelementdefinition_characteristic_studyeffective_decoder() -> Deco
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ResearchElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ResearchElementDefinition#resource)
 pub type ResearchelementdefinitionCharacteristicParticipanteffective {
   ResearchelementdefinitionCharacteristicParticipanteffectiveDatetime(
-    participant_effective: String,
+    participant_effective: DateTime,
   )
   ResearchelementdefinitionCharacteristicParticipanteffectivePeriod(
     participant_effective: Period,
@@ -91360,7 +91447,7 @@ pub fn researchelementdefinition_characteristic_participanteffective_to_json(
 ) -> Json {
   case elt {
     ResearchelementdefinitionCharacteristicParticipanteffectiveDatetime(v) ->
-      json.string(v)
+      datetime.to_json(v)
     ResearchelementdefinitionCharacteristicParticipanteffectivePeriod(v) ->
       period_to_json(v)
     ResearchelementdefinitionCharacteristicParticipanteffectiveDuration(v) ->
@@ -91374,7 +91461,11 @@ pub fn researchelementdefinition_characteristic_participanteffective_decoder() -
   ResearchelementdefinitionCharacteristicParticipanteffective,
 ) {
   decode.one_of(
-    decode.field("participantEffectiveDateTime", decode.string, decode.success)
+    decode.field(
+      "participantEffectiveDateTime",
+      datetime.decoder(),
+      decode.success,
+    )
       |> decode.map(
         ResearchelementdefinitionCharacteristicParticipanteffectiveDatetime,
       ),
@@ -91764,9 +91855,9 @@ pub fn researchelementdefinition_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = primitive_to_json(fields, usage, json.string, "usage")
   let fields = primitive_to_json(fields, purpose, json.string, "purpose")
@@ -91792,7 +91883,7 @@ pub fn researchelementdefinition_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case subject {
     Some(v) -> [
       #(
@@ -91911,8 +92002,8 @@ pub fn researchelementdefinition_decoder() -> Decoder(Researchelementdefinition)
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use usage <- primitive_decoder("usage", decode.string)
   use purpose <- primitive_decoder("purpose", decode.string)
@@ -91934,7 +92025,7 @@ pub fn researchelementdefinition_decoder() -> Decoder(Researchelementdefinition)
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use subject <- decode.then(
     none_if_omitted(researchelementdefinition_subject_decoder()),
   )
@@ -92872,20 +92963,20 @@ pub type Riskassessment {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RiskAssessment#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RiskAssessment#resource)
 pub type RiskassessmentOccurrence {
-  RiskassessmentOccurrenceDatetime(occurrence: String)
+  RiskassessmentOccurrenceDatetime(occurrence: DateTime)
   RiskassessmentOccurrencePeriod(occurrence: Period)
 }
 
 pub fn riskassessment_occurrence_to_json(elt: RiskassessmentOccurrence) -> Json {
   case elt {
-    RiskassessmentOccurrenceDatetime(v) -> json.string(v)
+    RiskassessmentOccurrenceDatetime(v) -> datetime.to_json(v)
     RiskassessmentOccurrencePeriod(v) -> period_to_json(v)
   }
 }
 
 pub fn riskassessment_occurrence_decoder() -> Decoder(RiskassessmentOccurrence) {
   decode.one_of(
-    decode.field("occurrenceDateTime", decode.string, decode.success)
+    decode.field("occurrenceDateTime", datetime.decoder(), decode.success)
       |> decode.map(RiskassessmentOccurrenceDatetime),
     [
       decode.field("occurrencePeriod", period_decoder(), decode.success)
@@ -93423,7 +93514,7 @@ pub type Riskevidencesynthesis {
     name: Primitive(String),
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -93431,8 +93522,8 @@ pub type Riskevidencesynthesis {
     use_context: List(Usagecontext),
     jurisdiction: List(Codeableconcept),
     copyright: Primitive(String),
-    approval_date: Primitive(String),
-    last_review_date: Primitive(String),
+    approval_date: Primitive(Date),
+    last_review_date: Primitive(Date),
     effective_period: Option(Period),
     topic: List(Codeableconcept),
     author: List(Contactdetail),
@@ -94156,9 +94247,9 @@ pub fn riskevidencesynthesis_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_review_date, json.string, "lastReviewDate")
+    primitive_to_json(fields, last_review_date, date.to_json, "lastReviewDate")
   let fields =
-    primitive_to_json(fields, approval_date, json.string, "approvalDate")
+    primitive_to_json(fields, approval_date, date.to_json, "approvalDate")
   let fields = primitive_to_json(fields, copyright, json.string, "copyright")
   let fields = case jurisdiction {
     [] -> fields
@@ -94185,7 +94276,7 @@ pub fn riskevidencesynthesis_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(
       fields,
@@ -94304,8 +94395,8 @@ pub fn riskevidencesynthesis_decoder() -> Decoder(Riskevidencesynthesis) {
     None,
     decode.optional(period_decoder()),
   )
-  use last_review_date <- primitive_decoder("lastReviewDate", decode.string)
-  use approval_date <- primitive_decoder("approvalDate", decode.string)
+  use last_review_date <- primitive_decoder("lastReviewDate", date.decoder())
+  use approval_date <- primitive_decoder("approvalDate", date.decoder())
   use copyright <- primitive_decoder("copyright", decode.string)
   use jurisdiction <- decode.optional_field(
     "jurisdiction",
@@ -94329,7 +94420,7 @@ pub fn riskevidencesynthesis_decoder() -> Decoder(Riskevidencesynthesis) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use status <- primitive_decoder(
     "status",
     r4usp_valuesets.publicationstatus_decoder(),
@@ -94654,7 +94745,7 @@ pub type Searchparameter {
     derived_from: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -94904,7 +94995,7 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -95005,7 +95096,7 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -95116,7 +95207,7 @@ pub type Servicerequest {
     encounter: Option(Reference),
     occurrence: Option(ServicerequestOccurrence),
     as_needed: Option(ServicerequestAsneeded),
-    authored_on: Primitive(String),
+    authored_on: Primitive(DateTime),
     requester: Option(Reference),
     performer_type: Option(Codeableconcept),
     performer: List(Reference),
@@ -95164,14 +95255,14 @@ pub fn servicerequest_quantity_decoder() -> Decoder(ServicerequestQuantity) {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ServiceRequest#resource)
 pub type ServicerequestOccurrence {
-  ServicerequestOccurrenceDatetime(occurrence: String)
+  ServicerequestOccurrenceDatetime(occurrence: DateTime)
   ServicerequestOccurrencePeriod(occurrence: Period)
   ServicerequestOccurrenceTiming(occurrence: Timing)
 }
 
 pub fn servicerequest_occurrence_to_json(elt: ServicerequestOccurrence) -> Json {
   case elt {
-    ServicerequestOccurrenceDatetime(v) -> json.string(v)
+    ServicerequestOccurrenceDatetime(v) -> datetime.to_json(v)
     ServicerequestOccurrencePeriod(v) -> period_to_json(v)
     ServicerequestOccurrenceTiming(v) -> timing_to_json(v)
   }
@@ -95179,7 +95270,7 @@ pub fn servicerequest_occurrence_to_json(elt: ServicerequestOccurrence) -> Json 
 
 pub fn servicerequest_occurrence_decoder() -> Decoder(ServicerequestOccurrence) {
   decode.one_of(
-    decode.field("occurrenceDateTime", decode.string, decode.success)
+    decode.field("occurrenceDateTime", datetime.decoder(), decode.success)
       |> decode.map(ServicerequestOccurrenceDatetime),
     [
       decode.field("occurrencePeriod", period_decoder(), decode.success)
@@ -95391,7 +95482,8 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
     Some(v) -> [#("requester", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, authored_on, json.string, "authoredOn")
+  let fields =
+    primitive_to_json(fields, authored_on, datetime.to_json, "authoredOn")
   let fields = case as_needed {
     Some(v) -> [
       #(
@@ -95608,7 +95700,7 @@ pub fn servicerequest_decoder() -> Decoder(Servicerequest) {
     None,
     decode.optional(reference_decoder()),
   )
-  use authored_on <- primitive_decoder("authoredOn", decode.string)
+  use authored_on <- primitive_decoder("authoredOn", datetime.decoder())
   use as_needed <- decode.then(
     none_if_omitted(servicerequest_asneeded_decoder()),
   )
@@ -95774,8 +95866,8 @@ pub type Slot {
     appointment_type: Option(Codeableconcept),
     schedule: Reference,
     status: Primitive(r4usp_valuesets.Slotstatus),
-    start: Primitive(String),
-    end: Primitive(String),
+    start: Primitive(Instant),
+    end: Primitive(Instant),
     overbooked: Primitive(Bool),
     comment: Primitive(String),
   )
@@ -95832,8 +95924,8 @@ pub fn slot_to_json(slot: Slot) -> Json {
   ]
   let fields = primitive_to_json(fields, comment, json.string, "comment")
   let fields = primitive_to_json(fields, overbooked, json.bool, "overbooked")
-  let fields = primitive_to_json(fields, end, json.string, "end")
-  let fields = primitive_to_json(fields, start, json.string, "start")
+  let fields = primitive_to_json(fields, end, instant.to_json, "end")
+  let fields = primitive_to_json(fields, start, instant.to_json, "start")
   let fields =
     primitive_to_json(
       fields,
@@ -95908,8 +96000,8 @@ pub fn slot_decoder() -> Decoder(Slot) {
   use <- decode.recursive
   use comment <- primitive_decoder("comment", decode.string)
   use overbooked <- primitive_decoder("overbooked", decode.bool)
-  use end <- primitive_decoder("end", decode.string)
-  use start <- primitive_decoder("start", decode.string)
+  use end <- primitive_decoder("end", instant.decoder())
+  use start <- primitive_decoder("start", instant.decoder())
   use status <- primitive_decoder(
     "status",
     r4usp_valuesets.slotstatus_decoder(),
@@ -96013,7 +96105,7 @@ pub type Specimen {
     status: Primitive(r4usp_valuesets.Specimenstatus),
     type_: Option(Codeableconcept),
     subject: Option(Reference),
-    received_time: Primitive(String),
+    received_time: Primitive(DateTime),
     parent: List(Reference),
     request: List(Reference),
     collection: Option(SpecimenCollection),
@@ -96068,7 +96160,7 @@ pub type SpecimenCollection {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource)
 pub type SpecimenCollectionCollected {
-  SpecimenCollectionCollectedDatetime(collected: String)
+  SpecimenCollectionCollectedDatetime(collected: DateTime)
   SpecimenCollectionCollectedPeriod(collected: Period)
 }
 
@@ -96076,7 +96168,7 @@ pub fn specimen_collection_collected_to_json(
   elt: SpecimenCollectionCollected,
 ) -> Json {
   case elt {
-    SpecimenCollectionCollectedDatetime(v) -> json.string(v)
+    SpecimenCollectionCollectedDatetime(v) -> datetime.to_json(v)
     SpecimenCollectionCollectedPeriod(v) -> period_to_json(v)
   }
 }
@@ -96085,7 +96177,7 @@ pub fn specimen_collection_collected_decoder() -> Decoder(
   SpecimenCollectionCollected,
 ) {
   decode.one_of(
-    decode.field("collectedDateTime", decode.string, decode.success)
+    decode.field("collectedDateTime", datetime.decoder(), decode.success)
       |> decode.map(SpecimenCollectionCollectedDatetime),
     [
       decode.field("collectedPeriod", period_decoder(), decode.success)
@@ -96159,20 +96251,20 @@ pub type SpecimenProcessing {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource)
 pub type SpecimenProcessingTime {
-  SpecimenProcessingTimeDatetime(time: String)
+  SpecimenProcessingTimeDatetime(time: DateTime)
   SpecimenProcessingTimePeriod(time: Period)
 }
 
 pub fn specimen_processing_time_to_json(elt: SpecimenProcessingTime) -> Json {
   case elt {
-    SpecimenProcessingTimeDatetime(v) -> json.string(v)
+    SpecimenProcessingTimeDatetime(v) -> datetime.to_json(v)
     SpecimenProcessingTimePeriod(v) -> period_to_json(v)
   }
 }
 
 pub fn specimen_processing_time_decoder() -> Decoder(SpecimenProcessingTime) {
   decode.one_of(
-    decode.field("timeDateTime", decode.string, decode.success)
+    decode.field("timeDateTime", datetime.decoder(), decode.success)
       |> decode.map(SpecimenProcessingTimeDatetime),
     [
       decode.field("timePeriod", period_decoder(), decode.success)
@@ -96652,7 +96744,7 @@ pub fn specimen_to_json(specimen: Specimen) -> Json {
     _ -> [#("parent", json.array(parent, reference_to_json)), ..fields]
   }
   let fields =
-    primitive_to_json(fields, received_time, json.string, "receivedTime")
+    primitive_to_json(fields, received_time, datetime.to_json, "receivedTime")
   let fields = case subject {
     Some(v) -> [#("subject", reference_to_json(v)), ..fields]
     None -> fields
@@ -96744,7 +96836,7 @@ pub fn specimen_decoder() -> Decoder(Specimen) {
     [],
     decode.list(reference_decoder()),
   )
-  use received_time <- primitive_decoder("receivedTime", decode.string)
+  use received_time <- primitive_decoder("receivedTime", datetime.decoder())
   use subject <- decode.optional_field(
     "subject",
     None,
@@ -97669,7 +97761,7 @@ pub type Structuredefinition {
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -98175,7 +98267,7 @@ pub fn structuredefinition_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -98286,7 +98378,7 @@ pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -98392,7 +98484,7 @@ pub type Structuremap {
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -98576,17 +98668,17 @@ pub type StructuremapGroupRuleSourceDefaultvalue {
   StructuremapGroupRuleSourceDefaultvalueBoolean(default_value: Bool)
   StructuremapGroupRuleSourceDefaultvalueCanonical(default_value: String)
   StructuremapGroupRuleSourceDefaultvalueCode(default_value: String)
-  StructuremapGroupRuleSourceDefaultvalueDate(default_value: String)
-  StructuremapGroupRuleSourceDefaultvalueDatetime(default_value: String)
+  StructuremapGroupRuleSourceDefaultvalueDate(default_value: Date)
+  StructuremapGroupRuleSourceDefaultvalueDatetime(default_value: DateTime)
   StructuremapGroupRuleSourceDefaultvalueDecimal(default_value: Float)
   StructuremapGroupRuleSourceDefaultvalueId(default_value: String)
-  StructuremapGroupRuleSourceDefaultvalueInstant(default_value: String)
+  StructuremapGroupRuleSourceDefaultvalueInstant(default_value: Instant)
   StructuremapGroupRuleSourceDefaultvalueInteger(default_value: Int)
   StructuremapGroupRuleSourceDefaultvalueMarkdown(default_value: String)
   StructuremapGroupRuleSourceDefaultvalueOid(default_value: String)
   StructuremapGroupRuleSourceDefaultvaluePositiveint(default_value: Int)
   StructuremapGroupRuleSourceDefaultvalueString(default_value: String)
-  StructuremapGroupRuleSourceDefaultvalueTime(default_value: String)
+  StructuremapGroupRuleSourceDefaultvalueTime(default_value: Time)
   StructuremapGroupRuleSourceDefaultvalueUnsignedint(default_value: Int)
   StructuremapGroupRuleSourceDefaultvalueUri(default_value: String)
   StructuremapGroupRuleSourceDefaultvalueUrl(default_value: String)
@@ -98648,17 +98740,17 @@ pub fn structuremap_group_rule_source_defaultvalue_to_json(
     StructuremapGroupRuleSourceDefaultvalueBoolean(v) -> json.bool(v)
     StructuremapGroupRuleSourceDefaultvalueCanonical(v) -> json.string(v)
     StructuremapGroupRuleSourceDefaultvalueCode(v) -> json.string(v)
-    StructuremapGroupRuleSourceDefaultvalueDate(v) -> json.string(v)
-    StructuremapGroupRuleSourceDefaultvalueDatetime(v) -> json.string(v)
+    StructuremapGroupRuleSourceDefaultvalueDate(v) -> date.to_json(v)
+    StructuremapGroupRuleSourceDefaultvalueDatetime(v) -> datetime.to_json(v)
     StructuremapGroupRuleSourceDefaultvalueDecimal(v) -> json.float(v)
     StructuremapGroupRuleSourceDefaultvalueId(v) -> json.string(v)
-    StructuremapGroupRuleSourceDefaultvalueInstant(v) -> json.string(v)
+    StructuremapGroupRuleSourceDefaultvalueInstant(v) -> instant.to_json(v)
     StructuremapGroupRuleSourceDefaultvalueInteger(v) -> json.int(v)
     StructuremapGroupRuleSourceDefaultvalueMarkdown(v) -> json.string(v)
     StructuremapGroupRuleSourceDefaultvalueOid(v) -> json.string(v)
     StructuremapGroupRuleSourceDefaultvaluePositiveint(v) -> json.int(v)
     StructuremapGroupRuleSourceDefaultvalueString(v) -> json.string(v)
-    StructuremapGroupRuleSourceDefaultvalueTime(v) -> json.string(v)
+    StructuremapGroupRuleSourceDefaultvalueTime(v) -> time.to_json(v)
     StructuremapGroupRuleSourceDefaultvalueUnsignedint(v) -> json.int(v)
     StructuremapGroupRuleSourceDefaultvalueUri(v) -> json.string(v)
     StructuremapGroupRuleSourceDefaultvalueUrl(v) -> json.string(v)
@@ -98724,15 +98816,15 @@ pub fn structuremap_group_rule_source_defaultvalue_decoder() -> Decoder(
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueCanonical),
       decode.field("defaultValueCode", decode.string, decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueCode),
-      decode.field("defaultValueDate", decode.string, decode.success)
+      decode.field("defaultValueDate", date.decoder(), decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueDate),
-      decode.field("defaultValueDateTime", decode.string, decode.success)
+      decode.field("defaultValueDateTime", datetime.decoder(), decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueDatetime),
       decode.field("defaultValueDecimal", decode_number(), decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueDecimal),
       decode.field("defaultValueId", decode.string, decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueId),
-      decode.field("defaultValueInstant", decode.string, decode.success)
+      decode.field("defaultValueInstant", instant.decoder(), decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueInstant),
       decode.field("defaultValueInteger", decode.int, decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueInteger),
@@ -98744,7 +98836,7 @@ pub fn structuremap_group_rule_source_defaultvalue_decoder() -> Decoder(
         |> decode.map(StructuremapGroupRuleSourceDefaultvaluePositiveint),
       decode.field("defaultValueString", decode.string, decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueString),
-      decode.field("defaultValueTime", decode.string, decode.success)
+      decode.field("defaultValueTime", time.decoder(), decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueTime),
       decode.field("defaultValueUnsignedInt", decode.int, decode.success)
         |> decode.map(StructuremapGroupRuleSourceDefaultvalueUnsignedint),
@@ -99799,7 +99891,7 @@ pub fn structuremap_to_json(structuremap: Structuremap) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -99876,7 +99968,7 @@ pub fn structuremap_decoder() -> Decoder(Structuremap) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -99968,7 +100060,7 @@ pub type Subscription {
     modifier_extension: List(Extension),
     status: Primitive(r4usp_valuesets.Subscriptionstatus),
     contact: List(Contactpoint),
-    end: Primitive(String),
+    end: Primitive(Instant),
     reason: Primitive(String),
     criteria: Primitive(String),
     error: Primitive(String),
@@ -100114,7 +100206,7 @@ pub fn subscription_to_json(subscription: Subscription) -> Json {
   let fields = primitive_to_json(fields, error, json.string, "error")
   let fields = primitive_to_json(fields, criteria, json.string, "criteria")
   let fields = primitive_to_json(fields, reason, json.string, "reason")
-  let fields = primitive_to_json(fields, end, json.string, "end")
+  let fields = primitive_to_json(fields, end, instant.to_json, "end")
   let fields = case contact {
     [] -> fields
     _ -> [#("contact", json.array(contact, contactpoint_to_json)), ..fields]
@@ -100163,7 +100255,7 @@ pub fn subscription_decoder() -> Decoder(Subscription) {
   use error <- primitive_decoder("error", decode.string)
   use criteria <- primitive_decoder("criteria", decode.string)
   use reason <- primitive_decoder("reason", decode.string)
-  use end <- primitive_decoder("end", decode.string)
+  use end <- primitive_decoder("end", instant.decoder())
   use contact <- decode.optional_field(
     "contact",
     [],
@@ -100274,7 +100366,7 @@ pub type SubstanceInstance {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
-    expiry: Primitive(String),
+    expiry: Primitive(DateTime),
     quantity: Option(Quantity),
   )
 }
@@ -100426,7 +100518,7 @@ pub fn substance_instance_to_json(substance_instance: SubstanceInstance) -> Json
     Some(v) -> [#("quantity", quantity_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, expiry, json.string, "expiry")
+  let fields = primitive_to_json(fields, expiry, datetime.to_json, "expiry")
   let fields = case identifier {
     Some(v) -> [#("identifier", identifier_to_json(v)), ..fields]
     None -> fields
@@ -100453,7 +100545,7 @@ pub fn substance_instance_decoder() -> Decoder(SubstanceInstance) {
     None,
     decode.optional(quantity_decoder()),
   )
-  use expiry <- primitive_decoder("expiry", decode.string)
+  use expiry <- primitive_decoder("expiry", datetime.decoder())
   use identifier <- decode.optional_field(
     "identifier",
     None,
@@ -104449,7 +104541,7 @@ pub type SubstancespecificationCode {
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
     status: Option(Codeableconcept),
-    status_date: Primitive(String),
+    status_date: Primitive(DateTime),
     comment: Primitive(String),
     source: List(Reference),
   )
@@ -104515,7 +104607,7 @@ pub type SubstancespecificationNameOfficial {
     modifier_extension: List(Extension),
     authority: Option(Codeableconcept),
     status: Option(Codeableconcept),
-    date: Primitive(String),
+    date: Primitive(DateTime),
   )
 }
 
@@ -104780,7 +104872,7 @@ pub fn substancespecification_name_official_to_json(
     id:,
   ) = substancespecification_name_official
   let fields = []
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields = case status {
     Some(v) -> [#("status", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -104808,7 +104900,7 @@ pub fn substancespecification_name_official_decoder() -> Decoder(
   SubstancespecificationNameOfficial,
 ) {
   use <- decode.recursive
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use status <- decode.optional_field(
     "status",
     None,
@@ -105033,7 +105125,8 @@ pub fn substancespecification_code_to_json(
     _ -> [#("source", json.array(source, reference_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, comment, json.string, "comment")
-  let fields = primitive_to_json(fields, status_date, json.string, "statusDate")
+  let fields =
+    primitive_to_json(fields, status_date, datetime.to_json, "statusDate")
   let fields = case status {
     Some(v) -> [#("status", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -105067,7 +105160,7 @@ pub fn substancespecification_code_decoder() -> Decoder(
     decode.list(reference_decoder()),
   )
   use comment <- primitive_decoder("comment", decode.string)
-  use status_date <- primitive_decoder("statusDate", decode.string)
+  use status_date <- primitive_decoder("statusDate", datetime.decoder())
   use status <- decode.optional_field(
     "status",
     None,
@@ -106109,14 +106202,14 @@ pub type Supplydelivery {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SupplyDelivery#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SupplyDelivery#resource)
 pub type SupplydeliveryOccurrence {
-  SupplydeliveryOccurrenceDatetime(occurrence: String)
+  SupplydeliveryOccurrenceDatetime(occurrence: DateTime)
   SupplydeliveryOccurrencePeriod(occurrence: Period)
   SupplydeliveryOccurrenceTiming(occurrence: Timing)
 }
 
 pub fn supplydelivery_occurrence_to_json(elt: SupplydeliveryOccurrence) -> Json {
   case elt {
-    SupplydeliveryOccurrenceDatetime(v) -> json.string(v)
+    SupplydeliveryOccurrenceDatetime(v) -> datetime.to_json(v)
     SupplydeliveryOccurrencePeriod(v) -> period_to_json(v)
     SupplydeliveryOccurrenceTiming(v) -> timing_to_json(v)
   }
@@ -106124,7 +106217,7 @@ pub fn supplydelivery_occurrence_to_json(elt: SupplydeliveryOccurrence) -> Json 
 
 pub fn supplydelivery_occurrence_decoder() -> Decoder(SupplydeliveryOccurrence) {
   decode.one_of(
-    decode.field("occurrenceDateTime", decode.string, decode.success)
+    decode.field("occurrenceDateTime", datetime.decoder(), decode.success)
       |> decode.map(SupplydeliveryOccurrenceDatetime),
     [
       decode.field("occurrencePeriod", period_decoder(), decode.success)
@@ -106534,7 +106627,7 @@ pub type Supplyrequest {
     quantity: Quantity,
     parameter: List(SupplyrequestParameter),
     occurrence: Option(SupplyrequestOccurrence),
-    authored_on: Primitive(String),
+    authored_on: Primitive(DateTime),
     requester: Option(Reference),
     supplier: List(Reference),
     reason_code: List(Codeableconcept),
@@ -106574,14 +106667,14 @@ pub fn supplyrequest_item_decoder() -> Decoder(SupplyrequestItem) {
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SupplyRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SupplyRequest#resource)
 pub type SupplyrequestOccurrence {
-  SupplyrequestOccurrenceDatetime(occurrence: String)
+  SupplyrequestOccurrenceDatetime(occurrence: DateTime)
   SupplyrequestOccurrencePeriod(occurrence: Period)
   SupplyrequestOccurrenceTiming(occurrence: Timing)
 }
 
 pub fn supplyrequest_occurrence_to_json(elt: SupplyrequestOccurrence) -> Json {
   case elt {
-    SupplyrequestOccurrenceDatetime(v) -> json.string(v)
+    SupplyrequestOccurrenceDatetime(v) -> datetime.to_json(v)
     SupplyrequestOccurrencePeriod(v) -> period_to_json(v)
     SupplyrequestOccurrenceTiming(v) -> timing_to_json(v)
   }
@@ -106589,7 +106682,7 @@ pub fn supplyrequest_occurrence_to_json(elt: SupplyrequestOccurrence) -> Json {
 
 pub fn supplyrequest_occurrence_decoder() -> Decoder(SupplyrequestOccurrence) {
   decode.one_of(
-    decode.field("occurrenceDateTime", decode.string, decode.success)
+    decode.field("occurrenceDateTime", datetime.decoder(), decode.success)
       |> decode.map(SupplyrequestOccurrenceDatetime),
     [
       decode.field("occurrencePeriod", period_decoder(), decode.success)
@@ -106835,7 +106928,8 @@ pub fn supplyrequest_to_json(supplyrequest: Supplyrequest) -> Json {
     Some(v) -> [#("requester", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, authored_on, json.string, "authoredOn")
+  let fields =
+    primitive_to_json(fields, authored_on, datetime.to_json, "authoredOn")
   let fields = case occurrence {
     Some(v) -> [
       #(
@@ -106943,7 +107037,7 @@ pub fn supplyrequest_decoder() -> Decoder(Supplyrequest) {
     None,
     decode.optional(reference_decoder()),
   )
-  use authored_on <- primitive_decoder("authoredOn", decode.string)
+  use authored_on <- primitive_decoder("authoredOn", datetime.decoder())
   use occurrence <- decode.then(
     none_if_omitted(supplyrequest_occurrence_decoder()),
   )
@@ -107061,8 +107155,8 @@ pub type Task {
     for: Option(Reference),
     encounter: Option(Reference),
     execution_period: Option(Period),
-    authored_on: Primitive(String),
-    last_modified: Primitive(String),
+    authored_on: Primitive(DateTime),
+    last_modified: Primitive(DateTime),
     requester: Option(Reference),
     performer_type: List(Codeableconcept),
     owner: Option(Reference),
@@ -107162,17 +107256,17 @@ pub type TaskInputValue {
   TaskInputValueBoolean(value: Bool)
   TaskInputValueCanonical(value: String)
   TaskInputValueCode(value: String)
-  TaskInputValueDate(value: String)
-  TaskInputValueDatetime(value: String)
+  TaskInputValueDate(value: Date)
+  TaskInputValueDatetime(value: DateTime)
   TaskInputValueDecimal(value: Float)
   TaskInputValueId(value: String)
-  TaskInputValueInstant(value: String)
+  TaskInputValueInstant(value: Instant)
   TaskInputValueInteger(value: Int)
   TaskInputValueMarkdown(value: String)
   TaskInputValueOid(value: String)
   TaskInputValuePositiveint(value: Int)
   TaskInputValueString(value: String)
-  TaskInputValueTime(value: String)
+  TaskInputValueTime(value: Time)
   TaskInputValueUnsignedint(value: Int)
   TaskInputValueUri(value: String)
   TaskInputValueUrl(value: String)
@@ -107216,17 +107310,17 @@ pub fn task_input_value_to_json(elt: TaskInputValue) -> Json {
     TaskInputValueBoolean(v) -> json.bool(v)
     TaskInputValueCanonical(v) -> json.string(v)
     TaskInputValueCode(v) -> json.string(v)
-    TaskInputValueDate(v) -> json.string(v)
-    TaskInputValueDatetime(v) -> json.string(v)
+    TaskInputValueDate(v) -> date.to_json(v)
+    TaskInputValueDatetime(v) -> datetime.to_json(v)
     TaskInputValueDecimal(v) -> json.float(v)
     TaskInputValueId(v) -> json.string(v)
-    TaskInputValueInstant(v) -> json.string(v)
+    TaskInputValueInstant(v) -> instant.to_json(v)
     TaskInputValueInteger(v) -> json.int(v)
     TaskInputValueMarkdown(v) -> json.string(v)
     TaskInputValueOid(v) -> json.string(v)
     TaskInputValuePositiveint(v) -> json.int(v)
     TaskInputValueString(v) -> json.string(v)
-    TaskInputValueTime(v) -> json.string(v)
+    TaskInputValueTime(v) -> time.to_json(v)
     TaskInputValueUnsignedint(v) -> json.int(v)
     TaskInputValueUri(v) -> json.string(v)
     TaskInputValueUrl(v) -> json.string(v)
@@ -107276,15 +107370,15 @@ pub fn task_input_value_decoder() -> Decoder(TaskInputValue) {
         |> decode.map(TaskInputValueCanonical),
       decode.field("valueCode", decode.string, decode.success)
         |> decode.map(TaskInputValueCode),
-      decode.field("valueDate", decode.string, decode.success)
+      decode.field("valueDate", date.decoder(), decode.success)
         |> decode.map(TaskInputValueDate),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(TaskInputValueDatetime),
       decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(TaskInputValueDecimal),
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(TaskInputValueId),
-      decode.field("valueInstant", decode.string, decode.success)
+      decode.field("valueInstant", instant.decoder(), decode.success)
         |> decode.map(TaskInputValueInstant),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(TaskInputValueInteger),
@@ -107296,7 +107390,7 @@ pub fn task_input_value_decoder() -> Decoder(TaskInputValue) {
         |> decode.map(TaskInputValuePositiveint),
       decode.field("valueString", decode.string, decode.success)
         |> decode.map(TaskInputValueString),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(TaskInputValueTime),
       decode.field("valueUnsignedInt", decode.int, decode.success)
         |> decode.map(TaskInputValueUnsignedint),
@@ -107426,17 +107520,17 @@ pub type TaskOutputValue {
   TaskOutputValueBoolean(value: Bool)
   TaskOutputValueCanonical(value: String)
   TaskOutputValueCode(value: String)
-  TaskOutputValueDate(value: String)
-  TaskOutputValueDatetime(value: String)
+  TaskOutputValueDate(value: Date)
+  TaskOutputValueDatetime(value: DateTime)
   TaskOutputValueDecimal(value: Float)
   TaskOutputValueId(value: String)
-  TaskOutputValueInstant(value: String)
+  TaskOutputValueInstant(value: Instant)
   TaskOutputValueInteger(value: Int)
   TaskOutputValueMarkdown(value: String)
   TaskOutputValueOid(value: String)
   TaskOutputValuePositiveint(value: Int)
   TaskOutputValueString(value: String)
-  TaskOutputValueTime(value: String)
+  TaskOutputValueTime(value: Time)
   TaskOutputValueUnsignedint(value: Int)
   TaskOutputValueUri(value: String)
   TaskOutputValueUrl(value: String)
@@ -107480,17 +107574,17 @@ pub fn task_output_value_to_json(elt: TaskOutputValue) -> Json {
     TaskOutputValueBoolean(v) -> json.bool(v)
     TaskOutputValueCanonical(v) -> json.string(v)
     TaskOutputValueCode(v) -> json.string(v)
-    TaskOutputValueDate(v) -> json.string(v)
-    TaskOutputValueDatetime(v) -> json.string(v)
+    TaskOutputValueDate(v) -> date.to_json(v)
+    TaskOutputValueDatetime(v) -> datetime.to_json(v)
     TaskOutputValueDecimal(v) -> json.float(v)
     TaskOutputValueId(v) -> json.string(v)
-    TaskOutputValueInstant(v) -> json.string(v)
+    TaskOutputValueInstant(v) -> instant.to_json(v)
     TaskOutputValueInteger(v) -> json.int(v)
     TaskOutputValueMarkdown(v) -> json.string(v)
     TaskOutputValueOid(v) -> json.string(v)
     TaskOutputValuePositiveint(v) -> json.int(v)
     TaskOutputValueString(v) -> json.string(v)
-    TaskOutputValueTime(v) -> json.string(v)
+    TaskOutputValueTime(v) -> time.to_json(v)
     TaskOutputValueUnsignedint(v) -> json.int(v)
     TaskOutputValueUri(v) -> json.string(v)
     TaskOutputValueUrl(v) -> json.string(v)
@@ -107540,15 +107634,15 @@ pub fn task_output_value_decoder() -> Decoder(TaskOutputValue) {
         |> decode.map(TaskOutputValueCanonical),
       decode.field("valueCode", decode.string, decode.success)
         |> decode.map(TaskOutputValueCode),
-      decode.field("valueDate", decode.string, decode.success)
+      decode.field("valueDate", date.decoder(), decode.success)
         |> decode.map(TaskOutputValueDate),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(TaskOutputValueDatetime),
       decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(TaskOutputValueDecimal),
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(TaskOutputValueId),
-      decode.field("valueInstant", decode.string, decode.success)
+      decode.field("valueInstant", instant.decoder(), decode.success)
         |> decode.map(TaskOutputValueInstant),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(TaskOutputValueInteger),
@@ -107560,7 +107654,7 @@ pub fn task_output_value_decoder() -> Decoder(TaskOutputValue) {
         |> decode.map(TaskOutputValuePositiveint),
       decode.field("valueString", decode.string, decode.success)
         |> decode.map(TaskOutputValueString),
-      decode.field("valueTime", decode.string, decode.success)
+      decode.field("valueTime", time.decoder(), decode.success)
         |> decode.map(TaskOutputValueTime),
       decode.field("valueUnsignedInt", decode.int, decode.success)
         |> decode.map(TaskOutputValueUnsignedint),
@@ -108035,8 +108129,9 @@ pub fn task_to_json(task: Task) -> Json {
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, last_modified, json.string, "lastModified")
-  let fields = primitive_to_json(fields, authored_on, json.string, "authoredOn")
+    primitive_to_json(fields, last_modified, datetime.to_json, "lastModified")
+  let fields =
+    primitive_to_json(fields, authored_on, datetime.to_json, "authoredOn")
   let fields = case execution_period {
     Some(v) -> [#("executionPeriod", period_to_json(v)), ..fields]
     None -> fields
@@ -108206,8 +108301,8 @@ pub fn task_decoder() -> Decoder(Task) {
     None,
     decode.optional(reference_decoder()),
   )
-  use last_modified <- primitive_decoder("lastModified", decode.string)
-  use authored_on <- primitive_decoder("authoredOn", decode.string)
+  use last_modified <- primitive_decoder("lastModified", datetime.decoder())
+  use authored_on <- primitive_decoder("authoredOn", datetime.decoder())
   use execution_period <- decode.optional_field(
     "executionPeriod",
     None,
@@ -108372,7 +108467,7 @@ pub type Terminologycapabilities {
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -109388,7 +109483,7 @@ pub fn terminologycapabilities_to_json(
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -109501,7 +109596,7 @@ pub fn terminologycapabilities_decoder() -> Decoder(Terminologycapabilities) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -109599,7 +109694,7 @@ pub type Testreport {
     result: Primitive(r4usp_valuesets.Reportresultcodes),
     score: Primitive(Float),
     tester: Primitive(String),
-    issued: Primitive(String),
+    issued: Primitive(DateTime),
     participant: List(TestreportParticipant),
     setup: Option(TestreportSetup),
     test_: List(TestreportTest),
@@ -110406,7 +110501,7 @@ pub fn testreport_to_json(testreport: Testreport) -> Json {
       ..fields
     ]
   }
-  let fields = primitive_to_json(fields, issued, json.string, "issued")
+  let fields = primitive_to_json(fields, issued, datetime.to_json, "issued")
   let fields = primitive_to_json(fields, tester, json.string, "tester")
   let fields = primitive_to_json(fields, score, json.float, "score")
   let fields =
@@ -110481,7 +110576,7 @@ pub fn testreport_decoder() -> Decoder(Testreport) {
     [],
     decode.list(testreport_participant_decoder()),
   )
-  use issued <- primitive_decoder("issued", decode.string)
+  use issued <- primitive_decoder("issued", datetime.decoder())
   use tester <- primitive_decoder("tester", decode.string)
   use score <- primitive_decoder("score", decode_number())
   use result <- primitive_decoder(
@@ -110575,7 +110670,7 @@ pub type Testscript {
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -112374,7 +112469,7 @@ pub fn testscript_to_json(testscript: Testscript) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -112489,7 +112584,7 @@ pub fn testscript_decoder() -> Decoder(Testscript) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -112592,7 +112687,7 @@ pub type Valueset {
     title: Primitive(String),
     status: Primitive(r4usp_valuesets.Publicationstatus),
     experimental: Primitive(Bool),
-    date: Primitive(String),
+    date: Primitive(DateTime),
     publisher: Primitive(String),
     contact: List(Contactdetail),
     description: Primitive(String),
@@ -112643,7 +112738,7 @@ pub type ValuesetCompose {
     id: Primitive(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
-    locked_date: Primitive(String),
+    locked_date: Primitive(Date),
     inactive: Primitive(Bool),
     include: List1(ValuesetComposeInclude),
     exclude: List(ValuesetComposeInclude),
@@ -112767,7 +112862,7 @@ pub type ValuesetExpansion {
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Primitive(String),
-    timestamp: Primitive(String),
+    timestamp: Primitive(DateTime),
     total: Primitive(Int),
     offset: Primitive(Int),
     parameter: List(ValuesetExpansionParameter),
@@ -112808,7 +112903,7 @@ pub type ValuesetExpansionParameterValue {
   ValuesetExpansionParameterValueDecimal(value: Float)
   ValuesetExpansionParameterValueUri(value: String)
   ValuesetExpansionParameterValueCode(value: String)
-  ValuesetExpansionParameterValueDatetime(value: String)
+  ValuesetExpansionParameterValueDatetime(value: DateTime)
 }
 
 pub fn valueset_expansion_parameter_value_to_json(
@@ -112821,7 +112916,7 @@ pub fn valueset_expansion_parameter_value_to_json(
     ValuesetExpansionParameterValueDecimal(v) -> json.float(v)
     ValuesetExpansionParameterValueUri(v) -> json.string(v)
     ValuesetExpansionParameterValueCode(v) -> json.string(v)
-    ValuesetExpansionParameterValueDatetime(v) -> json.string(v)
+    ValuesetExpansionParameterValueDatetime(v) -> datetime.to_json(v)
   }
 }
 
@@ -112842,7 +112937,7 @@ pub fn valueset_expansion_parameter_value_decoder() -> Decoder(
         |> decode.map(ValuesetExpansionParameterValueUri),
       decode.field("valueCode", decode.string, decode.success)
         |> decode.map(ValuesetExpansionParameterValueCode),
-      decode.field("valueDateTime", decode.string, decode.success)
+      decode.field("valueDateTime", datetime.decoder(), decode.success)
         |> decode.map(ValuesetExpansionParameterValueDatetime),
     ],
   )
@@ -113101,7 +113196,8 @@ pub fn valueset_expansion_to_json(valueset_expansion: ValuesetExpansion) -> Json
   }
   let fields = primitive_to_json(fields, offset, json.int, "offset")
   let fields = primitive_to_json(fields, total, json.int, "total")
-  let fields = primitive_to_json(fields, timestamp, json.string, "timestamp")
+  let fields =
+    primitive_to_json(fields, timestamp, datetime.to_json, "timestamp")
   let fields = primitive_to_json(fields, identifier, json.string, "identifier")
   let fields = case modifier_extension {
     [] -> fields
@@ -113132,7 +113228,7 @@ pub fn valueset_expansion_decoder() -> Decoder(ValuesetExpansion) {
   )
   use offset <- primitive_decoder("offset", decode.int)
   use total <- primitive_decoder("total", decode.int)
-  use timestamp <- primitive_decoder("timestamp", decode.string)
+  use timestamp <- primitive_decoder("timestamp", datetime.decoder())
   use identifier <- primitive_decoder("identifier", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -113464,7 +113560,8 @@ pub fn valueset_compose_to_json(valueset_compose: ValuesetCompose) -> Json {
     ]
   }
   let fields = primitive_to_json(fields, inactive, json.bool, "inactive")
-  let fields = primitive_to_json(fields, locked_date, json.string, "lockedDate")
+  let fields =
+    primitive_to_json(fields, locked_date, date.to_json, "lockedDate")
   let fields = case modifier_extension {
     [] -> fields
     _ -> [
@@ -113489,7 +113586,7 @@ pub fn valueset_compose_decoder() -> Decoder(ValuesetCompose) {
   )
   use include <- list1_decoder("include", valueset_compose_include_decoder())
   use inactive <- primitive_decoder("inactive", decode.bool)
-  use locked_date <- primitive_decoder("lockedDate", decode.string)
+  use locked_date <- primitive_decoder("lockedDate", date.decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -113574,7 +113671,7 @@ pub fn valueset_to_json(valueset: Valueset) -> Json {
     _ -> [#("contact", json.array(contact, contactdetail_to_json)), ..fields]
   }
   let fields = primitive_to_json(fields, publisher, json.string, "publisher")
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, datetime.to_json, "date")
   let fields =
     primitive_to_json(fields, experimental, json.bool, "experimental")
   let fields =
@@ -113655,7 +113752,7 @@ pub fn valueset_decoder() -> Decoder(Valueset) {
     decode.list(contactdetail_decoder()),
   )
   use publisher <- primitive_decoder("publisher", decode.string)
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", datetime.decoder())
   use experimental <- primitive_decoder("experimental", decode.bool)
   use status <- primitive_decoder(
     "status",
@@ -113749,12 +113846,12 @@ pub type Verificationresult {
     target_location: List(Primitive(String)),
     need: Option(Codeableconcept),
     status: Primitive(r4usp_valuesets.Verificationresultstatus),
-    status_date: Primitive(String),
+    status_date: Primitive(DateTime),
     validation_type: Option(Codeableconcept),
     validation_process: List(Codeableconcept),
     frequency: Option(Timing),
-    last_performed: Primitive(String),
-    next_scheduled: Primitive(String),
+    last_performed: Primitive(DateTime),
+    next_scheduled: Primitive(Date),
     failure_action: Option(Codeableconcept),
     primary_source: List(VerificationresultPrimarysource),
     attestation: Option(VerificationresultAttestation),
@@ -113799,7 +113896,7 @@ pub type VerificationresultPrimarysource {
     type_: List(Codeableconcept),
     communication_method: List(Codeableconcept),
     validation_status: Option(Codeableconcept),
-    validation_date: Primitive(String),
+    validation_date: Primitive(DateTime),
     can_push_updates: Option(Codeableconcept),
     push_type_available: List(Codeableconcept),
   )
@@ -113829,7 +113926,7 @@ pub type VerificationresultAttestation {
     who: Option(Reference),
     on_behalf_of: Option(Reference),
     communication_method: Option(Codeableconcept),
-    date: Primitive(String),
+    date: Primitive(Date),
     source_identity_certificate: Primitive(String),
     proxy_identity_certificate: Primitive(String),
     proxy_signature: Option(Signature),
@@ -113992,7 +114089,7 @@ pub fn verificationresult_attestation_to_json(
       json.string,
       "sourceIdentityCertificate",
     )
-  let fields = primitive_to_json(fields, date, json.string, "date")
+  let fields = primitive_to_json(fields, date, date.to_json, "date")
   let fields = case communication_method {
     Some(v) -> [#("communicationMethod", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -114042,7 +114139,7 @@ pub fn verificationresult_attestation_decoder() -> Decoder(
     "sourceIdentityCertificate",
     decode.string,
   )
-  use date <- primitive_decoder("date", decode.string)
+  use date <- primitive_decoder("date", date.decoder())
   use communication_method <- decode.optional_field(
     "communicationMethod",
     None,
@@ -114115,7 +114212,12 @@ pub fn verificationresult_primarysource_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, validation_date, json.string, "validationDate")
+    primitive_to_json(
+      fields,
+      validation_date,
+      datetime.to_json,
+      "validationDate",
+    )
   let fields = case validation_status {
     Some(v) -> [#("validationStatus", codeableconcept_to_json(v)), ..fields]
     None -> fields
@@ -114167,7 +114269,7 @@ pub fn verificationresult_primarysource_decoder() -> Decoder(
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use validation_date <- primitive_decoder("validationDate", decode.string)
+  use validation_date <- primitive_decoder("validationDate", datetime.decoder())
   use validation_status <- decode.optional_field(
     "validationStatus",
     None,
@@ -114273,9 +114375,9 @@ pub fn verificationresult_to_json(
     None -> fields
   }
   let fields =
-    primitive_to_json(fields, next_scheduled, json.string, "nextScheduled")
+    primitive_to_json(fields, next_scheduled, date.to_json, "nextScheduled")
   let fields =
-    primitive_to_json(fields, last_performed, json.string, "lastPerformed")
+    primitive_to_json(fields, last_performed, datetime.to_json, "lastPerformed")
   let fields = case frequency {
     Some(v) -> [#("frequency", timing_to_json(v)), ..fields]
     None -> fields
@@ -114294,7 +114396,8 @@ pub fn verificationresult_to_json(
     Some(v) -> [#("validationType", codeableconcept_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, status_date, json.string, "statusDate")
+  let fields =
+    primitive_to_json(fields, status_date, datetime.to_json, "statusDate")
   let fields =
     primitive_to_json(
       fields,
@@ -114365,8 +114468,8 @@ pub fn verificationresult_decoder() -> Decoder(Verificationresult) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use next_scheduled <- primitive_decoder("nextScheduled", decode.string)
-  use last_performed <- primitive_decoder("lastPerformed", decode.string)
+  use next_scheduled <- primitive_decoder("nextScheduled", date.decoder())
+  use last_performed <- primitive_decoder("lastPerformed", datetime.decoder())
   use frequency <- decode.optional_field(
     "frequency",
     None,
@@ -114382,7 +114485,7 @@ pub fn verificationresult_decoder() -> Decoder(Verificationresult) {
     None,
     decode.optional(codeableconcept_decoder()),
   )
-  use status_date <- primitive_decoder("statusDate", decode.string)
+  use status_date <- primitive_decoder("statusDate", datetime.decoder())
   use status <- primitive_decoder(
     "status",
     r4usp_valuesets.verificationresultstatus_decoder(),
@@ -114471,10 +114574,10 @@ pub type Visionprescription {
     modifier_extension: List(Extension),
     identifier: List(Identifier),
     status: Primitive(r4usp_valuesets.Fmstatus),
-    created: Primitive(String),
+    created: Primitive(DateTime),
     patient: Reference,
     encounter: Option(Reference),
-    date_written: Primitive(String),
+    date_written: Primitive(DateTime),
     prescriber: Reference,
     lens_specification: List1(VisionprescriptionLensspecification),
   )
@@ -114807,12 +114910,12 @@ pub fn visionprescription_to_json(
     #("patient", reference_to_json(patient)),
   ]
   let fields =
-    primitive_to_json(fields, date_written, json.string, "dateWritten")
+    primitive_to_json(fields, date_written, datetime.to_json, "dateWritten")
   let fields = case encounter {
     Some(v) -> [#("encounter", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, created, json.string, "created")
+  let fields = primitive_to_json(fields, created, datetime.to_json, "created")
   let fields =
     primitive_to_json(
       fields,
@@ -114862,14 +114965,14 @@ pub fn visionprescription_decoder() -> Decoder(Visionprescription) {
     visionprescription_lensspecification_decoder(),
   )
   use prescriber <- decode.field("prescriber", reference_decoder())
-  use date_written <- primitive_decoder("dateWritten", decode.string)
+  use date_written <- primitive_decoder("dateWritten", datetime.decoder())
   use encounter <- decode.optional_field(
     "encounter",
     None,
     decode.optional(reference_decoder()),
   )
   use patient <- decode.field("patient", reference_decoder())
-  use created <- primitive_decoder("created", decode.string)
+  use created <- primitive_decoder("created", datetime.decoder())
   use status <- primitive_decoder("status", r4usp_valuesets.fmstatus_decoder())
   use identifier <- decode.optional_field(
     "identifier",

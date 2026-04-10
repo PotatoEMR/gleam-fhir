@@ -27,10 +27,9 @@ pub fn parse(input: String) -> Result(Date, Nil) {
     <<byte, rest:bytes>> -> {
       case byte == byte_minus {
         True -> {
-          use #(month_num, bytes) <- result.try(shared_time_parsing.parse_digits(
-            from: rest,
-            count: 2,
-          ))
+          use #(month_num, bytes) <- result.try(
+            shared_time_parsing.parse_digits(from: rest, count: 2),
+          )
           use month <- result.try(calendar.month_from_int(month_num))
           case bytes {
             <<>> -> Ok(YearMonth(year, month))

@@ -1,8 +1,10 @@
 //import check_roundtrip
+import fhir/primitive_types/datetime
 import fhir/r4us
 import gleam/json
 import gleam/list
 import gleam/option.{None, Some}
+import gleam/time/calendar
 
 // ai generated test of decoding custom type extensions
 // note the json is different from the extension_test json
@@ -315,9 +317,10 @@ pub fn extension_custom_test() {
     ],
     ..,
   )) = rsg_dl.type_
-  let assert Some(r4us.Period(start: Some("1974-12-25"), ..)) =
-    rsg_dl.effective_period
-  assert rsg_dl.acquisition_date == Some("2005-12-06")
+  let assert Some(r4us.Period(start: Some(start), ..)) = rsg_dl.effective_period
+  assert start == datetime.YearMonthDay(1974, calendar.December, 25)
+  assert rsg_dl.acquisition_date
+    == Some(datetime.YearMonthDay(2005, calendar.December, 6))
   let assert Some(r4us.IndividualRecordedsexorgenderSourcedocumentReference(r4us.Reference(
     reference: Some("DocumentReference/1"),
     ..,
@@ -361,9 +364,11 @@ pub fn extension_custom_test() {
     ],
     ..,
   )) = rsg_ic.type_
-  let assert Some(r4us.Period(start: Some("2021-05-25"), ..)) =
+  let assert Some(r4us.Period(start: Some(ic_start), ..)) =
     rsg_ic.effective_period
-  assert rsg_ic.acquisition_date == Some("2021-06-06")
+  assert ic_start == datetime.YearMonthDay(2021, calendar.May, 25)
+  assert rsg_ic.acquisition_date
+    == Some(datetime.YearMonthDay(2021, calendar.June, 6))
   let assert Some(r4us.IndividualRecordedsexorgenderSourcedocumentReference(r4us.Reference(
     reference: Some("DocumentReference/2"),
     ..,
@@ -409,9 +414,11 @@ pub fn extension_custom_test() {
     ],
     ..,
   )) = rsg_bc.type_
-  let assert Some(r4us.Period(start: Some("1974-12-25"), ..)) =
+  let assert Some(r4us.Period(start: Some(bc_start), ..)) =
     rsg_bc.effective_period
-  assert rsg_bc.acquisition_date == Some("2005-12-06")
+  assert bc_start == datetime.YearMonthDay(1974, calendar.December, 25)
+  assert rsg_bc.acquisition_date
+    == Some(datetime.YearMonthDay(2005, calendar.December, 6))
   let assert Some(r4us.IndividualRecordedsexorgenderSourcedocumentReference(r4us.Reference(
     reference: Some("DocumentReference/1"),
     ..,
@@ -448,7 +455,7 @@ pub fn extension_custom_test() {
     ext: r4us.ExtSimple(r4us.ExtensionValuePeriod(gi_period)),
     ..,
   )) = list.find(gi_children, fn(e) { e.url == "period" })
-  assert gi_period.start == Some("2001-05-06")
+  assert gi_period.start == Some(datetime.YearMonthDay(2001, calendar.May, 6))
   assert gi_period.end == None
   let assert Ok(r4us.Extension(
     ext: r4us.ExtSimple(r4us.ExtensionValueString(gi_comment)),

@@ -1,9 +1,5 @@
 import check_roundtrip
 import fhir/r4usp
-import fhir/r4usp_valuesets
-import gleam/json
-import gleam/list
-import gleam/option.{Some}
 
 const imm_json = "{
   \"resourceType\": \"Immunization\",

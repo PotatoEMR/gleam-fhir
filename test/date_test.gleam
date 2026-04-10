@@ -33,8 +33,7 @@ pub fn invalid_test() {
   ]
 
   list.each(invalid, fn(input) {
-    let assert Error(_) = date.parse(input)
-      as { input <> " should be invalid" }
+    let assert Error(_) = date.parse(input) as { input <> " should be invalid" }
   })
 }
 

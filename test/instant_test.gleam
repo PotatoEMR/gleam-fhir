@@ -82,8 +82,8 @@ pub fn roundtrip_test() {
 }
 
 pub fn truncate_after_nine_nanosec_test() {
-  let assert Ok(i) =
-    instant.parse("2024-03-15T14:30:00.1234567890+09:00") as "truncate parse"
+  let assert Ok(i) = instant.parse("2024-03-15T14:30:00.1234567890+09:00")
+    as "truncate parse"
   assert "2024-03-15T14:30:00.123456789+09:00" == instant.to_string(i)
     as "truncate roundtrip"
 }

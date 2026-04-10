@@ -143,10 +143,7 @@ pub fn validate_second(second: Int) -> Result(Nil, Nil) {
 
 pub fn parse_time_of_day(
   bytes: BitArray,
-) -> Result(
-  #(Int, Int, Int, Option(NanosecWithPrecision), BitArray),
-  Nil,
-) {
+) -> Result(#(Int, Int, Int, Option(NanosecWithPrecision), BitArray), Nil) {
   use #(hour, bytes) <- result.try(parse_digits(from: bytes, count: 2))
   use _ <- result.try(validate_hour(hour))
   use bytes <- result.try(expect_byte(bytes, byte_colon))
@@ -155,9 +152,9 @@ pub fn parse_time_of_day(
   use bytes <- result.try(expect_byte(bytes, byte_colon))
   use #(second, bytes) <- result.try(parse_digits(from: bytes, count: 2))
   use _ <- result.try(validate_second(second))
-  use #(nanosec, bytes) <- result.try(
-    parse_optional_fraction_as_nanoseconds(bytes),
-  )
+  use #(nanosec, bytes) <- result.try(parse_optional_fraction_as_nanoseconds(
+    bytes,
+  ))
   Ok(#(hour, minute, second, nanosec, bytes))
 }
 
@@ -226,8 +223,7 @@ fn parse_fraction_as_nanoseconds_loop(
       case byte >= byte_zero && byte <= byte_nine {
         True -> {
           case power < 1 {
-            True ->
-              parse_fraction_as_nanoseconds_loop(rest, acc, power, digits)
+            True -> parse_fraction_as_nanoseconds_loop(rest, acc, power, digits)
             False -> {
               let digit = byte - byte_zero
               parse_fraction_as_nanoseconds_loop(
@@ -246,9 +242,7 @@ fn parse_fraction_as_nanoseconds_loop(
   }
 }
 
-pub fn parse_timezone(
-  bytes: BitArray,
-) -> Result(#(Timezone, BitArray), Nil) {
+pub fn parse_timezone(bytes: BitArray) -> Result(#(Timezone, BitArray), Nil) {
   case bytes {
     <<byte, rest:bytes>> -> {
       case byte == byte_z_uppercase {

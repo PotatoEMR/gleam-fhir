@@ -418,6 +418,10 @@ fn gen_fhir(
       import gleam/int
       import gleam/dict.{type Dict}
       import gleam/list
+      import fhir/primitive_types/date.{type Date}
+      import fhir/primitive_types/datetime.{type DateTime}
+      import fhir/primitive_types/instant.{type Instant}
+      import fhir/primitive_types/time.{type Time}
       import fhir/",
       pkg_prefix,
       "_valuesets\n",
@@ -2969,18 +2973,18 @@ fn string_to_type(
         }
       }
     }
-    "date" -> "String"
-    "dateTime" -> "String"
+    "date" -> "Date"
+    "dateTime" -> "DateTime"
     "decimal" -> "Float"
     "id" -> "String"
-    "instant" -> "String"
+    "instant" -> "Instant"
     "integer" -> "Int"
     "integer64" -> "String"
     "markdown" -> "String"
     "oid" -> "String"
     "positiveInt" -> "Int"
     "string" -> "String"
-    "time" -> "String"
+    "time" -> "Time"
     "unsignedInt" -> "Int"
     "uri" -> "String"
     "url" -> "String"
@@ -3064,18 +3068,18 @@ fn string_to_decoder_type(
         }
       }
     }
-    "date" -> "decode.string"
-    "dateTime" -> "decode.string"
+    "date" -> "date.decoder()"
+    "dateTime" -> "datetime.decoder()"
     "decimal" -> "decode_number()"
     "id" -> "decode.string"
-    "instant" -> "decode.string"
+    "instant" -> "instant.decoder()"
     "integer" -> "decode.int"
     "integer64" -> "decode.string"
     "markdown" -> "decode.string"
     "oid" -> "decode.string"
     "positiveInt" -> "decode.int"
     "string" -> "decode.string"
-    "time" -> "decode.string"
+    "time" -> "time.decoder()"
     "unsignedInt" -> "decode.int"
     "uri" -> "decode.string"
     "url" -> "decode.string"
@@ -3160,18 +3164,18 @@ fn string_to_encoder_type(
         }
       }
     }
-    "date" -> "json.string"
-    "dateTime" -> "json.string"
+    "date" -> "date.to_json"
+    "dateTime" -> "datetime.to_json"
     "decimal" -> "json.float"
     "id" -> "json.string"
-    "instant" -> "json.string"
+    "instant" -> "instant.to_json"
     "integer" -> "json.int"
     "integer64" -> "json.string"
     "markdown" -> "json.string"
     "oid" -> "json.string"
     "positiveInt" -> "json.int"
     "string" -> "json.string"
-    "time" -> "json.string"
+    "time" -> "time.to_json"
     "unsignedInt" -> "json.int"
     "uri" -> "json.string"
     "url" -> "json.string"

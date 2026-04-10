@@ -4,9 +4,7 @@
 //// the goal is to make only valid times representable,
 //// but also roundtrip string exactly, including millisec implicit precision
 
-import fhir/primitive_types/shared_time_parsing.{
-  byte_minus, byte_t_uppercase,
-}
+import fhir/primitive_types/shared_time_parsing.{byte_minus, byte_t_uppercase}
 import gleam/dynamic/decode
 import gleam/json
 import gleam/option.{type Option}
@@ -95,9 +93,9 @@ fn parse_time_part(
       use #(hour, minute, second, nanosec, bytes) <- result.try(
         shared_time_parsing.parse_time_of_day(rest),
       )
-      use #(timezone, bytes) <- result.try(
-        shared_time_parsing.parse_timezone(bytes),
-      )
+      use #(timezone, bytes) <- result.try(shared_time_parsing.parse_timezone(
+        bytes,
+      ))
       case bytes {
         <<>> ->
           Ok(YearMonthDayTime(
@@ -142,12 +140,7 @@ pub fn to_string(dt: DateTime) -> String {
         "-",
         shared_time_parsing.n2(day),
         "T",
-        shared_time_parsing.time_of_day_to_string(
-          hour,
-          minute,
-          second,
-          nanosec,
-        ),
+        shared_time_parsing.time_of_day_to_string(hour, minute, second, nanosec),
         shared_time_parsing.timezone_to_string(tz),
       ])
   }
