@@ -127244,9 +127244,23 @@ pub fn resource_decoder() -> Decoder(Resource) {
     _ ->
       decode.failure(
         ResourceEnrollmentrequest(enrollmentrequest_new()),
-        expected: "resourceType",
+        expected: "",
       )
+      |> decode.map_errors(fn(_errs) {
+        [
+          decode.DecodeError(
+            expected: "one of Account, ActivityDefinition, AdverseEvent, AllergyIntolerance... or any resource name",
+            found: tag,
+            path: ["resourceType"],
+          ),
+        ]
+      })
   }
+  |> decode.map_errors(fn(errs) {
+    list.map(errs, fn(err) {
+      decode.DecodeError(..err, path: ["(" <> tag <> ")", ..err.path])
+    })
+  })
 }
 
 /// 1..*

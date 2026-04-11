@@ -80,7 +80,7 @@ pub fn roundtrip_test() {
         zone: Z,
       )),
     )
-    assert "0001-02-03T04:05:06.00012Z" == pt.datetime_to_string(idk)
+  assert "0001-02-03T04:05:06.00012Z" == pt.datetime_to_string(idk)
 }
 
 pub fn truncate_after_nine_nanosec_test() {
