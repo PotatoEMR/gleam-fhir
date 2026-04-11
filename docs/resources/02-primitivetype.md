@@ -14,24 +14,28 @@ pub type Patient {
 }
 ```
 
+Time is represented in valid FHIR formats with primitive types for date, dateTime, instant, and time. 
+
+A code field can be either an enum from valuesets if the field has a required binding, or a String if not.
+
 | Primitive Type | In Gleam |
 | ------------ | ------------------------------------------ |
 | base64Binary | String                                     |
 | boolean      | Bool                                       |
 | canonical    | String                                     |
 | code         | enum if required binding, otherwise String |
-| date         | String                                     |
-| dateTime     | String                                     |
+| date         | fhir/primitive_types.Date                  |
+| dateTime     | fhir/primitive_types.DateTime              |
 | decimal      | Float                                      |
 | id           | String                                     |
-| instant      | String                                     |
+| instant      | fhir/primitive_types.Instant               |
 | integer      | Int                                        |
 | integer64    | String                                     |
 | markdown     | String                                     |
 | oid          | String                                     |
 | string       | String                                     |
 | positiveInt  | Int                                        |
-| time         | String                                     |
+| time         | fhir/primitive_types.Time                  |
 | unsignedInt  | Int                                        |
 | uri          | String                                     |
 | url          | String                                     |
