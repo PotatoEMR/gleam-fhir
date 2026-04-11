@@ -1,5 +1,5 @@
 import argv
-import fhir/internal/codegen_client
+import codegen_client
 import filepath
 import gleam/dict
 import gleam/dynamic/decode
@@ -35,10 +35,7 @@ fn const_gen_into_dir() {
 }
 
 fn const_download_dir() {
-  "src"
-  |> filepath.join("fhir")
-  |> filepath.join("internal")
-  |> filepath.join("downloads")
+  "dev" |> filepath.join("downloads")
 }
 
 pub fn main() {
@@ -55,7 +52,7 @@ pub fn main() {
     || list.contains(args_lower, "r5")
   {
     False ->
-      panic as "run with args r4 r4b r5 to generate eg gleam run -m fhir/internal/codegen r4 r5"
+      panic as "run with args r4 r4b r5 to generate eg gleam run -m codegen r4 r5"
     True -> Nil
   }
 
@@ -788,7 +785,7 @@ fn file_to_types(
   }
 
   let assert Ok(spec) = simplifile.read(spec_file)
-    as "spec files should all be downloaded in src/fhir/internal/downloads/{r4 r4b r5}, run with download arg if not"
+    as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
   let assert Ok(bundle) = json.parse(from: spec, using: bundle_decoder())
   let entries =
     list.filter(bundle.entry, fn(e) {
@@ -3399,9 +3396,7 @@ fn valueset_to_types(vsfile: String, fhir_version: String, profiles_dir: String)
       ") valuesets\n\nimport gleam/dynamic/decode.{type Decoder}\n  import gleam/json.{type Json}\n",
     ])
   let expansion_dir =
-    "src"
-    |> filepath.join("fhir")
-    |> filepath.join("internal")
+    "dev"
     |> filepath.join("valueset_expansions")
     |> filepath.join(fhir_version)
   set.fold(from: vs_imports, over: vs_url_set, with: fn(valuesets_acc, vs_url) {

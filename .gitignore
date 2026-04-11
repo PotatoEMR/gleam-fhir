@@ -2,5 +2,5 @@
 *.ez
 /build
 erl_crash.dump
-src/fhir/internal/downloads
+dev/downloads
 src/generated_fhir
