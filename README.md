@@ -6,11 +6,20 @@
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
 ![GitHub License](https://img.shields.io/github/license/potatoemr/gleam-fhir?color=%237A6276)
 
+## Features
+- Supports R4, R4B, R5
+- Gleam types for FHIR data types and resources
+- Primitive types to represent valid FHIR date, dateTime, instant, time
+- JSON encoder and to_json functions
+- Enums for valuesets with required binding
+- Sans-io request/response for Create, Read, Update, Delete, Search
+- Client layers over sans-io for easy use on Erlang target and Lustre apps
+- Primitive extensions, optionally generated for each type
+- Complex extensions, generically available on all types, and optionally generated to make specific extensions type safe
+
 ## Warning
 
-!!! fhir@0.2.0 (current version) supports r4us ONLY; r4/r4b/r5 are not available, because of hex.pm package size limits. !!!
-
-Breaking changes are planned for at least primitive extensions, implicit precision in decimal types, and date/datetime, possibly more. This package is published to get feedback on the most convenient ways to implement these. Lots of stuff will break until a version 1.
+!!! fhir@0.3.0 (current version) supports r4us ONLY; r4/r4b/r5 are not available, because of hex.pm package size limits. !!!
 
 ## Welcome
 

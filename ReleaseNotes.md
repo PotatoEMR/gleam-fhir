@@ -1,6 +1,7 @@
-## 0.3.0 ???
-- Fix incorrect to_json for 1..1 choice type
-- Parse date, dateTime, instant, and time into custom type, instead of String
+## 0.3.0 April 11, 2026
+- Bugfix: incorrect to_json for 1..1 choice type
+- Breaking change: parse date, dateTime, instant, and time into custom type, instead of String
+- Breaking(ish) change: when parsing resource of potentially type, on failure, include resource type (eg Immunization) in DecodeError path
 
 ## 0.2.0 Mar 15, 2026
 - Breaking change: remove r4 and r4b to fit in hex.pm size limit (probably due to recent change https://github.com/hexpm/hex_core/commit/4383e1b08aaf7d6dd325154d02f91e37f55b16b4, modules need to be reorganized at some point for package size and compilation/LSP speed)
