@@ -1,4 +1,4 @@
-import fhir/primitive_types/time
+import fhir/primitive_types as pt
 import gleam/list
 
 pub fn main() {
@@ -37,7 +37,8 @@ pub fn invalid_test() {
   ]
 
   list.each(invalid, fn(input) {
-    let assert Error(_) = time.parse(input) as { input <> " should be invalid" }
+    let assert Error(_) = pt.parse_time(input)
+      as { input <> " should be invalid" }
   })
 }
 
@@ -57,13 +58,13 @@ pub fn roundtrip_test() {
   ]
 
   list.each(valid, fn(input) {
-    let assert Ok(t) = time.parse(input) as { input <> " should be valid" }
-    assert input == time.to_string(t)
-      as { input <> " roundtrips to " <> time.to_string(t) }
+    let assert Ok(t) = pt.parse_time(input) as { input <> " should be valid" }
+    assert input == pt.time_to_string(t)
+      as { input <> " roundtrips to " <> pt.time_to_string(t) }
   })
 }
 
 pub fn truncate_after_nine_nanosec_test() {
-  let assert Ok(t) = time.parse("14:30:00.1234567890") as "truncate parse"
-  assert "14:30:00.123456789" == time.to_string(t) as "truncate roundtrip"
+  let assert Ok(t) = pt.parse_time("14:30:00.1234567890") as "truncate parse"
+  assert "14:30:00.123456789" == pt.time_to_string(t) as "truncate roundtrip"
 }

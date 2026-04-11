@@ -1,4 +1,4 @@
-import fhir/primitive_types/date
+import fhir/primitive_types as pt
 import gleam/list
 
 pub fn main() {
@@ -33,7 +33,8 @@ pub fn invalid_test() {
   ]
 
   list.each(invalid, fn(input) {
-    let assert Error(_) = date.parse(input) as { input <> " should be invalid" }
+    let assert Error(_) = pt.parse_date(input)
+      as { input <> " should be invalid" }
   })
 }
 
@@ -54,8 +55,8 @@ pub fn roundtrip_test() {
   ]
 
   list.each(valid, fn(input) {
-    let assert Ok(d) = date.parse(input) as { input <> " should be valid" }
-    assert input == date.to_string(d)
-      as { input <> " roundtrips to " <> date.to_string(d) }
+    let assert Ok(d) = pt.parse_date(input) as { input <> " should be valid" }
+    assert input == pt.date_to_string(d)
+      as { input <> " roundtrips to " <> pt.date_to_string(d) }
   })
 }

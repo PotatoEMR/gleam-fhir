@@ -1,4 +1,4 @@
-import fhir/primitive_types/instant
+import fhir/primitive_types as pt
 import gleam/list
 
 pub fn main() {
@@ -46,7 +46,7 @@ pub fn invalid_test() {
   ]
 
   list.each(invalid, fn(input) {
-    let assert Error(_) = instant.parse(input)
+    let assert Error(_) = pt.parse_instant(input)
       as { input <> " should be invalid" }
   })
 }
@@ -75,15 +75,16 @@ pub fn roundtrip_test() {
   ]
 
   list.each(valid, fn(input) {
-    let assert Ok(i) = instant.parse(input) as { input <> " should be valid" }
-    assert input == instant.to_string(i)
-      as { input <> " roundtrips to " <> instant.to_string(i) }
+    let assert Ok(i) = pt.parse_instant(input)
+      as { input <> " should be valid" }
+    assert input == pt.instant_to_string(i)
+      as { input <> " roundtrips to " <> pt.instant_to_string(i) }
   })
 }
 
 pub fn truncate_after_nine_nanosec_test() {
-  let assert Ok(i) = instant.parse("2024-03-15T14:30:00.1234567890+09:00")
+  let assert Ok(i) = pt.parse_instant("2024-03-15T14:30:00.1234567890+09:00")
     as "truncate parse"
-  assert "2024-03-15T14:30:00.123456789+09:00" == instant.to_string(i)
+  assert "2024-03-15T14:30:00.123456789+09:00" == pt.instant_to_string(i)
     as "truncate roundtrip"
 }

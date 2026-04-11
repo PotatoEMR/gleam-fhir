@@ -1,5 +1,5 @@
 import check_roundtrip
-import fhir/primitive_types/datetime
+import fhir/primitive_types as pt
 import fhir/r5
 import gleam/dict
 import gleam/json
@@ -288,7 +288,8 @@ pub fn extension_test() {
   let assert Ok([when]) = dict.get(ident_exts.exts_by_url, "period")
   let assert r5.ExtDictSimple(val_period) = when.content
   let assert r5.ExtensionValuePeriod(period) = val_period
-  let assert Some(datetime.YearMonthDay(2001, calendar.May, 6)) = period.start
+  let assert Some(pt.DateTime(pt.YearMonthDay(2001, calendar.May, 6), None)) =
+    period.start
   let assert None = period.end
 
   assert 4 == pat_exts.exts_by_url |> dict.keys |> list.length
@@ -313,7 +314,8 @@ pub fn extension_test() {
     ext: r5.ExtSimple(r5.ExtensionValuePeriod(period)),
     ..,
   )) = list.find(ident_children, fn(e) { e.url == "period" })
-  assert period.start == Some(datetime.YearMonthDay(2001, calendar.May, 6))
+  assert period.start
+    == Some(pt.DateTime(pt.YearMonthDay(2001, calendar.May, 6), None))
   assert period.end == None
   assert pat.extension
     |> list.map(fn(e) { e.url })

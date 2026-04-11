@@ -1,4 +1,8 @@
-## 0.21.0 Mar 15, 2026
+## 0.3.0 ???
+- Fix incorrect to_json for 1..1 choice type
+- Parse date, dateTime, instant, and time into custom type, instead of String
+
+## 0.2.0 Mar 15, 2026
 - Breaking change: remove r4 and r4b to fit in hex.pm size limit (probably due to recent change https://github.com/hexpm/hex_core/commit/4383e1b08aaf7d6dd325154d02f91e37f55b16b4, modules need to be reorganized at some point for package size and compilation/LSP speed)
 - Add custom types for complex extensions
 - Add primitive extensions

@@ -418,10 +418,7 @@ fn gen_fhir(
       import gleam/int
       import gleam/dict.{type Dict}
       import gleam/list
-      import fhir/primitive_types/date.{type Date}
-      import fhir/primitive_types/datetime.{type DateTime}
-      import fhir/primitive_types/instant.{type Instant}
-      import fhir/primitive_types/time.{type Time}
+      import fhir/primitive_types.{type Date, type DateTime, type Instant, type Time} as pt
       import fhir/",
       pkg_prefix,
       "_valuesets\n",
@@ -3068,18 +3065,18 @@ fn string_to_decoder_type(
         }
       }
     }
-    "date" -> "date.decoder()"
-    "dateTime" -> "datetime.decoder()"
+    "date" -> "pt.date_decoder()"
+    "dateTime" -> "pt.datetime_decoder()"
     "decimal" -> "decode_number()"
     "id" -> "decode.string"
-    "instant" -> "instant.decoder()"
+    "instant" -> "pt.instant_decoder()"
     "integer" -> "decode.int"
     "integer64" -> "decode.string"
     "markdown" -> "decode.string"
     "oid" -> "decode.string"
     "positiveInt" -> "decode.int"
     "string" -> "decode.string"
-    "time" -> "time.decoder()"
+    "time" -> "pt.time_decoder()"
     "unsignedInt" -> "decode.int"
     "uri" -> "decode.string"
     "url" -> "decode.string"
@@ -3164,18 +3161,18 @@ fn string_to_encoder_type(
         }
       }
     }
-    "date" -> "date.to_json"
-    "dateTime" -> "datetime.to_json"
+    "date" -> "pt.date_to_json"
+    "dateTime" -> "pt.datetime_to_json"
     "decimal" -> "json.float"
     "id" -> "json.string"
-    "instant" -> "instant.to_json"
+    "instant" -> "pt.instant_to_json"
     "integer" -> "json.int"
     "integer64" -> "json.string"
     "markdown" -> "json.string"
     "oid" -> "json.string"
     "positiveInt" -> "json.int"
     "string" -> "json.string"
-    "time" -> "time.to_json"
+    "time" -> "pt.time_to_json"
     "unsignedInt" -> "json.int"
     "uri" -> "json.string"
     "url" -> "json.string"

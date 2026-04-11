@@ -1,5 +1,5 @@
 //import check_roundtrip
-import fhir/primitive_types/datetime
+import fhir/primitive_types as pt
 import fhir/r4
 import gleam/json
 import gleam/list
@@ -333,13 +333,13 @@ pub fn extension_notcustom_test() {
     ..,
   )) = list.find(rsg_dl_children, fn(e) { e.url == "effectivePeriod" })
   assert dl_effective_period.start
-    == Some(datetime.YearMonthDay(1974, calendar.December, 25))
+    == Some(pt.DateTime(pt.YearMonthDay(1974, calendar.December, 25), None))
   let assert Ok(r4.Extension(
     ext: r4.ExtSimple(r4.ExtensionValueDatetime(dl_acquisition_date)),
     ..,
   )) = list.find(rsg_dl_children, fn(e) { e.url == "acquisitionDate" })
   assert dl_acquisition_date
-    == datetime.YearMonthDay(2005, calendar.December, 6)
+    == pt.DateTime(pt.YearMonthDay(2005, calendar.December, 6), None)
   let assert Ok(r4.Extension(
     ext: r4.ExtSimple(r4.ExtensionValueReference(dl_source_doc)),
     ..,
@@ -396,12 +396,13 @@ pub fn extension_notcustom_test() {
     ..,
   )) = list.find(rsg_ic_children, fn(e) { e.url == "effectivePeriod" })
   assert ic_effective_period.start
-    == Some(datetime.YearMonthDay(2021, calendar.May, 25))
+    == Some(pt.DateTime(pt.YearMonthDay(2021, calendar.May, 25), None))
   let assert Ok(r4.Extension(
     ext: r4.ExtSimple(r4.ExtensionValueDatetime(ic_acquisition_date)),
     ..,
   )) = list.find(rsg_ic_children, fn(e) { e.url == "acquisitionDate" })
-  assert ic_acquisition_date == datetime.YearMonthDay(2021, calendar.June, 06)
+  assert ic_acquisition_date
+    == pt.DateTime(pt.YearMonthDay(2021, calendar.June, 06), None)
   let assert Ok(r4.Extension(
     ext: r4.ExtSimple(r4.ExtensionValueReference(ic_source_doc)),
     ..,
@@ -463,13 +464,13 @@ pub fn extension_notcustom_test() {
     ..,
   )) = list.find(rsg_bc_children, fn(e) { e.url == "effectivePeriod" })
   assert bc_effective_period.start
-    == Some(datetime.YearMonthDay(1974, calendar.December, 25))
+    == Some(pt.DateTime(pt.YearMonthDay(1974, calendar.December, 25), None))
   let assert Ok(r4.Extension(
     ext: r4.ExtSimple(r4.ExtensionValueDatetime(bc_acquisition_date)),
     ..,
   )) = list.find(rsg_bc_children, fn(e) { e.url == "acquisitionDate" })
   assert bc_acquisition_date
-    == datetime.YearMonthDay(2005, calendar.December, 06)
+    == pt.DateTime(pt.YearMonthDay(2005, calendar.December, 06), None)
   let assert Ok(r4.Extension(
     ext: r4.ExtSimple(r4.ExtensionValueReference(bc_source_doc)),
     ..,
@@ -515,7 +516,8 @@ pub fn extension_notcustom_test() {
     ext: r4.ExtSimple(r4.ExtensionValuePeriod(gi_period)),
     ..,
   )) = list.find(gi_children, fn(e) { e.url == "period" })
-  assert gi_period.start == Some(datetime.YearMonthDay(2001, calendar.May, 06))
+  assert gi_period.start
+    == Some(pt.DateTime(pt.YearMonthDay(2001, calendar.May, 06), None))
   assert gi_period.end == None
   let assert Ok(r4.Extension(
     ext: r4.ExtSimple(r4.ExtensionValueString(gi_comment)),

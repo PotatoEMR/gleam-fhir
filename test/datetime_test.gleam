@@ -1,5 +1,9 @@
-import fhir/primitive_types/datetime
+import fhir/primitive_types.{
+  DateTime, NanosecWithPrecision, Time, TimeAndZone, YearMonthDay, Z,
+} as pt
 import gleam/list
+import gleam/option.{Some}
+import gleam/time/calendar
 
 pub fn main() {
   invalid_test()
@@ -24,7 +28,7 @@ pub fn invalid_test() {
   ]
 
   list.each(invalid, fn(input) {
-    let assert Error(_) = datetime.parse(input)
+    let assert Error(_) = pt.parse_datetime(input)
       as { input <> " should be invalid" }
   })
 }
@@ -52,15 +56,36 @@ pub fn roundtrip_test() {
   ]
 
   list.each(valid, fn(input) {
-    let assert Ok(dt) = datetime.parse(input) as { input <> " should be valid" }
-    assert input == datetime.to_string(dt)
-      as { input <> " roundtrips to " <> datetime.to_string(dt) }
+    let assert Ok(dt) = pt.parse_datetime(input)
+      as { input <> " should be valid" }
+    assert input == pt.datetime_to_string(dt)
+      as { input <> " roundtrips to " <> pt.datetime_to_string(dt) }
   })
+  let prec = NanosecWithPrecision(123_000_000, Some(3))
+  let idk =
+    DateTime(
+      date: YearMonthDay(year: 1, month: calendar.February, day: 3),
+      time: Some(TimeAndZone(
+        time: Time(hour: 4, minute: 5, second: 6, nanosec: Some(prec)),
+        zone: Z,
+      )),
+    )
+  assert "0001-02-03T04:05:06.123Z" == pt.datetime_to_string(idk)
+  let prec = NanosecWithPrecision(123_000, Some(5))
+  let idk =
+    DateTime(
+      date: YearMonthDay(year: 1, month: calendar.February, day: 3),
+      time: Some(TimeAndZone(
+        time: Time(hour: 4, minute: 5, second: 6, nanosec: Some(prec)),
+        zone: Z,
+      )),
+    )
+    assert "0001-02-03T04:05:06.00012Z" == pt.datetime_to_string(idk)
 }
 
 pub fn truncate_after_nine_nanosec_test() {
-  let assert Ok(dt) = datetime.parse("2024-03-15T14:30:00.1234567890+09:00")
+  let assert Ok(dt) = pt.parse_datetime("2024-03-15T14:30:00.1234567890+09:00")
     as "truncate parse"
-  assert "2024-03-15T14:30:00.123456789+09:00" == datetime.to_string(dt)
+  assert "2024-03-15T14:30:00.123456789+09:00" == pt.datetime_to_string(dt)
     as "truncate roundtrip"
 }
