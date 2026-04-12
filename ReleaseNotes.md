@@ -1,18 +1,18 @@
 ## 0.3.0 April 11, 2026
-- Bugfix: incorrect to_json for 1..1 choice type
-- Breaking change: parse date, dateTime, instant, and time into custom type, instead of String
-- Breaking(ish) change: when parsing resource of potentially type, on failure, include resource type (eg Immunization) in DecodeError path
+- Fix incorrect to_json for 1..1 choice type
+- Parse date, dateTime, instant, and time into custom type, instead of String
+- When parsing resource of potentially type, on failure, include resource type (eg Immunization) in DecodeError path
 
 ## 0.2.0 Mar 15, 2026
-- Breaking change: remove r4 and r4b to fit in hex.pm size limit (probably due to recent change https://github.com/hexpm/hex_core/commit/4383e1b08aaf7d6dd325154d02f91e37f55b16b4, modules need to be reorganized at some point for package size and compilation/LSP speed)
+- Remove r4 and r4b to fit in hex.pm size limit (probably due to recent change https://github.com/hexpm/hex_core/commit/4383e1b08aaf7d6dd325154d02f91e37f55b16b4, modules need to be reorganized at some point for package size and compilation/LSP speed)
 - Add custom types for complex extensions
 - Add primitive extensions
 - Add r4us with us core extensions
 - Generate r4usp, but not publish due to size limit
 
 ## 0.1.0 Feb 07, 2026
-- Breaking change: integer64 from `Int` to `String` in Gleam, as integer64 is sent as string in JSON, and is relatively uncommon, R5 only
-- Breaking change: remove unused `SpInclude` with _include and _revinclude from resource search params 
+- Change integer64 from `Int` to `String` in Gleam, as integer64 is sent as string in JSON, and is relatively uncommon, R5 only
+- Remove unused `SpInclude` with _include and _revinclude from resource search params 
 - Add `search_any` in clients, which takes a flexible (includes, modifiers, prefixes, etc.) but not necessarily correct `String` rather than statically typed search params
 - Add `operation_any` in clients, which similarly lets user choose operation name and parameters
 
