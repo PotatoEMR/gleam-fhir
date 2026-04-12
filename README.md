@@ -4,7 +4,7 @@
 
 [![Package Version](https://img.shields.io/hexpm/v/fhir)](https://hex.pm/packages/fhir)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
-![GitHub License](https://img.shields.io/github/license/potatoemr/gleam-fhir?color=%237A6276)
+![GitHub License](https://img.shields.io/github/license/PotatoEMR/gleam-fhir?color=%23750014)
 
 ## Welcome
 
