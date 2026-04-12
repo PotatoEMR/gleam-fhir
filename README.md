@@ -15,7 +15,7 @@
 - Sans-io request/response for Create, Read, Update, Delete, Search
 - Client layers over sans-io for easy use on Erlang target and Lustre apps
 - Primitive extensions, optionally generated for each type
-- Complex extensions, generically available on all types, and optionally generated to make specific extensions type safe
+- Standard extension on all complex type, and optionally type safe extension generation for specific extension
 
 ## Warning
 
