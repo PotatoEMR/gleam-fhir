@@ -184,12 +184,7 @@ pub fn gen(
   pkg_prefix pkg_prefix: String,
   custom_profile_name custom_profile_name: Option(String),
   profiles_dir profiles_dir: String,
-  all_primitive_ext all_primitive_ext: Bool,
 ) {
-  let resource_id = case all_primitive_ext {
-    True -> "resource.id.value"
-    False -> "resource.id"
-  }
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
   // you could use generated bundle decoder here
@@ -321,15 +316,11 @@ pub fn gen(
           }
 
           pub fn NAMELOWER_update_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Result(Request(String), Err) {
-            any_update_req(RESOURCEID, FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
-          }
-
-          pub fn NAMELOWER_delete_req(id: Option(String), client: FhirClient) -> Result(Request(String), Err) {
-            any_delete_req(id, \"NAMEUPPER\", client)
+            any_update_req(resource.id, FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
           }
 
           pub fn NAMELOWER_resp(resp: Response(String)) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
-            any_resp(resp, FHIRVERSION.NAMELOWER_decoder())
+            any_resp(resp, FHIRVERSION.NAMELOWER_decoder(), \"NAMEUPPER\")
           }
           ",
     )
@@ -553,7 +544,6 @@ pub fn gen(
       bundle_to_gt,
     ])
     |> string.replace("FHIRVERSION", pkg_prefix)
-    |> string.replace("RESOURCEID", resource_id)
 
   //region httpc
   let res_specific_crud =
@@ -584,7 +574,7 @@ pub fn gen(
               client: FhirClient,
             ) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
               any_update(
-                RESOURCEID,
+                resource.id,
                 FHIRVERSION.NAMELOWER_to_json(resource),
                 \"NAMEUPPER\",
                 FHIRVERSION.NAMELOWER_decoder(),
@@ -595,18 +585,21 @@ pub fn gen(
             pub fn NAMELOWER_delete(
               resource: FHIRVERSION.NAMECAPITAL,
               client: FhirClient,
-            ) -> Result(FHIRVERSION.Operationoutcome, Err) {
-              any_delete(RESOURCEID, \"NAMEUPPER\", client)
+            ) -> Result(FHIRVERSION_sansio.OperationoutcomeOrHTTP, Err) {
+              case resource.id {
+                Some(id) -> any_delete(id, \"NAMECAPITAL\", client)
+                None -> Error(ErrSansio(FHIRVERSION_sansio.ErrNoId))
+              }
             }
 
             pub fn NAMELOWER_search_bundled(sp: FHIRVERSION_sansio.SpNAMECAPITAL, client: FhirClient) {
               let req = FHIRVERSION_sansio.NAMELOWER_search_req(sp, client)
-              sendreq_parseresource(req, FHIRVERSION.bundle_decoder())
+              sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), \"Bundle\")
             }
 
             pub fn NAMELOWER_search(sp: FHIRVERSION_sansio.SpNAMECAPITAL, client: FhirClient) -> Result(List(FHIRVERSION.NAMECAPITAL), Err) {
               let req = FHIRVERSION_sansio.NAMELOWER_search_req(sp, client)
-              sendreq_parseresource(req, FHIRVERSION.bundle_decoder())
+              sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), \"Bundle\")
               |> result.map(fn(bundle) {
                 { bundle |> FHIRVERSION_sansio.bundle_to_groupedresources }.NAMELOWER
               })
@@ -621,7 +614,6 @@ pub fn gen(
   let httpc_layer =
     string.concat([file_text, res_specific_crud])
     |> string.replace("FHIRVERSION", pkg_prefix)
-    |> string.replace("RESOURCEID", resource_id)
 
   let rsvp_res_specific_crud =
     gen_specific_crud(
@@ -655,7 +647,7 @@ pub fn gen(
               handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, Err)) -> a,
             ) -> Result(Effect(a), ErrNoId) {
               any_update(
-                RESOURCEID,
+                resource.id,
                 FHIRVERSION.NAMELOWER_to_json(resource),
                 \"NAMEUPPER\",
                 FHIRVERSION.NAMELOWER_decoder(),
@@ -667,9 +659,12 @@ pub fn gen(
             pub fn NAMELOWER_delete(
               resource: FHIRVERSION.NAMECAPITAL,
               client: FhirClient,
-              handle_response: fn(Result(FHIRVERSION.Operationoutcome, Err)) -> a,
+              handle_response: fn(Result(FHIRVERSION_sansio.OperationoutcomeOrHTTP, Err)) -> a,
             ) -> Result(Effect(a), ErrNoId) {
-              any_delete(RESOURCEID, \"NAMEUPPER\", client, handle_response)
+              case resource.id {
+                Some(id) -> Ok(any_delete(id, \"NAMEUPPER\", client, handle_response))
+                None -> Error(ErrNoId)
+              }
             }
 
             pub fn NAMELOWER_search_bundled(
@@ -678,7 +673,7 @@ pub fn gen(
               response_msg handle_response: fn(Result(FHIRVERSION.Bundle, Err)) -> msg,
             ) -> Effect(msg) {
               let req = FHIRVERSION_sansio.NAMELOWER_search_req(search_args, client)
-              sendreq_handleresponse(req, FHIRVERSION.bundle_decoder(), handle_response)
+              sendreq_handleresponse(req, FHIRVERSION.bundle_decoder(), \"Bundle\", handle_response)
             }
 
             pub fn NAMELOWER_search(
@@ -690,6 +685,7 @@ pub fn gen(
               sendreq_handleresponse_andprocess(
                 req,
                 FHIRVERSION.bundle_decoder(),
+                \"Bundle\",
                 handle_response,
                 fn(bundle) { { bundle |> FHIRVERSION_sansio.bundle_to_groupedresources }.NAMELOWER },
               )
@@ -704,7 +700,6 @@ pub fn gen(
   let rsvp_layer =
     string.concat([file_text, rsvp_res_specific_crud])
     |> string.replace("FHIRVERSION", pkg_prefix)
-    |> string.replace("RESOURCEID", resource_id)
 
   #(sansio, httpc_layer, rsvp_layer)
 }

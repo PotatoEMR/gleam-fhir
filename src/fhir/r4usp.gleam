@@ -14,7 +14,7 @@ import gleam/result
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Address#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Address#resource)
 pub type Address {
   Address(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     use_: Primitive(r4usp_valuesets.Addressuse),
     type_: Primitive(r4usp_valuesets.Addresstype),
@@ -42,7 +42,7 @@ pub fn address_new() -> Address {
     type_: Primitive(id: None, ext: [], value: None),
     use_: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -86,7 +86,10 @@ pub fn address_to_json(address: Address) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -111,7 +114,7 @@ pub fn address_decoder() -> Decoder(Address) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Address(
     period:,
     country:,
@@ -131,7 +134,7 @@ pub fn address_decoder() -> Decoder(Address) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Age#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Age#resource)
 pub type Age {
   Age(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     value: Primitive(Float),
     comparator: Primitive(r4usp_valuesets.Quantitycomparator),
@@ -149,7 +152,7 @@ pub fn age_new() -> Age {
     comparator: Primitive(id: None, ext: [], value: None),
     value: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -171,7 +174,10 @@ pub fn age_to_json(age: Age) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -190,7 +196,7 @@ pub fn age_decoder() -> Decoder(Age) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Age(
     code:,
     system:,
@@ -205,7 +211,7 @@ pub fn age_decoder() -> Decoder(Age) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Annotation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Annotation#resource)
 pub type Annotation {
   Annotation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     author: Option(AnnotationAuthor),
     time: Primitive(DateTime),
@@ -243,7 +249,7 @@ pub fn annotation_new() -> Annotation {
     time: Primitive(id: None, ext: [], value: None),
     author: None,
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -270,7 +276,10 @@ pub fn annotation_to_json(annotation: Annotation) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -284,14 +293,14 @@ pub fn annotation_decoder() -> Decoder(Annotation) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Annotation(text:, time:, author:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Attachment#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Attachment#resource)
 pub type Attachment {
   Attachment(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     content_type: Primitive(String),
     language: Primitive(String),
@@ -315,7 +324,7 @@ pub fn attachment_new() -> Attachment {
     language: Primitive(id: None, ext: [], value: None),
     content_type: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -347,7 +356,10 @@ pub fn attachment_to_json(attachment: Attachment) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -366,7 +378,7 @@ pub fn attachment_decoder() -> Decoder(Attachment) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Attachment(
     creation:,
     title:,
@@ -384,7 +396,7 @@ pub fn attachment_decoder() -> Decoder(Attachment) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CodeableConcept#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CodeableConcept#resource)
 pub type Codeableconcept {
   Codeableconcept(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     coding: List(Coding),
     text: Primitive(String),
@@ -396,7 +408,7 @@ pub fn codeableconcept_new() -> Codeableconcept {
     text: Primitive(id: None, ext: [], value: None),
     coding: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -412,7 +424,10 @@ pub fn codeableconcept_to_json(codeableconcept: Codeableconcept) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -429,14 +444,14 @@ pub fn codeableconcept_decoder() -> Decoder(Codeableconcept) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Codeableconcept(text:, coding:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Coding#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Coding#resource)
 pub type Coding {
   Coding(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     system: Primitive(String),
     version: Primitive(String),
@@ -454,7 +469,7 @@ pub fn coding_new() -> Coding {
     version: Primitive(id: None, ext: [], value: None),
     system: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -479,7 +494,10 @@ pub fn coding_to_json(coding: Coding) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -495,7 +513,7 @@ pub fn coding_decoder() -> Decoder(Coding) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Coding(
     user_selected:,
     display:,
@@ -510,7 +528,7 @@ pub fn coding_decoder() -> Decoder(Coding) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ContactDetail#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ContactDetail#resource)
 pub type Contactdetail {
   Contactdetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     name: Primitive(String),
     telecom: List(Contactpoint),
@@ -522,7 +540,7 @@ pub fn contactdetail_new() -> Contactdetail {
     telecom: [],
     name: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -538,7 +556,10 @@ pub fn contactdetail_to_json(contactdetail: Contactdetail) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -555,7 +576,7 @@ pub fn contactdetail_decoder() -> Decoder(Contactdetail) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Contactdetail(telecom:, name:, extension:, id:))
 }
 
@@ -563,7 +584,7 @@ pub fn contactdetail_decoder() -> Decoder(Contactdetail) {
 pub type Contactpoint {
   Contactpoint(
     us_core_direct: List(Bool),
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     system: Primitive(r4usp_valuesets.Contactpointsystem),
     value: Primitive(String),
@@ -581,7 +602,7 @@ pub fn contactpoint_new() -> Contactpoint {
     value: Primitive(id: None, ext: [], value: None),
     system: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
     us_core_direct: [],
   )
 }
@@ -624,7 +645,10 @@ pub fn contactpoint_to_json(contactpoint: Contactpoint) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -650,7 +674,7 @@ pub fn contactpoint_decoder() -> Decoder(Contactpoint) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   let #(us_core_direct_, extension) =
     list.fold(from: #([], []), over: extension, with: fn(acc, ext) {
       let #(a0, plain) = acc
@@ -675,7 +699,7 @@ pub fn contactpoint_decoder() -> Decoder(Contactpoint) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contributor#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contributor#resource)
 pub type Contributor {
   Contributor(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Contributortype),
     name: Primitive(String),
@@ -689,7 +713,7 @@ pub fn contributor_new() -> Contributor {
     name: Primitive(id: None, ext: [], value: None),
     type_: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -712,7 +736,10 @@ pub fn contributor_to_json(contributor: Contributor) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -733,14 +760,14 @@ pub fn contributor_decoder() -> Decoder(Contributor) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Contributor(contact:, name:, type_:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Count#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Count#resource)
 pub type Count {
   Count(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     value: Primitive(Float),
     comparator: Primitive(r4usp_valuesets.Quantitycomparator),
@@ -758,7 +785,7 @@ pub fn count_new() -> Count {
     comparator: Primitive(id: None, ext: [], value: None),
     value: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -780,7 +807,10 @@ pub fn count_to_json(count: Count) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -799,7 +829,7 @@ pub fn count_decoder() -> Decoder(Count) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Count(
     code:,
     system:,
@@ -814,7 +844,7 @@ pub fn count_decoder() -> Decoder(Count) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DataRequirement#resource)
 pub type Datarequirement {
   Datarequirement(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Alltypes),
     profile: List(Primitive(String)),
@@ -866,14 +896,14 @@ pub fn datarequirement_new() -> Datarequirement {
     profile: [],
     type_: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementCodefilter {
   DatarequirementCodefilter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     path: Primitive(String),
     search_param: Primitive(String),
@@ -889,14 +919,14 @@ pub fn datarequirement_codefilter_new() -> DatarequirementCodefilter {
     search_param: Primitive(id: None, ext: [], value: None),
     path: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementDatefilter {
   DatarequirementDatefilter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     path: Primitive(String),
     search_param: Primitive(String),
@@ -942,14 +972,14 @@ pub fn datarequirement_datefilter_new() -> DatarequirementDatefilter {
     search_param: Primitive(id: None, ext: [], value: None),
     path: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DataRequirement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DataRequirement#resource)
 pub type DatarequirementSort {
   DatarequirementSort(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     path: Primitive(String),
     direction: Primitive(r4usp_valuesets.Sortdirection),
@@ -961,7 +991,7 @@ pub fn datarequirement_sort_new() -> DatarequirementSort {
     direction: Primitive(id: None, ext: [], value: None),
     path: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -983,7 +1013,10 @@ pub fn datarequirement_sort_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -999,7 +1032,7 @@ pub fn datarequirement_sort_decoder() -> Decoder(DatarequirementSort) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DatarequirementSort(direction:, path:, extension:, id:))
 }
 
@@ -1031,7 +1064,10 @@ pub fn datarequirement_datefilter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -1049,7 +1085,7 @@ pub fn datarequirement_datefilter_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DatarequirementDatefilter(
     value:,
     search_param:,
@@ -1083,7 +1119,10 @@ pub fn datarequirement_codefilter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -1100,7 +1139,7 @@ pub fn datarequirement_codefilter_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DatarequirementCodefilter(
     code:,
     value_set:,
@@ -1173,7 +1212,10 @@ pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -1204,7 +1246,7 @@ pub fn datarequirement_decoder() -> Decoder(Datarequirement) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Datarequirement(
     sort:,
     limit:,
@@ -1222,7 +1264,7 @@ pub fn datarequirement_decoder() -> Decoder(Datarequirement) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Distance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Distance#resource)
 pub type Distance {
   Distance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     value: Primitive(Float),
     comparator: Primitive(r4usp_valuesets.Quantitycomparator),
@@ -1240,7 +1282,7 @@ pub fn distance_new() -> Distance {
     comparator: Primitive(id: None, ext: [], value: None),
     value: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -1263,7 +1305,10 @@ pub fn distance_to_json(distance: Distance) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -1282,7 +1327,7 @@ pub fn distance_decoder() -> Decoder(Distance) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Distance(
     code:,
     system:,
@@ -1297,7 +1342,7 @@ pub fn distance_decoder() -> Decoder(Distance) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Dosage#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Dosage#resource)
 pub type Dosage {
   Dosage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -1361,14 +1406,14 @@ pub fn dosage_new() -> Dosage {
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Dosage#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Dosage#resource)
 pub type DosageDoseandrate {
   DosageDoseandrate(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     type_: Option(Codeableconcept),
     dose: Option(DosageDoseandrateDose),
@@ -1434,7 +1479,7 @@ pub fn dosage_doseandrate_new() -> DosageDoseandrate {
     dose: None,
     type_: None,
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -1479,7 +1524,10 @@ pub fn dosage_doseandrate_to_json(dosage_doseandrate: DosageDoseandrate) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -1497,7 +1545,7 @@ pub fn dosage_doseandrate_decoder() -> Decoder(DosageDoseandrate) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DosageDoseandrate(rate:, dose:, type_:, extension:, id:))
 }
 
@@ -1600,7 +1648,10 @@ pub fn dosage_to_json(dosage: Dosage) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -1668,7 +1719,7 @@ pub fn dosage_decoder() -> Decoder(Dosage) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Dosage(
     max_dose_per_lifetime:,
     max_dose_per_administration:,
@@ -1692,7 +1743,7 @@ pub fn dosage_decoder() -> Decoder(Dosage) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Duration#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Duration#resource)
 pub type Duration {
   Duration(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     value: Primitive(Float),
     comparator: Primitive(r4usp_valuesets.Quantitycomparator),
@@ -1710,7 +1761,7 @@ pub fn duration_new() -> Duration {
     comparator: Primitive(id: None, ext: [], value: None),
     value: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -1733,7 +1784,10 @@ pub fn duration_to_json(duration: Duration) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -1752,7 +1806,7 @@ pub fn duration_decoder() -> Decoder(Duration) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Duration(
     code:,
     system:,
@@ -1768,7 +1822,7 @@ pub fn duration_decoder() -> Decoder(Duration) {
 pub type Elementdefinition {
   Elementdefinition(
     uscdi_requirement: List(Bool),
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     path: Primitive(String),
@@ -2737,7 +2791,7 @@ pub fn elementdefinition_new() -> Elementdefinition {
     path: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
     uscdi_requirement: [],
   )
 }
@@ -2745,7 +2799,7 @@ pub fn elementdefinition_new() -> Elementdefinition {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionSlicing {
   ElementdefinitionSlicing(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     discriminator: List(ElementdefinitionSlicingDiscriminator),
     description: Primitive(String),
@@ -2761,14 +2815,14 @@ pub fn elementdefinition_slicing_new() -> ElementdefinitionSlicing {
     description: Primitive(id: None, ext: [], value: None),
     discriminator: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionSlicingDiscriminator {
   ElementdefinitionSlicingDiscriminator(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Discriminatortype),
     path: Primitive(String),
@@ -2780,14 +2834,14 @@ pub fn elementdefinition_slicing_discriminator_new() -> ElementdefinitionSlicing
     path: Primitive(id: None, ext: [], value: None),
     type_: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionBase {
   ElementdefinitionBase(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     path: Primitive(String),
     min: Primitive(Int),
@@ -2801,14 +2855,14 @@ pub fn elementdefinition_base_new() -> ElementdefinitionBase {
     min: Primitive(id: None, ext: [], value: None),
     path: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionType {
   ElementdefinitionType(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     code: Primitive(String),
     profile: List(Primitive(String)),
@@ -2826,14 +2880,14 @@ pub fn elementdefinition_type_new() -> ElementdefinitionType {
     profile: [],
     code: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionExample {
   ElementdefinitionExample(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     label: Primitive(String),
     value: ElementdefinitionExampleValue,
@@ -3096,14 +3150,14 @@ pub fn elementdefinition_example_new(
     value:,
     label: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionConstraint {
   ElementdefinitionConstraint(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     key: Primitive(String),
     requirements: Primitive(String),
@@ -3125,14 +3179,14 @@ pub fn elementdefinition_constraint_new() -> ElementdefinitionConstraint {
     requirements: Primitive(id: None, ext: [], value: None),
     key: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionBinding {
   ElementdefinitionBinding(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     strength: Primitive(r4usp_valuesets.Bindingstrength),
     description: Primitive(String),
@@ -3146,14 +3200,14 @@ pub fn elementdefinition_binding_new() -> ElementdefinitionBinding {
     description: Primitive(id: None, ext: [], value: None),
     strength: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ElementDefinition#resource)
 pub type ElementdefinitionMapping {
   ElementdefinitionMapping(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     identity: Primitive(String),
     language: Primitive(String),
@@ -3169,7 +3223,7 @@ pub fn elementdefinition_mapping_new() -> ElementdefinitionMapping {
     language: Primitive(id: None, ext: [], value: None),
     identity: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -3193,7 +3247,10 @@ pub fn elementdefinition_mapping_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -3208,7 +3265,7 @@ pub fn elementdefinition_mapping_decoder() -> Decoder(ElementdefinitionMapping) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ElementdefinitionMapping(
     comment:,
     map:,
@@ -3244,7 +3301,10 @@ pub fn elementdefinition_binding_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -3261,7 +3321,7 @@ pub fn elementdefinition_binding_decoder() -> Decoder(ElementdefinitionBinding) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ElementdefinitionBinding(
     value_set:,
     description:,
@@ -3304,7 +3364,10 @@ pub fn elementdefinition_constraint_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -3327,7 +3390,7 @@ pub fn elementdefinition_constraint_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ElementdefinitionConstraint(
     source:,
     xpath:,
@@ -3410,7 +3473,10 @@ pub fn elementdefinition_example_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -3423,7 +3489,7 @@ pub fn elementdefinition_example_decoder() -> Decoder(ElementdefinitionExample) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ElementdefinitionExample(value:, label:, extension:, id:))
 }
 
@@ -3462,7 +3528,10 @@ pub fn elementdefinition_type_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -3484,7 +3553,7 @@ pub fn elementdefinition_type_decoder() -> Decoder(ElementdefinitionType) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ElementdefinitionType(
     versioning:,
     aggregation:,
@@ -3509,7 +3578,10 @@ pub fn elementdefinition_base_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -3523,7 +3595,7 @@ pub fn elementdefinition_base_decoder() -> Decoder(ElementdefinitionBase) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ElementdefinitionBase(max:, min:, path:, extension:, id:))
 }
 
@@ -3545,7 +3617,10 @@ pub fn elementdefinition_slicing_discriminator_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -3563,7 +3638,7 @@ pub fn elementdefinition_slicing_discriminator_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ElementdefinitionSlicingDiscriminator(
     path:,
     type_:,
@@ -3611,7 +3686,10 @@ pub fn elementdefinition_slicing_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -3633,7 +3711,7 @@ pub fn elementdefinition_slicing_decoder() -> Decoder(ElementdefinitionSlicing) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ElementdefinitionSlicing(
     rules:,
     ordered:,
@@ -4033,7 +4111,10 @@ pub fn elementdefinition_to_json(elementdefinition: Elementdefinition) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -4128,7 +4209,7 @@ pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   let #(uscdi_requirement_, extension) =
     list.fold(from: #([], []), over: extension, with: fn(acc, ext) {
       let #(a0, plain) = acc
@@ -4183,7 +4264,7 @@ pub fn elementdefinition_decoder() -> Decoder(Elementdefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Expression#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Expression#resource)
 pub type Expression {
   Expression(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     description: Primitive(String),
     name: Primitive(String),
@@ -4201,7 +4282,7 @@ pub fn expression_new() -> Expression {
     name: Primitive(id: None, ext: [], value: None),
     description: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -4226,7 +4307,10 @@ pub fn expression_to_json(expression: Expression) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -4242,7 +4326,7 @@ pub fn expression_decoder() -> Decoder(Expression) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Expression(
     reference:,
     expression:,
@@ -5860,7 +5944,7 @@ pub fn ext_simple_or_complex_decoder() {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/HumanName#resource](http://hl7.org/fhir/r4usp/StructureDefinition/HumanName#resource)
 pub type Humanname {
   Humanname(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     use_: Primitive(r4usp_valuesets.Nameuse),
     text: Primitive(String),
@@ -5882,7 +5966,7 @@ pub fn humanname_new() -> Humanname {
     text: Primitive(id: None, ext: [], value: None),
     use_: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -5914,7 +5998,10 @@ pub fn humanname_to_json(humanname: Humanname) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -5936,7 +6023,7 @@ pub fn humanname_decoder() -> Decoder(Humanname) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Humanname(
     period:,
     suffix:,
@@ -5953,7 +6040,7 @@ pub fn humanname_decoder() -> Decoder(Humanname) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Identifier#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Identifier#resource)
 pub type Identifier {
   Identifier(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     use_: Primitive(r4usp_valuesets.Identifieruse),
     type_: Option(Codeableconcept),
@@ -5973,7 +6060,7 @@ pub fn identifier_new() -> Identifier {
     type_: None,
     use_: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6014,7 +6101,10 @@ pub fn identifier_to_json(identifier: Identifier) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6043,7 +6133,7 @@ pub fn identifier_decoder() -> Decoder(Identifier) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Identifier(
     assigner:,
     period:,
@@ -6059,7 +6149,7 @@ pub fn identifier_decoder() -> Decoder(Identifier) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MarketingStatus#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MarketingStatus#resource)
 pub type Marketingstatus {
   Marketingstatus(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     country: Codeableconcept,
@@ -6083,7 +6173,7 @@ pub fn marketingstatus_new(
     country:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6120,7 +6210,10 @@ pub fn marketingstatus_to_json(marketingstatus: Marketingstatus) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6145,7 +6238,7 @@ pub fn marketingstatus_decoder() -> Decoder(Marketingstatus) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Marketingstatus(
     restore_date:,
     date_range:,
@@ -6161,7 +6254,7 @@ pub fn marketingstatus_decoder() -> Decoder(Marketingstatus) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Meta#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Meta#resource)
 pub type Meta {
   Meta(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     version_id: Primitive(String),
     last_updated: Primitive(Instant),
@@ -6181,7 +6274,7 @@ pub fn meta_new() -> Meta {
     last_updated: Primitive(id: None, ext: [], value: None),
     version_id: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6214,7 +6307,10 @@ pub fn meta_to_json(meta: Meta) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6235,7 +6331,7 @@ pub fn meta_decoder() -> Decoder(Meta) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Meta(
     tag:,
     security:,
@@ -6251,7 +6347,7 @@ pub fn meta_decoder() -> Decoder(Meta) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Money#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Money#resource)
 pub type Money {
   Money(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     value: Primitive(Float),
     currency: Primitive(String),
@@ -6263,7 +6359,7 @@ pub fn money_new() -> Money {
     currency: Primitive(id: None, ext: [], value: None),
     value: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6276,7 +6372,10 @@ pub fn money_to_json(money: Money) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6289,14 +6388,14 @@ pub fn money_decoder() -> Decoder(Money) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Money(currency:, value:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Narrative#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Narrative#resource)
 pub type Narrative {
   Narrative(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     status: Primitive(r4usp_valuesets.Narrativestatus),
     div: Primitive(String),
@@ -6308,7 +6407,7 @@ pub fn narrative_new() -> Narrative {
     div: Primitive(id: None, ext: [], value: None),
     status: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6327,7 +6426,10 @@ pub fn narrative_to_json(narrative: Narrative) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6343,14 +6445,14 @@ pub fn narrative_decoder() -> Decoder(Narrative) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Narrative(div:, status:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ParameterDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ParameterDefinition#resource)
 pub type Parameterdefinition {
   Parameterdefinition(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     name: Primitive(String),
     use_: Primitive(r4usp_valuesets.Operationparameteruse),
@@ -6372,7 +6474,7 @@ pub fn parameterdefinition_new() -> Parameterdefinition {
     use_: Primitive(id: None, ext: [], value: None),
     name: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6410,7 +6512,10 @@ pub fn parameterdefinition_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6431,7 +6536,7 @@ pub fn parameterdefinition_decoder() -> Decoder(Parameterdefinition) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Parameterdefinition(
     profile:,
     type_:,
@@ -6448,7 +6553,7 @@ pub fn parameterdefinition_decoder() -> Decoder(Parameterdefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Period#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Period#resource)
 pub type Period {
   Period(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     start: Primitive(DateTime),
     end: Primitive(DateTime),
@@ -6460,7 +6565,7 @@ pub fn period_new() -> Period {
     end: Primitive(id: None, ext: [], value: None),
     start: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6473,7 +6578,10 @@ pub fn period_to_json(period: Period) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6486,14 +6594,14 @@ pub fn period_decoder() -> Decoder(Period) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Period(end:, start:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Population#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Population#resource)
 pub type Population {
   Population(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     age: Option(PopulationAge),
@@ -6539,7 +6647,7 @@ pub fn population_new() -> Population {
     age: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6594,7 +6702,10 @@ pub fn population_to_json(population: Population) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6626,7 +6737,7 @@ pub fn population_decoder() -> Decoder(Population) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Population(
     physiological_condition:,
     race:,
@@ -6641,7 +6752,7 @@ pub fn population_decoder() -> Decoder(Population) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ProdCharacteristic#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ProdCharacteristic#resource)
 pub type Prodcharacteristic {
   Prodcharacteristic(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     height: Option(Quantity),
@@ -6673,7 +6784,7 @@ pub fn prodcharacteristic_new() -> Prodcharacteristic {
     height: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6743,7 +6854,10 @@ pub fn prodcharacteristic_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6802,7 +6916,7 @@ pub fn prodcharacteristic_decoder() -> Decoder(Prodcharacteristic) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Prodcharacteristic(
     scoring:,
     image:,
@@ -6824,7 +6938,7 @@ pub fn prodcharacteristic_decoder() -> Decoder(Prodcharacteristic) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ProductShelfLife#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ProductShelfLife#resource)
 pub type Productshelflife {
   Productshelflife(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
@@ -6845,7 +6959,7 @@ pub fn productshelflife_new(
     identifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6888,7 +7002,10 @@ pub fn productshelflife_to_json(productshelflife: Productshelflife) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6916,7 +7033,7 @@ pub fn productshelflife_decoder() -> Decoder(Productshelflife) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Productshelflife(
     special_precautions_for_storage:,
     period:,
@@ -6931,7 +7048,7 @@ pub fn productshelflife_decoder() -> Decoder(Productshelflife) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Quantity#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Quantity#resource)
 pub type Quantity {
   Quantity(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     value: Primitive(Float),
     comparator: Primitive(r4usp_valuesets.Quantitycomparator),
@@ -6949,7 +7066,7 @@ pub fn quantity_new() -> Quantity {
     comparator: Primitive(id: None, ext: [], value: None),
     value: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -6972,7 +7089,10 @@ pub fn quantity_to_json(quantity: Quantity) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -6991,7 +7111,7 @@ pub fn quantity_decoder() -> Decoder(Quantity) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Quantity(
     code:,
     system:,
@@ -7006,7 +7126,7 @@ pub fn quantity_decoder() -> Decoder(Quantity) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Range#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Range#resource)
 pub type Range {
   Range(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     low: Option(Quantity),
     high: Option(Quantity),
@@ -7014,12 +7134,7 @@ pub type Range {
 }
 
 pub fn range_new() -> Range {
-  Range(
-    high: None,
-    low: None,
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  Range(high: None, low: None, extension: [], id: None)
 }
 
 pub fn range_to_json(range: Range) -> Json {
@@ -7037,7 +7152,10 @@ pub fn range_to_json(range: Range) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -7058,14 +7176,14 @@ pub fn range_decoder() -> Decoder(Range) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Range(high:, low:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Ratio#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Ratio#resource)
 pub type Ratio {
   Ratio(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     numerator: Option(Quantity),
     denominator: Option(Quantity),
@@ -7073,12 +7191,7 @@ pub type Ratio {
 }
 
 pub fn ratio_new() -> Ratio {
-  Ratio(
-    denominator: None,
-    numerator: None,
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  Ratio(denominator: None, numerator: None, extension: [], id: None)
 }
 
 pub fn ratio_to_json(ratio: Ratio) -> Json {
@@ -7096,7 +7209,10 @@ pub fn ratio_to_json(ratio: Ratio) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -7117,14 +7233,14 @@ pub fn ratio_decoder() -> Decoder(Ratio) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Ratio(denominator:, numerator:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Reference#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Reference#resource)
 pub type Reference {
   Reference(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     reference: Primitive(String),
     type_: Primitive(String),
@@ -7140,7 +7256,7 @@ pub fn reference_new() -> Reference {
     type_: Primitive(id: None, ext: [], value: None),
     reference: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -7159,7 +7275,10 @@ pub fn reference_to_json(reference: Reference) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -7178,7 +7297,7 @@ pub fn reference_decoder() -> Decoder(Reference) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Reference(
     display:,
     identifier:,
@@ -7192,7 +7311,7 @@ pub fn reference_decoder() -> Decoder(Reference) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RelatedArtifact#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RelatedArtifact#resource)
 pub type Relatedartifact {
   Relatedartifact(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Relatedartifacttype),
     label: Primitive(String),
@@ -7214,7 +7333,7 @@ pub fn relatedartifact_new() -> Relatedartifact {
     label: Primitive(id: None, ext: [], value: None),
     type_: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -7251,7 +7370,10 @@ pub fn relatedartifact_to_json(relatedartifact: Relatedartifact) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -7276,7 +7398,7 @@ pub fn relatedartifact_decoder() -> Decoder(Relatedartifact) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Relatedartifact(
     resource:,
     document:,
@@ -7293,7 +7415,7 @@ pub fn relatedartifact_decoder() -> Decoder(Relatedartifact) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SampledData#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SampledData#resource)
 pub type Sampleddata {
   Sampleddata(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     origin: Quantity,
     period: Primitive(Float),
@@ -7315,7 +7437,7 @@ pub fn sampleddata_new(origin origin: Quantity) -> Sampleddata {
     period: Primitive(id: None, ext: [], value: None),
     origin:,
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -7344,7 +7466,10 @@ pub fn sampleddata_to_json(sampleddata: Sampleddata) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -7362,7 +7487,7 @@ pub fn sampleddata_decoder() -> Decoder(Sampleddata) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Sampleddata(
     data:,
     dimensions:,
@@ -7379,7 +7504,7 @@ pub fn sampleddata_decoder() -> Decoder(Sampleddata) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Signature#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Signature#resource)
 pub type Signature {
   Signature(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     type_: List1(Coding),
     when: Primitive(Instant),
@@ -7404,7 +7529,7 @@ pub fn signature_new(
     when: Primitive(id: None, ext: [], value: None),
     type_:,
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -7437,7 +7562,10 @@ pub fn signature_to_json(signature: Signature) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -7459,7 +7587,7 @@ pub fn signature_decoder() -> Decoder(Signature) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Signature(
     data:,
     sig_format:,
@@ -7476,7 +7604,7 @@ pub fn signature_decoder() -> Decoder(Signature) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceAmount#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceAmount#resource)
 pub type Substanceamount {
   Substanceamount(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     amount: Option(SubstanceamountAmount),
@@ -7522,14 +7650,14 @@ pub fn substanceamount_new() -> Substanceamount {
     amount: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceAmount#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceAmount#resource)
 pub type SubstanceamountReferencerange {
   SubstanceamountReferencerange(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     low_limit: Option(Quantity),
     high_limit: Option(Quantity),
@@ -7541,7 +7669,7 @@ pub fn substanceamount_referencerange_new() -> SubstanceamountReferencerange {
     high_limit: None,
     low_limit: None,
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -7563,7 +7691,10 @@ pub fn substanceamount_referencerange_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -7586,7 +7717,7 @@ pub fn substanceamount_referencerange_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstanceamountReferencerange(
     high_limit:,
     low_limit:,
@@ -7644,7 +7775,10 @@ pub fn substanceamount_to_json(substanceamount: Substanceamount) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -7672,7 +7806,7 @@ pub fn substanceamount_decoder() -> Decoder(Substanceamount) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Substanceamount(
     reference_range:,
     amount_text:,
@@ -7687,7 +7821,7 @@ pub fn substanceamount_decoder() -> Decoder(Substanceamount) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Timing#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Timing#resource)
 pub type Timing {
   Timing(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     event: List(Primitive(DateTime)),
@@ -7703,14 +7837,14 @@ pub fn timing_new() -> Timing {
     event: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Timing#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Timing#resource)
 pub type TimingRepeat {
   TimingRepeat(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     bounds: Option(TimingRepeatBounds),
     count: Primitive(Int),
@@ -7776,7 +7910,7 @@ pub fn timing_repeat_new() -> TimingRepeat {
     count: Primitive(id: None, ext: [], value: None),
     bounds: None,
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -7861,7 +7995,10 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -7896,7 +8033,7 @@ pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TimingRepeat(
     offset:,
     when:,
@@ -7942,7 +8079,10 @@ pub fn timing_to_json(timing: Timing) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -7969,7 +8109,7 @@ pub fn timing_decoder() -> Decoder(Timing) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Timing(
     code:,
     repeat:,
@@ -7983,7 +8123,7 @@ pub fn timing_decoder() -> Decoder(Timing) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TriggerDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TriggerDefinition#resource)
 pub type Triggerdefinition {
   Triggerdefinition(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Triggertype),
     name: Primitive(String),
@@ -8033,7 +8173,7 @@ pub fn triggerdefinition_new() -> Triggerdefinition {
     name: Primitive(id: None, ext: [], value: None),
     type_: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -8084,7 +8224,10 @@ pub fn triggerdefinition_to_json(triggerdefinition: Triggerdefinition) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -8108,7 +8251,7 @@ pub fn triggerdefinition_decoder() -> Decoder(Triggerdefinition) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Triggerdefinition(
     condition:,
     data:,
@@ -8123,7 +8266,7 @@ pub fn triggerdefinition_decoder() -> Decoder(Triggerdefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/UsageContext#resource](http://hl7.org/fhir/r4usp/StructureDefinition/UsageContext#resource)
 pub type Usagecontext {
   Usagecontext(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     code: Coding,
     value: UsagecontextValue,
@@ -8170,12 +8313,7 @@ pub fn usagecontext_new(
   value value: UsagecontextValue,
   code code: Coding,
 ) -> Usagecontext {
-  Usagecontext(
-    value:,
-    code:,
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  Usagecontext(value:, code:, extension: [], id: None)
 }
 
 pub fn usagecontext_to_json(usagecontext: Usagecontext) -> Json {
@@ -8197,7 +8335,10 @@ pub fn usagecontext_to_json(usagecontext: Usagecontext) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -8210,14 +8351,14 @@ pub fn usagecontext_decoder() -> Decoder(Usagecontext) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Usagecontext(value:, code:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MoneyQuantity#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MoneyQuantity#resource)
 pub type Moneyquantity {
   Moneyquantity(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     value: Primitive(Float),
     comparator: Primitive(r4usp_valuesets.Quantitycomparator),
@@ -8235,7 +8376,7 @@ pub fn moneyquantity_new() -> Moneyquantity {
     comparator: Primitive(id: None, ext: [], value: None),
     value: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -8258,7 +8399,10 @@ pub fn moneyquantity_to_json(moneyquantity: Moneyquantity) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -8277,7 +8421,7 @@ pub fn moneyquantity_decoder() -> Decoder(Moneyquantity) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Moneyquantity(
     code:,
     system:,
@@ -8292,7 +8436,7 @@ pub fn moneyquantity_decoder() -> Decoder(Moneyquantity) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SimpleQuantity#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SimpleQuantity#resource)
 pub type Simplequantity {
   Simplequantity(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     value: Primitive(Float),
     unit: Primitive(String),
@@ -8308,7 +8452,7 @@ pub fn simplequantity_new() -> Simplequantity {
     unit: Primitive(id: None, ext: [], value: None),
     value: Primitive(id: None, ext: [], value: None),
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -8324,7 +8468,10 @@ pub fn simplequantity_to_json(simplequantity: Simplequantity) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -8339,14 +8486,14 @@ pub fn simplequantity_decoder() -> Decoder(Simplequantity) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(Simplequantity(code:, system:, unit:, value:, extension:, id:))
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Account#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Account#resource)
 pub type Account {
   Account(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -8388,14 +8535,14 @@ pub fn account_new() -> Account {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Account#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Account#resource)
 pub type AccountCoverage {
   AccountCoverage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     coverage: Reference,
@@ -8409,14 +8556,14 @@ pub fn account_coverage_new(coverage coverage: Reference) -> AccountCoverage {
     coverage:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Account#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Account#resource)
 pub type AccountGuarantor {
   AccountGuarantor(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     party: Reference,
@@ -8432,7 +8579,7 @@ pub fn account_guarantor_new(party party: Reference) -> AccountGuarantor {
     party:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -8464,7 +8611,10 @@ pub fn account_guarantor_to_json(account_guarantor: AccountGuarantor) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -8487,7 +8637,7 @@ pub fn account_guarantor_decoder() -> Decoder(AccountGuarantor) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AccountGuarantor(
     period:,
     on_hold:,
@@ -8521,7 +8671,10 @@ pub fn account_coverage_to_json(account_coverage: AccountCoverage) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -8539,7 +8692,7 @@ pub fn account_coverage_decoder() -> Decoder(AccountCoverage) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AccountCoverage(
     priority:,
     coverage:,
@@ -8646,7 +8799,10 @@ pub fn account_to_json(account: Account) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Account")), ..fields]
   json.object(fields)
 }
@@ -8726,7 +8882,7 @@ pub fn account_decoder() -> Decoder(Account) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -8759,7 +8915,7 @@ pub fn account_decoder() -> Decoder(Account) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ActivityDefinition#resource)
 pub type Activitydefinition {
   Activitydefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -8975,14 +9131,14 @@ pub fn activitydefinition_new() -> Activitydefinition {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ActivityDefinition#resource)
 pub type ActivitydefinitionParticipant {
   ActivitydefinitionParticipant(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Actionparticipanttype),
@@ -8996,14 +9152,14 @@ pub fn activitydefinition_participant_new() -> ActivitydefinitionParticipant {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ActivityDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ActivityDefinition#resource)
 pub type ActivitydefinitionDynamicvalue {
   ActivitydefinitionDynamicvalue(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     path: Primitive(String),
@@ -9019,7 +9175,7 @@ pub fn activitydefinition_dynamicvalue_new(
     path: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -9048,7 +9204,10 @@ pub fn activitydefinition_dynamicvalue_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -9068,7 +9227,7 @@ pub fn activitydefinition_dynamicvalue_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ActivitydefinitionDynamicvalue(
     expression:,
     path:,
@@ -9111,7 +9270,10 @@ pub fn activitydefinition_participant_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -9138,7 +9300,7 @@ pub fn activitydefinition_participant_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ActivitydefinitionParticipant(
     role:,
     type_:,
@@ -9465,7 +9627,10 @@ pub fn activitydefinition_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ActivityDefinition")), ..fields]
   json.object(fields)
 }
@@ -9647,7 +9812,7 @@ pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -9715,7 +9880,7 @@ pub fn activitydefinition_decoder() -> Decoder(Activitydefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AdverseEvent#resource)
 pub type Adverseevent {
   Adverseevent(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -9775,14 +9940,14 @@ pub fn adverseevent_new(subject subject: Reference) -> Adverseevent {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventSuspectentity {
   AdverseeventSuspectentity(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     instance: Reference,
@@ -9798,14 +9963,14 @@ pub fn adverseevent_suspectentity_new(
     instance:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AdverseEvent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AdverseEvent#resource)
 pub type AdverseeventSuspectentityCausality {
   AdverseeventSuspectentityCausality(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     assessment: Option(Codeableconcept),
@@ -9823,7 +9988,7 @@ pub fn adverseevent_suspectentity_causality_new() -> AdverseeventSuspectentityCa
     assessment: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -9870,7 +10035,10 @@ pub fn adverseevent_suspectentity_causality_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -9907,7 +10075,7 @@ pub fn adverseevent_suspectentity_causality_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AdverseeventSuspectentityCausality(
     method:,
     author:,
@@ -9953,7 +10121,10 @@ pub fn adverseevent_suspectentity_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -9977,7 +10148,7 @@ pub fn adverseevent_suspectentity_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AdverseeventSuspectentity(
     causality:,
     instance:,
@@ -10151,7 +10322,10 @@ pub fn adverseevent_to_json(adverseevent: Adverseevent) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("AdverseEvent")), ..fields]
   json.object(fields)
 }
@@ -10268,7 +10442,7 @@ pub fn adverseevent_decoder() -> Decoder(Adverseevent) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -10310,7 +10484,7 @@ pub fn adverseevent_decoder() -> Decoder(Adverseevent) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AllergyIntolerance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AllergyIntolerance#resource)
 pub type Allergyintolerance {
   Allergyintolerance(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -10398,14 +10572,14 @@ pub fn allergyintolerance_new(patient patient: Reference) -> Allergyintolerance 
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AllergyIntolerance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AllergyIntolerance#resource)
 pub type AllergyintoleranceReaction {
   AllergyintoleranceReaction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     substance: Option(Codeableconcept),
@@ -10431,7 +10605,7 @@ pub fn allergyintolerance_reaction_new(
     substance: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -10486,7 +10660,10 @@ pub fn allergyintolerance_reaction_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -10526,7 +10703,7 @@ pub fn allergyintolerance_reaction_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AllergyintoleranceReaction(
     note:,
     exposure_route:,
@@ -10690,7 +10867,10 @@ pub fn allergyintolerance_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("AllergyIntolerance")), ..fields]
   json.object(fields)
 }
@@ -10788,7 +10968,7 @@ pub fn allergyintolerance_decoder() -> Decoder(Allergyintolerance) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -10826,7 +11006,7 @@ pub fn allergyintolerance_decoder() -> Decoder(Allergyintolerance) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Appointment#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Appointment#resource)
 pub type Appointment {
   Appointment(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -10892,14 +11072,14 @@ pub fn appointment_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Appointment#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Appointment#resource)
 pub type AppointmentParticipant {
   AppointmentParticipant(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: List(Codeableconcept),
@@ -10919,7 +11099,7 @@ pub fn appointment_participant_new() -> AppointmentParticipant {
     type_: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -10974,7 +11154,10 @@ pub fn appointment_participant_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -11013,7 +11196,7 @@ pub fn appointment_participant_decoder() -> Decoder(AppointmentParticipant) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AppointmentParticipant(
     period:,
     status:,
@@ -11190,7 +11373,10 @@ pub fn appointment_to_json(appointment: Appointment) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Appointment")), ..fields]
   json.object(fields)
 }
@@ -11303,7 +11489,7 @@ pub fn appointment_decoder() -> Decoder(Appointment) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -11347,7 +11533,7 @@ pub fn appointment_decoder() -> Decoder(Appointment) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AppointmentResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AppointmentResponse#resource)
 pub type Appointmentresponse {
   Appointmentresponse(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -11385,7 +11571,7 @@ pub fn appointmentresponse_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -11467,7 +11653,10 @@ pub fn appointmentresponse_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("AppointmentResponse")), ..fields]
   json.object(fields)
 }
@@ -11524,7 +11713,7 @@ pub fn appointmentresponse_decoder() -> Decoder(Appointmentresponse) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -11554,7 +11743,7 @@ pub fn appointmentresponse_decoder() -> Decoder(Appointmentresponse) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource)
 pub type Auditevent {
   Auditevent(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -11600,14 +11789,14 @@ pub fn auditevent_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource)
 pub type AuditeventAgent {
   AuditeventAgent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -11639,14 +11828,14 @@ pub fn auditevent_agent_new() -> AuditeventAgent {
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource)
 pub type AuditeventAgentNetwork {
   AuditeventAgentNetwork(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     address: Primitive(String),
@@ -11660,14 +11849,14 @@ pub fn auditevent_agent_network_new() -> AuditeventAgentNetwork {
     address: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource)
 pub type AuditeventSource {
   AuditeventSource(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     site: Primitive(String),
@@ -11683,14 +11872,14 @@ pub fn auditevent_source_new(observer observer: Reference) -> AuditeventSource {
     site: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource)
 pub type AuditeventEntity {
   AuditeventEntity(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     what: Option(Reference),
@@ -11718,14 +11907,14 @@ pub fn auditevent_entity_new() -> AuditeventEntity {
     what: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/AuditEvent#resource)
 pub type AuditeventEntityDetail {
   AuditeventEntityDetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(String),
@@ -11769,7 +11958,7 @@ pub fn auditevent_entity_detail_new(
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -11805,7 +11994,10 @@ pub fn auditevent_entity_detail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -11823,7 +12015,7 @@ pub fn auditevent_entity_detail_decoder() -> Decoder(AuditeventEntityDetail) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AuditeventEntityDetail(
     value:,
     type_:,
@@ -11894,7 +12086,10 @@ pub fn auditevent_entity_to_json(auditevent_entity: AuditeventEntity) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -11943,7 +12138,7 @@ pub fn auditevent_entity_decoder() -> Decoder(AuditeventEntity) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AuditeventEntity(
     detail:,
     query:,
@@ -11988,7 +12183,10 @@ pub fn auditevent_source_to_json(auditevent_source: AuditeventSource) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -12007,7 +12205,7 @@ pub fn auditevent_source_decoder() -> Decoder(AuditeventSource) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AuditeventSource(
     type_:,
     observer:,
@@ -12048,7 +12246,10 @@ pub fn auditevent_agent_network_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -12066,7 +12267,7 @@ pub fn auditevent_agent_network_decoder() -> Decoder(AuditeventAgentNetwork) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AuditeventAgentNetwork(
     type_:,
     address:,
@@ -12140,7 +12341,10 @@ pub fn auditevent_agent_to_json(auditevent_agent: AuditeventAgent) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -12195,7 +12399,7 @@ pub fn auditevent_agent_decoder() -> Decoder(AuditeventAgent) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(AuditeventAgent(
     purpose_of_use:,
     network:,
@@ -12304,7 +12508,10 @@ pub fn auditevent_to_json(auditevent: Auditevent) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("AuditEvent")), ..fields]
   json.object(fields)
 }
@@ -12371,7 +12578,7 @@ pub fn auditevent_decoder() -> Decoder(Auditevent) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -12404,7 +12611,7 @@ pub fn auditevent_decoder() -> Decoder(Auditevent) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Basic#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Basic#resource)
 pub type Basic {
   Basic(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -12434,7 +12641,7 @@ pub fn basic_new(code code: Codeableconcept) -> Basic {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -12496,7 +12703,10 @@ pub fn basic_to_json(basic: Basic) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Basic")), ..fields]
   json.object(fields)
 }
@@ -12547,7 +12757,7 @@ pub fn basic_decoder() -> Decoder(Basic) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -12574,7 +12784,7 @@ pub fn basic_decoder() -> Decoder(Basic) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Binary#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Binary#resource)
 pub type Binary {
   Binary(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -12592,7 +12802,7 @@ pub fn binary_new() -> Binary {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -12621,7 +12831,10 @@ pub fn binary_to_json(binary: Binary) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Binary")), ..fields]
   json.object(fields)
 }
@@ -12642,7 +12855,7 @@ pub fn binary_decoder() -> Decoder(Binary) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -12663,7 +12876,7 @@ pub fn binary_decoder() -> Decoder(Binary) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type Biologicallyderivedproduct {
   Biologicallyderivedproduct(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -12705,14 +12918,14 @@ pub fn biologicallyderivedproduct_new() -> Biologicallyderivedproduct {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductCollection {
   BiologicallyderivedproductCollection(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     collector: Option(Reference),
@@ -12757,14 +12970,14 @@ pub fn biologicallyderivedproduct_collection_new() -> Biologicallyderivedproduct
     collector: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductProcessing {
   BiologicallyderivedproductProcessing(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -12811,14 +13024,14 @@ pub fn biologicallyderivedproduct_processing_new() -> Biologicallyderivedproduct
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductManipulation {
   BiologicallyderivedproductManipulation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -12861,14 +13074,14 @@ pub fn biologicallyderivedproduct_manipulation_new() -> Biologicallyderivedprodu
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/BiologicallyDerivedProduct#resource)
 pub type BiologicallyderivedproductStorage {
   BiologicallyderivedproductStorage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -12886,7 +13099,7 @@ pub fn biologicallyderivedproduct_storage_new() -> BiologicallyderivedproductSto
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -12928,7 +13141,10 @@ pub fn biologicallyderivedproduct_storage_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -12957,7 +13173,7 @@ pub fn biologicallyderivedproduct_storage_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(BiologicallyderivedproductStorage(
     duration:,
     scale:,
@@ -13007,7 +13223,10 @@ pub fn biologicallyderivedproduct_manipulation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -13029,7 +13248,7 @@ pub fn biologicallyderivedproduct_manipulation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(BiologicallyderivedproductManipulation(
     time:,
     description:,
@@ -13087,7 +13306,10 @@ pub fn biologicallyderivedproduct_processing_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -13119,7 +13341,7 @@ pub fn biologicallyderivedproduct_processing_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(BiologicallyderivedproductProcessing(
     time:,
     additive:,
@@ -13176,7 +13398,10 @@ pub fn biologicallyderivedproduct_collection_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -13207,7 +13432,7 @@ pub fn biologicallyderivedproduct_collection_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(BiologicallyderivedproductCollection(
     collected:,
     source:,
@@ -13334,7 +13559,10 @@ pub fn biologicallyderivedproduct_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("BiologicallyDerivedProduct")),
     ..fields
@@ -13422,7 +13650,7 @@ pub fn biologicallyderivedproduct_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -13455,7 +13683,7 @@ pub fn biologicallyderivedproduct_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/BodyStructure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/BodyStructure#resource)
 pub type Bodystructure {
   Bodystructure(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -13491,7 +13719,7 @@ pub fn bodystructure_new(patient patient: Reference) -> Bodystructure {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -13572,7 +13800,10 @@ pub fn bodystructure_to_json(bodystructure: Bodystructure) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("BodyStructure")), ..fields]
   json.object(fields)
 }
@@ -13634,7 +13865,7 @@ pub fn bodystructure_decoder() -> Decoder(Bodystructure) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -13664,7 +13895,7 @@ pub fn bodystructure_decoder() -> Decoder(Bodystructure) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource)
 pub type Bundle {
   Bundle(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -13690,14 +13921,14 @@ pub fn bundle_new() -> Bundle {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource)
 pub type BundleLink {
   BundleLink(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     relation: Primitive(String),
@@ -13711,14 +13942,14 @@ pub fn bundle_link_new() -> BundleLink {
     relation: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource)
 pub type BundleEntry {
   BundleEntry(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     link: List(BundleLink),
@@ -13740,14 +13971,14 @@ pub fn bundle_entry_new() -> BundleEntry {
     link: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource)
 pub type BundleEntrySearch {
   BundleEntrySearch(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     mode: Primitive(r4usp_valuesets.Searchentrymode),
@@ -13761,14 +13992,14 @@ pub fn bundle_entry_search_new() -> BundleEntrySearch {
     mode: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource)
 pub type BundleEntryRequest {
   BundleEntryRequest(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     method: Primitive(r4usp_valuesets.Httpverb),
@@ -13790,14 +14021,14 @@ pub fn bundle_entry_request_new() -> BundleEntryRequest {
     method: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Bundle#resource)
 pub type BundleEntryResponse {
   BundleEntryResponse(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     status: Primitive(String),
@@ -13817,7 +14048,7 @@ pub fn bundle_entry_response_new() -> BundleEntryResponse {
     status: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -13855,7 +14086,10 @@ pub fn bundle_entry_response_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -13880,7 +14114,7 @@ pub fn bundle_entry_response_decoder() -> Decoder(BundleEntryResponse) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(BundleEntryResponse(
     outcome:,
     last_modified:,
@@ -13939,7 +14173,10 @@ pub fn bundle_entry_request_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -13964,7 +14201,7 @@ pub fn bundle_entry_request_decoder() -> Decoder(BundleEntryRequest) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(BundleEntryRequest(
     if_none_exist:,
     if_match:,
@@ -14003,7 +14240,10 @@ pub fn bundle_entry_search_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -14024,7 +14264,7 @@ pub fn bundle_entry_search_decoder() -> Decoder(BundleEntrySearch) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(BundleEntrySearch(
     score:,
     mode:,
@@ -14079,7 +14319,10 @@ pub fn bundle_entry_to_json(bundle_entry: BundleEntry) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -14121,7 +14364,7 @@ pub fn bundle_entry_decoder() -> Decoder(BundleEntry) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(BundleEntry(
     response:,
     request:,
@@ -14152,7 +14395,10 @@ pub fn bundle_link_to_json(bundle_link: BundleLink) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -14170,7 +14416,7 @@ pub fn bundle_link_decoder() -> Decoder(BundleLink) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(BundleLink(
     url:,
     relation:,
@@ -14223,7 +14469,10 @@ pub fn bundle_to_json(bundle: Bundle) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Bundle")), ..fields]
   json.object(fields)
 }
@@ -14260,7 +14509,7 @@ pub fn bundle_decoder() -> Decoder(Bundle) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -14285,7 +14534,7 @@ pub fn bundle_decoder() -> Decoder(Bundle) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type Capabilitystatement {
   Capabilitystatement(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -14357,14 +14606,14 @@ pub fn capabilitystatement_new() -> Capabilitystatement {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementSoftware {
   CapabilitystatementSoftware(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -14380,14 +14629,14 @@ pub fn capabilitystatement_software_new() -> CapabilitystatementSoftware {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementImplementation {
   CapabilitystatementImplementation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -14403,14 +14652,14 @@ pub fn capabilitystatement_implementation_new() -> CapabilitystatementImplementa
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRest {
   CapabilitystatementRest(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     mode: Primitive(r4usp_valuesets.Restfulcapabilitymode),
@@ -14436,14 +14685,14 @@ pub fn capabilitystatement_rest_new() -> CapabilitystatementRest {
     mode: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestSecurity {
   CapabilitystatementRestSecurity(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     cors: Primitive(Bool),
@@ -14459,14 +14708,14 @@ pub fn capabilitystatement_rest_security_new() -> CapabilitystatementRestSecurit
     cors: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestResource {
   CapabilitystatementRestResource(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Resourcetypes),
@@ -14510,14 +14759,14 @@ pub fn capabilitystatement_rest_resource_new() -> CapabilitystatementRestResourc
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestResourceInteraction {
   CapabilitystatementRestResourceInteraction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(r4usp_valuesets.Typerestfulinteraction),
@@ -14531,14 +14780,14 @@ pub fn capabilitystatement_rest_resource_interaction_new() -> Capabilitystatemen
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestResourceSearchparam {
   CapabilitystatementRestResourceSearchparam(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -14556,14 +14805,14 @@ pub fn capabilitystatement_rest_resource_searchparam_new() -> Capabilitystatemen
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestResourceOperation {
   CapabilitystatementRestResourceOperation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -14579,14 +14828,14 @@ pub fn capabilitystatement_rest_resource_operation_new() -> CapabilitystatementR
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementRestInteraction {
   CapabilitystatementRestInteraction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(r4usp_valuesets.Systemrestfulinteraction),
@@ -14600,14 +14849,14 @@ pub fn capabilitystatement_rest_interaction_new() -> CapabilitystatementRestInte
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementMessaging {
   CapabilitystatementMessaging(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     endpoint: List(CapabilitystatementMessagingEndpoint),
@@ -14625,14 +14874,14 @@ pub fn capabilitystatement_messaging_new() -> CapabilitystatementMessaging {
     endpoint: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementMessagingEndpoint {
   CapabilitystatementMessagingEndpoint(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     protocol: Coding,
@@ -14648,14 +14897,14 @@ pub fn capabilitystatement_messaging_endpoint_new(
     protocol:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementMessagingSupportedmessage {
   CapabilitystatementMessagingSupportedmessage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     mode: Primitive(r4usp_valuesets.Eventcapabilitymode),
@@ -14669,14 +14918,14 @@ pub fn capabilitystatement_messaging_supportedmessage_new() -> Capabilitystateme
     mode: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CapabilityStatement#resource)
 pub type CapabilitystatementDocument {
   CapabilitystatementDocument(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     mode: Primitive(r4usp_valuesets.Documentmode),
@@ -14692,7 +14941,7 @@ pub fn capabilitystatement_document_new() -> CapabilitystatementDocument {
     mode: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -14729,7 +14978,10 @@ pub fn capabilitystatement_document_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -14750,7 +15002,7 @@ pub fn capabilitystatement_document_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementDocument(
     profile:,
     documentation:,
@@ -14791,7 +15043,10 @@ pub fn capabilitystatement_messaging_supportedmessage_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -14814,7 +15069,7 @@ pub fn capabilitystatement_messaging_supportedmessage_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementMessagingSupportedmessage(
     definition:,
     mode:,
@@ -14849,7 +15104,10 @@ pub fn capabilitystatement_messaging_endpoint_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -14869,7 +15127,7 @@ pub fn capabilitystatement_messaging_endpoint_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementMessagingEndpoint(
     address:,
     protocol:,
@@ -14930,7 +15188,10 @@ pub fn capabilitystatement_messaging_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -14960,7 +15221,7 @@ pub fn capabilitystatement_messaging_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementMessaging(
     supported_message:,
     documentation:,
@@ -15003,7 +15264,10 @@ pub fn capabilitystatement_rest_interaction_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -15026,7 +15290,7 @@ pub fn capabilitystatement_rest_interaction_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementRestInteraction(
     documentation:,
     code:,
@@ -15063,7 +15327,10 @@ pub fn capabilitystatement_rest_resource_operation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -15084,7 +15351,7 @@ pub fn capabilitystatement_rest_resource_operation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementRestResourceOperation(
     documentation:,
     definition:,
@@ -15130,7 +15397,10 @@ pub fn capabilitystatement_rest_resource_searchparam_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -15155,7 +15425,7 @@ pub fn capabilitystatement_rest_resource_searchparam_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementRestResourceSearchparam(
     documentation:,
     type_:,
@@ -15198,7 +15468,10 @@ pub fn capabilitystatement_rest_resource_interaction_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -15221,7 +15494,7 @@ pub fn capabilitystatement_rest_resource_interaction_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementRestResourceInteraction(
     documentation:,
     code:,
@@ -15378,7 +15651,10 @@ pub fn capabilitystatement_rest_resource_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -15443,7 +15719,7 @@ pub fn capabilitystatement_rest_resource_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementRestResource(
     operation:,
     search_param:,
@@ -15498,7 +15774,10 @@ pub fn capabilitystatement_rest_security_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -15523,7 +15802,7 @@ pub fn capabilitystatement_rest_security_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementRestSecurity(
     description:,
     service:,
@@ -15626,7 +15905,10 @@ pub fn capabilitystatement_rest_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -15673,7 +15955,7 @@ pub fn capabilitystatement_rest_decoder() -> Decoder(CapabilitystatementRest) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementRest(
     compartment:,
     operation:,
@@ -15719,7 +16001,10 @@ pub fn capabilitystatement_implementation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -15744,7 +16029,7 @@ pub fn capabilitystatement_implementation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementImplementation(
     custodian:,
     url:,
@@ -15782,7 +16067,10 @@ pub fn capabilitystatement_software_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -15803,7 +16091,7 @@ pub fn capabilitystatement_software_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CapabilitystatementSoftware(
     release_date:,
     version:,
@@ -15982,7 +16270,10 @@ pub fn capabilitystatement_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("CapabilityStatement")), ..fields]
   json.object(fields)
 }
@@ -16086,7 +16377,7 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -16134,7 +16425,7 @@ pub fn capabilitystatement_decoder() -> Decoder(Capabilitystatement) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CarePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CarePlan#resource)
 pub type Careplan {
   Careplan(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -16200,14 +16491,14 @@ pub fn careplan_new(subject subject: Reference) -> Careplan {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CarePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CarePlan#resource)
 pub type CareplanActivity {
   CareplanActivity(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     outcome_codeable_concept: List(Codeableconcept),
@@ -16227,14 +16518,14 @@ pub fn careplan_activity_new() -> CareplanActivity {
     outcome_codeable_concept: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CarePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CarePlan#resource)
 pub type CareplanActivityDetail {
   CareplanActivityDetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     kind: Primitive(r4usp_valuesets.Careplanactivitykind),
@@ -16343,7 +16634,7 @@ pub fn careplan_activity_detail_new() -> CareplanActivityDetail {
     kind: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -16482,7 +16773,10 @@ pub fn careplan_activity_detail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -16564,7 +16858,7 @@ pub fn careplan_activity_detail_decoder() -> Decoder(CareplanActivityDetail) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CareplanActivityDetail(
     description:,
     quantity:,
@@ -16641,7 +16935,10 @@ pub fn careplan_activity_to_json(careplan_activity: CareplanActivity) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -16682,7 +16979,7 @@ pub fn careplan_activity_decoder() -> Decoder(CareplanActivity) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CareplanActivity(
     detail:,
     reference:,
@@ -16858,7 +17155,10 @@ pub fn careplan_to_json(careplan: Careplan) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("CarePlan")), ..fields]
   json.object(fields)
 }
@@ -16984,7 +17284,7 @@ pub fn careplan_decoder() -> Decoder(Careplan) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -17029,7 +17329,7 @@ pub fn careplan_decoder() -> Decoder(Careplan) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CareTeam#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CareTeam#resource)
 pub type Careteam {
   Careteam(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -17075,14 +17375,14 @@ pub fn careteam_new() -> Careteam {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CareTeam#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CareTeam#resource)
 pub type CareteamParticipant {
   CareteamParticipant(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     role: List(Codeableconcept),
@@ -17100,7 +17400,7 @@ pub fn careteam_participant_new() -> CareteamParticipant {
     role: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -17144,7 +17444,10 @@ pub fn careteam_participant_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -17180,7 +17483,7 @@ pub fn careteam_participant_decoder() -> Decoder(CareteamParticipant) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CareteamParticipant(
     period:,
     on_behalf_of:,
@@ -17313,7 +17616,10 @@ pub fn careteam_to_json(careteam: Careteam) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("CareTeam")), ..fields]
   json.object(fields)
 }
@@ -17407,7 +17713,7 @@ pub fn careteam_decoder() -> Decoder(Careteam) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -17442,7 +17748,7 @@ pub fn careteam_decoder() -> Decoder(Careteam) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CatalogEntry#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CatalogEntry#resource)
 pub type Catalogentry {
   Catalogentry(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -17490,14 +17796,14 @@ pub fn catalogentry_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CatalogEntry#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CatalogEntry#resource)
 pub type CatalogentryRelatedentry {
   CatalogentryRelatedentry(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     relationtype: Primitive(r4usp_valuesets.Relationtype),
@@ -17513,7 +17819,7 @@ pub fn catalogentry_relatedentry_new(
     relationtype: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -17548,7 +17854,10 @@ pub fn catalogentry_relatedentry_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -17569,7 +17878,7 @@ pub fn catalogentry_relatedentry_decoder() -> Decoder(CatalogentryRelatedentry) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CatalogentryRelatedentry(
     item:,
     relationtype:,
@@ -17703,7 +18012,10 @@ pub fn catalogentry_to_json(catalogentry: Catalogentry) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("CatalogEntry")), ..fields]
   json.object(fields)
 }
@@ -17785,7 +18097,7 @@ pub fn catalogentry_decoder() -> Decoder(Catalogentry) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -17820,7 +18132,7 @@ pub fn catalogentry_decoder() -> Decoder(Catalogentry) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItem#resource)
 pub type Chargeitem {
   Chargeitem(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -17951,14 +18263,14 @@ pub fn chargeitem_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItem#resource)
 pub type ChargeitemPerformer {
   ChargeitemPerformer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
@@ -17972,7 +18284,7 @@ pub fn chargeitem_performer_new(actor actor: Reference) -> ChargeitemPerformer {
     function: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -18004,7 +18316,10 @@ pub fn chargeitem_performer_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -18026,7 +18341,7 @@ pub fn chargeitem_performer_decoder() -> Decoder(ChargeitemPerformer) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ChargeitemPerformer(
     actor:,
     function:,
@@ -18230,7 +18545,10 @@ pub fn chargeitem_to_json(chargeitem: Chargeitem) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ChargeItem")), ..fields]
   json.object(fields)
 }
@@ -18362,7 +18680,7 @@ pub fn chargeitem_decoder() -> Decoder(Chargeitem) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -18410,7 +18728,7 @@ pub fn chargeitem_decoder() -> Decoder(Chargeitem) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItemDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItemDefinition#resource)
 pub type Chargeitemdefinition {
   Chargeitemdefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -18476,14 +18794,14 @@ pub fn chargeitemdefinition_new() -> Chargeitemdefinition {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItemDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItemDefinition#resource)
 pub type ChargeitemdefinitionApplicability {
   ChargeitemdefinitionApplicability(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -18499,14 +18817,14 @@ pub fn chargeitemdefinition_applicability_new() -> ChargeitemdefinitionApplicabi
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItemDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItemDefinition#resource)
 pub type ChargeitemdefinitionPropertygroup {
   ChargeitemdefinitionPropertygroup(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     applicability: List(ChargeitemdefinitionApplicability),
@@ -18520,14 +18838,14 @@ pub fn chargeitemdefinition_propertygroup_new() -> ChargeitemdefinitionPropertyg
     applicability: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItemDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ChargeItemDefinition#resource)
 pub type ChargeitemdefinitionPropertygroupPricecomponent {
   ChargeitemdefinitionPropertygroupPricecomponent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Invoicepricecomponenttype),
@@ -18545,7 +18863,7 @@ pub fn chargeitemdefinition_propertygroup_pricecomponent_new() -> Chargeitemdefi
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -18589,7 +18907,10 @@ pub fn chargeitemdefinition_propertygroup_pricecomponent_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -18622,7 +18943,7 @@ pub fn chargeitemdefinition_propertygroup_pricecomponent_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ChargeitemdefinitionPropertygroupPricecomponent(
     amount:,
     factor:,
@@ -18679,7 +19000,10 @@ pub fn chargeitemdefinition_propertygroup_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -18707,7 +19031,7 @@ pub fn chargeitemdefinition_propertygroup_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ChargeitemdefinitionPropertygroup(
     price_component:,
     applicability:,
@@ -18744,7 +19068,10 @@ pub fn chargeitemdefinition_applicability_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -18765,7 +19092,7 @@ pub fn chargeitemdefinition_applicability_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ChargeitemdefinitionApplicability(
     expression:,
     language:,
@@ -18923,7 +19250,10 @@ pub fn chargeitemdefinition_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("ChargeItemDefinition")),
     ..fields
@@ -19022,7 +19352,7 @@ pub fn chargeitemdefinition_decoder() -> Decoder(Chargeitemdefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -19067,7 +19397,7 @@ pub fn chargeitemdefinition_decoder() -> Decoder(Chargeitemdefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type Claim {
   Claim(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -19147,14 +19477,14 @@ pub fn claim_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimRelated {
   ClaimRelated(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     claim: Option(Reference),
@@ -19170,14 +19500,14 @@ pub fn claim_related_new() -> ClaimRelated {
     claim: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimPayee {
   ClaimPayee(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -19191,14 +19521,14 @@ pub fn claim_payee_new(type_ type_: Codeableconcept) -> ClaimPayee {
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimCareteam {
   ClaimCareteam(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -19218,14 +19548,14 @@ pub fn claim_careteam_new(provider provider: Reference) -> ClaimCareteam {
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimSupportinginfo {
   ClaimSupportinginfo(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -19313,14 +19643,14 @@ pub fn claim_supportinginfo_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimDiagnosis {
   ClaimDiagnosis(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -19370,14 +19700,14 @@ pub fn claim_diagnosis_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimProcedure {
   ClaimProcedure(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -19427,14 +19757,14 @@ pub fn claim_procedure_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimInsurance {
   ClaimInsurance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -19458,14 +19788,14 @@ pub fn claim_insurance_new(coverage coverage: Reference) -> ClaimInsurance {
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimAccident {
   ClaimAccident(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     date: Primitive(Date),
@@ -19505,14 +19835,14 @@ pub fn claim_accident_new() -> ClaimAccident {
     date: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimItem {
   ClaimItem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -19622,14 +19952,14 @@ pub fn claim_item_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimItemDetail {
   ClaimItemDetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -19665,14 +19995,14 @@ pub fn claim_item_detail_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Claim#resource)
 pub type ClaimItemDetailSubdetail {
   ClaimItemDetailSubdetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -19706,7 +20036,7 @@ pub fn claim_item_detail_subdetail_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -19783,7 +20113,10 @@ pub fn claim_item_detail_subdetail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -19843,7 +20176,7 @@ pub fn claim_item_detail_subdetail_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimItemDetailSubdetail(
     udi:,
     net:,
@@ -19944,7 +20277,10 @@ pub fn claim_item_detail_to_json(claim_item_detail: ClaimItemDetail) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -20007,7 +20343,7 @@ pub fn claim_item_detail_decoder() -> Decoder(ClaimItemDetail) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimItemDetail(
     sub_detail:,
     udi:,
@@ -20176,7 +20512,10 @@ pub fn claim_item_to_json(claim_item: ClaimItem) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -20263,7 +20602,7 @@ pub fn claim_item_decoder() -> Decoder(ClaimItem) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimItem(
     detail:,
     encounter:,
@@ -20332,7 +20671,10 @@ pub fn claim_accident_to_json(claim_accident: ClaimAccident) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -20357,7 +20699,7 @@ pub fn claim_accident_decoder() -> Decoder(ClaimAccident) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimAccident(
     location:,
     type_:,
@@ -20414,7 +20756,10 @@ pub fn claim_insurance_to_json(claim_insurance: ClaimInsurance) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -20448,7 +20793,7 @@ pub fn claim_insurance_decoder() -> Decoder(ClaimInsurance) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimInsurance(
     claim_response:,
     pre_auth_ref:,
@@ -20505,7 +20850,10 @@ pub fn claim_procedure_to_json(claim_procedure: ClaimProcedure) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -20530,7 +20878,7 @@ pub fn claim_procedure_decoder() -> Decoder(ClaimProcedure) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimProcedure(
     udi:,
     procedure:,
@@ -20588,7 +20936,10 @@ pub fn claim_diagnosis_to_json(claim_diagnosis: ClaimDiagnosis) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -20621,7 +20972,7 @@ pub fn claim_diagnosis_decoder() -> Decoder(ClaimDiagnosis) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimDiagnosis(
     package_code:,
     on_admission:,
@@ -20702,7 +21053,10 @@ pub fn claim_supportinginfo_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -20736,7 +21090,7 @@ pub fn claim_supportinginfo_decoder() -> Decoder(ClaimSupportinginfo) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimSupportinginfo(
     reason:,
     value:,
@@ -20785,7 +21139,10 @@ pub fn claim_careteam_to_json(claim_careteam: ClaimCareteam) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -20814,7 +21171,7 @@ pub fn claim_careteam_decoder() -> Decoder(ClaimCareteam) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimCareteam(
     qualification:,
     role:,
@@ -20848,7 +21205,10 @@ pub fn claim_payee_to_json(claim_payee: ClaimPayee) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -20870,7 +21230,7 @@ pub fn claim_payee_decoder() -> Decoder(ClaimPayee) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimPayee(
     party:,
     type_:,
@@ -20913,7 +21273,10 @@ pub fn claim_related_to_json(claim_related: ClaimRelated) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -20944,7 +21307,7 @@ pub fn claim_related_decoder() -> Decoder(ClaimRelated) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimRelated(
     reference:,
     relationship:,
@@ -21128,7 +21491,10 @@ pub fn claim_to_json(claim: Claim) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Claim")), ..fields]
   json.object(fields)
 }
@@ -21265,7 +21631,7 @@ pub fn claim_decoder() -> Decoder(Claim) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -21317,7 +21683,7 @@ pub fn claim_decoder() -> Decoder(Claim) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type Claimresponse {
   Claimresponse(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -21395,14 +21761,14 @@ pub fn claimresponse_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseItem {
   ClaimresponseItem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     item_sequence: Primitive(Int),
@@ -21422,14 +21788,14 @@ pub fn claimresponse_item_new(
     item_sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseItemAdjudication {
   ClaimresponseItemAdjudication(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     category: Codeableconcept,
@@ -21449,14 +21815,14 @@ pub fn claimresponse_item_adjudication_new(
     category:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseItemDetail {
   ClaimresponseItemDetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     detail_sequence: Primitive(Int),
@@ -21476,14 +21842,14 @@ pub fn claimresponse_item_detail_new(
     detail_sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseItemDetailSubdetail {
   ClaimresponseItemDetailSubdetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sub_detail_sequence: Primitive(Int),
@@ -21499,14 +21865,14 @@ pub fn claimresponse_item_detail_subdetail_new() -> ClaimresponseItemDetailSubde
     sub_detail_sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseAdditem {
   ClaimresponseAdditem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     item_sequence: List(Primitive(Int)),
@@ -21619,14 +21985,14 @@ pub fn claimresponse_additem_new(
     item_sequence: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseAdditemDetail {
   ClaimresponseAdditemDetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     product_or_service: Codeableconcept,
@@ -21657,14 +22023,14 @@ pub fn claimresponse_additem_detail_new(
     product_or_service:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseAdditemDetailSubdetail {
   ClaimresponseAdditemDetailSubdetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     product_or_service: Codeableconcept,
@@ -21693,14 +22059,14 @@ pub fn claimresponse_additem_detail_subdetail_new(
     product_or_service:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseTotal {
   ClaimresponseTotal(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     category: Codeableconcept,
@@ -21717,14 +22083,14 @@ pub fn claimresponse_total_new(
     category:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponsePayment {
   ClaimresponsePayment(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -21749,14 +22115,14 @@ pub fn claimresponse_payment_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseProcessnote {
   ClaimresponseProcessnote(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     number: Primitive(Int),
@@ -21774,14 +22140,14 @@ pub fn claimresponse_processnote_new() -> ClaimresponseProcessnote {
     number: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseInsurance {
   ClaimresponseInsurance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -21803,14 +22169,14 @@ pub fn claimresponse_insurance_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClaimResponse#resource)
 pub type ClaimresponseError {
   ClaimresponseError(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     item_sequence: Primitive(Int),
@@ -21828,7 +22194,7 @@ pub fn claimresponse_error_new(code code: Codeableconcept) -> ClaimresponseError
     item_sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -21869,7 +22235,10 @@ pub fn claimresponse_error_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -21889,7 +22258,7 @@ pub fn claimresponse_error_decoder() -> Decoder(ClaimresponseError) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseError(
     code:,
     sub_detail_sequence:,
@@ -21941,7 +22310,10 @@ pub fn claimresponse_insurance_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -21969,7 +22341,7 @@ pub fn claimresponse_insurance_decoder() -> Decoder(ClaimresponseInsurance) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseInsurance(
     claim_response:,
     business_arrangement:,
@@ -22014,7 +22386,10 @@ pub fn claimresponse_processnote_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -22038,7 +22413,7 @@ pub fn claimresponse_processnote_decoder() -> Decoder(ClaimresponseProcessnote) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseProcessnote(
     language:,
     text:,
@@ -22092,7 +22467,10 @@ pub fn claimresponse_payment_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -22126,7 +22504,7 @@ pub fn claimresponse_payment_decoder() -> Decoder(ClaimresponsePayment) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponsePayment(
     identifier:,
     amount:,
@@ -22165,7 +22543,10 @@ pub fn claimresponse_total_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -22183,7 +22564,7 @@ pub fn claimresponse_total_decoder() -> Decoder(ClaimresponseTotal) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseTotal(
     amount:,
     category:,
@@ -22248,7 +22629,10 @@ pub fn claimresponse_additem_detail_subdetail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -22296,7 +22680,7 @@ pub fn claimresponse_additem_detail_subdetail_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseAdditemDetailSubdetail(
     adjudication:,
     note_number:,
@@ -22378,7 +22762,10 @@ pub fn claimresponse_additem_detail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -22431,7 +22818,7 @@ pub fn claimresponse_additem_detail_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseAdditemDetail(
     sub_detail:,
     adjudication:,
@@ -22579,7 +22966,10 @@ pub fn claimresponse_additem_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -22659,7 +23049,7 @@ pub fn claimresponse_additem_decoder() -> Decoder(ClaimresponseAdditem) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseAdditem(
     detail:,
     adjudication:,
@@ -22726,7 +23116,10 @@ pub fn claimresponse_item_detail_subdetail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -22751,7 +23144,7 @@ pub fn claimresponse_item_detail_subdetail_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseItemDetailSubdetail(
     adjudication:,
     note_number:,
@@ -22804,7 +23197,10 @@ pub fn claimresponse_item_detail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -22831,7 +23227,7 @@ pub fn claimresponse_item_detail_decoder() -> Decoder(ClaimresponseItemDetail) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseItemDetail(
     sub_detail:,
     adjudication:,
@@ -22878,7 +23274,10 @@ pub fn claimresponse_item_adjudication_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -22908,7 +23307,7 @@ pub fn claimresponse_item_adjudication_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseItemAdjudication(
     value:,
     amount:,
@@ -22957,7 +23356,10 @@ pub fn claimresponse_item_to_json(claimresponse_item: ClaimresponseItem) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -22984,7 +23386,7 @@ pub fn claimresponse_item_decoder() -> Decoder(ClaimresponseItem) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClaimresponseItem(
     detail:,
     adjudication:,
@@ -23183,7 +23585,10 @@ pub fn claimresponse_to_json(claimresponse: Claimresponse) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ClaimResponse")), ..fields]
   json.object(fields)
 }
@@ -23319,7 +23724,7 @@ pub fn claimresponse_decoder() -> Decoder(Claimresponse) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -23371,7 +23776,7 @@ pub fn claimresponse_decoder() -> Decoder(Claimresponse) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClinicalImpression#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClinicalImpression#resource)
 pub type Clinicalimpression {
   Clinicalimpression(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -23459,14 +23864,14 @@ pub fn clinicalimpression_new(subject subject: Reference) -> Clinicalimpression 
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClinicalImpression#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClinicalImpression#resource)
 pub type ClinicalimpressionInvestigation {
   ClinicalimpressionInvestigation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -23482,14 +23887,14 @@ pub fn clinicalimpression_investigation_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ClinicalImpression#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ClinicalImpression#resource)
 pub type ClinicalimpressionFinding {
   ClinicalimpressionFinding(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     item_codeable_concept: Option(Codeableconcept),
@@ -23505,7 +23910,7 @@ pub fn clinicalimpression_finding_new() -> ClinicalimpressionFinding {
     item_codeable_concept: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -23541,7 +23946,10 @@ pub fn clinicalimpression_finding_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -23570,7 +23978,7 @@ pub fn clinicalimpression_finding_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClinicalimpressionFinding(
     basis:,
     item_reference:,
@@ -23609,7 +24017,10 @@ pub fn clinicalimpression_investigation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -23633,7 +24044,7 @@ pub fn clinicalimpression_investigation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ClinicalimpressionInvestigation(
     item:,
     code:,
@@ -23807,7 +24218,10 @@ pub fn clinicalimpression_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ClinicalImpression")), ..fields]
   json.object(fields)
 }
@@ -23918,7 +24332,7 @@ pub fn clinicalimpression_decoder() -> Decoder(Clinicalimpression) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -23960,7 +24374,7 @@ pub fn clinicalimpression_decoder() -> Decoder(Clinicalimpression) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource)
 pub type Codesystem {
   Codesystem(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -24032,14 +24446,14 @@ pub fn codesystem_new() -> Codesystem {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource)
 pub type CodesystemFilter {
   CodesystemFilter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(String),
@@ -24057,14 +24471,14 @@ pub fn codesystem_filter_new() -> CodesystemFilter {
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource)
 pub type CodesystemProperty {
   CodesystemProperty(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(String),
@@ -24082,14 +24496,14 @@ pub fn codesystem_property_new() -> CodesystemProperty {
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource)
 pub type CodesystemConcept {
   CodesystemConcept(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(String),
@@ -24111,14 +24525,14 @@ pub fn codesystem_concept_new() -> CodesystemConcept {
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource)
 pub type CodesystemConceptDesignation {
   CodesystemConceptDesignation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     language: Primitive(String),
@@ -24134,14 +24548,14 @@ pub fn codesystem_concept_designation_new() -> CodesystemConceptDesignation {
     language: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CodeSystem#resource)
 pub type CodesystemConceptProperty {
   CodesystemConceptProperty(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(String),
@@ -24205,7 +24619,7 @@ pub fn codesystem_concept_property_new(
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -24246,7 +24660,10 @@ pub fn codesystem_concept_property_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -24266,7 +24683,7 @@ pub fn codesystem_concept_property_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CodesystemConceptProperty(
     value:,
     code:,
@@ -24305,7 +24722,10 @@ pub fn codesystem_concept_designation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -24330,7 +24750,7 @@ pub fn codesystem_concept_designation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CodesystemConceptDesignation(
     value:,
     use_:,
@@ -24392,7 +24812,10 @@ pub fn codesystem_concept_to_json(codesystem_concept: CodesystemConcept) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -24426,7 +24849,7 @@ pub fn codesystem_concept_decoder() -> Decoder(CodesystemConcept) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CodesystemConcept(
     concept:,
     property:,
@@ -24475,7 +24898,10 @@ pub fn codesystem_property_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -24498,7 +24924,7 @@ pub fn codesystem_property_decoder() -> Decoder(CodesystemProperty) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CodesystemProperty(
     type_:,
     description:,
@@ -24543,7 +24969,10 @@ pub fn codesystem_filter_to_json(codesystem_filter: CodesystemFilter) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -24566,7 +24995,7 @@ pub fn codesystem_filter_decoder() -> Decoder(CodesystemFilter) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CodesystemFilter(
     value:,
     operator:,
@@ -24725,7 +25154,10 @@ pub fn codesystem_to_json(codesystem: Codesystem) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("CodeSystem")), ..fields]
   json.object(fields)
 }
@@ -24822,7 +25254,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -24870,7 +25302,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Communication#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Communication#resource)
 pub type Communication {
   Communication(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -24936,14 +25368,14 @@ pub fn communication_new() -> Communication {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Communication#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Communication#resource)
 pub type CommunicationPayload {
   CommunicationPayload(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     content: CommunicationPayloadContent,
@@ -24989,7 +25421,7 @@ pub fn communication_payload_new(
     content:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -25020,7 +25452,10 @@ pub fn communication_payload_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -25037,7 +25472,7 @@ pub fn communication_payload_decoder() -> Decoder(CommunicationPayload) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CommunicationPayload(
     content:,
     modifier_extension:,
@@ -25216,7 +25651,10 @@ pub fn communication_to_json(communication: Communication) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Communication")), ..fields]
   json.object(fields)
 }
@@ -25350,7 +25788,7 @@ pub fn communication_decoder() -> Decoder(Communication) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -25395,7 +25833,7 @@ pub fn communication_decoder() -> Decoder(Communication) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CommunicationRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CommunicationRequest#resource)
 pub type Communicationrequest {
   Communicationrequest(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -25487,14 +25925,14 @@ pub fn communicationrequest_new() -> Communicationrequest {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CommunicationRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CommunicationRequest#resource)
 pub type CommunicationrequestPayload {
   CommunicationrequestPayload(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     content: CommunicationrequestPayloadContent,
@@ -25540,7 +25978,7 @@ pub fn communicationrequest_payload_new(
     content:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -25575,7 +26013,10 @@ pub fn communicationrequest_payload_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -25594,7 +26035,7 @@ pub fn communicationrequest_payload_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CommunicationrequestPayload(
     content:,
     modifier_extension:,
@@ -25777,7 +26218,10 @@ pub fn communicationrequest_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("CommunicationRequest")),
     ..fields
@@ -25912,7 +26356,7 @@ pub fn communicationrequest_decoder() -> Decoder(Communicationrequest) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -25956,7 +26400,7 @@ pub fn communicationrequest_decoder() -> Decoder(Communicationrequest) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CompartmentDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CompartmentDefinition#resource)
 pub type Compartmentdefinition {
   Compartmentdefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -26004,14 +26448,14 @@ pub fn compartmentdefinition_new() -> Compartmentdefinition {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CompartmentDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CompartmentDefinition#resource)
 pub type CompartmentdefinitionResource {
   CompartmentdefinitionResource(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(r4usp_valuesets.Resourcetypes),
@@ -26027,7 +26471,7 @@ pub fn compartmentdefinition_resource_new() -> CompartmentdefinitionResource {
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -26064,7 +26508,10 @@ pub fn compartmentdefinition_resource_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -26085,7 +26532,7 @@ pub fn compartmentdefinition_resource_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CompartmentdefinitionResource(
     documentation:,
     param:,
@@ -26196,7 +26643,10 @@ pub fn compartmentdefinition_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("CompartmentDefinition")),
     ..fields
@@ -26265,7 +26715,7 @@ pub fn compartmentdefinition_decoder() -> Decoder(Compartmentdefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -26301,7 +26751,7 @@ pub fn compartmentdefinition_decoder() -> Decoder(Compartmentdefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Composition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Composition#resource)
 pub type Composition {
   Composition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -26354,14 +26804,14 @@ pub fn composition_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Composition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Composition#resource)
 pub type CompositionAttester {
   CompositionAttester(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     mode: Primitive(r4usp_valuesets.Compositionattestationmode),
@@ -26377,14 +26827,14 @@ pub fn composition_attester_new() -> CompositionAttester {
     mode: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Composition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Composition#resource)
 pub type CompositionRelatesto {
   CompositionRelatesto(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(r4usp_valuesets.Documentrelationshiptype),
@@ -26428,14 +26878,14 @@ pub fn composition_relatesto_new(
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Composition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Composition#resource)
 pub type CompositionEvent {
   CompositionEvent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: List(Codeableconcept),
@@ -26451,14 +26901,14 @@ pub fn composition_event_new() -> CompositionEvent {
     code: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Composition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Composition#resource)
 pub type CompositionSection {
   CompositionSection(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     title: Primitive(String),
@@ -26488,7 +26938,7 @@ pub fn composition_section_new() -> CompositionSection {
     title: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -26560,7 +27010,10 @@ pub fn composition_section_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -26618,7 +27071,7 @@ pub fn composition_section_decoder() -> Decoder(CompositionSection) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CompositionSection(
     section:,
     empty_reason:,
@@ -26669,7 +27122,10 @@ pub fn composition_event_to_json(composition_event: CompositionEvent) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -26700,7 +27156,7 @@ pub fn composition_event_decoder() -> Decoder(CompositionEvent) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CompositionEvent(
     detail:,
     period:,
@@ -26744,7 +27200,10 @@ pub fn composition_relatesto_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -26765,7 +27224,7 @@ pub fn composition_relatesto_decoder() -> Decoder(CompositionRelatesto) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CompositionRelatesto(
     target:,
     code:,
@@ -26810,7 +27269,10 @@ pub fn composition_attester_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -26836,7 +27298,7 @@ pub fn composition_attester_decoder() -> Decoder(CompositionAttester) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CompositionAttester(
     party:,
     time:,
@@ -26962,7 +27424,10 @@ pub fn composition_to_json(composition: Composition) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Composition")), ..fields]
   json.object(fields)
 }
@@ -27050,7 +27515,7 @@ pub fn composition_decoder() -> Decoder(Composition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -27087,7 +27552,7 @@ pub fn composition_decoder() -> Decoder(Composition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource)
 pub type Conceptmap {
   Conceptmap(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -27191,14 +27656,14 @@ pub fn conceptmap_new() -> Conceptmap {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroup {
   ConceptmapGroup(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     source: Primitive(String),
@@ -27222,14 +27687,14 @@ pub fn conceptmap_group_new(
     source: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupElement {
   ConceptmapGroupElement(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(String),
@@ -27245,14 +27710,14 @@ pub fn conceptmap_group_element_new() -> ConceptmapGroupElement {
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupElementTarget {
   ConceptmapGroupElementTarget(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(String),
@@ -27274,14 +27739,14 @@ pub fn conceptmap_group_element_target_new() -> ConceptmapGroupElementTarget {
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupElementTargetDependson {
   ConceptmapGroupElementTargetDependson(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     property: Primitive(String),
@@ -27299,14 +27764,14 @@ pub fn conceptmap_group_element_target_dependson_new() -> ConceptmapGroupElement
     property: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ConceptMap#resource)
 pub type ConceptmapGroupUnmapped {
   ConceptmapGroupUnmapped(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     mode: Primitive(r4usp_valuesets.Conceptmapunmappedmode),
@@ -27324,7 +27789,7 @@ pub fn conceptmap_group_unmapped_new() -> ConceptmapGroupUnmapped {
     mode: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -27362,7 +27827,10 @@ pub fn conceptmap_group_unmapped_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -27385,7 +27853,7 @@ pub fn conceptmap_group_unmapped_decoder() -> Decoder(ConceptmapGroupUnmapped) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConceptmapGroupUnmapped(
     url:,
     display:,
@@ -27425,7 +27893,10 @@ pub fn conceptmap_group_element_target_dependson_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -27447,7 +27918,7 @@ pub fn conceptmap_group_element_target_dependson_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConceptmapGroupElementTargetDependson(
     display:,
     value:,
@@ -27518,7 +27989,10 @@ pub fn conceptmap_group_element_target_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -27553,7 +28027,7 @@ pub fn conceptmap_group_element_target_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConceptmapGroupElementTarget(
     product:,
     depends_on:,
@@ -27599,7 +28073,10 @@ pub fn conceptmap_group_element_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -27622,7 +28099,7 @@ pub fn conceptmap_group_element_decoder() -> Decoder(ConceptmapGroupElement) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConceptmapGroupElement(
     target:,
     display:,
@@ -27669,7 +28146,10 @@ pub fn conceptmap_group_to_json(conceptmap_group: ConceptmapGroup) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -27695,7 +28175,7 @@ pub fn conceptmap_group_decoder() -> Decoder(ConceptmapGroup) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConceptmapGroup(
     unmapped:,
     element:,
@@ -27838,7 +28318,10 @@ pub fn conceptmap_to_json(conceptmap: Conceptmap) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ConceptMap")), ..fields]
   json.object(fields)
 }
@@ -27913,7 +28396,7 @@ pub fn conceptmap_decoder() -> Decoder(Conceptmap) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -27953,7 +28436,7 @@ pub fn conceptmap_decoder() -> Decoder(Conceptmap) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Condition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Condition#resource)
 pub type Condition {
   Condition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -28079,14 +28562,14 @@ pub fn condition_new(subject subject: Reference) -> Condition {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Condition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Condition#resource)
 pub type ConditionStage {
   ConditionStage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     summary: Option(Codeableconcept),
@@ -28102,14 +28585,14 @@ pub fn condition_stage_new() -> ConditionStage {
     summary: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Condition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Condition#resource)
 pub type ConditionEvidence {
   ConditionEvidence(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: List(Codeableconcept),
@@ -28123,7 +28606,7 @@ pub fn condition_evidence_new() -> ConditionEvidence {
     code: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -28150,7 +28633,10 @@ pub fn condition_evidence_to_json(condition_evidence: ConditionEvidence) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -28176,7 +28662,7 @@ pub fn condition_evidence_decoder() -> Decoder(ConditionEvidence) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConditionEvidence(
     detail:,
     code:,
@@ -28219,7 +28705,10 @@ pub fn condition_stage_to_json(condition_stage: ConditionStage) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -28250,7 +28739,7 @@ pub fn condition_stage_decoder() -> Decoder(ConditionStage) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConditionStage(
     type_:,
     assessment:,
@@ -28420,7 +28909,10 @@ pub fn condition_to_json(condition: Condition) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Condition")), ..fields]
   json.object(fields)
 }
@@ -28523,7 +29015,7 @@ pub fn condition_decoder() -> Decoder(Condition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -28562,7 +29054,7 @@ pub fn condition_decoder() -> Decoder(Condition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource)
 pub type Consent {
   Consent(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -28635,14 +29127,14 @@ pub fn consent_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource)
 pub type ConsentPolicy {
   ConsentPolicy(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     authority: Primitive(String),
@@ -28656,14 +29148,14 @@ pub fn consent_policy_new() -> ConsentPolicy {
     authority: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource)
 pub type ConsentVerification {
   ConsentVerification(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     verified: Primitive(Bool),
@@ -28679,14 +29171,14 @@ pub fn consent_verification_new() -> ConsentVerification {
     verified: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource)
 pub type ConsentProvision {
   ConsentProvision(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Consentprovisiontype),
@@ -28718,14 +29210,14 @@ pub fn consent_provision_new() -> ConsentProvision {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource)
 pub type ConsentProvisionActor {
   ConsentProvisionActor(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     role: Codeableconcept,
@@ -28742,14 +29234,14 @@ pub fn consent_provision_actor_new(
     role:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Consent#resource)
 pub type ConsentProvisionData {
   ConsentProvisionData(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     meaning: Primitive(r4usp_valuesets.Consentdatameaning),
@@ -28765,7 +29257,7 @@ pub fn consent_provision_data_new(
     meaning: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -28800,7 +29292,10 @@ pub fn consent_provision_data_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -28821,7 +29316,7 @@ pub fn consent_provision_data_decoder() -> Decoder(ConsentProvisionData) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConsentProvisionData(
     reference:,
     meaning:,
@@ -28856,7 +29351,10 @@ pub fn consent_provision_actor_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -28874,7 +29372,7 @@ pub fn consent_provision_actor_decoder() -> Decoder(ConsentProvisionActor) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConsentProvisionActor(
     reference:,
     role:,
@@ -28969,7 +29467,10 @@ pub fn consent_provision_to_json(consent_provision: ConsentProvision) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -29035,7 +29536,7 @@ pub fn consent_provision_decoder() -> Decoder(ConsentProvision) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConsentProvision(
     provision:,
     data:,
@@ -29089,7 +29590,10 @@ pub fn consent_verification_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -29115,7 +29619,7 @@ pub fn consent_verification_decoder() -> Decoder(ConsentVerification) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConsentVerification(
     verification_date:,
     verified_with:,
@@ -29143,7 +29647,10 @@ pub fn consent_policy_to_json(consent_policy: ConsentPolicy) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -29161,7 +29668,7 @@ pub fn consent_policy_decoder() -> Decoder(ConsentPolicy) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ConsentPolicy(
     uri:,
     authority:,
@@ -29286,7 +29793,10 @@ pub fn consent_to_json(consent: Consent) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Consent")), ..fields]
   json.object(fields)
 }
@@ -29368,7 +29878,7 @@ pub fn consent_decoder() -> Decoder(Consent) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -29403,7 +29913,7 @@ pub fn consent_decoder() -> Decoder(Consent) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type Contract {
   Contract(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -29549,14 +30059,14 @@ pub fn contract_new() -> Contract {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractContentdefinition {
   ContractContentdefinition(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -29580,14 +30090,14 @@ pub fn contract_contentdefinition_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTerm {
   ContractTerm(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
@@ -29649,14 +30159,14 @@ pub fn contract_term_new(offer offer: ContractTermOffer) -> ContractTerm {
     identifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTermSecuritylabel {
   ContractTermSecuritylabel(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     number: List(Primitive(Int)),
@@ -29676,14 +30186,14 @@ pub fn contract_term_securitylabel_new(
     number: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTermOffer {
   ContractTermOffer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
@@ -29713,14 +30223,14 @@ pub fn contract_term_offer_new() -> ContractTermOffer {
     identifier: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTermOfferParty {
   ContractTermOfferParty(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     reference: List1(Reference),
@@ -29737,14 +30247,14 @@ pub fn contract_term_offer_party_new(
     reference:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTermOfferAnswer {
   ContractTermOfferAnswer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     value: ContractTermOfferAnswerValue,
@@ -29826,14 +30336,14 @@ pub fn contract_term_offer_answer_new(
     value:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTermAsset {
   ContractTermAsset(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     scope: Option(Codeableconcept),
@@ -29873,14 +30383,14 @@ pub fn contract_term_asset_new() -> ContractTermAsset {
     scope: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTermAssetContext {
   ContractTermAssetContext(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     reference: Option(Reference),
@@ -29896,14 +30406,14 @@ pub fn contract_term_asset_context_new() -> ContractTermAssetContext {
     reference: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTermAssetValueditem {
   ContractTermAssetValueditem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     entity: Option(ContractTermAssetValueditemEntity),
@@ -29974,14 +30484,14 @@ pub fn contract_term_asset_valueditem_new() -> ContractTermAssetValueditem {
     entity: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTermAction {
   ContractTermAction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     do_not_perform: Primitive(Bool),
@@ -30069,14 +30579,14 @@ pub fn contract_term_action_new(
     do_not_perform: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractTermActionSubject {
   ContractTermActionSubject(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     reference: List1(Reference),
@@ -30092,14 +30602,14 @@ pub fn contract_term_action_subject_new(
     reference:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractSigner {
   ContractSigner(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Coding,
@@ -30119,14 +30629,14 @@ pub fn contract_signer_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractFriendly {
   ContractFriendly(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     content: ContractFriendlyContent,
@@ -30160,18 +30670,13 @@ pub fn contract_friendly_content_decoder() -> Decoder(ContractFriendlyContent) {
 pub fn contract_friendly_new(
   content content: ContractFriendlyContent,
 ) -> ContractFriendly {
-  ContractFriendly(
-    content:,
-    modifier_extension: [],
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  ContractFriendly(content:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractLegal {
   ContractLegal(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     content: ContractLegalContent,
@@ -30205,18 +30710,13 @@ pub fn contract_legal_content_decoder() -> Decoder(ContractLegalContent) {
 pub fn contract_legal_new(
   content content: ContractLegalContent,
 ) -> ContractLegal {
-  ContractLegal(
-    content:,
-    modifier_extension: [],
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  ContractLegal(content:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Contract#resource)
 pub type ContractRule {
   ContractRule(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     content: ContractRuleContent,
@@ -30248,12 +30748,7 @@ pub fn contract_rule_content_decoder() -> Decoder(ContractRuleContent) {
 }
 
 pub fn contract_rule_new(content content: ContractRuleContent) -> ContractRule {
-  ContractRule(
-    content:,
-    modifier_extension: [],
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  ContractRule(content:, modifier_extension: [], extension: [], id: None)
 }
 
 pub fn contract_rule_to_json(contract_rule: ContractRule) -> Json {
@@ -30280,7 +30775,10 @@ pub fn contract_rule_to_json(contract_rule: ContractRule) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -30297,7 +30795,7 @@ pub fn contract_rule_decoder() -> Decoder(ContractRule) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractRule(content:, modifier_extension:, extension:, id:))
 }
 
@@ -30325,7 +30823,10 @@ pub fn contract_legal_to_json(contract_legal: ContractLegal) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -30342,7 +30843,7 @@ pub fn contract_legal_decoder() -> Decoder(ContractLegal) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractLegal(content:, modifier_extension:, extension:, id:))
 }
 
@@ -30370,7 +30871,10 @@ pub fn contract_friendly_to_json(contract_friendly: ContractFriendly) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -30387,7 +30891,7 @@ pub fn contract_friendly_decoder() -> Decoder(ContractFriendly) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractFriendly(
     content:,
     modifier_extension:,
@@ -30421,7 +30925,10 @@ pub fn contract_signer_to_json(contract_signer: ContractSigner) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -30440,7 +30947,7 @@ pub fn contract_signer_decoder() -> Decoder(ContractSigner) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractSigner(
     signature:,
     party:,
@@ -30479,7 +30986,10 @@ pub fn contract_term_action_subject_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -30503,7 +31013,7 @@ pub fn contract_term_action_subject_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractTermActionSubject(
     role:,
     reference:,
@@ -30650,7 +31160,10 @@ pub fn contract_term_action_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -30728,7 +31241,7 @@ pub fn contract_term_action_decoder() -> Decoder(ContractTermAction) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractTermAction(
     security_label_number:,
     note:,
@@ -30850,7 +31363,10 @@ pub fn contract_term_asset_valueditem_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -30914,7 +31430,7 @@ pub fn contract_term_asset_valueditem_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractTermAssetValueditem(
     security_label_number:,
     link_id:,
@@ -30968,7 +31484,10 @@ pub fn contract_term_asset_context_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -30997,7 +31516,7 @@ pub fn contract_term_asset_context_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractTermAssetContext(
     text:,
     code:,
@@ -31115,7 +31634,10 @@ pub fn contract_term_asset_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -31193,7 +31715,7 @@ pub fn contract_term_asset_decoder() -> Decoder(ContractTermAsset) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractTermAsset(
     valued_item:,
     security_label_number:,
@@ -31252,7 +31774,10 @@ pub fn contract_term_offer_answer_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -31269,7 +31794,7 @@ pub fn contract_term_offer_answer_decoder() -> Decoder(ContractTermOfferAnswer) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractTermOfferAnswer(
     value:,
     modifier_extension:,
@@ -31303,7 +31828,10 @@ pub fn contract_term_offer_party_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -31321,7 +31849,7 @@ pub fn contract_term_offer_party_decoder() -> Decoder(ContractTermOfferParty) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractTermOfferParty(
     role:,
     reference:,
@@ -31407,7 +31935,10 @@ pub fn contract_term_offer_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -31464,7 +31995,7 @@ pub fn contract_term_offer_decoder() -> Decoder(ContractTermOffer) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractTermOffer(
     security_label_number:,
     link_id:,
@@ -31517,7 +32048,10 @@ pub fn contract_term_securitylabel_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -31547,7 +32081,7 @@ pub fn contract_term_securitylabel_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractTermSecuritylabel(
     control:,
     category:,
@@ -31648,7 +32182,10 @@ pub fn contract_term_to_json(contract_term: ContractTerm) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -31708,7 +32245,7 @@ pub fn contract_term_decoder() -> Decoder(ContractTerm) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractTerm(
     group:,
     action:,
@@ -31779,7 +32316,10 @@ pub fn contract_contentdefinition_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -31817,7 +32357,7 @@ pub fn contract_contentdefinition_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ContractContentdefinition(
     copyright:,
     publication_status:,
@@ -32046,7 +32586,10 @@ pub fn contract_to_json(contract: Contract) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Contract")), ..fields]
   json.object(fields)
 }
@@ -32206,7 +32749,7 @@ pub fn contract_decoder() -> Decoder(Contract) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -32261,7 +32804,7 @@ pub fn contract_decoder() -> Decoder(Contract) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Coverage#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Coverage#resource)
 pub type Coverage {
   Coverage(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -32318,14 +32861,14 @@ pub fn coverage_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Coverage#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Coverage#resource)
 pub type CoverageClass {
   CoverageClass(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -32341,14 +32884,14 @@ pub fn coverage_class_new(type_ type_: Codeableconcept) -> CoverageClass {
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Coverage#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Coverage#resource)
 pub type CoverageCosttobeneficiary {
   CoverageCosttobeneficiary(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -32394,14 +32937,14 @@ pub fn coverage_costtobeneficiary_new(
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Coverage#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Coverage#resource)
 pub type CoverageCosttobeneficiaryException {
   CoverageCosttobeneficiaryException(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -32417,7 +32960,7 @@ pub fn coverage_costtobeneficiary_exception_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -32449,7 +32992,10 @@ pub fn coverage_costtobeneficiary_exception_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -32473,7 +33019,7 @@ pub fn coverage_costtobeneficiary_exception_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageCosttobeneficiaryException(
     period:,
     type_:,
@@ -32529,7 +33075,10 @@ pub fn coverage_costtobeneficiary_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -32558,7 +33107,7 @@ pub fn coverage_costtobeneficiary_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageCosttobeneficiary(
     exception:,
     value:,
@@ -32588,7 +33137,10 @@ pub fn coverage_class_to_json(coverage_class: CoverageClass) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -32607,7 +33159,7 @@ pub fn coverage_class_decoder() -> Decoder(CoverageClass) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageClass(
     name:,
     value:,
@@ -32731,7 +33283,10 @@ pub fn coverage_to_json(coverage: Coverage) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Coverage")), ..fields]
   json.object(fields)
 }
@@ -32818,7 +33373,7 @@ pub fn coverage_decoder() -> Decoder(Coverage) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -32857,7 +33412,7 @@ pub fn coverage_decoder() -> Decoder(Coverage) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type Coverageeligibilityrequest {
   Coverageeligibilityrequest(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -32936,14 +33491,14 @@ pub fn coverageeligibilityrequest_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestSupportinginfo {
   CoverageeligibilityrequestSupportinginfo(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -32961,14 +33516,14 @@ pub fn coverageeligibilityrequest_supportinginfo_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestInsurance {
   CoverageeligibilityrequestInsurance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     focal: Primitive(Bool),
@@ -32986,14 +33541,14 @@ pub fn coverageeligibilityrequest_insurance_new(
     focal: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestItem {
   CoverageeligibilityrequestItem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     supporting_info_sequence: List(Primitive(Int)),
@@ -33023,14 +33578,14 @@ pub fn coverageeligibilityrequest_item_new() -> CoverageeligibilityrequestItem {
     supporting_info_sequence: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityRequest#resource)
 pub type CoverageeligibilityrequestItemDiagnosis {
   CoverageeligibilityrequestItemDiagnosis(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     diagnosis: Option(CoverageeligibilityrequestItemDiagnosisDiagnosis),
@@ -33082,7 +33637,7 @@ pub fn coverageeligibilityrequest_item_diagnosis_new() -> Coverageeligibilityreq
     diagnosis: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -33123,7 +33678,10 @@ pub fn coverageeligibilityrequest_item_diagnosis_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -33146,7 +33704,7 @@ pub fn coverageeligibilityrequest_item_diagnosis_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageeligibilityrequestItemDiagnosis(
     diagnosis:,
     modifier_extension:,
@@ -33237,7 +33795,10 @@ pub fn coverageeligibilityrequest_item_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -33304,7 +33865,7 @@ pub fn coverageeligibilityrequest_item_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageeligibilityrequestItem(
     detail:,
     diagnosis:,
@@ -33355,7 +33916,10 @@ pub fn coverageeligibilityrequest_insurance_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -33379,7 +33943,7 @@ pub fn coverageeligibilityrequest_insurance_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageeligibilityrequestInsurance(
     business_arrangement:,
     coverage:,
@@ -33418,7 +33982,10 @@ pub fn coverageeligibilityrequest_supportinginfo_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -33439,7 +34006,7 @@ pub fn coverageeligibilityrequest_supportinginfo_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageeligibilityrequestSupportinginfo(
     applies_to_all:,
     information:,
@@ -33587,7 +34154,10 @@ pub fn coverageeligibilityrequest_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("CoverageEligibilityRequest")),
     ..fields
@@ -33677,7 +34247,7 @@ pub fn coverageeligibilityrequest_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -33716,7 +34286,7 @@ pub fn coverageeligibilityrequest_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type Coverageeligibilityresponse {
   Coverageeligibilityresponse(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -33798,14 +34368,14 @@ pub fn coverageeligibilityresponse_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseInsurance {
   CoverageeligibilityresponseInsurance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     coverage: Reference,
@@ -33825,14 +34395,14 @@ pub fn coverageeligibilityresponse_insurance_new(
     coverage:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseInsuranceItem {
   CoverageeligibilityresponseInsuranceItem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     category: Option(Codeableconcept),
@@ -33870,14 +34440,14 @@ pub fn coverageeligibilityresponse_insurance_item_new() -> Coverageeligibilityre
     category: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseInsuranceItemBenefit {
   CoverageeligibilityresponseInsuranceItemBenefit(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -33975,14 +34545,14 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/CoverageEligibilityResponse#resource)
 pub type CoverageeligibilityresponseError {
   CoverageeligibilityresponseError(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -33996,7 +34566,7 @@ pub fn coverageeligibilityresponse_error_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -34023,7 +34593,10 @@ pub fn coverageeligibilityresponse_error_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -34042,7 +34615,7 @@ pub fn coverageeligibilityresponse_error_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageeligibilityresponseError(
     code:,
     modifier_extension:,
@@ -34111,7 +34684,10 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -34140,7 +34716,7 @@ pub fn coverageeligibilityresponse_insurance_item_benefit_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageeligibilityresponseInsuranceItemBenefit(
     used:,
     allowed:,
@@ -34257,7 +34833,10 @@ pub fn coverageeligibilityresponse_insurance_item_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -34328,7 +34907,7 @@ pub fn coverageeligibilityresponse_insurance_item_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageeligibilityresponseInsuranceItem(
     authorization_url:,
     authorization_supporting:,
@@ -34391,7 +34970,10 @@ pub fn coverageeligibilityresponse_insurance_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -34421,7 +35003,7 @@ pub fn coverageeligibilityresponse_insurance_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(CoverageeligibilityresponseInsurance(
     item:,
     benefit_period:,
@@ -34562,7 +35144,10 @@ pub fn coverageeligibilityresponse_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("CoverageEligibilityResponse")),
     ..fields
@@ -34644,7 +35229,7 @@ pub fn coverageeligibilityresponse_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -34684,7 +35269,7 @@ pub fn coverageeligibilityresponse_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DetectedIssue#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DetectedIssue#resource)
 pub type Detectedissue {
   Detectedissue(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -34752,14 +35337,14 @@ pub fn detectedissue_new() -> Detectedissue {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DetectedIssue#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DetectedIssue#resource)
 pub type DetectedissueEvidence {
   DetectedissueEvidence(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: List(Codeableconcept),
@@ -34773,14 +35358,14 @@ pub fn detectedissue_evidence_new() -> DetectedissueEvidence {
     code: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DetectedIssue#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DetectedIssue#resource)
 pub type DetectedissueMitigation {
   DetectedissueMitigation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     action: Codeableconcept,
@@ -34798,7 +35383,7 @@ pub fn detectedissue_mitigation_new(
     action:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -34832,7 +35417,10 @@ pub fn detectedissue_mitigation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -34855,7 +35443,7 @@ pub fn detectedissue_mitigation_decoder() -> Decoder(DetectedissueMitigation) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DetectedissueMitigation(
     author:,
     date:,
@@ -34896,7 +35484,10 @@ pub fn detectedissue_evidence_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -34922,7 +35513,7 @@ pub fn detectedissue_evidence_decoder() -> Decoder(DetectedissueEvidence) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DetectedissueEvidence(
     detail:,
     code:,
@@ -35046,7 +35637,10 @@ pub fn detectedissue_to_json(detectedissue: Detectedissue) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("DetectedIssue")), ..fields]
   json.object(fields)
 }
@@ -35128,7 +35722,7 @@ pub fn detectedissue_decoder() -> Decoder(Detectedissue) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -35162,7 +35756,7 @@ pub fn detectedissue_decoder() -> Decoder(Detectedissue) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource)
 pub type Device {
   Device(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -35234,14 +35828,14 @@ pub fn device_new() -> Device {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource)
 pub type DeviceUdicarrier {
   DeviceUdicarrier(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     device_identifier: Primitive(String),
@@ -35263,14 +35857,14 @@ pub fn device_udicarrier_new() -> DeviceUdicarrier {
     device_identifier: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource)
 pub type DeviceDevicename {
   DeviceDevicename(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -35284,14 +35878,14 @@ pub fn device_devicename_new() -> DeviceDevicename {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource)
 pub type DeviceSpecialization {
   DeviceSpecialization(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     system_type: Codeableconcept,
@@ -35307,14 +35901,14 @@ pub fn device_specialization_new(
     system_type:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource)
 pub type DeviceVersion {
   DeviceVersion(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -35330,14 +35924,14 @@ pub fn device_version_new() -> DeviceVersion {
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Device#resource)
 pub type DeviceProperty {
   DeviceProperty(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -35353,7 +35947,7 @@ pub fn device_property_new(type_ type_: Codeableconcept) -> DeviceProperty {
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -35394,7 +35988,10 @@ pub fn device_property_to_json(device_property: DeviceProperty) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -35421,7 +36018,7 @@ pub fn device_property_decoder() -> Decoder(DeviceProperty) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DeviceProperty(
     value_code:,
     value_quantity:,
@@ -35462,7 +36059,10 @@ pub fn device_version_to_json(device_version: DeviceVersion) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -35489,7 +36089,7 @@ pub fn device_version_decoder() -> Decoder(DeviceVersion) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DeviceVersion(
     value:,
     component:,
@@ -35525,7 +36125,10 @@ pub fn device_specialization_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -35543,7 +36146,7 @@ pub fn device_specialization_decoder() -> Decoder(DeviceSpecialization) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DeviceSpecialization(
     version:,
     system_type:,
@@ -35576,7 +36179,10 @@ pub fn device_devicename_to_json(device_devicename: DeviceDevicename) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -35597,7 +36203,7 @@ pub fn device_devicename_decoder() -> Decoder(DeviceDevicename) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DeviceDevicename(
     type_:,
     name:,
@@ -35651,7 +36257,10 @@ pub fn device_udicarrier_to_json(device_udicarrier: DeviceUdicarrier) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -35676,7 +36285,7 @@ pub fn device_udicarrier_decoder() -> Decoder(DeviceUdicarrier) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DeviceUdicarrier(
     entry_type:,
     carrier_hrf:,
@@ -35873,7 +36482,10 @@ pub fn device_to_json(device: Device) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Device")), ..fields]
   json.object(fields)
 }
@@ -36009,7 +36621,7 @@ pub fn device_decoder() -> Decoder(Device) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -36057,7 +36669,7 @@ pub fn device_decoder() -> Decoder(Device) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource)
 pub type Devicedefinition {
   Devicedefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -36149,14 +36761,14 @@ pub fn devicedefinition_new() -> Devicedefinition {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionUdideviceidentifier {
   DevicedefinitionUdideviceidentifier(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     device_identifier: Primitive(String),
@@ -36172,14 +36784,14 @@ pub fn devicedefinition_udideviceidentifier_new() -> DevicedefinitionUdideviceid
     device_identifier: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionDevicename {
   DevicedefinitionDevicename(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -36193,14 +36805,14 @@ pub fn devicedefinition_devicename_new() -> DevicedefinitionDevicename {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionSpecialization {
   DevicedefinitionSpecialization(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     system_type: Primitive(String),
@@ -36214,14 +36826,14 @@ pub fn devicedefinition_specialization_new() -> DevicedefinitionSpecialization {
     system_type: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionCapability {
   DevicedefinitionCapability(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -36237,14 +36849,14 @@ pub fn devicedefinition_capability_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionProperty {
   DevicedefinitionProperty(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -36262,14 +36874,14 @@ pub fn devicedefinition_property_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceDefinition#resource)
 pub type DevicedefinitionMaterial {
   DevicedefinitionMaterial(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     substance: Codeableconcept,
@@ -36287,7 +36899,7 @@ pub fn devicedefinition_material_new(
     substance:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -36324,7 +36936,10 @@ pub fn devicedefinition_material_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -36346,7 +36961,7 @@ pub fn devicedefinition_material_decoder() -> Decoder(DevicedefinitionMaterial) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DevicedefinitionMaterial(
     allergenic_indicator:,
     alternate:,
@@ -36396,7 +37011,10 @@ pub fn devicedefinition_property_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -36423,7 +37041,7 @@ pub fn devicedefinition_property_decoder() -> Decoder(DevicedefinitionProperty) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DevicedefinitionProperty(
     value_code:,
     value_quantity:,
@@ -36465,7 +37083,10 @@ pub fn devicedefinition_capability_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -36489,7 +37110,7 @@ pub fn devicedefinition_capability_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DevicedefinitionCapability(
     description:,
     type_:,
@@ -36523,7 +37144,10 @@ pub fn devicedefinition_specialization_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -36543,7 +37167,7 @@ pub fn devicedefinition_specialization_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DevicedefinitionSpecialization(
     version:,
     system_type:,
@@ -36583,7 +37207,10 @@ pub fn devicedefinition_devicename_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -36606,7 +37233,7 @@ pub fn devicedefinition_devicename_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DevicedefinitionDevicename(
     type_:,
     name:,
@@ -36649,7 +37276,10 @@ pub fn devicedefinition_udideviceidentifier_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -36670,7 +37300,7 @@ pub fn devicedefinition_udideviceidentifier_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DevicedefinitionUdideviceidentifier(
     jurisdiction:,
     issuer:,
@@ -36879,7 +37509,10 @@ pub fn devicedefinition_to_json(devicedefinition: Devicedefinition) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("DeviceDefinition")), ..fields]
   json.object(fields)
 }
@@ -37008,7 +37641,7 @@ pub fn devicedefinition_decoder() -> Decoder(Devicedefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -37052,7 +37685,7 @@ pub fn devicedefinition_decoder() -> Decoder(Devicedefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceMetric#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceMetric#resource)
 pub type Devicemetric {
   Devicemetric(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -37092,14 +37725,14 @@ pub fn devicemetric_new(type_ type_: Codeableconcept) -> Devicemetric {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceMetric#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceMetric#resource)
 pub type DevicemetricCalibration {
   DevicemetricCalibration(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Metriccalibrationtype),
@@ -37115,7 +37748,7 @@ pub fn devicemetric_calibration_new() -> DevicemetricCalibration {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -37157,7 +37790,10 @@ pub fn devicemetric_calibration_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -37182,7 +37818,7 @@ pub fn devicemetric_calibration_decoder() -> Decoder(DevicemetricCalibration) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DevicemetricCalibration(
     time:,
     state:,
@@ -37294,7 +37930,10 @@ pub fn devicemetric_to_json(devicemetric: Devicemetric) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("DeviceMetric")), ..fields]
   json.object(fields)
 }
@@ -37368,7 +38007,7 @@ pub fn devicemetric_decoder() -> Decoder(Devicemetric) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -37400,7 +38039,7 @@ pub fn devicemetric_decoder() -> Decoder(Devicemetric) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceRequest#resource)
 pub type Devicerequest {
   Devicerequest(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -37527,14 +38166,14 @@ pub fn devicerequest_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceRequest#resource)
 pub type DevicerequestParameter {
   DevicerequestParameter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -37588,7 +38227,7 @@ pub fn devicerequest_parameter_new() -> DevicerequestParameter {
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -37634,7 +38273,10 @@ pub fn devicerequest_parameter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -37658,7 +38300,7 @@ pub fn devicerequest_parameter_decoder() -> Decoder(DevicerequestParameter) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DevicerequestParameter(
     value:,
     code:,
@@ -37865,7 +38507,10 @@ pub fn devicerequest_to_json(devicerequest: Devicerequest) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("DeviceRequest")), ..fields]
   json.object(fields)
 }
@@ -37997,7 +38642,7 @@ pub fn devicerequest_decoder() -> Decoder(Devicerequest) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -38043,7 +38688,7 @@ pub fn devicerequest_decoder() -> Decoder(Devicerequest) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DeviceUseStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DeviceUseStatement#resource)
 pub type Deviceusestatement {
   Deviceusestatement(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -38120,7 +38765,7 @@ pub fn deviceusestatement_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -38245,7 +38890,10 @@ pub fn deviceusestatement_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("DeviceUseStatement")), ..fields]
   json.object(fields)
 }
@@ -38329,7 +38977,7 @@ pub fn deviceusestatement_decoder() -> Decoder(Deviceusestatement) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -38364,7 +39012,7 @@ pub fn deviceusestatement_decoder() -> Decoder(Deviceusestatement) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DiagnosticReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DiagnosticReport#resource)
 pub type Diagnosticreport {
   Diagnosticreport(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -38448,14 +39096,14 @@ pub fn diagnosticreport_new(code code: Codeableconcept) -> Diagnosticreport {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DiagnosticReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DiagnosticReport#resource)
 pub type DiagnosticreportMedia {
   DiagnosticreportMedia(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     comment: Primitive(String),
@@ -38469,7 +39117,7 @@ pub fn diagnosticreport_media_new(link link: Reference) -> DiagnosticreportMedia
     comment: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -38498,7 +39146,10 @@ pub fn diagnosticreport_media_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -38516,7 +39167,7 @@ pub fn diagnosticreport_media_decoder() -> Decoder(DiagnosticreportMedia) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DiagnosticreportMedia(
     link:,
     comment:,
@@ -38680,7 +39331,10 @@ pub fn diagnosticreport_to_json(diagnosticreport: Diagnosticreport) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("DiagnosticReport")), ..fields]
   json.object(fields)
 }
@@ -38789,7 +39443,7 @@ pub fn diagnosticreport_decoder() -> Decoder(Diagnosticreport) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -38829,7 +39483,7 @@ pub fn diagnosticreport_decoder() -> Decoder(Diagnosticreport) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DocumentManifest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DocumentManifest#resource)
 pub type Documentmanifest {
   Documentmanifest(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -38875,14 +39529,14 @@ pub fn documentmanifest_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DocumentManifest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DocumentManifest#resource)
 pub type DocumentmanifestRelated {
   DocumentmanifestRelated(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
@@ -38896,7 +39550,7 @@ pub fn documentmanifest_related_new() -> DocumentmanifestRelated {
     identifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -38930,7 +39584,10 @@ pub fn documentmanifest_related_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -38956,7 +39613,7 @@ pub fn documentmanifest_related_decoder() -> Decoder(DocumentmanifestRelated) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DocumentmanifestRelated(
     ref:,
     identifier:,
@@ -39061,7 +39718,10 @@ pub fn documentmanifest_to_json(documentmanifest: Documentmanifest) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("DocumentManifest")), ..fields]
   json.object(fields)
 }
@@ -39138,7 +39798,7 @@ pub fn documentmanifest_decoder() -> Decoder(Documentmanifest) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -39173,7 +39833,7 @@ pub fn documentmanifest_decoder() -> Decoder(Documentmanifest) {
 pub type Documentreference {
   Documentreference(
     us_core_authentication_time: List(DateTime),
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -39227,7 +39887,7 @@ pub fn documentreference_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
     us_core_authentication_time: [],
   )
 }
@@ -39235,7 +39895,7 @@ pub fn documentreference_new(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DocumentReference#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DocumentReference#resource)
 pub type DocumentreferenceRelatesto {
   DocumentreferenceRelatesto(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(r4usp_valuesets.Documentrelationshiptype),
@@ -39251,14 +39911,14 @@ pub fn documentreference_relatesto_new(
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DocumentReference#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DocumentReference#resource)
 pub type DocumentreferenceContent {
   DocumentreferenceContent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     attachment: Attachment,
@@ -39274,14 +39934,14 @@ pub fn documentreference_content_new(
     attachment:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DocumentReference#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DocumentReference#resource)
 pub type DocumentreferenceContext {
   DocumentreferenceContext(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     encounter: List(Reference),
@@ -39305,7 +39965,7 @@ pub fn documentreference_context_new() -> DocumentreferenceContext {
     encounter: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -39364,7 +40024,10 @@ pub fn documentreference_context_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -39415,7 +40078,7 @@ pub fn documentreference_context_decoder() -> Decoder(DocumentreferenceContext) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DocumentreferenceContext(
     related:,
     source_patient_info:,
@@ -39458,7 +40121,10 @@ pub fn documentreference_content_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -39480,7 +40146,7 @@ pub fn documentreference_content_decoder() -> Decoder(DocumentreferenceContent) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DocumentreferenceContent(
     format:,
     attachment:,
@@ -39521,7 +40187,10 @@ pub fn documentreference_relatesto_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -39544,7 +40213,7 @@ pub fn documentreference_relatesto_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(DocumentreferenceRelatesto(
     target:,
     code:,
@@ -39689,7 +40358,10 @@ pub fn documentreference_to_json(documentreference: Documentreference) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("DocumentReference")), ..fields]
   json.object(fields)
 }
@@ -39789,7 +40461,7 @@ pub fn documentreference_decoder() -> Decoder(Documentreference) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   let #(us_core_authentication_time_, extension) =
     list.fold(from: #([], []), over: extension, with: fn(acc, ext) {
       let #(a0, plain) = acc
@@ -39837,7 +40509,7 @@ pub fn documentreference_decoder() -> Decoder(Documentreference) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/DomainResource#resource](http://hl7.org/fhir/r4usp/StructureDefinition/DomainResource#resource)
 pub type Domainresource {
   Domainresource(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -39857,7 +40529,7 @@ pub fn domainresource_new() -> Domainresource {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -39899,7 +40571,10 @@ pub fn domainresource_to_json(domainresource: Domainresource) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("DomainResource")), ..fields]
   json.object(fields)
 }
@@ -39933,7 +40608,7 @@ pub fn domainresource_decoder() -> Decoder(Domainresource) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -39955,7 +40630,7 @@ pub fn domainresource_decoder() -> Decoder(Domainresource) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource)
 pub type Effectevidencesynthesis {
   Effectevidencesynthesis(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -40046,14 +40721,14 @@ pub fn effectevidencesynthesis_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource)
 pub type EffectevidencesynthesisSamplesize {
   EffectevidencesynthesisSamplesize(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -40069,14 +40744,14 @@ pub fn effectevidencesynthesis_samplesize_new() -> EffectevidencesynthesisSample
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource)
 pub type EffectevidencesynthesisResultsbyexposure {
   EffectevidencesynthesisResultsbyexposure(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -40096,14 +40771,14 @@ pub fn effectevidencesynthesis_resultsbyexposure_new(
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource)
 pub type EffectevidencesynthesisEffectestimate {
   EffectevidencesynthesisEffectestimate(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -40127,14 +40802,14 @@ pub fn effectevidencesynthesis_effectestimate_new() -> EffectevidencesynthesisEf
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource)
 pub type EffectevidencesynthesisEffectestimatePrecisionestimate {
   EffectevidencesynthesisEffectestimatePrecisionestimate(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -40152,14 +40827,14 @@ pub fn effectevidencesynthesis_effectestimate_precisionestimate_new() -> Effecte
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource)
 pub type EffectevidencesynthesisCertainty {
   EffectevidencesynthesisCertainty(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     rating: List(Codeableconcept),
@@ -40177,14 +40852,14 @@ pub fn effectevidencesynthesis_certainty_new() -> EffectevidencesynthesisCertain
     rating: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EffectEvidenceSynthesis#resource)
 pub type EffectevidencesynthesisCertaintyCertaintysubcomponent {
   EffectevidencesynthesisCertaintyCertaintysubcomponent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -40200,7 +40875,7 @@ pub fn effectevidencesynthesis_certainty_certaintysubcomponent_new() -> Effectev
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -40239,7 +40914,10 @@ pub fn effectevidencesynthesis_certainty_certaintysubcomponent_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -40272,7 +40950,7 @@ pub fn effectevidencesynthesis_certainty_certaintysubcomponent_decoder() -> Deco
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EffectevidencesynthesisCertaintyCertaintysubcomponent(
     note:,
     rating:,
@@ -40327,7 +41005,10 @@ pub fn effectevidencesynthesis_certainty_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -40362,7 +41043,7 @@ pub fn effectevidencesynthesis_certainty_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EffectevidencesynthesisCertainty(
     certainty_subcomponent:,
     note:,
@@ -40404,7 +41085,10 @@ pub fn effectevidencesynthesis_effectestimate_precisionestimate_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -40430,7 +41114,7 @@ pub fn effectevidencesynthesis_effectestimate_precisionestimate_decoder() -> Dec
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EffectevidencesynthesisEffectestimatePrecisionestimate(
     to:,
     from:,
@@ -40496,7 +41180,10 @@ pub fn effectevidencesynthesis_effectestimate_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -40538,7 +41225,7 @@ pub fn effectevidencesynthesis_effectestimate_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EffectevidencesynthesisEffectestimate(
     precision_estimate:,
     unit_of_measure:,
@@ -40591,7 +41278,10 @@ pub fn effectevidencesynthesis_resultsbyexposure_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -40623,7 +41313,7 @@ pub fn effectevidencesynthesis_resultsbyexposure_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EffectevidencesynthesisResultsbyexposure(
     risk_evidence_synthesis:,
     variant_state:,
@@ -40669,7 +41359,10 @@ pub fn effectevidencesynthesis_samplesize_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -40693,7 +41386,7 @@ pub fn effectevidencesynthesis_samplesize_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EffectevidencesynthesisSamplesize(
     number_of_participants:,
     number_of_studies:,
@@ -40918,7 +41611,10 @@ pub fn effectevidencesynthesis_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("EffectEvidenceSynthesis")),
     ..fields
@@ -41066,7 +41762,7 @@ pub fn effectevidencesynthesis_decoder() -> Decoder(Effectevidencesynthesis) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -41130,7 +41826,7 @@ pub fn effectevidencesynthesis_decoder() -> Decoder(Effectevidencesynthesis) {
 pub type Encounter {
   Encounter(
     us_core_interpreter_needed: List(Coding),
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -41196,7 +41892,7 @@ pub fn encounter_new(class class: Coding) -> Encounter {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
     us_core_interpreter_needed: [],
   )
 }
@@ -41204,7 +41900,7 @@ pub fn encounter_new(class class: Coding) -> Encounter {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource)
 pub type EncounterStatushistory {
   EncounterStatushistory(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     status: Primitive(r4usp_valuesets.Encounterstatus),
@@ -41220,14 +41916,14 @@ pub fn encounter_statushistory_new(
     status: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource)
 pub type EncounterClasshistory {
   EncounterClasshistory(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     class: Coding,
@@ -41244,14 +41940,14 @@ pub fn encounter_classhistory_new(
     class:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource)
 pub type EncounterParticipant {
   EncounterParticipant(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: List(Codeableconcept),
@@ -41267,14 +41963,14 @@ pub fn encounter_participant_new() -> EncounterParticipant {
     type_: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource)
 pub type EncounterDiagnosis {
   EncounterDiagnosis(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     condition: Reference,
@@ -41292,14 +41988,14 @@ pub fn encounter_diagnosis_new(
     condition:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource)
 pub type EncounterHospitalization {
   EncounterHospitalization(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     pre_admission_identifier: Option(Identifier),
@@ -41327,14 +42023,14 @@ pub fn encounter_hospitalization_new() -> EncounterHospitalization {
     pre_admission_identifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Encounter#resource)
 pub type EncounterLocation {
   EncounterLocation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     location: Reference,
@@ -41352,7 +42048,7 @@ pub fn encounter_location_new(location location: Reference) -> EncounterLocation
     location:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -41395,7 +42091,10 @@ pub fn encounter_location_to_json(encounter_location: EncounterLocation) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -41426,7 +42125,7 @@ pub fn encounter_location_decoder() -> Decoder(EncounterLocation) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EncounterLocation(
     period:,
     physical_type:,
@@ -41518,7 +42217,10 @@ pub fn encounter_hospitalization_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -41579,7 +42281,7 @@ pub fn encounter_hospitalization_decoder() -> Decoder(EncounterHospitalization) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EncounterHospitalization(
     discharge_disposition:,
     destination:,
@@ -41626,7 +42328,10 @@ pub fn encounter_diagnosis_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -41649,7 +42354,7 @@ pub fn encounter_diagnosis_decoder() -> Decoder(EncounterDiagnosis) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EncounterDiagnosis(
     rank:,
     use_:,
@@ -41695,7 +42400,10 @@ pub fn encounter_participant_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -41726,7 +42434,7 @@ pub fn encounter_participant_decoder() -> Decoder(EncounterParticipant) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EncounterParticipant(
     individual:,
     period:,
@@ -41762,7 +42470,10 @@ pub fn encounter_classhistory_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -41780,7 +42491,7 @@ pub fn encounter_classhistory_decoder() -> Decoder(EncounterClasshistory) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EncounterClasshistory(
     period:,
     class:,
@@ -41821,7 +42532,10 @@ pub fn encounter_statushistory_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -41842,7 +42556,7 @@ pub fn encounter_statushistory_decoder() -> Decoder(EncounterStatushistory) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EncounterStatushistory(
     period:,
     status:,
@@ -42048,7 +42762,10 @@ pub fn encounter_to_json(encounter: Encounter) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Encounter")), ..fields]
   json.object(fields)
 }
@@ -42192,7 +42909,7 @@ pub fn encounter_decoder() -> Decoder(Encounter) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   let #(us_core_interpreter_needed_, extension) =
     list.fold(from: #([], []), over: extension, with: fn(acc, ext) {
       let #(a0, plain) = acc
@@ -42247,7 +42964,7 @@ pub fn encounter_decoder() -> Decoder(Encounter) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Endpoint#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Endpoint#resource)
 pub type Endpoint {
   Endpoint(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -42292,7 +43009,7 @@ pub fn endpoint_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -42381,7 +43098,10 @@ pub fn endpoint_to_json(endpoint: Endpoint) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Endpoint")), ..fields]
   json.object(fields)
 }
@@ -42445,7 +43165,7 @@ pub fn endpoint_decoder() -> Decoder(Endpoint) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -42481,7 +43201,7 @@ pub fn endpoint_decoder() -> Decoder(Endpoint) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EnrollmentRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EnrollmentRequest#resource)
 pub type Enrollmentrequest {
   Enrollmentrequest(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -42515,7 +43235,7 @@ pub fn enrollmentrequest_new() -> Enrollmentrequest {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -42593,7 +43313,10 @@ pub fn enrollmentrequest_to_json(enrollmentrequest: Enrollmentrequest) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("EnrollmentRequest")), ..fields]
   json.object(fields)
 }
@@ -42654,7 +43377,7 @@ pub fn enrollmentrequest_decoder() -> Decoder(Enrollmentrequest) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -42683,7 +43406,7 @@ pub fn enrollmentrequest_decoder() -> Decoder(Enrollmentrequest) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EnrollmentResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EnrollmentResponse#resource)
 pub type Enrollmentresponse {
   Enrollmentresponse(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -42719,7 +43442,7 @@ pub fn enrollmentresponse_new() -> Enrollmentresponse {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -42805,7 +43528,10 @@ pub fn enrollmentresponse_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("EnrollmentResponse")), ..fields]
   json.object(fields)
 }
@@ -42866,7 +43592,7 @@ pub fn enrollmentresponse_decoder() -> Decoder(Enrollmentresponse) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -42896,7 +43622,7 @@ pub fn enrollmentresponse_decoder() -> Decoder(Enrollmentresponse) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EpisodeOfCare#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EpisodeOfCare#resource)
 pub type Episodeofcare {
   Episodeofcare(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -42940,14 +43666,14 @@ pub fn episodeofcare_new(patient patient: Reference) -> Episodeofcare {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EpisodeOfCare#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EpisodeOfCare#resource)
 pub type EpisodeofcareStatushistory {
   EpisodeofcareStatushistory(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     status: Primitive(r4usp_valuesets.Episodeofcarestatus),
@@ -42963,14 +43689,14 @@ pub fn episodeofcare_statushistory_new(
     status: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EpisodeOfCare#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EpisodeOfCare#resource)
 pub type EpisodeofcareDiagnosis {
   EpisodeofcareDiagnosis(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     condition: Reference,
@@ -42988,7 +43714,7 @@ pub fn episodeofcare_diagnosis_new(
     condition:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -43022,7 +43748,10 @@ pub fn episodeofcare_diagnosis_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -43045,7 +43774,7 @@ pub fn episodeofcare_diagnosis_decoder() -> Decoder(EpisodeofcareDiagnosis) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EpisodeofcareDiagnosis(
     rank:,
     role:,
@@ -43087,7 +43816,10 @@ pub fn episodeofcare_statushistory_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -43110,7 +43842,7 @@ pub fn episodeofcare_statushistory_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EpisodeofcareStatushistory(
     period:,
     status:,
@@ -43231,7 +43963,10 @@ pub fn episodeofcare_to_json(episodeofcare: Episodeofcare) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("EpisodeOfCare")), ..fields]
   json.object(fields)
 }
@@ -43320,7 +44055,7 @@ pub fn episodeofcare_decoder() -> Decoder(Episodeofcare) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -43354,7 +44089,7 @@ pub fn episodeofcare_decoder() -> Decoder(Episodeofcare) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EventDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EventDefinition#resource)
 pub type Eventdefinition {
   Eventdefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -43460,7 +44195,7 @@ pub fn eventdefinition_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -43632,7 +44367,10 @@ pub fn eventdefinition_to_json(eventdefinition: Eventdefinition) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("EventDefinition")), ..fields]
   json.object(fields)
 }
@@ -43741,7 +44479,7 @@ pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -43791,7 +44529,7 @@ pub fn eventdefinition_decoder() -> Decoder(Eventdefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Evidence#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Evidence#resource)
 pub type Evidence {
   Evidence(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -43869,7 +44607,7 @@ pub fn evidence_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -44039,7 +44777,10 @@ pub fn evidence_to_json(evidence: Evidence) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Evidence")), ..fields]
   json.object(fields)
 }
@@ -44163,7 +44904,7 @@ pub fn evidence_decoder() -> Decoder(Evidence) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -44213,7 +44954,7 @@ pub fn evidence_decoder() -> Decoder(Evidence) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EvidenceVariable#resource)
 pub type Evidencevariable {
   Evidencevariable(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -44289,14 +45030,14 @@ pub fn evidencevariable_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/EvidenceVariable#resource](http://hl7.org/fhir/r4usp/StructureDefinition/EvidenceVariable#resource)
 pub type EvidencevariableCharacteristic {
   EvidencevariableCharacteristic(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -44456,7 +45197,7 @@ pub fn evidencevariable_characteristic_new(
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -44544,7 +45285,10 @@ pub fn evidencevariable_characteristic_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -44586,7 +45330,7 @@ pub fn evidencevariable_characteristic_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(EvidencevariableCharacteristic(
     group_measure:,
     time_from_start:,
@@ -44765,7 +45509,10 @@ pub fn evidencevariable_to_json(evidencevariable: Evidencevariable) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("EvidenceVariable")), ..fields]
   json.object(fields)
 }
@@ -44880,7 +45627,7 @@ pub fn evidencevariable_decoder() -> Decoder(Evidencevariable) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -44929,7 +45676,7 @@ pub fn evidencevariable_decoder() -> Decoder(Evidencevariable) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource)
 pub type Examplescenario {
   Examplescenario(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -44983,14 +45730,14 @@ pub fn examplescenario_new() -> Examplescenario {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioActor {
   ExamplescenarioActor(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     actor_id: Primitive(String),
@@ -45008,14 +45755,14 @@ pub fn examplescenario_actor_new() -> ExamplescenarioActor {
     actor_id: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioInstance {
   ExamplescenarioInstance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     resource_id: Primitive(String),
@@ -45037,14 +45784,14 @@ pub fn examplescenario_instance_new() -> ExamplescenarioInstance {
     resource_id: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioInstanceVersion {
   ExamplescenarioInstanceVersion(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     version_id: Primitive(String),
@@ -45058,14 +45805,14 @@ pub fn examplescenario_instance_version_new() -> ExamplescenarioInstanceVersion 
     version_id: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioInstanceContainedinstance {
   ExamplescenarioInstanceContainedinstance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     resource_id: Primitive(String),
@@ -45079,14 +45826,14 @@ pub fn examplescenario_instance_containedinstance_new() -> ExamplescenarioInstan
     resource_id: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioProcess {
   ExamplescenarioProcess(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     title: Primitive(String),
@@ -45106,14 +45853,14 @@ pub fn examplescenario_process_new() -> ExamplescenarioProcess {
     title: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioProcessStep {
   ExamplescenarioProcessStep(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     process: List(ExamplescenarioProcess),
@@ -45131,14 +45878,14 @@ pub fn examplescenario_process_step_new() -> ExamplescenarioProcessStep {
     process: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioProcessStepOperation {
   ExamplescenarioProcessStepOperation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     number: Primitive(String),
@@ -45168,14 +45915,14 @@ pub fn examplescenario_process_step_operation_new() -> ExamplescenarioProcessSte
     number: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExampleScenario#resource)
 pub type ExamplescenarioProcessStepAlternative {
   ExamplescenarioProcessStepAlternative(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     title: Primitive(String),
@@ -45191,7 +45938,7 @@ pub fn examplescenario_process_step_alternative_new() -> ExamplescenarioProcessS
     title: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -45228,7 +45975,10 @@ pub fn examplescenario_process_step_alternative_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -45253,7 +46003,7 @@ pub fn examplescenario_process_step_alternative_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExamplescenarioProcessStepAlternative(
     step:,
     description:,
@@ -45319,7 +46069,10 @@ pub fn examplescenario_process_step_operation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -45355,7 +46108,7 @@ pub fn examplescenario_process_step_operation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExamplescenarioProcessStepOperation(
     response:,
     request:,
@@ -45425,7 +46178,10 @@ pub fn examplescenario_process_step_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -45459,7 +46215,7 @@ pub fn examplescenario_process_step_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExamplescenarioProcessStep(
     alternative:,
     operation:,
@@ -45510,7 +46266,10 @@ pub fn examplescenario_process_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -45535,7 +46294,7 @@ pub fn examplescenario_process_decoder() -> Decoder(ExamplescenarioProcess) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExamplescenarioProcess(
     step:,
     post_conditions:,
@@ -45572,7 +46331,10 @@ pub fn examplescenario_instance_containedinstance_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -45592,7 +46354,7 @@ pub fn examplescenario_instance_containedinstance_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExamplescenarioInstanceContainedinstance(
     version_id:,
     resource_id:,
@@ -45627,7 +46389,10 @@ pub fn examplescenario_instance_version_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -45647,7 +46412,7 @@ pub fn examplescenario_instance_version_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExamplescenarioInstanceVersion(
     description:,
     version_id:,
@@ -45717,7 +46482,10 @@ pub fn examplescenario_instance_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -45750,7 +46518,7 @@ pub fn examplescenario_instance_decoder() -> Decoder(ExamplescenarioInstance) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExamplescenarioInstance(
     contained_instance:,
     version:,
@@ -45799,7 +46567,10 @@ pub fn examplescenario_actor_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -45822,7 +46593,7 @@ pub fn examplescenario_actor_decoder() -> Decoder(ExamplescenarioActor) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExamplescenarioActor(
     description:,
     name:,
@@ -45949,7 +46720,10 @@ pub fn examplescenario_to_json(examplescenario: Examplescenario) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ExampleScenario")), ..fields]
   json.object(fields)
 }
@@ -46031,7 +46805,7 @@ pub fn examplescenario_decoder() -> Decoder(Examplescenario) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -46070,7 +46844,7 @@ pub fn examplescenario_decoder() -> Decoder(Examplescenario) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type Explanationofbenefit {
   Explanationofbenefit(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -46182,14 +46956,14 @@ pub fn explanationofbenefit_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitRelated {
   ExplanationofbenefitRelated(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     claim: Option(Reference),
@@ -46205,14 +46979,14 @@ pub fn explanationofbenefit_related_new() -> ExplanationofbenefitRelated {
     claim: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitPayee {
   ExplanationofbenefitPayee(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -46226,14 +47000,14 @@ pub fn explanationofbenefit_payee_new() -> ExplanationofbenefitPayee {
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitCareteam {
   ExplanationofbenefitCareteam(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -46255,14 +47029,14 @@ pub fn explanationofbenefit_careteam_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitSupportinginfo {
   ExplanationofbenefitSupportinginfo(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -46355,14 +47129,14 @@ pub fn explanationofbenefit_supportinginfo_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitDiagnosis {
   ExplanationofbenefitDiagnosis(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -46419,14 +47193,14 @@ pub fn explanationofbenefit_diagnosis_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitProcedure {
   ExplanationofbenefitProcedure(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -46483,14 +47257,14 @@ pub fn explanationofbenefit_procedure_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitInsurance {
   ExplanationofbenefitInsurance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     focal: Primitive(Bool),
@@ -46508,14 +47282,14 @@ pub fn explanationofbenefit_insurance_new(
     focal: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAccident {
   ExplanationofbenefitAccident(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     date: Primitive(Date),
@@ -46559,14 +47333,14 @@ pub fn explanationofbenefit_accident_new() -> ExplanationofbenefitAccident {
     date: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItem {
   ExplanationofbenefitItem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -46689,14 +47463,14 @@ pub fn explanationofbenefit_item_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemAdjudication {
   ExplanationofbenefitItemAdjudication(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     category: Codeableconcept,
@@ -46716,14 +47490,14 @@ pub fn explanationofbenefit_item_adjudication_new(
     category:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemDetail {
   ExplanationofbenefitItemDetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -46763,14 +47537,14 @@ pub fn explanationofbenefit_item_detail_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitItemDetailSubdetail {
   ExplanationofbenefitItemDetailSubdetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -46808,14 +47582,14 @@ pub fn explanationofbenefit_item_detail_subdetail_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAdditem {
   ExplanationofbenefitAdditem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     item_sequence: List(Primitive(Int)),
@@ -46928,14 +47702,14 @@ pub fn explanationofbenefit_additem_new(
     item_sequence: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAdditemDetail {
   ExplanationofbenefitAdditemDetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     product_or_service: Codeableconcept,
@@ -46965,14 +47739,14 @@ pub fn explanationofbenefit_additem_detail_new(
     product_or_service:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitAdditemDetailSubdetail {
   ExplanationofbenefitAdditemDetailSubdetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     product_or_service: Codeableconcept,
@@ -47000,14 +47774,14 @@ pub fn explanationofbenefit_additem_detail_subdetail_new(
     product_or_service:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitTotal {
   ExplanationofbenefitTotal(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     category: Codeableconcept,
@@ -47024,14 +47798,14 @@ pub fn explanationofbenefit_total_new(
     category:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitPayment {
   ExplanationofbenefitPayment(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -47053,14 +47827,14 @@ pub fn explanationofbenefit_payment_new() -> ExplanationofbenefitPayment {
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitProcessnote {
   ExplanationofbenefitProcessnote(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     number: Primitive(Int),
@@ -47078,14 +47852,14 @@ pub fn explanationofbenefit_processnote_new() -> ExplanationofbenefitProcessnote
     number: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitBenefitbalance {
   ExplanationofbenefitBenefitbalance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     category: Codeableconcept,
@@ -47113,14 +47887,14 @@ pub fn explanationofbenefit_benefitbalance_new(
     category:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ExplanationOfBenefit#resource)
 pub type ExplanationofbenefitBenefitbalanceFinancial {
   ExplanationofbenefitBenefitbalanceFinancial(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -47203,7 +47977,7 @@ pub fn explanationofbenefit_benefitbalance_financial_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -47264,7 +48038,10 @@ pub fn explanationofbenefit_benefitbalance_financial_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -47293,7 +48070,7 @@ pub fn explanationofbenefit_benefitbalance_financial_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitBenefitbalanceFinancial(
     used:,
     allowed:,
@@ -47363,7 +48140,10 @@ pub fn explanationofbenefit_benefitbalance_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -47405,7 +48185,7 @@ pub fn explanationofbenefit_benefitbalance_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitBenefitbalance(
     financial:,
     term:,
@@ -47453,7 +48233,10 @@ pub fn explanationofbenefit_processnote_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -47479,7 +48262,7 @@ pub fn explanationofbenefit_processnote_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitProcessnote(
     language:,
     text:,
@@ -47538,7 +48321,10 @@ pub fn explanationofbenefit_payment_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -47582,7 +48368,7 @@ pub fn explanationofbenefit_payment_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitPayment(
     identifier:,
     amount:,
@@ -47621,7 +48407,10 @@ pub fn explanationofbenefit_total_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -47641,7 +48430,7 @@ pub fn explanationofbenefit_total_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitTotal(
     amount:,
     category:,
@@ -47712,7 +48501,10 @@ pub fn explanationofbenefit_additem_detail_subdetail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -47761,7 +48553,7 @@ pub fn explanationofbenefit_additem_detail_subdetail_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitAdditemDetailSubdetail(
     adjudication:,
     note_number:,
@@ -47852,7 +48644,10 @@ pub fn explanationofbenefit_additem_detail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -47906,7 +48701,7 @@ pub fn explanationofbenefit_additem_detail_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitAdditemDetail(
     sub_detail:,
     adjudication:,
@@ -48064,7 +48859,10 @@ pub fn explanationofbenefit_additem_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -48147,7 +48945,7 @@ pub fn explanationofbenefit_additem_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitAdditem(
     detail:,
     adjudication:,
@@ -48259,7 +49057,10 @@ pub fn explanationofbenefit_item_detail_subdetail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -48325,7 +49126,7 @@ pub fn explanationofbenefit_item_detail_subdetail_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitItemDetailSubdetail(
     adjudication:,
     note_number:,
@@ -48446,7 +49247,10 @@ pub fn explanationofbenefit_item_detail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -48517,7 +49321,7 @@ pub fn explanationofbenefit_item_detail_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitItemDetail(
     sub_detail:,
     adjudication:,
@@ -48574,7 +49378,10 @@ pub fn explanationofbenefit_item_adjudication_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -48604,7 +49411,7 @@ pub fn explanationofbenefit_item_adjudication_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitItemAdjudication(
     value:,
     amount:,
@@ -48784,7 +49591,10 @@ pub fn explanationofbenefit_item_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -48881,7 +49691,7 @@ pub fn explanationofbenefit_item_decoder() -> Decoder(ExplanationofbenefitItem) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitItem(
     detail:,
     adjudication:,
@@ -48954,7 +49764,10 @@ pub fn explanationofbenefit_accident_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -48981,7 +49794,7 @@ pub fn explanationofbenefit_accident_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitAccident(
     location:,
     type_:,
@@ -49020,7 +49833,10 @@ pub fn explanationofbenefit_insurance_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -49041,7 +49857,7 @@ pub fn explanationofbenefit_insurance_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitInsurance(
     pre_auth_ref:,
     coverage:,
@@ -49097,7 +49913,10 @@ pub fn explanationofbenefit_procedure_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -49126,7 +49945,7 @@ pub fn explanationofbenefit_procedure_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitProcedure(
     udi:,
     procedure:,
@@ -49187,7 +50006,10 @@ pub fn explanationofbenefit_diagnosis_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -49224,7 +50046,7 @@ pub fn explanationofbenefit_diagnosis_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitDiagnosis(
     package_code:,
     on_admission:,
@@ -49305,7 +50127,10 @@ pub fn explanationofbenefit_supportinginfo_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -49341,7 +50166,7 @@ pub fn explanationofbenefit_supportinginfo_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitSupportinginfo(
     reason:,
     value:,
@@ -49392,7 +50217,10 @@ pub fn explanationofbenefit_careteam_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -49423,7 +50251,7 @@ pub fn explanationofbenefit_careteam_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitCareteam(
     qualification:,
     role:,
@@ -49466,7 +50294,10 @@ pub fn explanationofbenefit_payee_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -49494,7 +50325,7 @@ pub fn explanationofbenefit_payee_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitPayee(
     party:,
     type_:,
@@ -49539,7 +50370,10 @@ pub fn explanationofbenefit_related_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -49572,7 +50406,7 @@ pub fn explanationofbenefit_related_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ExplanationofbenefitRelated(
     reference:,
     relationship:,
@@ -49885,7 +50719,10 @@ pub fn explanationofbenefit_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("ExplanationOfBenefit")),
     ..fields
@@ -50098,7 +50935,7 @@ pub fn explanationofbenefit_decoder() -> Decoder(Explanationofbenefit) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -50177,7 +51014,7 @@ pub type Familymemberhistory {
     us_core_familymemberhistory_recorder: List(Reference),
     us_core_individual_sex: List(Coding),
     us_core_ethnicity: List(UsCoreEthnicity),
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -50332,7 +51169,7 @@ pub fn familymemberhistory_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
     us_core_ethnicity: [],
     us_core_individual_sex: [],
     us_core_familymemberhistory_recorder: [],
@@ -50344,7 +51181,7 @@ pub fn familymemberhistory_new(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/FamilyMemberHistory#resource](http://hl7.org/fhir/r4usp/StructureDefinition/FamilyMemberHistory#resource)
 pub type FamilymemberhistoryCondition {
   FamilymemberhistoryCondition(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -50402,7 +51239,7 @@ pub fn familymemberhistory_condition_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -50464,7 +51301,10 @@ pub fn familymemberhistory_condition_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -50500,7 +51340,7 @@ pub fn familymemberhistory_condition_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(FamilymemberhistoryCondition(
     note:,
     onset:,
@@ -50698,7 +51538,10 @@ pub fn familymemberhistory_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("FamilyMemberHistory")), ..fields]
   json.object(fields)
 }
@@ -50786,7 +51629,7 @@ pub fn familymemberhistory_decoder() -> Decoder(Familymemberhistory) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   let #(
     us_core_ethnicity_,
     us_core_individual_sex_,
@@ -50875,7 +51718,7 @@ pub fn familymemberhistory_decoder() -> Decoder(Familymemberhistory) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Flag#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Flag#resource)
 pub type Flag {
   Flag(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -50911,7 +51754,7 @@ pub fn flag_new(subject subject: Reference, code code: Codeableconcept) -> Flag 
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -50994,7 +51837,10 @@ pub fn flag_to_json(flag: Flag) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Flag")), ..fields]
   json.object(fields)
 }
@@ -51059,7 +51905,7 @@ pub fn flag_decoder() -> Decoder(Flag) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -51089,7 +51935,7 @@ pub fn flag_decoder() -> Decoder(Flag) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Goal#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Goal#resource)
 pub type Goal {
   Goal(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -51172,14 +52018,14 @@ pub fn goal_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Goal#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Goal#resource)
 pub type GoalTarget {
   GoalTarget(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     measure: Option(Codeableconcept),
@@ -51267,7 +52113,7 @@ pub fn goal_target_new() -> GoalTarget {
     measure: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -51323,7 +52169,10 @@ pub fn goal_target_to_json(goal_target: GoalTarget) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -51346,7 +52195,7 @@ pub fn goal_target_decoder() -> Decoder(GoalTarget) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(GoalTarget(
     due:,
     detail:,
@@ -51488,7 +52337,10 @@ pub fn goal_to_json(goal: Goal) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Goal")), ..fields]
   json.object(fields)
 }
@@ -51581,7 +52433,7 @@ pub fn goal_decoder() -> Decoder(Goal) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -51619,7 +52471,7 @@ pub fn goal_decoder() -> Decoder(Goal) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/GraphDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/GraphDefinition#resource)
 pub type Graphdefinition {
   Graphdefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -51669,14 +52521,14 @@ pub fn graphdefinition_new() -> Graphdefinition {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/GraphDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/GraphDefinition#resource)
 pub type GraphdefinitionLink {
   GraphdefinitionLink(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     path: Primitive(String),
@@ -51698,14 +52550,14 @@ pub fn graphdefinition_link_new() -> GraphdefinitionLink {
     path: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/GraphDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/GraphDefinition#resource)
 pub type GraphdefinitionLinkTarget {
   GraphdefinitionLinkTarget(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Resourcetypes),
@@ -51725,14 +52577,14 @@ pub fn graphdefinition_link_target_new() -> GraphdefinitionLinkTarget {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/GraphDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/GraphDefinition#resource)
 pub type GraphdefinitionLinkTargetCompartment {
   GraphdefinitionLinkTargetCompartment(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     use_: Primitive(r4usp_valuesets.Graphcompartmentuse),
@@ -51752,7 +52604,7 @@ pub fn graphdefinition_link_target_compartment_new() -> GraphdefinitionLinkTarge
     use_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -51805,7 +52657,10 @@ pub fn graphdefinition_link_target_compartment_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -51837,7 +52692,7 @@ pub fn graphdefinition_link_target_compartment_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(GraphdefinitionLinkTargetCompartment(
     description:,
     expression:,
@@ -51898,7 +52753,10 @@ pub fn graphdefinition_link_target_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -51932,7 +52790,7 @@ pub fn graphdefinition_link_target_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(GraphdefinitionLinkTarget(
     link:,
     compartment:,
@@ -51984,7 +52842,10 @@ pub fn graphdefinition_link_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -52010,7 +52871,7 @@ pub fn graphdefinition_link_decoder() -> Decoder(GraphdefinitionLink) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(GraphdefinitionLink(
     target:,
     description:,
@@ -52124,7 +52985,10 @@ pub fn graphdefinition_to_json(graphdefinition: Graphdefinition) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("GraphDefinition")), ..fields]
   json.object(fields)
 }
@@ -52195,7 +53059,7 @@ pub fn graphdefinition_decoder() -> Decoder(Graphdefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -52232,7 +53096,7 @@ pub fn graphdefinition_decoder() -> Decoder(Graphdefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Group#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Group#resource)
 pub type Group {
   Group(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -52272,14 +53136,14 @@ pub fn group_new() -> Group {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Group#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Group#resource)
 pub type GroupCharacteristic {
   GroupCharacteristic(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -52340,14 +53204,14 @@ pub fn group_characteristic_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Group#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Group#resource)
 pub type GroupMember {
   GroupMember(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     entity: Reference,
@@ -52363,7 +53227,7 @@ pub fn group_member_new(entity entity: Reference) -> GroupMember {
     entity:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -52395,7 +53259,10 @@ pub fn group_member_to_json(group_member: GroupMember) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -52418,7 +53285,7 @@ pub fn group_member_decoder() -> Decoder(GroupMember) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(GroupMember(
     inactive:,
     period:,
@@ -52471,7 +53338,10 @@ pub fn group_characteristic_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -52495,7 +53365,7 @@ pub fn group_characteristic_decoder() -> Decoder(GroupCharacteristic) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(GroupCharacteristic(
     period:,
     exclude:,
@@ -52587,7 +53457,10 @@ pub fn group_to_json(group: Group) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Group")), ..fields]
   json.object(fields)
 }
@@ -52651,7 +53524,7 @@ pub fn group_decoder() -> Decoder(Group) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(rt != "Group", decode.failure(group_new(), "resourceType"))
@@ -52680,7 +53553,7 @@ pub fn group_decoder() -> Decoder(Group) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/GuidanceResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/GuidanceResponse#resource)
 pub type Guidanceresponse {
   Guidanceresponse(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -52764,7 +53637,7 @@ pub fn guidanceresponse_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -52908,7 +53781,10 @@ pub fn guidanceresponse_to_json(guidanceresponse: Guidanceresponse) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("GuidanceResponse")), ..fields]
   json.object(fields)
 }
@@ -53011,7 +53887,7 @@ pub fn guidanceresponse_decoder() -> Decoder(Guidanceresponse) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -53048,7 +53924,7 @@ pub fn guidanceresponse_decoder() -> Decoder(Guidanceresponse) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/HealthcareService#resource](http://hl7.org/fhir/r4usp/StructureDefinition/HealthcareService#resource)
 pub type Healthcareservice {
   Healthcareservice(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -53116,14 +53992,14 @@ pub fn healthcareservice_new() -> Healthcareservice {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/HealthcareService#resource](http://hl7.org/fhir/r4usp/StructureDefinition/HealthcareService#resource)
 pub type HealthcareserviceEligibility {
   HealthcareserviceEligibility(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -53137,14 +54013,14 @@ pub fn healthcareservice_eligibility_new() -> HealthcareserviceEligibility {
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/HealthcareService#resource](http://hl7.org/fhir/r4usp/StructureDefinition/HealthcareService#resource)
 pub type HealthcareserviceAvailabletime {
   HealthcareserviceAvailabletime(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     days_of_week: List(Primitive(r4usp_valuesets.Daysofweek)),
@@ -53162,14 +54038,14 @@ pub fn healthcareservice_availabletime_new() -> HealthcareserviceAvailabletime {
     days_of_week: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/HealthcareService#resource](http://hl7.org/fhir/r4usp/StructureDefinition/HealthcareService#resource)
 pub type HealthcareserviceNotavailable {
   HealthcareserviceNotavailable(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -53183,7 +54059,7 @@ pub fn healthcareservice_notavailable_new() -> HealthcareserviceNotavailable {
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -53215,7 +54091,10 @@ pub fn healthcareservice_notavailable_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -53239,7 +54118,7 @@ pub fn healthcareservice_notavailable_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(HealthcareserviceNotavailable(
     during:,
     description:,
@@ -53295,7 +54174,10 @@ pub fn healthcareservice_availabletime_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -53326,7 +54208,7 @@ pub fn healthcareservice_availabletime_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(HealthcareserviceAvailabletime(
     available_end_time:,
     available_start_time:,
@@ -53365,7 +54247,10 @@ pub fn healthcareservice_eligibility_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -53389,7 +54274,7 @@ pub fn healthcareservice_eligibility_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(HealthcareserviceEligibility(
     comment:,
     code:,
@@ -53594,7 +54479,10 @@ pub fn healthcareservice_to_json(healthcareservice: Healthcareservice) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("HealthcareService")), ..fields]
   json.object(fields)
 }
@@ -53730,7 +54618,7 @@ pub fn healthcareservice_decoder() -> Decoder(Healthcareservice) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -53776,7 +54664,7 @@ pub fn healthcareservice_decoder() -> Decoder(Healthcareservice) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImagingStudy#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImagingStudy#resource)
 pub type Imagingstudy {
   Imagingstudy(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -53836,14 +54724,14 @@ pub fn imagingstudy_new(subject subject: Reference) -> Imagingstudy {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImagingStudy#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImagingStudy#resource)
 pub type ImagingstudySeries {
   ImagingstudySeries(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     uid: Primitive(String),
@@ -53877,14 +54765,14 @@ pub fn imagingstudy_series_new(modality modality: Coding) -> ImagingstudySeries 
     uid: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImagingStudy#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImagingStudy#resource)
 pub type ImagingstudySeriesPerformer {
   ImagingstudySeriesPerformer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
@@ -53900,14 +54788,14 @@ pub fn imagingstudy_series_performer_new(
     function: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImagingStudy#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImagingStudy#resource)
 pub type ImagingstudySeriesInstance {
   ImagingstudySeriesInstance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     uid: Primitive(String),
@@ -53927,7 +54815,7 @@ pub fn imagingstudy_series_instance_new(
     uid: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -53960,7 +54848,10 @@ pub fn imagingstudy_series_instance_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -53982,7 +54873,7 @@ pub fn imagingstudy_series_instance_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImagingstudySeriesInstance(
     title:,
     number:,
@@ -54022,7 +54913,10 @@ pub fn imagingstudy_series_performer_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -54046,7 +54940,7 @@ pub fn imagingstudy_series_performer_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImagingstudySeriesPerformer(
     actor:,
     function:,
@@ -54136,7 +55030,10 @@ pub fn imagingstudy_series_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -54188,7 +55085,7 @@ pub fn imagingstudy_series_decoder() -> Decoder(ImagingstudySeries) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImagingstudySeries(
     instance:,
     performer:,
@@ -54359,7 +55256,10 @@ pub fn imagingstudy_to_json(imagingstudy: Imagingstudy) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ImagingStudy")), ..fields]
   json.object(fields)
 }
@@ -54472,7 +55372,7 @@ pub fn imagingstudy_decoder() -> Decoder(Imagingstudy) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -54514,7 +55414,7 @@ pub fn imagingstudy_decoder() -> Decoder(Imagingstudy) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource)
 pub type Immunization {
   Immunization(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -54618,14 +55518,14 @@ pub fn immunization_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource)
 pub type ImmunizationPerformer {
   ImmunizationPerformer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
@@ -54641,14 +55541,14 @@ pub fn immunization_performer_new(
     function: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource)
 pub type ImmunizationEducation {
   ImmunizationEducation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     document_type: Primitive(String),
@@ -54666,14 +55566,14 @@ pub fn immunization_education_new() -> ImmunizationEducation {
     document_type: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource)
 pub type ImmunizationReaction {
   ImmunizationReaction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     date: Primitive(DateTime),
@@ -54689,14 +55589,14 @@ pub fn immunization_reaction_new() -> ImmunizationReaction {
     date: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Immunization#resource)
 pub type ImmunizationProtocolapplied {
   ImmunizationProtocolapplied(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     series: Primitive(String),
@@ -54774,7 +55674,7 @@ pub fn immunization_protocolapplied_new(
     series: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -54838,7 +55738,10 @@ pub fn immunization_protocolapplied_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -54873,7 +55776,7 @@ pub fn immunization_protocolapplied_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImmunizationProtocolapplied(
     series_doses:,
     dose_number:,
@@ -54915,7 +55818,10 @@ pub fn immunization_reaction_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -54938,7 +55844,7 @@ pub fn immunization_reaction_decoder() -> Decoder(ImmunizationReaction) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImmunizationReaction(
     reported:,
     detail:,
@@ -54990,7 +55896,10 @@ pub fn immunization_education_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -55016,7 +55925,7 @@ pub fn immunization_education_decoder() -> Decoder(ImmunizationEducation) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImmunizationEducation(
     presentation_date:,
     publication_date:,
@@ -55056,7 +55965,10 @@ pub fn immunization_performer_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -55078,7 +55990,7 @@ pub fn immunization_performer_decoder() -> Decoder(ImmunizationPerformer) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImmunizationPerformer(
     actor:,
     function:,
@@ -55294,7 +56206,10 @@ pub fn immunization_to_json(immunization: Immunization) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Immunization")), ..fields]
   json.object(fields)
 }
@@ -55435,7 +56350,7 @@ pub fn immunization_decoder() -> Decoder(Immunization) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -55488,7 +56403,7 @@ pub fn immunization_decoder() -> Decoder(Immunization) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImmunizationEvaluation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImmunizationEvaluation#resource)
 pub type Immunizationevaluation {
   Immunizationevaluation(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -55595,7 +56510,7 @@ pub fn immunizationevaluation_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -55714,7 +56629,10 @@ pub fn immunizationevaluation_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("ImmunizationEvaluation")),
     ..fields
@@ -55786,7 +56704,7 @@ pub fn immunizationevaluation_decoder() -> Decoder(Immunizationevaluation) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -55829,7 +56747,7 @@ pub fn immunizationevaluation_decoder() -> Decoder(Immunizationevaluation) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImmunizationRecommendation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImmunizationRecommendation#resource)
 pub type Immunizationrecommendation {
   Immunizationrecommendation(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -55862,14 +56780,14 @@ pub fn immunizationrecommendation_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImmunizationRecommendation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImmunizationRecommendation#resource)
 pub type ImmunizationrecommendationRecommendation {
   ImmunizationrecommendationRecommendation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     vaccine_code: List(Codeableconcept),
@@ -55975,14 +56893,14 @@ pub fn immunizationrecommendation_recommendation_new(
     vaccine_code: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImmunizationRecommendation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImmunizationRecommendation#resource)
 pub type ImmunizationrecommendationRecommendationDatecriterion {
   ImmunizationrecommendationRecommendationDatecriterion(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -55998,7 +56916,7 @@ pub fn immunizationrecommendation_recommendation_datecriterion_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -56027,7 +56945,10 @@ pub fn immunizationrecommendation_recommendation_datecriterion_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -56047,7 +56968,7 @@ pub fn immunizationrecommendation_recommendation_datecriterion_decoder() -> Deco
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImmunizationrecommendationRecommendationDatecriterion(
     value:,
     code:,
@@ -56187,7 +57108,10 @@ pub fn immunizationrecommendation_recommendation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -56258,7 +57182,7 @@ pub fn immunizationrecommendation_recommendation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImmunizationrecommendationRecommendation(
     supporting_patient_information:,
     supporting_immunization:,
@@ -56341,7 +57265,10 @@ pub fn immunizationrecommendation_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("ImmunizationRecommendation")),
     ..fields
@@ -56396,7 +57323,7 @@ pub fn immunizationrecommendation_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -56426,7 +57353,7 @@ pub fn immunizationrecommendation_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type Implementationguide {
   Implementationguide(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -56486,14 +57413,14 @@ pub fn implementationguide_new() -> Implementationguide {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDependson {
   ImplementationguideDependson(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     uri: Primitive(String),
@@ -56509,14 +57436,14 @@ pub fn implementationguide_dependson_new() -> ImplementationguideDependson {
     uri: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideGlobal {
   ImplementationguideGlobal(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Resourcetypes),
@@ -56530,14 +57457,14 @@ pub fn implementationguide_global_new() -> ImplementationguideGlobal {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinition {
   ImplementationguideDefinition(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     grouping: List(ImplementationguideDefinitionGrouping),
@@ -56559,14 +57486,14 @@ pub fn implementationguide_definition_new(
     grouping: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionGrouping {
   ImplementationguideDefinitionGrouping(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -56580,14 +57507,14 @@ pub fn implementationguide_definition_grouping_new() -> ImplementationguideDefin
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionResource {
   ImplementationguideDefinitionResource(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     reference: Reference,
@@ -56639,14 +57566,14 @@ pub fn implementationguide_definition_resource_new(
     reference:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionPage {
   ImplementationguideDefinitionPage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: ImplementationguideDefinitionPageName,
@@ -56694,14 +57621,14 @@ pub fn implementationguide_definition_page_new(
     name:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionParameter {
   ImplementationguideDefinitionParameter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(r4usp_valuesets.Guideparametercode),
@@ -56715,14 +57642,14 @@ pub fn implementationguide_definition_parameter_new() -> ImplementationguideDefi
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideDefinitionTemplate {
   ImplementationguideDefinitionTemplate(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(String),
@@ -56738,14 +57665,14 @@ pub fn implementationguide_definition_template_new() -> ImplementationguideDefin
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideManifest {
   ImplementationguideManifest(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     rendering: Primitive(String),
@@ -56767,14 +57694,14 @@ pub fn implementationguide_manifest_new(
     rendering: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideManifestResource {
   ImplementationguideManifestResource(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     reference: Reference,
@@ -56820,14 +57747,14 @@ pub fn implementationguide_manifest_resource_new(
     reference:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ImplementationGuide#resource)
 pub type ImplementationguideManifestPage {
   ImplementationguideManifestPage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -56843,7 +57770,7 @@ pub fn implementationguide_manifest_page_new() -> ImplementationguideManifestPag
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -56873,7 +57800,10 @@ pub fn implementationguide_manifest_page_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -56894,7 +57824,7 @@ pub fn implementationguide_manifest_page_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideManifestPage(
     anchor:,
     title:,
@@ -56946,7 +57876,10 @@ pub fn implementationguide_manifest_resource_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -56969,7 +57902,7 @@ pub fn implementationguide_manifest_resource_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideManifestResource(
     relative_path:,
     example:,
@@ -57020,7 +57953,10 @@ pub fn implementationguide_manifest_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -57050,7 +57986,7 @@ pub fn implementationguide_manifest_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideManifest(
     other:,
     image:,
@@ -57089,7 +58025,10 @@ pub fn implementationguide_definition_template_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -57110,7 +58049,7 @@ pub fn implementationguide_definition_template_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideDefinitionTemplate(
     scope:,
     source:,
@@ -57151,7 +58090,10 @@ pub fn implementationguide_definition_parameter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -57174,7 +58116,7 @@ pub fn implementationguide_definition_parameter_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideDefinitionParameter(
     value:,
     code:,
@@ -57232,7 +58174,10 @@ pub fn implementationguide_definition_page_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -57261,7 +58206,7 @@ pub fn implementationguide_definition_page_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideDefinitionPage(
     page:,
     generation:,
@@ -57327,7 +58272,10 @@ pub fn implementationguide_definition_resource_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -57356,7 +58304,7 @@ pub fn implementationguide_definition_resource_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideDefinitionResource(
     grouping_id:,
     example:,
@@ -57395,7 +58343,10 @@ pub fn implementationguide_definition_grouping_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -57415,7 +58366,7 @@ pub fn implementationguide_definition_grouping_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideDefinitionGrouping(
     description:,
     name:,
@@ -57492,7 +58443,10 @@ pub fn implementationguide_definition_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -57534,7 +58488,7 @@ pub fn implementationguide_definition_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideDefinition(
     template:,
     parameter:,
@@ -57577,7 +58531,10 @@ pub fn implementationguide_global_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -57600,7 +58557,7 @@ pub fn implementationguide_global_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideGlobal(
     profile:,
     type_:,
@@ -57636,7 +58593,10 @@ pub fn implementationguide_dependson_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -57657,7 +58617,7 @@ pub fn implementationguide_dependson_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ImplementationguideDependson(
     version:,
     package_id:,
@@ -57810,7 +58770,10 @@ pub fn implementationguide_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ImplementationGuide")), ..fields]
   json.object(fields)
 }
@@ -57901,7 +58864,7 @@ pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -57943,7 +58906,7 @@ pub fn implementationguide_decoder() -> Decoder(Implementationguide) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource)
 pub type Insuranceplan {
   Insuranceplan(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -57991,14 +58954,14 @@ pub fn insuranceplan_new() -> Insuranceplan {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanContact {
   InsuranceplanContact(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     purpose: Option(Codeableconcept),
@@ -58016,14 +58979,14 @@ pub fn insuranceplan_contact_new() -> InsuranceplanContact {
     purpose: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanCoverage {
   InsuranceplanCoverage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -58042,14 +59005,14 @@ pub fn insuranceplan_coverage_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanCoverageBenefit {
   InsuranceplanCoverageBenefit(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -58067,14 +59030,14 @@ pub fn insuranceplan_coverage_benefit_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanCoverageBenefitLimit {
   InsuranceplanCoverageBenefitLimit(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     value: Option(Quantity),
@@ -58088,14 +59051,14 @@ pub fn insuranceplan_coverage_benefit_limit_new() -> InsuranceplanCoverageBenefi
     value: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanPlan {
   InsuranceplanPlan(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
@@ -58117,14 +59080,14 @@ pub fn insuranceplan_plan_new() -> InsuranceplanPlan {
     identifier: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanPlanGeneralcost {
   InsuranceplanPlanGeneralcost(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -58142,14 +59105,14 @@ pub fn insuranceplan_plan_generalcost_new() -> InsuranceplanPlanGeneralcost {
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanPlanSpecificcost {
   InsuranceplanPlanSpecificcost(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     category: Codeableconcept,
@@ -58165,14 +59128,14 @@ pub fn insuranceplan_plan_specificcost_new(
     category:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanPlanSpecificcostBenefit {
   InsuranceplanPlanSpecificcostBenefit(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -58188,14 +59151,14 @@ pub fn insuranceplan_plan_specificcost_benefit_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource](http://hl7.org/fhir/r4usp/StructureDefinition/InsurancePlan#resource)
 pub type InsuranceplanPlanSpecificcostBenefitCost {
   InsuranceplanPlanSpecificcostBenefitCost(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -58215,7 +59178,7 @@ pub fn insuranceplan_plan_specificcost_benefit_cost_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -58260,7 +59223,10 @@ pub fn insuranceplan_plan_specificcost_benefit_cost_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -58294,7 +59260,7 @@ pub fn insuranceplan_plan_specificcost_benefit_cost_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InsuranceplanPlanSpecificcostBenefitCost(
     value:,
     qualifiers:,
@@ -58340,7 +59306,10 @@ pub fn insuranceplan_plan_specificcost_benefit_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -58364,7 +59333,7 @@ pub fn insuranceplan_plan_specificcost_benefit_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InsuranceplanPlanSpecificcostBenefit(
     cost:,
     type_:,
@@ -58408,7 +59377,10 @@ pub fn insuranceplan_plan_specificcost_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -58432,7 +59404,7 @@ pub fn insuranceplan_plan_specificcost_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InsuranceplanPlanSpecificcost(
     benefit:,
     category:,
@@ -58476,7 +59448,10 @@ pub fn insuranceplan_plan_generalcost_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -58506,7 +59481,7 @@ pub fn insuranceplan_plan_generalcost_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InsuranceplanPlanGeneralcost(
     comment:,
     cost:,
@@ -58581,7 +59556,10 @@ pub fn insuranceplan_plan_to_json(insuranceplan_plan: InsuranceplanPlan) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -58627,7 +59605,7 @@ pub fn insuranceplan_plan_decoder() -> Decoder(InsuranceplanPlan) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InsuranceplanPlan(
     specific_cost:,
     general_cost:,
@@ -58671,7 +59649,10 @@ pub fn insuranceplan_coverage_benefit_limit_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -58699,7 +59680,7 @@ pub fn insuranceplan_coverage_benefit_limit_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InsuranceplanCoverageBenefitLimit(
     code:,
     value:,
@@ -58746,7 +59727,10 @@ pub fn insuranceplan_coverage_benefit_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -58771,7 +59755,7 @@ pub fn insuranceplan_coverage_benefit_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InsuranceplanCoverageBenefit(
     limit:,
     requirement:,
@@ -58812,7 +59796,10 @@ pub fn insuranceplan_coverage_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -58838,7 +59825,7 @@ pub fn insuranceplan_coverage_decoder() -> Decoder(InsuranceplanCoverage) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InsuranceplanCoverage(
     benefit:,
     network:,
@@ -58889,7 +59876,10 @@ pub fn insuranceplan_contact_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -58925,7 +59915,7 @@ pub fn insuranceplan_contact_decoder() -> Decoder(InsuranceplanContact) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InsuranceplanContact(
     address:,
     telecom:,
@@ -59051,7 +60041,10 @@ pub fn insuranceplan_to_json(insuranceplan: Insuranceplan) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("InsurancePlan")), ..fields]
   json.object(fields)
 }
@@ -59146,7 +60139,7 @@ pub fn insuranceplan_decoder() -> Decoder(Insuranceplan) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -59182,7 +60175,7 @@ pub fn insuranceplan_decoder() -> Decoder(Insuranceplan) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Invoice#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Invoice#resource)
 pub type Invoice {
   Invoice(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -59234,14 +60227,14 @@ pub fn invoice_new() -> Invoice {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Invoice#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Invoice#resource)
 pub type InvoiceParticipant {
   InvoiceParticipant(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     role: Option(Codeableconcept),
@@ -59255,14 +60248,14 @@ pub fn invoice_participant_new(actor actor: Reference) -> InvoiceParticipant {
     role: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Invoice#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Invoice#resource)
 pub type InvoiceLineitem {
   InvoiceLineitem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     sequence: Primitive(Int),
@@ -59312,14 +60305,14 @@ pub fn invoice_lineitem_new(
     sequence: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Invoice#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Invoice#resource)
 pub type InvoiceLineitemPricecomponent {
   InvoiceLineitemPricecomponent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Invoicepricecomponenttype),
@@ -59337,7 +60330,7 @@ pub fn invoice_lineitem_pricecomponent_new() -> InvoiceLineitemPricecomponent {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -59381,7 +60374,10 @@ pub fn invoice_lineitem_pricecomponent_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -59414,7 +60410,7 @@ pub fn invoice_lineitem_pricecomponent_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InvoiceLineitemPricecomponent(
     amount:,
     factor:,
@@ -59467,7 +60463,10 @@ pub fn invoice_lineitem_to_json(invoice_lineitem: InvoiceLineitem) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -59490,7 +60489,7 @@ pub fn invoice_lineitem_decoder() -> Decoder(InvoiceLineitem) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InvoiceLineitem(
     price_component:,
     charge_item:,
@@ -59524,7 +60523,10 @@ pub fn invoice_participant_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -59546,7 +60548,7 @@ pub fn invoice_participant_decoder() -> Decoder(InvoiceParticipant) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(InvoiceParticipant(
     actor:,
     role:,
@@ -59685,7 +60687,10 @@ pub fn invoice_to_json(invoice: Invoice) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Invoice")), ..fields]
   json.object(fields)
 }
@@ -59786,7 +60791,7 @@ pub fn invoice_decoder() -> Decoder(Invoice) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -59824,7 +60829,7 @@ pub fn invoice_decoder() -> Decoder(Invoice) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Library#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Library#resource)
 pub type Library {
   Library(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -59934,7 +60939,7 @@ pub fn library_new(type_ type_: Codeableconcept) -> Library {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -60130,7 +61135,10 @@ pub fn library_to_json(library: Library) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Library")), ..fields]
   json.object(fields)
 }
@@ -60254,7 +61262,7 @@ pub fn library_decoder() -> Decoder(Library) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -60307,7 +61315,7 @@ pub fn library_decoder() -> Decoder(Library) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Linkage#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Linkage#resource)
 pub type Linkage {
   Linkage(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -60333,14 +61341,14 @@ pub fn linkage_new(item item: List1(LinkageItem)) -> Linkage {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Linkage#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Linkage#resource)
 pub type LinkageItem {
   LinkageItem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Linkagetype),
@@ -60354,7 +61362,7 @@ pub fn linkage_item_new(resource resource: Reference) -> LinkageItem {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -60382,7 +61390,10 @@ pub fn linkage_item_to_json(linkage_item: LinkageItem) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -60400,7 +61411,7 @@ pub fn linkage_item_decoder() -> Decoder(LinkageItem) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(LinkageItem(
     resource:,
     type_:,
@@ -60458,7 +61469,10 @@ pub fn linkage_to_json(linkage: Linkage) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Linkage")), ..fields]
   json.object(fields)
 }
@@ -60499,7 +61513,7 @@ pub fn linkage_decoder() -> Decoder(Linkage) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -60524,7 +61538,7 @@ pub fn linkage_decoder() -> Decoder(Linkage) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/List#resource](http://hl7.org/fhir/r4usp/StructureDefinition/List#resource)
 pub type Listfhir {
   Listfhir(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -60570,14 +61584,14 @@ pub fn listfhir_new() -> Listfhir {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/List#resource](http://hl7.org/fhir/r4usp/StructureDefinition/List#resource)
 pub type ListEntry {
   ListEntry(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     flag: Option(Codeableconcept),
@@ -60595,7 +61609,7 @@ pub fn list_entry_new(item item: Reference) -> ListEntry {
     flag: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -60629,7 +61643,10 @@ pub fn list_entry_to_json(list_entry: ListEntry) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -60653,7 +61670,7 @@ pub fn list_entry_decoder() -> Decoder(ListEntry) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ListEntry(
     item:,
     date:,
@@ -60763,7 +61780,10 @@ pub fn listfhir_to_json(listfhir: Listfhir) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("List")), ..fields]
   json.object(fields)
 }
@@ -60849,7 +61869,7 @@ pub fn listfhir_decoder() -> Decoder(Listfhir) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -60884,7 +61904,7 @@ pub fn listfhir_decoder() -> Decoder(Listfhir) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Location#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Location#resource)
 pub type Location {
   Location(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -60938,14 +61958,14 @@ pub fn location_new() -> Location {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Location#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Location#resource)
 pub type LocationPosition {
   LocationPosition(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     longitude: Primitive(Float),
@@ -60961,14 +61981,14 @@ pub fn location_position_new() -> LocationPosition {
     longitude: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Location#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Location#resource)
 pub type LocationHoursofoperation {
   LocationHoursofoperation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     days_of_week: List(Primitive(r4usp_valuesets.Daysofweek)),
@@ -60986,7 +62006,7 @@ pub fn location_hoursofoperation_new() -> LocationHoursofoperation {
     days_of_week: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -61026,7 +62046,10 @@ pub fn location_hoursofoperation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -61049,7 +62072,7 @@ pub fn location_hoursofoperation_decoder() -> Decoder(LocationHoursofoperation) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(LocationHoursofoperation(
     closing_time:,
     opening_time:,
@@ -61085,7 +62108,10 @@ pub fn location_position_to_json(location_position: LocationPosition) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -61104,7 +62130,7 @@ pub fn location_position_decoder() -> Decoder(LocationPosition) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(LocationPosition(
     altitude:,
     latitude:,
@@ -61245,7 +62271,10 @@ pub fn location_to_json(location: Location) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Location")), ..fields]
   json.object(fields)
 }
@@ -61346,7 +62375,7 @@ pub fn location_decoder() -> Decoder(Location) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -61385,7 +62414,7 @@ pub fn location_decoder() -> Decoder(Location) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource)
 pub type Measure {
   Measure(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -61515,14 +62544,14 @@ pub fn measure_new() -> Measure {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource)
 pub type MeasureGroup {
   MeasureGroup(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -61540,14 +62569,14 @@ pub fn measure_group_new() -> MeasureGroup {
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource)
 pub type MeasureGroupPopulation {
   MeasureGroupPopulation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -61565,14 +62594,14 @@ pub fn measure_group_population_new(
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource)
 pub type MeasureGroupStratifier {
   MeasureGroupStratifier(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -61590,14 +62619,14 @@ pub fn measure_group_stratifier_new() -> MeasureGroupStratifier {
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource)
 pub type MeasureGroupStratifierComponent {
   MeasureGroupStratifierComponent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -61615,14 +62644,14 @@ pub fn measure_group_stratifier_component_new(
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Measure#resource)
 pub type MeasureSupplementaldata {
   MeasureSupplementaldata(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -61642,7 +62671,7 @@ pub fn measure_supplementaldata_new(
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -61682,7 +62711,10 @@ pub fn measure_supplementaldata_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -61710,7 +62742,7 @@ pub fn measure_supplementaldata_decoder() -> Decoder(MeasureSupplementaldata) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasureSupplementaldata(
     criteria:,
     description:,
@@ -61753,7 +62785,10 @@ pub fn measure_group_stratifier_component_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -61778,7 +62813,7 @@ pub fn measure_group_stratifier_component_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasureGroupStratifierComponent(
     criteria:,
     description:,
@@ -61833,7 +62868,10 @@ pub fn measure_group_stratifier_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -61865,7 +62903,7 @@ pub fn measure_group_stratifier_decoder() -> Decoder(MeasureGroupStratifier) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasureGroupStratifier(
     component:,
     criteria:,
@@ -61908,7 +62946,10 @@ pub fn measure_group_population_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -61931,7 +62972,7 @@ pub fn measure_group_population_decoder() -> Decoder(MeasureGroupPopulation) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasureGroupPopulation(
     criteria:,
     description:,
@@ -61984,7 +63025,10 @@ pub fn measure_group_to_json(measure_group: MeasureGroup) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -62016,7 +63060,7 @@ pub fn measure_group_decoder() -> Decoder(MeasureGroup) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasureGroup(
     stratifier:,
     population:,
@@ -62253,7 +63297,10 @@ pub fn measure_to_json(measure: Measure) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Measure")), ..fields]
   json.object(fields)
 }
@@ -62402,7 +63449,7 @@ pub fn measure_decoder() -> Decoder(Measure) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -62465,7 +63512,7 @@ pub fn measure_decoder() -> Decoder(Measure) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource)
 pub type Measurereport {
   Measurereport(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -62507,14 +63554,14 @@ pub fn measurereport_new(period period: Period) -> Measurereport {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroup {
   MeasurereportGroup(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -62532,14 +63579,14 @@ pub fn measurereport_group_new() -> MeasurereportGroup {
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupPopulation {
   MeasurereportGroupPopulation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -62555,14 +63602,14 @@ pub fn measurereport_group_population_new() -> MeasurereportGroupPopulation {
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifier {
   MeasurereportGroupStratifier(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: List(Codeableconcept),
@@ -62576,14 +63623,14 @@ pub fn measurereport_group_stratifier_new() -> MeasurereportGroupStratifier {
     code: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifierStratum {
   MeasurereportGroupStratifierStratum(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     value: Option(Codeableconcept),
@@ -62601,14 +63648,14 @@ pub fn measurereport_group_stratifier_stratum_new() -> MeasurereportGroupStratif
     value: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifierStratumComponent {
   MeasurereportGroupStratifierStratumComponent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -62625,14 +63672,14 @@ pub fn measurereport_group_stratifier_stratum_component_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MeasureReport#resource)
 pub type MeasurereportGroupStratifierStratumPopulation {
   MeasurereportGroupStratifierStratumPopulation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -62648,7 +63695,7 @@ pub fn measurereport_group_stratifier_stratum_population_new() -> MeasurereportG
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -62684,7 +63731,10 @@ pub fn measurereport_group_stratifier_stratum_population_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -62713,7 +63763,7 @@ pub fn measurereport_group_stratifier_stratum_population_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasurereportGroupStratifierStratumPopulation(
     subject_results:,
     count:,
@@ -62749,7 +63799,10 @@ pub fn measurereport_group_stratifier_stratum_component_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -62769,7 +63822,7 @@ pub fn measurereport_group_stratifier_stratum_component_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasurereportGroupStratifierStratumComponent(
     value:,
     code:,
@@ -62837,7 +63890,10 @@ pub fn measurereport_group_stratifier_stratum_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -62875,7 +63931,7 @@ pub fn measurereport_group_stratifier_stratum_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasurereportGroupStratifierStratum(
     measure_score:,
     population:,
@@ -62923,7 +63979,10 @@ pub fn measurereport_group_stratifier_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -62951,7 +64010,7 @@ pub fn measurereport_group_stratifier_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasurereportGroupStratifier(
     stratum:,
     code:,
@@ -62993,7 +64052,10 @@ pub fn measurereport_group_population_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -63022,7 +64084,7 @@ pub fn measurereport_group_population_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasurereportGroupPopulation(
     subject_results:,
     count:,
@@ -63085,7 +64147,10 @@ pub fn measurereport_group_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -63121,7 +64186,7 @@ pub fn measurereport_group_decoder() -> Decoder(MeasurereportGroup) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MeasurereportGroup(
     stratifier:,
     measure_score:,
@@ -63227,7 +64292,10 @@ pub fn measurereport_to_json(measurereport: Measurereport) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("MeasureReport")), ..fields]
   json.object(fields)
 }
@@ -63302,7 +64370,7 @@ pub fn measurereport_decoder() -> Decoder(Measurereport) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -63335,7 +64403,7 @@ pub fn measurereport_decoder() -> Decoder(Measurereport) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Media#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Media#resource)
 pub type Media {
   Media(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -63423,7 +64491,7 @@ pub fn media_new(content content: Attachment) -> Media {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -63571,7 +64639,10 @@ pub fn media_to_json(media: Media) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Media")), ..fields]
   json.object(fields)
 }
@@ -63682,7 +64753,7 @@ pub fn media_decoder() -> Decoder(Media) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -63726,7 +64797,7 @@ pub fn media_decoder() -> Decoder(Media) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Medication#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Medication#resource)
 pub type Medication {
   Medication(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -63762,14 +64833,14 @@ pub fn medication_new() -> Medication {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Medication#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Medication#resource)
 pub type MedicationIngredient {
   MedicationIngredient(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     item: MedicationIngredientItem,
@@ -63815,14 +64886,14 @@ pub fn medication_ingredient_new(
     item:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Medication#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Medication#resource)
 pub type MedicationBatch {
   MedicationBatch(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     lot_number: Primitive(String),
@@ -63836,7 +64907,7 @@ pub fn medication_batch_new() -> MedicationBatch {
     lot_number: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -63868,7 +64939,10 @@ pub fn medication_batch_to_json(medication_batch: MedicationBatch) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -63889,7 +64963,7 @@ pub fn medication_batch_decoder() -> Decoder(MedicationBatch) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationBatch(
     expiration_date:,
     lot_number:,
@@ -63936,7 +65010,10 @@ pub fn medication_ingredient_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -63959,7 +65036,7 @@ pub fn medication_ingredient_decoder() -> Decoder(MedicationIngredient) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationIngredient(
     strength:,
     is_active:,
@@ -64054,7 +65131,10 @@ pub fn medication_to_json(medication: Medication) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Medication")), ..fields]
   json.object(fields)
 }
@@ -64127,7 +65207,7 @@ pub fn medication_decoder() -> Decoder(Medication) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -64157,7 +65237,7 @@ pub fn medication_decoder() -> Decoder(Medication) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationAdministration#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationAdministration#resource)
 pub type Medicationadministration {
   Medicationadministration(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -64280,14 +65360,14 @@ pub fn medicationadministration_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationAdministration#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationAdministration#resource)
 pub type MedicationadministrationPerformer {
   MedicationadministrationPerformer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
@@ -64303,14 +65383,14 @@ pub fn medicationadministration_performer_new(
     function: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationAdministration#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationAdministration#resource)
 pub type MedicationadministrationDosage {
   MedicationadministrationDosage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     text: Primitive(String),
@@ -64360,7 +65440,7 @@ pub fn medicationadministration_dosage_new() -> MedicationadministrationDosage {
     text: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -64421,7 +65501,10 @@ pub fn medicationadministration_dosage_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -64463,7 +65546,7 @@ pub fn medicationadministration_dosage_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationadministrationDosage(
     rate:,
     dose:,
@@ -64505,7 +65588,10 @@ pub fn medicationadministration_performer_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -64529,7 +65615,7 @@ pub fn medicationadministration_performer_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationadministrationPerformer(
     actor:,
     function:,
@@ -64709,7 +65795,10 @@ pub fn medicationadministration_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("MedicationAdministration")),
     ..fields
@@ -64824,7 +65913,7 @@ pub fn medicationadministration_decoder() -> Decoder(Medicationadministration) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -64868,7 +65957,7 @@ pub fn medicationadministration_decoder() -> Decoder(Medicationadministration) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationDispense#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationDispense#resource)
 pub type Medicationdispense {
   Medicationdispense(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -65003,14 +66092,14 @@ pub fn medicationdispense_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationDispense#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationDispense#resource)
 pub type MedicationdispensePerformer {
   MedicationdispensePerformer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
@@ -65026,14 +66115,14 @@ pub fn medicationdispense_performer_new(
     function: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationDispense#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationDispense#resource)
 pub type MedicationdispenseSubstitution {
   MedicationdispenseSubstitution(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     was_substituted: Primitive(Bool),
@@ -65051,7 +66140,7 @@ pub fn medicationdispense_substitution_new() -> MedicationdispenseSubstitution {
     was_substituted: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -65096,7 +66185,10 @@ pub fn medicationdispense_substitution_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -65130,7 +66222,7 @@ pub fn medicationdispense_substitution_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationdispenseSubstitution(
     responsible_party:,
     reason:,
@@ -65170,7 +66262,10 @@ pub fn medicationdispense_performer_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -65194,7 +66289,7 @@ pub fn medicationdispense_performer_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationdispensePerformer(
     actor:,
     function:,
@@ -65418,7 +66513,10 @@ pub fn medicationdispense_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("MedicationDispense")), ..fields]
   json.object(fields)
 }
@@ -65560,7 +66658,7 @@ pub fn medicationdispense_decoder() -> Decoder(Medicationdispense) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -65606,7 +66704,7 @@ pub fn medicationdispense_decoder() -> Decoder(Medicationdispense) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type Medicationknowledge {
   Medicationknowledge(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -65672,14 +66770,14 @@ pub fn medicationknowledge_new() -> Medicationknowledge {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeRelatedmedicationknowledge {
   MedicationknowledgeRelatedmedicationknowledge(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -65696,14 +66794,14 @@ pub fn medicationknowledge_relatedmedicationknowledge_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeMonograph {
   MedicationknowledgeMonograph(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -65717,14 +66815,14 @@ pub fn medicationknowledge_monograph_new() -> MedicationknowledgeMonograph {
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeIngredient {
   MedicationknowledgeIngredient(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     item: MedicationknowledgeIngredientItem,
@@ -65775,14 +66873,14 @@ pub fn medicationknowledge_ingredient_new(
     item:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeCost {
   MedicationknowledgeCost(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -65801,14 +66899,14 @@ pub fn medicationknowledge_cost_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeMonitoringprogram {
   MedicationknowledgeMonitoringprogram(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -65822,14 +66920,14 @@ pub fn medicationknowledge_monitoringprogram_new() -> MedicationknowledgeMonitor
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeAdministrationguidelines {
   MedicationknowledgeAdministrationguidelines(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     dosage: List(MedicationknowledgeAdministrationguidelinesDosage),
@@ -65889,14 +66987,14 @@ pub fn medicationknowledge_administrationguidelines_new() -> Medicationknowledge
     dosage: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeAdministrationguidelinesDosage {
   MedicationknowledgeAdministrationguidelinesDosage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -65913,14 +67011,14 @@ pub fn medicationknowledge_administrationguidelines_dosage_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeAdministrationguidelinesPatientcharacteristics {
   MedicationknowledgeAdministrationguidelinesPatientcharacteristics(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     characteristic: MedicationknowledgeAdministrationguidelinesPatientcharacteristicsCharacteristic,
@@ -65980,14 +67078,14 @@ pub fn medicationknowledge_administrationguidelines_patientcharacteristics_new(
     characteristic:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeMedicineclassification {
   MedicationknowledgeMedicineclassification(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -66003,14 +67101,14 @@ pub fn medicationknowledge_medicineclassification_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgePackaging {
   MedicationknowledgePackaging(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -66024,14 +67122,14 @@ pub fn medicationknowledge_packaging_new() -> MedicationknowledgePackaging {
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeDrugcharacteristic {
   MedicationknowledgeDrugcharacteristic(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -66088,14 +67186,14 @@ pub fn medicationknowledge_drugcharacteristic_new() -> MedicationknowledgeDrugch
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeRegulatory {
   MedicationknowledgeRegulatory(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     regulatory_authority: Reference,
@@ -66115,14 +67213,14 @@ pub fn medicationknowledge_regulatory_new(
     regulatory_authority:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeRegulatorySubstitution {
   MedicationknowledgeRegulatorySubstitution(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -66138,14 +67236,14 @@ pub fn medicationknowledge_regulatory_substitution_new(
     type_:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeRegulatorySchedule {
   MedicationknowledgeRegulatorySchedule(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     schedule: Codeableconcept,
@@ -66159,14 +67257,14 @@ pub fn medicationknowledge_regulatory_schedule_new(
     schedule:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeRegulatoryMaxdispense {
   MedicationknowledgeRegulatoryMaxdispense(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     quantity: Quantity,
@@ -66182,14 +67280,14 @@ pub fn medicationknowledge_regulatory_maxdispense_new(
     quantity:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationKnowledge#resource)
 pub type MedicationknowledgeKinetics {
   MedicationknowledgeKinetics(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     area_under_curve: List(Quantity),
@@ -66205,7 +67303,7 @@ pub fn medicationknowledge_kinetics_new() -> MedicationknowledgeKinetics {
     area_under_curve: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -66250,7 +67348,10 @@ pub fn medicationknowledge_kinetics_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -66283,7 +67384,7 @@ pub fn medicationknowledge_kinetics_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeKinetics(
     half_life_period:,
     lethal_dose50:,
@@ -66322,7 +67423,10 @@ pub fn medicationknowledge_regulatory_maxdispense_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -66346,7 +67450,7 @@ pub fn medicationknowledge_regulatory_maxdispense_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeRegulatoryMaxdispense(
     period:,
     quantity:,
@@ -66379,7 +67483,10 @@ pub fn medicationknowledge_regulatory_schedule_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -66398,7 +67505,7 @@ pub fn medicationknowledge_regulatory_schedule_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeRegulatorySchedule(
     schedule:,
     modifier_extension:,
@@ -66432,7 +67539,10 @@ pub fn medicationknowledge_regulatory_substitution_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -66452,7 +67562,7 @@ pub fn medicationknowledge_regulatory_substitution_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeRegulatorySubstitution(
     allowed:,
     type_:,
@@ -66518,7 +67628,10 @@ pub fn medicationknowledge_regulatory_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -66555,7 +67668,7 @@ pub fn medicationknowledge_regulatory_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeRegulatory(
     max_dispense:,
     schedule:,
@@ -66611,7 +67724,10 @@ pub fn medicationknowledge_drugcharacteristic_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -66637,7 +67753,7 @@ pub fn medicationknowledge_drugcharacteristic_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeDrugcharacteristic(
     value:,
     type_:,
@@ -66677,7 +67793,10 @@ pub fn medicationknowledge_packaging_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -66705,7 +67824,7 @@ pub fn medicationknowledge_packaging_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgePackaging(
     quantity:,
     type_:,
@@ -66746,7 +67865,10 @@ pub fn medicationknowledge_medicineclassification_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -66770,7 +67892,7 @@ pub fn medicationknowledge_medicineclassification_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeMedicineclassification(
     classification:,
     type_:,
@@ -66818,7 +67940,10 @@ pub fn medicationknowledge_administrationguidelines_patientcharacteristics_to_js
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -66840,7 +67965,7 @@ pub fn medicationknowledge_administrationguidelines_patientcharacteristics_decod
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(
     MedicationknowledgeAdministrationguidelinesPatientcharacteristics(
       value:,
@@ -66877,7 +68002,10 @@ pub fn medicationknowledge_administrationguidelines_dosage_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -66897,7 +68025,7 @@ pub fn medicationknowledge_administrationguidelines_dosage_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeAdministrationguidelinesDosage(
     dosage:,
     type_:,
@@ -66973,7 +68101,10 @@ pub fn medicationknowledge_administrationguidelines_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -67008,7 +68139,7 @@ pub fn medicationknowledge_administrationguidelines_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeAdministrationguidelines(
     patient_characteristics:,
     indication:,
@@ -67046,7 +68177,10 @@ pub fn medicationknowledge_monitoringprogram_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -67070,7 +68204,7 @@ pub fn medicationknowledge_monitoringprogram_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeMonitoringprogram(
     name:,
     type_:,
@@ -67107,7 +68241,10 @@ pub fn medicationknowledge_cost_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -67126,7 +68263,7 @@ pub fn medicationknowledge_cost_decoder() -> Decoder(MedicationknowledgeCost) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeCost(
     cost:,
     source:,
@@ -67174,7 +68311,10 @@ pub fn medicationknowledge_ingredient_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -67199,7 +68339,7 @@ pub fn medicationknowledge_ingredient_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeIngredient(
     strength:,
     is_active:,
@@ -67240,7 +68380,10 @@ pub fn medicationknowledge_monograph_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -67268,7 +68411,7 @@ pub fn medicationknowledge_monograph_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeMonograph(
     source:,
     type_:,
@@ -67303,7 +68446,10 @@ pub fn medicationknowledge_relatedmedicationknowledge_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -67323,7 +68469,7 @@ pub fn medicationknowledge_relatedmedicationknowledge_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationknowledgeRelatedmedicationknowledge(
     reference:,
     type_:,
@@ -67573,7 +68719,10 @@ pub fn medicationknowledge_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("MedicationKnowledge")), ..fields]
   json.object(fields)
 }
@@ -67711,7 +68860,7 @@ pub fn medicationknowledge_decoder() -> Decoder(Medicationknowledge) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -67756,7 +68905,7 @@ pub fn medicationknowledge_decoder() -> Decoder(Medicationknowledge) {
 pub type Medicationrequest {
   Medicationrequest(
     us_core_medication_adherence: List(UsCoreMedicationAdherence),
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -67903,7 +69052,7 @@ pub fn medicationrequest_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
     us_core_medication_adherence: [],
   )
 }
@@ -67911,7 +69060,7 @@ pub fn medicationrequest_new(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationRequest#resource)
 pub type MedicationrequestDispenserequest {
   MedicationrequestDispenserequest(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     initial_fill: Option(MedicationrequestDispenserequestInitialfill),
@@ -67935,14 +69084,14 @@ pub fn medicationrequest_dispenserequest_new() -> MedicationrequestDispensereque
     initial_fill: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationRequest#resource)
 pub type MedicationrequestDispenserequestInitialfill {
   MedicationrequestDispenserequestInitialfill(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     quantity: Option(Quantity),
@@ -67956,14 +69105,14 @@ pub fn medicationrequest_dispenserequest_initialfill_new() -> MedicationrequestD
     quantity: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationRequest#resource)
 pub type MedicationrequestSubstitution {
   MedicationrequestSubstitution(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     allowed: MedicationrequestSubstitutionAllowed,
@@ -68012,7 +69161,7 @@ pub fn medicationrequest_substitution_new(
     allowed:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -68052,7 +69201,10 @@ pub fn medicationrequest_substitution_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -68076,7 +69228,7 @@ pub fn medicationrequest_substitution_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationrequestSubstitution(
     reason:,
     allowed:,
@@ -68116,7 +69268,10 @@ pub fn medicationrequest_dispenserequest_initialfill_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -68144,7 +69299,7 @@ pub fn medicationrequest_dispenserequest_initialfill_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationrequestDispenserequestInitialfill(
     duration:,
     quantity:,
@@ -68215,7 +69370,10 @@ pub fn medicationrequest_dispenserequest_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -68267,7 +69425,7 @@ pub fn medicationrequest_dispenserequest_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicationrequestDispenserequest(
     performer:,
     expected_supply_duration:,
@@ -68537,7 +69695,10 @@ pub fn medicationrequest_to_json(medicationrequest: Medicationrequest) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("MedicationRequest")), ..fields]
   json.object(fields)
 }
@@ -68705,7 +69866,7 @@ pub fn medicationrequest_decoder() -> Decoder(Medicationrequest) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   let #(us_core_medication_adherence_, extension) =
     list.fold(from: #([], []), over: extension, with: fn(acc, ext) {
       let #(a0, plain) = acc
@@ -68769,7 +69930,7 @@ pub fn medicationrequest_decoder() -> Decoder(Medicationrequest) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicationStatement#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicationStatement#resource)
 pub type Medicationstatement {
   Medicationstatement(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -68887,7 +70048,7 @@ pub fn medicationstatement_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -69046,7 +70207,10 @@ pub fn medicationstatement_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("MedicationStatement")), ..fields]
   json.object(fields)
 }
@@ -69150,7 +70314,7 @@ pub fn medicationstatement_decoder() -> Decoder(Medicationstatement) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -69192,7 +70356,7 @@ pub fn medicationstatement_decoder() -> Decoder(Medicationstatement) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource)
 pub type Medicinalproduct {
   Medicinalproduct(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -69256,14 +70420,14 @@ pub fn medicinalproduct_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource)
 pub type MedicinalproductName {
   MedicinalproductName(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     product_name: Primitive(String),
@@ -69279,14 +70443,14 @@ pub fn medicinalproduct_name_new() -> MedicinalproductName {
     product_name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource)
 pub type MedicinalproductNameNamepart {
   MedicinalproductNameNamepart(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     part: Primitive(String),
@@ -69302,14 +70466,14 @@ pub fn medicinalproduct_name_namepart_new(
     part: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource)
 pub type MedicinalproductNameCountrylanguage {
   MedicinalproductNameCountrylanguage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     country: Codeableconcept,
@@ -69328,14 +70492,14 @@ pub fn medicinalproduct_name_countrylanguage_new(
     country:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource)
 pub type MedicinalproductManufacturingbusinessoperation {
   MedicinalproductManufacturingbusinessoperation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     operation_type: Option(Codeableconcept),
@@ -69357,14 +70521,14 @@ pub fn medicinalproduct_manufacturingbusinessoperation_new() -> Medicinalproduct
     operation_type: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProduct#resource)
 pub type MedicinalproductSpecialdesignation {
   MedicinalproductSpecialdesignation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
@@ -69424,7 +70588,7 @@ pub fn medicinalproduct_specialdesignation_new() -> MedicinalproductSpecialdesig
     identifier: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -69492,7 +70656,10 @@ pub fn medicinalproduct_specialdesignation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -69539,7 +70706,7 @@ pub fn medicinalproduct_specialdesignation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductSpecialdesignation(
     species:,
     date:,
@@ -69616,7 +70783,10 @@ pub fn medicinalproduct_manufacturingbusinessoperation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -69663,7 +70833,7 @@ pub fn medicinalproduct_manufacturingbusinessoperation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductManufacturingbusinessoperation(
     regulator:,
     manufacturer:,
@@ -69707,7 +70877,10 @@ pub fn medicinalproduct_name_countrylanguage_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -69732,7 +70905,7 @@ pub fn medicinalproduct_name_countrylanguage_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductNameCountrylanguage(
     language:,
     jurisdiction:,
@@ -69768,7 +70941,10 @@ pub fn medicinalproduct_name_namepart_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -69788,7 +70964,7 @@ pub fn medicinalproduct_name_namepart_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductNameNamepart(
     type_:,
     part:,
@@ -69846,7 +71022,10 @@ pub fn medicinalproduct_name_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -69873,7 +71052,7 @@ pub fn medicinalproduct_name_decoder() -> Decoder(MedicinalproductName) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductName(
     country_language:,
     name_part:,
@@ -70078,7 +71257,10 @@ pub fn medicinalproduct_to_json(medicinalproduct: Medicinalproduct) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("MedicinalProduct")), ..fields]
   json.object(fields)
 }
@@ -70204,7 +71386,7 @@ pub fn medicinalproduct_decoder() -> Decoder(Medicinalproduct) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -70246,7 +71428,7 @@ pub fn medicinalproduct_decoder() -> Decoder(Medicinalproduct) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductAuthorization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductAuthorization#resource)
 pub type Medicinalproductauthorization {
   Medicinalproductauthorization(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -70300,14 +71482,14 @@ pub fn medicinalproductauthorization_new() -> Medicinalproductauthorization {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductAuthorization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductAuthorization#resource)
 pub type MedicinalproductauthorizationJurisdictionalauthorization {
   MedicinalproductauthorizationJurisdictionalauthorization(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
@@ -70327,14 +71509,14 @@ pub fn medicinalproductauthorization_jurisdictionalauthorization_new() -> Medici
     identifier: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductAuthorization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductAuthorization#resource)
 pub type MedicinalproductauthorizationProcedure {
   MedicinalproductauthorizationProcedure(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
@@ -70383,7 +71565,7 @@ pub fn medicinalproductauthorization_procedure_new(
     identifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -70441,7 +71623,10 @@ pub fn medicinalproductauthorization_procedure_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -70473,7 +71658,7 @@ pub fn medicinalproductauthorization_procedure_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductauthorizationProcedure(
     application:,
     date:,
@@ -70533,7 +71718,10 @@ pub fn medicinalproductauthorization_jurisdictionalauthorization_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -70576,7 +71764,7 @@ pub fn medicinalproductauthorization_jurisdictionalauthorization_decoder() -> De
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductauthorizationJurisdictionalauthorization(
     validity_period:,
     legal_status_of_supply:,
@@ -70726,7 +71914,10 @@ pub fn medicinalproductauthorization_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("MedicinalProductAuthorization")),
     ..fields
@@ -70837,7 +72028,7 @@ pub fn medicinalproductauthorization_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -70875,7 +72066,7 @@ pub fn medicinalproductauthorization_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductContraindication#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductContraindication#resource)
 pub type Medicinalproductcontraindication {
   Medicinalproductcontraindication(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -70909,14 +72100,14 @@ pub fn medicinalproductcontraindication_new() -> Medicinalproductcontraindicatio
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductContraindication#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductContraindication#resource)
 pub type MedicinalproductcontraindicationOthertherapy {
   MedicinalproductcontraindicationOthertherapy(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     therapy_relationship_type: Codeableconcept,
@@ -70975,7 +72166,7 @@ pub fn medicinalproductcontraindication_othertherapy_new(
     therapy_relationship_type:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -71018,7 +72209,10 @@ pub fn medicinalproductcontraindication_othertherapy_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -71043,7 +72237,7 @@ pub fn medicinalproductcontraindication_othertherapy_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductcontraindicationOthertherapy(
     medication:,
     therapy_relationship_type:,
@@ -71146,7 +72340,10 @@ pub fn medicinalproductcontraindication_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("MedicinalProductContraindication")),
     ..fields
@@ -71220,7 +72417,7 @@ pub fn medicinalproductcontraindication_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -71249,7 +72446,7 @@ pub fn medicinalproductcontraindication_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIndication#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIndication#resource)
 pub type Medicinalproductindication {
   Medicinalproductindication(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -71287,14 +72484,14 @@ pub fn medicinalproductindication_new() -> Medicinalproductindication {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIndication#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIndication#resource)
 pub type MedicinalproductindicationOthertherapy {
   MedicinalproductindicationOthertherapy(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     therapy_relationship_type: Codeableconcept,
@@ -71351,7 +72548,7 @@ pub fn medicinalproductindication_othertherapy_new(
     therapy_relationship_type:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -71392,7 +72589,10 @@ pub fn medicinalproductindication_othertherapy_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -71417,7 +72617,7 @@ pub fn medicinalproductindication_othertherapy_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductindicationOthertherapy(
     medication:,
     therapy_relationship_type:,
@@ -71530,7 +72730,10 @@ pub fn medicinalproductindication_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("MedicinalProductIndication")),
     ..fields
@@ -71614,7 +72817,7 @@ pub fn medicinalproductindication_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -71645,7 +72848,7 @@ pub fn medicinalproductindication_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIngredient#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIngredient#resource)
 pub type Medicinalproductingredient {
   Medicinalproductingredient(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -71679,14 +72882,14 @@ pub fn medicinalproductingredient_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIngredient#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIngredient#resource)
 pub type MedicinalproductingredientSpecifiedsubstance {
   MedicinalproductingredientSpecifiedsubstance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -71707,14 +72910,14 @@ pub fn medicinalproductingredient_specifiedsubstance_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIngredient#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIngredient#resource)
 pub type MedicinalproductingredientSpecifiedsubstanceStrength {
   MedicinalproductingredientSpecifiedsubstanceStrength(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     presentation: Ratio,
@@ -71742,14 +72945,14 @@ pub fn medicinalproductingredient_specifiedsubstance_strength_new(
     presentation:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIngredient#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIngredient#resource)
 pub type MedicinalproductingredientSpecifiedsubstanceStrengthReferencestrength {
   MedicinalproductingredientSpecifiedsubstanceStrengthReferencestrength(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     substance: Option(Codeableconcept),
@@ -71771,14 +72974,14 @@ pub fn medicinalproductingredient_specifiedsubstance_strength_referencestrength_
     substance: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIngredient#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductIngredient#resource)
 pub type MedicinalproductingredientSubstance {
   MedicinalproductingredientSubstance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -71794,7 +72997,7 @@ pub fn medicinalproductingredient_substance_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -71835,7 +73038,10 @@ pub fn medicinalproductingredient_substance_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -71861,7 +73067,7 @@ pub fn medicinalproductingredient_substance_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductingredientSubstance(
     strength:,
     code:,
@@ -71917,7 +73123,10 @@ pub fn medicinalproductingredient_specifiedsubstance_strength_referencestrength_
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -71952,7 +73161,7 @@ pub fn medicinalproductingredient_specifiedsubstance_strength_referencestrength_
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(
     MedicinalproductingredientSpecifiedsubstanceStrengthReferencestrength(
       country:,
@@ -72032,7 +73241,10 @@ pub fn medicinalproductingredient_specifiedsubstance_strength_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -72079,7 +73291,7 @@ pub fn medicinalproductingredient_specifiedsubstance_strength_decoder() -> Decod
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductingredientSpecifiedsubstanceStrength(
     reference_strength:,
     country:,
@@ -72138,7 +73350,10 @@ pub fn medicinalproductingredient_specifiedsubstance_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -72170,7 +73385,7 @@ pub fn medicinalproductingredient_specifiedsubstance_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductingredientSpecifiedsubstance(
     strength:,
     confidentiality:,
@@ -72268,7 +73483,10 @@ pub fn medicinalproductingredient_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("MedicinalProductIngredient")),
     ..fields
@@ -72332,7 +73550,7 @@ pub fn medicinalproductingredient_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -72360,7 +73578,7 @@ pub fn medicinalproductingredient_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductInteraction#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductInteraction#resource)
 pub type Medicinalproductinteraction {
   Medicinalproductinteraction(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -72394,14 +73612,14 @@ pub fn medicinalproductinteraction_new() -> Medicinalproductinteraction {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductInteraction#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductInteraction#resource)
 pub type MedicinalproductinteractionInteractant {
   MedicinalproductinteractionInteractant(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     item: MedicinalproductinteractionInteractantItem,
@@ -72451,7 +73669,7 @@ pub fn medicinalproductinteraction_interactant_new(
     item:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -72486,7 +73704,10 @@ pub fn medicinalproductinteraction_interactant_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -72507,7 +73728,7 @@ pub fn medicinalproductinteraction_interactant_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductinteractionInteractant(
     item:,
     modifier_extension:,
@@ -72595,7 +73816,10 @@ pub fn medicinalproductinteraction_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("MedicinalProductInteraction")),
     ..fields
@@ -72665,7 +73889,7 @@ pub fn medicinalproductinteraction_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -72694,7 +73918,7 @@ pub fn medicinalproductinteraction_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductManufactured#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductManufactured#resource)
 pub type Medicinalproductmanufactured {
   Medicinalproductmanufactured(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -72731,7 +73955,7 @@ pub fn medicinalproductmanufactured_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -72817,7 +74041,10 @@ pub fn medicinalproductmanufactured_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("MedicinalProductManufactured")),
     ..fields
@@ -72886,7 +74113,7 @@ pub fn medicinalproductmanufactured_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -72918,7 +74145,7 @@ pub fn medicinalproductmanufactured_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPackaged#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPackaged#resource)
 pub type Medicinalproductpackaged {
   Medicinalproductpackaged(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -72958,14 +74185,14 @@ pub fn medicinalproductpackaged_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPackaged#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPackaged#resource)
 pub type MedicinalproductpackagedBatchidentifier {
   MedicinalproductpackagedBatchidentifier(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     outer_packaging: Identifier,
@@ -72981,14 +74208,14 @@ pub fn medicinalproductpackaged_batchidentifier_new(
     outer_packaging:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPackaged#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPackaged#resource)
 pub type MedicinalproductpackagedPackageitem {
   MedicinalproductpackagedPackageitem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
@@ -73025,7 +74252,7 @@ pub fn medicinalproductpackaged_packageitem_new(
     identifier: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -73140,7 +74367,10 @@ pub fn medicinalproductpackaged_packageitem_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -73210,7 +74440,7 @@ pub fn medicinalproductpackaged_packageitem_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductpackagedPackageitem(
     manufacturer:,
     shelf_life_storage:,
@@ -73258,7 +74488,10 @@ pub fn medicinalproductpackaged_batchidentifier_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -73282,7 +74515,7 @@ pub fn medicinalproductpackaged_batchidentifier_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductpackagedBatchidentifier(
     immediate_packaging:,
     outer_packaging:,
@@ -73394,7 +74627,10 @@ pub fn medicinalproductpackaged_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("MedicinalProductPackaged")),
     ..fields
@@ -73471,7 +74707,7 @@ pub fn medicinalproductpackaged_decoder() -> Decoder(Medicinalproductpackaged) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -73502,7 +74738,7 @@ pub fn medicinalproductpackaged_decoder() -> Decoder(Medicinalproductpackaged) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPharmaceutical#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPharmaceutical#resource)
 pub type Medicinalproductpharmaceutical {
   Medicinalproductpharmaceutical(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -73543,14 +74779,14 @@ pub fn medicinalproductpharmaceutical_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPharmaceutical#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPharmaceutical#resource)
 pub type MedicinalproductpharmaceuticalCharacteristics {
   MedicinalproductpharmaceuticalCharacteristics(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -73566,14 +74802,14 @@ pub fn medicinalproductpharmaceutical_characteristics_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPharmaceutical#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPharmaceutical#resource)
 pub type MedicinalproductpharmaceuticalRouteofadministration {
   MedicinalproductpharmaceuticalRouteofadministration(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -73601,14 +74837,14 @@ pub fn medicinalproductpharmaceutical_routeofadministration_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPharmaceutical#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPharmaceutical#resource)
 pub type MedicinalproductpharmaceuticalRouteofadministrationTargetspecies {
   MedicinalproductpharmaceuticalRouteofadministrationTargetspecies(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -73626,14 +74862,14 @@ pub fn medicinalproductpharmaceutical_routeofadministration_targetspecies_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPharmaceutical#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductPharmaceutical#resource)
 pub type MedicinalproductpharmaceuticalRouteofadministrationTargetspeciesWithdrawalperiod {
   MedicinalproductpharmaceuticalRouteofadministrationTargetspeciesWithdrawalperiod(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     tissue: Codeableconcept,
@@ -73652,7 +74888,7 @@ pub fn medicinalproductpharmaceutical_routeofadministration_targetspecies_withdr
     tissue:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -73690,7 +74926,10 @@ pub fn medicinalproductpharmaceutical_routeofadministration_targetspecies_withdr
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -73714,7 +74953,7 @@ pub fn medicinalproductpharmaceutical_routeofadministration_targetspecies_withdr
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(
     MedicinalproductpharmaceuticalRouteofadministrationTargetspeciesWithdrawalperiod(
       supporting_information:,
@@ -73764,7 +75003,10 @@ pub fn medicinalproductpharmaceutical_routeofadministration_targetspecies_to_jso
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -73790,7 +75032,7 @@ pub fn medicinalproductpharmaceutical_routeofadministration_targetspecies_decode
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(
     MedicinalproductpharmaceuticalRouteofadministrationTargetspecies(
       withdrawal_period:,
@@ -73864,7 +75106,10 @@ pub fn medicinalproductpharmaceutical_routeofadministration_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -73915,7 +75160,7 @@ pub fn medicinalproductpharmaceutical_routeofadministration_decoder() -> Decoder
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductpharmaceuticalRouteofadministration(
     target_species:,
     max_treatment_period:,
@@ -73958,7 +75203,10 @@ pub fn medicinalproductpharmaceutical_characteristics_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -73982,7 +75230,7 @@ pub fn medicinalproductpharmaceutical_characteristics_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MedicinalproductpharmaceuticalCharacteristics(
     status:,
     code:,
@@ -74077,7 +75325,10 @@ pub fn medicinalproductpharmaceutical_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("MedicinalProductPharmaceutical")),
     ..fields
@@ -74149,7 +75400,7 @@ pub fn medicinalproductpharmaceutical_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -74184,7 +75435,7 @@ pub fn medicinalproductpharmaceutical_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductUndesirableEffect#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MedicinalProductUndesirableEffect#resource)
 pub type Medicinalproductundesirableeffect {
   Medicinalproductundesirableeffect(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -74214,7 +75465,7 @@ pub fn medicinalproductundesirableeffect_new() -> Medicinalproductundesirableeff
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -74289,7 +75540,10 @@ pub fn medicinalproductundesirableeffect_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("MedicinalProductUndesirableEffect")),
     ..fields
@@ -74353,7 +75607,7 @@ pub fn medicinalproductundesirableeffect_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -74380,7 +75634,7 @@ pub fn medicinalproductundesirableeffect_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MessageDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MessageDefinition#resource)
 pub type Messagedefinition {
   Messagedefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -74474,14 +75728,14 @@ pub fn messagedefinition_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MessageDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MessageDefinition#resource)
 pub type MessagedefinitionFocus {
   MessagedefinitionFocus(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(r4usp_valuesets.Resourcetypes),
@@ -74499,14 +75753,14 @@ pub fn messagedefinition_focus_new() -> MessagedefinitionFocus {
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MessageDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MessageDefinition#resource)
 pub type MessagedefinitionAllowedresponse {
   MessagedefinitionAllowedresponse(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     message: Primitive(String),
@@ -74520,7 +75774,7 @@ pub fn messagedefinition_allowedresponse_new() -> MessagedefinitionAllowedrespon
     message: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -74548,7 +75802,10 @@ pub fn messagedefinition_allowedresponse_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -74568,7 +75825,7 @@ pub fn messagedefinition_allowedresponse_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MessagedefinitionAllowedresponse(
     situation:,
     message:,
@@ -74612,7 +75869,10 @@ pub fn messagedefinition_focus_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -74632,7 +75892,7 @@ pub fn messagedefinition_focus_decoder() -> Decoder(MessagedefinitionFocus) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MessagedefinitionFocus(
     max:,
     min:,
@@ -74791,7 +76051,10 @@ pub fn messagedefinition_to_json(messagedefinition: Messagedefinition) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("MessageDefinition")), ..fields]
   json.object(fields)
 }
@@ -74882,7 +76145,7 @@ pub fn messagedefinition_decoder() -> Decoder(Messagedefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -74928,7 +76191,7 @@ pub fn messagedefinition_decoder() -> Decoder(Messagedefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MessageHeader#resource)
 pub type Messageheader {
   Messageheader(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -74997,14 +76260,14 @@ pub fn messageheader_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MessageHeader#resource)
 pub type MessageheaderDestination {
   MessageheaderDestination(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -75022,14 +76285,14 @@ pub fn messageheader_destination_new() -> MessageheaderDestination {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MessageHeader#resource)
 pub type MessageheaderSource {
   MessageheaderSource(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -75049,14 +76312,14 @@ pub fn messageheader_source_new() -> MessageheaderSource {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MessageHeader#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MessageHeader#resource)
 pub type MessageheaderResponse {
   MessageheaderResponse(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Primitive(String),
@@ -75072,7 +76335,7 @@ pub fn messageheader_response_new() -> MessageheaderResponse {
     identifier: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -75111,7 +76374,10 @@ pub fn messageheader_response_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -75134,7 +76400,7 @@ pub fn messageheader_response_decoder() -> Decoder(MessageheaderResponse) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MessageheaderResponse(
     details:,
     code:,
@@ -75178,7 +76444,10 @@ pub fn messageheader_source_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -75203,7 +76472,7 @@ pub fn messageheader_source_decoder() -> Decoder(MessageheaderSource) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MessageheaderSource(
     endpoint:,
     contact:,
@@ -75250,7 +76519,10 @@ pub fn messageheader_destination_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -75278,7 +76550,7 @@ pub fn messageheader_destination_decoder() -> Decoder(MessageheaderDestination) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MessageheaderDestination(
     receiver:,
     endpoint:,
@@ -75388,7 +76660,10 @@ pub fn messageheader_to_json(messageheader: Messageheader) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("MessageHeader")), ..fields]
   json.object(fields)
 }
@@ -75465,7 +76740,7 @@ pub fn messageheader_decoder() -> Decoder(Messageheader) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -75498,7 +76773,7 @@ pub fn messageheader_decoder() -> Decoder(Messageheader) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource)
 pub type Molecularsequence {
   Molecularsequence(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -75550,14 +76825,14 @@ pub fn molecularsequence_new() -> Molecularsequence {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceReferenceseq {
   MolecularsequenceReferenceseq(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     chromosome: Option(Codeableconcept),
@@ -75585,14 +76860,14 @@ pub fn molecularsequence_referenceseq_new() -> MolecularsequenceReferenceseq {
     chromosome: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceVariant {
   MolecularsequenceVariant(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     start: Primitive(Int),
@@ -75614,14 +76889,14 @@ pub fn molecularsequence_variant_new() -> MolecularsequenceVariant {
     start: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceQuality {
   MolecularsequenceQuality(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Qualitytype),
@@ -75661,14 +76936,14 @@ pub fn molecularsequence_quality_new() -> MolecularsequenceQuality {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceQualityRoc {
   MolecularsequenceQualityRoc(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     score: List(Primitive(Int)),
@@ -75692,14 +76967,14 @@ pub fn molecularsequence_quality_roc_new() -> MolecularsequenceQualityRoc {
     score: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceRepository {
   MolecularsequenceRepository(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Repositorytype),
@@ -75721,14 +76996,14 @@ pub fn molecularsequence_repository_new() -> MolecularsequenceRepository {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceStructurevariant {
   MolecularsequenceStructurevariant(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     variant_type: Option(Codeableconcept),
@@ -75748,14 +77023,14 @@ pub fn molecularsequence_structurevariant_new() -> MolecularsequenceStructurevar
     variant_type: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceStructurevariantOuter {
   MolecularsequenceStructurevariantOuter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     start: Primitive(Int),
@@ -75769,14 +77044,14 @@ pub fn molecularsequence_structurevariant_outer_new() -> MolecularsequenceStruct
     start: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource](http://hl7.org/fhir/r4usp/StructureDefinition/MolecularSequence#resource)
 pub type MolecularsequenceStructurevariantInner {
   MolecularsequenceStructurevariantInner(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     start: Primitive(Int),
@@ -75790,7 +77065,7 @@ pub fn molecularsequence_structurevariant_inner_new() -> MolecularsequenceStruct
     start: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -75818,7 +77093,10 @@ pub fn molecularsequence_structurevariant_inner_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -75838,7 +77116,7 @@ pub fn molecularsequence_structurevariant_inner_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MolecularsequenceStructurevariantInner(
     end:,
     start:,
@@ -75872,7 +77150,10 @@ pub fn molecularsequence_structurevariant_outer_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -75892,7 +77173,7 @@ pub fn molecularsequence_structurevariant_outer_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MolecularsequenceStructurevariantOuter(
     end:,
     start:,
@@ -75947,7 +77228,10 @@ pub fn molecularsequence_structurevariant_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -75982,7 +77266,7 @@ pub fn molecularsequence_structurevariant_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MolecularsequenceStructurevariant(
     inner:,
     outer:,
@@ -76034,7 +77318,10 @@ pub fn molecularsequence_repository_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -76061,7 +77348,7 @@ pub fn molecularsequence_repository_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MolecularsequenceRepository(
     readset_id:,
     variantset_id:,
@@ -76110,7 +77397,10 @@ pub fn molecularsequence_quality_roc_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -76135,7 +77425,7 @@ pub fn molecularsequence_quality_roc_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MolecularsequenceQualityRoc(
     f_measure:,
     sensitivity:,
@@ -76218,7 +77508,10 @@ pub fn molecularsequence_quality_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -76265,7 +77558,7 @@ pub fn molecularsequence_quality_decoder() -> Decoder(MolecularsequenceQuality) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MolecularsequenceQuality(
     roc:,
     f_score:,
@@ -76325,7 +77618,10 @@ pub fn molecularsequence_variant_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -76351,7 +77647,7 @@ pub fn molecularsequence_variant_decoder() -> Decoder(MolecularsequenceVariant) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MolecularsequenceVariant(
     variant_pointer:,
     cigar:,
@@ -76431,7 +77727,10 @@ pub fn molecularsequence_referenceseq_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -76479,7 +77778,7 @@ pub fn molecularsequence_referenceseq_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(MolecularsequenceReferenceseq(
     window_end:,
     window_start:,
@@ -76635,7 +77934,10 @@ pub fn molecularsequence_to_json(molecularsequence: Molecularsequence) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("MolecularSequence")), ..fields]
   json.object(fields)
 }
@@ -76733,7 +78035,7 @@ pub fn molecularsequence_decoder() -> Decoder(Molecularsequence) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -76771,7 +78073,7 @@ pub fn molecularsequence_decoder() -> Decoder(Molecularsequence) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/NamingSystem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/NamingSystem#resource)
 pub type Namingsystem {
   Namingsystem(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -76819,14 +78121,14 @@ pub fn namingsystem_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/NamingSystem#resource](http://hl7.org/fhir/r4usp/StructureDefinition/NamingSystem#resource)
 pub type NamingsystemUniqueid {
   NamingsystemUniqueid(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Namingsystemidentifiertype),
@@ -76846,7 +78148,7 @@ pub fn namingsystem_uniqueid_new() -> NamingsystemUniqueid {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -76889,7 +78191,10 @@ pub fn namingsystem_uniqueid_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -76917,7 +78222,7 @@ pub fn namingsystem_uniqueid_decoder() -> Decoder(NamingsystemUniqueid) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(NamingsystemUniqueid(
     period:,
     comment:,
@@ -77027,7 +78332,10 @@ pub fn namingsystem_to_json(namingsystem: Namingsystem) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("NamingSystem")), ..fields]
   json.object(fields)
 }
@@ -77096,7 +78404,7 @@ pub fn namingsystem_decoder() -> Decoder(Namingsystem) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -77131,7 +78439,7 @@ pub fn namingsystem_decoder() -> Decoder(Namingsystem) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource)
 pub type Nutritionorder {
   Nutritionorder(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -77185,14 +78493,14 @@ pub fn nutritionorder_new(patient patient: Reference) -> Nutritionorder {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderOraldiet {
   NutritionorderOraldiet(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: List(Codeableconcept),
@@ -77214,14 +78522,14 @@ pub fn nutritionorder_oraldiet_new() -> NutritionorderOraldiet {
     type_: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderOraldietNutrient {
   NutritionorderOraldietNutrient(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     modifier: Option(Codeableconcept),
@@ -77235,14 +78543,14 @@ pub fn nutritionorder_oraldiet_nutrient_new() -> NutritionorderOraldietNutrient 
     modifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderOraldietTexture {
   NutritionorderOraldietTexture(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     modifier: Option(Codeableconcept),
@@ -77256,14 +78564,14 @@ pub fn nutritionorder_oraldiet_texture_new() -> NutritionorderOraldietTexture {
     modifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderSupplement {
   NutritionorderSupplement(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -77283,14 +78591,14 @@ pub fn nutritionorder_supplement_new() -> NutritionorderSupplement {
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderEnteralformula {
   NutritionorderEnteralformula(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     base_formula_type: Option(Codeableconcept),
@@ -77318,14 +78626,14 @@ pub fn nutritionorder_enteralformula_new() -> NutritionorderEnteralformula {
     base_formula_type: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource](http://hl7.org/fhir/r4usp/StructureDefinition/NutritionOrder#resource)
 pub type NutritionorderEnteralformulaAdministration {
   NutritionorderEnteralformulaAdministration(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     schedule: Option(Timing),
@@ -77370,7 +78678,7 @@ pub fn nutritionorder_enteralformula_administration_new() -> NutritionorderEnter
     schedule: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -77420,7 +78728,10 @@ pub fn nutritionorder_enteralformula_administration_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -77451,7 +78762,7 @@ pub fn nutritionorder_enteralformula_administration_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(NutritionorderEnteralformulaAdministration(
     rate:,
     quantity:,
@@ -77548,7 +78859,10 @@ pub fn nutritionorder_enteralformula_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -77608,7 +78922,7 @@ pub fn nutritionorder_enteralformula_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(NutritionorderEnteralformula(
     administration_instruction:,
     max_volume_to_deliver:,
@@ -77666,7 +78980,10 @@ pub fn nutritionorder_supplement_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -77699,7 +79016,7 @@ pub fn nutritionorder_supplement_decoder() -> Decoder(NutritionorderSupplement) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(NutritionorderSupplement(
     instruction:,
     quantity:,
@@ -77742,7 +79059,10 @@ pub fn nutritionorder_oraldiet_texture_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -77770,7 +79090,7 @@ pub fn nutritionorder_oraldiet_texture_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(NutritionorderOraldietTexture(
     food_type:,
     modifier:,
@@ -77810,7 +79130,10 @@ pub fn nutritionorder_oraldiet_nutrient_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -77838,7 +79161,7 @@ pub fn nutritionorder_oraldiet_nutrient_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(NutritionorderOraldietNutrient(
     amount:,
     modifier:,
@@ -77911,7 +79234,10 @@ pub fn nutritionorder_oraldiet_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -77953,7 +79279,7 @@ pub fn nutritionorder_oraldiet_decoder() -> Decoder(NutritionorderOraldiet) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(NutritionorderOraldiet(
     instruction:,
     fluid_consistency_type:,
@@ -78115,7 +79441,10 @@ pub fn nutritionorder_to_json(nutritionorder: Nutritionorder) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("NutritionOrder")), ..fields]
   json.object(fields)
 }
@@ -78215,7 +79544,7 @@ pub fn nutritionorder_decoder() -> Decoder(Nutritionorder) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -78254,7 +79583,7 @@ pub fn nutritionorder_decoder() -> Decoder(Nutritionorder) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Observation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Observation#resource)
 pub type Observation {
   Observation(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -78418,14 +79747,14 @@ pub fn observation_new(code code: Codeableconcept) -> Observation {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Observation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Observation#resource)
 pub type ObservationReferencerange {
   ObservationReferencerange(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     low: Option(Quantity),
@@ -78447,14 +79776,14 @@ pub fn observation_referencerange_new() -> ObservationReferencerange {
     low: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Observation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Observation#resource)
 pub type ObservationComponent {
   ObservationComponent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Codeableconcept,
@@ -78544,7 +79873,7 @@ pub fn observation_component_new(
     code:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -78619,7 +79948,10 @@ pub fn observation_component_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -78654,7 +79986,7 @@ pub fn observation_component_decoder() -> Decoder(ObservationComponent) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ObservationComponent(
     reference_range:,
     interpretation:,
@@ -78717,7 +80049,10 @@ pub fn observation_referencerange_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -78761,7 +80096,7 @@ pub fn observation_referencerange_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ObservationReferencerange(
     text:,
     age:,
@@ -78980,7 +80315,10 @@ pub fn observation_to_json(observation: Observation) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Observation")), ..fields]
   json.object(fields)
 }
@@ -79117,7 +80455,7 @@ pub fn observation_decoder() -> Decoder(Observation) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -79163,7 +80501,7 @@ pub fn observation_decoder() -> Decoder(Observation) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ObservationDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ObservationDefinition#resource)
 pub type Observationdefinition {
   Observationdefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -79211,14 +80549,14 @@ pub fn observationdefinition_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ObservationDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ObservationDefinition#resource)
 pub type ObservationdefinitionQuantitativedetails {
   ObservationdefinitionQuantitativedetails(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     customary_unit: Option(Codeableconcept),
@@ -79236,14 +80574,14 @@ pub fn observationdefinition_quantitativedetails_new() -> ObservationdefinitionQ
     customary_unit: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ObservationDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ObservationDefinition#resource)
 pub type ObservationdefinitionQualifiedinterval {
   ObservationdefinitionQualifiedinterval(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     category: Primitive(r4usp_valuesets.Observationrangecategory),
@@ -79269,7 +80607,7 @@ pub fn observationdefinition_qualifiedinterval_new() -> ObservationdefinitionQua
     category: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -79339,7 +80677,10 @@ pub fn observationdefinition_qualifiedinterval_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -79391,7 +80732,7 @@ pub fn observationdefinition_qualifiedinterval_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ObservationdefinitionQualifiedinterval(
     condition:,
     gestational_age:,
@@ -79443,7 +80784,10 @@ pub fn observationdefinition_quantitativedetails_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -79476,7 +80820,7 @@ pub fn observationdefinition_quantitativedetails_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ObservationdefinitionQuantitativedetails(
     decimal_precision:,
     conversion_factor:,
@@ -79618,7 +80962,10 @@ pub fn observationdefinition_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("ObservationDefinition")),
     ..fields
@@ -79713,7 +81060,7 @@ pub fn observationdefinition_decoder() -> Decoder(Observationdefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -79748,7 +81095,7 @@ pub fn observationdefinition_decoder() -> Decoder(Observationdefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/OperationDefinition#resource)
 pub type Operationdefinition {
   Operationdefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -79820,14 +81167,14 @@ pub fn operationdefinition_new() -> Operationdefinition {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/OperationDefinition#resource)
 pub type OperationdefinitionParameter {
   OperationdefinitionParameter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -79859,14 +81206,14 @@ pub fn operationdefinition_parameter_new() -> OperationdefinitionParameter {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/OperationDefinition#resource)
 pub type OperationdefinitionParameterBinding {
   OperationdefinitionParameterBinding(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     strength: Primitive(r4usp_valuesets.Bindingstrength),
@@ -79880,14 +81227,14 @@ pub fn operationdefinition_parameter_binding_new() -> OperationdefinitionParamet
     strength: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/OperationDefinition#resource)
 pub type OperationdefinitionParameterReferencedfrom {
   OperationdefinitionParameterReferencedfrom(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     source: Primitive(String),
@@ -79901,14 +81248,14 @@ pub fn operationdefinition_parameter_referencedfrom_new() -> Operationdefinition
     source: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/OperationDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/OperationDefinition#resource)
 pub type OperationdefinitionOverload {
   OperationdefinitionOverload(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     parameter_name: List(Primitive(String)),
@@ -79922,7 +81269,7 @@ pub fn operationdefinition_overload_new() -> OperationdefinitionOverload {
     parameter_name: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -79951,7 +81298,10 @@ pub fn operationdefinition_overload_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -79971,7 +81321,7 @@ pub fn operationdefinition_overload_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(OperationdefinitionOverload(
     comment:,
     parameter_name:,
@@ -80005,7 +81355,10 @@ pub fn operationdefinition_parameter_referencedfrom_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -80025,7 +81378,7 @@ pub fn operationdefinition_parameter_referencedfrom_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(OperationdefinitionParameterReferencedfrom(
     source_id:,
     source:,
@@ -80065,7 +81418,10 @@ pub fn operationdefinition_parameter_binding_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -80088,7 +81444,7 @@ pub fn operationdefinition_parameter_binding_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(OperationdefinitionParameterBinding(
     value_set:,
     strength:,
@@ -80179,7 +81535,10 @@ pub fn operationdefinition_parameter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -80226,7 +81585,7 @@ pub fn operationdefinition_parameter_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(OperationdefinitionParameter(
     part:,
     referenced_from:,
@@ -80390,7 +81749,10 @@ pub fn operationdefinition_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("OperationDefinition")), ..fields]
   json.object(fields)
 }
@@ -80476,7 +81838,7 @@ pub fn operationdefinition_decoder() -> Decoder(Operationdefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -80524,7 +81886,7 @@ pub fn operationdefinition_decoder() -> Decoder(Operationdefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/OperationOutcome#resource](http://hl7.org/fhir/r4usp/StructureDefinition/OperationOutcome#resource)
 pub type Operationoutcome {
   Operationoutcome(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -80548,14 +81910,14 @@ pub fn operationoutcome_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/OperationOutcome#resource](http://hl7.org/fhir/r4usp/StructureDefinition/OperationOutcome#resource)
 pub type OperationoutcomeIssue {
   OperationoutcomeIssue(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     severity: Primitive(r4usp_valuesets.Issueseverity),
@@ -80577,7 +81939,7 @@ pub fn operationoutcome_issue_new() -> OperationoutcomeIssue {
     severity: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -80624,7 +81986,10 @@ pub fn operationoutcome_issue_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -80653,7 +82018,7 @@ pub fn operationoutcome_issue_decoder() -> Decoder(OperationoutcomeIssue) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(OperationoutcomeIssue(
     expression:,
     location:,
@@ -80708,7 +82073,10 @@ pub fn operationoutcome_to_json(operationoutcome: Operationoutcome) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("OperationOutcome")), ..fields]
   json.object(fields)
 }
@@ -80743,7 +82111,7 @@ pub fn operationoutcome_decoder() -> Decoder(Operationoutcome) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -80766,7 +82134,7 @@ pub fn operationoutcome_decoder() -> Decoder(Operationoutcome) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Organization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Organization#resource)
 pub type Organization {
   Organization(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -80806,14 +82174,14 @@ pub fn organization_new() -> Organization {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Organization#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Organization#resource)
 pub type OrganizationContact {
   OrganizationContact(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     purpose: Option(Codeableconcept),
@@ -80831,7 +82199,7 @@ pub fn organization_contact_new() -> OrganizationContact {
     purpose: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -80875,7 +82243,10 @@ pub fn organization_contact_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -80911,7 +82282,7 @@ pub fn organization_contact_decoder() -> Decoder(OrganizationContact) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(OrganizationContact(
     address:,
     telecom:,
@@ -81005,7 +82376,10 @@ pub fn organization_to_json(organization: Organization) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Organization")), ..fields]
   json.object(fields)
 }
@@ -81077,7 +82451,7 @@ pub fn organization_decoder() -> Decoder(Organization) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -81109,7 +82483,7 @@ pub fn organization_decoder() -> Decoder(Organization) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/OrganizationAffiliation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/OrganizationAffiliation#resource)
 pub type Organizationaffiliation {
   Organizationaffiliation(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -81153,7 +82527,7 @@ pub fn organizationaffiliation_new() -> Organizationaffiliation {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -81260,7 +82634,10 @@ pub fn organizationaffiliation_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("OrganizationAffiliation")),
     ..fields
@@ -81353,7 +82730,7 @@ pub fn organizationaffiliation_decoder() -> Decoder(Organizationaffiliation) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -81387,7 +82764,7 @@ pub fn organizationaffiliation_decoder() -> Decoder(Organizationaffiliation) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Parameters#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Parameters#resource)
 pub type Parameters {
   Parameters(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -81401,14 +82778,14 @@ pub fn parameters_new() -> Parameters {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Parameters#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Parameters#resource)
 pub type ParametersParameter {
   ParametersParameter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -81667,7 +83044,7 @@ pub fn parameters_parameter_new() -> ParametersParameter {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -81767,7 +83144,10 @@ pub fn parameters_parameter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -81797,7 +83177,7 @@ pub fn parameters_parameter_decoder() -> Decoder(ParametersParameter) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ParametersParameter(
     part:,
     resource:,
@@ -81827,7 +83207,10 @@ pub fn parameters_to_json(parameters: Parameters) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Parameters")), ..fields]
   json.object(fields)
 }
@@ -81846,7 +83229,7 @@ pub fn parameters_decoder() -> Decoder(Parameters) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -81868,7 +83251,7 @@ pub type Patient {
     individual_recorded_sex_or_gender: List(IndividualRecordedsexorgender),
     us_core_individual_sex: List(Coding),
     us_core_ethnicity: List(UsCoreEthnicity),
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -81968,7 +83351,7 @@ pub fn patient_new() -> Patient {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
     us_core_ethnicity: [],
     us_core_individual_sex: [],
     individual_recorded_sex_or_gender: [],
@@ -81984,7 +83367,7 @@ pub fn patient_new() -> Patient {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Patient#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Patient#resource)
 pub type PatientContact {
   PatientContact(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     relationship: List(Codeableconcept),
@@ -82008,14 +83391,14 @@ pub fn patient_contact_new() -> PatientContact {
     relationship: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Patient#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Patient#resource)
 pub type PatientCommunication {
   PatientCommunication(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     language: Codeableconcept,
@@ -82031,14 +83414,14 @@ pub fn patient_communication_new(
     language:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Patient#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Patient#resource)
 pub type PatientLink {
   PatientLink(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     other: Reference,
@@ -82052,7 +83435,7 @@ pub fn patient_link_new(other other: Reference) -> PatientLink {
     other:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -82075,7 +83458,10 @@ pub fn patient_link_to_json(patient_link: PatientLink) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -82093,7 +83479,7 @@ pub fn patient_link_decoder() -> Decoder(PatientLink) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PatientLink(
     type_:,
     other:,
@@ -82128,7 +83514,10 @@ pub fn patient_communication_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -82146,7 +83535,7 @@ pub fn patient_communication_decoder() -> Decoder(PatientCommunication) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PatientCommunication(
     preferred:,
     language:,
@@ -82215,7 +83604,10 @@ pub fn patient_contact_to_json(patient_contact: PatientContact) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -82265,7 +83657,7 @@ pub fn patient_contact_decoder() -> Decoder(PatientContact) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PatientContact(
     period:,
     organization:,
@@ -82453,7 +83845,10 @@ pub fn patient_to_json(patient: Patient) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Patient")), ..fields]
   json.object(fields)
 }
@@ -82552,7 +83947,7 @@ pub fn patient_decoder() -> Decoder(Patient) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   let #(
     us_core_ethnicity_,
     us_core_individual_sex_,
@@ -82744,7 +84139,7 @@ pub fn patient_decoder() -> Decoder(Patient) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PaymentNotice#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PaymentNotice#resource)
 pub type Paymentnotice {
   Paymentnotice(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -82792,7 +84187,7 @@ pub fn paymentnotice_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -82885,7 +84280,10 @@ pub fn paymentnotice_to_json(paymentnotice: Paymentnotice) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("PaymentNotice")), ..fields]
   json.object(fields)
 }
@@ -82955,7 +84353,7 @@ pub fn paymentnotice_decoder() -> Decoder(Paymentnotice) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -82992,7 +84390,7 @@ pub fn paymentnotice_decoder() -> Decoder(Paymentnotice) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PaymentReconciliation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PaymentReconciliation#resource)
 pub type Paymentreconciliation {
   Paymentreconciliation(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -83044,14 +84442,14 @@ pub fn paymentreconciliation_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PaymentReconciliation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PaymentReconciliation#resource)
 pub type PaymentreconciliationDetail {
   PaymentreconciliationDetail(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
@@ -83083,14 +84481,14 @@ pub fn paymentreconciliation_detail_new(
     identifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PaymentReconciliation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PaymentReconciliation#resource)
 pub type PaymentreconciliationProcessnote {
   PaymentreconciliationProcessnote(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Notetype),
@@ -83104,7 +84502,7 @@ pub fn paymentreconciliation_processnote_new() -> PaymentreconciliationProcessno
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -83133,7 +84531,10 @@ pub fn paymentreconciliation_processnote_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -83153,7 +84554,7 @@ pub fn paymentreconciliation_processnote_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PaymentreconciliationProcessnote(
     text:,
     type_:,
@@ -83228,7 +84629,10 @@ pub fn paymentreconciliation_detail_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -83288,7 +84692,7 @@ pub fn paymentreconciliation_detail_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PaymentreconciliationDetail(
     amount:,
     payee:,
@@ -83428,7 +84832,10 @@ pub fn paymentreconciliation_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("PaymentReconciliation")),
     ..fields
@@ -83519,7 +84926,7 @@ pub fn paymentreconciliation_decoder() -> Decoder(Paymentreconciliation) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -83562,7 +84969,7 @@ pub type Person {
     individual_recorded_sex_or_gender: List(IndividualRecordedsexorgender),
     us_core_individual_sex: List(Coding),
     us_core_ethnicity: List(UsCoreEthnicity),
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -83602,7 +85009,7 @@ pub fn person_new() -> Person {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
     us_core_ethnicity: [],
     us_core_individual_sex: [],
     individual_recorded_sex_or_gender: [],
@@ -83615,7 +85022,7 @@ pub fn person_new() -> Person {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Person#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Person#resource)
 pub type PersonLink {
   PersonLink(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     target: Reference,
@@ -83629,7 +85036,7 @@ pub fn person_link_new(target target: Reference) -> PersonLink {
     target:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -83657,7 +85064,10 @@ pub fn person_link_to_json(person_link: PersonLink) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -83678,7 +85088,7 @@ pub fn person_link_decoder() -> Decoder(PersonLink) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PersonLink(
     assurance:,
     target:,
@@ -83793,7 +85203,10 @@ pub fn person_to_json(person: Person) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Person")), ..fields]
   json.object(fields)
 }
@@ -83868,7 +85281,7 @@ pub fn person_decoder() -> Decoder(Person) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   let #(
     us_core_ethnicity_,
     us_core_individual_sex_,
@@ -83955,7 +85368,7 @@ pub fn person_decoder() -> Decoder(Person) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource)
 pub type Plandefinition {
   Plandefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -84065,14 +85478,14 @@ pub fn plandefinition_new() -> Plandefinition {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionGoal {
   PlandefinitionGoal(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     category: Option(Codeableconcept),
@@ -84098,14 +85511,14 @@ pub fn plandefinition_goal_new(
     category: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionGoalTarget {
   PlandefinitionGoalTarget(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     measure: Option(Codeableconcept),
@@ -84158,14 +85571,14 @@ pub fn plandefinition_goal_target_new() -> PlandefinitionGoalTarget {
     measure: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionAction {
   PlandefinitionAction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     prefix: Primitive(String),
@@ -84333,14 +85746,14 @@ pub fn plandefinition_action_new() -> PlandefinitionAction {
     prefix: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionCondition {
   PlandefinitionActionCondition(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     kind: Primitive(r4usp_valuesets.Actionconditionkind),
@@ -84354,14 +85767,14 @@ pub fn plandefinition_action_condition_new() -> PlandefinitionActionCondition {
     kind: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionRelatedaction {
   PlandefinitionActionRelatedaction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     action_id: Primitive(String),
@@ -84405,14 +85818,14 @@ pub fn plandefinition_action_relatedaction_new() -> PlandefinitionActionRelateda
     action_id: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionParticipant {
   PlandefinitionActionParticipant(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Actionparticipanttype),
@@ -84426,14 +85839,14 @@ pub fn plandefinition_action_participant_new() -> PlandefinitionActionParticipan
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PlanDefinition#resource)
 pub type PlandefinitionActionDynamicvalue {
   PlandefinitionActionDynamicvalue(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     path: Primitive(String),
@@ -84447,7 +85860,7 @@ pub fn plandefinition_action_dynamicvalue_new() -> PlandefinitionActionDynamicva
     path: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -84478,7 +85891,10 @@ pub fn plandefinition_action_dynamicvalue_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -84502,7 +85918,7 @@ pub fn plandefinition_action_dynamicvalue_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PlandefinitionActionDynamicvalue(
     expression:,
     path:,
@@ -84545,7 +85961,10 @@ pub fn plandefinition_action_participant_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -84572,7 +85991,7 @@ pub fn plandefinition_action_participant_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PlandefinitionActionParticipant(
     role:,
     type_:,
@@ -84627,7 +86046,10 @@ pub fn plandefinition_action_relatedaction_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -84653,7 +86075,7 @@ pub fn plandefinition_action_relatedaction_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PlandefinitionActionRelatedaction(
     offset:,
     relationship:,
@@ -84697,7 +86119,10 @@ pub fn plandefinition_action_condition_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -84724,7 +86149,7 @@ pub fn plandefinition_action_condition_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PlandefinitionActionCondition(
     expression:,
     kind:,
@@ -84958,7 +86383,10 @@ pub fn plandefinition_action_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -85073,7 +86501,7 @@ pub fn plandefinition_action_decoder() -> Decoder(PlandefinitionAction) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PlandefinitionAction(
     action:,
     dynamic_value:,
@@ -85154,7 +86582,10 @@ pub fn plandefinition_goal_target_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -85183,7 +86614,7 @@ pub fn plandefinition_goal_target_decoder() -> Decoder(PlandefinitionGoalTarget)
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PlandefinitionGoalTarget(
     due:,
     detail:,
@@ -85256,7 +86687,10 @@ pub fn plandefinition_goal_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -85303,7 +86737,7 @@ pub fn plandefinition_goal_decoder() -> Decoder(PlandefinitionGoal) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PlandefinitionGoal(
     target:,
     documentation:,
@@ -85503,7 +86937,10 @@ pub fn plandefinition_to_json(plandefinition: Plandefinition) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("PlanDefinition")), ..fields]
   json.object(fields)
 }
@@ -85627,7 +87064,7 @@ pub fn plandefinition_decoder() -> Decoder(Plandefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -85687,7 +87124,7 @@ pub type Practitioner {
     individual_recorded_sex_or_gender: List(IndividualRecordedsexorgender),
     us_core_individual_sex: List(Coding),
     us_core_ethnicity: List(UsCoreEthnicity),
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -85727,7 +87164,7 @@ pub fn practitioner_new() -> Practitioner {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
     us_core_ethnicity: [],
     us_core_individual_sex: [],
     individual_recorded_sex_or_gender: [],
@@ -85741,7 +87178,7 @@ pub fn practitioner_new() -> Practitioner {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Practitioner#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Practitioner#resource)
 pub type PractitionerQualification {
   PractitionerQualification(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
@@ -85761,7 +87198,7 @@ pub fn practitioner_qualification_new(
     identifier: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -85803,7 +87240,10 @@ pub fn practitioner_qualification_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -85837,7 +87277,7 @@ pub fn practitioner_qualification_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PractitionerQualification(
     issuer:,
     period:,
@@ -85965,7 +87405,10 @@ pub fn practitioner_to_json(practitioner: Practitioner) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Practitioner")), ..fields]
   json.object(fields)
 }
@@ -86040,7 +87483,7 @@ pub fn practitioner_decoder() -> Decoder(Practitioner) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   let #(
     us_core_ethnicity_,
     us_core_individual_sex_,
@@ -86152,7 +87595,7 @@ pub fn practitioner_decoder() -> Decoder(Practitioner) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PractitionerRole#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PractitionerRole#resource)
 pub type Practitionerrole {
   Practitionerrole(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -86200,14 +87643,14 @@ pub fn practitionerrole_new() -> Practitionerrole {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PractitionerRole#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PractitionerRole#resource)
 pub type PractitionerroleAvailabletime {
   PractitionerroleAvailabletime(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     days_of_week: List(Primitive(r4usp_valuesets.Daysofweek)),
@@ -86225,14 +87668,14 @@ pub fn practitionerrole_availabletime_new() -> PractitionerroleAvailabletime {
     days_of_week: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/PractitionerRole#resource](http://hl7.org/fhir/r4usp/StructureDefinition/PractitionerRole#resource)
 pub type PractitionerroleNotavailable {
   PractitionerroleNotavailable(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -86246,7 +87689,7 @@ pub fn practitionerrole_notavailable_new() -> PractitionerroleNotavailable {
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -86278,7 +87721,10 @@ pub fn practitionerrole_notavailable_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -86302,7 +87748,7 @@ pub fn practitionerrole_notavailable_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PractitionerroleNotavailable(
     during:,
     description:,
@@ -86358,7 +87804,10 @@ pub fn practitionerrole_availabletime_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -86389,7 +87838,7 @@ pub fn practitionerrole_availabletime_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(PractitionerroleAvailabletime(
     available_end_time:,
     available_start_time:,
@@ -86527,7 +87976,10 @@ pub fn practitionerrole_to_json(practitionerrole: Practitionerrole) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("PractitionerRole")), ..fields]
   json.object(fields)
 }
@@ -86626,7 +88078,7 @@ pub fn practitionerrole_decoder() -> Decoder(Practitionerrole) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -86662,7 +88114,7 @@ pub fn practitionerrole_decoder() -> Decoder(Practitionerrole) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Procedure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Procedure#resource)
 pub type Procedure {
   Procedure(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -86774,14 +88226,14 @@ pub fn procedure_new(subject subject: Reference) -> Procedure {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Procedure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Procedure#resource)
 pub type ProcedurePerformer {
   ProcedurePerformer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     function: Option(Codeableconcept),
@@ -86797,14 +88249,14 @@ pub fn procedure_performer_new(actor actor: Reference) -> ProcedurePerformer {
     function: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Procedure#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Procedure#resource)
 pub type ProcedureFocaldevice {
   ProcedureFocaldevice(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     action: Option(Codeableconcept),
@@ -86820,7 +88272,7 @@ pub fn procedure_focaldevice_new(
     action: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -86852,7 +88304,10 @@ pub fn procedure_focaldevice_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -86874,7 +88329,7 @@ pub fn procedure_focaldevice_decoder() -> Decoder(ProcedureFocaldevice) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ProcedureFocaldevice(
     manipulated:,
     action:,
@@ -86917,7 +88372,10 @@ pub fn procedure_performer_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -86944,7 +88402,7 @@ pub fn procedure_performer_decoder() -> Decoder(ProcedurePerformer) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ProcedurePerformer(
     on_behalf_of:,
     actor:,
@@ -87181,7 +88639,10 @@ pub fn procedure_to_json(procedure: Procedure) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Procedure")), ..fields]
   json.object(fields)
 }
@@ -87341,7 +88802,7 @@ pub fn procedure_decoder() -> Decoder(Procedure) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -87391,7 +88852,7 @@ pub fn procedure_decoder() -> Decoder(Procedure) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Provenance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Provenance#resource)
 pub type Provenance {
   Provenance(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -87458,14 +88919,14 @@ pub fn provenance_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Provenance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Provenance#resource)
 pub type ProvenanceAgent {
   ProvenanceAgent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -87483,14 +88944,14 @@ pub fn provenance_agent_new(who who: Reference) -> ProvenanceAgent {
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Provenance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Provenance#resource)
 pub type ProvenanceEntity {
   ProvenanceEntity(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     role: Primitive(r4usp_valuesets.Provenanceentityrole),
@@ -87506,7 +88967,7 @@ pub fn provenance_entity_new(what what: Reference) -> ProvenanceEntity {
     role: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -87544,7 +89005,10 @@ pub fn provenance_entity_to_json(provenance_entity: ProvenanceEntity) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -87570,7 +89034,7 @@ pub fn provenance_entity_decoder() -> Decoder(ProvenanceEntity) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ProvenanceEntity(
     agent:,
     what:,
@@ -87617,7 +89081,10 @@ pub fn provenance_agent_to_json(provenance_agent: ProvenanceAgent) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -87649,7 +89116,7 @@ pub fn provenance_agent_decoder() -> Decoder(ProvenanceAgent) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ProvenanceAgent(
     on_behalf_of:,
     who:,
@@ -87749,7 +89216,10 @@ pub fn provenance_to_json(provenance: Provenance) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Provenance")), ..fields]
   json.object(fields)
 }
@@ -87813,7 +89283,7 @@ pub fn provenance_decoder() -> Decoder(Provenance) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -87845,7 +89315,7 @@ pub fn provenance_decoder() -> Decoder(Provenance) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource)
 pub type Questionnaire {
   Questionnaire(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -87909,14 +89379,14 @@ pub fn questionnaire_new() -> Questionnaire {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItem {
   QuestionnaireItem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     link_id: Primitive(String),
@@ -87958,14 +89428,14 @@ pub fn questionnaire_item_new() -> QuestionnaireItem {
     link_id: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItemEnablewhen {
   QuestionnaireItemEnablewhen(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     question: Primitive(String),
@@ -88043,14 +89513,14 @@ pub fn questionnaire_item_enablewhen_new(
     question: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItemAnsweroption {
   QuestionnaireItemAnsweroption(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     value: QuestionnaireItemAnsweroptionValue,
@@ -88110,14 +89580,14 @@ pub fn questionnaire_item_answeroption_new(
     value:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Questionnaire#resource)
 pub type QuestionnaireItemInitial {
   QuestionnaireItemInitial(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     value: QuestionnaireItemInitialValue,
@@ -88199,7 +89669,7 @@ pub fn questionnaire_item_initial_new(
     value:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -88239,7 +89709,10 @@ pub fn questionnaire_item_initial_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -88256,7 +89729,7 @@ pub fn questionnaire_item_initial_decoder() -> Decoder(QuestionnaireItemInitial)
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(QuestionnaireItemInitial(
     value:,
     modifier_extension:,
@@ -88302,7 +89775,10 @@ pub fn questionnaire_item_answeroption_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -88322,7 +89798,7 @@ pub fn questionnaire_item_answeroption_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(QuestionnaireItemAnsweroption(
     initial_selected:,
     value:,
@@ -88380,7 +89856,10 @@ pub fn questionnaire_item_enablewhen_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -88404,7 +89883,7 @@ pub fn questionnaire_item_enablewhen_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(QuestionnaireItemEnablewhen(
     answer:,
     operator:,
@@ -88503,7 +89982,10 @@ pub fn questionnaire_item_to_json(questionnaire_item: QuestionnaireItem) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -88554,7 +90036,7 @@ pub fn questionnaire_item_decoder() -> Decoder(QuestionnaireItem) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(QuestionnaireItem(
     item:,
     initial:,
@@ -88709,7 +90191,10 @@ pub fn questionnaire_to_json(questionnaire: Questionnaire) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Questionnaire")), ..fields]
   json.object(fields)
 }
@@ -88795,7 +90280,7 @@ pub fn questionnaire_decoder() -> Decoder(Questionnaire) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -88839,7 +90324,7 @@ pub fn questionnaire_decoder() -> Decoder(Questionnaire) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/QuestionnaireResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/QuestionnaireResponse#resource)
 pub type Questionnaireresponse {
   Questionnaireresponse(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -88881,14 +90366,14 @@ pub fn questionnaireresponse_new() -> Questionnaireresponse {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/QuestionnaireResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/QuestionnaireResponse#resource)
 pub type QuestionnaireresponseItem {
   QuestionnaireresponseItem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     link_id: Primitive(String),
@@ -88908,14 +90393,14 @@ pub fn questionnaireresponse_item_new() -> QuestionnaireresponseItem {
     link_id: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/QuestionnaireResponse#resource](http://hl7.org/fhir/r4usp/StructureDefinition/QuestionnaireResponse#resource)
 pub type QuestionnaireresponseItemAnswer {
   QuestionnaireresponseItemAnswer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     value: Option(QuestionnaireresponseItemAnswerValue),
@@ -88997,7 +90482,7 @@ pub fn questionnaireresponse_item_answer_new() -> QuestionnaireresponseItemAnswe
     value: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -89054,7 +90539,10 @@ pub fn questionnaireresponse_item_answer_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -89080,7 +90568,7 @@ pub fn questionnaireresponse_item_answer_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(QuestionnaireresponseItemAnswer(
     item:,
     value:,
@@ -89132,7 +90620,10 @@ pub fn questionnaireresponse_item_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -89163,7 +90654,7 @@ pub fn questionnaireresponse_item_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(QuestionnaireresponseItem(
     item:,
     answer:,
@@ -89273,7 +90764,10 @@ pub fn questionnaireresponse_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("QuestionnaireResponse")),
     ..fields
@@ -89356,7 +90850,7 @@ pub fn questionnaireresponse_decoder() -> Decoder(Questionnaireresponse) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -89396,7 +90890,7 @@ pub type Relatedperson {
     individual_recorded_sex_or_gender: List(IndividualRecordedsexorgender),
     us_core_individual_sex: List(Coding),
     us_core_ethnicity: List(UsCoreEthnicity),
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -89440,7 +90934,7 @@ pub fn relatedperson_new(patient patient: Reference) -> Relatedperson {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
     us_core_ethnicity: [],
     us_core_individual_sex: [],
     individual_recorded_sex_or_gender: [],
@@ -89454,7 +90948,7 @@ pub fn relatedperson_new(patient patient: Reference) -> Relatedperson {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RelatedPerson#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RelatedPerson#resource)
 pub type RelatedpersonCommunication {
   RelatedpersonCommunication(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     language: Codeableconcept,
@@ -89470,7 +90964,7 @@ pub fn relatedperson_communication_new(
     language:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -89499,7 +90993,10 @@ pub fn relatedperson_communication_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -89519,7 +91016,7 @@ pub fn relatedperson_communication_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(RelatedpersonCommunication(
     preferred:,
     language:,
@@ -89653,7 +91150,10 @@ pub fn relatedperson_to_json(relatedperson: Relatedperson) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("RelatedPerson")), ..fields]
   json.object(fields)
 }
@@ -89734,7 +91234,7 @@ pub fn relatedperson_decoder() -> Decoder(Relatedperson) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   let #(
     us_core_ethnicity_,
     us_core_individual_sex_,
@@ -89848,7 +91348,7 @@ pub fn relatedperson_decoder() -> Decoder(Relatedperson) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RequestGroup#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RequestGroup#resource)
 pub type Requestgroup {
   Requestgroup(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -89904,14 +91404,14 @@ pub fn requestgroup_new() -> Requestgroup {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RequestGroup#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RequestGroup#resource)
 pub type RequestgroupAction {
   RequestgroupAction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     prefix: Primitive(String),
@@ -89999,14 +91499,14 @@ pub fn requestgroup_action_new() -> RequestgroupAction {
     prefix: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RequestGroup#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RequestGroup#resource)
 pub type RequestgroupActionCondition {
   RequestgroupActionCondition(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     kind: Primitive(r4usp_valuesets.Actionconditionkind),
@@ -90020,14 +91520,14 @@ pub fn requestgroup_action_condition_new() -> RequestgroupActionCondition {
     kind: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RequestGroup#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RequestGroup#resource)
 pub type RequestgroupActionRelatedaction {
   RequestgroupActionRelatedaction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     action_id: Primitive(String),
@@ -90071,7 +91571,7 @@ pub fn requestgroup_action_relatedaction_new() -> RequestgroupActionRelatedactio
     action_id: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -90120,7 +91620,10 @@ pub fn requestgroup_action_relatedaction_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -90146,7 +91649,7 @@ pub fn requestgroup_action_relatedaction_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(RequestgroupActionRelatedaction(
     offset:,
     relationship:,
@@ -90190,7 +91693,10 @@ pub fn requestgroup_action_condition_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -90217,7 +91723,7 @@ pub fn requestgroup_action_condition_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(RequestgroupActionCondition(
     expression:,
     kind:,
@@ -90385,7 +91891,10 @@ pub fn requestgroup_action_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -90472,7 +91981,7 @@ pub fn requestgroup_action_decoder() -> Decoder(RequestgroupAction) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(RequestgroupAction(
     action:,
     resource:,
@@ -90644,7 +92153,10 @@ pub fn requestgroup_to_json(requestgroup: Requestgroup) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("RequestGroup")), ..fields]
   json.object(fields)
 }
@@ -90756,7 +92268,7 @@ pub fn requestgroup_decoder() -> Decoder(Requestgroup) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -90796,7 +92308,7 @@ pub fn requestgroup_decoder() -> Decoder(Requestgroup) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ResearchDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ResearchDefinition#resource)
 pub type Researchdefinition {
   Researchdefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -90918,7 +92430,7 @@ pub fn researchdefinition_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -91113,7 +92625,10 @@ pub fn researchdefinition_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ResearchDefinition")), ..fields]
   json.object(fields)
 }
@@ -91242,7 +92757,7 @@ pub fn researchdefinition_decoder() -> Decoder(Researchdefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -91298,7 +92813,7 @@ pub fn researchdefinition_decoder() -> Decoder(Researchdefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ResearchElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ResearchElementDefinition#resource)
 pub type Researchelementdefinition {
   Researchelementdefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -91419,14 +92934,14 @@ pub fn researchelementdefinition_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ResearchElementDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ResearchElementDefinition#resource)
 pub type ResearchelementdefinitionCharacteristic {
   ResearchelementdefinitionCharacteristic(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     definition: ResearchelementdefinitionCharacteristicDefinition,
@@ -91664,7 +93179,7 @@ pub fn researchelementdefinition_characteristic_new(
     definition:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -91806,7 +93321,10 @@ pub fn researchelementdefinition_characteristic_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -91874,7 +93392,7 @@ pub fn researchelementdefinition_characteristic_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ResearchelementdefinitionCharacteristic(
     participant_effective_group_measure:,
     participant_effective_time_from_start:,
@@ -92093,7 +93611,10 @@ pub fn researchelementdefinition_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("ResearchElementDefinition")),
     ..fields
@@ -92221,7 +93742,7 @@ pub fn researchelementdefinition_decoder() -> Decoder(Researchelementdefinition)
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -92279,7 +93800,7 @@ pub fn researchelementdefinition_decoder() -> Decoder(Researchelementdefinition)
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ResearchStudy#resource)
 pub type Researchstudy {
   Researchstudy(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -92347,14 +93868,14 @@ pub fn researchstudy_new() -> Researchstudy {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ResearchStudy#resource)
 pub type ResearchstudyArm {
   ResearchstudyArm(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -92370,14 +93891,14 @@ pub fn researchstudy_arm_new() -> ResearchstudyArm {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ResearchStudy#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ResearchStudy#resource)
 pub type ResearchstudyObjective {
   ResearchstudyObjective(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -92391,7 +93912,7 @@ pub fn researchstudy_objective_new() -> ResearchstudyObjective {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -92422,7 +93943,10 @@ pub fn researchstudy_objective_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -92444,7 +93968,7 @@ pub fn researchstudy_objective_decoder() -> Decoder(ResearchstudyObjective) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ResearchstudyObjective(
     type_:,
     name:,
@@ -92482,7 +94006,10 @@ pub fn researchstudy_arm_to_json(researchstudy_arm: ResearchstudyArm) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -92505,7 +94032,7 @@ pub fn researchstudy_arm_decoder() -> Decoder(ResearchstudyArm) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ResearchstudyArm(
     description:,
     type_:,
@@ -92690,7 +94217,10 @@ pub fn researchstudy_to_json(researchstudy: Researchstudy) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ResearchStudy")), ..fields]
   json.object(fields)
 }
@@ -92835,7 +94365,7 @@ pub fn researchstudy_decoder() -> Decoder(Researchstudy) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -92881,7 +94411,7 @@ pub fn researchstudy_decoder() -> Decoder(Researchstudy) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ResearchSubject#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ResearchSubject#resource)
 pub type Researchsubject {
   Researchsubject(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -92920,7 +94450,7 @@ pub fn researchsubject_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -92995,7 +94525,10 @@ pub fn researchsubject_to_json(researchsubject: Researchsubject) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ResearchSubject")), ..fields]
   json.object(fields)
 }
@@ -93052,7 +94585,7 @@ pub fn researchsubject_decoder() -> Decoder(Researchsubject) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -93082,7 +94615,7 @@ pub fn researchsubject_decoder() -> Decoder(Researchsubject) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RiskAssessment#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RiskAssessment#resource)
 pub type Riskassessment {
   Riskassessment(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -93160,14 +94693,14 @@ pub fn riskassessment_new(subject subject: Reference) -> Riskassessment {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RiskAssessment#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RiskAssessment#resource)
 pub type RiskassessmentPrediction {
   RiskassessmentPrediction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     outcome: Option(Codeableconcept),
@@ -93245,7 +94778,7 @@ pub fn riskassessment_prediction_new() -> RiskassessmentPrediction {
     outcome: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -93314,7 +94847,10 @@ pub fn riskassessment_prediction_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -93348,7 +94884,7 @@ pub fn riskassessment_prediction_decoder() -> Decoder(RiskassessmentPrediction) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(RiskassessmentPrediction(
     rationale:,
     when:,
@@ -93502,7 +95038,10 @@ pub fn riskassessment_to_json(riskassessment: Riskassessment) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("RiskAssessment")), ..fields]
   json.object(fields)
 }
@@ -93610,7 +95149,7 @@ pub fn riskassessment_decoder() -> Decoder(Riskassessment) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -93649,7 +95188,7 @@ pub fn riskassessment_decoder() -> Decoder(Riskassessment) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource)
 pub type Riskevidencesynthesis {
   Riskevidencesynthesis(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -93734,14 +95273,14 @@ pub fn riskevidencesynthesis_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource)
 pub type RiskevidencesynthesisSamplesize {
   RiskevidencesynthesisSamplesize(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -93757,14 +95296,14 @@ pub fn riskevidencesynthesis_samplesize_new() -> RiskevidencesynthesisSamplesize
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource)
 pub type RiskevidencesynthesisRiskestimate {
   RiskevidencesynthesisRiskestimate(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -93788,14 +95327,14 @@ pub fn riskevidencesynthesis_riskestimate_new() -> RiskevidencesynthesisRiskesti
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource)
 pub type RiskevidencesynthesisRiskestimatePrecisionestimate {
   RiskevidencesynthesisRiskestimatePrecisionestimate(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -93813,14 +95352,14 @@ pub fn riskevidencesynthesis_riskestimate_precisionestimate_new() -> Riskevidenc
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource)
 pub type RiskevidencesynthesisCertainty {
   RiskevidencesynthesisCertainty(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     rating: List(Codeableconcept),
@@ -93838,14 +95377,14 @@ pub fn riskevidencesynthesis_certainty_new() -> RiskevidencesynthesisCertainty {
     rating: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource](http://hl7.org/fhir/r4usp/StructureDefinition/RiskEvidenceSynthesis#resource)
 pub type RiskevidencesynthesisCertaintyCertaintysubcomponent {
   RiskevidencesynthesisCertaintyCertaintysubcomponent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -93861,7 +95400,7 @@ pub fn riskevidencesynthesis_certainty_certaintysubcomponent_new() -> Riskeviden
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -93900,7 +95439,10 @@ pub fn riskevidencesynthesis_certainty_certaintysubcomponent_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -93933,7 +95475,7 @@ pub fn riskevidencesynthesis_certainty_certaintysubcomponent_decoder() -> Decode
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(RiskevidencesynthesisCertaintyCertaintysubcomponent(
     note:,
     rating:,
@@ -93988,7 +95530,10 @@ pub fn riskevidencesynthesis_certainty_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -94021,7 +95566,7 @@ pub fn riskevidencesynthesis_certainty_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(RiskevidencesynthesisCertainty(
     certainty_subcomponent:,
     note:,
@@ -94063,7 +95608,10 @@ pub fn riskevidencesynthesis_riskestimate_precisionestimate_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -94089,7 +95637,7 @@ pub fn riskevidencesynthesis_riskestimate_precisionestimate_decoder() -> Decoder
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(RiskevidencesynthesisRiskestimatePrecisionestimate(
     to:,
     from:,
@@ -94156,7 +95704,10 @@ pub fn riskevidencesynthesis_riskestimate_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -94193,7 +95744,7 @@ pub fn riskevidencesynthesis_riskestimate_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(RiskevidencesynthesisRiskestimate(
     precision_estimate:,
     numerator_count:,
@@ -94242,7 +95793,10 @@ pub fn riskevidencesynthesis_samplesize_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -94266,7 +95820,7 @@ pub fn riskevidencesynthesis_samplesize_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(RiskevidencesynthesisSamplesize(
     number_of_participants:,
     number_of_studies:,
@@ -94472,7 +96026,10 @@ pub fn riskevidencesynthesis_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("RiskEvidenceSynthesis")),
     ..fields
@@ -94615,7 +96172,7 @@ pub fn riskevidencesynthesis_decoder() -> Decoder(Riskevidencesynthesis) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -94671,7 +96228,7 @@ pub fn riskevidencesynthesis_decoder() -> Decoder(Riskevidencesynthesis) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Schedule#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Schedule#resource)
 pub type Schedule {
   Schedule(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -94707,7 +96264,7 @@ pub fn schedule_new(actor actor: List1(Reference)) -> Schedule {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -94793,7 +96350,10 @@ pub fn schedule_to_json(schedule: Schedule) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Schedule")), ..fields]
   json.object(fields)
 }
@@ -94855,7 +96415,7 @@ pub fn schedule_decoder() -> Decoder(Schedule) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -94885,7 +96445,7 @@ pub fn schedule_decoder() -> Decoder(Schedule) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SearchParameter#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SearchParameter#resource)
 pub type Searchparameter {
   Searchparameter(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -94957,14 +96517,14 @@ pub fn searchparameter_new() -> Searchparameter {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SearchParameter#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SearchParameter#resource)
 pub type SearchparameterComponent {
   SearchparameterComponent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     definition: Primitive(String),
@@ -94978,7 +96538,7 @@ pub fn searchparameter_component_new() -> SearchparameterComponent {
     definition: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -95006,7 +96566,10 @@ pub fn searchparameter_component_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -95024,7 +96587,7 @@ pub fn searchparameter_component_decoder() -> Decoder(SearchparameterComponent) 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SearchparameterComponent(
     expression:,
     definition:,
@@ -95190,7 +96753,10 @@ pub fn searchparameter_to_json(searchparameter: Searchparameter) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("SearchParameter")), ..fields]
   json.object(fields)
 }
@@ -95287,7 +96853,7 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -95335,7 +96901,7 @@ pub fn searchparameter_decoder() -> Decoder(Searchparameter) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ServiceRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ServiceRequest#resource)
 pub type Servicerequest {
   Servicerequest(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -95505,7 +97071,7 @@ pub fn servicerequest_new(subject subject: Reference) -> Servicerequest {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -95778,7 +97344,10 @@ pub fn servicerequest_to_json(servicerequest: Servicerequest) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ServiceRequest")), ..fields]
   json.object(fields)
 }
@@ -95950,7 +97519,7 @@ pub fn servicerequest_decoder() -> Decoder(Servicerequest) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -96005,7 +97574,7 @@ pub fn servicerequest_decoder() -> Decoder(Servicerequest) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Slot#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Slot#resource)
 pub type Slot {
   Slot(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -96047,7 +97616,7 @@ pub fn slot_new(schedule schedule: Reference) -> Slot {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -96145,7 +97714,10 @@ pub fn slot_to_json(slot: Slot) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Slot")), ..fields]
   json.object(fields)
 }
@@ -96213,7 +97785,7 @@ pub fn slot_decoder() -> Decoder(Slot) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -96246,7 +97818,7 @@ pub fn slot_decoder() -> Decoder(Slot) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource)
 pub type Specimen {
   Specimen(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -96292,14 +97864,14 @@ pub fn specimen_new() -> Specimen {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource)
 pub type SpecimenCollection {
   SpecimenCollection(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     collector: Option(Reference),
@@ -96386,14 +97958,14 @@ pub fn specimen_collection_new() -> SpecimenCollection {
     collector: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource)
 pub type SpecimenProcessing {
   SpecimenProcessing(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -96435,14 +98007,14 @@ pub fn specimen_processing_new() -> SpecimenProcessing {
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Specimen#resource)
 pub type SpecimenContainer {
   SpecimenContainer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: List(Identifier),
@@ -96496,7 +98068,7 @@ pub fn specimen_container_new() -> SpecimenContainer {
     identifier: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -96556,7 +98128,10 @@ pub fn specimen_container_to_json(specimen_container: SpecimenContainer) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -96596,7 +98171,7 @@ pub fn specimen_container_decoder() -> Decoder(SpecimenContainer) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SpecimenContainer(
     additive:,
     specimen_quantity:,
@@ -96658,7 +98233,10 @@ pub fn specimen_processing_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -96686,7 +98264,7 @@ pub fn specimen_processing_decoder() -> Decoder(SpecimenProcessing) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SpecimenProcessing(
     time:,
     additive:,
@@ -96773,7 +98351,10 @@ pub fn specimen_collection_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -96820,7 +98401,7 @@ pub fn specimen_collection_decoder() -> Decoder(SpecimenCollection) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SpecimenCollection(
     fasting_status:,
     body_site:,
@@ -96953,7 +98534,10 @@ pub fn specimen_to_json(specimen: Specimen) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Specimen")), ..fields]
   json.object(fields)
 }
@@ -97047,7 +98631,7 @@ pub fn specimen_decoder() -> Decoder(Specimen) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -97082,7 +98666,7 @@ pub fn specimen_decoder() -> Decoder(Specimen) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SpecimenDefinition#resource)
 pub type Specimendefinition {
   Specimendefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -97114,14 +98698,14 @@ pub fn specimendefinition_new() -> Specimendefinition {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionTypetested {
   SpecimendefinitionTypetested(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     is_derived: Primitive(Bool),
@@ -97147,14 +98731,14 @@ pub fn specimendefinition_typetested_new() -> SpecimendefinitionTypetested {
     is_derived: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionTypetestedContainer {
   SpecimendefinitionTypetestedContainer(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     material: Option(Codeableconcept),
@@ -97214,14 +98798,14 @@ pub fn specimendefinition_typetested_container_new() -> SpecimendefinitionTypete
     material: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionTypetestedContainerAdditive {
   SpecimendefinitionTypetestedContainerAdditive(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     additive: SpecimendefinitionTypetestedContainerAdditiveAdditive,
@@ -97277,14 +98861,14 @@ pub fn specimendefinition_typetested_container_additive_new(
     additive:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SpecimenDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SpecimenDefinition#resource)
 pub type SpecimendefinitionTypetestedHandling {
   SpecimendefinitionTypetestedHandling(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     temperature_qualifier: Option(Codeableconcept),
@@ -97302,7 +98886,7 @@ pub fn specimendefinition_typetested_handling_new() -> SpecimendefinitionTypetes
     temperature_qualifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -97344,7 +98928,10 @@ pub fn specimendefinition_typetested_handling_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -97378,7 +98965,7 @@ pub fn specimendefinition_typetested_handling_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SpecimendefinitionTypetestedHandling(
     instruction:,
     max_duration:,
@@ -97424,7 +99011,10 @@ pub fn specimendefinition_typetested_container_additive_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -97445,7 +99035,7 @@ pub fn specimendefinition_typetested_container_additive_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SpecimendefinitionTypetestedContainerAdditive(
     additive:,
     modifier_extension:,
@@ -97531,7 +99121,10 @@ pub fn specimendefinition_typetested_container_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -97581,7 +99174,7 @@ pub fn specimendefinition_typetested_container_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SpecimendefinitionTypetestedContainer(
     preparation:,
     additive:,
@@ -97670,7 +99263,10 @@ pub fn specimendefinition_typetested_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -97719,7 +99315,7 @@ pub fn specimendefinition_typetested_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SpecimendefinitionTypetested(
     handling:,
     rejection_criterion:,
@@ -97817,7 +99413,10 @@ pub fn specimendefinition_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("SpecimenDefinition")), ..fields]
   json.object(fields)
 }
@@ -97877,7 +99476,7 @@ pub fn specimendefinition_decoder() -> Decoder(Specimendefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -97905,7 +99504,7 @@ pub fn specimendefinition_decoder() -> Decoder(Specimendefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureDefinition#resource)
 pub type Structuredefinition {
   Structuredefinition(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -97979,14 +99578,14 @@ pub fn structuredefinition_new() -> Structuredefinition {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureDefinition#resource)
 pub type StructuredefinitionMapping {
   StructuredefinitionMapping(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identity: Primitive(String),
@@ -98004,14 +99603,14 @@ pub fn structuredefinition_mapping_new() -> StructuredefinitionMapping {
     identity: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureDefinition#resource)
 pub type StructuredefinitionContext {
   StructuredefinitionContext(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Extensioncontexttype),
@@ -98025,14 +99624,14 @@ pub fn structuredefinition_context_new() -> StructuredefinitionContext {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureDefinition#resource)
 pub type StructuredefinitionSnapshot {
   StructuredefinitionSnapshot(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     element: List1(Elementdefinition),
@@ -98046,14 +99645,14 @@ pub fn structuredefinition_snapshot_new(
     element:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureDefinition#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureDefinition#resource)
 pub type StructuredefinitionDifferential {
   StructuredefinitionDifferential(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     element: List1(Elementdefinition),
@@ -98067,7 +99666,7 @@ pub fn structuredefinition_differential_new(
     element:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -98094,7 +99693,10 @@ pub fn structuredefinition_differential_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -98113,7 +99715,7 @@ pub fn structuredefinition_differential_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuredefinitionDifferential(
     element:,
     modifier_extension:,
@@ -98145,7 +99747,10 @@ pub fn structuredefinition_snapshot_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -98164,7 +99769,7 @@ pub fn structuredefinition_snapshot_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuredefinitionSnapshot(
     element:,
     modifier_extension:,
@@ -98203,7 +99808,10 @@ pub fn structuredefinition_context_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -98226,7 +99834,7 @@ pub fn structuredefinition_context_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuredefinitionContext(
     expression:,
     type_:,
@@ -98264,7 +99872,10 @@ pub fn structuredefinition_mapping_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -98286,7 +99897,7 @@ pub fn structuredefinition_mapping_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuredefinitionMapping(
     comment:,
     name:,
@@ -98470,7 +100081,10 @@ pub fn structuredefinition_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("StructureDefinition")), ..fields]
   json.object(fields)
 }
@@ -98579,7 +100193,7 @@ pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -98628,7 +100242,7 @@ pub fn structuredefinition_decoder() -> Decoder(Structuredefinition) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource)
 pub type Structuremap {
   Structuremap(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -98684,14 +100298,14 @@ pub fn structuremap_new(group group: List1(StructuremapGroup)) -> Structuremap {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource)
 pub type StructuremapStructure {
   StructuremapStructure(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     url: Primitive(String),
@@ -98709,14 +100323,14 @@ pub fn structuremap_structure_new() -> StructuremapStructure {
     url: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroup {
   StructuremapGroup(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -98741,14 +100355,14 @@ pub fn structuremap_group_new(
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupInput {
   StructuremapGroupInput(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -98766,14 +100380,14 @@ pub fn structuremap_group_input_new() -> StructuremapGroupInput {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRule {
   StructuremapGroupRule(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -98797,14 +100411,14 @@ pub fn structuremap_group_rule_new(
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRuleSource {
   StructuremapGroupRuleSource(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     context: Primitive(String),
@@ -99148,14 +100762,14 @@ pub fn structuremap_group_rule_source_new() -> StructuremapGroupRuleSource {
     context: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRuleTarget {
   StructuremapGroupRuleTarget(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     context: Primitive(String),
@@ -99181,14 +100795,14 @@ pub fn structuremap_group_rule_target_new() -> StructuremapGroupRuleTarget {
     context: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRuleTargetParameter {
   StructuremapGroupRuleTargetParameter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     value: StructuremapGroupRuleTargetParameterValue,
@@ -99242,14 +100856,14 @@ pub fn structuremap_group_rule_target_parameter_new(
     value:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource](http://hl7.org/fhir/r4usp/StructureDefinition/StructureMap#resource)
 pub type StructuremapGroupRuleDependent {
   StructuremapGroupRuleDependent(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -99263,7 +100877,7 @@ pub fn structuremap_group_rule_dependent_new() -> StructuremapGroupRuleDependent
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -99291,7 +100905,10 @@ pub fn structuremap_group_rule_dependent_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -99311,7 +100928,7 @@ pub fn structuremap_group_rule_dependent_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuremapGroupRuleDependent(
     variable:,
     name:,
@@ -99354,7 +100971,10 @@ pub fn structuremap_group_rule_target_parameter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -99375,7 +100995,7 @@ pub fn structuremap_group_rule_target_parameter_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuremapGroupRuleTargetParameter(
     value:,
     modifier_extension:,
@@ -99448,7 +101068,10 @@ pub fn structuremap_group_rule_target_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -99487,7 +101110,7 @@ pub fn structuremap_group_rule_target_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuremapGroupRuleTarget(
     parameter:,
     transform:,
@@ -99621,7 +101244,10 @@ pub fn structuremap_group_rule_source_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -99655,7 +101281,7 @@ pub fn structuremap_group_rule_source_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuremapGroupRuleSource(
     log_message:,
     check:,
@@ -99729,7 +101355,10 @@ pub fn structuremap_group_rule_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -99766,7 +101395,7 @@ pub fn structuremap_group_rule_decoder() -> Decoder(StructuremapGroupRule) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuremapGroupRule(
     documentation:,
     dependent:,
@@ -99815,7 +101444,10 @@ pub fn structuremap_group_input_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -99835,7 +101467,7 @@ pub fn structuremap_group_input_decoder() -> Decoder(StructuremapGroupInput) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuremapGroupInput(
     documentation:,
     mode:,
@@ -99885,7 +101517,10 @@ pub fn structuremap_group_to_json(structuremap_group: StructuremapGroup) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -99910,7 +101545,7 @@ pub fn structuremap_group_decoder() -> Decoder(StructuremapGroup) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuremapGroup(
     rule:,
     input:,
@@ -99959,7 +101594,10 @@ pub fn structuremap_structure_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -99979,7 +101617,7 @@ pub fn structuremap_structure_decoder() -> Decoder(StructuremapStructure) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(StructuremapStructure(
     documentation:,
     alias:,
@@ -100098,7 +101736,10 @@ pub fn structuremap_to_json(structuremap: Structuremap) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("StructureMap")), ..fields]
   json.object(fields)
 }
@@ -100173,7 +101814,7 @@ pub fn structuremap_decoder() -> Decoder(Structuremap) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -100213,7 +101854,7 @@ pub fn structuremap_decoder() -> Decoder(Structuremap) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Subscription#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Subscription#resource)
 pub type Subscription {
   Subscription(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -100247,14 +101888,14 @@ pub fn subscription_new(channel channel: SubscriptionChannel) -> Subscription {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Subscription#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Subscription#resource)
 pub type SubscriptionChannel {
   SubscriptionChannel(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Subscriptionchanneltype),
@@ -100272,7 +101913,7 @@ pub fn subscription_channel_new() -> SubscriptionChannel {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -100310,7 +101951,10 @@ pub fn subscription_channel_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -100333,7 +101977,7 @@ pub fn subscription_channel_decoder() -> Decoder(SubscriptionChannel) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubscriptionChannel(
     header:,
     payload:,
@@ -100407,7 +102051,10 @@ pub fn subscription_to_json(subscription: Subscription) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Subscription")), ..fields]
   json.object(fields)
 }
@@ -100455,7 +102102,7 @@ pub fn subscription_decoder() -> Decoder(Subscription) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -100484,7 +102131,7 @@ pub fn subscription_decoder() -> Decoder(Subscription) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Substance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Substance#resource)
 pub type Substance {
   Substance(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -100518,14 +102165,14 @@ pub fn substance_new(code code: Codeableconcept) -> Substance {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Substance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Substance#resource)
 pub type SubstanceInstance {
   SubstanceInstance(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
@@ -100541,14 +102188,14 @@ pub fn substance_instance_new() -> SubstanceInstance {
     identifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Substance#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Substance#resource)
 pub type SubstanceIngredient {
   SubstanceIngredient(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     quantity: Option(Ratio),
@@ -100596,7 +102243,7 @@ pub fn substance_ingredient_new(
     quantity: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -100635,7 +102282,10 @@ pub fn substance_ingredient_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -100657,7 +102307,7 @@ pub fn substance_ingredient_decoder() -> Decoder(SubstanceIngredient) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstanceIngredient(
     substance:,
     quantity:,
@@ -100697,7 +102347,10 @@ pub fn substance_instance_to_json(substance_instance: SubstanceInstance) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -100724,7 +102377,7 @@ pub fn substance_instance_decoder() -> Decoder(SubstanceInstance) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstanceInstance(
     quantity:,
     expiry:,
@@ -100816,7 +102469,10 @@ pub fn substance_to_json(substance: Substance) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Substance")), ..fields]
   json.object(fields)
 }
@@ -100876,7 +102532,7 @@ pub fn substance_decoder() -> Decoder(Substance) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -100905,7 +102561,7 @@ pub fn substance_decoder() -> Decoder(Substance) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceNucleicAcid#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceNucleicAcid#resource)
 pub type Substancenucleicacid {
   Substancenucleicacid(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -100935,14 +102591,14 @@ pub fn substancenucleicacid_new() -> Substancenucleicacid {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceNucleicAcid#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceNucleicAcid#resource)
 pub type SubstancenucleicacidSubunit {
   SubstancenucleicacidSubunit(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     subunit: Primitive(Int),
@@ -100968,14 +102624,14 @@ pub fn substancenucleicacid_subunit_new() -> SubstancenucleicacidSubunit {
     subunit: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceNucleicAcid#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceNucleicAcid#resource)
 pub type SubstancenucleicacidSubunitLinkage {
   SubstancenucleicacidSubunitLinkage(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     connectivity: Primitive(String),
@@ -100993,14 +102649,14 @@ pub fn substancenucleicacid_subunit_linkage_new() -> SubstancenucleicacidSubunit
     connectivity: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceNucleicAcid#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceNucleicAcid#resource)
 pub type SubstancenucleicacidSubunitSugar {
   SubstancenucleicacidSubunitSugar(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
@@ -101016,7 +102672,7 @@ pub fn substancenucleicacid_subunit_sugar_new() -> SubstancenucleicacidSubunitSu
     identifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -101050,7 +102706,10 @@ pub fn substancenucleicacid_subunit_sugar_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -101075,7 +102734,7 @@ pub fn substancenucleicacid_subunit_sugar_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancenucleicacidSubunitSugar(
     residue_site:,
     name:,
@@ -101119,7 +102778,10 @@ pub fn substancenucleicacid_subunit_linkage_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -101145,7 +102807,7 @@ pub fn substancenucleicacid_subunit_linkage_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancenucleicacidSubunitLinkage(
     residue_site:,
     name:,
@@ -101217,7 +102879,10 @@ pub fn substancenucleicacid_subunit_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -101263,7 +102928,7 @@ pub fn substancenucleicacid_subunit_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancenucleicacidSubunit(
     sugar:,
     linkage:,
@@ -101348,7 +103013,10 @@ pub fn substancenucleicacid_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("SubstanceNucleicAcid")),
     ..fields
@@ -101405,7 +103073,7 @@ pub fn substancenucleicacid_decoder() -> Decoder(Substancenucleicacid) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -101432,7 +103100,7 @@ pub fn substancenucleicacid_decoder() -> Decoder(Substancenucleicacid) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource)
 pub type Substancepolymer {
   Substancepolymer(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -101464,14 +103132,14 @@ pub fn substancepolymer_new() -> Substancepolymer {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerMonomerset {
   SubstancepolymerMonomerset(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     ratio_type: Option(Codeableconcept),
@@ -101485,14 +103153,14 @@ pub fn substancepolymer_monomerset_new() -> SubstancepolymerMonomerset {
     ratio_type: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerMonomersetStartingmaterial {
   SubstancepolymerMonomersetStartingmaterial(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     material: Option(Codeableconcept),
@@ -101510,14 +103178,14 @@ pub fn substancepolymer_monomerset_startingmaterial_new() -> SubstancepolymerMon
     material: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerRepeat {
   SubstancepolymerRepeat(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     number_of_units: Primitive(Int),
@@ -101535,14 +103203,14 @@ pub fn substancepolymer_repeat_new() -> SubstancepolymerRepeat {
     number_of_units: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerRepeatRepeatunit {
   SubstancepolymerRepeatRepeatunit(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     orientation_of_polymerisation: Option(Codeableconcept),
@@ -101566,14 +103234,14 @@ pub fn substancepolymer_repeat_repeatunit_new() -> SubstancepolymerRepeatRepeatu
     orientation_of_polymerisation: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerRepeatRepeatunitDegreeofpolymerisation {
   SubstancepolymerRepeatRepeatunitDegreeofpolymerisation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     degree: Option(Codeableconcept),
@@ -101587,14 +103255,14 @@ pub fn substancepolymer_repeat_repeatunit_degreeofpolymerisation_new() -> Substa
     degree: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstancePolymer#resource)
 pub type SubstancepolymerRepeatRepeatunitStructuralrepresentation {
   SubstancepolymerRepeatRepeatunitStructuralrepresentation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -101610,7 +103278,7 @@ pub fn substancepolymer_repeat_repeatunit_structuralrepresentation_new() -> Subs
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -101647,7 +103315,10 @@ pub fn substancepolymer_repeat_repeatunit_structuralrepresentation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -101676,7 +103347,7 @@ pub fn substancepolymer_repeat_repeatunit_structuralrepresentation_decoder() -> 
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancepolymerRepeatRepeatunitStructuralrepresentation(
     attachment:,
     representation:,
@@ -101717,7 +103388,10 @@ pub fn substancepolymer_repeat_repeatunit_degreeofpolymerisation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -101745,7 +103419,7 @@ pub fn substancepolymer_repeat_repeatunit_degreeofpolymerisation_decoder() -> De
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancepolymerRepeatRepeatunitDegreeofpolymerisation(
     amount:,
     degree:,
@@ -101818,7 +103492,10 @@ pub fn substancepolymer_repeat_repeatunit_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -101861,7 +103538,7 @@ pub fn substancepolymer_repeat_repeatunit_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancepolymerRepeatRepeatunit(
     structural_representation:,
     degree_of_polymerisation:,
@@ -101921,7 +103598,10 @@ pub fn substancepolymer_repeat_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -101952,7 +103632,7 @@ pub fn substancepolymer_repeat_decoder() -> Decoder(SubstancepolymerRepeat) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancepolymerRepeat(
     repeat_unit:,
     repeat_unit_amount_type:,
@@ -102001,7 +103681,10 @@ pub fn substancepolymer_monomerset_startingmaterial_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -102035,7 +103718,7 @@ pub fn substancepolymer_monomerset_startingmaterial_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancepolymerMonomersetStartingmaterial(
     amount:,
     is_defining:,
@@ -102086,7 +103769,10 @@ pub fn substancepolymer_monomerset_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -102114,7 +103800,7 @@ pub fn substancepolymer_monomerset_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancepolymerMonomerset(
     starting_material:,
     ratio_type:,
@@ -102205,7 +103891,10 @@ pub fn substancepolymer_to_json(substancepolymer: Substancepolymer) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("SubstancePolymer")), ..fields]
   json.object(fields)
 }
@@ -102265,7 +103954,7 @@ pub fn substancepolymer_decoder() -> Decoder(Substancepolymer) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -102293,7 +103982,7 @@ pub fn substancepolymer_decoder() -> Decoder(Substancepolymer) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceProtein#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceProtein#resource)
 pub type Substanceprotein {
   Substanceprotein(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -102321,14 +104010,14 @@ pub fn substanceprotein_new() -> Substanceprotein {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceProtein#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceProtein#resource)
 pub type SubstanceproteinSubunit {
   SubstanceproteinSubunit(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     subunit: Primitive(Int),
@@ -102354,7 +104043,7 @@ pub fn substanceprotein_subunit_new() -> SubstanceproteinSubunit {
     subunit: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -102415,7 +104104,10 @@ pub fn substanceprotein_subunit_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -102457,7 +104149,7 @@ pub fn substanceprotein_subunit_decoder() -> Decoder(SubstanceproteinSubunit) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstanceproteinSubunit(
     c_terminal_modification:,
     c_terminal_modification_id:,
@@ -102535,7 +104227,10 @@ pub fn substanceprotein_to_json(substanceprotein: Substanceprotein) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("SubstanceProtein")), ..fields]
   json.object(fields)
 }
@@ -102581,7 +104276,7 @@ pub fn substanceprotein_decoder() -> Decoder(Substanceprotein) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -102607,7 +104302,7 @@ pub fn substanceprotein_decoder() -> Decoder(Substanceprotein) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceReferenceInformation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceReferenceInformation#resource)
 pub type Substancereferenceinformation {
   Substancereferenceinformation(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -102637,14 +104332,14 @@ pub fn substancereferenceinformation_new() -> Substancereferenceinformation {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceReferenceInformation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceReferenceInformation#resource)
 pub type SubstancereferenceinformationGene {
   SubstancereferenceinformationGene(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     gene_sequence_origin: Option(Codeableconcept),
@@ -102660,14 +104355,14 @@ pub fn substancereferenceinformation_gene_new() -> Substancereferenceinformation
     gene_sequence_origin: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceReferenceInformation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceReferenceInformation#resource)
 pub type SubstancereferenceinformationGeneelement {
   SubstancereferenceinformationGeneelement(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -102683,14 +104378,14 @@ pub fn substancereferenceinformation_geneelement_new() -> Substancereferenceinfo
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceReferenceInformation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceReferenceInformation#resource)
 pub type SubstancereferenceinformationClassification {
   SubstancereferenceinformationClassification(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     domain: Option(Codeableconcept),
@@ -102708,14 +104403,14 @@ pub fn substancereferenceinformation_classification_new() -> Substancereferencei
     domain: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceReferenceInformation#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceReferenceInformation#resource)
 pub type SubstancereferenceinformationTarget {
   SubstancereferenceinformationTarget(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     target: Option(Identifier),
@@ -102773,7 +104468,7 @@ pub fn substancereferenceinformation_target_new() -> Substancereferenceinformati
     target: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -102848,7 +104543,10 @@ pub fn substancereferenceinformation_target_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -102904,7 +104602,7 @@ pub fn substancereferenceinformation_target_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancereferenceinformationTarget(
     source:,
     amount_type:,
@@ -102960,7 +104658,10 @@ pub fn substancereferenceinformation_classification_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -102998,7 +104699,7 @@ pub fn substancereferenceinformation_classification_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancereferenceinformationClassification(
     source:,
     subtype:,
@@ -103045,7 +104746,10 @@ pub fn substancereferenceinformation_geneelement_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -103078,7 +104782,7 @@ pub fn substancereferenceinformation_geneelement_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancereferenceinformationGeneelement(
     source:,
     element:,
@@ -103124,7 +104828,10 @@ pub fn substancereferenceinformation_gene_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -103157,7 +104864,7 @@ pub fn substancereferenceinformation_gene_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancereferenceinformationGene(
     source:,
     gene:,
@@ -103257,7 +104964,10 @@ pub fn substancereferenceinformation_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("SubstanceReferenceInformation")),
     ..fields
@@ -103317,7 +105027,7 @@ pub fn substancereferenceinformation_decoder() -> Decoder(
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -103344,7 +105054,7 @@ pub fn substancereferenceinformation_decoder() -> Decoder(
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type Substancesourcematerial {
   Substancesourcematerial(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -103390,14 +105100,14 @@ pub fn substancesourcematerial_new() -> Substancesourcematerial {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialFractiondescription {
   SubstancesourcematerialFractiondescription(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     fraction: Primitive(String),
@@ -103411,14 +105121,14 @@ pub fn substancesourcematerial_fractiondescription_new() -> Substancesourcemater
     fraction: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialOrganism {
   SubstancesourcematerialOrganism(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     family: Option(Codeableconcept),
@@ -103444,14 +105154,14 @@ pub fn substancesourcematerial_organism_new() -> SubstancesourcematerialOrganism
     family: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialOrganismAuthor {
   SubstancesourcematerialOrganismAuthor(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     author_type: Option(Codeableconcept),
@@ -103465,14 +105175,14 @@ pub fn substancesourcematerial_organism_author_new() -> SubstancesourcematerialO
     author_type: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialOrganismHybrid {
   SubstancesourcematerialOrganismHybrid(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     maternal_organism_id: Primitive(String),
@@ -103492,14 +105202,14 @@ pub fn substancesourcematerial_organism_hybrid_new() -> SubstancesourcematerialO
     maternal_organism_id: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialOrganismOrganismgeneral {
   SubstancesourcematerialOrganismOrganismgeneral(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     kingdom: Option(Codeableconcept),
@@ -103517,14 +105227,14 @@ pub fn substancesourcematerial_organism_organismgeneral_new() -> Substancesource
     kingdom: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSourceMaterial#resource)
 pub type SubstancesourcematerialPartdescription {
   SubstancesourcematerialPartdescription(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     part: Option(Codeableconcept),
@@ -103538,7 +105248,7 @@ pub fn substancesourcematerial_partdescription_new() -> SubstancesourcematerialP
     part: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -103572,7 +105282,10 @@ pub fn substancesourcematerial_partdescription_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -103600,7 +105313,7 @@ pub fn substancesourcematerial_partdescription_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancesourcematerialPartdescription(
     part_location:,
     part:,
@@ -103650,7 +105363,10 @@ pub fn substancesourcematerial_organism_organismgeneral_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -103688,7 +105404,7 @@ pub fn substancesourcematerial_organism_organismgeneral_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancesourcematerialOrganismOrganismgeneral(
     order:,
     class:,
@@ -103757,7 +105473,10 @@ pub fn substancesourcematerial_organism_hybrid_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -103796,7 +105515,7 @@ pub fn substancesourcematerial_organism_hybrid_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancesourcematerialOrganismHybrid(
     hybrid_type:,
     paternal_organism_name:,
@@ -103842,7 +105561,10 @@ pub fn substancesourcematerial_organism_author_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -103869,7 +105591,7 @@ pub fn substancesourcematerial_organism_author_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancesourcematerialOrganismAuthor(
     author_description:,
     author_type:,
@@ -103957,7 +105679,10 @@ pub fn substancesourcematerial_organism_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -104014,7 +105739,7 @@ pub fn substancesourcematerial_organism_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancesourcematerialOrganism(
     organism_general:,
     hybrid:,
@@ -104057,7 +105782,10 @@ pub fn substancesourcematerial_fractiondescription_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -104081,7 +105809,7 @@ pub fn substancesourcematerial_fractiondescription_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancesourcematerialFractiondescription(
     material_type:,
     fraction:,
@@ -104233,7 +105961,10 @@ pub fn substancesourcematerial_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("SubstanceSourceMaterial")),
     ..fields
@@ -104329,7 +106060,7 @@ pub fn substancesourcematerial_decoder() -> Decoder(Substancesourcematerial) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -104364,7 +106095,7 @@ pub fn substancesourcematerial_decoder() -> Decoder(Substancesourcematerial) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type Substancespecification {
   Substancespecification(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -104424,14 +106155,14 @@ pub fn substancespecification_new() -> Substancespecification {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type SubstancespecificationMoiety {
   SubstancespecificationMoiety(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     role: Option(Codeableconcept),
@@ -104483,14 +106214,14 @@ pub fn substancespecification_moiety_new() -> SubstancespecificationMoiety {
     role: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type SubstancespecificationProperty {
   SubstancespecificationProperty(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     category: Option(Codeableconcept),
@@ -104582,14 +106313,14 @@ pub fn substancespecification_property_new() -> SubstancespecificationProperty {
     category: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type SubstancespecificationStructure {
   SubstancespecificationStructure(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     stereochemistry: Option(Codeableconcept),
@@ -104617,14 +106348,14 @@ pub fn substancespecification_structure_new() -> SubstancespecificationStructure
     stereochemistry: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type SubstancespecificationStructureIsotope {
   SubstancespecificationStructureIsotope(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Option(Identifier),
@@ -104646,14 +106377,14 @@ pub fn substancespecification_structure_isotope_new() -> SubstancespecificationS
     identifier: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type SubstancespecificationStructureIsotopeMolecularweight {
   SubstancespecificationStructureIsotopeMolecularweight(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     method: Option(Codeableconcept),
@@ -104669,14 +106400,14 @@ pub fn substancespecification_structure_isotope_molecularweight_new() -> Substan
     method: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type SubstancespecificationStructureRepresentation {
   SubstancespecificationStructureRepresentation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Codeableconcept),
@@ -104692,14 +106423,14 @@ pub fn substancespecification_structure_representation_new() -> Substancespecifi
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type SubstancespecificationCode {
   SubstancespecificationCode(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -104719,14 +106450,14 @@ pub fn substancespecification_code_new() -> SubstancespecificationCode {
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type SubstancespecificationName {
   SubstancespecificationName(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -104758,14 +106489,14 @@ pub fn substancespecification_name_new() -> SubstancespecificationName {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type SubstancespecificationNameOfficial {
   SubstancespecificationNameOfficial(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     authority: Option(Codeableconcept),
@@ -104781,14 +106512,14 @@ pub fn substancespecification_name_official_new() -> SubstancespecificationNameO
     authority: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SubstanceSpecification#resource)
 pub type SubstancespecificationRelationship {
   SubstancespecificationRelationship(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     substance: Option(SubstancespecificationRelationshipSubstance),
@@ -104884,7 +106615,7 @@ pub fn substancespecification_relationship_new() -> SubstancespecificationRelati
     substance: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -104963,7 +106694,10 @@ pub fn substancespecification_relationship_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -105008,7 +106742,7 @@ pub fn substancespecification_relationship_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancespecificationRelationship(
     source:,
     amount_type:,
@@ -105055,7 +106789,10 @@ pub fn substancespecification_name_official_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -105084,7 +106821,7 @@ pub fn substancespecification_name_official_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancespecificationNameOfficial(
     date:,
     status:,
@@ -105185,7 +106922,10 @@ pub fn substancespecification_name_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -105250,7 +106990,7 @@ pub fn substancespecification_name_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancespecificationName(
     source:,
     official:,
@@ -105309,7 +107049,10 @@ pub fn substancespecification_code_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -105344,7 +107087,7 @@ pub fn substancespecification_code_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancespecificationCode(
     source:,
     comment:,
@@ -105390,7 +107133,10 @@ pub fn substancespecification_structure_representation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -105419,7 +107165,7 @@ pub fn substancespecification_structure_representation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancespecificationStructureRepresentation(
     attachment:,
     representation:,
@@ -105465,7 +107211,10 @@ pub fn substancespecification_structure_isotope_molecularweight_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -105498,7 +107247,7 @@ pub fn substancespecification_structure_isotope_molecularweight_decoder() -> Dec
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancespecificationStructureIsotopeMolecularweight(
     amount:,
     type_:,
@@ -105560,7 +107309,10 @@ pub fn substancespecification_structure_isotope_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -105605,7 +107357,7 @@ pub fn substancespecification_structure_isotope_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancespecificationStructureIsotope(
     molecular_weight:,
     half_life:,
@@ -105705,7 +107457,10 @@ pub fn substancespecification_structure_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -105760,7 +107515,7 @@ pub fn substancespecification_structure_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancespecificationStructure(
     representation:,
     source:,
@@ -105840,7 +107595,10 @@ pub fn substancespecification_property_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -105875,7 +107633,7 @@ pub fn substancespecification_property_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancespecificationProperty(
     amount:,
     defining_substance:,
@@ -105953,7 +107711,10 @@ pub fn substancespecification_moiety_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -105996,7 +107757,7 @@ pub fn substancespecification_moiety_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SubstancespecificationMoiety(
     amount:,
     molecular_formula:,
@@ -106174,7 +107935,10 @@ pub fn substancespecification_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("SubstanceSpecification")),
     ..fields
@@ -106300,7 +108064,7 @@ pub fn substancespecification_decoder() -> Decoder(Substancespecification) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -106341,7 +108105,7 @@ pub fn substancespecification_decoder() -> Decoder(Substancespecification) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SupplyDelivery#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SupplyDelivery#resource)
 pub type Supplydelivery {
   Supplydelivery(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -106411,14 +108175,14 @@ pub fn supplydelivery_new() -> Supplydelivery {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SupplyDelivery#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SupplyDelivery#resource)
 pub type SupplydeliverySupplieditem {
   SupplydeliverySupplieditem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     quantity: Option(Quantity),
@@ -106465,7 +108229,7 @@ pub fn supplydelivery_supplieditem_new() -> SupplydeliverySupplieditem {
     quantity: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -106509,7 +108273,10 @@ pub fn supplydelivery_supplieditem_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -106535,7 +108302,7 @@ pub fn supplydelivery_supplieditem_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SupplydeliverySupplieditem(
     item:,
     quantity:,
@@ -106655,7 +108422,10 @@ pub fn supplydelivery_to_json(supplydelivery: Supplydelivery) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("SupplyDelivery")), ..fields]
   json.object(fields)
 }
@@ -106741,7 +108511,7 @@ pub fn supplydelivery_decoder() -> Decoder(Supplydelivery) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -106774,7 +108544,7 @@ pub fn supplydelivery_decoder() -> Decoder(Supplydelivery) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SupplyRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SupplyRequest#resource)
 pub type Supplyrequest {
   Supplyrequest(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -106883,14 +108653,14 @@ pub fn supplyrequest_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/SupplyRequest#resource](http://hl7.org/fhir/r4usp/StructureDefinition/SupplyRequest#resource)
 pub type SupplyrequestParameter {
   SupplyrequestParameter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Option(Codeableconcept),
@@ -106944,7 +108714,7 @@ pub fn supplyrequest_parameter_new() -> SupplyrequestParameter {
     code: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -106990,7 +108760,10 @@ pub fn supplyrequest_parameter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -107014,7 +108787,7 @@ pub fn supplyrequest_parameter_decoder() -> Decoder(SupplyrequestParameter) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(SupplyrequestParameter(
     value:,
     code:,
@@ -107163,7 +108936,10 @@ pub fn supplyrequest_to_json(supplyrequest: Supplyrequest) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("SupplyRequest")), ..fields]
   json.object(fields)
 }
@@ -107256,7 +109032,7 @@ pub fn supplyrequest_decoder() -> Decoder(Supplyrequest) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -107293,7 +109069,7 @@ pub fn supplyrequest_decoder() -> Decoder(Supplyrequest) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Task#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Task#resource)
 pub type Task {
   Task(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -107375,14 +109151,14 @@ pub fn task_new() -> Task {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Task#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Task#resource)
 pub type TaskRestriction {
   TaskRestriction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     repetitions: Primitive(Int),
@@ -107398,14 +109174,14 @@ pub fn task_restriction_new() -> TaskRestriction {
     repetitions: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Task#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Task#resource)
 pub type TaskInput {
   TaskInput(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -107657,19 +109433,13 @@ pub fn task_input_new(
   value value: TaskInputValue,
   type_ type_: Codeableconcept,
 ) -> TaskInput {
-  TaskInput(
-    value:,
-    type_:,
-    modifier_extension: [],
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  TaskInput(value:, type_:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/Task#resource](http://hl7.org/fhir/r4usp/StructureDefinition/Task#resource)
 pub type TaskOutput {
   TaskOutput(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Codeableconcept,
@@ -107921,13 +109691,7 @@ pub fn task_output_new(
   value value: TaskOutputValue,
   type_ type_: Codeableconcept,
 ) -> TaskOutput {
-  TaskOutput(
-    value:,
-    type_:,
-    modifier_extension: [],
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  TaskOutput(value:, type_:, modifier_extension: [], extension: [], id: None)
 }
 
 pub fn task_output_to_json(task_output: TaskOutput) -> Json {
@@ -108003,7 +109767,10 @@ pub fn task_output_to_json(task_output: TaskOutput) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -108021,7 +109788,7 @@ pub fn task_output_decoder() -> Decoder(TaskOutput) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TaskOutput(
     value:,
     type_:,
@@ -108104,7 +109871,10 @@ pub fn task_input_to_json(task_input: TaskInput) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -108122,7 +109892,7 @@ pub fn task_input_decoder() -> Decoder(TaskInput) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TaskInput(value:, type_:, modifier_extension:, extension:, id:))
 }
 
@@ -108156,7 +109926,10 @@ pub fn task_restriction_to_json(task_restriction: TaskRestriction) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -108183,7 +109956,7 @@ pub fn task_restriction_decoder() -> Decoder(TaskRestriction) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TaskRestriction(
     recipient:,
     period:,
@@ -108402,7 +110175,10 @@ pub fn task_to_json(task: Task) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("Task")), ..fields]
   json.object(fields)
 }
@@ -108571,7 +110347,7 @@ pub fn task_decoder() -> Decoder(Task) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(rt != "Task", decode.failure(task_new(), "resourceType"))
@@ -108621,7 +110397,7 @@ pub fn task_decoder() -> Decoder(Task) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type Terminologycapabilities {
   Terminologycapabilities(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -108689,14 +110465,14 @@ pub fn terminologycapabilities_new() -> Terminologycapabilities {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesSoftware {
   TerminologycapabilitiesSoftware(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -108710,14 +110486,14 @@ pub fn terminologycapabilities_software_new() -> TerminologycapabilitiesSoftware
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesImplementation {
   TerminologycapabilitiesImplementation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     description: Primitive(String),
@@ -108731,14 +110507,14 @@ pub fn terminologycapabilities_implementation_new() -> TerminologycapabilitiesIm
     description: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesCodesystem {
   TerminologycapabilitiesCodesystem(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     uri: Primitive(String),
@@ -108754,14 +110530,14 @@ pub fn terminologycapabilities_codesystem_new() -> TerminologycapabilitiesCodesy
     uri: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesCodesystemVersion {
   TerminologycapabilitiesCodesystemVersion(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(String),
@@ -108783,14 +110559,14 @@ pub fn terminologycapabilities_codesystem_version_new() -> Terminologycapabiliti
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesCodesystemVersionFilter {
   TerminologycapabilitiesCodesystemVersionFilter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(String),
@@ -108804,14 +110580,14 @@ pub fn terminologycapabilities_codesystem_version_filter_new() -> Terminologycap
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesExpansion {
   TerminologycapabilitiesExpansion(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     hierarchical: Primitive(Bool),
@@ -108831,14 +110607,14 @@ pub fn terminologycapabilities_expansion_new() -> TerminologycapabilitiesExpansi
     hierarchical: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesExpansionParameter {
   TerminologycapabilitiesExpansionParameter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -108852,14 +110628,14 @@ pub fn terminologycapabilities_expansion_parameter_new() -> Terminologycapabilit
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesValidatecode {
   TerminologycapabilitiesValidatecode(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     translations: Primitive(Bool),
@@ -108871,14 +110647,14 @@ pub fn terminologycapabilities_validatecode_new() -> TerminologycapabilitiesVali
     translations: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesTranslation {
   TerminologycapabilitiesTranslation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     needs_map: Primitive(Bool),
@@ -108890,14 +110666,14 @@ pub fn terminologycapabilities_translation_new() -> TerminologycapabilitiesTrans
     needs_map: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TerminologyCapabilities#resource)
 pub type TerminologycapabilitiesClosure {
   TerminologycapabilitiesClosure(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     translation: Primitive(Bool),
@@ -108909,7 +110685,7 @@ pub fn terminologycapabilities_closure_new() -> TerminologycapabilitiesClosure {
     translation: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -108935,7 +110711,10 @@ pub fn terminologycapabilities_closure_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -108954,7 +110733,7 @@ pub fn terminologycapabilities_closure_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TerminologycapabilitiesClosure(
     translation:,
     modifier_extension:,
@@ -108985,7 +110764,10 @@ pub fn terminologycapabilities_translation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -109004,7 +110786,7 @@ pub fn terminologycapabilities_translation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TerminologycapabilitiesTranslation(
     needs_map:,
     modifier_extension:,
@@ -109036,7 +110818,10 @@ pub fn terminologycapabilities_validatecode_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -109055,7 +110840,7 @@ pub fn terminologycapabilities_validatecode_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TerminologycapabilitiesValidatecode(
     translations:,
     modifier_extension:,
@@ -109089,7 +110874,10 @@ pub fn terminologycapabilities_expansion_parameter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -109109,7 +110897,7 @@ pub fn terminologycapabilities_expansion_parameter_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TerminologycapabilitiesExpansionParameter(
     documentation:,
     name:,
@@ -109162,7 +110950,10 @@ pub fn terminologycapabilities_expansion_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -109189,7 +110980,7 @@ pub fn terminologycapabilities_expansion_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TerminologycapabilitiesExpansion(
     text_filter:,
     parameter:,
@@ -109226,7 +111017,10 @@ pub fn terminologycapabilities_codesystem_version_filter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -109246,7 +111040,7 @@ pub fn terminologycapabilities_codesystem_version_filter_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TerminologycapabilitiesCodesystemVersionFilter(
     op:,
     code:,
@@ -109301,7 +111095,10 @@ pub fn terminologycapabilities_codesystem_version_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -109329,7 +111126,7 @@ pub fn terminologycapabilities_codesystem_version_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TerminologycapabilitiesCodesystemVersion(
     property:,
     filter:,
@@ -109378,7 +111175,10 @@ pub fn terminologycapabilities_codesystem_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -109403,7 +111203,7 @@ pub fn terminologycapabilities_codesystem_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TerminologycapabilitiesCodesystem(
     subsumption:,
     version:,
@@ -109439,7 +111239,10 @@ pub fn terminologycapabilities_implementation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -109459,7 +111262,7 @@ pub fn terminologycapabilities_implementation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TerminologycapabilitiesImplementation(
     url:,
     description:,
@@ -109493,7 +111296,10 @@ pub fn terminologycapabilities_software_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -109513,7 +111319,7 @@ pub fn terminologycapabilities_software_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TerminologycapabilitiesSoftware(
     version:,
     name:,
@@ -109691,7 +111497,10 @@ pub fn terminologycapabilities_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [
     #("resourceType", json.string("TerminologyCapabilities")),
     ..fields
@@ -109801,7 +111610,7 @@ pub fn terminologycapabilities_decoder() -> Decoder(Terminologycapabilities) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -109847,7 +111656,7 @@ pub fn terminologycapabilities_decoder() -> Decoder(Terminologycapabilities) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource)
 pub type Testreport {
   Testreport(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -109891,14 +111700,14 @@ pub fn testreport_new(test_script test_script: Reference) -> Testreport {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource)
 pub type TestreportParticipant {
   TestreportParticipant(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Primitive(r4usp_valuesets.Reportparticipanttype),
@@ -109914,14 +111723,14 @@ pub fn testreport_participant_new() -> TestreportParticipant {
     type_: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource)
 pub type TestreportSetup {
   TestreportSetup(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     action: List1(TestreportSetupAction),
@@ -109931,18 +111740,13 @@ pub type TestreportSetup {
 pub fn testreport_setup_new(
   action action: List1(TestreportSetupAction),
 ) -> TestreportSetup {
-  TestreportSetup(
-    action:,
-    modifier_extension: [],
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  TestreportSetup(action:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource)
 pub type TestreportSetupAction {
   TestreportSetupAction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     operation: Option(TestreportSetupActionOperation),
@@ -109956,14 +111760,14 @@ pub fn testreport_setup_action_new() -> TestreportSetupAction {
     operation: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource)
 pub type TestreportSetupActionOperation {
   TestreportSetupActionOperation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     result: Primitive(r4usp_valuesets.Reportactionresultcodes),
@@ -109979,14 +111783,14 @@ pub fn testreport_setup_action_operation_new() -> TestreportSetupActionOperation
     result: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource)
 pub type TestreportSetupActionAssert {
   TestreportSetupActionAssert(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     result: Primitive(r4usp_valuesets.Reportactionresultcodes),
@@ -110002,14 +111806,14 @@ pub fn testreport_setup_action_assert_new() -> TestreportSetupActionAssert {
     result: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource)
 pub type TestreportTest {
   TestreportTest(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -110027,14 +111831,14 @@ pub fn testreport_test_new(
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource)
 pub type TestreportTestAction {
   TestreportTestAction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     operation: Option(TestreportSetupActionOperation),
@@ -110048,14 +111852,14 @@ pub fn testreport_test_action_new() -> TestreportTestAction {
     operation: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource)
 pub type TestreportTeardown {
   TestreportTeardown(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     action: List1(TestreportTeardownAction),
@@ -110065,18 +111869,13 @@ pub type TestreportTeardown {
 pub fn testreport_teardown_new(
   action action: List1(TestreportTeardownAction),
 ) -> TestreportTeardown {
-  TestreportTeardown(
-    action:,
-    modifier_extension: [],
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  TestreportTeardown(action:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestReport#resource)
 pub type TestreportTeardownAction {
   TestreportTeardownAction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     operation: TestreportSetupActionOperation,
@@ -110090,7 +111889,7 @@ pub fn testreport_teardown_action_new(
     operation:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -110113,7 +111912,10 @@ pub fn testreport_teardown_action_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -110133,7 +111935,7 @@ pub fn testreport_teardown_action_decoder() -> Decoder(TestreportTeardownAction)
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestreportTeardownAction(
     operation:,
     modifier_extension:,
@@ -110161,7 +111963,10 @@ pub fn testreport_teardown_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -110178,7 +111983,7 @@ pub fn testreport_teardown_decoder() -> Decoder(TestreportTeardown) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestreportTeardown(
     action:,
     modifier_extension:,
@@ -110223,7 +112028,10 @@ pub fn testreport_test_action_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -110249,7 +112057,7 @@ pub fn testreport_test_action_decoder() -> Decoder(TestreportTestAction) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestreportTestAction(
     assert_:,
     operation:,
@@ -110285,7 +112093,10 @@ pub fn testreport_test_to_json(testreport_test: TestreportTest) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -110304,7 +112115,7 @@ pub fn testreport_test_decoder() -> Decoder(TestreportTest) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestreportTest(
     action:,
     description:,
@@ -110347,7 +112158,10 @@ pub fn testreport_setup_action_assert_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -110371,7 +112185,7 @@ pub fn testreport_setup_action_assert_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestreportSetupActionAssert(
     detail:,
     message:,
@@ -110414,7 +112228,10 @@ pub fn testreport_setup_action_operation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -110438,7 +112255,7 @@ pub fn testreport_setup_action_operation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestreportSetupActionOperation(
     detail:,
     message:,
@@ -110485,7 +112302,10 @@ pub fn testreport_setup_action_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -110511,7 +112331,7 @@ pub fn testreport_setup_action_decoder() -> Decoder(TestreportSetupAction) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestreportSetupAction(
     assert_:,
     operation:,
@@ -110538,7 +112358,10 @@ pub fn testreport_setup_to_json(testreport_setup: TestreportSetup) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -110555,7 +112378,7 @@ pub fn testreport_setup_decoder() -> Decoder(TestreportSetup) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestreportSetup(action:, modifier_extension:, extension:, id:))
 }
 
@@ -110591,7 +112414,10 @@ pub fn testreport_participant_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -110613,7 +112439,7 @@ pub fn testreport_participant_decoder() -> Decoder(TestreportParticipant) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestreportParticipant(
     display:,
     uri:,
@@ -110717,7 +112543,10 @@ pub fn testreport_to_json(testreport: Testreport) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("TestReport")), ..fields]
   json.object(fields)
 }
@@ -110789,7 +112618,7 @@ pub fn testreport_decoder() -> Decoder(Testreport) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -110823,7 +112652,7 @@ pub fn testreport_decoder() -> Decoder(Testreport) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type Testscript {
   Testscript(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -110891,14 +112720,14 @@ pub fn testscript_new() -> Testscript {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptOrigin {
   TestscriptOrigin(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     index: Primitive(Int),
@@ -110912,14 +112741,14 @@ pub fn testscript_origin_new(profile profile: Coding) -> TestscriptOrigin {
     index: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptDestination {
   TestscriptDestination(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     index: Primitive(Int),
@@ -110935,14 +112764,14 @@ pub fn testscript_destination_new(
     index: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptMetadata {
   TestscriptMetadata(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     link: List(TestscriptMetadataLink),
@@ -110958,14 +112787,14 @@ pub fn testscript_metadata_new(
     link: [],
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptMetadataLink {
   TestscriptMetadataLink(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     url: Primitive(String),
@@ -110979,14 +112808,14 @@ pub fn testscript_metadata_link_new() -> TestscriptMetadataLink {
     url: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptMetadataCapability {
   TestscriptMetadataCapability(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     required: Primitive(Bool),
@@ -111010,14 +112839,14 @@ pub fn testscript_metadata_capability_new() -> TestscriptMetadataCapability {
     required: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptFixture {
   TestscriptFixture(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     autocreate: Primitive(Bool),
@@ -111033,14 +112862,14 @@ pub fn testscript_fixture_new() -> TestscriptFixture {
     autocreate: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptVariable {
   TestscriptVariable(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -111066,14 +112895,14 @@ pub fn testscript_variable_new() -> TestscriptVariable {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptSetup {
   TestscriptSetup(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     action: List1(TestscriptSetupAction),
@@ -111083,18 +112912,13 @@ pub type TestscriptSetup {
 pub fn testscript_setup_new(
   action action: List1(TestscriptSetupAction),
 ) -> TestscriptSetup {
-  TestscriptSetup(
-    action:,
-    modifier_extension: [],
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  TestscriptSetup(action:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptSetupAction {
   TestscriptSetupAction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     operation: Option(TestscriptSetupActionOperation),
@@ -111108,14 +112932,14 @@ pub fn testscript_setup_action_new() -> TestscriptSetupAction {
     operation: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptSetupActionOperation {
   TestscriptSetupActionOperation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     type_: Option(Coding),
@@ -111159,14 +112983,14 @@ pub fn testscript_setup_action_operation_new() -> TestscriptSetupActionOperation
     type_: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptSetupActionOperationRequestheader {
   TestscriptSetupActionOperationRequestheader(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     field: Primitive(String),
@@ -111180,14 +113004,14 @@ pub fn testscript_setup_action_operation_requestheader_new() -> TestscriptSetupA
     field: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptSetupActionAssert {
   TestscriptSetupActionAssert(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     label: Primitive(String),
@@ -111241,14 +113065,14 @@ pub fn testscript_setup_action_assert_new() -> TestscriptSetupActionAssert {
     label: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptTest {
   TestscriptTest(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -111266,14 +113090,14 @@ pub fn testscript_test_new(
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptTestAction {
   TestscriptTestAction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     operation: Option(TestscriptSetupActionOperation),
@@ -111287,14 +113111,14 @@ pub fn testscript_test_action_new() -> TestscriptTestAction {
     operation: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptTeardown {
   TestscriptTeardown(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     action: List1(TestscriptTeardownAction),
@@ -111304,18 +113128,13 @@ pub type TestscriptTeardown {
 pub fn testscript_teardown_new(
   action action: List1(TestscriptTeardownAction),
 ) -> TestscriptTeardown {
-  TestscriptTeardown(
-    action:,
-    modifier_extension: [],
-    extension: [],
-    id: Primitive(id: None, ext: [], value: None),
-  )
+  TestscriptTeardown(action:, modifier_extension: [], extension: [], id: None)
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource](http://hl7.org/fhir/r4usp/StructureDefinition/TestScript#resource)
 pub type TestscriptTeardownAction {
   TestscriptTeardownAction(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     operation: TestscriptSetupActionOperation,
@@ -111329,7 +113148,7 @@ pub fn testscript_teardown_action_new(
     operation:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -111352,7 +113171,10 @@ pub fn testscript_teardown_action_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -111372,7 +113194,7 @@ pub fn testscript_teardown_action_decoder() -> Decoder(TestscriptTeardownAction)
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptTeardownAction(
     operation:,
     modifier_extension:,
@@ -111400,7 +113222,10 @@ pub fn testscript_teardown_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -111417,7 +113242,7 @@ pub fn testscript_teardown_decoder() -> Decoder(TestscriptTeardown) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptTeardown(
     action:,
     modifier_extension:,
@@ -111462,7 +113287,10 @@ pub fn testscript_test_action_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -111488,7 +113316,7 @@ pub fn testscript_test_action_decoder() -> Decoder(TestscriptTestAction) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptTestAction(
     assert_:,
     operation:,
@@ -111524,7 +113352,10 @@ pub fn testscript_test_to_json(testscript_test: TestscriptTest) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -111543,7 +113374,7 @@ pub fn testscript_test_decoder() -> Decoder(TestscriptTest) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptTest(
     action:,
     description:,
@@ -111677,7 +113508,10 @@ pub fn testscript_setup_action_assert_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -111744,7 +113578,7 @@ pub fn testscript_setup_action_assert_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptSetupActionAssert(
     warning_only:,
     value:,
@@ -111798,7 +113632,10 @@ pub fn testscript_setup_action_operation_requestheader_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -111818,7 +113655,7 @@ pub fn testscript_setup_action_operation_requestheader_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptSetupActionOperationRequestheader(
     value:,
     field:,
@@ -111912,7 +113749,10 @@ pub fn testscript_setup_action_operation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -111961,7 +113801,7 @@ pub fn testscript_setup_action_operation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptSetupActionOperation(
     url:,
     target_id:,
@@ -112022,7 +113862,10 @@ pub fn testscript_setup_action_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -112048,7 +113891,7 @@ pub fn testscript_setup_action_decoder() -> Decoder(TestscriptSetupAction) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptSetupAction(
     assert_:,
     operation:,
@@ -112075,7 +113918,10 @@ pub fn testscript_setup_to_json(testscript_setup: TestscriptSetup) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -112092,7 +113938,7 @@ pub fn testscript_setup_decoder() -> Decoder(TestscriptSetup) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptSetup(action:, modifier_extension:, extension:, id:))
 }
 
@@ -112135,7 +113981,10 @@ pub fn testscript_variable_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -112159,7 +114008,7 @@ pub fn testscript_variable_decoder() -> Decoder(TestscriptVariable) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptVariable(
     source_id:,
     path:,
@@ -112202,7 +114051,10 @@ pub fn testscript_fixture_to_json(testscript_fixture: TestscriptFixture) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -112225,7 +114077,7 @@ pub fn testscript_fixture_decoder() -> Decoder(TestscriptFixture) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptFixture(
     resource:,
     autodelete:,
@@ -112272,7 +114124,10 @@ pub fn testscript_metadata_capability_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -112297,7 +114152,7 @@ pub fn testscript_metadata_capability_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptMetadataCapability(
     capabilities:,
     link:,
@@ -112337,7 +114192,10 @@ pub fn testscript_metadata_link_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -112355,7 +114213,7 @@ pub fn testscript_metadata_link_decoder() -> Decoder(TestscriptMetadataLink) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptMetadataLink(
     description:,
     url:,
@@ -112399,7 +114257,10 @@ pub fn testscript_metadata_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -112424,7 +114285,7 @@ pub fn testscript_metadata_decoder() -> Decoder(TestscriptMetadata) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptMetadata(
     capability:,
     link:,
@@ -112459,7 +114320,10 @@ pub fn testscript_destination_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -112477,7 +114341,7 @@ pub fn testscript_destination_decoder() -> Decoder(TestscriptDestination) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptDestination(
     profile:,
     index:,
@@ -112505,7 +114369,10 @@ pub fn testscript_origin_to_json(testscript_origin: TestscriptOrigin) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -112523,7 +114390,7 @@ pub fn testscript_origin_decoder() -> Decoder(TestscriptOrigin) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(TestscriptOrigin(
     profile:,
     index:,
@@ -112681,7 +114548,10 @@ pub fn testscript_to_json(testscript: Testscript) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("TestScript")), ..fields]
   json.object(fields)
 }
@@ -112794,7 +114664,7 @@ pub fn testscript_decoder() -> Decoder(Testscript) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -112840,7 +114710,7 @@ pub fn testscript_decoder() -> Decoder(Testscript) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource)
 pub type Valueset {
   Valueset(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -112896,14 +114766,14 @@ pub fn valueset_new() -> Valueset {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource)
 pub type ValuesetCompose {
   ValuesetCompose(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     locked_date: Primitive(Date),
@@ -112923,14 +114793,14 @@ pub fn valueset_compose_new(
     locked_date: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource)
 pub type ValuesetComposeInclude {
   ValuesetComposeInclude(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     system: Primitive(String),
@@ -112950,14 +114820,14 @@ pub fn valueset_compose_include_new() -> ValuesetComposeInclude {
     system: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource)
 pub type ValuesetComposeIncludeConcept {
   ValuesetComposeIncludeConcept(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     code: Primitive(String),
@@ -112973,14 +114843,14 @@ pub fn valueset_compose_include_concept_new() -> ValuesetComposeIncludeConcept {
     code: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource)
 pub type ValuesetComposeIncludeConceptDesignation {
   ValuesetComposeIncludeConceptDesignation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     language: Primitive(String),
@@ -112996,14 +114866,14 @@ pub fn valueset_compose_include_concept_designation_new() -> ValuesetComposeIncl
     language: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource)
 pub type ValuesetComposeIncludeFilter {
   ValuesetComposeIncludeFilter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     property: Primitive(String),
@@ -113019,14 +114889,14 @@ pub fn valueset_compose_include_filter_new() -> ValuesetComposeIncludeFilter {
     property: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansion {
   ValuesetExpansion(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     identifier: Primitive(String),
@@ -113048,14 +114918,14 @@ pub fn valueset_expansion_new() -> ValuesetExpansion {
     identifier: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansionParameter {
   ValuesetExpansionParameter(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     name: Primitive(String),
@@ -113117,14 +114987,14 @@ pub fn valueset_expansion_parameter_new() -> ValuesetExpansionParameter {
     name: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource](http://hl7.org/fhir/r4usp/StructureDefinition/ValueSet#resource)
 pub type ValuesetExpansionContains {
   ValuesetExpansionContains(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     system: Primitive(String),
@@ -113150,7 +115020,7 @@ pub fn valueset_expansion_contains_new() -> ValuesetExpansionContains {
     system: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -113208,7 +115078,10 @@ pub fn valueset_expansion_contains_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -113242,7 +115115,7 @@ pub fn valueset_expansion_contains_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ValuesetExpansionContains(
     contains:,
     designation:,
@@ -113300,7 +115173,10 @@ pub fn valueset_expansion_parameter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -113322,7 +115198,7 @@ pub fn valueset_expansion_parameter_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ValuesetExpansionParameter(
     value:,
     name:,
@@ -113378,7 +115254,10 @@ pub fn valueset_expansion_to_json(valueset_expansion: ValuesetExpansion) -> Json
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -113408,7 +115287,7 @@ pub fn valueset_expansion_decoder() -> Decoder(ValuesetExpansion) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ValuesetExpansion(
     contains:,
     parameter:,
@@ -113449,7 +115328,10 @@ pub fn valueset_compose_include_filter_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -113470,7 +115352,7 @@ pub fn valueset_compose_include_filter_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ValuesetComposeIncludeFilter(
     value:,
     op:,
@@ -113510,7 +115392,10 @@ pub fn valueset_compose_include_concept_designation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -113535,7 +115420,7 @@ pub fn valueset_compose_include_concept_designation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ValuesetComposeIncludeConceptDesignation(
     value:,
     use_:,
@@ -113584,7 +115469,10 @@ pub fn valueset_compose_include_concept_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -113609,7 +115497,7 @@ pub fn valueset_compose_include_concept_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ValuesetComposeIncludeConcept(
     designation:,
     display:,
@@ -113665,7 +115553,10 @@ pub fn valueset_compose_include_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -113694,7 +115585,7 @@ pub fn valueset_compose_include_decoder() -> Decoder(ValuesetComposeInclude) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ValuesetComposeInclude(
     value_set:,
     filter:,
@@ -113741,7 +115632,10 @@ pub fn valueset_compose_to_json(valueset_compose: ValuesetCompose) -> Json {
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -113765,7 +115659,7 @@ pub fn valueset_compose_decoder() -> Decoder(ValuesetCompose) {
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(ValuesetCompose(
     exclude:,
     include:,
@@ -113883,7 +115777,10 @@ pub fn valueset_to_json(valueset: Valueset) -> Json {
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("ValueSet")), ..fields]
   json.object(fields)
 }
@@ -113962,7 +115859,7 @@ pub fn valueset_decoder() -> Decoder(Valueset) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -114002,7 +115899,7 @@ pub fn valueset_decoder() -> Decoder(Valueset) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/VerificationResult#resource](http://hl7.org/fhir/r4usp/StructureDefinition/VerificationResult#resource)
 pub type Verificationresult {
   Verificationresult(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -114050,14 +115947,14 @@ pub fn verificationresult_new() -> Verificationresult {
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/VerificationResult#resource](http://hl7.org/fhir/r4usp/StructureDefinition/VerificationResult#resource)
 pub type VerificationresultPrimarysource {
   VerificationresultPrimarysource(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     who: Option(Reference),
@@ -114081,14 +115978,14 @@ pub fn verificationresult_primarysource_new() -> VerificationresultPrimarysource
     who: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/VerificationResult#resource](http://hl7.org/fhir/r4usp/StructureDefinition/VerificationResult#resource)
 pub type VerificationresultAttestation {
   VerificationresultAttestation(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     who: Option(Reference),
@@ -114114,14 +116011,14 @@ pub fn verificationresult_attestation_new() -> VerificationresultAttestation {
     who: None,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/VerificationResult#resource](http://hl7.org/fhir/r4usp/StructureDefinition/VerificationResult#resource)
 pub type VerificationresultValidator {
   VerificationresultValidator(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     organization: Reference,
@@ -114139,7 +116036,7 @@ pub fn verificationresult_validator_new(
     organization:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -114179,7 +116076,10 @@ pub fn verificationresult_validator_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -114207,7 +116107,7 @@ pub fn verificationresult_validator_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(VerificationresultValidator(
     attestation_signature:,
     identity_certificate:,
@@ -114281,7 +116181,10 @@ pub fn verificationresult_attestation_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -114333,7 +116236,7 @@ pub fn verificationresult_attestation_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(VerificationresultAttestation(
     source_signature:,
     proxy_signature:,
@@ -114419,7 +116322,10 @@ pub fn verificationresult_primarysource_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -114471,7 +116377,7 @@ pub fn verificationresult_primarysource_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(VerificationresultPrimarysource(
     push_type_available:,
     can_push_updates:,
@@ -114617,7 +116523,10 @@ pub fn verificationresult_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("VerificationResult")), ..fields]
   json.object(fields)
 }
@@ -114707,7 +116616,7 @@ pub fn verificationresult_decoder() -> Decoder(Verificationresult) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(
@@ -114743,7 +116652,7 @@ pub fn verificationresult_decoder() -> Decoder(Verificationresult) {
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/VisionPrescription#resource](http://hl7.org/fhir/r4usp/StructureDefinition/VisionPrescription#resource)
 pub type Visionprescription {
   Visionprescription(
-    id: Primitive(String),
+    id: Option(String),
     meta: Option(Meta),
     implicit_rules: Primitive(String),
     language: Primitive(String),
@@ -114785,14 +116694,14 @@ pub fn visionprescription_new(
     language: Primitive(id: None, ext: [], value: None),
     implicit_rules: Primitive(id: None, ext: [], value: None),
     meta: None,
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/VisionPrescription#resource](http://hl7.org/fhir/r4usp/StructureDefinition/VisionPrescription#resource)
 pub type VisionprescriptionLensspecification {
   VisionprescriptionLensspecification(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     product: Codeableconcept,
@@ -114832,14 +116741,14 @@ pub fn visionprescription_lensspecification_new(
     product:,
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
 ///[http://hl7.org/fhir/r4usp/StructureDefinition/VisionPrescription#resource](http://hl7.org/fhir/r4usp/StructureDefinition/VisionPrescription#resource)
 pub type VisionprescriptionLensspecificationPrism {
   VisionprescriptionLensspecificationPrism(
-    id: Primitive(String),
+    id: Option(String),
     extension: List(Extension),
     modifier_extension: List(Extension),
     amount: Primitive(Float),
@@ -114853,7 +116762,7 @@ pub fn visionprescription_lensspecification_prism_new() -> VisionprescriptionLen
     amount: Primitive(id: None, ext: [], value: None),
     modifier_extension: [],
     extension: [],
-    id: Primitive(id: None, ext: [], value: None),
+    id: None,
   )
 }
 
@@ -114887,7 +116796,10 @@ pub fn visionprescription_lensspecification_prism_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -114910,7 +116822,7 @@ pub fn visionprescription_lensspecification_prism_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(VisionprescriptionLensspecificationPrism(
     base:,
     amount:,
@@ -114990,7 +116902,10 @@ pub fn visionprescription_lensspecification_to_json(
     [] -> fields
     _ -> [#("extension", json.array(extension, extension_to_json)), ..fields]
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   json.object(fields)
 }
 
@@ -115034,7 +116949,7 @@ pub fn visionprescription_lensspecification_decoder() -> Decoder(
     [],
     decode.list(extension_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
   decode.success(VisionprescriptionLensspecification(
     note:,
     brand:,
@@ -115133,7 +117048,10 @@ pub fn visionprescription_to_json(
     Some(v) -> [#("meta", meta_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = primitive_to_json(fields, id, json.string, "id")
+  let fields = case id {
+    Some(v) -> [#("id", json.string(v)), ..fields]
+    None -> fields
+  }
   let fields = [#("resourceType", json.string("VisionPrescription")), ..fields]
   json.object(fields)
 }
@@ -115186,7 +117104,7 @@ pub fn visionprescription_decoder() -> Decoder(Visionprescription) {
     None,
     decode.optional(meta_decoder()),
   )
-  use id <- primitive_decoder("id", decode.string)
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
 
   use rt <- decode.field("resourceType", decode.string)
   use <- bool.guard(

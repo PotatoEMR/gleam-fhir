@@ -6,7 +6,7 @@ import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
 import gleam/httpc
 import gleam/json.{type Json}
-import gleam/option.{type Option}
+import gleam/option.{type Option, None, Some}
 import gleam/result
 
 /// FHIR client for sending http requests to server such as
@@ -51,7 +51,7 @@ fn any_create(
   client: FhirClient,
 ) -> Result(r, Err) {
   let req = r4_sansio.any_create_req(resource, res_type, client)
-  sendreq_parseresource(req, resource_dec)
+  sendreq_parseresource(req, resource_dec, res_type)
 }
 
 fn any_read(
@@ -61,7 +61,7 @@ fn any_read(
   resource_dec: Decoder(a),
 ) -> Result(a, Err) {
   let req = r4_sansio.any_read_req(id, res_type, client)
-  sendreq_parseresource(req, resource_dec)
+  sendreq_parseresource(req, resource_dec, res_type)
 }
 
 fn any_update(
@@ -73,22 +73,25 @@ fn any_update(
 ) -> Result(r, Err) {
   let req = r4_sansio.any_update_req(id, resource, res_type, client)
   case req {
-    Ok(req) -> sendreq_parseresource(req, res_dec)
+    Ok(req) -> sendreq_parseresource(req, res_dec, res_type)
     Error(err) -> Error(ErrSansio(err))
     //can have error preparing update request if resource has no id
   }
 }
 
 fn any_delete(
-  id: Option(String),
+  id: String,
   res_type: String,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   let req = r4_sansio.any_delete_req(id, res_type, client)
-  case req {
-    Ok(req) -> sendreq_parseresource(req, r4.operationoutcome_decoder())
-    Error(err) -> Error(ErrSansio(err))
-    //can have error preparing delete request if resource has no id
+  case httpc.send(req) {
+    Error(err) -> Error(ErrHttpc(err))
+    Ok(resp) ->
+      case r4_sansio.http_or_operationoutcome_resp(resp) {
+        Ok(resource) -> Ok(resource)
+        Error(err) -> Error(ErrSansio(err))
+      }
   }
 }
 
@@ -99,7 +102,7 @@ pub fn search_any(
   client: FhirClient,
 ) -> Result(r4.Bundle, Err) {
   let req = r4_sansio.any_search_req(search_string, res_type, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), res_type)
 }
 
 /// run any operation string on any resource string, optionally using Parameters
@@ -119,17 +122,18 @@ pub fn operation_any(
       params,
       client,
     )
-  sendreq_parseresource(req, res_decoder)
+  sendreq_parseresource(req, res_decoder, res_type)
 }
 
 fn sendreq_parseresource(
   req: Request(String),
   res_dec: Decoder(r),
+  res_type: String,
 ) -> Result(r, Err) {
   case httpc.send(req) {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
-      case r4_sansio.any_resp(resp, res_dec) {
+      case r4_sansio.any_resp(resp, res_dec, res_type) {
         Ok(resource) -> Ok(resource)
         Error(err) -> Error(ErrSansio(err))
       }
@@ -168,13 +172,16 @@ pub fn account_update(
 pub fn account_delete(
   resource: r4.Account,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Account", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Account", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn account_search_bundled(sp: r4_sansio.SpAccount, client: FhirClient) {
   let req = r4_sansio.account_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn account_search(
@@ -182,7 +189,7 @@ pub fn account_search(
   client: FhirClient,
 ) -> Result(List(r4.Account), Err) {
   let req = r4_sansio.account_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.account
   })
@@ -223,8 +230,11 @@ pub fn activitydefinition_update(
 pub fn activitydefinition_delete(
   resource: r4.Activitydefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ActivityDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Activitydefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn activitydefinition_search_bundled(
@@ -232,7 +242,7 @@ pub fn activitydefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.activitydefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn activitydefinition_search(
@@ -240,7 +250,7 @@ pub fn activitydefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Activitydefinition), Err) {
   let req = r4_sansio.activitydefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.activitydefinition
   })
@@ -281,8 +291,11 @@ pub fn adverseevent_update(
 pub fn adverseevent_delete(
   resource: r4.Adverseevent,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "AdverseEvent", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Adverseevent", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn adverseevent_search_bundled(
@@ -290,7 +303,7 @@ pub fn adverseevent_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.adverseevent_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn adverseevent_search(
@@ -298,7 +311,7 @@ pub fn adverseevent_search(
   client: FhirClient,
 ) -> Result(List(r4.Adverseevent), Err) {
   let req = r4_sansio.adverseevent_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.adverseevent
   })
@@ -339,8 +352,11 @@ pub fn allergyintolerance_update(
 pub fn allergyintolerance_delete(
   resource: r4.Allergyintolerance,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "AllergyIntolerance", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Allergyintolerance", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn allergyintolerance_search_bundled(
@@ -348,7 +364,7 @@ pub fn allergyintolerance_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.allergyintolerance_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn allergyintolerance_search(
@@ -356,7 +372,7 @@ pub fn allergyintolerance_search(
   client: FhirClient,
 ) -> Result(List(r4.Allergyintolerance), Err) {
   let req = r4_sansio.allergyintolerance_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.allergyintolerance
   })
@@ -397,8 +413,11 @@ pub fn appointment_update(
 pub fn appointment_delete(
   resource: r4.Appointment,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Appointment", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Appointment", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn appointment_search_bundled(
@@ -406,7 +425,7 @@ pub fn appointment_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.appointment_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn appointment_search(
@@ -414,7 +433,7 @@ pub fn appointment_search(
   client: FhirClient,
 ) -> Result(List(r4.Appointment), Err) {
   let req = r4_sansio.appointment_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.appointment
   })
@@ -455,8 +474,11 @@ pub fn appointmentresponse_update(
 pub fn appointmentresponse_delete(
   resource: r4.Appointmentresponse,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "AppointmentResponse", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Appointmentresponse", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn appointmentresponse_search_bundled(
@@ -464,7 +486,7 @@ pub fn appointmentresponse_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.appointmentresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn appointmentresponse_search(
@@ -472,7 +494,7 @@ pub fn appointmentresponse_search(
   client: FhirClient,
 ) -> Result(List(r4.Appointmentresponse), Err) {
   let req = r4_sansio.appointmentresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.appointmentresponse
   })
@@ -513,13 +535,16 @@ pub fn auditevent_update(
 pub fn auditevent_delete(
   resource: r4.Auditevent,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "AuditEvent", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Auditevent", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn auditevent_search_bundled(sp: r4_sansio.SpAuditevent, client: FhirClient) {
   let req = r4_sansio.auditevent_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn auditevent_search(
@@ -527,7 +552,7 @@ pub fn auditevent_search(
   client: FhirClient,
 ) -> Result(List(r4.Auditevent), Err) {
   let req = r4_sansio.auditevent_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.auditevent
   })
@@ -560,13 +585,16 @@ pub fn basic_update(
 pub fn basic_delete(
   resource: r4.Basic,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Basic", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Basic", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn basic_search_bundled(sp: r4_sansio.SpBasic, client: FhirClient) {
   let req = r4_sansio.basic_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn basic_search(
@@ -574,7 +602,7 @@ pub fn basic_search(
   client: FhirClient,
 ) -> Result(List(r4.Basic), Err) {
   let req = r4_sansio.basic_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.basic
   })
@@ -607,13 +635,16 @@ pub fn binary_update(
 pub fn binary_delete(
   resource: r4.Binary,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Binary", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Binary", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn binary_search_bundled(sp: r4_sansio.SpBinary, client: FhirClient) {
   let req = r4_sansio.binary_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn binary_search(
@@ -621,7 +652,7 @@ pub fn binary_search(
   client: FhirClient,
 ) -> Result(List(r4.Binary), Err) {
   let req = r4_sansio.binary_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.binary
   })
@@ -667,8 +698,11 @@ pub fn biologicallyderivedproduct_update(
 pub fn biologicallyderivedproduct_delete(
   resource: r4.Biologicallyderivedproduct,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "BiologicallyDerivedProduct", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Biologicallyderivedproduct", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn biologicallyderivedproduct_search_bundled(
@@ -676,7 +710,7 @@ pub fn biologicallyderivedproduct_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.biologicallyderivedproduct_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn biologicallyderivedproduct_search(
@@ -684,7 +718,7 @@ pub fn biologicallyderivedproduct_search(
   client: FhirClient,
 ) -> Result(List(r4.Biologicallyderivedproduct), Err) {
   let req = r4_sansio.biologicallyderivedproduct_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.biologicallyderivedproduct
   })
@@ -725,8 +759,11 @@ pub fn bodystructure_update(
 pub fn bodystructure_delete(
   resource: r4.Bodystructure,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "BodyStructure", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Bodystructure", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn bodystructure_search_bundled(
@@ -734,7 +771,7 @@ pub fn bodystructure_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.bodystructure_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn bodystructure_search(
@@ -742,7 +779,7 @@ pub fn bodystructure_search(
   client: FhirClient,
 ) -> Result(List(r4.Bodystructure), Err) {
   let req = r4_sansio.bodystructure_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.bodystructure
   })
@@ -775,13 +812,16 @@ pub fn bundle_update(
 pub fn bundle_delete(
   resource: r4.Bundle,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Bundle", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Bundle", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn bundle_search_bundled(sp: r4_sansio.SpBundle, client: FhirClient) {
   let req = r4_sansio.bundle_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn bundle_search(
@@ -789,7 +829,7 @@ pub fn bundle_search(
   client: FhirClient,
 ) -> Result(List(r4.Bundle), Err) {
   let req = r4_sansio.bundle_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.bundle
   })
@@ -830,8 +870,11 @@ pub fn capabilitystatement_update(
 pub fn capabilitystatement_delete(
   resource: r4.Capabilitystatement,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "CapabilityStatement", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Capabilitystatement", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn capabilitystatement_search_bundled(
@@ -839,7 +882,7 @@ pub fn capabilitystatement_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.capabilitystatement_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn capabilitystatement_search(
@@ -847,7 +890,7 @@ pub fn capabilitystatement_search(
   client: FhirClient,
 ) -> Result(List(r4.Capabilitystatement), Err) {
   let req = r4_sansio.capabilitystatement_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.capabilitystatement
   })
@@ -885,13 +928,16 @@ pub fn careplan_update(
 pub fn careplan_delete(
   resource: r4.Careplan,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "CarePlan", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Careplan", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn careplan_search_bundled(sp: r4_sansio.SpCareplan, client: FhirClient) {
   let req = r4_sansio.careplan_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn careplan_search(
@@ -899,7 +945,7 @@ pub fn careplan_search(
   client: FhirClient,
 ) -> Result(List(r4.Careplan), Err) {
   let req = r4_sansio.careplan_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.careplan
   })
@@ -937,13 +983,16 @@ pub fn careteam_update(
 pub fn careteam_delete(
   resource: r4.Careteam,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "CareTeam", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Careteam", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn careteam_search_bundled(sp: r4_sansio.SpCareteam, client: FhirClient) {
   let req = r4_sansio.careteam_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn careteam_search(
@@ -951,7 +1000,7 @@ pub fn careteam_search(
   client: FhirClient,
 ) -> Result(List(r4.Careteam), Err) {
   let req = r4_sansio.careteam_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.careteam
   })
@@ -992,8 +1041,11 @@ pub fn catalogentry_update(
 pub fn catalogentry_delete(
   resource: r4.Catalogentry,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "CatalogEntry", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Catalogentry", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn catalogentry_search_bundled(
@@ -1001,7 +1053,7 @@ pub fn catalogentry_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.catalogentry_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn catalogentry_search(
@@ -1009,7 +1061,7 @@ pub fn catalogentry_search(
   client: FhirClient,
 ) -> Result(List(r4.Catalogentry), Err) {
   let req = r4_sansio.catalogentry_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.catalogentry
   })
@@ -1050,13 +1102,16 @@ pub fn chargeitem_update(
 pub fn chargeitem_delete(
   resource: r4.Chargeitem,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ChargeItem", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Chargeitem", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn chargeitem_search_bundled(sp: r4_sansio.SpChargeitem, client: FhirClient) {
   let req = r4_sansio.chargeitem_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn chargeitem_search(
@@ -1064,7 +1119,7 @@ pub fn chargeitem_search(
   client: FhirClient,
 ) -> Result(List(r4.Chargeitem), Err) {
   let req = r4_sansio.chargeitem_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.chargeitem
   })
@@ -1110,8 +1165,11 @@ pub fn chargeitemdefinition_update(
 pub fn chargeitemdefinition_delete(
   resource: r4.Chargeitemdefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ChargeItemDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Chargeitemdefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn chargeitemdefinition_search_bundled(
@@ -1119,7 +1177,7 @@ pub fn chargeitemdefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.chargeitemdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn chargeitemdefinition_search(
@@ -1127,7 +1185,7 @@ pub fn chargeitemdefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Chargeitemdefinition), Err) {
   let req = r4_sansio.chargeitemdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.chargeitemdefinition
   })
@@ -1160,13 +1218,16 @@ pub fn claim_update(
 pub fn claim_delete(
   resource: r4.Claim,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Claim", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Claim", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn claim_search_bundled(sp: r4_sansio.SpClaim, client: FhirClient) {
   let req = r4_sansio.claim_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn claim_search(
@@ -1174,7 +1235,7 @@ pub fn claim_search(
   client: FhirClient,
 ) -> Result(List(r4.Claim), Err) {
   let req = r4_sansio.claim_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.claim
   })
@@ -1215,8 +1276,11 @@ pub fn claimresponse_update(
 pub fn claimresponse_delete(
   resource: r4.Claimresponse,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ClaimResponse", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Claimresponse", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn claimresponse_search_bundled(
@@ -1224,7 +1288,7 @@ pub fn claimresponse_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.claimresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn claimresponse_search(
@@ -1232,7 +1296,7 @@ pub fn claimresponse_search(
   client: FhirClient,
 ) -> Result(List(r4.Claimresponse), Err) {
   let req = r4_sansio.claimresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.claimresponse
   })
@@ -1273,8 +1337,11 @@ pub fn clinicalimpression_update(
 pub fn clinicalimpression_delete(
   resource: r4.Clinicalimpression,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ClinicalImpression", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Clinicalimpression", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn clinicalimpression_search_bundled(
@@ -1282,7 +1349,7 @@ pub fn clinicalimpression_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.clinicalimpression_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn clinicalimpression_search(
@@ -1290,7 +1357,7 @@ pub fn clinicalimpression_search(
   client: FhirClient,
 ) -> Result(List(r4.Clinicalimpression), Err) {
   let req = r4_sansio.clinicalimpression_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.clinicalimpression
   })
@@ -1331,13 +1398,16 @@ pub fn codesystem_update(
 pub fn codesystem_delete(
   resource: r4.Codesystem,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "CodeSystem", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Codesystem", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn codesystem_search_bundled(sp: r4_sansio.SpCodesystem, client: FhirClient) {
   let req = r4_sansio.codesystem_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn codesystem_search(
@@ -1345,7 +1415,7 @@ pub fn codesystem_search(
   client: FhirClient,
 ) -> Result(List(r4.Codesystem), Err) {
   let req = r4_sansio.codesystem_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.codesystem
   })
@@ -1386,8 +1456,11 @@ pub fn communication_update(
 pub fn communication_delete(
   resource: r4.Communication,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Communication", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Communication", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn communication_search_bundled(
@@ -1395,7 +1468,7 @@ pub fn communication_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.communication_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn communication_search(
@@ -1403,7 +1476,7 @@ pub fn communication_search(
   client: FhirClient,
 ) -> Result(List(r4.Communication), Err) {
   let req = r4_sansio.communication_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.communication
   })
@@ -1449,8 +1522,11 @@ pub fn communicationrequest_update(
 pub fn communicationrequest_delete(
   resource: r4.Communicationrequest,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "CommunicationRequest", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Communicationrequest", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn communicationrequest_search_bundled(
@@ -1458,7 +1534,7 @@ pub fn communicationrequest_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.communicationrequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn communicationrequest_search(
@@ -1466,7 +1542,7 @@ pub fn communicationrequest_search(
   client: FhirClient,
 ) -> Result(List(r4.Communicationrequest), Err) {
   let req = r4_sansio.communicationrequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.communicationrequest
   })
@@ -1512,8 +1588,11 @@ pub fn compartmentdefinition_update(
 pub fn compartmentdefinition_delete(
   resource: r4.Compartmentdefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "CompartmentDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Compartmentdefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn compartmentdefinition_search_bundled(
@@ -1521,7 +1600,7 @@ pub fn compartmentdefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.compartmentdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn compartmentdefinition_search(
@@ -1529,7 +1608,7 @@ pub fn compartmentdefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Compartmentdefinition), Err) {
   let req = r4_sansio.compartmentdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.compartmentdefinition
   })
@@ -1570,8 +1649,11 @@ pub fn composition_update(
 pub fn composition_delete(
   resource: r4.Composition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Composition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Composition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn composition_search_bundled(
@@ -1579,7 +1661,7 @@ pub fn composition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.composition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn composition_search(
@@ -1587,7 +1669,7 @@ pub fn composition_search(
   client: FhirClient,
 ) -> Result(List(r4.Composition), Err) {
   let req = r4_sansio.composition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.composition
   })
@@ -1628,13 +1710,16 @@ pub fn conceptmap_update(
 pub fn conceptmap_delete(
   resource: r4.Conceptmap,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ConceptMap", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Conceptmap", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn conceptmap_search_bundled(sp: r4_sansio.SpConceptmap, client: FhirClient) {
   let req = r4_sansio.conceptmap_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn conceptmap_search(
@@ -1642,7 +1727,7 @@ pub fn conceptmap_search(
   client: FhirClient,
 ) -> Result(List(r4.Conceptmap), Err) {
   let req = r4_sansio.conceptmap_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.conceptmap
   })
@@ -1683,13 +1768,16 @@ pub fn condition_update(
 pub fn condition_delete(
   resource: r4.Condition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Condition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Condition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn condition_search_bundled(sp: r4_sansio.SpCondition, client: FhirClient) {
   let req = r4_sansio.condition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn condition_search(
@@ -1697,7 +1785,7 @@ pub fn condition_search(
   client: FhirClient,
 ) -> Result(List(r4.Condition), Err) {
   let req = r4_sansio.condition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.condition
   })
@@ -1735,13 +1823,16 @@ pub fn consent_update(
 pub fn consent_delete(
   resource: r4.Consent,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Consent", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Consent", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn consent_search_bundled(sp: r4_sansio.SpConsent, client: FhirClient) {
   let req = r4_sansio.consent_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn consent_search(
@@ -1749,7 +1840,7 @@ pub fn consent_search(
   client: FhirClient,
 ) -> Result(List(r4.Consent), Err) {
   let req = r4_sansio.consent_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.consent
   })
@@ -1787,13 +1878,16 @@ pub fn contract_update(
 pub fn contract_delete(
   resource: r4.Contract,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Contract", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Contract", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn contract_search_bundled(sp: r4_sansio.SpContract, client: FhirClient) {
   let req = r4_sansio.contract_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn contract_search(
@@ -1801,7 +1895,7 @@ pub fn contract_search(
   client: FhirClient,
 ) -> Result(List(r4.Contract), Err) {
   let req = r4_sansio.contract_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.contract
   })
@@ -1839,13 +1933,16 @@ pub fn coverage_update(
 pub fn coverage_delete(
   resource: r4.Coverage,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Coverage", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Coverage", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn coverage_search_bundled(sp: r4_sansio.SpCoverage, client: FhirClient) {
   let req = r4_sansio.coverage_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn coverage_search(
@@ -1853,7 +1950,7 @@ pub fn coverage_search(
   client: FhirClient,
 ) -> Result(List(r4.Coverage), Err) {
   let req = r4_sansio.coverage_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.coverage
   })
@@ -1899,8 +1996,11 @@ pub fn coverageeligibilityrequest_update(
 pub fn coverageeligibilityrequest_delete(
   resource: r4.Coverageeligibilityrequest,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "CoverageEligibilityRequest", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Coverageeligibilityrequest", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn coverageeligibilityrequest_search_bundled(
@@ -1908,7 +2008,7 @@ pub fn coverageeligibilityrequest_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.coverageeligibilityrequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn coverageeligibilityrequest_search(
@@ -1916,7 +2016,7 @@ pub fn coverageeligibilityrequest_search(
   client: FhirClient,
 ) -> Result(List(r4.Coverageeligibilityrequest), Err) {
   let req = r4_sansio.coverageeligibilityrequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.coverageeligibilityrequest
   })
@@ -1962,8 +2062,11 @@ pub fn coverageeligibilityresponse_update(
 pub fn coverageeligibilityresponse_delete(
   resource: r4.Coverageeligibilityresponse,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "CoverageEligibilityResponse", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Coverageeligibilityresponse", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn coverageeligibilityresponse_search_bundled(
@@ -1971,7 +2074,7 @@ pub fn coverageeligibilityresponse_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.coverageeligibilityresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn coverageeligibilityresponse_search(
@@ -1979,7 +2082,7 @@ pub fn coverageeligibilityresponse_search(
   client: FhirClient,
 ) -> Result(List(r4.Coverageeligibilityresponse), Err) {
   let req = r4_sansio.coverageeligibilityresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.coverageeligibilityresponse
   })
@@ -2020,8 +2123,11 @@ pub fn detectedissue_update(
 pub fn detectedissue_delete(
   resource: r4.Detectedissue,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "DetectedIssue", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Detectedissue", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn detectedissue_search_bundled(
@@ -2029,7 +2135,7 @@ pub fn detectedissue_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.detectedissue_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn detectedissue_search(
@@ -2037,7 +2143,7 @@ pub fn detectedissue_search(
   client: FhirClient,
 ) -> Result(List(r4.Detectedissue), Err) {
   let req = r4_sansio.detectedissue_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.detectedissue
   })
@@ -2070,13 +2176,16 @@ pub fn device_update(
 pub fn device_delete(
   resource: r4.Device,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Device", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Device", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn device_search_bundled(sp: r4_sansio.SpDevice, client: FhirClient) {
   let req = r4_sansio.device_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn device_search(
@@ -2084,7 +2193,7 @@ pub fn device_search(
   client: FhirClient,
 ) -> Result(List(r4.Device), Err) {
   let req = r4_sansio.device_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.device
   })
@@ -2125,8 +2234,11 @@ pub fn devicedefinition_update(
 pub fn devicedefinition_delete(
   resource: r4.Devicedefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "DeviceDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Devicedefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn devicedefinition_search_bundled(
@@ -2134,7 +2246,7 @@ pub fn devicedefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.devicedefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn devicedefinition_search(
@@ -2142,7 +2254,7 @@ pub fn devicedefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Devicedefinition), Err) {
   let req = r4_sansio.devicedefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.devicedefinition
   })
@@ -2183,8 +2295,11 @@ pub fn devicemetric_update(
 pub fn devicemetric_delete(
   resource: r4.Devicemetric,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "DeviceMetric", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Devicemetric", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn devicemetric_search_bundled(
@@ -2192,7 +2307,7 @@ pub fn devicemetric_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.devicemetric_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn devicemetric_search(
@@ -2200,7 +2315,7 @@ pub fn devicemetric_search(
   client: FhirClient,
 ) -> Result(List(r4.Devicemetric), Err) {
   let req = r4_sansio.devicemetric_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.devicemetric
   })
@@ -2241,8 +2356,11 @@ pub fn devicerequest_update(
 pub fn devicerequest_delete(
   resource: r4.Devicerequest,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "DeviceRequest", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Devicerequest", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn devicerequest_search_bundled(
@@ -2250,7 +2368,7 @@ pub fn devicerequest_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.devicerequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn devicerequest_search(
@@ -2258,7 +2376,7 @@ pub fn devicerequest_search(
   client: FhirClient,
 ) -> Result(List(r4.Devicerequest), Err) {
   let req = r4_sansio.devicerequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.devicerequest
   })
@@ -2299,8 +2417,11 @@ pub fn deviceusestatement_update(
 pub fn deviceusestatement_delete(
   resource: r4.Deviceusestatement,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "DeviceUseStatement", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Deviceusestatement", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn deviceusestatement_search_bundled(
@@ -2308,7 +2429,7 @@ pub fn deviceusestatement_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.deviceusestatement_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn deviceusestatement_search(
@@ -2316,7 +2437,7 @@ pub fn deviceusestatement_search(
   client: FhirClient,
 ) -> Result(List(r4.Deviceusestatement), Err) {
   let req = r4_sansio.deviceusestatement_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.deviceusestatement
   })
@@ -2357,8 +2478,11 @@ pub fn diagnosticreport_update(
 pub fn diagnosticreport_delete(
   resource: r4.Diagnosticreport,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "DiagnosticReport", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Diagnosticreport", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn diagnosticreport_search_bundled(
@@ -2366,7 +2490,7 @@ pub fn diagnosticreport_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.diagnosticreport_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn diagnosticreport_search(
@@ -2374,7 +2498,7 @@ pub fn diagnosticreport_search(
   client: FhirClient,
 ) -> Result(List(r4.Diagnosticreport), Err) {
   let req = r4_sansio.diagnosticreport_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.diagnosticreport
   })
@@ -2415,8 +2539,11 @@ pub fn documentmanifest_update(
 pub fn documentmanifest_delete(
   resource: r4.Documentmanifest,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "DocumentManifest", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Documentmanifest", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn documentmanifest_search_bundled(
@@ -2424,7 +2551,7 @@ pub fn documentmanifest_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.documentmanifest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn documentmanifest_search(
@@ -2432,7 +2559,7 @@ pub fn documentmanifest_search(
   client: FhirClient,
 ) -> Result(List(r4.Documentmanifest), Err) {
   let req = r4_sansio.documentmanifest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.documentmanifest
   })
@@ -2473,8 +2600,11 @@ pub fn documentreference_update(
 pub fn documentreference_delete(
   resource: r4.Documentreference,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "DocumentReference", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Documentreference", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn documentreference_search_bundled(
@@ -2482,7 +2612,7 @@ pub fn documentreference_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.documentreference_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn documentreference_search(
@@ -2490,7 +2620,7 @@ pub fn documentreference_search(
   client: FhirClient,
 ) -> Result(List(r4.Documentreference), Err) {
   let req = r4_sansio.documentreference_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.documentreference
   })
@@ -2536,8 +2666,11 @@ pub fn effectevidencesynthesis_update(
 pub fn effectevidencesynthesis_delete(
   resource: r4.Effectevidencesynthesis,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "EffectEvidenceSynthesis", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Effectevidencesynthesis", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn effectevidencesynthesis_search_bundled(
@@ -2545,7 +2678,7 @@ pub fn effectevidencesynthesis_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.effectevidencesynthesis_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn effectevidencesynthesis_search(
@@ -2553,7 +2686,7 @@ pub fn effectevidencesynthesis_search(
   client: FhirClient,
 ) -> Result(List(r4.Effectevidencesynthesis), Err) {
   let req = r4_sansio.effectevidencesynthesis_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.effectevidencesynthesis
   })
@@ -2594,13 +2727,16 @@ pub fn encounter_update(
 pub fn encounter_delete(
   resource: r4.Encounter,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Encounter", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Encounter", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn encounter_search_bundled(sp: r4_sansio.SpEncounter, client: FhirClient) {
   let req = r4_sansio.encounter_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn encounter_search(
@@ -2608,7 +2744,7 @@ pub fn encounter_search(
   client: FhirClient,
 ) -> Result(List(r4.Encounter), Err) {
   let req = r4_sansio.encounter_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.encounter
   })
@@ -2646,13 +2782,16 @@ pub fn endpoint_update(
 pub fn endpoint_delete(
   resource: r4.Endpoint,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Endpoint", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Endpoint", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn endpoint_search_bundled(sp: r4_sansio.SpEndpoint, client: FhirClient) {
   let req = r4_sansio.endpoint_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn endpoint_search(
@@ -2660,7 +2799,7 @@ pub fn endpoint_search(
   client: FhirClient,
 ) -> Result(List(r4.Endpoint), Err) {
   let req = r4_sansio.endpoint_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.endpoint
   })
@@ -2701,8 +2840,11 @@ pub fn enrollmentrequest_update(
 pub fn enrollmentrequest_delete(
   resource: r4.Enrollmentrequest,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "EnrollmentRequest", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Enrollmentrequest", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn enrollmentrequest_search_bundled(
@@ -2710,7 +2852,7 @@ pub fn enrollmentrequest_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.enrollmentrequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn enrollmentrequest_search(
@@ -2718,7 +2860,7 @@ pub fn enrollmentrequest_search(
   client: FhirClient,
 ) -> Result(List(r4.Enrollmentrequest), Err) {
   let req = r4_sansio.enrollmentrequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.enrollmentrequest
   })
@@ -2759,8 +2901,11 @@ pub fn enrollmentresponse_update(
 pub fn enrollmentresponse_delete(
   resource: r4.Enrollmentresponse,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "EnrollmentResponse", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Enrollmentresponse", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn enrollmentresponse_search_bundled(
@@ -2768,7 +2913,7 @@ pub fn enrollmentresponse_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.enrollmentresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn enrollmentresponse_search(
@@ -2776,7 +2921,7 @@ pub fn enrollmentresponse_search(
   client: FhirClient,
 ) -> Result(List(r4.Enrollmentresponse), Err) {
   let req = r4_sansio.enrollmentresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.enrollmentresponse
   })
@@ -2817,8 +2962,11 @@ pub fn episodeofcare_update(
 pub fn episodeofcare_delete(
   resource: r4.Episodeofcare,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "EpisodeOfCare", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Episodeofcare", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn episodeofcare_search_bundled(
@@ -2826,7 +2974,7 @@ pub fn episodeofcare_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.episodeofcare_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn episodeofcare_search(
@@ -2834,7 +2982,7 @@ pub fn episodeofcare_search(
   client: FhirClient,
 ) -> Result(List(r4.Episodeofcare), Err) {
   let req = r4_sansio.episodeofcare_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.episodeofcare
   })
@@ -2875,8 +3023,11 @@ pub fn eventdefinition_update(
 pub fn eventdefinition_delete(
   resource: r4.Eventdefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "EventDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Eventdefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn eventdefinition_search_bundled(
@@ -2884,7 +3035,7 @@ pub fn eventdefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.eventdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn eventdefinition_search(
@@ -2892,7 +3043,7 @@ pub fn eventdefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Eventdefinition), Err) {
   let req = r4_sansio.eventdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.eventdefinition
   })
@@ -2930,13 +3081,16 @@ pub fn evidence_update(
 pub fn evidence_delete(
   resource: r4.Evidence,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Evidence", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Evidence", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn evidence_search_bundled(sp: r4_sansio.SpEvidence, client: FhirClient) {
   let req = r4_sansio.evidence_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn evidence_search(
@@ -2944,7 +3098,7 @@ pub fn evidence_search(
   client: FhirClient,
 ) -> Result(List(r4.Evidence), Err) {
   let req = r4_sansio.evidence_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.evidence
   })
@@ -2985,8 +3139,11 @@ pub fn evidencevariable_update(
 pub fn evidencevariable_delete(
   resource: r4.Evidencevariable,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "EvidenceVariable", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Evidencevariable", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn evidencevariable_search_bundled(
@@ -2994,7 +3151,7 @@ pub fn evidencevariable_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.evidencevariable_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn evidencevariable_search(
@@ -3002,7 +3159,7 @@ pub fn evidencevariable_search(
   client: FhirClient,
 ) -> Result(List(r4.Evidencevariable), Err) {
   let req = r4_sansio.evidencevariable_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.evidencevariable
   })
@@ -3043,8 +3200,11 @@ pub fn examplescenario_update(
 pub fn examplescenario_delete(
   resource: r4.Examplescenario,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ExampleScenario", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Examplescenario", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn examplescenario_search_bundled(
@@ -3052,7 +3212,7 @@ pub fn examplescenario_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.examplescenario_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn examplescenario_search(
@@ -3060,7 +3220,7 @@ pub fn examplescenario_search(
   client: FhirClient,
 ) -> Result(List(r4.Examplescenario), Err) {
   let req = r4_sansio.examplescenario_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.examplescenario
   })
@@ -3106,8 +3266,11 @@ pub fn explanationofbenefit_update(
 pub fn explanationofbenefit_delete(
   resource: r4.Explanationofbenefit,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ExplanationOfBenefit", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Explanationofbenefit", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn explanationofbenefit_search_bundled(
@@ -3115,7 +3278,7 @@ pub fn explanationofbenefit_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.explanationofbenefit_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn explanationofbenefit_search(
@@ -3123,7 +3286,7 @@ pub fn explanationofbenefit_search(
   client: FhirClient,
 ) -> Result(List(r4.Explanationofbenefit), Err) {
   let req = r4_sansio.explanationofbenefit_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.explanationofbenefit
   })
@@ -3164,8 +3327,11 @@ pub fn familymemberhistory_update(
 pub fn familymemberhistory_delete(
   resource: r4.Familymemberhistory,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "FamilyMemberHistory", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Familymemberhistory", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn familymemberhistory_search_bundled(
@@ -3173,7 +3339,7 @@ pub fn familymemberhistory_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.familymemberhistory_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn familymemberhistory_search(
@@ -3181,7 +3347,7 @@ pub fn familymemberhistory_search(
   client: FhirClient,
 ) -> Result(List(r4.Familymemberhistory), Err) {
   let req = r4_sansio.familymemberhistory_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.familymemberhistory
   })
@@ -3214,13 +3380,16 @@ pub fn flag_update(
 pub fn flag_delete(
   resource: r4.Flag,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Flag", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Flag", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn flag_search_bundled(sp: r4_sansio.SpFlag, client: FhirClient) {
   let req = r4_sansio.flag_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn flag_search(
@@ -3228,7 +3397,7 @@ pub fn flag_search(
   client: FhirClient,
 ) -> Result(List(r4.Flag), Err) {
   let req = r4_sansio.flag_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.flag
   })
@@ -3261,13 +3430,16 @@ pub fn goal_update(
 pub fn goal_delete(
   resource: r4.Goal,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Goal", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Goal", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn goal_search_bundled(sp: r4_sansio.SpGoal, client: FhirClient) {
   let req = r4_sansio.goal_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn goal_search(
@@ -3275,7 +3447,7 @@ pub fn goal_search(
   client: FhirClient,
 ) -> Result(List(r4.Goal), Err) {
   let req = r4_sansio.goal_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.goal
   })
@@ -3316,8 +3488,11 @@ pub fn graphdefinition_update(
 pub fn graphdefinition_delete(
   resource: r4.Graphdefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "GraphDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Graphdefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn graphdefinition_search_bundled(
@@ -3325,7 +3500,7 @@ pub fn graphdefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.graphdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn graphdefinition_search(
@@ -3333,7 +3508,7 @@ pub fn graphdefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Graphdefinition), Err) {
   let req = r4_sansio.graphdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.graphdefinition
   })
@@ -3366,13 +3541,16 @@ pub fn group_update(
 pub fn group_delete(
   resource: r4.Group,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Group", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Group", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn group_search_bundled(sp: r4_sansio.SpGroup, client: FhirClient) {
   let req = r4_sansio.group_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn group_search(
@@ -3380,7 +3558,7 @@ pub fn group_search(
   client: FhirClient,
 ) -> Result(List(r4.Group), Err) {
   let req = r4_sansio.group_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.group
   })
@@ -3421,8 +3599,11 @@ pub fn guidanceresponse_update(
 pub fn guidanceresponse_delete(
   resource: r4.Guidanceresponse,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "GuidanceResponse", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Guidanceresponse", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn guidanceresponse_search_bundled(
@@ -3430,7 +3611,7 @@ pub fn guidanceresponse_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.guidanceresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn guidanceresponse_search(
@@ -3438,7 +3619,7 @@ pub fn guidanceresponse_search(
   client: FhirClient,
 ) -> Result(List(r4.Guidanceresponse), Err) {
   let req = r4_sansio.guidanceresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.guidanceresponse
   })
@@ -3479,8 +3660,11 @@ pub fn healthcareservice_update(
 pub fn healthcareservice_delete(
   resource: r4.Healthcareservice,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "HealthcareService", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Healthcareservice", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn healthcareservice_search_bundled(
@@ -3488,7 +3672,7 @@ pub fn healthcareservice_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.healthcareservice_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn healthcareservice_search(
@@ -3496,7 +3680,7 @@ pub fn healthcareservice_search(
   client: FhirClient,
 ) -> Result(List(r4.Healthcareservice), Err) {
   let req = r4_sansio.healthcareservice_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.healthcareservice
   })
@@ -3537,8 +3721,11 @@ pub fn imagingstudy_update(
 pub fn imagingstudy_delete(
   resource: r4.Imagingstudy,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ImagingStudy", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Imagingstudy", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn imagingstudy_search_bundled(
@@ -3546,7 +3733,7 @@ pub fn imagingstudy_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.imagingstudy_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn imagingstudy_search(
@@ -3554,7 +3741,7 @@ pub fn imagingstudy_search(
   client: FhirClient,
 ) -> Result(List(r4.Imagingstudy), Err) {
   let req = r4_sansio.imagingstudy_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.imagingstudy
   })
@@ -3595,8 +3782,11 @@ pub fn immunization_update(
 pub fn immunization_delete(
   resource: r4.Immunization,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Immunization", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Immunization", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn immunization_search_bundled(
@@ -3604,7 +3794,7 @@ pub fn immunization_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.immunization_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn immunization_search(
@@ -3612,7 +3802,7 @@ pub fn immunization_search(
   client: FhirClient,
 ) -> Result(List(r4.Immunization), Err) {
   let req = r4_sansio.immunization_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.immunization
   })
@@ -3658,8 +3848,11 @@ pub fn immunizationevaluation_update(
 pub fn immunizationevaluation_delete(
   resource: r4.Immunizationevaluation,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ImmunizationEvaluation", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Immunizationevaluation", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn immunizationevaluation_search_bundled(
@@ -3667,7 +3860,7 @@ pub fn immunizationevaluation_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.immunizationevaluation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn immunizationevaluation_search(
@@ -3675,7 +3868,7 @@ pub fn immunizationevaluation_search(
   client: FhirClient,
 ) -> Result(List(r4.Immunizationevaluation), Err) {
   let req = r4_sansio.immunizationevaluation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.immunizationevaluation
   })
@@ -3721,8 +3914,11 @@ pub fn immunizationrecommendation_update(
 pub fn immunizationrecommendation_delete(
   resource: r4.Immunizationrecommendation,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ImmunizationRecommendation", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Immunizationrecommendation", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn immunizationrecommendation_search_bundled(
@@ -3730,7 +3926,7 @@ pub fn immunizationrecommendation_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.immunizationrecommendation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn immunizationrecommendation_search(
@@ -3738,7 +3934,7 @@ pub fn immunizationrecommendation_search(
   client: FhirClient,
 ) -> Result(List(r4.Immunizationrecommendation), Err) {
   let req = r4_sansio.immunizationrecommendation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.immunizationrecommendation
   })
@@ -3779,8 +3975,11 @@ pub fn implementationguide_update(
 pub fn implementationguide_delete(
   resource: r4.Implementationguide,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ImplementationGuide", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Implementationguide", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn implementationguide_search_bundled(
@@ -3788,7 +3987,7 @@ pub fn implementationguide_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.implementationguide_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn implementationguide_search(
@@ -3796,7 +3995,7 @@ pub fn implementationguide_search(
   client: FhirClient,
 ) -> Result(List(r4.Implementationguide), Err) {
   let req = r4_sansio.implementationguide_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.implementationguide
   })
@@ -3837,8 +4036,11 @@ pub fn insuranceplan_update(
 pub fn insuranceplan_delete(
   resource: r4.Insuranceplan,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "InsurancePlan", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Insuranceplan", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn insuranceplan_search_bundled(
@@ -3846,7 +4048,7 @@ pub fn insuranceplan_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.insuranceplan_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn insuranceplan_search(
@@ -3854,7 +4056,7 @@ pub fn insuranceplan_search(
   client: FhirClient,
 ) -> Result(List(r4.Insuranceplan), Err) {
   let req = r4_sansio.insuranceplan_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.insuranceplan
   })
@@ -3892,13 +4094,16 @@ pub fn invoice_update(
 pub fn invoice_delete(
   resource: r4.Invoice,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Invoice", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Invoice", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn invoice_search_bundled(sp: r4_sansio.SpInvoice, client: FhirClient) {
   let req = r4_sansio.invoice_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn invoice_search(
@@ -3906,7 +4111,7 @@ pub fn invoice_search(
   client: FhirClient,
 ) -> Result(List(r4.Invoice), Err) {
   let req = r4_sansio.invoice_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.invoice
   })
@@ -3944,13 +4149,16 @@ pub fn library_update(
 pub fn library_delete(
   resource: r4.Library,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Library", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Library", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn library_search_bundled(sp: r4_sansio.SpLibrary, client: FhirClient) {
   let req = r4_sansio.library_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn library_search(
@@ -3958,7 +4166,7 @@ pub fn library_search(
   client: FhirClient,
 ) -> Result(List(r4.Library), Err) {
   let req = r4_sansio.library_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.library
   })
@@ -3996,13 +4204,16 @@ pub fn linkage_update(
 pub fn linkage_delete(
   resource: r4.Linkage,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Linkage", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Linkage", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn linkage_search_bundled(sp: r4_sansio.SpLinkage, client: FhirClient) {
   let req = r4_sansio.linkage_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn linkage_search(
@@ -4010,7 +4221,7 @@ pub fn linkage_search(
   client: FhirClient,
 ) -> Result(List(r4.Linkage), Err) {
   let req = r4_sansio.linkage_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.linkage
   })
@@ -4048,13 +4259,16 @@ pub fn listfhir_update(
 pub fn listfhir_delete(
   resource: r4.Listfhir,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "List", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Listfhir", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn listfhir_search_bundled(sp: r4_sansio.SpListfhir, client: FhirClient) {
   let req = r4_sansio.listfhir_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn listfhir_search(
@@ -4062,7 +4276,7 @@ pub fn listfhir_search(
   client: FhirClient,
 ) -> Result(List(r4.Listfhir), Err) {
   let req = r4_sansio.listfhir_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.listfhir
   })
@@ -4100,13 +4314,16 @@ pub fn location_update(
 pub fn location_delete(
   resource: r4.Location,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Location", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Location", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn location_search_bundled(sp: r4_sansio.SpLocation, client: FhirClient) {
   let req = r4_sansio.location_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn location_search(
@@ -4114,7 +4331,7 @@ pub fn location_search(
   client: FhirClient,
 ) -> Result(List(r4.Location), Err) {
   let req = r4_sansio.location_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.location
   })
@@ -4152,13 +4369,16 @@ pub fn measure_update(
 pub fn measure_delete(
   resource: r4.Measure,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Measure", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Measure", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn measure_search_bundled(sp: r4_sansio.SpMeasure, client: FhirClient) {
   let req = r4_sansio.measure_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn measure_search(
@@ -4166,7 +4386,7 @@ pub fn measure_search(
   client: FhirClient,
 ) -> Result(List(r4.Measure), Err) {
   let req = r4_sansio.measure_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.measure
   })
@@ -4207,8 +4427,11 @@ pub fn measurereport_update(
 pub fn measurereport_delete(
   resource: r4.Measurereport,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MeasureReport", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Measurereport", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn measurereport_search_bundled(
@@ -4216,7 +4439,7 @@ pub fn measurereport_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.measurereport_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn measurereport_search(
@@ -4224,7 +4447,7 @@ pub fn measurereport_search(
   client: FhirClient,
 ) -> Result(List(r4.Measurereport), Err) {
   let req = r4_sansio.measurereport_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.measurereport
   })
@@ -4257,13 +4480,16 @@ pub fn media_update(
 pub fn media_delete(
   resource: r4.Media,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Media", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Media", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn media_search_bundled(sp: r4_sansio.SpMedia, client: FhirClient) {
   let req = r4_sansio.media_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn media_search(
@@ -4271,7 +4497,7 @@ pub fn media_search(
   client: FhirClient,
 ) -> Result(List(r4.Media), Err) {
   let req = r4_sansio.media_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.media
   })
@@ -4312,13 +4538,16 @@ pub fn medication_update(
 pub fn medication_delete(
   resource: r4.Medication,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Medication", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medication", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medication_search_bundled(sp: r4_sansio.SpMedication, client: FhirClient) {
   let req = r4_sansio.medication_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medication_search(
@@ -4326,7 +4555,7 @@ pub fn medication_search(
   client: FhirClient,
 ) -> Result(List(r4.Medication), Err) {
   let req = r4_sansio.medication_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medication
   })
@@ -4372,8 +4601,11 @@ pub fn medicationadministration_update(
 pub fn medicationadministration_delete(
   resource: r4.Medicationadministration,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicationAdministration", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicationadministration", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicationadministration_search_bundled(
@@ -4381,7 +4613,7 @@ pub fn medicationadministration_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicationadministration_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicationadministration_search(
@@ -4389,7 +4621,7 @@ pub fn medicationadministration_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicationadministration), Err) {
   let req = r4_sansio.medicationadministration_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicationadministration
   })
@@ -4430,8 +4662,11 @@ pub fn medicationdispense_update(
 pub fn medicationdispense_delete(
   resource: r4.Medicationdispense,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicationDispense", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicationdispense", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicationdispense_search_bundled(
@@ -4439,7 +4674,7 @@ pub fn medicationdispense_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicationdispense_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicationdispense_search(
@@ -4447,7 +4682,7 @@ pub fn medicationdispense_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicationdispense), Err) {
   let req = r4_sansio.medicationdispense_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicationdispense
   })
@@ -4488,8 +4723,11 @@ pub fn medicationknowledge_update(
 pub fn medicationknowledge_delete(
   resource: r4.Medicationknowledge,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicationKnowledge", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicationknowledge", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicationknowledge_search_bundled(
@@ -4497,7 +4735,7 @@ pub fn medicationknowledge_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicationknowledge_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicationknowledge_search(
@@ -4505,7 +4743,7 @@ pub fn medicationknowledge_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicationknowledge), Err) {
   let req = r4_sansio.medicationknowledge_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicationknowledge
   })
@@ -4546,8 +4784,11 @@ pub fn medicationrequest_update(
 pub fn medicationrequest_delete(
   resource: r4.Medicationrequest,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicationRequest", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicationrequest", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicationrequest_search_bundled(
@@ -4555,7 +4796,7 @@ pub fn medicationrequest_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicationrequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicationrequest_search(
@@ -4563,7 +4804,7 @@ pub fn medicationrequest_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicationrequest), Err) {
   let req = r4_sansio.medicationrequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicationrequest
   })
@@ -4604,8 +4845,11 @@ pub fn medicationstatement_update(
 pub fn medicationstatement_delete(
   resource: r4.Medicationstatement,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicationStatement", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicationstatement", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicationstatement_search_bundled(
@@ -4613,7 +4857,7 @@ pub fn medicationstatement_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicationstatement_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicationstatement_search(
@@ -4621,7 +4865,7 @@ pub fn medicationstatement_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicationstatement), Err) {
   let req = r4_sansio.medicationstatement_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicationstatement
   })
@@ -4662,8 +4906,11 @@ pub fn medicinalproduct_update(
 pub fn medicinalproduct_delete(
   resource: r4.Medicinalproduct,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicinalProduct", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicinalproduct", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicinalproduct_search_bundled(
@@ -4671,7 +4918,7 @@ pub fn medicinalproduct_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicinalproduct_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicinalproduct_search(
@@ -4679,7 +4926,7 @@ pub fn medicinalproduct_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicinalproduct), Err) {
   let req = r4_sansio.medicinalproduct_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicinalproduct
   })
@@ -4725,8 +4972,11 @@ pub fn medicinalproductauthorization_update(
 pub fn medicinalproductauthorization_delete(
   resource: r4.Medicinalproductauthorization,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicinalProductAuthorization", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicinalproductauthorization", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicinalproductauthorization_search_bundled(
@@ -4734,7 +4984,7 @@ pub fn medicinalproductauthorization_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicinalproductauthorization_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicinalproductauthorization_search(
@@ -4742,7 +4992,7 @@ pub fn medicinalproductauthorization_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicinalproductauthorization), Err) {
   let req = r4_sansio.medicinalproductauthorization_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicinalproductauthorization
   })
@@ -4788,8 +5038,11 @@ pub fn medicinalproductcontraindication_update(
 pub fn medicinalproductcontraindication_delete(
   resource: r4.Medicinalproductcontraindication,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicinalProductContraindication", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicinalproductcontraindication", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicinalproductcontraindication_search_bundled(
@@ -4797,7 +5050,7 @@ pub fn medicinalproductcontraindication_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicinalproductcontraindication_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicinalproductcontraindication_search(
@@ -4805,7 +5058,7 @@ pub fn medicinalproductcontraindication_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicinalproductcontraindication), Err) {
   let req = r4_sansio.medicinalproductcontraindication_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicinalproductcontraindication
   })
@@ -4851,8 +5104,11 @@ pub fn medicinalproductindication_update(
 pub fn medicinalproductindication_delete(
   resource: r4.Medicinalproductindication,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicinalProductIndication", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicinalproductindication", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicinalproductindication_search_bundled(
@@ -4860,7 +5116,7 @@ pub fn medicinalproductindication_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicinalproductindication_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicinalproductindication_search(
@@ -4868,7 +5124,7 @@ pub fn medicinalproductindication_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicinalproductindication), Err) {
   let req = r4_sansio.medicinalproductindication_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicinalproductindication
   })
@@ -4914,8 +5170,11 @@ pub fn medicinalproductingredient_update(
 pub fn medicinalproductingredient_delete(
   resource: r4.Medicinalproductingredient,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicinalProductIngredient", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicinalproductingredient", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicinalproductingredient_search_bundled(
@@ -4923,7 +5182,7 @@ pub fn medicinalproductingredient_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicinalproductingredient_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicinalproductingredient_search(
@@ -4931,7 +5190,7 @@ pub fn medicinalproductingredient_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicinalproductingredient), Err) {
   let req = r4_sansio.medicinalproductingredient_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicinalproductingredient
   })
@@ -4977,8 +5236,11 @@ pub fn medicinalproductinteraction_update(
 pub fn medicinalproductinteraction_delete(
   resource: r4.Medicinalproductinteraction,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicinalProductInteraction", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicinalproductinteraction", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicinalproductinteraction_search_bundled(
@@ -4986,7 +5248,7 @@ pub fn medicinalproductinteraction_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicinalproductinteraction_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicinalproductinteraction_search(
@@ -4994,7 +5256,7 @@ pub fn medicinalproductinteraction_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicinalproductinteraction), Err) {
   let req = r4_sansio.medicinalproductinteraction_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicinalproductinteraction
   })
@@ -5040,8 +5302,11 @@ pub fn medicinalproductmanufactured_update(
 pub fn medicinalproductmanufactured_delete(
   resource: r4.Medicinalproductmanufactured,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicinalProductManufactured", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicinalproductmanufactured", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicinalproductmanufactured_search_bundled(
@@ -5049,7 +5314,7 @@ pub fn medicinalproductmanufactured_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicinalproductmanufactured_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicinalproductmanufactured_search(
@@ -5057,7 +5322,7 @@ pub fn medicinalproductmanufactured_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicinalproductmanufactured), Err) {
   let req = r4_sansio.medicinalproductmanufactured_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicinalproductmanufactured
   })
@@ -5103,8 +5368,11 @@ pub fn medicinalproductpackaged_update(
 pub fn medicinalproductpackaged_delete(
   resource: r4.Medicinalproductpackaged,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicinalProductPackaged", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicinalproductpackaged", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicinalproductpackaged_search_bundled(
@@ -5112,7 +5380,7 @@ pub fn medicinalproductpackaged_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicinalproductpackaged_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicinalproductpackaged_search(
@@ -5120,7 +5388,7 @@ pub fn medicinalproductpackaged_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicinalproductpackaged), Err) {
   let req = r4_sansio.medicinalproductpackaged_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicinalproductpackaged
   })
@@ -5166,8 +5434,11 @@ pub fn medicinalproductpharmaceutical_update(
 pub fn medicinalproductpharmaceutical_delete(
   resource: r4.Medicinalproductpharmaceutical,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicinalProductPharmaceutical", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicinalproductpharmaceutical", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicinalproductpharmaceutical_search_bundled(
@@ -5175,7 +5446,7 @@ pub fn medicinalproductpharmaceutical_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicinalproductpharmaceutical_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicinalproductpharmaceutical_search(
@@ -5183,7 +5454,7 @@ pub fn medicinalproductpharmaceutical_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicinalproductpharmaceutical), Err) {
   let req = r4_sansio.medicinalproductpharmaceutical_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicinalproductpharmaceutical
   })
@@ -5229,8 +5500,11 @@ pub fn medicinalproductundesirableeffect_update(
 pub fn medicinalproductundesirableeffect_delete(
   resource: r4.Medicinalproductundesirableeffect,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MedicinalProductUndesirableEffect", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Medicinalproductundesirableeffect", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn medicinalproductundesirableeffect_search_bundled(
@@ -5238,7 +5512,7 @@ pub fn medicinalproductundesirableeffect_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.medicinalproductundesirableeffect_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn medicinalproductundesirableeffect_search(
@@ -5246,7 +5520,7 @@ pub fn medicinalproductundesirableeffect_search(
   client: FhirClient,
 ) -> Result(List(r4.Medicinalproductundesirableeffect), Err) {
   let req = r4_sansio.medicinalproductundesirableeffect_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.medicinalproductundesirableeffect
   })
@@ -5287,8 +5561,11 @@ pub fn messagedefinition_update(
 pub fn messagedefinition_delete(
   resource: r4.Messagedefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MessageDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Messagedefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn messagedefinition_search_bundled(
@@ -5296,7 +5573,7 @@ pub fn messagedefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.messagedefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn messagedefinition_search(
@@ -5304,7 +5581,7 @@ pub fn messagedefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Messagedefinition), Err) {
   let req = r4_sansio.messagedefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.messagedefinition
   })
@@ -5345,8 +5622,11 @@ pub fn messageheader_update(
 pub fn messageheader_delete(
   resource: r4.Messageheader,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MessageHeader", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Messageheader", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn messageheader_search_bundled(
@@ -5354,7 +5634,7 @@ pub fn messageheader_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.messageheader_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn messageheader_search(
@@ -5362,7 +5642,7 @@ pub fn messageheader_search(
   client: FhirClient,
 ) -> Result(List(r4.Messageheader), Err) {
   let req = r4_sansio.messageheader_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.messageheader
   })
@@ -5403,8 +5683,11 @@ pub fn molecularsequence_update(
 pub fn molecularsequence_delete(
   resource: r4.Molecularsequence,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "MolecularSequence", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Molecularsequence", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn molecularsequence_search_bundled(
@@ -5412,7 +5695,7 @@ pub fn molecularsequence_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.molecularsequence_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn molecularsequence_search(
@@ -5420,7 +5703,7 @@ pub fn molecularsequence_search(
   client: FhirClient,
 ) -> Result(List(r4.Molecularsequence), Err) {
   let req = r4_sansio.molecularsequence_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.molecularsequence
   })
@@ -5461,8 +5744,11 @@ pub fn namingsystem_update(
 pub fn namingsystem_delete(
   resource: r4.Namingsystem,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "NamingSystem", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Namingsystem", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn namingsystem_search_bundled(
@@ -5470,7 +5756,7 @@ pub fn namingsystem_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.namingsystem_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn namingsystem_search(
@@ -5478,7 +5764,7 @@ pub fn namingsystem_search(
   client: FhirClient,
 ) -> Result(List(r4.Namingsystem), Err) {
   let req = r4_sansio.namingsystem_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.namingsystem
   })
@@ -5519,8 +5805,11 @@ pub fn nutritionorder_update(
 pub fn nutritionorder_delete(
   resource: r4.Nutritionorder,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "NutritionOrder", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Nutritionorder", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn nutritionorder_search_bundled(
@@ -5528,7 +5817,7 @@ pub fn nutritionorder_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.nutritionorder_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn nutritionorder_search(
@@ -5536,7 +5825,7 @@ pub fn nutritionorder_search(
   client: FhirClient,
 ) -> Result(List(r4.Nutritionorder), Err) {
   let req = r4_sansio.nutritionorder_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.nutritionorder
   })
@@ -5577,8 +5866,11 @@ pub fn observation_update(
 pub fn observation_delete(
   resource: r4.Observation,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Observation", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Observation", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn observation_search_bundled(
@@ -5586,7 +5878,7 @@ pub fn observation_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.observation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn observation_search(
@@ -5594,7 +5886,7 @@ pub fn observation_search(
   client: FhirClient,
 ) -> Result(List(r4.Observation), Err) {
   let req = r4_sansio.observation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.observation
   })
@@ -5640,8 +5932,11 @@ pub fn observationdefinition_update(
 pub fn observationdefinition_delete(
   resource: r4.Observationdefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ObservationDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Observationdefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn observationdefinition_search_bundled(
@@ -5649,7 +5944,7 @@ pub fn observationdefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.observationdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn observationdefinition_search(
@@ -5657,7 +5952,7 @@ pub fn observationdefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Observationdefinition), Err) {
   let req = r4_sansio.observationdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.observationdefinition
   })
@@ -5698,8 +5993,11 @@ pub fn operationdefinition_update(
 pub fn operationdefinition_delete(
   resource: r4.Operationdefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "OperationDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Operationdefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn operationdefinition_search_bundled(
@@ -5707,7 +6005,7 @@ pub fn operationdefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.operationdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn operationdefinition_search(
@@ -5715,7 +6013,7 @@ pub fn operationdefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Operationdefinition), Err) {
   let req = r4_sansio.operationdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.operationdefinition
   })
@@ -5756,8 +6054,11 @@ pub fn operationoutcome_update(
 pub fn operationoutcome_delete(
   resource: r4.Operationoutcome,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "OperationOutcome", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Operationoutcome", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn operationoutcome_search_bundled(
@@ -5765,7 +6066,7 @@ pub fn operationoutcome_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.operationoutcome_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn operationoutcome_search(
@@ -5773,7 +6074,7 @@ pub fn operationoutcome_search(
   client: FhirClient,
 ) -> Result(List(r4.Operationoutcome), Err) {
   let req = r4_sansio.operationoutcome_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.operationoutcome
   })
@@ -5814,8 +6115,11 @@ pub fn organization_update(
 pub fn organization_delete(
   resource: r4.Organization,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Organization", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Organization", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn organization_search_bundled(
@@ -5823,7 +6127,7 @@ pub fn organization_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.organization_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn organization_search(
@@ -5831,7 +6135,7 @@ pub fn organization_search(
   client: FhirClient,
 ) -> Result(List(r4.Organization), Err) {
   let req = r4_sansio.organization_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.organization
   })
@@ -5877,8 +6181,11 @@ pub fn organizationaffiliation_update(
 pub fn organizationaffiliation_delete(
   resource: r4.Organizationaffiliation,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "OrganizationAffiliation", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Organizationaffiliation", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn organizationaffiliation_search_bundled(
@@ -5886,7 +6193,7 @@ pub fn organizationaffiliation_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.organizationaffiliation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn organizationaffiliation_search(
@@ -5894,7 +6201,7 @@ pub fn organizationaffiliation_search(
   client: FhirClient,
 ) -> Result(List(r4.Organizationaffiliation), Err) {
   let req = r4_sansio.organizationaffiliation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.organizationaffiliation
   })
@@ -5932,13 +6239,16 @@ pub fn patient_update(
 pub fn patient_delete(
   resource: r4.Patient,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Patient", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Patient", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn patient_search_bundled(sp: r4_sansio.SpPatient, client: FhirClient) {
   let req = r4_sansio.patient_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn patient_search(
@@ -5946,7 +6256,7 @@ pub fn patient_search(
   client: FhirClient,
 ) -> Result(List(r4.Patient), Err) {
   let req = r4_sansio.patient_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.patient
   })
@@ -5987,8 +6297,11 @@ pub fn paymentnotice_update(
 pub fn paymentnotice_delete(
   resource: r4.Paymentnotice,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "PaymentNotice", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Paymentnotice", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn paymentnotice_search_bundled(
@@ -5996,7 +6309,7 @@ pub fn paymentnotice_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.paymentnotice_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn paymentnotice_search(
@@ -6004,7 +6317,7 @@ pub fn paymentnotice_search(
   client: FhirClient,
 ) -> Result(List(r4.Paymentnotice), Err) {
   let req = r4_sansio.paymentnotice_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.paymentnotice
   })
@@ -6050,8 +6363,11 @@ pub fn paymentreconciliation_update(
 pub fn paymentreconciliation_delete(
   resource: r4.Paymentreconciliation,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "PaymentReconciliation", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Paymentreconciliation", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn paymentreconciliation_search_bundled(
@@ -6059,7 +6375,7 @@ pub fn paymentreconciliation_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.paymentreconciliation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn paymentreconciliation_search(
@@ -6067,7 +6383,7 @@ pub fn paymentreconciliation_search(
   client: FhirClient,
 ) -> Result(List(r4.Paymentreconciliation), Err) {
   let req = r4_sansio.paymentreconciliation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.paymentreconciliation
   })
@@ -6100,13 +6416,16 @@ pub fn person_update(
 pub fn person_delete(
   resource: r4.Person,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Person", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Person", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn person_search_bundled(sp: r4_sansio.SpPerson, client: FhirClient) {
   let req = r4_sansio.person_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn person_search(
@@ -6114,7 +6433,7 @@ pub fn person_search(
   client: FhirClient,
 ) -> Result(List(r4.Person), Err) {
   let req = r4_sansio.person_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.person
   })
@@ -6155,8 +6474,11 @@ pub fn plandefinition_update(
 pub fn plandefinition_delete(
   resource: r4.Plandefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "PlanDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Plandefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn plandefinition_search_bundled(
@@ -6164,7 +6486,7 @@ pub fn plandefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.plandefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn plandefinition_search(
@@ -6172,7 +6494,7 @@ pub fn plandefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Plandefinition), Err) {
   let req = r4_sansio.plandefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.plandefinition
   })
@@ -6213,8 +6535,11 @@ pub fn practitioner_update(
 pub fn practitioner_delete(
   resource: r4.Practitioner,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Practitioner", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Practitioner", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn practitioner_search_bundled(
@@ -6222,7 +6547,7 @@ pub fn practitioner_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.practitioner_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn practitioner_search(
@@ -6230,7 +6555,7 @@ pub fn practitioner_search(
   client: FhirClient,
 ) -> Result(List(r4.Practitioner), Err) {
   let req = r4_sansio.practitioner_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.practitioner
   })
@@ -6271,8 +6596,11 @@ pub fn practitionerrole_update(
 pub fn practitionerrole_delete(
   resource: r4.Practitionerrole,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "PractitionerRole", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Practitionerrole", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn practitionerrole_search_bundled(
@@ -6280,7 +6608,7 @@ pub fn practitionerrole_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.practitionerrole_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn practitionerrole_search(
@@ -6288,7 +6616,7 @@ pub fn practitionerrole_search(
   client: FhirClient,
 ) -> Result(List(r4.Practitionerrole), Err) {
   let req = r4_sansio.practitionerrole_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.practitionerrole
   })
@@ -6329,13 +6657,16 @@ pub fn procedure_update(
 pub fn procedure_delete(
   resource: r4.Procedure,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Procedure", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Procedure", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn procedure_search_bundled(sp: r4_sansio.SpProcedure, client: FhirClient) {
   let req = r4_sansio.procedure_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn procedure_search(
@@ -6343,7 +6674,7 @@ pub fn procedure_search(
   client: FhirClient,
 ) -> Result(List(r4.Procedure), Err) {
   let req = r4_sansio.procedure_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.procedure
   })
@@ -6384,13 +6715,16 @@ pub fn provenance_update(
 pub fn provenance_delete(
   resource: r4.Provenance,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Provenance", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Provenance", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn provenance_search_bundled(sp: r4_sansio.SpProvenance, client: FhirClient) {
   let req = r4_sansio.provenance_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn provenance_search(
@@ -6398,7 +6732,7 @@ pub fn provenance_search(
   client: FhirClient,
 ) -> Result(List(r4.Provenance), Err) {
   let req = r4_sansio.provenance_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.provenance
   })
@@ -6439,8 +6773,11 @@ pub fn questionnaire_update(
 pub fn questionnaire_delete(
   resource: r4.Questionnaire,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Questionnaire", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Questionnaire", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn questionnaire_search_bundled(
@@ -6448,7 +6785,7 @@ pub fn questionnaire_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.questionnaire_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn questionnaire_search(
@@ -6456,7 +6793,7 @@ pub fn questionnaire_search(
   client: FhirClient,
 ) -> Result(List(r4.Questionnaire), Err) {
   let req = r4_sansio.questionnaire_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.questionnaire
   })
@@ -6502,8 +6839,11 @@ pub fn questionnaireresponse_update(
 pub fn questionnaireresponse_delete(
   resource: r4.Questionnaireresponse,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "QuestionnaireResponse", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Questionnaireresponse", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn questionnaireresponse_search_bundled(
@@ -6511,7 +6851,7 @@ pub fn questionnaireresponse_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.questionnaireresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn questionnaireresponse_search(
@@ -6519,7 +6859,7 @@ pub fn questionnaireresponse_search(
   client: FhirClient,
 ) -> Result(List(r4.Questionnaireresponse), Err) {
   let req = r4_sansio.questionnaireresponse_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.questionnaireresponse
   })
@@ -6560,8 +6900,11 @@ pub fn relatedperson_update(
 pub fn relatedperson_delete(
   resource: r4.Relatedperson,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "RelatedPerson", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Relatedperson", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn relatedperson_search_bundled(
@@ -6569,7 +6912,7 @@ pub fn relatedperson_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.relatedperson_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn relatedperson_search(
@@ -6577,7 +6920,7 @@ pub fn relatedperson_search(
   client: FhirClient,
 ) -> Result(List(r4.Relatedperson), Err) {
   let req = r4_sansio.relatedperson_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.relatedperson
   })
@@ -6618,8 +6961,11 @@ pub fn requestgroup_update(
 pub fn requestgroup_delete(
   resource: r4.Requestgroup,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "RequestGroup", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Requestgroup", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn requestgroup_search_bundled(
@@ -6627,7 +6973,7 @@ pub fn requestgroup_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.requestgroup_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn requestgroup_search(
@@ -6635,7 +6981,7 @@ pub fn requestgroup_search(
   client: FhirClient,
 ) -> Result(List(r4.Requestgroup), Err) {
   let req = r4_sansio.requestgroup_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.requestgroup
   })
@@ -6676,8 +7022,11 @@ pub fn researchdefinition_update(
 pub fn researchdefinition_delete(
   resource: r4.Researchdefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ResearchDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Researchdefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn researchdefinition_search_bundled(
@@ -6685,7 +7034,7 @@ pub fn researchdefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.researchdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn researchdefinition_search(
@@ -6693,7 +7042,7 @@ pub fn researchdefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Researchdefinition), Err) {
   let req = r4_sansio.researchdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.researchdefinition
   })
@@ -6739,8 +7088,11 @@ pub fn researchelementdefinition_update(
 pub fn researchelementdefinition_delete(
   resource: r4.Researchelementdefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ResearchElementDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Researchelementdefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn researchelementdefinition_search_bundled(
@@ -6748,7 +7100,7 @@ pub fn researchelementdefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.researchelementdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn researchelementdefinition_search(
@@ -6756,7 +7108,7 @@ pub fn researchelementdefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Researchelementdefinition), Err) {
   let req = r4_sansio.researchelementdefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.researchelementdefinition
   })
@@ -6797,8 +7149,11 @@ pub fn researchstudy_update(
 pub fn researchstudy_delete(
   resource: r4.Researchstudy,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ResearchStudy", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Researchstudy", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn researchstudy_search_bundled(
@@ -6806,7 +7161,7 @@ pub fn researchstudy_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.researchstudy_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn researchstudy_search(
@@ -6814,7 +7169,7 @@ pub fn researchstudy_search(
   client: FhirClient,
 ) -> Result(List(r4.Researchstudy), Err) {
   let req = r4_sansio.researchstudy_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.researchstudy
   })
@@ -6855,8 +7210,11 @@ pub fn researchsubject_update(
 pub fn researchsubject_delete(
   resource: r4.Researchsubject,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ResearchSubject", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Researchsubject", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn researchsubject_search_bundled(
@@ -6864,7 +7222,7 @@ pub fn researchsubject_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.researchsubject_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn researchsubject_search(
@@ -6872,7 +7230,7 @@ pub fn researchsubject_search(
   client: FhirClient,
 ) -> Result(List(r4.Researchsubject), Err) {
   let req = r4_sansio.researchsubject_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.researchsubject
   })
@@ -6913,8 +7271,11 @@ pub fn riskassessment_update(
 pub fn riskassessment_delete(
   resource: r4.Riskassessment,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "RiskAssessment", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Riskassessment", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn riskassessment_search_bundled(
@@ -6922,7 +7283,7 @@ pub fn riskassessment_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.riskassessment_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn riskassessment_search(
@@ -6930,7 +7291,7 @@ pub fn riskassessment_search(
   client: FhirClient,
 ) -> Result(List(r4.Riskassessment), Err) {
   let req = r4_sansio.riskassessment_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.riskassessment
   })
@@ -6976,8 +7337,11 @@ pub fn riskevidencesynthesis_update(
 pub fn riskevidencesynthesis_delete(
   resource: r4.Riskevidencesynthesis,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "RiskEvidenceSynthesis", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Riskevidencesynthesis", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn riskevidencesynthesis_search_bundled(
@@ -6985,7 +7349,7 @@ pub fn riskevidencesynthesis_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.riskevidencesynthesis_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn riskevidencesynthesis_search(
@@ -6993,7 +7357,7 @@ pub fn riskevidencesynthesis_search(
   client: FhirClient,
 ) -> Result(List(r4.Riskevidencesynthesis), Err) {
   let req = r4_sansio.riskevidencesynthesis_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.riskevidencesynthesis
   })
@@ -7031,13 +7395,16 @@ pub fn schedule_update(
 pub fn schedule_delete(
   resource: r4.Schedule,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Schedule", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Schedule", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn schedule_search_bundled(sp: r4_sansio.SpSchedule, client: FhirClient) {
   let req = r4_sansio.schedule_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn schedule_search(
@@ -7045,7 +7412,7 @@ pub fn schedule_search(
   client: FhirClient,
 ) -> Result(List(r4.Schedule), Err) {
   let req = r4_sansio.schedule_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.schedule
   })
@@ -7086,8 +7453,11 @@ pub fn searchparameter_update(
 pub fn searchparameter_delete(
   resource: r4.Searchparameter,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "SearchParameter", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Searchparameter", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn searchparameter_search_bundled(
@@ -7095,7 +7465,7 @@ pub fn searchparameter_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.searchparameter_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn searchparameter_search(
@@ -7103,7 +7473,7 @@ pub fn searchparameter_search(
   client: FhirClient,
 ) -> Result(List(r4.Searchparameter), Err) {
   let req = r4_sansio.searchparameter_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.searchparameter
   })
@@ -7144,8 +7514,11 @@ pub fn servicerequest_update(
 pub fn servicerequest_delete(
   resource: r4.Servicerequest,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ServiceRequest", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Servicerequest", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn servicerequest_search_bundled(
@@ -7153,7 +7526,7 @@ pub fn servicerequest_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.servicerequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn servicerequest_search(
@@ -7161,7 +7534,7 @@ pub fn servicerequest_search(
   client: FhirClient,
 ) -> Result(List(r4.Servicerequest), Err) {
   let req = r4_sansio.servicerequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.servicerequest
   })
@@ -7194,13 +7567,16 @@ pub fn slot_update(
 pub fn slot_delete(
   resource: r4.Slot,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Slot", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Slot", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn slot_search_bundled(sp: r4_sansio.SpSlot, client: FhirClient) {
   let req = r4_sansio.slot_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn slot_search(
@@ -7208,7 +7584,7 @@ pub fn slot_search(
   client: FhirClient,
 ) -> Result(List(r4.Slot), Err) {
   let req = r4_sansio.slot_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.slot
   })
@@ -7246,13 +7622,16 @@ pub fn specimen_update(
 pub fn specimen_delete(
   resource: r4.Specimen,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Specimen", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Specimen", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn specimen_search_bundled(sp: r4_sansio.SpSpecimen, client: FhirClient) {
   let req = r4_sansio.specimen_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn specimen_search(
@@ -7260,7 +7639,7 @@ pub fn specimen_search(
   client: FhirClient,
 ) -> Result(List(r4.Specimen), Err) {
   let req = r4_sansio.specimen_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.specimen
   })
@@ -7301,8 +7680,11 @@ pub fn specimendefinition_update(
 pub fn specimendefinition_delete(
   resource: r4.Specimendefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "SpecimenDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Specimendefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn specimendefinition_search_bundled(
@@ -7310,7 +7692,7 @@ pub fn specimendefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.specimendefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn specimendefinition_search(
@@ -7318,7 +7700,7 @@ pub fn specimendefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Specimendefinition), Err) {
   let req = r4_sansio.specimendefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.specimendefinition
   })
@@ -7359,8 +7741,11 @@ pub fn structuredefinition_update(
 pub fn structuredefinition_delete(
   resource: r4.Structuredefinition,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "StructureDefinition", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Structuredefinition", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn structuredefinition_search_bundled(
@@ -7368,7 +7753,7 @@ pub fn structuredefinition_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.structuredefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn structuredefinition_search(
@@ -7376,7 +7761,7 @@ pub fn structuredefinition_search(
   client: FhirClient,
 ) -> Result(List(r4.Structuredefinition), Err) {
   let req = r4_sansio.structuredefinition_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.structuredefinition
   })
@@ -7417,8 +7802,11 @@ pub fn structuremap_update(
 pub fn structuremap_delete(
   resource: r4.Structuremap,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "StructureMap", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Structuremap", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn structuremap_search_bundled(
@@ -7426,7 +7814,7 @@ pub fn structuremap_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.structuremap_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn structuremap_search(
@@ -7434,7 +7822,7 @@ pub fn structuremap_search(
   client: FhirClient,
 ) -> Result(List(r4.Structuremap), Err) {
   let req = r4_sansio.structuremap_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.structuremap
   })
@@ -7475,8 +7863,11 @@ pub fn subscription_update(
 pub fn subscription_delete(
   resource: r4.Subscription,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Subscription", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Subscription", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn subscription_search_bundled(
@@ -7484,7 +7875,7 @@ pub fn subscription_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.subscription_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn subscription_search(
@@ -7492,7 +7883,7 @@ pub fn subscription_search(
   client: FhirClient,
 ) -> Result(List(r4.Subscription), Err) {
   let req = r4_sansio.subscription_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.subscription
   })
@@ -7533,13 +7924,16 @@ pub fn substance_update(
 pub fn substance_delete(
   resource: r4.Substance,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Substance", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Substance", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn substance_search_bundled(sp: r4_sansio.SpSubstance, client: FhirClient) {
   let req = r4_sansio.substance_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn substance_search(
@@ -7547,7 +7941,7 @@ pub fn substance_search(
   client: FhirClient,
 ) -> Result(List(r4.Substance), Err) {
   let req = r4_sansio.substance_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.substance
   })
@@ -7593,8 +7987,11 @@ pub fn substancenucleicacid_update(
 pub fn substancenucleicacid_delete(
   resource: r4.Substancenucleicacid,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "SubstanceNucleicAcid", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Substancenucleicacid", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn substancenucleicacid_search_bundled(
@@ -7602,7 +7999,7 @@ pub fn substancenucleicacid_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.substancenucleicacid_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn substancenucleicacid_search(
@@ -7610,7 +8007,7 @@ pub fn substancenucleicacid_search(
   client: FhirClient,
 ) -> Result(List(r4.Substancenucleicacid), Err) {
   let req = r4_sansio.substancenucleicacid_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.substancenucleicacid
   })
@@ -7651,8 +8048,11 @@ pub fn substancepolymer_update(
 pub fn substancepolymer_delete(
   resource: r4.Substancepolymer,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "SubstancePolymer", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Substancepolymer", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn substancepolymer_search_bundled(
@@ -7660,7 +8060,7 @@ pub fn substancepolymer_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.substancepolymer_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn substancepolymer_search(
@@ -7668,7 +8068,7 @@ pub fn substancepolymer_search(
   client: FhirClient,
 ) -> Result(List(r4.Substancepolymer), Err) {
   let req = r4_sansio.substancepolymer_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.substancepolymer
   })
@@ -7709,8 +8109,11 @@ pub fn substanceprotein_update(
 pub fn substanceprotein_delete(
   resource: r4.Substanceprotein,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "SubstanceProtein", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Substanceprotein", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn substanceprotein_search_bundled(
@@ -7718,7 +8121,7 @@ pub fn substanceprotein_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.substanceprotein_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn substanceprotein_search(
@@ -7726,7 +8129,7 @@ pub fn substanceprotein_search(
   client: FhirClient,
 ) -> Result(List(r4.Substanceprotein), Err) {
   let req = r4_sansio.substanceprotein_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.substanceprotein
   })
@@ -7772,8 +8175,11 @@ pub fn substancereferenceinformation_update(
 pub fn substancereferenceinformation_delete(
   resource: r4.Substancereferenceinformation,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "SubstanceReferenceInformation", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Substancereferenceinformation", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn substancereferenceinformation_search_bundled(
@@ -7781,7 +8187,7 @@ pub fn substancereferenceinformation_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.substancereferenceinformation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn substancereferenceinformation_search(
@@ -7789,7 +8195,7 @@ pub fn substancereferenceinformation_search(
   client: FhirClient,
 ) -> Result(List(r4.Substancereferenceinformation), Err) {
   let req = r4_sansio.substancereferenceinformation_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.substancereferenceinformation
   })
@@ -7835,8 +8241,11 @@ pub fn substancesourcematerial_update(
 pub fn substancesourcematerial_delete(
   resource: r4.Substancesourcematerial,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "SubstanceSourceMaterial", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Substancesourcematerial", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn substancesourcematerial_search_bundled(
@@ -7844,7 +8253,7 @@ pub fn substancesourcematerial_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.substancesourcematerial_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn substancesourcematerial_search(
@@ -7852,7 +8261,7 @@ pub fn substancesourcematerial_search(
   client: FhirClient,
 ) -> Result(List(r4.Substancesourcematerial), Err) {
   let req = r4_sansio.substancesourcematerial_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.substancesourcematerial
   })
@@ -7898,8 +8307,11 @@ pub fn substancespecification_update(
 pub fn substancespecification_delete(
   resource: r4.Substancespecification,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "SubstanceSpecification", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Substancespecification", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn substancespecification_search_bundled(
@@ -7907,7 +8319,7 @@ pub fn substancespecification_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.substancespecification_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn substancespecification_search(
@@ -7915,7 +8327,7 @@ pub fn substancespecification_search(
   client: FhirClient,
 ) -> Result(List(r4.Substancespecification), Err) {
   let req = r4_sansio.substancespecification_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.substancespecification
   })
@@ -7956,8 +8368,11 @@ pub fn supplydelivery_update(
 pub fn supplydelivery_delete(
   resource: r4.Supplydelivery,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "SupplyDelivery", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Supplydelivery", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn supplydelivery_search_bundled(
@@ -7965,7 +8380,7 @@ pub fn supplydelivery_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.supplydelivery_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn supplydelivery_search(
@@ -7973,7 +8388,7 @@ pub fn supplydelivery_search(
   client: FhirClient,
 ) -> Result(List(r4.Supplydelivery), Err) {
   let req = r4_sansio.supplydelivery_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.supplydelivery
   })
@@ -8014,8 +8429,11 @@ pub fn supplyrequest_update(
 pub fn supplyrequest_delete(
   resource: r4.Supplyrequest,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "SupplyRequest", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Supplyrequest", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn supplyrequest_search_bundled(
@@ -8023,7 +8441,7 @@ pub fn supplyrequest_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.supplyrequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn supplyrequest_search(
@@ -8031,7 +8449,7 @@ pub fn supplyrequest_search(
   client: FhirClient,
 ) -> Result(List(r4.Supplyrequest), Err) {
   let req = r4_sansio.supplyrequest_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.supplyrequest
   })
@@ -8064,13 +8482,16 @@ pub fn task_update(
 pub fn task_delete(
   resource: r4.Task,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "Task", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Task", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn task_search_bundled(sp: r4_sansio.SpTask, client: FhirClient) {
   let req = r4_sansio.task_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn task_search(
@@ -8078,7 +8499,7 @@ pub fn task_search(
   client: FhirClient,
 ) -> Result(List(r4.Task), Err) {
   let req = r4_sansio.task_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.task
   })
@@ -8124,8 +8545,11 @@ pub fn terminologycapabilities_update(
 pub fn terminologycapabilities_delete(
   resource: r4.Terminologycapabilities,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "TerminologyCapabilities", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Terminologycapabilities", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn terminologycapabilities_search_bundled(
@@ -8133,7 +8557,7 @@ pub fn terminologycapabilities_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.terminologycapabilities_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn terminologycapabilities_search(
@@ -8141,7 +8565,7 @@ pub fn terminologycapabilities_search(
   client: FhirClient,
 ) -> Result(List(r4.Terminologycapabilities), Err) {
   let req = r4_sansio.terminologycapabilities_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.terminologycapabilities
   })
@@ -8182,13 +8606,16 @@ pub fn testreport_update(
 pub fn testreport_delete(
   resource: r4.Testreport,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "TestReport", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Testreport", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn testreport_search_bundled(sp: r4_sansio.SpTestreport, client: FhirClient) {
   let req = r4_sansio.testreport_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn testreport_search(
@@ -8196,7 +8623,7 @@ pub fn testreport_search(
   client: FhirClient,
 ) -> Result(List(r4.Testreport), Err) {
   let req = r4_sansio.testreport_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.testreport
   })
@@ -8237,13 +8664,16 @@ pub fn testscript_update(
 pub fn testscript_delete(
   resource: r4.Testscript,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "TestScript", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Testscript", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn testscript_search_bundled(sp: r4_sansio.SpTestscript, client: FhirClient) {
   let req = r4_sansio.testscript_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn testscript_search(
@@ -8251,7 +8681,7 @@ pub fn testscript_search(
   client: FhirClient,
 ) -> Result(List(r4.Testscript), Err) {
   let req = r4_sansio.testscript_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.testscript
   })
@@ -8289,13 +8719,16 @@ pub fn valueset_update(
 pub fn valueset_delete(
   resource: r4.Valueset,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "ValueSet", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Valueset", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn valueset_search_bundled(sp: r4_sansio.SpValueset, client: FhirClient) {
   let req = r4_sansio.valueset_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn valueset_search(
@@ -8303,7 +8736,7 @@ pub fn valueset_search(
   client: FhirClient,
 ) -> Result(List(r4.Valueset), Err) {
   let req = r4_sansio.valueset_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.valueset
   })
@@ -8344,8 +8777,11 @@ pub fn verificationresult_update(
 pub fn verificationresult_delete(
   resource: r4.Verificationresult,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "VerificationResult", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Verificationresult", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn verificationresult_search_bundled(
@@ -8353,7 +8789,7 @@ pub fn verificationresult_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.verificationresult_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn verificationresult_search(
@@ -8361,7 +8797,7 @@ pub fn verificationresult_search(
   client: FhirClient,
 ) -> Result(List(r4.Verificationresult), Err) {
   let req = r4_sansio.verificationresult_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.verificationresult
   })
@@ -8402,8 +8838,11 @@ pub fn visionprescription_update(
 pub fn visionprescription_delete(
   resource: r4.Visionprescription,
   client: FhirClient,
-) -> Result(r4.Operationoutcome, Err) {
-  any_delete(resource.id, "VisionPrescription", client)
+) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
+  case resource.id {
+    Some(id) -> any_delete(id, "Visionprescription", client)
+    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+  }
 }
 
 pub fn visionprescription_search_bundled(
@@ -8411,7 +8850,7 @@ pub fn visionprescription_search_bundled(
   client: FhirClient,
 ) {
   let req = r4_sansio.visionprescription_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
 }
 
 pub fn visionprescription_search(
@@ -8419,7 +8858,7 @@ pub fn visionprescription_search(
   client: FhirClient,
 ) -> Result(List(r4.Visionprescription), Err) {
   let req = r4_sansio.visionprescription_search_req(sp, client)
-  sendreq_parseresource(req, r4.bundle_decoder())
+  sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
   |> result.map(fn(bundle) {
     { bundle |> r4_sansio.bundle_to_groupedresources }.visionprescription
   })

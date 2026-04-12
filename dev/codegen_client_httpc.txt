@@ -7,7 +7,7 @@ import gleam/http/request.{type Request}
 import gleam/httpc
 import gleam/result
 import gleam/json.{type Json}
-import gleam/option.{type Option}
+import gleam/option.{type Option, Some, None}
 
 /// FHIR client for sending http requests to server such as
 /// `let pat = FHIRVERSION.patient_read("123", client)`
@@ -49,7 +49,7 @@ fn any_create(
   client: FhirClient,
 ) -> Result(r, Err) {
   let req = FHIRVERSION_sansio.any_create_req(resource, res_type, client)
-  sendreq_parseresource(req, resource_dec)
+  sendreq_parseresource(req, resource_dec, res_type)
 }
 
 fn any_read(
@@ -59,7 +59,7 @@ fn any_read(
   resource_dec: Decoder(a),
 ) -> Result(a, Err) {
   let req = FHIRVERSION_sansio.any_read_req(id, res_type, client)
-  sendreq_parseresource(req, resource_dec)
+  sendreq_parseresource(req, resource_dec, res_type)
 }
 
 fn any_update(
@@ -71,22 +71,25 @@ fn any_update(
 ) -> Result(r, Err) {
   let req = FHIRVERSION_sansio.any_update_req(id, resource, res_type, client)
   case req {
-    Ok(req) -> sendreq_parseresource(req, res_dec)
+    Ok(req) -> sendreq_parseresource(req, res_dec, res_type)
     Error(err) -> Error(ErrSansio(err))
     //can have error preparing update request if resource has no id
   }
 }
 
 fn any_delete(
-  id: Option(String),
+  id: String,
   res_type: String,
   client: FhirClient,
-) -> Result(FHIRVERSION.Operationoutcome, Err) {
+) -> Result(FHIRVERSION_sansio.OperationoutcomeOrHTTP, Err) {
   let req = FHIRVERSION_sansio.any_delete_req(id, res_type, client)
-  case req {
-    Ok(req) -> sendreq_parseresource(req, FHIRVERSION.operationoutcome_decoder())
-    Error(err) -> Error(ErrSansio(err))
-    //can have error preparing delete request if resource has no id
+  case httpc.send(req) {
+    Error(err) -> Error(ErrHttpc(err))
+    Ok(resp) ->
+      case FHIRVERSION_sansio.http_or_operationoutcome_resp(resp) {
+        Ok(resource) -> Ok(resource)
+        Error(err) -> Error(ErrSansio(err))
+      }
   }
 }
 
@@ -97,7 +100,7 @@ pub fn search_any(
   client: FhirClient,
 ) -> Result(FHIRVERSION.Bundle, Err) {
   let req = FHIRVERSION_sansio.any_search_req(search_string, res_type, client)
-  sendreq_parseresource(req, FHIRVERSION.bundle_decoder())
+  sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), res_type)
 }
 
 /// run any operation string on any resource string, optionally using Parameters
@@ -117,17 +120,18 @@ pub fn operation_any(
       params,
       client,
     )
-  sendreq_parseresource(req, res_decoder)
+  sendreq_parseresource(req, res_decoder, res_type)
 }
 
 fn sendreq_parseresource(
   req: Request(String),
   res_dec: Decoder(r),
+  res_type: String,
 ) -> Result(r, Err) {
   case httpc.send(req) {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
-      case FHIRVERSION_sansio.any_resp(resp, res_dec) {
+      case FHIRVERSION_sansio.any_resp(resp, res_dec, res_type) {
         Ok(resource) -> Ok(resource)
         Error(err) -> Error(ErrSansio(err))
       }

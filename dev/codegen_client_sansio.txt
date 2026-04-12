@@ -101,7 +101,7 @@ pub type Err {
   ///did not get resource json, often server eg nginx gives basic html response
   ErrNotJson(Response(String))
   ///got operationoutcome error from fhir server
-  ErrOperationcome(FHIRVERSION.Operationoutcome)
+  ErrOperationoutcome(FHIRVERSION.Operationoutcome)
 }
 
 pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient) {
@@ -143,22 +143,16 @@ pub fn any_update_req(
 }
 
 pub fn any_delete_req(
-  id: Option(String),
+  id: String,
   res_type: String,
   client: FhirClient,
-) -> Result(Request(String), Err) {
-  case id {
-    None -> Error(ErrNoId)
-    Some(id) ->
-      Ok(
-        client.basereq
-        |> request.set_path(
-          string.concat([client.basereq.path, "/", res_type, "/", id]),
-        )
-        |> request.set_header("Accept", "application/fhir+json")
-        |> request.set_method(http.Delete),
-      )
-  }
+) -> Request(String) {
+  client.basereq
+  |> request.set_path(
+    string.concat([client.basereq.path, "/", res_type, "/", id]),
+  )
+  |> request.set_header("Accept", "application/fhir+json")
+  |> request.set_method(http.Delete)
 }
 
 pub fn any_search_req(
@@ -221,21 +215,62 @@ fn using_params(params) {
   |> string.join("&")
 }
 
-//decodes a resource (with type based on given decoder) or operationoutcome
-pub fn any_resp(resp: Response(String), resource_dec: decode.Decoder(a)) {
-  let decoded_resource =
+/// decodes an Ok(resource) of given decoder type
+/// or Error(ErrOperationoutcome(operationoutcome))
+///
+/// if resp.body is not a JSON, returns Error(ErrNotJson(resp))
+pub fn any_resp(resp: Response(String), resource_dec: decode.Decoder(a), resource_type: String) {
+  case
     resp.body
-    |> json.parse(case resp.status >= 300 {
-      False -> resource_dec |> decode.map(fn(x) { Ok(x) })
-      True -> FHIRVERSION.operationoutcome_decoder() |> decode.map(fn(x) { Error(x) })
+    |> json.parse({
+      use tag <- decode.field("resourceType", decode.string)
+      case tag == resource_type {
+        True -> resource_dec |> decode.map(Ok)
+        False ->
+          FHIRVERSION.operationoutcome_decoder()
+          |> decode.map(fn(oo) { Error(ErrOperationoutcome(oo)) })
+      }
     })
-  case decoded_resource {
-    Ok(Ok(resource)) -> Ok(resource)
-    Ok(Error(op_outcome)) -> Error(ErrOperationcome(op_outcome))
-    Error(dec_err) ->
-      case dec_err {
-        json.UnableToDecode(_) -> Error(ErrParseJson(dec_err))
+  {
+    Ok(decoded) -> decoded
+    Error(json_err) ->
+      case json_err {
+        json.UnableToDecode(_) -> Error(ErrParseJson(json_err))
         _ -> Error(ErrNotJson(resp))
       }
+  }
+}
+
+pub type OperationoutcomeOrHTTP {
+  SuccessOperationoutcome(FHIRVERSION.Operationoutcome)
+  SuccessHttpResponse(Response(String))
+}
+
+/// returns Ok if http status code 200-299, otherwise Error,
+/// and can return an OperationOutcome or HTTP response,
+/// depending on if server sense OperationOutcome or empty body
+pub fn http_or_operationoutcome_resp(
+  resp: Response(String),
+) -> Result(OperationoutcomeOrHTTP, Err) {
+  case resp.body {
+    "" ->
+      case resp.status < 300 {
+        True -> Ok(SuccessHttpResponse(resp))
+        False -> Error(ErrNotJson(resp))
+      }
+    _ -> {
+      case resp.body |> json.parse(FHIRVERSION.operationoutcome_decoder()) {
+        Ok(decoded_oo) ->
+          case resp.status < 300 {
+            True -> Ok(SuccessOperationoutcome(decoded_oo))
+            False -> Error(ErrOperationoutcome(decoded_oo))
+          }
+        Error(json_err) ->
+          case json_err {
+            json.UnableToDecode(_) -> Error(ErrParseJson(json_err))
+            _ -> Error(ErrNotJson(resp))
+          }
+      }
+    }
   }
 }

@@ -635,7 +635,6 @@ fn gen_fhir(
       pkg_prefix: pkg_prefix,
       custom_profile_name: custom_profile_name,
       profiles_dir: profiles_dir,
-      all_primitive_ext: all_primitive_ext,
     )
   let f_sansio = gen_prefix <> "_sansio.gleam"
   let assert Ok(_) = simplifile.write(to: f_sansio, contents: sansio)
@@ -1179,8 +1178,11 @@ fn file_to_types(
                       | "uuid"
                       | "xhtml"
                       | "http://hl7.org/fhirpath/System.String" ->
-                        all_primitive_ext
-                        || list.contains(primitive_ext_ids, elt.id)
+                        elt_last_part_withgleamtype != "id"
+                        && {
+                          all_primitive_ext
+                          || list.contains(primitive_ext_ids, elt.id)
+                        }
                       _ -> False
                     }
                   _ -> False

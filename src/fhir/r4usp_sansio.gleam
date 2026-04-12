@@ -101,7 +101,7 @@ pub type Err {
   ///did not get resource json, often server eg nginx gives basic html response
   ErrNotJson(Response(String))
   ///got operationoutcome error from fhir server
-  ErrOperationcome(r4usp.Operationoutcome)
+  ErrOperationoutcome(r4usp.Operationoutcome)
 }
 
 pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient) {
@@ -143,22 +143,16 @@ pub fn any_update_req(
 }
 
 pub fn any_delete_req(
-  id: Option(String),
+  id: String,
   res_type: String,
   client: FhirClient,
-) -> Result(Request(String), Err) {
-  case id {
-    None -> Error(ErrNoId)
-    Some(id) ->
-      Ok(
-        client.basereq
-        |> request.set_path(
-          string.concat([client.basereq.path, "/", res_type, "/", id]),
-        )
-        |> request.set_header("Accept", "application/fhir+json")
-        |> request.set_method(http.Delete),
-      )
-  }
+) -> Request(String) {
+  client.basereq
+  |> request.set_path(
+    string.concat([client.basereq.path, "/", res_type, "/", id]),
+  )
+  |> request.set_header("Accept", "application/fhir+json")
+  |> request.set_method(http.Delete)
 }
 
 pub fn any_search_req(
@@ -221,22 +215,67 @@ fn using_params(params) {
   |> string.join("&")
 }
 
-//decodes a resource (with type based on given decoder) or operationoutcome
-pub fn any_resp(resp: Response(String), resource_dec: decode.Decoder(a)) {
-  let decoded_resource =
+/// decodes an Ok(resource) of given decoder type
+/// or Error(ErrOperationoutcome(operationoutcome))
+///
+/// if resp.body is not a JSON, returns Error(ErrNotJson(resp))
+pub fn any_resp(
+  resp: Response(String),
+  resource_dec: decode.Decoder(a),
+  resource_type: String,
+) {
+  case
     resp.body
-    |> json.parse(case resp.status >= 300 {
-      False -> resource_dec |> decode.map(fn(x) { Ok(x) })
-      True -> r4usp.operationoutcome_decoder() |> decode.map(fn(x) { Error(x) })
+    |> json.parse({
+      use tag <- decode.field("resourceType", decode.string)
+      case tag == resource_type {
+        True -> resource_dec |> decode.map(Ok)
+        False ->
+          r4usp.operationoutcome_decoder()
+          |> decode.map(fn(oo) { Error(ErrOperationoutcome(oo)) })
+      }
     })
-  case decoded_resource {
-    Ok(Ok(resource)) -> Ok(resource)
-    Ok(Error(op_outcome)) -> Error(ErrOperationcome(op_outcome))
-    Error(dec_err) ->
-      case dec_err {
-        json.UnableToDecode(_) -> Error(ErrParseJson(dec_err))
+  {
+    Ok(decoded) -> decoded
+    Error(json_err) ->
+      case json_err {
+        json.UnableToDecode(_) -> Error(ErrParseJson(json_err))
         _ -> Error(ErrNotJson(resp))
       }
+  }
+}
+
+pub type OperationoutcomeOrHTTP {
+  SuccessOperationoutcome(r4usp.Operationoutcome)
+  SuccessHttpResponse(Response(String))
+}
+
+/// returns Ok if http status code 200-299, otherwise Error,
+/// and can return an OperationOutcome or HTTP response,
+/// depending on if server sense OperationOutcome or empty body
+pub fn http_or_operationoutcome_resp(
+  resp: Response(String),
+) -> Result(OperationoutcomeOrHTTP, Err) {
+  case resp.body {
+    "" ->
+      case resp.status < 300 {
+        True -> Ok(SuccessHttpResponse(resp))
+        False -> Error(ErrNotJson(resp))
+      }
+    _ -> {
+      case resp.body |> json.parse(r4usp.operationoutcome_decoder()) {
+        Ok(decoded_oo) ->
+          case resp.status < 300 {
+            True -> Ok(SuccessOperationoutcome(decoded_oo))
+            False -> Error(ErrOperationoutcome(decoded_oo))
+          }
+        Error(json_err) ->
+          case json_err {
+            json.UnableToDecode(_) -> Error(ErrParseJson(json_err))
+            _ -> Error(ErrNotJson(resp))
+          }
+      }
+    }
   }
 }
 
@@ -256,22 +295,15 @@ pub fn account_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.account_to_json(resource),
     "Account",
     client,
   )
 }
 
-pub fn account_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Account", client)
-}
-
 pub fn account_resp(resp: Response(String)) -> Result(r4usp.Account, Err) {
-  any_resp(resp, r4usp.account_decoder())
+  any_resp(resp, r4usp.account_decoder(), "Account")
 }
 
 pub fn activitydefinition_create_req(
@@ -297,24 +329,17 @@ pub fn activitydefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.activitydefinition_to_json(resource),
     "ActivityDefinition",
     client,
   )
 }
 
-pub fn activitydefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ActivityDefinition", client)
-}
-
 pub fn activitydefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Activitydefinition, Err) {
-  any_resp(resp, r4usp.activitydefinition_decoder())
+  any_resp(resp, r4usp.activitydefinition_decoder(), "ActivityDefinition")
 }
 
 pub fn adverseevent_create_req(
@@ -333,24 +358,17 @@ pub fn adverseevent_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.adverseevent_to_json(resource),
     "AdverseEvent",
     client,
   )
 }
 
-pub fn adverseevent_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "AdverseEvent", client)
-}
-
 pub fn adverseevent_resp(
   resp: Response(String),
 ) -> Result(r4usp.Adverseevent, Err) {
-  any_resp(resp, r4usp.adverseevent_decoder())
+  any_resp(resp, r4usp.adverseevent_decoder(), "AdverseEvent")
 }
 
 pub fn allergyintolerance_create_req(
@@ -376,24 +394,17 @@ pub fn allergyintolerance_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.allergyintolerance_to_json(resource),
     "AllergyIntolerance",
     client,
   )
 }
 
-pub fn allergyintolerance_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "AllergyIntolerance", client)
-}
-
 pub fn allergyintolerance_resp(
   resp: Response(String),
 ) -> Result(r4usp.Allergyintolerance, Err) {
-  any_resp(resp, r4usp.allergyintolerance_decoder())
+  any_resp(resp, r4usp.allergyintolerance_decoder(), "AllergyIntolerance")
 }
 
 pub fn appointment_create_req(
@@ -412,24 +423,17 @@ pub fn appointment_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.appointment_to_json(resource),
     "Appointment",
     client,
   )
 }
 
-pub fn appointment_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Appointment", client)
-}
-
 pub fn appointment_resp(
   resp: Response(String),
 ) -> Result(r4usp.Appointment, Err) {
-  any_resp(resp, r4usp.appointment_decoder())
+  any_resp(resp, r4usp.appointment_decoder(), "Appointment")
 }
 
 pub fn appointmentresponse_create_req(
@@ -455,24 +459,17 @@ pub fn appointmentresponse_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.appointmentresponse_to_json(resource),
     "AppointmentResponse",
     client,
   )
 }
 
-pub fn appointmentresponse_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "AppointmentResponse", client)
-}
-
 pub fn appointmentresponse_resp(
   resp: Response(String),
 ) -> Result(r4usp.Appointmentresponse, Err) {
-  any_resp(resp, r4usp.appointmentresponse_decoder())
+  any_resp(resp, r4usp.appointmentresponse_decoder(), "AppointmentResponse")
 }
 
 pub fn auditevent_create_req(
@@ -491,22 +488,15 @@ pub fn auditevent_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.auditevent_to_json(resource),
     "AuditEvent",
     client,
   )
 }
 
-pub fn auditevent_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "AuditEvent", client)
-}
-
 pub fn auditevent_resp(resp: Response(String)) -> Result(r4usp.Auditevent, Err) {
-  any_resp(resp, r4usp.auditevent_decoder())
+  any_resp(resp, r4usp.auditevent_decoder(), "AuditEvent")
 }
 
 pub fn basic_create_req(
@@ -524,23 +514,11 @@ pub fn basic_update_req(
   resource: r4usp.Basic,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.basic_to_json(resource),
-    "Basic",
-    client,
-  )
-}
-
-pub fn basic_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Basic", client)
+  any_update_req(resource.id, r4usp.basic_to_json(resource), "Basic", client)
 }
 
 pub fn basic_resp(resp: Response(String)) -> Result(r4usp.Basic, Err) {
-  any_resp(resp, r4usp.basic_decoder())
+  any_resp(resp, r4usp.basic_decoder(), "Basic")
 }
 
 pub fn binary_create_req(
@@ -558,23 +536,11 @@ pub fn binary_update_req(
   resource: r4usp.Binary,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.binary_to_json(resource),
-    "Binary",
-    client,
-  )
-}
-
-pub fn binary_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Binary", client)
+  any_update_req(resource.id, r4usp.binary_to_json(resource), "Binary", client)
 }
 
 pub fn binary_resp(resp: Response(String)) -> Result(r4usp.Binary, Err) {
-  any_resp(resp, r4usp.binary_decoder())
+  any_resp(resp, r4usp.binary_decoder(), "Binary")
 }
 
 pub fn biologicallyderivedproduct_create_req(
@@ -600,24 +566,21 @@ pub fn biologicallyderivedproduct_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.biologicallyderivedproduct_to_json(resource),
     "BiologicallyDerivedProduct",
     client,
   )
 }
 
-pub fn biologicallyderivedproduct_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "BiologicallyDerivedProduct", client)
-}
-
 pub fn biologicallyderivedproduct_resp(
   resp: Response(String),
 ) -> Result(r4usp.Biologicallyderivedproduct, Err) {
-  any_resp(resp, r4usp.biologicallyderivedproduct_decoder())
+  any_resp(
+    resp,
+    r4usp.biologicallyderivedproduct_decoder(),
+    "BiologicallyDerivedProduct",
+  )
 }
 
 pub fn bodystructure_create_req(
@@ -636,24 +599,17 @@ pub fn bodystructure_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.bodystructure_to_json(resource),
     "BodyStructure",
     client,
   )
 }
 
-pub fn bodystructure_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "BodyStructure", client)
-}
-
 pub fn bodystructure_resp(
   resp: Response(String),
 ) -> Result(r4usp.Bodystructure, Err) {
-  any_resp(resp, r4usp.bodystructure_decoder())
+  any_resp(resp, r4usp.bodystructure_decoder(), "BodyStructure")
 }
 
 pub fn bundle_create_req(
@@ -671,23 +627,11 @@ pub fn bundle_update_req(
   resource: r4usp.Bundle,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.bundle_to_json(resource),
-    "Bundle",
-    client,
-  )
-}
-
-pub fn bundle_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Bundle", client)
+  any_update_req(resource.id, r4usp.bundle_to_json(resource), "Bundle", client)
 }
 
 pub fn bundle_resp(resp: Response(String)) -> Result(r4usp.Bundle, Err) {
-  any_resp(resp, r4usp.bundle_decoder())
+  any_resp(resp, r4usp.bundle_decoder(), "Bundle")
 }
 
 pub fn capabilitystatement_create_req(
@@ -713,24 +657,17 @@ pub fn capabilitystatement_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.capabilitystatement_to_json(resource),
     "CapabilityStatement",
     client,
   )
 }
 
-pub fn capabilitystatement_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "CapabilityStatement", client)
-}
-
 pub fn capabilitystatement_resp(
   resp: Response(String),
 ) -> Result(r4usp.Capabilitystatement, Err) {
-  any_resp(resp, r4usp.capabilitystatement_decoder())
+  any_resp(resp, r4usp.capabilitystatement_decoder(), "CapabilityStatement")
 }
 
 pub fn careplan_create_req(
@@ -749,22 +686,15 @@ pub fn careplan_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.careplan_to_json(resource),
     "CarePlan",
     client,
   )
 }
 
-pub fn careplan_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "CarePlan", client)
-}
-
 pub fn careplan_resp(resp: Response(String)) -> Result(r4usp.Careplan, Err) {
-  any_resp(resp, r4usp.careplan_decoder())
+  any_resp(resp, r4usp.careplan_decoder(), "CarePlan")
 }
 
 pub fn careteam_create_req(
@@ -783,22 +713,15 @@ pub fn careteam_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.careteam_to_json(resource),
     "CareTeam",
     client,
   )
 }
 
-pub fn careteam_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "CareTeam", client)
-}
-
 pub fn careteam_resp(resp: Response(String)) -> Result(r4usp.Careteam, Err) {
-  any_resp(resp, r4usp.careteam_decoder())
+  any_resp(resp, r4usp.careteam_decoder(), "CareTeam")
 }
 
 pub fn catalogentry_create_req(
@@ -817,24 +740,17 @@ pub fn catalogentry_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.catalogentry_to_json(resource),
     "CatalogEntry",
     client,
   )
 }
 
-pub fn catalogentry_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "CatalogEntry", client)
-}
-
 pub fn catalogentry_resp(
   resp: Response(String),
 ) -> Result(r4usp.Catalogentry, Err) {
-  any_resp(resp, r4usp.catalogentry_decoder())
+  any_resp(resp, r4usp.catalogentry_decoder(), "CatalogEntry")
 }
 
 pub fn chargeitem_create_req(
@@ -853,22 +769,15 @@ pub fn chargeitem_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.chargeitem_to_json(resource),
     "ChargeItem",
     client,
   )
 }
 
-pub fn chargeitem_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ChargeItem", client)
-}
-
 pub fn chargeitem_resp(resp: Response(String)) -> Result(r4usp.Chargeitem, Err) {
-  any_resp(resp, r4usp.chargeitem_decoder())
+  any_resp(resp, r4usp.chargeitem_decoder(), "ChargeItem")
 }
 
 pub fn chargeitemdefinition_create_req(
@@ -894,24 +803,17 @@ pub fn chargeitemdefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.chargeitemdefinition_to_json(resource),
     "ChargeItemDefinition",
     client,
   )
 }
 
-pub fn chargeitemdefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ChargeItemDefinition", client)
-}
-
 pub fn chargeitemdefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Chargeitemdefinition, Err) {
-  any_resp(resp, r4usp.chargeitemdefinition_decoder())
+  any_resp(resp, r4usp.chargeitemdefinition_decoder(), "ChargeItemDefinition")
 }
 
 pub fn claim_create_req(
@@ -929,23 +831,11 @@ pub fn claim_update_req(
   resource: r4usp.Claim,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.claim_to_json(resource),
-    "Claim",
-    client,
-  )
-}
-
-pub fn claim_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Claim", client)
+  any_update_req(resource.id, r4usp.claim_to_json(resource), "Claim", client)
 }
 
 pub fn claim_resp(resp: Response(String)) -> Result(r4usp.Claim, Err) {
-  any_resp(resp, r4usp.claim_decoder())
+  any_resp(resp, r4usp.claim_decoder(), "Claim")
 }
 
 pub fn claimresponse_create_req(
@@ -964,24 +854,17 @@ pub fn claimresponse_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.claimresponse_to_json(resource),
     "ClaimResponse",
     client,
   )
 }
 
-pub fn claimresponse_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ClaimResponse", client)
-}
-
 pub fn claimresponse_resp(
   resp: Response(String),
 ) -> Result(r4usp.Claimresponse, Err) {
-  any_resp(resp, r4usp.claimresponse_decoder())
+  any_resp(resp, r4usp.claimresponse_decoder(), "ClaimResponse")
 }
 
 pub fn clinicalimpression_create_req(
@@ -1007,24 +890,17 @@ pub fn clinicalimpression_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.clinicalimpression_to_json(resource),
     "ClinicalImpression",
     client,
   )
 }
 
-pub fn clinicalimpression_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ClinicalImpression", client)
-}
-
 pub fn clinicalimpression_resp(
   resp: Response(String),
 ) -> Result(r4usp.Clinicalimpression, Err) {
-  any_resp(resp, r4usp.clinicalimpression_decoder())
+  any_resp(resp, r4usp.clinicalimpression_decoder(), "ClinicalImpression")
 }
 
 pub fn codesystem_create_req(
@@ -1043,22 +919,15 @@ pub fn codesystem_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.codesystem_to_json(resource),
     "CodeSystem",
     client,
   )
 }
 
-pub fn codesystem_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "CodeSystem", client)
-}
-
 pub fn codesystem_resp(resp: Response(String)) -> Result(r4usp.Codesystem, Err) {
-  any_resp(resp, r4usp.codesystem_decoder())
+  any_resp(resp, r4usp.codesystem_decoder(), "CodeSystem")
 }
 
 pub fn communication_create_req(
@@ -1077,24 +946,17 @@ pub fn communication_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.communication_to_json(resource),
     "Communication",
     client,
   )
 }
 
-pub fn communication_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Communication", client)
-}
-
 pub fn communication_resp(
   resp: Response(String),
 ) -> Result(r4usp.Communication, Err) {
-  any_resp(resp, r4usp.communication_decoder())
+  any_resp(resp, r4usp.communication_decoder(), "Communication")
 }
 
 pub fn communicationrequest_create_req(
@@ -1120,24 +982,17 @@ pub fn communicationrequest_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.communicationrequest_to_json(resource),
     "CommunicationRequest",
     client,
   )
 }
 
-pub fn communicationrequest_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "CommunicationRequest", client)
-}
-
 pub fn communicationrequest_resp(
   resp: Response(String),
 ) -> Result(r4usp.Communicationrequest, Err) {
-  any_resp(resp, r4usp.communicationrequest_decoder())
+  any_resp(resp, r4usp.communicationrequest_decoder(), "CommunicationRequest")
 }
 
 pub fn compartmentdefinition_create_req(
@@ -1163,24 +1018,17 @@ pub fn compartmentdefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.compartmentdefinition_to_json(resource),
     "CompartmentDefinition",
     client,
   )
 }
 
-pub fn compartmentdefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "CompartmentDefinition", client)
-}
-
 pub fn compartmentdefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Compartmentdefinition, Err) {
-  any_resp(resp, r4usp.compartmentdefinition_decoder())
+  any_resp(resp, r4usp.compartmentdefinition_decoder(), "CompartmentDefinition")
 }
 
 pub fn composition_create_req(
@@ -1199,24 +1047,17 @@ pub fn composition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.composition_to_json(resource),
     "Composition",
     client,
   )
 }
 
-pub fn composition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Composition", client)
-}
-
 pub fn composition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Composition, Err) {
-  any_resp(resp, r4usp.composition_decoder())
+  any_resp(resp, r4usp.composition_decoder(), "Composition")
 }
 
 pub fn conceptmap_create_req(
@@ -1235,22 +1076,15 @@ pub fn conceptmap_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.conceptmap_to_json(resource),
     "ConceptMap",
     client,
   )
 }
 
-pub fn conceptmap_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ConceptMap", client)
-}
-
 pub fn conceptmap_resp(resp: Response(String)) -> Result(r4usp.Conceptmap, Err) {
-  any_resp(resp, r4usp.conceptmap_decoder())
+  any_resp(resp, r4usp.conceptmap_decoder(), "ConceptMap")
 }
 
 pub fn condition_create_req(
@@ -1269,22 +1103,15 @@ pub fn condition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.condition_to_json(resource),
     "Condition",
     client,
   )
 }
 
-pub fn condition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Condition", client)
-}
-
 pub fn condition_resp(resp: Response(String)) -> Result(r4usp.Condition, Err) {
-  any_resp(resp, r4usp.condition_decoder())
+  any_resp(resp, r4usp.condition_decoder(), "Condition")
 }
 
 pub fn consent_create_req(
@@ -1303,22 +1130,15 @@ pub fn consent_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.consent_to_json(resource),
     "Consent",
     client,
   )
 }
 
-pub fn consent_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Consent", client)
-}
-
 pub fn consent_resp(resp: Response(String)) -> Result(r4usp.Consent, Err) {
-  any_resp(resp, r4usp.consent_decoder())
+  any_resp(resp, r4usp.consent_decoder(), "Consent")
 }
 
 pub fn contract_create_req(
@@ -1337,22 +1157,15 @@ pub fn contract_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.contract_to_json(resource),
     "Contract",
     client,
   )
 }
 
-pub fn contract_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Contract", client)
-}
-
 pub fn contract_resp(resp: Response(String)) -> Result(r4usp.Contract, Err) {
-  any_resp(resp, r4usp.contract_decoder())
+  any_resp(resp, r4usp.contract_decoder(), "Contract")
 }
 
 pub fn coverage_create_req(
@@ -1371,22 +1184,15 @@ pub fn coverage_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.coverage_to_json(resource),
     "Coverage",
     client,
   )
 }
 
-pub fn coverage_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Coverage", client)
-}
-
 pub fn coverage_resp(resp: Response(String)) -> Result(r4usp.Coverage, Err) {
-  any_resp(resp, r4usp.coverage_decoder())
+  any_resp(resp, r4usp.coverage_decoder(), "Coverage")
 }
 
 pub fn coverageeligibilityrequest_create_req(
@@ -1412,24 +1218,21 @@ pub fn coverageeligibilityrequest_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.coverageeligibilityrequest_to_json(resource),
     "CoverageEligibilityRequest",
     client,
   )
 }
 
-pub fn coverageeligibilityrequest_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "CoverageEligibilityRequest", client)
-}
-
 pub fn coverageeligibilityrequest_resp(
   resp: Response(String),
 ) -> Result(r4usp.Coverageeligibilityrequest, Err) {
-  any_resp(resp, r4usp.coverageeligibilityrequest_decoder())
+  any_resp(
+    resp,
+    r4usp.coverageeligibilityrequest_decoder(),
+    "CoverageEligibilityRequest",
+  )
 }
 
 pub fn coverageeligibilityresponse_create_req(
@@ -1455,24 +1258,21 @@ pub fn coverageeligibilityresponse_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.coverageeligibilityresponse_to_json(resource),
     "CoverageEligibilityResponse",
     client,
   )
 }
 
-pub fn coverageeligibilityresponse_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "CoverageEligibilityResponse", client)
-}
-
 pub fn coverageeligibilityresponse_resp(
   resp: Response(String),
 ) -> Result(r4usp.Coverageeligibilityresponse, Err) {
-  any_resp(resp, r4usp.coverageeligibilityresponse_decoder())
+  any_resp(
+    resp,
+    r4usp.coverageeligibilityresponse_decoder(),
+    "CoverageEligibilityResponse",
+  )
 }
 
 pub fn detectedissue_create_req(
@@ -1491,24 +1291,17 @@ pub fn detectedissue_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.detectedissue_to_json(resource),
     "DetectedIssue",
     client,
   )
 }
 
-pub fn detectedissue_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "DetectedIssue", client)
-}
-
 pub fn detectedissue_resp(
   resp: Response(String),
 ) -> Result(r4usp.Detectedissue, Err) {
-  any_resp(resp, r4usp.detectedissue_decoder())
+  any_resp(resp, r4usp.detectedissue_decoder(), "DetectedIssue")
 }
 
 pub fn device_create_req(
@@ -1526,23 +1319,11 @@ pub fn device_update_req(
   resource: r4usp.Device,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.device_to_json(resource),
-    "Device",
-    client,
-  )
-}
-
-pub fn device_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Device", client)
+  any_update_req(resource.id, r4usp.device_to_json(resource), "Device", client)
 }
 
 pub fn device_resp(resp: Response(String)) -> Result(r4usp.Device, Err) {
-  any_resp(resp, r4usp.device_decoder())
+  any_resp(resp, r4usp.device_decoder(), "Device")
 }
 
 pub fn devicedefinition_create_req(
@@ -1568,24 +1349,17 @@ pub fn devicedefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.devicedefinition_to_json(resource),
     "DeviceDefinition",
     client,
   )
 }
 
-pub fn devicedefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "DeviceDefinition", client)
-}
-
 pub fn devicedefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Devicedefinition, Err) {
-  any_resp(resp, r4usp.devicedefinition_decoder())
+  any_resp(resp, r4usp.devicedefinition_decoder(), "DeviceDefinition")
 }
 
 pub fn devicemetric_create_req(
@@ -1604,24 +1378,17 @@ pub fn devicemetric_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.devicemetric_to_json(resource),
     "DeviceMetric",
     client,
   )
 }
 
-pub fn devicemetric_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "DeviceMetric", client)
-}
-
 pub fn devicemetric_resp(
   resp: Response(String),
 ) -> Result(r4usp.Devicemetric, Err) {
-  any_resp(resp, r4usp.devicemetric_decoder())
+  any_resp(resp, r4usp.devicemetric_decoder(), "DeviceMetric")
 }
 
 pub fn devicerequest_create_req(
@@ -1640,24 +1407,17 @@ pub fn devicerequest_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.devicerequest_to_json(resource),
     "DeviceRequest",
     client,
   )
 }
 
-pub fn devicerequest_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "DeviceRequest", client)
-}
-
 pub fn devicerequest_resp(
   resp: Response(String),
 ) -> Result(r4usp.Devicerequest, Err) {
-  any_resp(resp, r4usp.devicerequest_decoder())
+  any_resp(resp, r4usp.devicerequest_decoder(), "DeviceRequest")
 }
 
 pub fn deviceusestatement_create_req(
@@ -1683,24 +1443,17 @@ pub fn deviceusestatement_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.deviceusestatement_to_json(resource),
     "DeviceUseStatement",
     client,
   )
 }
 
-pub fn deviceusestatement_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "DeviceUseStatement", client)
-}
-
 pub fn deviceusestatement_resp(
   resp: Response(String),
 ) -> Result(r4usp.Deviceusestatement, Err) {
-  any_resp(resp, r4usp.deviceusestatement_decoder())
+  any_resp(resp, r4usp.deviceusestatement_decoder(), "DeviceUseStatement")
 }
 
 pub fn diagnosticreport_create_req(
@@ -1726,24 +1479,17 @@ pub fn diagnosticreport_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.diagnosticreport_to_json(resource),
     "DiagnosticReport",
     client,
   )
 }
 
-pub fn diagnosticreport_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "DiagnosticReport", client)
-}
-
 pub fn diagnosticreport_resp(
   resp: Response(String),
 ) -> Result(r4usp.Diagnosticreport, Err) {
-  any_resp(resp, r4usp.diagnosticreport_decoder())
+  any_resp(resp, r4usp.diagnosticreport_decoder(), "DiagnosticReport")
 }
 
 pub fn documentmanifest_create_req(
@@ -1769,24 +1515,17 @@ pub fn documentmanifest_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.documentmanifest_to_json(resource),
     "DocumentManifest",
     client,
   )
 }
 
-pub fn documentmanifest_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "DocumentManifest", client)
-}
-
 pub fn documentmanifest_resp(
   resp: Response(String),
 ) -> Result(r4usp.Documentmanifest, Err) {
-  any_resp(resp, r4usp.documentmanifest_decoder())
+  any_resp(resp, r4usp.documentmanifest_decoder(), "DocumentManifest")
 }
 
 pub fn documentreference_create_req(
@@ -1812,24 +1551,17 @@ pub fn documentreference_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.documentreference_to_json(resource),
     "DocumentReference",
     client,
   )
 }
 
-pub fn documentreference_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "DocumentReference", client)
-}
-
 pub fn documentreference_resp(
   resp: Response(String),
 ) -> Result(r4usp.Documentreference, Err) {
-  any_resp(resp, r4usp.documentreference_decoder())
+  any_resp(resp, r4usp.documentreference_decoder(), "DocumentReference")
 }
 
 pub fn effectevidencesynthesis_create_req(
@@ -1855,24 +1587,21 @@ pub fn effectevidencesynthesis_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.effectevidencesynthesis_to_json(resource),
     "EffectEvidenceSynthesis",
     client,
   )
 }
 
-pub fn effectevidencesynthesis_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "EffectEvidenceSynthesis", client)
-}
-
 pub fn effectevidencesynthesis_resp(
   resp: Response(String),
 ) -> Result(r4usp.Effectevidencesynthesis, Err) {
-  any_resp(resp, r4usp.effectevidencesynthesis_decoder())
+  any_resp(
+    resp,
+    r4usp.effectevidencesynthesis_decoder(),
+    "EffectEvidenceSynthesis",
+  )
 }
 
 pub fn encounter_create_req(
@@ -1891,22 +1620,15 @@ pub fn encounter_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.encounter_to_json(resource),
     "Encounter",
     client,
   )
 }
 
-pub fn encounter_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Encounter", client)
-}
-
 pub fn encounter_resp(resp: Response(String)) -> Result(r4usp.Encounter, Err) {
-  any_resp(resp, r4usp.encounter_decoder())
+  any_resp(resp, r4usp.encounter_decoder(), "Encounter")
 }
 
 pub fn endpoint_create_req(
@@ -1925,22 +1647,15 @@ pub fn endpoint_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.endpoint_to_json(resource),
     "Endpoint",
     client,
   )
 }
 
-pub fn endpoint_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Endpoint", client)
-}
-
 pub fn endpoint_resp(resp: Response(String)) -> Result(r4usp.Endpoint, Err) {
-  any_resp(resp, r4usp.endpoint_decoder())
+  any_resp(resp, r4usp.endpoint_decoder(), "Endpoint")
 }
 
 pub fn enrollmentrequest_create_req(
@@ -1966,24 +1681,17 @@ pub fn enrollmentrequest_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.enrollmentrequest_to_json(resource),
     "EnrollmentRequest",
     client,
   )
 }
 
-pub fn enrollmentrequest_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "EnrollmentRequest", client)
-}
-
 pub fn enrollmentrequest_resp(
   resp: Response(String),
 ) -> Result(r4usp.Enrollmentrequest, Err) {
-  any_resp(resp, r4usp.enrollmentrequest_decoder())
+  any_resp(resp, r4usp.enrollmentrequest_decoder(), "EnrollmentRequest")
 }
 
 pub fn enrollmentresponse_create_req(
@@ -2009,24 +1717,17 @@ pub fn enrollmentresponse_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.enrollmentresponse_to_json(resource),
     "EnrollmentResponse",
     client,
   )
 }
 
-pub fn enrollmentresponse_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "EnrollmentResponse", client)
-}
-
 pub fn enrollmentresponse_resp(
   resp: Response(String),
 ) -> Result(r4usp.Enrollmentresponse, Err) {
-  any_resp(resp, r4usp.enrollmentresponse_decoder())
+  any_resp(resp, r4usp.enrollmentresponse_decoder(), "EnrollmentResponse")
 }
 
 pub fn episodeofcare_create_req(
@@ -2045,24 +1746,17 @@ pub fn episodeofcare_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.episodeofcare_to_json(resource),
     "EpisodeOfCare",
     client,
   )
 }
 
-pub fn episodeofcare_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "EpisodeOfCare", client)
-}
-
 pub fn episodeofcare_resp(
   resp: Response(String),
 ) -> Result(r4usp.Episodeofcare, Err) {
-  any_resp(resp, r4usp.episodeofcare_decoder())
+  any_resp(resp, r4usp.episodeofcare_decoder(), "EpisodeOfCare")
 }
 
 pub fn eventdefinition_create_req(
@@ -2088,24 +1782,17 @@ pub fn eventdefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.eventdefinition_to_json(resource),
     "EventDefinition",
     client,
   )
 }
 
-pub fn eventdefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "EventDefinition", client)
-}
-
 pub fn eventdefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Eventdefinition, Err) {
-  any_resp(resp, r4usp.eventdefinition_decoder())
+  any_resp(resp, r4usp.eventdefinition_decoder(), "EventDefinition")
 }
 
 pub fn evidence_create_req(
@@ -2124,22 +1811,15 @@ pub fn evidence_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.evidence_to_json(resource),
     "Evidence",
     client,
   )
 }
 
-pub fn evidence_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Evidence", client)
-}
-
 pub fn evidence_resp(resp: Response(String)) -> Result(r4usp.Evidence, Err) {
-  any_resp(resp, r4usp.evidence_decoder())
+  any_resp(resp, r4usp.evidence_decoder(), "Evidence")
 }
 
 pub fn evidencevariable_create_req(
@@ -2165,24 +1845,17 @@ pub fn evidencevariable_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.evidencevariable_to_json(resource),
     "EvidenceVariable",
     client,
   )
 }
 
-pub fn evidencevariable_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "EvidenceVariable", client)
-}
-
 pub fn evidencevariable_resp(
   resp: Response(String),
 ) -> Result(r4usp.Evidencevariable, Err) {
-  any_resp(resp, r4usp.evidencevariable_decoder())
+  any_resp(resp, r4usp.evidencevariable_decoder(), "EvidenceVariable")
 }
 
 pub fn examplescenario_create_req(
@@ -2208,24 +1881,17 @@ pub fn examplescenario_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.examplescenario_to_json(resource),
     "ExampleScenario",
     client,
   )
 }
 
-pub fn examplescenario_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ExampleScenario", client)
-}
-
 pub fn examplescenario_resp(
   resp: Response(String),
 ) -> Result(r4usp.Examplescenario, Err) {
-  any_resp(resp, r4usp.examplescenario_decoder())
+  any_resp(resp, r4usp.examplescenario_decoder(), "ExampleScenario")
 }
 
 pub fn explanationofbenefit_create_req(
@@ -2251,24 +1917,17 @@ pub fn explanationofbenefit_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.explanationofbenefit_to_json(resource),
     "ExplanationOfBenefit",
     client,
   )
 }
 
-pub fn explanationofbenefit_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ExplanationOfBenefit", client)
-}
-
 pub fn explanationofbenefit_resp(
   resp: Response(String),
 ) -> Result(r4usp.Explanationofbenefit, Err) {
-  any_resp(resp, r4usp.explanationofbenefit_decoder())
+  any_resp(resp, r4usp.explanationofbenefit_decoder(), "ExplanationOfBenefit")
 }
 
 pub fn familymemberhistory_create_req(
@@ -2294,24 +1953,17 @@ pub fn familymemberhistory_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.familymemberhistory_to_json(resource),
     "FamilyMemberHistory",
     client,
   )
 }
 
-pub fn familymemberhistory_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "FamilyMemberHistory", client)
-}
-
 pub fn familymemberhistory_resp(
   resp: Response(String),
 ) -> Result(r4usp.Familymemberhistory, Err) {
-  any_resp(resp, r4usp.familymemberhistory_decoder())
+  any_resp(resp, r4usp.familymemberhistory_decoder(), "FamilyMemberHistory")
 }
 
 pub fn flag_create_req(
@@ -2329,23 +1981,11 @@ pub fn flag_update_req(
   resource: r4usp.Flag,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.flag_to_json(resource),
-    "Flag",
-    client,
-  )
-}
-
-pub fn flag_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Flag", client)
+  any_update_req(resource.id, r4usp.flag_to_json(resource), "Flag", client)
 }
 
 pub fn flag_resp(resp: Response(String)) -> Result(r4usp.Flag, Err) {
-  any_resp(resp, r4usp.flag_decoder())
+  any_resp(resp, r4usp.flag_decoder(), "Flag")
 }
 
 pub fn goal_create_req(
@@ -2363,23 +2003,11 @@ pub fn goal_update_req(
   resource: r4usp.Goal,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.goal_to_json(resource),
-    "Goal",
-    client,
-  )
-}
-
-pub fn goal_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Goal", client)
+  any_update_req(resource.id, r4usp.goal_to_json(resource), "Goal", client)
 }
 
 pub fn goal_resp(resp: Response(String)) -> Result(r4usp.Goal, Err) {
-  any_resp(resp, r4usp.goal_decoder())
+  any_resp(resp, r4usp.goal_decoder(), "Goal")
 }
 
 pub fn graphdefinition_create_req(
@@ -2405,24 +2033,17 @@ pub fn graphdefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.graphdefinition_to_json(resource),
     "GraphDefinition",
     client,
   )
 }
 
-pub fn graphdefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "GraphDefinition", client)
-}
-
 pub fn graphdefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Graphdefinition, Err) {
-  any_resp(resp, r4usp.graphdefinition_decoder())
+  any_resp(resp, r4usp.graphdefinition_decoder(), "GraphDefinition")
 }
 
 pub fn group_create_req(
@@ -2440,23 +2061,11 @@ pub fn group_update_req(
   resource: r4usp.Group,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.group_to_json(resource),
-    "Group",
-    client,
-  )
-}
-
-pub fn group_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Group", client)
+  any_update_req(resource.id, r4usp.group_to_json(resource), "Group", client)
 }
 
 pub fn group_resp(resp: Response(String)) -> Result(r4usp.Group, Err) {
-  any_resp(resp, r4usp.group_decoder())
+  any_resp(resp, r4usp.group_decoder(), "Group")
 }
 
 pub fn guidanceresponse_create_req(
@@ -2482,24 +2091,17 @@ pub fn guidanceresponse_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.guidanceresponse_to_json(resource),
     "GuidanceResponse",
     client,
   )
 }
 
-pub fn guidanceresponse_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "GuidanceResponse", client)
-}
-
 pub fn guidanceresponse_resp(
   resp: Response(String),
 ) -> Result(r4usp.Guidanceresponse, Err) {
-  any_resp(resp, r4usp.guidanceresponse_decoder())
+  any_resp(resp, r4usp.guidanceresponse_decoder(), "GuidanceResponse")
 }
 
 pub fn healthcareservice_create_req(
@@ -2525,24 +2127,17 @@ pub fn healthcareservice_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.healthcareservice_to_json(resource),
     "HealthcareService",
     client,
   )
 }
 
-pub fn healthcareservice_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "HealthcareService", client)
-}
-
 pub fn healthcareservice_resp(
   resp: Response(String),
 ) -> Result(r4usp.Healthcareservice, Err) {
-  any_resp(resp, r4usp.healthcareservice_decoder())
+  any_resp(resp, r4usp.healthcareservice_decoder(), "HealthcareService")
 }
 
 pub fn imagingstudy_create_req(
@@ -2561,24 +2156,17 @@ pub fn imagingstudy_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.imagingstudy_to_json(resource),
     "ImagingStudy",
     client,
   )
 }
 
-pub fn imagingstudy_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ImagingStudy", client)
-}
-
 pub fn imagingstudy_resp(
   resp: Response(String),
 ) -> Result(r4usp.Imagingstudy, Err) {
-  any_resp(resp, r4usp.imagingstudy_decoder())
+  any_resp(resp, r4usp.imagingstudy_decoder(), "ImagingStudy")
 }
 
 pub fn immunization_create_req(
@@ -2597,24 +2185,17 @@ pub fn immunization_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.immunization_to_json(resource),
     "Immunization",
     client,
   )
 }
 
-pub fn immunization_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Immunization", client)
-}
-
 pub fn immunization_resp(
   resp: Response(String),
 ) -> Result(r4usp.Immunization, Err) {
-  any_resp(resp, r4usp.immunization_decoder())
+  any_resp(resp, r4usp.immunization_decoder(), "Immunization")
 }
 
 pub fn immunizationevaluation_create_req(
@@ -2640,24 +2221,21 @@ pub fn immunizationevaluation_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.immunizationevaluation_to_json(resource),
     "ImmunizationEvaluation",
     client,
   )
 }
 
-pub fn immunizationevaluation_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ImmunizationEvaluation", client)
-}
-
 pub fn immunizationevaluation_resp(
   resp: Response(String),
 ) -> Result(r4usp.Immunizationevaluation, Err) {
-  any_resp(resp, r4usp.immunizationevaluation_decoder())
+  any_resp(
+    resp,
+    r4usp.immunizationevaluation_decoder(),
+    "ImmunizationEvaluation",
+  )
 }
 
 pub fn immunizationrecommendation_create_req(
@@ -2683,24 +2261,21 @@ pub fn immunizationrecommendation_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.immunizationrecommendation_to_json(resource),
     "ImmunizationRecommendation",
     client,
   )
 }
 
-pub fn immunizationrecommendation_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ImmunizationRecommendation", client)
-}
-
 pub fn immunizationrecommendation_resp(
   resp: Response(String),
 ) -> Result(r4usp.Immunizationrecommendation, Err) {
-  any_resp(resp, r4usp.immunizationrecommendation_decoder())
+  any_resp(
+    resp,
+    r4usp.immunizationrecommendation_decoder(),
+    "ImmunizationRecommendation",
+  )
 }
 
 pub fn implementationguide_create_req(
@@ -2726,24 +2301,17 @@ pub fn implementationguide_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.implementationguide_to_json(resource),
     "ImplementationGuide",
     client,
   )
 }
 
-pub fn implementationguide_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ImplementationGuide", client)
-}
-
 pub fn implementationguide_resp(
   resp: Response(String),
 ) -> Result(r4usp.Implementationguide, Err) {
-  any_resp(resp, r4usp.implementationguide_decoder())
+  any_resp(resp, r4usp.implementationguide_decoder(), "ImplementationGuide")
 }
 
 pub fn insuranceplan_create_req(
@@ -2762,24 +2330,17 @@ pub fn insuranceplan_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.insuranceplan_to_json(resource),
     "InsurancePlan",
     client,
   )
 }
 
-pub fn insuranceplan_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "InsurancePlan", client)
-}
-
 pub fn insuranceplan_resp(
   resp: Response(String),
 ) -> Result(r4usp.Insuranceplan, Err) {
-  any_resp(resp, r4usp.insuranceplan_decoder())
+  any_resp(resp, r4usp.insuranceplan_decoder(), "InsurancePlan")
 }
 
 pub fn invoice_create_req(
@@ -2798,22 +2359,15 @@ pub fn invoice_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.invoice_to_json(resource),
     "Invoice",
     client,
   )
 }
 
-pub fn invoice_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Invoice", client)
-}
-
 pub fn invoice_resp(resp: Response(String)) -> Result(r4usp.Invoice, Err) {
-  any_resp(resp, r4usp.invoice_decoder())
+  any_resp(resp, r4usp.invoice_decoder(), "Invoice")
 }
 
 pub fn library_create_req(
@@ -2832,22 +2386,15 @@ pub fn library_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.library_to_json(resource),
     "Library",
     client,
   )
 }
 
-pub fn library_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Library", client)
-}
-
 pub fn library_resp(resp: Response(String)) -> Result(r4usp.Library, Err) {
-  any_resp(resp, r4usp.library_decoder())
+  any_resp(resp, r4usp.library_decoder(), "Library")
 }
 
 pub fn linkage_create_req(
@@ -2866,22 +2413,15 @@ pub fn linkage_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.linkage_to_json(resource),
     "Linkage",
     client,
   )
 }
 
-pub fn linkage_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Linkage", client)
-}
-
 pub fn linkage_resp(resp: Response(String)) -> Result(r4usp.Linkage, Err) {
-  any_resp(resp, r4usp.linkage_decoder())
+  any_resp(resp, r4usp.linkage_decoder(), "Linkage")
 }
 
 pub fn listfhir_create_req(
@@ -2899,23 +2439,11 @@ pub fn listfhir_update_req(
   resource: r4usp.Listfhir,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.listfhir_to_json(resource),
-    "List",
-    client,
-  )
-}
-
-pub fn listfhir_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "List", client)
+  any_update_req(resource.id, r4usp.listfhir_to_json(resource), "List", client)
 }
 
 pub fn listfhir_resp(resp: Response(String)) -> Result(r4usp.Listfhir, Err) {
-  any_resp(resp, r4usp.listfhir_decoder())
+  any_resp(resp, r4usp.listfhir_decoder(), "List")
 }
 
 pub fn location_create_req(
@@ -2934,22 +2462,15 @@ pub fn location_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.location_to_json(resource),
     "Location",
     client,
   )
 }
 
-pub fn location_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Location", client)
-}
-
 pub fn location_resp(resp: Response(String)) -> Result(r4usp.Location, Err) {
-  any_resp(resp, r4usp.location_decoder())
+  any_resp(resp, r4usp.location_decoder(), "Location")
 }
 
 pub fn measure_create_req(
@@ -2968,22 +2489,15 @@ pub fn measure_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.measure_to_json(resource),
     "Measure",
     client,
   )
 }
 
-pub fn measure_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Measure", client)
-}
-
 pub fn measure_resp(resp: Response(String)) -> Result(r4usp.Measure, Err) {
-  any_resp(resp, r4usp.measure_decoder())
+  any_resp(resp, r4usp.measure_decoder(), "Measure")
 }
 
 pub fn measurereport_create_req(
@@ -3002,24 +2516,17 @@ pub fn measurereport_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.measurereport_to_json(resource),
     "MeasureReport",
     client,
   )
 }
 
-pub fn measurereport_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MeasureReport", client)
-}
-
 pub fn measurereport_resp(
   resp: Response(String),
 ) -> Result(r4usp.Measurereport, Err) {
-  any_resp(resp, r4usp.measurereport_decoder())
+  any_resp(resp, r4usp.measurereport_decoder(), "MeasureReport")
 }
 
 pub fn media_create_req(
@@ -3037,23 +2544,11 @@ pub fn media_update_req(
   resource: r4usp.Media,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.media_to_json(resource),
-    "Media",
-    client,
-  )
-}
-
-pub fn media_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Media", client)
+  any_update_req(resource.id, r4usp.media_to_json(resource), "Media", client)
 }
 
 pub fn media_resp(resp: Response(String)) -> Result(r4usp.Media, Err) {
-  any_resp(resp, r4usp.media_decoder())
+  any_resp(resp, r4usp.media_decoder(), "Media")
 }
 
 pub fn medication_create_req(
@@ -3072,22 +2567,15 @@ pub fn medication_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medication_to_json(resource),
     "Medication",
     client,
   )
 }
 
-pub fn medication_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Medication", client)
-}
-
 pub fn medication_resp(resp: Response(String)) -> Result(r4usp.Medication, Err) {
-  any_resp(resp, r4usp.medication_decoder())
+  any_resp(resp, r4usp.medication_decoder(), "Medication")
 }
 
 pub fn medicationadministration_create_req(
@@ -3113,24 +2601,21 @@ pub fn medicationadministration_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicationadministration_to_json(resource),
     "MedicationAdministration",
     client,
   )
 }
 
-pub fn medicationadministration_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicationAdministration", client)
-}
-
 pub fn medicationadministration_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicationadministration, Err) {
-  any_resp(resp, r4usp.medicationadministration_decoder())
+  any_resp(
+    resp,
+    r4usp.medicationadministration_decoder(),
+    "MedicationAdministration",
+  )
 }
 
 pub fn medicationdispense_create_req(
@@ -3156,24 +2641,17 @@ pub fn medicationdispense_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicationdispense_to_json(resource),
     "MedicationDispense",
     client,
   )
 }
 
-pub fn medicationdispense_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicationDispense", client)
-}
-
 pub fn medicationdispense_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicationdispense, Err) {
-  any_resp(resp, r4usp.medicationdispense_decoder())
+  any_resp(resp, r4usp.medicationdispense_decoder(), "MedicationDispense")
 }
 
 pub fn medicationknowledge_create_req(
@@ -3199,24 +2677,17 @@ pub fn medicationknowledge_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicationknowledge_to_json(resource),
     "MedicationKnowledge",
     client,
   )
 }
 
-pub fn medicationknowledge_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicationKnowledge", client)
-}
-
 pub fn medicationknowledge_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicationknowledge, Err) {
-  any_resp(resp, r4usp.medicationknowledge_decoder())
+  any_resp(resp, r4usp.medicationknowledge_decoder(), "MedicationKnowledge")
 }
 
 pub fn medicationrequest_create_req(
@@ -3242,24 +2713,17 @@ pub fn medicationrequest_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicationrequest_to_json(resource),
     "MedicationRequest",
     client,
   )
 }
 
-pub fn medicationrequest_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicationRequest", client)
-}
-
 pub fn medicationrequest_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicationrequest, Err) {
-  any_resp(resp, r4usp.medicationrequest_decoder())
+  any_resp(resp, r4usp.medicationrequest_decoder(), "MedicationRequest")
 }
 
 pub fn medicationstatement_create_req(
@@ -3285,24 +2749,17 @@ pub fn medicationstatement_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicationstatement_to_json(resource),
     "MedicationStatement",
     client,
   )
 }
 
-pub fn medicationstatement_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicationStatement", client)
-}
-
 pub fn medicationstatement_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicationstatement, Err) {
-  any_resp(resp, r4usp.medicationstatement_decoder())
+  any_resp(resp, r4usp.medicationstatement_decoder(), "MedicationStatement")
 }
 
 pub fn medicinalproduct_create_req(
@@ -3328,24 +2785,17 @@ pub fn medicinalproduct_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicinalproduct_to_json(resource),
     "MedicinalProduct",
     client,
   )
 }
 
-pub fn medicinalproduct_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicinalProduct", client)
-}
-
 pub fn medicinalproduct_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicinalproduct, Err) {
-  any_resp(resp, r4usp.medicinalproduct_decoder())
+  any_resp(resp, r4usp.medicinalproduct_decoder(), "MedicinalProduct")
 }
 
 pub fn medicinalproductauthorization_create_req(
@@ -3371,24 +2821,21 @@ pub fn medicinalproductauthorization_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicinalproductauthorization_to_json(resource),
     "MedicinalProductAuthorization",
     client,
   )
 }
 
-pub fn medicinalproductauthorization_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicinalProductAuthorization", client)
-}
-
 pub fn medicinalproductauthorization_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicinalproductauthorization, Err) {
-  any_resp(resp, r4usp.medicinalproductauthorization_decoder())
+  any_resp(
+    resp,
+    r4usp.medicinalproductauthorization_decoder(),
+    "MedicinalProductAuthorization",
+  )
 }
 
 pub fn medicinalproductcontraindication_create_req(
@@ -3414,24 +2861,21 @@ pub fn medicinalproductcontraindication_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicinalproductcontraindication_to_json(resource),
     "MedicinalProductContraindication",
     client,
   )
 }
 
-pub fn medicinalproductcontraindication_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicinalProductContraindication", client)
-}
-
 pub fn medicinalproductcontraindication_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicinalproductcontraindication, Err) {
-  any_resp(resp, r4usp.medicinalproductcontraindication_decoder())
+  any_resp(
+    resp,
+    r4usp.medicinalproductcontraindication_decoder(),
+    "MedicinalProductContraindication",
+  )
 }
 
 pub fn medicinalproductindication_create_req(
@@ -3457,24 +2901,21 @@ pub fn medicinalproductindication_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicinalproductindication_to_json(resource),
     "MedicinalProductIndication",
     client,
   )
 }
 
-pub fn medicinalproductindication_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicinalProductIndication", client)
-}
-
 pub fn medicinalproductindication_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicinalproductindication, Err) {
-  any_resp(resp, r4usp.medicinalproductindication_decoder())
+  any_resp(
+    resp,
+    r4usp.medicinalproductindication_decoder(),
+    "MedicinalProductIndication",
+  )
 }
 
 pub fn medicinalproductingredient_create_req(
@@ -3500,24 +2941,21 @@ pub fn medicinalproductingredient_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicinalproductingredient_to_json(resource),
     "MedicinalProductIngredient",
     client,
   )
 }
 
-pub fn medicinalproductingredient_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicinalProductIngredient", client)
-}
-
 pub fn medicinalproductingredient_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicinalproductingredient, Err) {
-  any_resp(resp, r4usp.medicinalproductingredient_decoder())
+  any_resp(
+    resp,
+    r4usp.medicinalproductingredient_decoder(),
+    "MedicinalProductIngredient",
+  )
 }
 
 pub fn medicinalproductinteraction_create_req(
@@ -3543,24 +2981,21 @@ pub fn medicinalproductinteraction_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicinalproductinteraction_to_json(resource),
     "MedicinalProductInteraction",
     client,
   )
 }
 
-pub fn medicinalproductinteraction_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicinalProductInteraction", client)
-}
-
 pub fn medicinalproductinteraction_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicinalproductinteraction, Err) {
-  any_resp(resp, r4usp.medicinalproductinteraction_decoder())
+  any_resp(
+    resp,
+    r4usp.medicinalproductinteraction_decoder(),
+    "MedicinalProductInteraction",
+  )
 }
 
 pub fn medicinalproductmanufactured_create_req(
@@ -3586,24 +3021,21 @@ pub fn medicinalproductmanufactured_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicinalproductmanufactured_to_json(resource),
     "MedicinalProductManufactured",
     client,
   )
 }
 
-pub fn medicinalproductmanufactured_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicinalProductManufactured", client)
-}
-
 pub fn medicinalproductmanufactured_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicinalproductmanufactured, Err) {
-  any_resp(resp, r4usp.medicinalproductmanufactured_decoder())
+  any_resp(
+    resp,
+    r4usp.medicinalproductmanufactured_decoder(),
+    "MedicinalProductManufactured",
+  )
 }
 
 pub fn medicinalproductpackaged_create_req(
@@ -3629,24 +3061,21 @@ pub fn medicinalproductpackaged_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicinalproductpackaged_to_json(resource),
     "MedicinalProductPackaged",
     client,
   )
 }
 
-pub fn medicinalproductpackaged_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicinalProductPackaged", client)
-}
-
 pub fn medicinalproductpackaged_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicinalproductpackaged, Err) {
-  any_resp(resp, r4usp.medicinalproductpackaged_decoder())
+  any_resp(
+    resp,
+    r4usp.medicinalproductpackaged_decoder(),
+    "MedicinalProductPackaged",
+  )
 }
 
 pub fn medicinalproductpharmaceutical_create_req(
@@ -3672,24 +3101,21 @@ pub fn medicinalproductpharmaceutical_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicinalproductpharmaceutical_to_json(resource),
     "MedicinalProductPharmaceutical",
     client,
   )
 }
 
-pub fn medicinalproductpharmaceutical_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicinalProductPharmaceutical", client)
-}
-
 pub fn medicinalproductpharmaceutical_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicinalproductpharmaceutical, Err) {
-  any_resp(resp, r4usp.medicinalproductpharmaceutical_decoder())
+  any_resp(
+    resp,
+    r4usp.medicinalproductpharmaceutical_decoder(),
+    "MedicinalProductPharmaceutical",
+  )
 }
 
 pub fn medicinalproductundesirableeffect_create_req(
@@ -3715,24 +3141,21 @@ pub fn medicinalproductundesirableeffect_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.medicinalproductundesirableeffect_to_json(resource),
     "MedicinalProductUndesirableEffect",
     client,
   )
 }
 
-pub fn medicinalproductundesirableeffect_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MedicinalProductUndesirableEffect", client)
-}
-
 pub fn medicinalproductundesirableeffect_resp(
   resp: Response(String),
 ) -> Result(r4usp.Medicinalproductundesirableeffect, Err) {
-  any_resp(resp, r4usp.medicinalproductundesirableeffect_decoder())
+  any_resp(
+    resp,
+    r4usp.medicinalproductundesirableeffect_decoder(),
+    "MedicinalProductUndesirableEffect",
+  )
 }
 
 pub fn messagedefinition_create_req(
@@ -3758,24 +3181,17 @@ pub fn messagedefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.messagedefinition_to_json(resource),
     "MessageDefinition",
     client,
   )
 }
 
-pub fn messagedefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MessageDefinition", client)
-}
-
 pub fn messagedefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Messagedefinition, Err) {
-  any_resp(resp, r4usp.messagedefinition_decoder())
+  any_resp(resp, r4usp.messagedefinition_decoder(), "MessageDefinition")
 }
 
 pub fn messageheader_create_req(
@@ -3794,24 +3210,17 @@ pub fn messageheader_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.messageheader_to_json(resource),
     "MessageHeader",
     client,
   )
 }
 
-pub fn messageheader_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MessageHeader", client)
-}
-
 pub fn messageheader_resp(
   resp: Response(String),
 ) -> Result(r4usp.Messageheader, Err) {
-  any_resp(resp, r4usp.messageheader_decoder())
+  any_resp(resp, r4usp.messageheader_decoder(), "MessageHeader")
 }
 
 pub fn molecularsequence_create_req(
@@ -3837,24 +3246,17 @@ pub fn molecularsequence_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.molecularsequence_to_json(resource),
     "MolecularSequence",
     client,
   )
 }
 
-pub fn molecularsequence_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "MolecularSequence", client)
-}
-
 pub fn molecularsequence_resp(
   resp: Response(String),
 ) -> Result(r4usp.Molecularsequence, Err) {
-  any_resp(resp, r4usp.molecularsequence_decoder())
+  any_resp(resp, r4usp.molecularsequence_decoder(), "MolecularSequence")
 }
 
 pub fn namingsystem_create_req(
@@ -3873,24 +3275,17 @@ pub fn namingsystem_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.namingsystem_to_json(resource),
     "NamingSystem",
     client,
   )
 }
 
-pub fn namingsystem_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "NamingSystem", client)
-}
-
 pub fn namingsystem_resp(
   resp: Response(String),
 ) -> Result(r4usp.Namingsystem, Err) {
-  any_resp(resp, r4usp.namingsystem_decoder())
+  any_resp(resp, r4usp.namingsystem_decoder(), "NamingSystem")
 }
 
 pub fn nutritionorder_create_req(
@@ -3916,24 +3311,17 @@ pub fn nutritionorder_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.nutritionorder_to_json(resource),
     "NutritionOrder",
     client,
   )
 }
 
-pub fn nutritionorder_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "NutritionOrder", client)
-}
-
 pub fn nutritionorder_resp(
   resp: Response(String),
 ) -> Result(r4usp.Nutritionorder, Err) {
-  any_resp(resp, r4usp.nutritionorder_decoder())
+  any_resp(resp, r4usp.nutritionorder_decoder(), "NutritionOrder")
 }
 
 pub fn observation_create_req(
@@ -3952,24 +3340,17 @@ pub fn observation_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.observation_to_json(resource),
     "Observation",
     client,
   )
 }
 
-pub fn observation_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Observation", client)
-}
-
 pub fn observation_resp(
   resp: Response(String),
 ) -> Result(r4usp.Observation, Err) {
-  any_resp(resp, r4usp.observation_decoder())
+  any_resp(resp, r4usp.observation_decoder(), "Observation")
 }
 
 pub fn observationdefinition_create_req(
@@ -3995,24 +3376,17 @@ pub fn observationdefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.observationdefinition_to_json(resource),
     "ObservationDefinition",
     client,
   )
 }
 
-pub fn observationdefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ObservationDefinition", client)
-}
-
 pub fn observationdefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Observationdefinition, Err) {
-  any_resp(resp, r4usp.observationdefinition_decoder())
+  any_resp(resp, r4usp.observationdefinition_decoder(), "ObservationDefinition")
 }
 
 pub fn operationdefinition_create_req(
@@ -4038,24 +3412,17 @@ pub fn operationdefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.operationdefinition_to_json(resource),
     "OperationDefinition",
     client,
   )
 }
 
-pub fn operationdefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "OperationDefinition", client)
-}
-
 pub fn operationdefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Operationdefinition, Err) {
-  any_resp(resp, r4usp.operationdefinition_decoder())
+  any_resp(resp, r4usp.operationdefinition_decoder(), "OperationDefinition")
 }
 
 pub fn operationoutcome_create_req(
@@ -4081,24 +3448,17 @@ pub fn operationoutcome_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.operationoutcome_to_json(resource),
     "OperationOutcome",
     client,
   )
 }
 
-pub fn operationoutcome_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "OperationOutcome", client)
-}
-
 pub fn operationoutcome_resp(
   resp: Response(String),
 ) -> Result(r4usp.Operationoutcome, Err) {
-  any_resp(resp, r4usp.operationoutcome_decoder())
+  any_resp(resp, r4usp.operationoutcome_decoder(), "OperationOutcome")
 }
 
 pub fn organization_create_req(
@@ -4117,24 +3477,17 @@ pub fn organization_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.organization_to_json(resource),
     "Organization",
     client,
   )
 }
 
-pub fn organization_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Organization", client)
-}
-
 pub fn organization_resp(
   resp: Response(String),
 ) -> Result(r4usp.Organization, Err) {
-  any_resp(resp, r4usp.organization_decoder())
+  any_resp(resp, r4usp.organization_decoder(), "Organization")
 }
 
 pub fn organizationaffiliation_create_req(
@@ -4160,24 +3513,21 @@ pub fn organizationaffiliation_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.organizationaffiliation_to_json(resource),
     "OrganizationAffiliation",
     client,
   )
 }
 
-pub fn organizationaffiliation_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "OrganizationAffiliation", client)
-}
-
 pub fn organizationaffiliation_resp(
   resp: Response(String),
 ) -> Result(r4usp.Organizationaffiliation, Err) {
-  any_resp(resp, r4usp.organizationaffiliation_decoder())
+  any_resp(
+    resp,
+    r4usp.organizationaffiliation_decoder(),
+    "OrganizationAffiliation",
+  )
 }
 
 pub fn patient_create_req(
@@ -4196,22 +3546,15 @@ pub fn patient_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.patient_to_json(resource),
     "Patient",
     client,
   )
 }
 
-pub fn patient_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Patient", client)
-}
-
 pub fn patient_resp(resp: Response(String)) -> Result(r4usp.Patient, Err) {
-  any_resp(resp, r4usp.patient_decoder())
+  any_resp(resp, r4usp.patient_decoder(), "Patient")
 }
 
 pub fn paymentnotice_create_req(
@@ -4230,24 +3573,17 @@ pub fn paymentnotice_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.paymentnotice_to_json(resource),
     "PaymentNotice",
     client,
   )
 }
 
-pub fn paymentnotice_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "PaymentNotice", client)
-}
-
 pub fn paymentnotice_resp(
   resp: Response(String),
 ) -> Result(r4usp.Paymentnotice, Err) {
-  any_resp(resp, r4usp.paymentnotice_decoder())
+  any_resp(resp, r4usp.paymentnotice_decoder(), "PaymentNotice")
 }
 
 pub fn paymentreconciliation_create_req(
@@ -4273,24 +3609,17 @@ pub fn paymentreconciliation_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.paymentreconciliation_to_json(resource),
     "PaymentReconciliation",
     client,
   )
 }
 
-pub fn paymentreconciliation_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "PaymentReconciliation", client)
-}
-
 pub fn paymentreconciliation_resp(
   resp: Response(String),
 ) -> Result(r4usp.Paymentreconciliation, Err) {
-  any_resp(resp, r4usp.paymentreconciliation_decoder())
+  any_resp(resp, r4usp.paymentreconciliation_decoder(), "PaymentReconciliation")
 }
 
 pub fn person_create_req(
@@ -4308,23 +3637,11 @@ pub fn person_update_req(
   resource: r4usp.Person,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.person_to_json(resource),
-    "Person",
-    client,
-  )
-}
-
-pub fn person_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Person", client)
+  any_update_req(resource.id, r4usp.person_to_json(resource), "Person", client)
 }
 
 pub fn person_resp(resp: Response(String)) -> Result(r4usp.Person, Err) {
-  any_resp(resp, r4usp.person_decoder())
+  any_resp(resp, r4usp.person_decoder(), "Person")
 }
 
 pub fn plandefinition_create_req(
@@ -4350,24 +3667,17 @@ pub fn plandefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.plandefinition_to_json(resource),
     "PlanDefinition",
     client,
   )
 }
 
-pub fn plandefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "PlanDefinition", client)
-}
-
 pub fn plandefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Plandefinition, Err) {
-  any_resp(resp, r4usp.plandefinition_decoder())
+  any_resp(resp, r4usp.plandefinition_decoder(), "PlanDefinition")
 }
 
 pub fn practitioner_create_req(
@@ -4386,24 +3696,17 @@ pub fn practitioner_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.practitioner_to_json(resource),
     "Practitioner",
     client,
   )
 }
 
-pub fn practitioner_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Practitioner", client)
-}
-
 pub fn practitioner_resp(
   resp: Response(String),
 ) -> Result(r4usp.Practitioner, Err) {
-  any_resp(resp, r4usp.practitioner_decoder())
+  any_resp(resp, r4usp.practitioner_decoder(), "Practitioner")
 }
 
 pub fn practitionerrole_create_req(
@@ -4429,24 +3732,17 @@ pub fn practitionerrole_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.practitionerrole_to_json(resource),
     "PractitionerRole",
     client,
   )
 }
 
-pub fn practitionerrole_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "PractitionerRole", client)
-}
-
 pub fn practitionerrole_resp(
   resp: Response(String),
 ) -> Result(r4usp.Practitionerrole, Err) {
-  any_resp(resp, r4usp.practitionerrole_decoder())
+  any_resp(resp, r4usp.practitionerrole_decoder(), "PractitionerRole")
 }
 
 pub fn procedure_create_req(
@@ -4465,22 +3761,15 @@ pub fn procedure_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.procedure_to_json(resource),
     "Procedure",
     client,
   )
 }
 
-pub fn procedure_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Procedure", client)
-}
-
 pub fn procedure_resp(resp: Response(String)) -> Result(r4usp.Procedure, Err) {
-  any_resp(resp, r4usp.procedure_decoder())
+  any_resp(resp, r4usp.procedure_decoder(), "Procedure")
 }
 
 pub fn provenance_create_req(
@@ -4499,22 +3788,15 @@ pub fn provenance_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.provenance_to_json(resource),
     "Provenance",
     client,
   )
 }
 
-pub fn provenance_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Provenance", client)
-}
-
 pub fn provenance_resp(resp: Response(String)) -> Result(r4usp.Provenance, Err) {
-  any_resp(resp, r4usp.provenance_decoder())
+  any_resp(resp, r4usp.provenance_decoder(), "Provenance")
 }
 
 pub fn questionnaire_create_req(
@@ -4533,24 +3815,17 @@ pub fn questionnaire_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.questionnaire_to_json(resource),
     "Questionnaire",
     client,
   )
 }
 
-pub fn questionnaire_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Questionnaire", client)
-}
-
 pub fn questionnaire_resp(
   resp: Response(String),
 ) -> Result(r4usp.Questionnaire, Err) {
-  any_resp(resp, r4usp.questionnaire_decoder())
+  any_resp(resp, r4usp.questionnaire_decoder(), "Questionnaire")
 }
 
 pub fn questionnaireresponse_create_req(
@@ -4576,24 +3851,17 @@ pub fn questionnaireresponse_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.questionnaireresponse_to_json(resource),
     "QuestionnaireResponse",
     client,
   )
 }
 
-pub fn questionnaireresponse_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "QuestionnaireResponse", client)
-}
-
 pub fn questionnaireresponse_resp(
   resp: Response(String),
 ) -> Result(r4usp.Questionnaireresponse, Err) {
-  any_resp(resp, r4usp.questionnaireresponse_decoder())
+  any_resp(resp, r4usp.questionnaireresponse_decoder(), "QuestionnaireResponse")
 }
 
 pub fn relatedperson_create_req(
@@ -4612,24 +3880,17 @@ pub fn relatedperson_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.relatedperson_to_json(resource),
     "RelatedPerson",
     client,
   )
 }
 
-pub fn relatedperson_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "RelatedPerson", client)
-}
-
 pub fn relatedperson_resp(
   resp: Response(String),
 ) -> Result(r4usp.Relatedperson, Err) {
-  any_resp(resp, r4usp.relatedperson_decoder())
+  any_resp(resp, r4usp.relatedperson_decoder(), "RelatedPerson")
 }
 
 pub fn requestgroup_create_req(
@@ -4648,24 +3909,17 @@ pub fn requestgroup_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.requestgroup_to_json(resource),
     "RequestGroup",
     client,
   )
 }
 
-pub fn requestgroup_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "RequestGroup", client)
-}
-
 pub fn requestgroup_resp(
   resp: Response(String),
 ) -> Result(r4usp.Requestgroup, Err) {
-  any_resp(resp, r4usp.requestgroup_decoder())
+  any_resp(resp, r4usp.requestgroup_decoder(), "RequestGroup")
 }
 
 pub fn researchdefinition_create_req(
@@ -4691,24 +3945,17 @@ pub fn researchdefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.researchdefinition_to_json(resource),
     "ResearchDefinition",
     client,
   )
 }
 
-pub fn researchdefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ResearchDefinition", client)
-}
-
 pub fn researchdefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Researchdefinition, Err) {
-  any_resp(resp, r4usp.researchdefinition_decoder())
+  any_resp(resp, r4usp.researchdefinition_decoder(), "ResearchDefinition")
 }
 
 pub fn researchelementdefinition_create_req(
@@ -4734,24 +3981,21 @@ pub fn researchelementdefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.researchelementdefinition_to_json(resource),
     "ResearchElementDefinition",
     client,
   )
 }
 
-pub fn researchelementdefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ResearchElementDefinition", client)
-}
-
 pub fn researchelementdefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Researchelementdefinition, Err) {
-  any_resp(resp, r4usp.researchelementdefinition_decoder())
+  any_resp(
+    resp,
+    r4usp.researchelementdefinition_decoder(),
+    "ResearchElementDefinition",
+  )
 }
 
 pub fn researchstudy_create_req(
@@ -4770,24 +4014,17 @@ pub fn researchstudy_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.researchstudy_to_json(resource),
     "ResearchStudy",
     client,
   )
 }
 
-pub fn researchstudy_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ResearchStudy", client)
-}
-
 pub fn researchstudy_resp(
   resp: Response(String),
 ) -> Result(r4usp.Researchstudy, Err) {
-  any_resp(resp, r4usp.researchstudy_decoder())
+  any_resp(resp, r4usp.researchstudy_decoder(), "ResearchStudy")
 }
 
 pub fn researchsubject_create_req(
@@ -4813,24 +4050,17 @@ pub fn researchsubject_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.researchsubject_to_json(resource),
     "ResearchSubject",
     client,
   )
 }
 
-pub fn researchsubject_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ResearchSubject", client)
-}
-
 pub fn researchsubject_resp(
   resp: Response(String),
 ) -> Result(r4usp.Researchsubject, Err) {
-  any_resp(resp, r4usp.researchsubject_decoder())
+  any_resp(resp, r4usp.researchsubject_decoder(), "ResearchSubject")
 }
 
 pub fn riskassessment_create_req(
@@ -4856,24 +4086,17 @@ pub fn riskassessment_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.riskassessment_to_json(resource),
     "RiskAssessment",
     client,
   )
 }
 
-pub fn riskassessment_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "RiskAssessment", client)
-}
-
 pub fn riskassessment_resp(
   resp: Response(String),
 ) -> Result(r4usp.Riskassessment, Err) {
-  any_resp(resp, r4usp.riskassessment_decoder())
+  any_resp(resp, r4usp.riskassessment_decoder(), "RiskAssessment")
 }
 
 pub fn riskevidencesynthesis_create_req(
@@ -4899,24 +4122,17 @@ pub fn riskevidencesynthesis_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.riskevidencesynthesis_to_json(resource),
     "RiskEvidenceSynthesis",
     client,
   )
 }
 
-pub fn riskevidencesynthesis_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "RiskEvidenceSynthesis", client)
-}
-
 pub fn riskevidencesynthesis_resp(
   resp: Response(String),
 ) -> Result(r4usp.Riskevidencesynthesis, Err) {
-  any_resp(resp, r4usp.riskevidencesynthesis_decoder())
+  any_resp(resp, r4usp.riskevidencesynthesis_decoder(), "RiskEvidenceSynthesis")
 }
 
 pub fn schedule_create_req(
@@ -4935,22 +4151,15 @@ pub fn schedule_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.schedule_to_json(resource),
     "Schedule",
     client,
   )
 }
 
-pub fn schedule_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Schedule", client)
-}
-
 pub fn schedule_resp(resp: Response(String)) -> Result(r4usp.Schedule, Err) {
-  any_resp(resp, r4usp.schedule_decoder())
+  any_resp(resp, r4usp.schedule_decoder(), "Schedule")
 }
 
 pub fn searchparameter_create_req(
@@ -4976,24 +4185,17 @@ pub fn searchparameter_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.searchparameter_to_json(resource),
     "SearchParameter",
     client,
   )
 }
 
-pub fn searchparameter_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "SearchParameter", client)
-}
-
 pub fn searchparameter_resp(
   resp: Response(String),
 ) -> Result(r4usp.Searchparameter, Err) {
-  any_resp(resp, r4usp.searchparameter_decoder())
+  any_resp(resp, r4usp.searchparameter_decoder(), "SearchParameter")
 }
 
 pub fn servicerequest_create_req(
@@ -5019,24 +4221,17 @@ pub fn servicerequest_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.servicerequest_to_json(resource),
     "ServiceRequest",
     client,
   )
 }
 
-pub fn servicerequest_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ServiceRequest", client)
-}
-
 pub fn servicerequest_resp(
   resp: Response(String),
 ) -> Result(r4usp.Servicerequest, Err) {
-  any_resp(resp, r4usp.servicerequest_decoder())
+  any_resp(resp, r4usp.servicerequest_decoder(), "ServiceRequest")
 }
 
 pub fn slot_create_req(
@@ -5054,23 +4249,11 @@ pub fn slot_update_req(
   resource: r4usp.Slot,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.slot_to_json(resource),
-    "Slot",
-    client,
-  )
-}
-
-pub fn slot_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Slot", client)
+  any_update_req(resource.id, r4usp.slot_to_json(resource), "Slot", client)
 }
 
 pub fn slot_resp(resp: Response(String)) -> Result(r4usp.Slot, Err) {
-  any_resp(resp, r4usp.slot_decoder())
+  any_resp(resp, r4usp.slot_decoder(), "Slot")
 }
 
 pub fn specimen_create_req(
@@ -5089,22 +4272,15 @@ pub fn specimen_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.specimen_to_json(resource),
     "Specimen",
     client,
   )
 }
 
-pub fn specimen_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Specimen", client)
-}
-
 pub fn specimen_resp(resp: Response(String)) -> Result(r4usp.Specimen, Err) {
-  any_resp(resp, r4usp.specimen_decoder())
+  any_resp(resp, r4usp.specimen_decoder(), "Specimen")
 }
 
 pub fn specimendefinition_create_req(
@@ -5130,24 +4306,17 @@ pub fn specimendefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.specimendefinition_to_json(resource),
     "SpecimenDefinition",
     client,
   )
 }
 
-pub fn specimendefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "SpecimenDefinition", client)
-}
-
 pub fn specimendefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Specimendefinition, Err) {
-  any_resp(resp, r4usp.specimendefinition_decoder())
+  any_resp(resp, r4usp.specimendefinition_decoder(), "SpecimenDefinition")
 }
 
 pub fn structuredefinition_create_req(
@@ -5173,24 +4342,17 @@ pub fn structuredefinition_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.structuredefinition_to_json(resource),
     "StructureDefinition",
     client,
   )
 }
 
-pub fn structuredefinition_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "StructureDefinition", client)
-}
-
 pub fn structuredefinition_resp(
   resp: Response(String),
 ) -> Result(r4usp.Structuredefinition, Err) {
-  any_resp(resp, r4usp.structuredefinition_decoder())
+  any_resp(resp, r4usp.structuredefinition_decoder(), "StructureDefinition")
 }
 
 pub fn structuremap_create_req(
@@ -5209,24 +4371,17 @@ pub fn structuremap_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.structuremap_to_json(resource),
     "StructureMap",
     client,
   )
 }
 
-pub fn structuremap_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "StructureMap", client)
-}
-
 pub fn structuremap_resp(
   resp: Response(String),
 ) -> Result(r4usp.Structuremap, Err) {
-  any_resp(resp, r4usp.structuremap_decoder())
+  any_resp(resp, r4usp.structuremap_decoder(), "StructureMap")
 }
 
 pub fn subscription_create_req(
@@ -5245,24 +4400,17 @@ pub fn subscription_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.subscription_to_json(resource),
     "Subscription",
     client,
   )
 }
 
-pub fn subscription_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Subscription", client)
-}
-
 pub fn subscription_resp(
   resp: Response(String),
 ) -> Result(r4usp.Subscription, Err) {
-  any_resp(resp, r4usp.subscription_decoder())
+  any_resp(resp, r4usp.subscription_decoder(), "Subscription")
 }
 
 pub fn substance_create_req(
@@ -5281,22 +4429,15 @@ pub fn substance_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.substance_to_json(resource),
     "Substance",
     client,
   )
 }
 
-pub fn substance_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Substance", client)
-}
-
 pub fn substance_resp(resp: Response(String)) -> Result(r4usp.Substance, Err) {
-  any_resp(resp, r4usp.substance_decoder())
+  any_resp(resp, r4usp.substance_decoder(), "Substance")
 }
 
 pub fn substancenucleicacid_create_req(
@@ -5322,24 +4463,17 @@ pub fn substancenucleicacid_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.substancenucleicacid_to_json(resource),
     "SubstanceNucleicAcid",
     client,
   )
 }
 
-pub fn substancenucleicacid_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "SubstanceNucleicAcid", client)
-}
-
 pub fn substancenucleicacid_resp(
   resp: Response(String),
 ) -> Result(r4usp.Substancenucleicacid, Err) {
-  any_resp(resp, r4usp.substancenucleicacid_decoder())
+  any_resp(resp, r4usp.substancenucleicacid_decoder(), "SubstanceNucleicAcid")
 }
 
 pub fn substancepolymer_create_req(
@@ -5365,24 +4499,17 @@ pub fn substancepolymer_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.substancepolymer_to_json(resource),
     "SubstancePolymer",
     client,
   )
 }
 
-pub fn substancepolymer_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "SubstancePolymer", client)
-}
-
 pub fn substancepolymer_resp(
   resp: Response(String),
 ) -> Result(r4usp.Substancepolymer, Err) {
-  any_resp(resp, r4usp.substancepolymer_decoder())
+  any_resp(resp, r4usp.substancepolymer_decoder(), "SubstancePolymer")
 }
 
 pub fn substanceprotein_create_req(
@@ -5408,24 +4535,17 @@ pub fn substanceprotein_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.substanceprotein_to_json(resource),
     "SubstanceProtein",
     client,
   )
 }
 
-pub fn substanceprotein_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "SubstanceProtein", client)
-}
-
 pub fn substanceprotein_resp(
   resp: Response(String),
 ) -> Result(r4usp.Substanceprotein, Err) {
-  any_resp(resp, r4usp.substanceprotein_decoder())
+  any_resp(resp, r4usp.substanceprotein_decoder(), "SubstanceProtein")
 }
 
 pub fn substancereferenceinformation_create_req(
@@ -5451,24 +4571,21 @@ pub fn substancereferenceinformation_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.substancereferenceinformation_to_json(resource),
     "SubstanceReferenceInformation",
     client,
   )
 }
 
-pub fn substancereferenceinformation_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "SubstanceReferenceInformation", client)
-}
-
 pub fn substancereferenceinformation_resp(
   resp: Response(String),
 ) -> Result(r4usp.Substancereferenceinformation, Err) {
-  any_resp(resp, r4usp.substancereferenceinformation_decoder())
+  any_resp(
+    resp,
+    r4usp.substancereferenceinformation_decoder(),
+    "SubstanceReferenceInformation",
+  )
 }
 
 pub fn substancesourcematerial_create_req(
@@ -5494,24 +4611,21 @@ pub fn substancesourcematerial_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.substancesourcematerial_to_json(resource),
     "SubstanceSourceMaterial",
     client,
   )
 }
 
-pub fn substancesourcematerial_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "SubstanceSourceMaterial", client)
-}
-
 pub fn substancesourcematerial_resp(
   resp: Response(String),
 ) -> Result(r4usp.Substancesourcematerial, Err) {
-  any_resp(resp, r4usp.substancesourcematerial_decoder())
+  any_resp(
+    resp,
+    r4usp.substancesourcematerial_decoder(),
+    "SubstanceSourceMaterial",
+  )
 }
 
 pub fn substancespecification_create_req(
@@ -5537,24 +4651,21 @@ pub fn substancespecification_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.substancespecification_to_json(resource),
     "SubstanceSpecification",
     client,
   )
 }
 
-pub fn substancespecification_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "SubstanceSpecification", client)
-}
-
 pub fn substancespecification_resp(
   resp: Response(String),
 ) -> Result(r4usp.Substancespecification, Err) {
-  any_resp(resp, r4usp.substancespecification_decoder())
+  any_resp(
+    resp,
+    r4usp.substancespecification_decoder(),
+    "SubstanceSpecification",
+  )
 }
 
 pub fn supplydelivery_create_req(
@@ -5580,24 +4691,17 @@ pub fn supplydelivery_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.supplydelivery_to_json(resource),
     "SupplyDelivery",
     client,
   )
 }
 
-pub fn supplydelivery_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "SupplyDelivery", client)
-}
-
 pub fn supplydelivery_resp(
   resp: Response(String),
 ) -> Result(r4usp.Supplydelivery, Err) {
-  any_resp(resp, r4usp.supplydelivery_decoder())
+  any_resp(resp, r4usp.supplydelivery_decoder(), "SupplyDelivery")
 }
 
 pub fn supplyrequest_create_req(
@@ -5616,24 +4720,17 @@ pub fn supplyrequest_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.supplyrequest_to_json(resource),
     "SupplyRequest",
     client,
   )
 }
 
-pub fn supplyrequest_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "SupplyRequest", client)
-}
-
 pub fn supplyrequest_resp(
   resp: Response(String),
 ) -> Result(r4usp.Supplyrequest, Err) {
-  any_resp(resp, r4usp.supplyrequest_decoder())
+  any_resp(resp, r4usp.supplyrequest_decoder(), "SupplyRequest")
 }
 
 pub fn task_create_req(
@@ -5651,23 +4748,11 @@ pub fn task_update_req(
   resource: r4usp.Task,
   client: FhirClient,
 ) -> Result(Request(String), Err) {
-  any_update_req(
-    resource.id.value,
-    r4usp.task_to_json(resource),
-    "Task",
-    client,
-  )
-}
-
-pub fn task_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "Task", client)
+  any_update_req(resource.id, r4usp.task_to_json(resource), "Task", client)
 }
 
 pub fn task_resp(resp: Response(String)) -> Result(r4usp.Task, Err) {
-  any_resp(resp, r4usp.task_decoder())
+  any_resp(resp, r4usp.task_decoder(), "Task")
 }
 
 pub fn terminologycapabilities_create_req(
@@ -5693,24 +4778,21 @@ pub fn terminologycapabilities_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.terminologycapabilities_to_json(resource),
     "TerminologyCapabilities",
     client,
   )
 }
 
-pub fn terminologycapabilities_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "TerminologyCapabilities", client)
-}
-
 pub fn terminologycapabilities_resp(
   resp: Response(String),
 ) -> Result(r4usp.Terminologycapabilities, Err) {
-  any_resp(resp, r4usp.terminologycapabilities_decoder())
+  any_resp(
+    resp,
+    r4usp.terminologycapabilities_decoder(),
+    "TerminologyCapabilities",
+  )
 }
 
 pub fn testreport_create_req(
@@ -5729,22 +4811,15 @@ pub fn testreport_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.testreport_to_json(resource),
     "TestReport",
     client,
   )
 }
 
-pub fn testreport_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "TestReport", client)
-}
-
 pub fn testreport_resp(resp: Response(String)) -> Result(r4usp.Testreport, Err) {
-  any_resp(resp, r4usp.testreport_decoder())
+  any_resp(resp, r4usp.testreport_decoder(), "TestReport")
 }
 
 pub fn testscript_create_req(
@@ -5763,22 +4838,15 @@ pub fn testscript_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.testscript_to_json(resource),
     "TestScript",
     client,
   )
 }
 
-pub fn testscript_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "TestScript", client)
-}
-
 pub fn testscript_resp(resp: Response(String)) -> Result(r4usp.Testscript, Err) {
-  any_resp(resp, r4usp.testscript_decoder())
+  any_resp(resp, r4usp.testscript_decoder(), "TestScript")
 }
 
 pub fn valueset_create_req(
@@ -5797,22 +4865,15 @@ pub fn valueset_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.valueset_to_json(resource),
     "ValueSet",
     client,
   )
 }
 
-pub fn valueset_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "ValueSet", client)
-}
-
 pub fn valueset_resp(resp: Response(String)) -> Result(r4usp.Valueset, Err) {
-  any_resp(resp, r4usp.valueset_decoder())
+  any_resp(resp, r4usp.valueset_decoder(), "ValueSet")
 }
 
 pub fn verificationresult_create_req(
@@ -5838,24 +4899,17 @@ pub fn verificationresult_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.verificationresult_to_json(resource),
     "VerificationResult",
     client,
   )
 }
 
-pub fn verificationresult_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "VerificationResult", client)
-}
-
 pub fn verificationresult_resp(
   resp: Response(String),
 ) -> Result(r4usp.Verificationresult, Err) {
-  any_resp(resp, r4usp.verificationresult_decoder())
+  any_resp(resp, r4usp.verificationresult_decoder(), "VerificationResult")
 }
 
 pub fn visionprescription_create_req(
@@ -5881,24 +4935,17 @@ pub fn visionprescription_update_req(
   client: FhirClient,
 ) -> Result(Request(String), Err) {
   any_update_req(
-    resource.id.value,
+    resource.id,
     r4usp.visionprescription_to_json(resource),
     "VisionPrescription",
     client,
   )
 }
 
-pub fn visionprescription_delete_req(
-  id: Option(String),
-  client: FhirClient,
-) -> Result(Request(String), Err) {
-  any_delete_req(id, "VisionPrescription", client)
-}
-
 pub fn visionprescription_resp(
   resp: Response(String),
 ) -> Result(r4usp.Visionprescription, Err) {
-  any_resp(resp, r4usp.visionprescription_decoder())
+  any_resp(resp, r4usp.visionprescription_decoder(), "VisionPrescription")
 }
 
 pub type SpAccount {
