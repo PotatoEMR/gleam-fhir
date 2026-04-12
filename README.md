@@ -95,15 +95,6 @@ pub fn main() {
 gleam run
 ```
 
-## Modules
-
-(for each of r4, r4b, r5)
-
-- [r4_valuesets](https://hexdocs.pm/fhir/fhir/r4_valuesets.html) Enums for valuesets with required binding
-  - [r4](https://hexdocs.pm/fhir/fhir/r4.html) Resources, data types, fns for new, decoder, to_json
-    - [r4_sansio](https://hexdocs.pm/fhir/fhir/r4_sansio.html) Prepare http request and parse http response
-      - Clients [r4_httpc](https://hexdocs.pm/fhir/fhir/r4_httpc.html) for httpc (Erlang) and [r4_rsvp](https://hexdocs.pm/fhir/fhir/r4_rsvp.html) for rsvp (Lustre apps)
-
 ## AI use
 
 AI in parts of codegen (which creates Gleam code from FHIR data) and some tests. No AI in API design or documentation. 
