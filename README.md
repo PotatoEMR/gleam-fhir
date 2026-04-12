@@ -28,7 +28,7 @@
 
 ## Warning
 
-!!! fhir@0.3.0 (current version) supports r4us ONLY; r4/r4b/r5 are not available, because of hex.pm package size limits. !!!
+!!! package manager supports r4us ONLY; r4/r4b/r5 are not available, because of hex.pm package size limits. r4/r4us/r5 are on https://github.com/PotatoEMR/gleam-fhir/tree/main !!!
 
 
 ## Quick Start
@@ -80,10 +80,10 @@ pub fn main() {
   echo joe
 
   let assert Ok(client) =
-    r4us_httpc.fhirclient_new("https://r4us.smarthealthit.org/")
+    r4us_httpc.fhirclient_new("https://r4.smarthealthit.org/")
 
-  // https://r4us.smarthealthit.org/ might be down and give an error creating patient
-  // if so try these alternatives:
+  // https://r4.smarthealthit.org/ might be down
+  // if `let assert Ok(created)` errors try these alternatives:
   // fhirclient_new("https://hapi.fhir.org/baseR4")
   // fhirclient_new("https://server.fire.ly")
 
