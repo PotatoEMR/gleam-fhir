@@ -42,7 +42,7 @@ pub fn fhirclient_new(
 
 pub type Err {
   ErrRsvp(err: rsvp.Error)
-  ErrSansio(err: r4us_sansio.Err)
+  ErrSansio(err: r4us_sansio.ErrResp)
 }
 
 /// When using rsvp, if you attempt update or delete a resource with no id,

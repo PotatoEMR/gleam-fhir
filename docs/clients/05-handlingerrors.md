@@ -7,9 +7,20 @@ Attempting to get a resource from a FHIR server over http has a number of possib
 Note FHIR servers will return an `OperationOutcome` resource with details for an error, so `OperationOutcome` is a sansio error variant. For instance you can get an `OperationOutcome` by trying to read a patient with an id that does not exist on the server. Many of the ways an operation can fail probably don't matter, but they're all there if needed, and it probably is worth handling the `OperationOutcome` case.
 
 ```gleam
+import fhir/r4_httpc
+import gleam/dynamic/decode
+import gleam/httpc
+import gleam/io
+import gleam/json
+import gleam/list
+import gleam/option.{None, Some}
+import gleam/string
+
 pub fn main() {
-  let assert Ok(client) = r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
-  let pat = r4_httpc.patient_read("87a339d0-8cae-418e-89c7-8651e6aab3c6", client)
+  let assert Ok(client) =
+    r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
+  let pat =
+    r4_httpc.patient_read("87a339d0-8cae-418e-89c7-8651e6aab3c6", client)
   io.println(case pat {
     Ok(pat) -> {
       case pat.id {
@@ -28,9 +39,11 @@ pub fn main() {
           }
         r4_httpc.ErrSansio(err) ->
           case err {
-            r4_sansio.ErrOperationcome(err) ->
+            r4_httpc.ErrNotJson(err) -> "not json: " <> err.body
+            r4_httpc.ErrOperationoutcome(err) ->
               "OperationOutcome: "
-              <> list.map(err.issue, fn(issue) {
+              <> [err.issue.first, ..err.issue.rest]
+              |> list.map(fn(issue) {
                 case issue.diagnostics {
                   Some(err) -> err
                   None -> "issue without diagnostics"
@@ -39,10 +52,9 @@ pub fn main() {
                 <> string.join(issue.location, "at ")
               })
               |> string.join("\n")
-            r4_sansio.ErrNotJson(err) -> "not json: " <> err.body
-            r4_sansio.ErrNoId ->
+            r4_httpc.ErrNoId ->
               panic as "only update/delete should hit this as it comes from calling fn with a resource"
-            r4_sansio.ErrParseJson(err) ->
+            r4_httpc.ErrParseJson(err) ->
               case err {
                 json.UnexpectedEndOfInput -> "UnexpectedEndOfInput"
                 json.UnexpectedByte(err) -> "UnexpectedByte " <> err

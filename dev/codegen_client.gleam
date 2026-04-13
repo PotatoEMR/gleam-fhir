@@ -315,11 +315,11 @@ pub fn gen(
             any_read_req(id, \"NAMEUPPER\", client)
           }
 
-          pub fn NAMELOWER_update_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Result(Request(String), Err) {
+          pub fn NAMELOWER_update_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Result(Request(String), ErrReq) {
             any_update_req(resource.id, FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
           }
 
-          pub fn NAMELOWER_resp(resp: Response(String)) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
+          pub fn NAMELOWER_resp(resp: Response(String)) -> Result(FHIRVERSION.NAMECAPITAL, ErrResp) {
             any_resp(resp, FHIRVERSION.NAMELOWER_decoder(), \"NAMEUPPER\")
           }
           ",
@@ -588,7 +588,7 @@ pub fn gen(
             ) -> Result(FHIRVERSION_sansio.OperationoutcomeOrHTTP, Err) {
               case resource.id {
                 Some(id) -> any_delete(id, \"NAMECAPITAL\", client)
-                None -> Error(ErrSansio(FHIRVERSION_sansio.ErrNoId))
+                None -> Error(ErrSansio(ErrNoId))
               }
             }
 

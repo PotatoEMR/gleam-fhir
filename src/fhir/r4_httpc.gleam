@@ -4,6 +4,7 @@ import fhir/r4
 import fhir/r4_sansio
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
+import gleam/http/response.{type Response}
 import gleam/httpc
 import gleam/json.{type Json}
 import gleam/option.{type Option, None, Some}
@@ -40,8 +41,19 @@ pub fn fhirclient_new(
 }
 
 pub type Err {
-  ErrHttpc(httpc.HttpError)
-  ErrSansio(err: r4_sansio.Err)
+  ErrHttpc(err: httpc.HttpError)
+  ErrSansio(err: ErrFromSansio)
+}
+
+pub type ErrFromSansio {
+  ///got json but could not parse it, probably a missing required field
+  ErrParseJson(json.DecodeError)
+  ///did not get resource json, often server eg nginx gives basic html response
+  ErrNotJson(Response(String))
+  ///got operationoutcome error from fhir server
+  ErrOperationoutcome(r4.Operationoutcome)
+  ///could not make an update or delete request because resource has no id
+  ErrNoId
 }
 
 fn any_create(
@@ -74,7 +86,7 @@ fn any_update(
   let req = r4_sansio.any_update_req(id, resource, res_type, client)
   case req {
     Ok(req) -> sendreq_parseresource(req, res_dec, res_type)
-    Error(err) -> Error(ErrSansio(err))
+    Error(_) -> Error(ErrSansio(ErrNoId))
     //can have error preparing update request if resource has no id
   }
 }
@@ -89,8 +101,15 @@ fn any_delete(
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
       case r4_sansio.http_or_operationoutcome_resp(resp) {
-        Ok(resource) -> Ok(resource)
-        Error(err) -> Error(ErrSansio(err))
+        Ok(oo_or_http) -> Ok(oo_or_http)
+        Error(err) ->
+          Error(
+            ErrSansio(case err {
+              r4_sansio.ErrParseJson(e) -> ErrParseJson(e)
+              r4_sansio.ErrNotJson(e) -> ErrNotJson(e)
+              r4_sansio.ErrOperationoutcome(e) -> ErrOperationoutcome(e)
+            }),
+          )
       }
   }
 }
@@ -135,7 +154,14 @@ fn sendreq_parseresource(
     Ok(resp) ->
       case r4_sansio.any_resp(resp, res_dec, res_type) {
         Ok(resource) -> Ok(resource)
-        Error(err) -> Error(ErrSansio(err))
+        Error(err) ->
+          Error(
+            ErrSansio(case err {
+              r4_sansio.ErrParseJson(e) -> ErrParseJson(e)
+              r4_sansio.ErrNotJson(e) -> ErrNotJson(e)
+              r4_sansio.ErrOperationoutcome(e) -> ErrOperationoutcome(e)
+            }),
+          )
       }
   }
 }
@@ -175,7 +201,7 @@ pub fn account_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Account", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -233,7 +259,7 @@ pub fn activitydefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Activitydefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -294,7 +320,7 @@ pub fn adverseevent_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Adverseevent", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -355,7 +381,7 @@ pub fn allergyintolerance_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Allergyintolerance", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -416,7 +442,7 @@ pub fn appointment_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Appointment", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -477,7 +503,7 @@ pub fn appointmentresponse_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Appointmentresponse", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -538,7 +564,7 @@ pub fn auditevent_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Auditevent", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -588,7 +614,7 @@ pub fn basic_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Basic", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -638,7 +664,7 @@ pub fn binary_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Binary", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -701,7 +727,7 @@ pub fn biologicallyderivedproduct_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Biologicallyderivedproduct", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -762,7 +788,7 @@ pub fn bodystructure_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Bodystructure", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -815,7 +841,7 @@ pub fn bundle_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Bundle", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -873,7 +899,7 @@ pub fn capabilitystatement_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Capabilitystatement", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -931,7 +957,7 @@ pub fn careplan_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Careplan", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -986,7 +1012,7 @@ pub fn careteam_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Careteam", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1044,7 +1070,7 @@ pub fn catalogentry_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Catalogentry", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1105,7 +1131,7 @@ pub fn chargeitem_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Chargeitem", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1168,7 +1194,7 @@ pub fn chargeitemdefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Chargeitemdefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1221,7 +1247,7 @@ pub fn claim_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Claim", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1279,7 +1305,7 @@ pub fn claimresponse_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Claimresponse", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1340,7 +1366,7 @@ pub fn clinicalimpression_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Clinicalimpression", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1401,7 +1427,7 @@ pub fn codesystem_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Codesystem", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1459,7 +1485,7 @@ pub fn communication_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Communication", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1525,7 +1551,7 @@ pub fn communicationrequest_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Communicationrequest", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1591,7 +1617,7 @@ pub fn compartmentdefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Compartmentdefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1652,7 +1678,7 @@ pub fn composition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Composition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1713,7 +1739,7 @@ pub fn conceptmap_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Conceptmap", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1771,7 +1797,7 @@ pub fn condition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Condition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1826,7 +1852,7 @@ pub fn consent_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Consent", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1881,7 +1907,7 @@ pub fn contract_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Contract", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1936,7 +1962,7 @@ pub fn coverage_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Coverage", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -1999,7 +2025,7 @@ pub fn coverageeligibilityrequest_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Coverageeligibilityrequest", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2065,7 +2091,7 @@ pub fn coverageeligibilityresponse_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Coverageeligibilityresponse", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2126,7 +2152,7 @@ pub fn detectedissue_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Detectedissue", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2179,7 +2205,7 @@ pub fn device_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Device", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2237,7 +2263,7 @@ pub fn devicedefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Devicedefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2298,7 +2324,7 @@ pub fn devicemetric_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Devicemetric", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2359,7 +2385,7 @@ pub fn devicerequest_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Devicerequest", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2420,7 +2446,7 @@ pub fn deviceusestatement_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Deviceusestatement", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2481,7 +2507,7 @@ pub fn diagnosticreport_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Diagnosticreport", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2542,7 +2568,7 @@ pub fn documentmanifest_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Documentmanifest", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2603,7 +2629,7 @@ pub fn documentreference_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Documentreference", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2669,7 +2695,7 @@ pub fn effectevidencesynthesis_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Effectevidencesynthesis", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2730,7 +2756,7 @@ pub fn encounter_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Encounter", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2785,7 +2811,7 @@ pub fn endpoint_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Endpoint", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2843,7 +2869,7 @@ pub fn enrollmentrequest_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Enrollmentrequest", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2904,7 +2930,7 @@ pub fn enrollmentresponse_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Enrollmentresponse", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -2965,7 +2991,7 @@ pub fn episodeofcare_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Episodeofcare", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3026,7 +3052,7 @@ pub fn eventdefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Eventdefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3084,7 +3110,7 @@ pub fn evidence_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Evidence", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3142,7 +3168,7 @@ pub fn evidencevariable_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Evidencevariable", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3203,7 +3229,7 @@ pub fn examplescenario_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Examplescenario", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3269,7 +3295,7 @@ pub fn explanationofbenefit_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Explanationofbenefit", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3330,7 +3356,7 @@ pub fn familymemberhistory_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Familymemberhistory", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3383,7 +3409,7 @@ pub fn flag_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Flag", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3433,7 +3459,7 @@ pub fn goal_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Goal", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3491,7 +3517,7 @@ pub fn graphdefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Graphdefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3544,7 +3570,7 @@ pub fn group_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Group", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3602,7 +3628,7 @@ pub fn guidanceresponse_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Guidanceresponse", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3663,7 +3689,7 @@ pub fn healthcareservice_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Healthcareservice", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3724,7 +3750,7 @@ pub fn imagingstudy_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Imagingstudy", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3785,7 +3811,7 @@ pub fn immunization_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Immunization", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3851,7 +3877,7 @@ pub fn immunizationevaluation_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Immunizationevaluation", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3917,7 +3943,7 @@ pub fn immunizationrecommendation_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Immunizationrecommendation", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -3978,7 +4004,7 @@ pub fn implementationguide_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Implementationguide", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4039,7 +4065,7 @@ pub fn insuranceplan_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Insuranceplan", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4097,7 +4123,7 @@ pub fn invoice_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Invoice", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4152,7 +4178,7 @@ pub fn library_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Library", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4207,7 +4233,7 @@ pub fn linkage_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Linkage", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4262,7 +4288,7 @@ pub fn listfhir_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Listfhir", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4317,7 +4343,7 @@ pub fn location_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Location", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4372,7 +4398,7 @@ pub fn measure_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Measure", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4430,7 +4456,7 @@ pub fn measurereport_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Measurereport", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4483,7 +4509,7 @@ pub fn media_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Media", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4541,7 +4567,7 @@ pub fn medication_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medication", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4604,7 +4630,7 @@ pub fn medicationadministration_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicationadministration", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4665,7 +4691,7 @@ pub fn medicationdispense_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicationdispense", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4726,7 +4752,7 @@ pub fn medicationknowledge_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicationknowledge", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4787,7 +4813,7 @@ pub fn medicationrequest_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicationrequest", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4848,7 +4874,7 @@ pub fn medicationstatement_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicationstatement", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4909,7 +4935,7 @@ pub fn medicinalproduct_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicinalproduct", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -4975,7 +5001,7 @@ pub fn medicinalproductauthorization_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicinalproductauthorization", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5041,7 +5067,7 @@ pub fn medicinalproductcontraindication_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicinalproductcontraindication", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5107,7 +5133,7 @@ pub fn medicinalproductindication_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicinalproductindication", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5173,7 +5199,7 @@ pub fn medicinalproductingredient_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicinalproductingredient", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5239,7 +5265,7 @@ pub fn medicinalproductinteraction_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicinalproductinteraction", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5305,7 +5331,7 @@ pub fn medicinalproductmanufactured_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicinalproductmanufactured", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5371,7 +5397,7 @@ pub fn medicinalproductpackaged_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicinalproductpackaged", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5437,7 +5463,7 @@ pub fn medicinalproductpharmaceutical_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicinalproductpharmaceutical", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5503,7 +5529,7 @@ pub fn medicinalproductundesirableeffect_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Medicinalproductundesirableeffect", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5564,7 +5590,7 @@ pub fn messagedefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Messagedefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5625,7 +5651,7 @@ pub fn messageheader_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Messageheader", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5686,7 +5712,7 @@ pub fn molecularsequence_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Molecularsequence", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5747,7 +5773,7 @@ pub fn namingsystem_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Namingsystem", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5808,7 +5834,7 @@ pub fn nutritionorder_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Nutritionorder", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5869,7 +5895,7 @@ pub fn observation_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Observation", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5935,7 +5961,7 @@ pub fn observationdefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Observationdefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -5996,7 +6022,7 @@ pub fn operationdefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Operationdefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6057,7 +6083,7 @@ pub fn operationoutcome_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Operationoutcome", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6118,7 +6144,7 @@ pub fn organization_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Organization", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6184,7 +6210,7 @@ pub fn organizationaffiliation_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Organizationaffiliation", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6242,7 +6268,7 @@ pub fn patient_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Patient", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6300,7 +6326,7 @@ pub fn paymentnotice_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Paymentnotice", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6366,7 +6392,7 @@ pub fn paymentreconciliation_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Paymentreconciliation", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6419,7 +6445,7 @@ pub fn person_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Person", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6477,7 +6503,7 @@ pub fn plandefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Plandefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6538,7 +6564,7 @@ pub fn practitioner_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Practitioner", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6599,7 +6625,7 @@ pub fn practitionerrole_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Practitionerrole", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6660,7 +6686,7 @@ pub fn procedure_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Procedure", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6718,7 +6744,7 @@ pub fn provenance_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Provenance", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6776,7 +6802,7 @@ pub fn questionnaire_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Questionnaire", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6842,7 +6868,7 @@ pub fn questionnaireresponse_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Questionnaireresponse", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6903,7 +6929,7 @@ pub fn relatedperson_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Relatedperson", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -6964,7 +6990,7 @@ pub fn requestgroup_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Requestgroup", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7025,7 +7051,7 @@ pub fn researchdefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Researchdefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7091,7 +7117,7 @@ pub fn researchelementdefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Researchelementdefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7152,7 +7178,7 @@ pub fn researchstudy_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Researchstudy", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7213,7 +7239,7 @@ pub fn researchsubject_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Researchsubject", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7274,7 +7300,7 @@ pub fn riskassessment_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Riskassessment", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7340,7 +7366,7 @@ pub fn riskevidencesynthesis_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Riskevidencesynthesis", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7398,7 +7424,7 @@ pub fn schedule_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Schedule", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7456,7 +7482,7 @@ pub fn searchparameter_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Searchparameter", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7517,7 +7543,7 @@ pub fn servicerequest_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Servicerequest", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7570,7 +7596,7 @@ pub fn slot_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Slot", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7625,7 +7651,7 @@ pub fn specimen_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Specimen", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7683,7 +7709,7 @@ pub fn specimendefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Specimendefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7744,7 +7770,7 @@ pub fn structuredefinition_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Structuredefinition", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7805,7 +7831,7 @@ pub fn structuremap_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Structuremap", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7866,7 +7892,7 @@ pub fn subscription_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Subscription", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7927,7 +7953,7 @@ pub fn substance_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Substance", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -7990,7 +8016,7 @@ pub fn substancenucleicacid_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Substancenucleicacid", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8051,7 +8077,7 @@ pub fn substancepolymer_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Substancepolymer", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8112,7 +8138,7 @@ pub fn substanceprotein_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Substanceprotein", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8178,7 +8204,7 @@ pub fn substancereferenceinformation_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Substancereferenceinformation", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8244,7 +8270,7 @@ pub fn substancesourcematerial_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Substancesourcematerial", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8310,7 +8336,7 @@ pub fn substancespecification_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Substancespecification", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8371,7 +8397,7 @@ pub fn supplydelivery_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Supplydelivery", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8432,7 +8458,7 @@ pub fn supplyrequest_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Supplyrequest", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8485,7 +8511,7 @@ pub fn task_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Task", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8548,7 +8574,7 @@ pub fn terminologycapabilities_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Terminologycapabilities", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8609,7 +8635,7 @@ pub fn testreport_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Testreport", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8667,7 +8693,7 @@ pub fn testscript_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Testscript", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8722,7 +8748,7 @@ pub fn valueset_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Valueset", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8780,7 +8806,7 @@ pub fn verificationresult_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Verificationresult", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 
@@ -8841,7 +8867,7 @@ pub fn visionprescription_delete(
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   case resource.id {
     Some(id) -> any_delete(id, "Visionprescription", client)
-    None -> Error(ErrSansio(r4_sansio.ErrNoId))
+    None -> Error(ErrSansio(ErrNoId))
   }
 }
 

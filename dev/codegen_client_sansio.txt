@@ -93,15 +93,18 @@ fn create_base_req(
   Ok(FhirClient(baseurl:, basereq:))
 }
 
-pub type Err {
-  ///could not make a delete or update request because resource has no id
-  ErrNoId
+pub type ErrResp {
   ///got json but could not parse it, probably a missing required field
   ErrParseJson(json.DecodeError)
   ///did not get resource json, often server eg nginx gives basic html response
   ErrNotJson(Response(String))
   ///got operationoutcome error from fhir server
   ErrOperationoutcome(FHIRVERSION.Operationoutcome)
+}
+
+pub type ErrReq {
+  ///could not make an update request because resource has no id
+  ErrNoId
 }
 
 pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient) {
@@ -125,7 +128,7 @@ pub fn any_update_req(
   resource_json: Json,
   res_type: String,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   case id {
     None -> Error(ErrNoId)
     Some(id) ->
@@ -251,7 +254,7 @@ pub type OperationoutcomeOrHTTP {
 /// depending on if server sense OperationOutcome or empty body
 pub fn http_or_operationoutcome_resp(
   resp: Response(String),
-) -> Result(OperationoutcomeOrHTTP, Err) {
+) -> Result(OperationoutcomeOrHTTP, ErrResp) {
   case resp.body {
     "" ->
       case resp.status < 300 {

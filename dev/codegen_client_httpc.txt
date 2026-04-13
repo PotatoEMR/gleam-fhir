@@ -4,6 +4,7 @@ import fhir/FHIRVERSION
 import fhir/FHIRVERSION_sansio
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
+import gleam/http/response.{type Response}
 import gleam/httpc
 import gleam/result
 import gleam/json.{type Json}
@@ -38,8 +39,19 @@ pub fn fhirclient_new(baseurl: String) -> Result(FhirClient, FHIRVERSION_sansio.
 }
 
 pub type Err {
-  ErrHttpc(httpc.HttpError)
-  ErrSansio(err: FHIRVERSION_sansio.Err)
+  ErrHttpc(err: httpc.HttpError)
+  ErrSansio(err: ErrFromSansio)
+}
+
+pub type ErrFromSansio {
+  ///got json but could not parse it, probably a missing required field
+  ErrParseJson(json.DecodeError)
+  ///did not get resource json, often server eg nginx gives basic html response
+  ErrNotJson(Response(String))
+  ///got operationoutcome error from fhir server
+  ErrOperationoutcome(FHIRVERSION.Operationoutcome)
+  ///could not make an update or delete request because resource has no id
+  ErrNoId
 }
 
 fn any_create(
@@ -72,7 +84,7 @@ fn any_update(
   let req = FHIRVERSION_sansio.any_update_req(id, resource, res_type, client)
   case req {
     Ok(req) -> sendreq_parseresource(req, res_dec, res_type)
-    Error(err) -> Error(ErrSansio(err))
+    Error(_) -> Error(ErrSansio(ErrNoId))
     //can have error preparing update request if resource has no id
   }
 }
@@ -87,8 +99,12 @@ fn any_delete(
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
       case FHIRVERSION_sansio.http_or_operationoutcome_resp(resp) {
-        Ok(resource) -> Ok(resource)
-        Error(err) -> Error(ErrSansio(err))
+        Ok(oo_or_http) -> Ok(oo_or_http)
+        Error(err) -> Error(ErrSansio(case err {
+          FHIRVERSION_sansio.ErrParseJson(e) -> ErrParseJson(e)
+          FHIRVERSION_sansio.ErrNotJson(e) -> ErrNotJson(e)
+          FHIRVERSION_sansio.ErrOperationoutcome(e) -> ErrOperationoutcome(e)
+        }))
       }
   }
 }
@@ -133,7 +149,11 @@ fn sendreq_parseresource(
     Ok(resp) ->
       case FHIRVERSION_sansio.any_resp(resp, res_dec, res_type) {
         Ok(resource) -> Ok(resource)
-        Error(err) -> Error(ErrSansio(err))
+        Error(err) -> Error(ErrSansio(case err {
+          FHIRVERSION_sansio.ErrParseJson(e) -> ErrParseJson(e)
+          FHIRVERSION_sansio.ErrNotJson(e) -> ErrNotJson(e)
+          FHIRVERSION_sansio.ErrOperationoutcome(e) -> ErrOperationoutcome(e)
+        }))
       }
   }
 }

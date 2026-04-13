@@ -93,15 +93,18 @@ fn create_base_req(
   Ok(FhirClient(baseurl:, basereq:))
 }
 
-pub type Err {
-  ///could not make a delete or update request because resource has no id
-  ErrNoId
+pub type ErrResp {
   ///got json but could not parse it, probably a missing required field
   ErrParseJson(json.DecodeError)
   ///did not get resource json, often server eg nginx gives basic html response
   ErrNotJson(Response(String))
   ///got operationoutcome error from fhir server
   ErrOperationoutcome(r4usp.Operationoutcome)
+}
+
+pub type ErrReq {
+  ///could not make an update request because resource has no id
+  ErrNoId
 }
 
 pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient) {
@@ -125,7 +128,7 @@ pub fn any_update_req(
   resource_json: Json,
   res_type: String,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   case id {
     None -> Error(ErrNoId)
     Some(id) ->
@@ -255,7 +258,7 @@ pub type OperationoutcomeOrHTTP {
 /// depending on if server sense OperationOutcome or empty body
 pub fn http_or_operationoutcome_resp(
   resp: Response(String),
-) -> Result(OperationoutcomeOrHTTP, Err) {
+) -> Result(OperationoutcomeOrHTTP, ErrResp) {
   case resp.body {
     "" ->
       case resp.status < 300 {
@@ -293,7 +296,7 @@ pub fn account_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn account_update_req(
   resource: r4usp.Account,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.account_to_json(resource),
@@ -302,7 +305,7 @@ pub fn account_update_req(
   )
 }
 
-pub fn account_resp(resp: Response(String)) -> Result(r4usp.Account, Err) {
+pub fn account_resp(resp: Response(String)) -> Result(r4usp.Account, ErrResp) {
   any_resp(resp, r4usp.account_decoder(), "Account")
 }
 
@@ -327,7 +330,7 @@ pub fn activitydefinition_read_req(
 pub fn activitydefinition_update_req(
   resource: r4usp.Activitydefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.activitydefinition_to_json(resource),
@@ -338,7 +341,7 @@ pub fn activitydefinition_update_req(
 
 pub fn activitydefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Activitydefinition, Err) {
+) -> Result(r4usp.Activitydefinition, ErrResp) {
   any_resp(resp, r4usp.activitydefinition_decoder(), "ActivityDefinition")
 }
 
@@ -356,7 +359,7 @@ pub fn adverseevent_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn adverseevent_update_req(
   resource: r4usp.Adverseevent,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.adverseevent_to_json(resource),
@@ -367,7 +370,7 @@ pub fn adverseevent_update_req(
 
 pub fn adverseevent_resp(
   resp: Response(String),
-) -> Result(r4usp.Adverseevent, Err) {
+) -> Result(r4usp.Adverseevent, ErrResp) {
   any_resp(resp, r4usp.adverseevent_decoder(), "AdverseEvent")
 }
 
@@ -392,7 +395,7 @@ pub fn allergyintolerance_read_req(
 pub fn allergyintolerance_update_req(
   resource: r4usp.Allergyintolerance,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.allergyintolerance_to_json(resource),
@@ -403,7 +406,7 @@ pub fn allergyintolerance_update_req(
 
 pub fn allergyintolerance_resp(
   resp: Response(String),
-) -> Result(r4usp.Allergyintolerance, Err) {
+) -> Result(r4usp.Allergyintolerance, ErrResp) {
   any_resp(resp, r4usp.allergyintolerance_decoder(), "AllergyIntolerance")
 }
 
@@ -421,7 +424,7 @@ pub fn appointment_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn appointment_update_req(
   resource: r4usp.Appointment,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.appointment_to_json(resource),
@@ -432,7 +435,7 @@ pub fn appointment_update_req(
 
 pub fn appointment_resp(
   resp: Response(String),
-) -> Result(r4usp.Appointment, Err) {
+) -> Result(r4usp.Appointment, ErrResp) {
   any_resp(resp, r4usp.appointment_decoder(), "Appointment")
 }
 
@@ -457,7 +460,7 @@ pub fn appointmentresponse_read_req(
 pub fn appointmentresponse_update_req(
   resource: r4usp.Appointmentresponse,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.appointmentresponse_to_json(resource),
@@ -468,7 +471,7 @@ pub fn appointmentresponse_update_req(
 
 pub fn appointmentresponse_resp(
   resp: Response(String),
-) -> Result(r4usp.Appointmentresponse, Err) {
+) -> Result(r4usp.Appointmentresponse, ErrResp) {
   any_resp(resp, r4usp.appointmentresponse_decoder(), "AppointmentResponse")
 }
 
@@ -486,7 +489,7 @@ pub fn auditevent_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn auditevent_update_req(
   resource: r4usp.Auditevent,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.auditevent_to_json(resource),
@@ -495,7 +498,9 @@ pub fn auditevent_update_req(
   )
 }
 
-pub fn auditevent_resp(resp: Response(String)) -> Result(r4usp.Auditevent, Err) {
+pub fn auditevent_resp(
+  resp: Response(String),
+) -> Result(r4usp.Auditevent, ErrResp) {
   any_resp(resp, r4usp.auditevent_decoder(), "AuditEvent")
 }
 
@@ -513,11 +518,11 @@ pub fn basic_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn basic_update_req(
   resource: r4usp.Basic,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.basic_to_json(resource), "Basic", client)
 }
 
-pub fn basic_resp(resp: Response(String)) -> Result(r4usp.Basic, Err) {
+pub fn basic_resp(resp: Response(String)) -> Result(r4usp.Basic, ErrResp) {
   any_resp(resp, r4usp.basic_decoder(), "Basic")
 }
 
@@ -535,11 +540,11 @@ pub fn binary_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn binary_update_req(
   resource: r4usp.Binary,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.binary_to_json(resource), "Binary", client)
 }
 
-pub fn binary_resp(resp: Response(String)) -> Result(r4usp.Binary, Err) {
+pub fn binary_resp(resp: Response(String)) -> Result(r4usp.Binary, ErrResp) {
   any_resp(resp, r4usp.binary_decoder(), "Binary")
 }
 
@@ -564,7 +569,7 @@ pub fn biologicallyderivedproduct_read_req(
 pub fn biologicallyderivedproduct_update_req(
   resource: r4usp.Biologicallyderivedproduct,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.biologicallyderivedproduct_to_json(resource),
@@ -575,7 +580,7 @@ pub fn biologicallyderivedproduct_update_req(
 
 pub fn biologicallyderivedproduct_resp(
   resp: Response(String),
-) -> Result(r4usp.Biologicallyderivedproduct, Err) {
+) -> Result(r4usp.Biologicallyderivedproduct, ErrResp) {
   any_resp(
     resp,
     r4usp.biologicallyderivedproduct_decoder(),
@@ -597,7 +602,7 @@ pub fn bodystructure_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn bodystructure_update_req(
   resource: r4usp.Bodystructure,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.bodystructure_to_json(resource),
@@ -608,7 +613,7 @@ pub fn bodystructure_update_req(
 
 pub fn bodystructure_resp(
   resp: Response(String),
-) -> Result(r4usp.Bodystructure, Err) {
+) -> Result(r4usp.Bodystructure, ErrResp) {
   any_resp(resp, r4usp.bodystructure_decoder(), "BodyStructure")
 }
 
@@ -626,11 +631,11 @@ pub fn bundle_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn bundle_update_req(
   resource: r4usp.Bundle,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.bundle_to_json(resource), "Bundle", client)
 }
 
-pub fn bundle_resp(resp: Response(String)) -> Result(r4usp.Bundle, Err) {
+pub fn bundle_resp(resp: Response(String)) -> Result(r4usp.Bundle, ErrResp) {
   any_resp(resp, r4usp.bundle_decoder(), "Bundle")
 }
 
@@ -655,7 +660,7 @@ pub fn capabilitystatement_read_req(
 pub fn capabilitystatement_update_req(
   resource: r4usp.Capabilitystatement,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.capabilitystatement_to_json(resource),
@@ -666,7 +671,7 @@ pub fn capabilitystatement_update_req(
 
 pub fn capabilitystatement_resp(
   resp: Response(String),
-) -> Result(r4usp.Capabilitystatement, Err) {
+) -> Result(r4usp.Capabilitystatement, ErrResp) {
   any_resp(resp, r4usp.capabilitystatement_decoder(), "CapabilityStatement")
 }
 
@@ -684,7 +689,7 @@ pub fn careplan_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn careplan_update_req(
   resource: r4usp.Careplan,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.careplan_to_json(resource),
@@ -693,7 +698,7 @@ pub fn careplan_update_req(
   )
 }
 
-pub fn careplan_resp(resp: Response(String)) -> Result(r4usp.Careplan, Err) {
+pub fn careplan_resp(resp: Response(String)) -> Result(r4usp.Careplan, ErrResp) {
   any_resp(resp, r4usp.careplan_decoder(), "CarePlan")
 }
 
@@ -711,7 +716,7 @@ pub fn careteam_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn careteam_update_req(
   resource: r4usp.Careteam,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.careteam_to_json(resource),
@@ -720,7 +725,7 @@ pub fn careteam_update_req(
   )
 }
 
-pub fn careteam_resp(resp: Response(String)) -> Result(r4usp.Careteam, Err) {
+pub fn careteam_resp(resp: Response(String)) -> Result(r4usp.Careteam, ErrResp) {
   any_resp(resp, r4usp.careteam_decoder(), "CareTeam")
 }
 
@@ -738,7 +743,7 @@ pub fn catalogentry_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn catalogentry_update_req(
   resource: r4usp.Catalogentry,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.catalogentry_to_json(resource),
@@ -749,7 +754,7 @@ pub fn catalogentry_update_req(
 
 pub fn catalogentry_resp(
   resp: Response(String),
-) -> Result(r4usp.Catalogentry, Err) {
+) -> Result(r4usp.Catalogentry, ErrResp) {
   any_resp(resp, r4usp.catalogentry_decoder(), "CatalogEntry")
 }
 
@@ -767,7 +772,7 @@ pub fn chargeitem_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn chargeitem_update_req(
   resource: r4usp.Chargeitem,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.chargeitem_to_json(resource),
@@ -776,7 +781,9 @@ pub fn chargeitem_update_req(
   )
 }
 
-pub fn chargeitem_resp(resp: Response(String)) -> Result(r4usp.Chargeitem, Err) {
+pub fn chargeitem_resp(
+  resp: Response(String),
+) -> Result(r4usp.Chargeitem, ErrResp) {
   any_resp(resp, r4usp.chargeitem_decoder(), "ChargeItem")
 }
 
@@ -801,7 +808,7 @@ pub fn chargeitemdefinition_read_req(
 pub fn chargeitemdefinition_update_req(
   resource: r4usp.Chargeitemdefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.chargeitemdefinition_to_json(resource),
@@ -812,7 +819,7 @@ pub fn chargeitemdefinition_update_req(
 
 pub fn chargeitemdefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Chargeitemdefinition, Err) {
+) -> Result(r4usp.Chargeitemdefinition, ErrResp) {
   any_resp(resp, r4usp.chargeitemdefinition_decoder(), "ChargeItemDefinition")
 }
 
@@ -830,11 +837,11 @@ pub fn claim_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn claim_update_req(
   resource: r4usp.Claim,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.claim_to_json(resource), "Claim", client)
 }
 
-pub fn claim_resp(resp: Response(String)) -> Result(r4usp.Claim, Err) {
+pub fn claim_resp(resp: Response(String)) -> Result(r4usp.Claim, ErrResp) {
   any_resp(resp, r4usp.claim_decoder(), "Claim")
 }
 
@@ -852,7 +859,7 @@ pub fn claimresponse_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn claimresponse_update_req(
   resource: r4usp.Claimresponse,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.claimresponse_to_json(resource),
@@ -863,7 +870,7 @@ pub fn claimresponse_update_req(
 
 pub fn claimresponse_resp(
   resp: Response(String),
-) -> Result(r4usp.Claimresponse, Err) {
+) -> Result(r4usp.Claimresponse, ErrResp) {
   any_resp(resp, r4usp.claimresponse_decoder(), "ClaimResponse")
 }
 
@@ -888,7 +895,7 @@ pub fn clinicalimpression_read_req(
 pub fn clinicalimpression_update_req(
   resource: r4usp.Clinicalimpression,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.clinicalimpression_to_json(resource),
@@ -899,7 +906,7 @@ pub fn clinicalimpression_update_req(
 
 pub fn clinicalimpression_resp(
   resp: Response(String),
-) -> Result(r4usp.Clinicalimpression, Err) {
+) -> Result(r4usp.Clinicalimpression, ErrResp) {
   any_resp(resp, r4usp.clinicalimpression_decoder(), "ClinicalImpression")
 }
 
@@ -917,7 +924,7 @@ pub fn codesystem_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn codesystem_update_req(
   resource: r4usp.Codesystem,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.codesystem_to_json(resource),
@@ -926,7 +933,9 @@ pub fn codesystem_update_req(
   )
 }
 
-pub fn codesystem_resp(resp: Response(String)) -> Result(r4usp.Codesystem, Err) {
+pub fn codesystem_resp(
+  resp: Response(String),
+) -> Result(r4usp.Codesystem, ErrResp) {
   any_resp(resp, r4usp.codesystem_decoder(), "CodeSystem")
 }
 
@@ -944,7 +953,7 @@ pub fn communication_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn communication_update_req(
   resource: r4usp.Communication,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.communication_to_json(resource),
@@ -955,7 +964,7 @@ pub fn communication_update_req(
 
 pub fn communication_resp(
   resp: Response(String),
-) -> Result(r4usp.Communication, Err) {
+) -> Result(r4usp.Communication, ErrResp) {
   any_resp(resp, r4usp.communication_decoder(), "Communication")
 }
 
@@ -980,7 +989,7 @@ pub fn communicationrequest_read_req(
 pub fn communicationrequest_update_req(
   resource: r4usp.Communicationrequest,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.communicationrequest_to_json(resource),
@@ -991,7 +1000,7 @@ pub fn communicationrequest_update_req(
 
 pub fn communicationrequest_resp(
   resp: Response(String),
-) -> Result(r4usp.Communicationrequest, Err) {
+) -> Result(r4usp.Communicationrequest, ErrResp) {
   any_resp(resp, r4usp.communicationrequest_decoder(), "CommunicationRequest")
 }
 
@@ -1016,7 +1025,7 @@ pub fn compartmentdefinition_read_req(
 pub fn compartmentdefinition_update_req(
   resource: r4usp.Compartmentdefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.compartmentdefinition_to_json(resource),
@@ -1027,7 +1036,7 @@ pub fn compartmentdefinition_update_req(
 
 pub fn compartmentdefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Compartmentdefinition, Err) {
+) -> Result(r4usp.Compartmentdefinition, ErrResp) {
   any_resp(resp, r4usp.compartmentdefinition_decoder(), "CompartmentDefinition")
 }
 
@@ -1045,7 +1054,7 @@ pub fn composition_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn composition_update_req(
   resource: r4usp.Composition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.composition_to_json(resource),
@@ -1056,7 +1065,7 @@ pub fn composition_update_req(
 
 pub fn composition_resp(
   resp: Response(String),
-) -> Result(r4usp.Composition, Err) {
+) -> Result(r4usp.Composition, ErrResp) {
   any_resp(resp, r4usp.composition_decoder(), "Composition")
 }
 
@@ -1074,7 +1083,7 @@ pub fn conceptmap_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn conceptmap_update_req(
   resource: r4usp.Conceptmap,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.conceptmap_to_json(resource),
@@ -1083,7 +1092,9 @@ pub fn conceptmap_update_req(
   )
 }
 
-pub fn conceptmap_resp(resp: Response(String)) -> Result(r4usp.Conceptmap, Err) {
+pub fn conceptmap_resp(
+  resp: Response(String),
+) -> Result(r4usp.Conceptmap, ErrResp) {
   any_resp(resp, r4usp.conceptmap_decoder(), "ConceptMap")
 }
 
@@ -1101,7 +1112,7 @@ pub fn condition_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn condition_update_req(
   resource: r4usp.Condition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.condition_to_json(resource),
@@ -1110,7 +1121,9 @@ pub fn condition_update_req(
   )
 }
 
-pub fn condition_resp(resp: Response(String)) -> Result(r4usp.Condition, Err) {
+pub fn condition_resp(
+  resp: Response(String),
+) -> Result(r4usp.Condition, ErrResp) {
   any_resp(resp, r4usp.condition_decoder(), "Condition")
 }
 
@@ -1128,7 +1141,7 @@ pub fn consent_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn consent_update_req(
   resource: r4usp.Consent,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.consent_to_json(resource),
@@ -1137,7 +1150,7 @@ pub fn consent_update_req(
   )
 }
 
-pub fn consent_resp(resp: Response(String)) -> Result(r4usp.Consent, Err) {
+pub fn consent_resp(resp: Response(String)) -> Result(r4usp.Consent, ErrResp) {
   any_resp(resp, r4usp.consent_decoder(), "Consent")
 }
 
@@ -1155,7 +1168,7 @@ pub fn contract_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn contract_update_req(
   resource: r4usp.Contract,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.contract_to_json(resource),
@@ -1164,7 +1177,7 @@ pub fn contract_update_req(
   )
 }
 
-pub fn contract_resp(resp: Response(String)) -> Result(r4usp.Contract, Err) {
+pub fn contract_resp(resp: Response(String)) -> Result(r4usp.Contract, ErrResp) {
   any_resp(resp, r4usp.contract_decoder(), "Contract")
 }
 
@@ -1182,7 +1195,7 @@ pub fn coverage_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn coverage_update_req(
   resource: r4usp.Coverage,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.coverage_to_json(resource),
@@ -1191,7 +1204,7 @@ pub fn coverage_update_req(
   )
 }
 
-pub fn coverage_resp(resp: Response(String)) -> Result(r4usp.Coverage, Err) {
+pub fn coverage_resp(resp: Response(String)) -> Result(r4usp.Coverage, ErrResp) {
   any_resp(resp, r4usp.coverage_decoder(), "Coverage")
 }
 
@@ -1216,7 +1229,7 @@ pub fn coverageeligibilityrequest_read_req(
 pub fn coverageeligibilityrequest_update_req(
   resource: r4usp.Coverageeligibilityrequest,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.coverageeligibilityrequest_to_json(resource),
@@ -1227,7 +1240,7 @@ pub fn coverageeligibilityrequest_update_req(
 
 pub fn coverageeligibilityrequest_resp(
   resp: Response(String),
-) -> Result(r4usp.Coverageeligibilityrequest, Err) {
+) -> Result(r4usp.Coverageeligibilityrequest, ErrResp) {
   any_resp(
     resp,
     r4usp.coverageeligibilityrequest_decoder(),
@@ -1256,7 +1269,7 @@ pub fn coverageeligibilityresponse_read_req(
 pub fn coverageeligibilityresponse_update_req(
   resource: r4usp.Coverageeligibilityresponse,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.coverageeligibilityresponse_to_json(resource),
@@ -1267,7 +1280,7 @@ pub fn coverageeligibilityresponse_update_req(
 
 pub fn coverageeligibilityresponse_resp(
   resp: Response(String),
-) -> Result(r4usp.Coverageeligibilityresponse, Err) {
+) -> Result(r4usp.Coverageeligibilityresponse, ErrResp) {
   any_resp(
     resp,
     r4usp.coverageeligibilityresponse_decoder(),
@@ -1289,7 +1302,7 @@ pub fn detectedissue_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn detectedissue_update_req(
   resource: r4usp.Detectedissue,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.detectedissue_to_json(resource),
@@ -1300,7 +1313,7 @@ pub fn detectedissue_update_req(
 
 pub fn detectedissue_resp(
   resp: Response(String),
-) -> Result(r4usp.Detectedissue, Err) {
+) -> Result(r4usp.Detectedissue, ErrResp) {
   any_resp(resp, r4usp.detectedissue_decoder(), "DetectedIssue")
 }
 
@@ -1318,11 +1331,11 @@ pub fn device_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn device_update_req(
   resource: r4usp.Device,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.device_to_json(resource), "Device", client)
 }
 
-pub fn device_resp(resp: Response(String)) -> Result(r4usp.Device, Err) {
+pub fn device_resp(resp: Response(String)) -> Result(r4usp.Device, ErrResp) {
   any_resp(resp, r4usp.device_decoder(), "Device")
 }
 
@@ -1347,7 +1360,7 @@ pub fn devicedefinition_read_req(
 pub fn devicedefinition_update_req(
   resource: r4usp.Devicedefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.devicedefinition_to_json(resource),
@@ -1358,7 +1371,7 @@ pub fn devicedefinition_update_req(
 
 pub fn devicedefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Devicedefinition, Err) {
+) -> Result(r4usp.Devicedefinition, ErrResp) {
   any_resp(resp, r4usp.devicedefinition_decoder(), "DeviceDefinition")
 }
 
@@ -1376,7 +1389,7 @@ pub fn devicemetric_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn devicemetric_update_req(
   resource: r4usp.Devicemetric,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.devicemetric_to_json(resource),
@@ -1387,7 +1400,7 @@ pub fn devicemetric_update_req(
 
 pub fn devicemetric_resp(
   resp: Response(String),
-) -> Result(r4usp.Devicemetric, Err) {
+) -> Result(r4usp.Devicemetric, ErrResp) {
   any_resp(resp, r4usp.devicemetric_decoder(), "DeviceMetric")
 }
 
@@ -1405,7 +1418,7 @@ pub fn devicerequest_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn devicerequest_update_req(
   resource: r4usp.Devicerequest,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.devicerequest_to_json(resource),
@@ -1416,7 +1429,7 @@ pub fn devicerequest_update_req(
 
 pub fn devicerequest_resp(
   resp: Response(String),
-) -> Result(r4usp.Devicerequest, Err) {
+) -> Result(r4usp.Devicerequest, ErrResp) {
   any_resp(resp, r4usp.devicerequest_decoder(), "DeviceRequest")
 }
 
@@ -1441,7 +1454,7 @@ pub fn deviceusestatement_read_req(
 pub fn deviceusestatement_update_req(
   resource: r4usp.Deviceusestatement,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.deviceusestatement_to_json(resource),
@@ -1452,7 +1465,7 @@ pub fn deviceusestatement_update_req(
 
 pub fn deviceusestatement_resp(
   resp: Response(String),
-) -> Result(r4usp.Deviceusestatement, Err) {
+) -> Result(r4usp.Deviceusestatement, ErrResp) {
   any_resp(resp, r4usp.deviceusestatement_decoder(), "DeviceUseStatement")
 }
 
@@ -1477,7 +1490,7 @@ pub fn diagnosticreport_read_req(
 pub fn diagnosticreport_update_req(
   resource: r4usp.Diagnosticreport,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.diagnosticreport_to_json(resource),
@@ -1488,7 +1501,7 @@ pub fn diagnosticreport_update_req(
 
 pub fn diagnosticreport_resp(
   resp: Response(String),
-) -> Result(r4usp.Diagnosticreport, Err) {
+) -> Result(r4usp.Diagnosticreport, ErrResp) {
   any_resp(resp, r4usp.diagnosticreport_decoder(), "DiagnosticReport")
 }
 
@@ -1513,7 +1526,7 @@ pub fn documentmanifest_read_req(
 pub fn documentmanifest_update_req(
   resource: r4usp.Documentmanifest,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.documentmanifest_to_json(resource),
@@ -1524,7 +1537,7 @@ pub fn documentmanifest_update_req(
 
 pub fn documentmanifest_resp(
   resp: Response(String),
-) -> Result(r4usp.Documentmanifest, Err) {
+) -> Result(r4usp.Documentmanifest, ErrResp) {
   any_resp(resp, r4usp.documentmanifest_decoder(), "DocumentManifest")
 }
 
@@ -1549,7 +1562,7 @@ pub fn documentreference_read_req(
 pub fn documentreference_update_req(
   resource: r4usp.Documentreference,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.documentreference_to_json(resource),
@@ -1560,7 +1573,7 @@ pub fn documentreference_update_req(
 
 pub fn documentreference_resp(
   resp: Response(String),
-) -> Result(r4usp.Documentreference, Err) {
+) -> Result(r4usp.Documentreference, ErrResp) {
   any_resp(resp, r4usp.documentreference_decoder(), "DocumentReference")
 }
 
@@ -1585,7 +1598,7 @@ pub fn effectevidencesynthesis_read_req(
 pub fn effectevidencesynthesis_update_req(
   resource: r4usp.Effectevidencesynthesis,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.effectevidencesynthesis_to_json(resource),
@@ -1596,7 +1609,7 @@ pub fn effectevidencesynthesis_update_req(
 
 pub fn effectevidencesynthesis_resp(
   resp: Response(String),
-) -> Result(r4usp.Effectevidencesynthesis, Err) {
+) -> Result(r4usp.Effectevidencesynthesis, ErrResp) {
   any_resp(
     resp,
     r4usp.effectevidencesynthesis_decoder(),
@@ -1618,7 +1631,7 @@ pub fn encounter_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn encounter_update_req(
   resource: r4usp.Encounter,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.encounter_to_json(resource),
@@ -1627,7 +1640,9 @@ pub fn encounter_update_req(
   )
 }
 
-pub fn encounter_resp(resp: Response(String)) -> Result(r4usp.Encounter, Err) {
+pub fn encounter_resp(
+  resp: Response(String),
+) -> Result(r4usp.Encounter, ErrResp) {
   any_resp(resp, r4usp.encounter_decoder(), "Encounter")
 }
 
@@ -1645,7 +1660,7 @@ pub fn endpoint_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn endpoint_update_req(
   resource: r4usp.Endpoint,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.endpoint_to_json(resource),
@@ -1654,7 +1669,7 @@ pub fn endpoint_update_req(
   )
 }
 
-pub fn endpoint_resp(resp: Response(String)) -> Result(r4usp.Endpoint, Err) {
+pub fn endpoint_resp(resp: Response(String)) -> Result(r4usp.Endpoint, ErrResp) {
   any_resp(resp, r4usp.endpoint_decoder(), "Endpoint")
 }
 
@@ -1679,7 +1694,7 @@ pub fn enrollmentrequest_read_req(
 pub fn enrollmentrequest_update_req(
   resource: r4usp.Enrollmentrequest,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.enrollmentrequest_to_json(resource),
@@ -1690,7 +1705,7 @@ pub fn enrollmentrequest_update_req(
 
 pub fn enrollmentrequest_resp(
   resp: Response(String),
-) -> Result(r4usp.Enrollmentrequest, Err) {
+) -> Result(r4usp.Enrollmentrequest, ErrResp) {
   any_resp(resp, r4usp.enrollmentrequest_decoder(), "EnrollmentRequest")
 }
 
@@ -1715,7 +1730,7 @@ pub fn enrollmentresponse_read_req(
 pub fn enrollmentresponse_update_req(
   resource: r4usp.Enrollmentresponse,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.enrollmentresponse_to_json(resource),
@@ -1726,7 +1741,7 @@ pub fn enrollmentresponse_update_req(
 
 pub fn enrollmentresponse_resp(
   resp: Response(String),
-) -> Result(r4usp.Enrollmentresponse, Err) {
+) -> Result(r4usp.Enrollmentresponse, ErrResp) {
   any_resp(resp, r4usp.enrollmentresponse_decoder(), "EnrollmentResponse")
 }
 
@@ -1744,7 +1759,7 @@ pub fn episodeofcare_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn episodeofcare_update_req(
   resource: r4usp.Episodeofcare,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.episodeofcare_to_json(resource),
@@ -1755,7 +1770,7 @@ pub fn episodeofcare_update_req(
 
 pub fn episodeofcare_resp(
   resp: Response(String),
-) -> Result(r4usp.Episodeofcare, Err) {
+) -> Result(r4usp.Episodeofcare, ErrResp) {
   any_resp(resp, r4usp.episodeofcare_decoder(), "EpisodeOfCare")
 }
 
@@ -1780,7 +1795,7 @@ pub fn eventdefinition_read_req(
 pub fn eventdefinition_update_req(
   resource: r4usp.Eventdefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.eventdefinition_to_json(resource),
@@ -1791,7 +1806,7 @@ pub fn eventdefinition_update_req(
 
 pub fn eventdefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Eventdefinition, Err) {
+) -> Result(r4usp.Eventdefinition, ErrResp) {
   any_resp(resp, r4usp.eventdefinition_decoder(), "EventDefinition")
 }
 
@@ -1809,7 +1824,7 @@ pub fn evidence_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn evidence_update_req(
   resource: r4usp.Evidence,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.evidence_to_json(resource),
@@ -1818,7 +1833,7 @@ pub fn evidence_update_req(
   )
 }
 
-pub fn evidence_resp(resp: Response(String)) -> Result(r4usp.Evidence, Err) {
+pub fn evidence_resp(resp: Response(String)) -> Result(r4usp.Evidence, ErrResp) {
   any_resp(resp, r4usp.evidence_decoder(), "Evidence")
 }
 
@@ -1843,7 +1858,7 @@ pub fn evidencevariable_read_req(
 pub fn evidencevariable_update_req(
   resource: r4usp.Evidencevariable,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.evidencevariable_to_json(resource),
@@ -1854,7 +1869,7 @@ pub fn evidencevariable_update_req(
 
 pub fn evidencevariable_resp(
   resp: Response(String),
-) -> Result(r4usp.Evidencevariable, Err) {
+) -> Result(r4usp.Evidencevariable, ErrResp) {
   any_resp(resp, r4usp.evidencevariable_decoder(), "EvidenceVariable")
 }
 
@@ -1879,7 +1894,7 @@ pub fn examplescenario_read_req(
 pub fn examplescenario_update_req(
   resource: r4usp.Examplescenario,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.examplescenario_to_json(resource),
@@ -1890,7 +1905,7 @@ pub fn examplescenario_update_req(
 
 pub fn examplescenario_resp(
   resp: Response(String),
-) -> Result(r4usp.Examplescenario, Err) {
+) -> Result(r4usp.Examplescenario, ErrResp) {
   any_resp(resp, r4usp.examplescenario_decoder(), "ExampleScenario")
 }
 
@@ -1915,7 +1930,7 @@ pub fn explanationofbenefit_read_req(
 pub fn explanationofbenefit_update_req(
   resource: r4usp.Explanationofbenefit,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.explanationofbenefit_to_json(resource),
@@ -1926,7 +1941,7 @@ pub fn explanationofbenefit_update_req(
 
 pub fn explanationofbenefit_resp(
   resp: Response(String),
-) -> Result(r4usp.Explanationofbenefit, Err) {
+) -> Result(r4usp.Explanationofbenefit, ErrResp) {
   any_resp(resp, r4usp.explanationofbenefit_decoder(), "ExplanationOfBenefit")
 }
 
@@ -1951,7 +1966,7 @@ pub fn familymemberhistory_read_req(
 pub fn familymemberhistory_update_req(
   resource: r4usp.Familymemberhistory,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.familymemberhistory_to_json(resource),
@@ -1962,7 +1977,7 @@ pub fn familymemberhistory_update_req(
 
 pub fn familymemberhistory_resp(
   resp: Response(String),
-) -> Result(r4usp.Familymemberhistory, Err) {
+) -> Result(r4usp.Familymemberhistory, ErrResp) {
   any_resp(resp, r4usp.familymemberhistory_decoder(), "FamilyMemberHistory")
 }
 
@@ -1980,11 +1995,11 @@ pub fn flag_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn flag_update_req(
   resource: r4usp.Flag,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.flag_to_json(resource), "Flag", client)
 }
 
-pub fn flag_resp(resp: Response(String)) -> Result(r4usp.Flag, Err) {
+pub fn flag_resp(resp: Response(String)) -> Result(r4usp.Flag, ErrResp) {
   any_resp(resp, r4usp.flag_decoder(), "Flag")
 }
 
@@ -2002,11 +2017,11 @@ pub fn goal_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn goal_update_req(
   resource: r4usp.Goal,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.goal_to_json(resource), "Goal", client)
 }
 
-pub fn goal_resp(resp: Response(String)) -> Result(r4usp.Goal, Err) {
+pub fn goal_resp(resp: Response(String)) -> Result(r4usp.Goal, ErrResp) {
   any_resp(resp, r4usp.goal_decoder(), "Goal")
 }
 
@@ -2031,7 +2046,7 @@ pub fn graphdefinition_read_req(
 pub fn graphdefinition_update_req(
   resource: r4usp.Graphdefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.graphdefinition_to_json(resource),
@@ -2042,7 +2057,7 @@ pub fn graphdefinition_update_req(
 
 pub fn graphdefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Graphdefinition, Err) {
+) -> Result(r4usp.Graphdefinition, ErrResp) {
   any_resp(resp, r4usp.graphdefinition_decoder(), "GraphDefinition")
 }
 
@@ -2060,11 +2075,11 @@ pub fn group_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn group_update_req(
   resource: r4usp.Group,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.group_to_json(resource), "Group", client)
 }
 
-pub fn group_resp(resp: Response(String)) -> Result(r4usp.Group, Err) {
+pub fn group_resp(resp: Response(String)) -> Result(r4usp.Group, ErrResp) {
   any_resp(resp, r4usp.group_decoder(), "Group")
 }
 
@@ -2089,7 +2104,7 @@ pub fn guidanceresponse_read_req(
 pub fn guidanceresponse_update_req(
   resource: r4usp.Guidanceresponse,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.guidanceresponse_to_json(resource),
@@ -2100,7 +2115,7 @@ pub fn guidanceresponse_update_req(
 
 pub fn guidanceresponse_resp(
   resp: Response(String),
-) -> Result(r4usp.Guidanceresponse, Err) {
+) -> Result(r4usp.Guidanceresponse, ErrResp) {
   any_resp(resp, r4usp.guidanceresponse_decoder(), "GuidanceResponse")
 }
 
@@ -2125,7 +2140,7 @@ pub fn healthcareservice_read_req(
 pub fn healthcareservice_update_req(
   resource: r4usp.Healthcareservice,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.healthcareservice_to_json(resource),
@@ -2136,7 +2151,7 @@ pub fn healthcareservice_update_req(
 
 pub fn healthcareservice_resp(
   resp: Response(String),
-) -> Result(r4usp.Healthcareservice, Err) {
+) -> Result(r4usp.Healthcareservice, ErrResp) {
   any_resp(resp, r4usp.healthcareservice_decoder(), "HealthcareService")
 }
 
@@ -2154,7 +2169,7 @@ pub fn imagingstudy_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn imagingstudy_update_req(
   resource: r4usp.Imagingstudy,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.imagingstudy_to_json(resource),
@@ -2165,7 +2180,7 @@ pub fn imagingstudy_update_req(
 
 pub fn imagingstudy_resp(
   resp: Response(String),
-) -> Result(r4usp.Imagingstudy, Err) {
+) -> Result(r4usp.Imagingstudy, ErrResp) {
   any_resp(resp, r4usp.imagingstudy_decoder(), "ImagingStudy")
 }
 
@@ -2183,7 +2198,7 @@ pub fn immunization_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn immunization_update_req(
   resource: r4usp.Immunization,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.immunization_to_json(resource),
@@ -2194,7 +2209,7 @@ pub fn immunization_update_req(
 
 pub fn immunization_resp(
   resp: Response(String),
-) -> Result(r4usp.Immunization, Err) {
+) -> Result(r4usp.Immunization, ErrResp) {
   any_resp(resp, r4usp.immunization_decoder(), "Immunization")
 }
 
@@ -2219,7 +2234,7 @@ pub fn immunizationevaluation_read_req(
 pub fn immunizationevaluation_update_req(
   resource: r4usp.Immunizationevaluation,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.immunizationevaluation_to_json(resource),
@@ -2230,7 +2245,7 @@ pub fn immunizationevaluation_update_req(
 
 pub fn immunizationevaluation_resp(
   resp: Response(String),
-) -> Result(r4usp.Immunizationevaluation, Err) {
+) -> Result(r4usp.Immunizationevaluation, ErrResp) {
   any_resp(
     resp,
     r4usp.immunizationevaluation_decoder(),
@@ -2259,7 +2274,7 @@ pub fn immunizationrecommendation_read_req(
 pub fn immunizationrecommendation_update_req(
   resource: r4usp.Immunizationrecommendation,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.immunizationrecommendation_to_json(resource),
@@ -2270,7 +2285,7 @@ pub fn immunizationrecommendation_update_req(
 
 pub fn immunizationrecommendation_resp(
   resp: Response(String),
-) -> Result(r4usp.Immunizationrecommendation, Err) {
+) -> Result(r4usp.Immunizationrecommendation, ErrResp) {
   any_resp(
     resp,
     r4usp.immunizationrecommendation_decoder(),
@@ -2299,7 +2314,7 @@ pub fn implementationguide_read_req(
 pub fn implementationguide_update_req(
   resource: r4usp.Implementationguide,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.implementationguide_to_json(resource),
@@ -2310,7 +2325,7 @@ pub fn implementationguide_update_req(
 
 pub fn implementationguide_resp(
   resp: Response(String),
-) -> Result(r4usp.Implementationguide, Err) {
+) -> Result(r4usp.Implementationguide, ErrResp) {
   any_resp(resp, r4usp.implementationguide_decoder(), "ImplementationGuide")
 }
 
@@ -2328,7 +2343,7 @@ pub fn insuranceplan_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn insuranceplan_update_req(
   resource: r4usp.Insuranceplan,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.insuranceplan_to_json(resource),
@@ -2339,7 +2354,7 @@ pub fn insuranceplan_update_req(
 
 pub fn insuranceplan_resp(
   resp: Response(String),
-) -> Result(r4usp.Insuranceplan, Err) {
+) -> Result(r4usp.Insuranceplan, ErrResp) {
   any_resp(resp, r4usp.insuranceplan_decoder(), "InsurancePlan")
 }
 
@@ -2357,7 +2372,7 @@ pub fn invoice_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn invoice_update_req(
   resource: r4usp.Invoice,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.invoice_to_json(resource),
@@ -2366,7 +2381,7 @@ pub fn invoice_update_req(
   )
 }
 
-pub fn invoice_resp(resp: Response(String)) -> Result(r4usp.Invoice, Err) {
+pub fn invoice_resp(resp: Response(String)) -> Result(r4usp.Invoice, ErrResp) {
   any_resp(resp, r4usp.invoice_decoder(), "Invoice")
 }
 
@@ -2384,7 +2399,7 @@ pub fn library_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn library_update_req(
   resource: r4usp.Library,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.library_to_json(resource),
@@ -2393,7 +2408,7 @@ pub fn library_update_req(
   )
 }
 
-pub fn library_resp(resp: Response(String)) -> Result(r4usp.Library, Err) {
+pub fn library_resp(resp: Response(String)) -> Result(r4usp.Library, ErrResp) {
   any_resp(resp, r4usp.library_decoder(), "Library")
 }
 
@@ -2411,7 +2426,7 @@ pub fn linkage_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn linkage_update_req(
   resource: r4usp.Linkage,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.linkage_to_json(resource),
@@ -2420,7 +2435,7 @@ pub fn linkage_update_req(
   )
 }
 
-pub fn linkage_resp(resp: Response(String)) -> Result(r4usp.Linkage, Err) {
+pub fn linkage_resp(resp: Response(String)) -> Result(r4usp.Linkage, ErrResp) {
   any_resp(resp, r4usp.linkage_decoder(), "Linkage")
 }
 
@@ -2438,11 +2453,11 @@ pub fn listfhir_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn listfhir_update_req(
   resource: r4usp.Listfhir,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.listfhir_to_json(resource), "List", client)
 }
 
-pub fn listfhir_resp(resp: Response(String)) -> Result(r4usp.Listfhir, Err) {
+pub fn listfhir_resp(resp: Response(String)) -> Result(r4usp.Listfhir, ErrResp) {
   any_resp(resp, r4usp.listfhir_decoder(), "List")
 }
 
@@ -2460,7 +2475,7 @@ pub fn location_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn location_update_req(
   resource: r4usp.Location,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.location_to_json(resource),
@@ -2469,7 +2484,7 @@ pub fn location_update_req(
   )
 }
 
-pub fn location_resp(resp: Response(String)) -> Result(r4usp.Location, Err) {
+pub fn location_resp(resp: Response(String)) -> Result(r4usp.Location, ErrResp) {
   any_resp(resp, r4usp.location_decoder(), "Location")
 }
 
@@ -2487,7 +2502,7 @@ pub fn measure_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn measure_update_req(
   resource: r4usp.Measure,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.measure_to_json(resource),
@@ -2496,7 +2511,7 @@ pub fn measure_update_req(
   )
 }
 
-pub fn measure_resp(resp: Response(String)) -> Result(r4usp.Measure, Err) {
+pub fn measure_resp(resp: Response(String)) -> Result(r4usp.Measure, ErrResp) {
   any_resp(resp, r4usp.measure_decoder(), "Measure")
 }
 
@@ -2514,7 +2529,7 @@ pub fn measurereport_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn measurereport_update_req(
   resource: r4usp.Measurereport,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.measurereport_to_json(resource),
@@ -2525,7 +2540,7 @@ pub fn measurereport_update_req(
 
 pub fn measurereport_resp(
   resp: Response(String),
-) -> Result(r4usp.Measurereport, Err) {
+) -> Result(r4usp.Measurereport, ErrResp) {
   any_resp(resp, r4usp.measurereport_decoder(), "MeasureReport")
 }
 
@@ -2543,11 +2558,11 @@ pub fn media_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn media_update_req(
   resource: r4usp.Media,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.media_to_json(resource), "Media", client)
 }
 
-pub fn media_resp(resp: Response(String)) -> Result(r4usp.Media, Err) {
+pub fn media_resp(resp: Response(String)) -> Result(r4usp.Media, ErrResp) {
   any_resp(resp, r4usp.media_decoder(), "Media")
 }
 
@@ -2565,7 +2580,7 @@ pub fn medication_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn medication_update_req(
   resource: r4usp.Medication,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medication_to_json(resource),
@@ -2574,7 +2589,9 @@ pub fn medication_update_req(
   )
 }
 
-pub fn medication_resp(resp: Response(String)) -> Result(r4usp.Medication, Err) {
+pub fn medication_resp(
+  resp: Response(String),
+) -> Result(r4usp.Medication, ErrResp) {
   any_resp(resp, r4usp.medication_decoder(), "Medication")
 }
 
@@ -2599,7 +2616,7 @@ pub fn medicationadministration_read_req(
 pub fn medicationadministration_update_req(
   resource: r4usp.Medicationadministration,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicationadministration_to_json(resource),
@@ -2610,7 +2627,7 @@ pub fn medicationadministration_update_req(
 
 pub fn medicationadministration_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicationadministration, Err) {
+) -> Result(r4usp.Medicationadministration, ErrResp) {
   any_resp(
     resp,
     r4usp.medicationadministration_decoder(),
@@ -2639,7 +2656,7 @@ pub fn medicationdispense_read_req(
 pub fn medicationdispense_update_req(
   resource: r4usp.Medicationdispense,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicationdispense_to_json(resource),
@@ -2650,7 +2667,7 @@ pub fn medicationdispense_update_req(
 
 pub fn medicationdispense_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicationdispense, Err) {
+) -> Result(r4usp.Medicationdispense, ErrResp) {
   any_resp(resp, r4usp.medicationdispense_decoder(), "MedicationDispense")
 }
 
@@ -2675,7 +2692,7 @@ pub fn medicationknowledge_read_req(
 pub fn medicationknowledge_update_req(
   resource: r4usp.Medicationknowledge,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicationknowledge_to_json(resource),
@@ -2686,7 +2703,7 @@ pub fn medicationknowledge_update_req(
 
 pub fn medicationknowledge_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicationknowledge, Err) {
+) -> Result(r4usp.Medicationknowledge, ErrResp) {
   any_resp(resp, r4usp.medicationknowledge_decoder(), "MedicationKnowledge")
 }
 
@@ -2711,7 +2728,7 @@ pub fn medicationrequest_read_req(
 pub fn medicationrequest_update_req(
   resource: r4usp.Medicationrequest,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicationrequest_to_json(resource),
@@ -2722,7 +2739,7 @@ pub fn medicationrequest_update_req(
 
 pub fn medicationrequest_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicationrequest, Err) {
+) -> Result(r4usp.Medicationrequest, ErrResp) {
   any_resp(resp, r4usp.medicationrequest_decoder(), "MedicationRequest")
 }
 
@@ -2747,7 +2764,7 @@ pub fn medicationstatement_read_req(
 pub fn medicationstatement_update_req(
   resource: r4usp.Medicationstatement,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicationstatement_to_json(resource),
@@ -2758,7 +2775,7 @@ pub fn medicationstatement_update_req(
 
 pub fn medicationstatement_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicationstatement, Err) {
+) -> Result(r4usp.Medicationstatement, ErrResp) {
   any_resp(resp, r4usp.medicationstatement_decoder(), "MedicationStatement")
 }
 
@@ -2783,7 +2800,7 @@ pub fn medicinalproduct_read_req(
 pub fn medicinalproduct_update_req(
   resource: r4usp.Medicinalproduct,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicinalproduct_to_json(resource),
@@ -2794,7 +2811,7 @@ pub fn medicinalproduct_update_req(
 
 pub fn medicinalproduct_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicinalproduct, Err) {
+) -> Result(r4usp.Medicinalproduct, ErrResp) {
   any_resp(resp, r4usp.medicinalproduct_decoder(), "MedicinalProduct")
 }
 
@@ -2819,7 +2836,7 @@ pub fn medicinalproductauthorization_read_req(
 pub fn medicinalproductauthorization_update_req(
   resource: r4usp.Medicinalproductauthorization,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicinalproductauthorization_to_json(resource),
@@ -2830,7 +2847,7 @@ pub fn medicinalproductauthorization_update_req(
 
 pub fn medicinalproductauthorization_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicinalproductauthorization, Err) {
+) -> Result(r4usp.Medicinalproductauthorization, ErrResp) {
   any_resp(
     resp,
     r4usp.medicinalproductauthorization_decoder(),
@@ -2859,7 +2876,7 @@ pub fn medicinalproductcontraindication_read_req(
 pub fn medicinalproductcontraindication_update_req(
   resource: r4usp.Medicinalproductcontraindication,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicinalproductcontraindication_to_json(resource),
@@ -2870,7 +2887,7 @@ pub fn medicinalproductcontraindication_update_req(
 
 pub fn medicinalproductcontraindication_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicinalproductcontraindication, Err) {
+) -> Result(r4usp.Medicinalproductcontraindication, ErrResp) {
   any_resp(
     resp,
     r4usp.medicinalproductcontraindication_decoder(),
@@ -2899,7 +2916,7 @@ pub fn medicinalproductindication_read_req(
 pub fn medicinalproductindication_update_req(
   resource: r4usp.Medicinalproductindication,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicinalproductindication_to_json(resource),
@@ -2910,7 +2927,7 @@ pub fn medicinalproductindication_update_req(
 
 pub fn medicinalproductindication_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicinalproductindication, Err) {
+) -> Result(r4usp.Medicinalproductindication, ErrResp) {
   any_resp(
     resp,
     r4usp.medicinalproductindication_decoder(),
@@ -2939,7 +2956,7 @@ pub fn medicinalproductingredient_read_req(
 pub fn medicinalproductingredient_update_req(
   resource: r4usp.Medicinalproductingredient,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicinalproductingredient_to_json(resource),
@@ -2950,7 +2967,7 @@ pub fn medicinalproductingredient_update_req(
 
 pub fn medicinalproductingredient_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicinalproductingredient, Err) {
+) -> Result(r4usp.Medicinalproductingredient, ErrResp) {
   any_resp(
     resp,
     r4usp.medicinalproductingredient_decoder(),
@@ -2979,7 +2996,7 @@ pub fn medicinalproductinteraction_read_req(
 pub fn medicinalproductinteraction_update_req(
   resource: r4usp.Medicinalproductinteraction,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicinalproductinteraction_to_json(resource),
@@ -2990,7 +3007,7 @@ pub fn medicinalproductinteraction_update_req(
 
 pub fn medicinalproductinteraction_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicinalproductinteraction, Err) {
+) -> Result(r4usp.Medicinalproductinteraction, ErrResp) {
   any_resp(
     resp,
     r4usp.medicinalproductinteraction_decoder(),
@@ -3019,7 +3036,7 @@ pub fn medicinalproductmanufactured_read_req(
 pub fn medicinalproductmanufactured_update_req(
   resource: r4usp.Medicinalproductmanufactured,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicinalproductmanufactured_to_json(resource),
@@ -3030,7 +3047,7 @@ pub fn medicinalproductmanufactured_update_req(
 
 pub fn medicinalproductmanufactured_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicinalproductmanufactured, Err) {
+) -> Result(r4usp.Medicinalproductmanufactured, ErrResp) {
   any_resp(
     resp,
     r4usp.medicinalproductmanufactured_decoder(),
@@ -3059,7 +3076,7 @@ pub fn medicinalproductpackaged_read_req(
 pub fn medicinalproductpackaged_update_req(
   resource: r4usp.Medicinalproductpackaged,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicinalproductpackaged_to_json(resource),
@@ -3070,7 +3087,7 @@ pub fn medicinalproductpackaged_update_req(
 
 pub fn medicinalproductpackaged_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicinalproductpackaged, Err) {
+) -> Result(r4usp.Medicinalproductpackaged, ErrResp) {
   any_resp(
     resp,
     r4usp.medicinalproductpackaged_decoder(),
@@ -3099,7 +3116,7 @@ pub fn medicinalproductpharmaceutical_read_req(
 pub fn medicinalproductpharmaceutical_update_req(
   resource: r4usp.Medicinalproductpharmaceutical,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicinalproductpharmaceutical_to_json(resource),
@@ -3110,7 +3127,7 @@ pub fn medicinalproductpharmaceutical_update_req(
 
 pub fn medicinalproductpharmaceutical_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicinalproductpharmaceutical, Err) {
+) -> Result(r4usp.Medicinalproductpharmaceutical, ErrResp) {
   any_resp(
     resp,
     r4usp.medicinalproductpharmaceutical_decoder(),
@@ -3139,7 +3156,7 @@ pub fn medicinalproductundesirableeffect_read_req(
 pub fn medicinalproductundesirableeffect_update_req(
   resource: r4usp.Medicinalproductundesirableeffect,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.medicinalproductundesirableeffect_to_json(resource),
@@ -3150,7 +3167,7 @@ pub fn medicinalproductundesirableeffect_update_req(
 
 pub fn medicinalproductundesirableeffect_resp(
   resp: Response(String),
-) -> Result(r4usp.Medicinalproductundesirableeffect, Err) {
+) -> Result(r4usp.Medicinalproductundesirableeffect, ErrResp) {
   any_resp(
     resp,
     r4usp.medicinalproductundesirableeffect_decoder(),
@@ -3179,7 +3196,7 @@ pub fn messagedefinition_read_req(
 pub fn messagedefinition_update_req(
   resource: r4usp.Messagedefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.messagedefinition_to_json(resource),
@@ -3190,7 +3207,7 @@ pub fn messagedefinition_update_req(
 
 pub fn messagedefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Messagedefinition, Err) {
+) -> Result(r4usp.Messagedefinition, ErrResp) {
   any_resp(resp, r4usp.messagedefinition_decoder(), "MessageDefinition")
 }
 
@@ -3208,7 +3225,7 @@ pub fn messageheader_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn messageheader_update_req(
   resource: r4usp.Messageheader,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.messageheader_to_json(resource),
@@ -3219,7 +3236,7 @@ pub fn messageheader_update_req(
 
 pub fn messageheader_resp(
   resp: Response(String),
-) -> Result(r4usp.Messageheader, Err) {
+) -> Result(r4usp.Messageheader, ErrResp) {
   any_resp(resp, r4usp.messageheader_decoder(), "MessageHeader")
 }
 
@@ -3244,7 +3261,7 @@ pub fn molecularsequence_read_req(
 pub fn molecularsequence_update_req(
   resource: r4usp.Molecularsequence,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.molecularsequence_to_json(resource),
@@ -3255,7 +3272,7 @@ pub fn molecularsequence_update_req(
 
 pub fn molecularsequence_resp(
   resp: Response(String),
-) -> Result(r4usp.Molecularsequence, Err) {
+) -> Result(r4usp.Molecularsequence, ErrResp) {
   any_resp(resp, r4usp.molecularsequence_decoder(), "MolecularSequence")
 }
 
@@ -3273,7 +3290,7 @@ pub fn namingsystem_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn namingsystem_update_req(
   resource: r4usp.Namingsystem,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.namingsystem_to_json(resource),
@@ -3284,7 +3301,7 @@ pub fn namingsystem_update_req(
 
 pub fn namingsystem_resp(
   resp: Response(String),
-) -> Result(r4usp.Namingsystem, Err) {
+) -> Result(r4usp.Namingsystem, ErrResp) {
   any_resp(resp, r4usp.namingsystem_decoder(), "NamingSystem")
 }
 
@@ -3309,7 +3326,7 @@ pub fn nutritionorder_read_req(
 pub fn nutritionorder_update_req(
   resource: r4usp.Nutritionorder,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.nutritionorder_to_json(resource),
@@ -3320,7 +3337,7 @@ pub fn nutritionorder_update_req(
 
 pub fn nutritionorder_resp(
   resp: Response(String),
-) -> Result(r4usp.Nutritionorder, Err) {
+) -> Result(r4usp.Nutritionorder, ErrResp) {
   any_resp(resp, r4usp.nutritionorder_decoder(), "NutritionOrder")
 }
 
@@ -3338,7 +3355,7 @@ pub fn observation_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn observation_update_req(
   resource: r4usp.Observation,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.observation_to_json(resource),
@@ -3349,7 +3366,7 @@ pub fn observation_update_req(
 
 pub fn observation_resp(
   resp: Response(String),
-) -> Result(r4usp.Observation, Err) {
+) -> Result(r4usp.Observation, ErrResp) {
   any_resp(resp, r4usp.observation_decoder(), "Observation")
 }
 
@@ -3374,7 +3391,7 @@ pub fn observationdefinition_read_req(
 pub fn observationdefinition_update_req(
   resource: r4usp.Observationdefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.observationdefinition_to_json(resource),
@@ -3385,7 +3402,7 @@ pub fn observationdefinition_update_req(
 
 pub fn observationdefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Observationdefinition, Err) {
+) -> Result(r4usp.Observationdefinition, ErrResp) {
   any_resp(resp, r4usp.observationdefinition_decoder(), "ObservationDefinition")
 }
 
@@ -3410,7 +3427,7 @@ pub fn operationdefinition_read_req(
 pub fn operationdefinition_update_req(
   resource: r4usp.Operationdefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.operationdefinition_to_json(resource),
@@ -3421,7 +3438,7 @@ pub fn operationdefinition_update_req(
 
 pub fn operationdefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Operationdefinition, Err) {
+) -> Result(r4usp.Operationdefinition, ErrResp) {
   any_resp(resp, r4usp.operationdefinition_decoder(), "OperationDefinition")
 }
 
@@ -3446,7 +3463,7 @@ pub fn operationoutcome_read_req(
 pub fn operationoutcome_update_req(
   resource: r4usp.Operationoutcome,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.operationoutcome_to_json(resource),
@@ -3457,7 +3474,7 @@ pub fn operationoutcome_update_req(
 
 pub fn operationoutcome_resp(
   resp: Response(String),
-) -> Result(r4usp.Operationoutcome, Err) {
+) -> Result(r4usp.Operationoutcome, ErrResp) {
   any_resp(resp, r4usp.operationoutcome_decoder(), "OperationOutcome")
 }
 
@@ -3475,7 +3492,7 @@ pub fn organization_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn organization_update_req(
   resource: r4usp.Organization,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.organization_to_json(resource),
@@ -3486,7 +3503,7 @@ pub fn organization_update_req(
 
 pub fn organization_resp(
   resp: Response(String),
-) -> Result(r4usp.Organization, Err) {
+) -> Result(r4usp.Organization, ErrResp) {
   any_resp(resp, r4usp.organization_decoder(), "Organization")
 }
 
@@ -3511,7 +3528,7 @@ pub fn organizationaffiliation_read_req(
 pub fn organizationaffiliation_update_req(
   resource: r4usp.Organizationaffiliation,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.organizationaffiliation_to_json(resource),
@@ -3522,7 +3539,7 @@ pub fn organizationaffiliation_update_req(
 
 pub fn organizationaffiliation_resp(
   resp: Response(String),
-) -> Result(r4usp.Organizationaffiliation, Err) {
+) -> Result(r4usp.Organizationaffiliation, ErrResp) {
   any_resp(
     resp,
     r4usp.organizationaffiliation_decoder(),
@@ -3544,7 +3561,7 @@ pub fn patient_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn patient_update_req(
   resource: r4usp.Patient,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.patient_to_json(resource),
@@ -3553,7 +3570,7 @@ pub fn patient_update_req(
   )
 }
 
-pub fn patient_resp(resp: Response(String)) -> Result(r4usp.Patient, Err) {
+pub fn patient_resp(resp: Response(String)) -> Result(r4usp.Patient, ErrResp) {
   any_resp(resp, r4usp.patient_decoder(), "Patient")
 }
 
@@ -3571,7 +3588,7 @@ pub fn paymentnotice_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn paymentnotice_update_req(
   resource: r4usp.Paymentnotice,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.paymentnotice_to_json(resource),
@@ -3582,7 +3599,7 @@ pub fn paymentnotice_update_req(
 
 pub fn paymentnotice_resp(
   resp: Response(String),
-) -> Result(r4usp.Paymentnotice, Err) {
+) -> Result(r4usp.Paymentnotice, ErrResp) {
   any_resp(resp, r4usp.paymentnotice_decoder(), "PaymentNotice")
 }
 
@@ -3607,7 +3624,7 @@ pub fn paymentreconciliation_read_req(
 pub fn paymentreconciliation_update_req(
   resource: r4usp.Paymentreconciliation,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.paymentreconciliation_to_json(resource),
@@ -3618,7 +3635,7 @@ pub fn paymentreconciliation_update_req(
 
 pub fn paymentreconciliation_resp(
   resp: Response(String),
-) -> Result(r4usp.Paymentreconciliation, Err) {
+) -> Result(r4usp.Paymentreconciliation, ErrResp) {
   any_resp(resp, r4usp.paymentreconciliation_decoder(), "PaymentReconciliation")
 }
 
@@ -3636,11 +3653,11 @@ pub fn person_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn person_update_req(
   resource: r4usp.Person,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.person_to_json(resource), "Person", client)
 }
 
-pub fn person_resp(resp: Response(String)) -> Result(r4usp.Person, Err) {
+pub fn person_resp(resp: Response(String)) -> Result(r4usp.Person, ErrResp) {
   any_resp(resp, r4usp.person_decoder(), "Person")
 }
 
@@ -3665,7 +3682,7 @@ pub fn plandefinition_read_req(
 pub fn plandefinition_update_req(
   resource: r4usp.Plandefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.plandefinition_to_json(resource),
@@ -3676,7 +3693,7 @@ pub fn plandefinition_update_req(
 
 pub fn plandefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Plandefinition, Err) {
+) -> Result(r4usp.Plandefinition, ErrResp) {
   any_resp(resp, r4usp.plandefinition_decoder(), "PlanDefinition")
 }
 
@@ -3694,7 +3711,7 @@ pub fn practitioner_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn practitioner_update_req(
   resource: r4usp.Practitioner,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.practitioner_to_json(resource),
@@ -3705,7 +3722,7 @@ pub fn practitioner_update_req(
 
 pub fn practitioner_resp(
   resp: Response(String),
-) -> Result(r4usp.Practitioner, Err) {
+) -> Result(r4usp.Practitioner, ErrResp) {
   any_resp(resp, r4usp.practitioner_decoder(), "Practitioner")
 }
 
@@ -3730,7 +3747,7 @@ pub fn practitionerrole_read_req(
 pub fn practitionerrole_update_req(
   resource: r4usp.Practitionerrole,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.practitionerrole_to_json(resource),
@@ -3741,7 +3758,7 @@ pub fn practitionerrole_update_req(
 
 pub fn practitionerrole_resp(
   resp: Response(String),
-) -> Result(r4usp.Practitionerrole, Err) {
+) -> Result(r4usp.Practitionerrole, ErrResp) {
   any_resp(resp, r4usp.practitionerrole_decoder(), "PractitionerRole")
 }
 
@@ -3759,7 +3776,7 @@ pub fn procedure_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn procedure_update_req(
   resource: r4usp.Procedure,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.procedure_to_json(resource),
@@ -3768,7 +3785,9 @@ pub fn procedure_update_req(
   )
 }
 
-pub fn procedure_resp(resp: Response(String)) -> Result(r4usp.Procedure, Err) {
+pub fn procedure_resp(
+  resp: Response(String),
+) -> Result(r4usp.Procedure, ErrResp) {
   any_resp(resp, r4usp.procedure_decoder(), "Procedure")
 }
 
@@ -3786,7 +3805,7 @@ pub fn provenance_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn provenance_update_req(
   resource: r4usp.Provenance,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.provenance_to_json(resource),
@@ -3795,7 +3814,9 @@ pub fn provenance_update_req(
   )
 }
 
-pub fn provenance_resp(resp: Response(String)) -> Result(r4usp.Provenance, Err) {
+pub fn provenance_resp(
+  resp: Response(String),
+) -> Result(r4usp.Provenance, ErrResp) {
   any_resp(resp, r4usp.provenance_decoder(), "Provenance")
 }
 
@@ -3813,7 +3834,7 @@ pub fn questionnaire_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn questionnaire_update_req(
   resource: r4usp.Questionnaire,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.questionnaire_to_json(resource),
@@ -3824,7 +3845,7 @@ pub fn questionnaire_update_req(
 
 pub fn questionnaire_resp(
   resp: Response(String),
-) -> Result(r4usp.Questionnaire, Err) {
+) -> Result(r4usp.Questionnaire, ErrResp) {
   any_resp(resp, r4usp.questionnaire_decoder(), "Questionnaire")
 }
 
@@ -3849,7 +3870,7 @@ pub fn questionnaireresponse_read_req(
 pub fn questionnaireresponse_update_req(
   resource: r4usp.Questionnaireresponse,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.questionnaireresponse_to_json(resource),
@@ -3860,7 +3881,7 @@ pub fn questionnaireresponse_update_req(
 
 pub fn questionnaireresponse_resp(
   resp: Response(String),
-) -> Result(r4usp.Questionnaireresponse, Err) {
+) -> Result(r4usp.Questionnaireresponse, ErrResp) {
   any_resp(resp, r4usp.questionnaireresponse_decoder(), "QuestionnaireResponse")
 }
 
@@ -3878,7 +3899,7 @@ pub fn relatedperson_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn relatedperson_update_req(
   resource: r4usp.Relatedperson,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.relatedperson_to_json(resource),
@@ -3889,7 +3910,7 @@ pub fn relatedperson_update_req(
 
 pub fn relatedperson_resp(
   resp: Response(String),
-) -> Result(r4usp.Relatedperson, Err) {
+) -> Result(r4usp.Relatedperson, ErrResp) {
   any_resp(resp, r4usp.relatedperson_decoder(), "RelatedPerson")
 }
 
@@ -3907,7 +3928,7 @@ pub fn requestgroup_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn requestgroup_update_req(
   resource: r4usp.Requestgroup,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.requestgroup_to_json(resource),
@@ -3918,7 +3939,7 @@ pub fn requestgroup_update_req(
 
 pub fn requestgroup_resp(
   resp: Response(String),
-) -> Result(r4usp.Requestgroup, Err) {
+) -> Result(r4usp.Requestgroup, ErrResp) {
   any_resp(resp, r4usp.requestgroup_decoder(), "RequestGroup")
 }
 
@@ -3943,7 +3964,7 @@ pub fn researchdefinition_read_req(
 pub fn researchdefinition_update_req(
   resource: r4usp.Researchdefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.researchdefinition_to_json(resource),
@@ -3954,7 +3975,7 @@ pub fn researchdefinition_update_req(
 
 pub fn researchdefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Researchdefinition, Err) {
+) -> Result(r4usp.Researchdefinition, ErrResp) {
   any_resp(resp, r4usp.researchdefinition_decoder(), "ResearchDefinition")
 }
 
@@ -3979,7 +4000,7 @@ pub fn researchelementdefinition_read_req(
 pub fn researchelementdefinition_update_req(
   resource: r4usp.Researchelementdefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.researchelementdefinition_to_json(resource),
@@ -3990,7 +4011,7 @@ pub fn researchelementdefinition_update_req(
 
 pub fn researchelementdefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Researchelementdefinition, Err) {
+) -> Result(r4usp.Researchelementdefinition, ErrResp) {
   any_resp(
     resp,
     r4usp.researchelementdefinition_decoder(),
@@ -4012,7 +4033,7 @@ pub fn researchstudy_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn researchstudy_update_req(
   resource: r4usp.Researchstudy,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.researchstudy_to_json(resource),
@@ -4023,7 +4044,7 @@ pub fn researchstudy_update_req(
 
 pub fn researchstudy_resp(
   resp: Response(String),
-) -> Result(r4usp.Researchstudy, Err) {
+) -> Result(r4usp.Researchstudy, ErrResp) {
   any_resp(resp, r4usp.researchstudy_decoder(), "ResearchStudy")
 }
 
@@ -4048,7 +4069,7 @@ pub fn researchsubject_read_req(
 pub fn researchsubject_update_req(
   resource: r4usp.Researchsubject,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.researchsubject_to_json(resource),
@@ -4059,7 +4080,7 @@ pub fn researchsubject_update_req(
 
 pub fn researchsubject_resp(
   resp: Response(String),
-) -> Result(r4usp.Researchsubject, Err) {
+) -> Result(r4usp.Researchsubject, ErrResp) {
   any_resp(resp, r4usp.researchsubject_decoder(), "ResearchSubject")
 }
 
@@ -4084,7 +4105,7 @@ pub fn riskassessment_read_req(
 pub fn riskassessment_update_req(
   resource: r4usp.Riskassessment,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.riskassessment_to_json(resource),
@@ -4095,7 +4116,7 @@ pub fn riskassessment_update_req(
 
 pub fn riskassessment_resp(
   resp: Response(String),
-) -> Result(r4usp.Riskassessment, Err) {
+) -> Result(r4usp.Riskassessment, ErrResp) {
   any_resp(resp, r4usp.riskassessment_decoder(), "RiskAssessment")
 }
 
@@ -4120,7 +4141,7 @@ pub fn riskevidencesynthesis_read_req(
 pub fn riskevidencesynthesis_update_req(
   resource: r4usp.Riskevidencesynthesis,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.riskevidencesynthesis_to_json(resource),
@@ -4131,7 +4152,7 @@ pub fn riskevidencesynthesis_update_req(
 
 pub fn riskevidencesynthesis_resp(
   resp: Response(String),
-) -> Result(r4usp.Riskevidencesynthesis, Err) {
+) -> Result(r4usp.Riskevidencesynthesis, ErrResp) {
   any_resp(resp, r4usp.riskevidencesynthesis_decoder(), "RiskEvidenceSynthesis")
 }
 
@@ -4149,7 +4170,7 @@ pub fn schedule_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn schedule_update_req(
   resource: r4usp.Schedule,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.schedule_to_json(resource),
@@ -4158,7 +4179,7 @@ pub fn schedule_update_req(
   )
 }
 
-pub fn schedule_resp(resp: Response(String)) -> Result(r4usp.Schedule, Err) {
+pub fn schedule_resp(resp: Response(String)) -> Result(r4usp.Schedule, ErrResp) {
   any_resp(resp, r4usp.schedule_decoder(), "Schedule")
 }
 
@@ -4183,7 +4204,7 @@ pub fn searchparameter_read_req(
 pub fn searchparameter_update_req(
   resource: r4usp.Searchparameter,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.searchparameter_to_json(resource),
@@ -4194,7 +4215,7 @@ pub fn searchparameter_update_req(
 
 pub fn searchparameter_resp(
   resp: Response(String),
-) -> Result(r4usp.Searchparameter, Err) {
+) -> Result(r4usp.Searchparameter, ErrResp) {
   any_resp(resp, r4usp.searchparameter_decoder(), "SearchParameter")
 }
 
@@ -4219,7 +4240,7 @@ pub fn servicerequest_read_req(
 pub fn servicerequest_update_req(
   resource: r4usp.Servicerequest,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.servicerequest_to_json(resource),
@@ -4230,7 +4251,7 @@ pub fn servicerequest_update_req(
 
 pub fn servicerequest_resp(
   resp: Response(String),
-) -> Result(r4usp.Servicerequest, Err) {
+) -> Result(r4usp.Servicerequest, ErrResp) {
   any_resp(resp, r4usp.servicerequest_decoder(), "ServiceRequest")
 }
 
@@ -4248,11 +4269,11 @@ pub fn slot_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn slot_update_req(
   resource: r4usp.Slot,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.slot_to_json(resource), "Slot", client)
 }
 
-pub fn slot_resp(resp: Response(String)) -> Result(r4usp.Slot, Err) {
+pub fn slot_resp(resp: Response(String)) -> Result(r4usp.Slot, ErrResp) {
   any_resp(resp, r4usp.slot_decoder(), "Slot")
 }
 
@@ -4270,7 +4291,7 @@ pub fn specimen_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn specimen_update_req(
   resource: r4usp.Specimen,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.specimen_to_json(resource),
@@ -4279,7 +4300,7 @@ pub fn specimen_update_req(
   )
 }
 
-pub fn specimen_resp(resp: Response(String)) -> Result(r4usp.Specimen, Err) {
+pub fn specimen_resp(resp: Response(String)) -> Result(r4usp.Specimen, ErrResp) {
   any_resp(resp, r4usp.specimen_decoder(), "Specimen")
 }
 
@@ -4304,7 +4325,7 @@ pub fn specimendefinition_read_req(
 pub fn specimendefinition_update_req(
   resource: r4usp.Specimendefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.specimendefinition_to_json(resource),
@@ -4315,7 +4336,7 @@ pub fn specimendefinition_update_req(
 
 pub fn specimendefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Specimendefinition, Err) {
+) -> Result(r4usp.Specimendefinition, ErrResp) {
   any_resp(resp, r4usp.specimendefinition_decoder(), "SpecimenDefinition")
 }
 
@@ -4340,7 +4361,7 @@ pub fn structuredefinition_read_req(
 pub fn structuredefinition_update_req(
   resource: r4usp.Structuredefinition,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.structuredefinition_to_json(resource),
@@ -4351,7 +4372,7 @@ pub fn structuredefinition_update_req(
 
 pub fn structuredefinition_resp(
   resp: Response(String),
-) -> Result(r4usp.Structuredefinition, Err) {
+) -> Result(r4usp.Structuredefinition, ErrResp) {
   any_resp(resp, r4usp.structuredefinition_decoder(), "StructureDefinition")
 }
 
@@ -4369,7 +4390,7 @@ pub fn structuremap_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn structuremap_update_req(
   resource: r4usp.Structuremap,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.structuremap_to_json(resource),
@@ -4380,7 +4401,7 @@ pub fn structuremap_update_req(
 
 pub fn structuremap_resp(
   resp: Response(String),
-) -> Result(r4usp.Structuremap, Err) {
+) -> Result(r4usp.Structuremap, ErrResp) {
   any_resp(resp, r4usp.structuremap_decoder(), "StructureMap")
 }
 
@@ -4398,7 +4419,7 @@ pub fn subscription_read_req(id: String, client: FhirClient) -> Request(String) 
 pub fn subscription_update_req(
   resource: r4usp.Subscription,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.subscription_to_json(resource),
@@ -4409,7 +4430,7 @@ pub fn subscription_update_req(
 
 pub fn subscription_resp(
   resp: Response(String),
-) -> Result(r4usp.Subscription, Err) {
+) -> Result(r4usp.Subscription, ErrResp) {
   any_resp(resp, r4usp.subscription_decoder(), "Subscription")
 }
 
@@ -4427,7 +4448,7 @@ pub fn substance_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn substance_update_req(
   resource: r4usp.Substance,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.substance_to_json(resource),
@@ -4436,7 +4457,9 @@ pub fn substance_update_req(
   )
 }
 
-pub fn substance_resp(resp: Response(String)) -> Result(r4usp.Substance, Err) {
+pub fn substance_resp(
+  resp: Response(String),
+) -> Result(r4usp.Substance, ErrResp) {
   any_resp(resp, r4usp.substance_decoder(), "Substance")
 }
 
@@ -4461,7 +4484,7 @@ pub fn substancenucleicacid_read_req(
 pub fn substancenucleicacid_update_req(
   resource: r4usp.Substancenucleicacid,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.substancenucleicacid_to_json(resource),
@@ -4472,7 +4495,7 @@ pub fn substancenucleicacid_update_req(
 
 pub fn substancenucleicacid_resp(
   resp: Response(String),
-) -> Result(r4usp.Substancenucleicacid, Err) {
+) -> Result(r4usp.Substancenucleicacid, ErrResp) {
   any_resp(resp, r4usp.substancenucleicacid_decoder(), "SubstanceNucleicAcid")
 }
 
@@ -4497,7 +4520,7 @@ pub fn substancepolymer_read_req(
 pub fn substancepolymer_update_req(
   resource: r4usp.Substancepolymer,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.substancepolymer_to_json(resource),
@@ -4508,7 +4531,7 @@ pub fn substancepolymer_update_req(
 
 pub fn substancepolymer_resp(
   resp: Response(String),
-) -> Result(r4usp.Substancepolymer, Err) {
+) -> Result(r4usp.Substancepolymer, ErrResp) {
   any_resp(resp, r4usp.substancepolymer_decoder(), "SubstancePolymer")
 }
 
@@ -4533,7 +4556,7 @@ pub fn substanceprotein_read_req(
 pub fn substanceprotein_update_req(
   resource: r4usp.Substanceprotein,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.substanceprotein_to_json(resource),
@@ -4544,7 +4567,7 @@ pub fn substanceprotein_update_req(
 
 pub fn substanceprotein_resp(
   resp: Response(String),
-) -> Result(r4usp.Substanceprotein, Err) {
+) -> Result(r4usp.Substanceprotein, ErrResp) {
   any_resp(resp, r4usp.substanceprotein_decoder(), "SubstanceProtein")
 }
 
@@ -4569,7 +4592,7 @@ pub fn substancereferenceinformation_read_req(
 pub fn substancereferenceinformation_update_req(
   resource: r4usp.Substancereferenceinformation,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.substancereferenceinformation_to_json(resource),
@@ -4580,7 +4603,7 @@ pub fn substancereferenceinformation_update_req(
 
 pub fn substancereferenceinformation_resp(
   resp: Response(String),
-) -> Result(r4usp.Substancereferenceinformation, Err) {
+) -> Result(r4usp.Substancereferenceinformation, ErrResp) {
   any_resp(
     resp,
     r4usp.substancereferenceinformation_decoder(),
@@ -4609,7 +4632,7 @@ pub fn substancesourcematerial_read_req(
 pub fn substancesourcematerial_update_req(
   resource: r4usp.Substancesourcematerial,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.substancesourcematerial_to_json(resource),
@@ -4620,7 +4643,7 @@ pub fn substancesourcematerial_update_req(
 
 pub fn substancesourcematerial_resp(
   resp: Response(String),
-) -> Result(r4usp.Substancesourcematerial, Err) {
+) -> Result(r4usp.Substancesourcematerial, ErrResp) {
   any_resp(
     resp,
     r4usp.substancesourcematerial_decoder(),
@@ -4649,7 +4672,7 @@ pub fn substancespecification_read_req(
 pub fn substancespecification_update_req(
   resource: r4usp.Substancespecification,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.substancespecification_to_json(resource),
@@ -4660,7 +4683,7 @@ pub fn substancespecification_update_req(
 
 pub fn substancespecification_resp(
   resp: Response(String),
-) -> Result(r4usp.Substancespecification, Err) {
+) -> Result(r4usp.Substancespecification, ErrResp) {
   any_resp(
     resp,
     r4usp.substancespecification_decoder(),
@@ -4689,7 +4712,7 @@ pub fn supplydelivery_read_req(
 pub fn supplydelivery_update_req(
   resource: r4usp.Supplydelivery,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.supplydelivery_to_json(resource),
@@ -4700,7 +4723,7 @@ pub fn supplydelivery_update_req(
 
 pub fn supplydelivery_resp(
   resp: Response(String),
-) -> Result(r4usp.Supplydelivery, Err) {
+) -> Result(r4usp.Supplydelivery, ErrResp) {
   any_resp(resp, r4usp.supplydelivery_decoder(), "SupplyDelivery")
 }
 
@@ -4718,7 +4741,7 @@ pub fn supplyrequest_read_req(id: String, client: FhirClient) -> Request(String)
 pub fn supplyrequest_update_req(
   resource: r4usp.Supplyrequest,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.supplyrequest_to_json(resource),
@@ -4729,7 +4752,7 @@ pub fn supplyrequest_update_req(
 
 pub fn supplyrequest_resp(
   resp: Response(String),
-) -> Result(r4usp.Supplyrequest, Err) {
+) -> Result(r4usp.Supplyrequest, ErrResp) {
   any_resp(resp, r4usp.supplyrequest_decoder(), "SupplyRequest")
 }
 
@@ -4747,11 +4770,11 @@ pub fn task_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn task_update_req(
   resource: r4usp.Task,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(resource.id, r4usp.task_to_json(resource), "Task", client)
 }
 
-pub fn task_resp(resp: Response(String)) -> Result(r4usp.Task, Err) {
+pub fn task_resp(resp: Response(String)) -> Result(r4usp.Task, ErrResp) {
   any_resp(resp, r4usp.task_decoder(), "Task")
 }
 
@@ -4776,7 +4799,7 @@ pub fn terminologycapabilities_read_req(
 pub fn terminologycapabilities_update_req(
   resource: r4usp.Terminologycapabilities,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.terminologycapabilities_to_json(resource),
@@ -4787,7 +4810,7 @@ pub fn terminologycapabilities_update_req(
 
 pub fn terminologycapabilities_resp(
   resp: Response(String),
-) -> Result(r4usp.Terminologycapabilities, Err) {
+) -> Result(r4usp.Terminologycapabilities, ErrResp) {
   any_resp(
     resp,
     r4usp.terminologycapabilities_decoder(),
@@ -4809,7 +4832,7 @@ pub fn testreport_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn testreport_update_req(
   resource: r4usp.Testreport,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.testreport_to_json(resource),
@@ -4818,7 +4841,9 @@ pub fn testreport_update_req(
   )
 }
 
-pub fn testreport_resp(resp: Response(String)) -> Result(r4usp.Testreport, Err) {
+pub fn testreport_resp(
+  resp: Response(String),
+) -> Result(r4usp.Testreport, ErrResp) {
   any_resp(resp, r4usp.testreport_decoder(), "TestReport")
 }
 
@@ -4836,7 +4861,7 @@ pub fn testscript_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn testscript_update_req(
   resource: r4usp.Testscript,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.testscript_to_json(resource),
@@ -4845,7 +4870,9 @@ pub fn testscript_update_req(
   )
 }
 
-pub fn testscript_resp(resp: Response(String)) -> Result(r4usp.Testscript, Err) {
+pub fn testscript_resp(
+  resp: Response(String),
+) -> Result(r4usp.Testscript, ErrResp) {
   any_resp(resp, r4usp.testscript_decoder(), "TestScript")
 }
 
@@ -4863,7 +4890,7 @@ pub fn valueset_read_req(id: String, client: FhirClient) -> Request(String) {
 pub fn valueset_update_req(
   resource: r4usp.Valueset,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.valueset_to_json(resource),
@@ -4872,7 +4899,7 @@ pub fn valueset_update_req(
   )
 }
 
-pub fn valueset_resp(resp: Response(String)) -> Result(r4usp.Valueset, Err) {
+pub fn valueset_resp(resp: Response(String)) -> Result(r4usp.Valueset, ErrResp) {
   any_resp(resp, r4usp.valueset_decoder(), "ValueSet")
 }
 
@@ -4897,7 +4924,7 @@ pub fn verificationresult_read_req(
 pub fn verificationresult_update_req(
   resource: r4usp.Verificationresult,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.verificationresult_to_json(resource),
@@ -4908,7 +4935,7 @@ pub fn verificationresult_update_req(
 
 pub fn verificationresult_resp(
   resp: Response(String),
-) -> Result(r4usp.Verificationresult, Err) {
+) -> Result(r4usp.Verificationresult, ErrResp) {
   any_resp(resp, r4usp.verificationresult_decoder(), "VerificationResult")
 }
 
@@ -4933,7 +4960,7 @@ pub fn visionprescription_read_req(
 pub fn visionprescription_update_req(
   resource: r4usp.Visionprescription,
   client: FhirClient,
-) -> Result(Request(String), Err) {
+) -> Result(Request(String), ErrReq) {
   any_update_req(
     resource.id,
     r4usp.visionprescription_to_json(resource),
@@ -4944,7 +4971,7 @@ pub fn visionprescription_update_req(
 
 pub fn visionprescription_resp(
   resp: Response(String),
-) -> Result(r4usp.Visionprescription, Err) {
+) -> Result(r4usp.Visionprescription, ErrResp) {
   any_resp(resp, r4usp.visionprescription_decoder(), "VisionPrescription")
 }
 
