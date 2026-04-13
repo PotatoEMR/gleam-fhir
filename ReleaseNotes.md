@@ -1,3 +1,10 @@
+## 0.4.0 April 12, 2026
+- Change response parsing to check for resource of given type (eg AllergyIntolerance) or OperationOutcome rather than go off of http status
+- Change delete operation response parsing
+- - If no response body, can still return Ok response if http status code < 300
+- - If response body has OperationOutcome, return it in Ok or Error depending on http status code < 300
+- Separate sansio errors for creating request and parsing response
+
 ## 0.3.0 April 11, 2026
 - Fix incorrect to_json for 1..1 choice type
 - Parse date, dateTime, instant, and time into custom type, instead of String
