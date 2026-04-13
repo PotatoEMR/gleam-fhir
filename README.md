@@ -28,7 +28,7 @@
 
 ## Warning
 
-!!! package manager supports r4us ONLY; r4/r4b/r5 are not available, because of hex.pm package size limits. r4/r4us/r5 are on https://github.com/PotatoEMR/gleam-fhir/tree/main !!!
+!!! package manager supports r4us ONLY; r4/r4b/r5/r4usp are not available, because of hex.pm package size limits. r4/r4b/r5/r4usp can be found at https://github.com/PotatoEMR/gleam-fhir/tree/main/src/fhir !!!
 
 
 ## Quick Start
