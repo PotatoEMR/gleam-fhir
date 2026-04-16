@@ -32,7 +32,7 @@ pub type ErrBaseUrl {
 ///
 /// `let assert Ok(client) = FHIRVERSION_sansio.fhirclient_new("127.0.0.1:8000")`
 pub type FhirClient {
-  FhirClient(baseurl: uri.Uri, basereq: Request(String))
+  FhirClient(baseurl: uri.Uri, basereq: Request(Option(Json)))
 }
 
 /// creates a new client from server base url
@@ -65,8 +65,8 @@ pub fn fhirclient_new(
         None -> Error(UriNoHost)
         Some(host) -> {
           case baseurl.scheme {
-            Some("http") -> create_base_req(http.Http, host, baseurl)
-            Some("https") -> create_base_req(http.Https, host, baseurl)
+            Some("http") -> Ok(create_base_req(http.Http, host, baseurl))
+            Some("https") -> Ok(create_base_req(http.Https, host, baseurl))
             _ -> Error(UriNoHttpOrHttps)
           }
         }
@@ -78,19 +78,19 @@ fn create_base_req(
   scheme: http.Scheme,
   host: String,
   baseurl: uri.Uri,
-) -> Result(FhirClient, a) {
+) -> FhirClient {
   let basereq =
     Request(
       method: http.Get,
       headers: [#("Accept", "application/fhir+json")],
-      body: "",
+      body: None,
       scheme:,
       host:,
       port: baseurl.port,
       path: baseurl.path,
       query: None,
     )
-  Ok(FhirClient(baseurl:, basereq:))
+  FhirClient(baseurl:, basereq:)
 }
 
 pub type ErrResp {
@@ -112,7 +112,7 @@ pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient)
   |> request.set_path(string.concat([client.basereq.path, "/", res_type]))
   |> request.set_header("Content-Type", "application/fhir+json")
   |> request.set_header("Prefer", "return=representation")
-  |> request.set_body(resource_json |> json.to_string)
+  |> request.set_body(Some(resource_json))
   |> request.set_method(http.Post)
 }
 
@@ -128,7 +128,7 @@ pub fn any_update_req(
   resource_json: Json,
   res_type: String,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   case id {
     None -> Error(ErrNoId)
     Some(id) ->
@@ -139,7 +139,7 @@ pub fn any_update_req(
         )
         |> request.set_header("Content-Type", "application/fhir+json")
         |> request.set_header("Prefer", "return=representation")
-        |> request.set_body(resource_json |> json.to_string)
+        |> request.set_body(Some(resource_json))
         |> request.set_method(http.Put),
       )
   }
@@ -149,7 +149,7 @@ pub fn any_delete_req(
   id: String,
   res_type: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   client.basereq
   |> request.set_path(
     string.concat([client.basereq.path, "/", res_type, "/", id]),
@@ -162,7 +162,7 @@ pub fn any_search_req(
   search_string: String,
   res_type: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   client.basereq
   |> request.set_path(
     string.concat([client.basereq.path, "/", res_type, "?", search_string]),
@@ -175,7 +175,7 @@ pub fn any_operation_req(
   operation_name: String,
   params: Option(FHIRVERSION.Parameters),
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   let path = case res_id {
     Some(res_id) ->
       string.concat([
@@ -199,7 +199,7 @@ pub fn any_operation_req(
     None -> req
     Some(params) ->
       req
-      |> request.set_body(params |> FHIRVERSION.parameters_to_json |> json.to_string)
+      |> request.set_body(params |> FHIRVERSION.parameters_to_json |> Some)
       |> request.set_method(http.Post)
   }
 }

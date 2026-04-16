@@ -307,15 +307,15 @@ pub fn gen(
     gen_specific_crud(
       entries,
       "
-          pub fn NAMELOWER_create_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Request(String) {
+          pub fn NAMELOWER_create_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Request(Option(Json)) {
             any_create_req(FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
           }
 
-          pub fn NAMELOWER_read_req(id: String, client: FhirClient) -> Request(String) {
+          pub fn NAMELOWER_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
             any_read_req(id, \"NAMEUPPER\", client)
           }
 
-          pub fn NAMELOWER_update_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Result(Request(String), ErrReq) {
+          pub fn NAMELOWER_update_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Result(Request(Option(Json)), ErrReq) {
             any_update_req(resource.id, FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
           }
 
