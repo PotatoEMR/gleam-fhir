@@ -32,7 +32,7 @@ pub type ErrBaseUrl {
 ///
 /// `let assert Ok(client) = r4_sansio.fhirclient_new("127.0.0.1:8000")`
 pub type FhirClient {
-  FhirClient(baseurl: uri.Uri, basereq: Request(String))
+  FhirClient(baseurl: uri.Uri, basereq: Request(Option(Json)))
 }
 
 /// creates a new client from server base url
@@ -65,8 +65,8 @@ pub fn fhirclient_new(
         None -> Error(UriNoHost)
         Some(host) -> {
           case baseurl.scheme {
-            Some("http") -> create_base_req(http.Http, host, baseurl)
-            Some("https") -> create_base_req(http.Https, host, baseurl)
+            Some("http") -> Ok(create_base_req(http.Http, host, baseurl))
+            Some("https") -> Ok(create_base_req(http.Https, host, baseurl))
             _ -> Error(UriNoHttpOrHttps)
           }
         }
@@ -78,19 +78,19 @@ fn create_base_req(
   scheme: http.Scheme,
   host: String,
   baseurl: uri.Uri,
-) -> Result(FhirClient, a) {
+) -> FhirClient {
   let basereq =
     Request(
       method: http.Get,
       headers: [#("Accept", "application/fhir+json")],
-      body: "",
+      body: None,
       scheme:,
       host:,
       port: baseurl.port,
       path: baseurl.path,
       query: None,
     )
-  Ok(FhirClient(baseurl:, basereq:))
+  FhirClient(baseurl:, basereq:)
 }
 
 pub type ErrResp {
@@ -112,7 +112,7 @@ pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient)
   |> request.set_path(string.concat([client.basereq.path, "/", res_type]))
   |> request.set_header("Content-Type", "application/fhir+json")
   |> request.set_header("Prefer", "return=representation")
-  |> request.set_body(resource_json |> json.to_string)
+  |> request.set_body(Some(resource_json))
   |> request.set_method(http.Post)
 }
 
@@ -128,7 +128,7 @@ pub fn any_update_req(
   resource_json: Json,
   res_type: String,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   case id {
     None -> Error(ErrNoId)
     Some(id) ->
@@ -139,7 +139,7 @@ pub fn any_update_req(
         )
         |> request.set_header("Content-Type", "application/fhir+json")
         |> request.set_header("Prefer", "return=representation")
-        |> request.set_body(resource_json |> json.to_string)
+        |> request.set_body(Some(resource_json))
         |> request.set_method(http.Put),
       )
   }
@@ -149,7 +149,7 @@ pub fn any_delete_req(
   id: String,
   res_type: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   client.basereq
   |> request.set_path(
     string.concat([client.basereq.path, "/", res_type, "/", id]),
@@ -162,7 +162,7 @@ pub fn any_search_req(
   search_string: String,
   res_type: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   client.basereq
   |> request.set_path(
     string.concat([client.basereq.path, "/", res_type, "?", search_string]),
@@ -175,7 +175,7 @@ pub fn any_operation_req(
   operation_name: String,
   params: Option(r4.Parameters),
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   let path = case res_id {
     Some(res_id) ->
       string.concat([
@@ -199,7 +199,7 @@ pub fn any_operation_req(
     None -> req
     Some(params) ->
       req
-      |> request.set_body(params |> r4.parameters_to_json |> json.to_string)
+      |> request.set_body(params |> r4.parameters_to_json |> Some)
       |> request.set_method(http.Post)
   }
 }
@@ -285,18 +285,18 @@ pub fn http_or_operationoutcome_resp(
 pub fn account_create_req(
   resource: r4.Account,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.account_to_json(resource), "Account", client)
 }
 
-pub fn account_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn account_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Account", client)
 }
 
 pub fn account_update_req(
   resource: r4.Account,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.account_to_json(resource), "Account", client)
 }
 
@@ -307,7 +307,7 @@ pub fn account_resp(resp: Response(String)) -> Result(r4.Account, ErrResp) {
 pub fn activitydefinition_create_req(
   resource: r4.Activitydefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.activitydefinition_to_json(resource),
     "ActivityDefinition",
@@ -318,14 +318,14 @@ pub fn activitydefinition_create_req(
 pub fn activitydefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ActivityDefinition", client)
 }
 
 pub fn activitydefinition_update_req(
   resource: r4.Activitydefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.activitydefinition_to_json(resource),
@@ -343,18 +343,21 @@ pub fn activitydefinition_resp(
 pub fn adverseevent_create_req(
   resource: r4.Adverseevent,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.adverseevent_to_json(resource), "AdverseEvent", client)
 }
 
-pub fn adverseevent_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn adverseevent_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "AdverseEvent", client)
 }
 
 pub fn adverseevent_update_req(
   resource: r4.Adverseevent,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.adverseevent_to_json(resource),
@@ -372,7 +375,7 @@ pub fn adverseevent_resp(
 pub fn allergyintolerance_create_req(
   resource: r4.Allergyintolerance,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.allergyintolerance_to_json(resource),
     "AllergyIntolerance",
@@ -383,14 +386,14 @@ pub fn allergyintolerance_create_req(
 pub fn allergyintolerance_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "AllergyIntolerance", client)
 }
 
 pub fn allergyintolerance_update_req(
   resource: r4.Allergyintolerance,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.allergyintolerance_to_json(resource),
@@ -408,18 +411,21 @@ pub fn allergyintolerance_resp(
 pub fn appointment_create_req(
   resource: r4.Appointment,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.appointment_to_json(resource), "Appointment", client)
 }
 
-pub fn appointment_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn appointment_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Appointment", client)
 }
 
 pub fn appointment_update_req(
   resource: r4.Appointment,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.appointment_to_json(resource),
@@ -437,7 +443,7 @@ pub fn appointment_resp(
 pub fn appointmentresponse_create_req(
   resource: r4.Appointmentresponse,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.appointmentresponse_to_json(resource),
     "AppointmentResponse",
@@ -448,14 +454,14 @@ pub fn appointmentresponse_create_req(
 pub fn appointmentresponse_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "AppointmentResponse", client)
 }
 
 pub fn appointmentresponse_update_req(
   resource: r4.Appointmentresponse,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.appointmentresponse_to_json(resource),
@@ -473,18 +479,21 @@ pub fn appointmentresponse_resp(
 pub fn auditevent_create_req(
   resource: r4.Auditevent,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.auditevent_to_json(resource), "AuditEvent", client)
 }
 
-pub fn auditevent_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn auditevent_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "AuditEvent", client)
 }
 
 pub fn auditevent_update_req(
   resource: r4.Auditevent,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.auditevent_to_json(resource),
@@ -500,18 +509,18 @@ pub fn auditevent_resp(resp: Response(String)) -> Result(r4.Auditevent, ErrResp)
 pub fn basic_create_req(
   resource: r4.Basic,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.basic_to_json(resource), "Basic", client)
 }
 
-pub fn basic_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn basic_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Basic", client)
 }
 
 pub fn basic_update_req(
   resource: r4.Basic,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.basic_to_json(resource), "Basic", client)
 }
 
@@ -522,18 +531,18 @@ pub fn basic_resp(resp: Response(String)) -> Result(r4.Basic, ErrResp) {
 pub fn binary_create_req(
   resource: r4.Binary,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.binary_to_json(resource), "Binary", client)
 }
 
-pub fn binary_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn binary_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Binary", client)
 }
 
 pub fn binary_update_req(
   resource: r4.Binary,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.binary_to_json(resource), "Binary", client)
 }
 
@@ -544,7 +553,7 @@ pub fn binary_resp(resp: Response(String)) -> Result(r4.Binary, ErrResp) {
 pub fn biologicallyderivedproduct_create_req(
   resource: r4.Biologicallyderivedproduct,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.biologicallyderivedproduct_to_json(resource),
     "BiologicallyDerivedProduct",
@@ -555,14 +564,14 @@ pub fn biologicallyderivedproduct_create_req(
 pub fn biologicallyderivedproduct_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "BiologicallyDerivedProduct", client)
 }
 
 pub fn biologicallyderivedproduct_update_req(
   resource: r4.Biologicallyderivedproduct,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.biologicallyderivedproduct_to_json(resource),
@@ -584,18 +593,21 @@ pub fn biologicallyderivedproduct_resp(
 pub fn bodystructure_create_req(
   resource: r4.Bodystructure,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.bodystructure_to_json(resource), "BodyStructure", client)
 }
 
-pub fn bodystructure_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn bodystructure_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "BodyStructure", client)
 }
 
 pub fn bodystructure_update_req(
   resource: r4.Bodystructure,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.bodystructure_to_json(resource),
@@ -613,18 +625,18 @@ pub fn bodystructure_resp(
 pub fn bundle_create_req(
   resource: r4.Bundle,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.bundle_to_json(resource), "Bundle", client)
 }
 
-pub fn bundle_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn bundle_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Bundle", client)
 }
 
 pub fn bundle_update_req(
   resource: r4.Bundle,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.bundle_to_json(resource), "Bundle", client)
 }
 
@@ -635,7 +647,7 @@ pub fn bundle_resp(resp: Response(String)) -> Result(r4.Bundle, ErrResp) {
 pub fn capabilitystatement_create_req(
   resource: r4.Capabilitystatement,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.capabilitystatement_to_json(resource),
     "CapabilityStatement",
@@ -646,14 +658,14 @@ pub fn capabilitystatement_create_req(
 pub fn capabilitystatement_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "CapabilityStatement", client)
 }
 
 pub fn capabilitystatement_update_req(
   resource: r4.Capabilitystatement,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.capabilitystatement_to_json(resource),
@@ -671,18 +683,21 @@ pub fn capabilitystatement_resp(
 pub fn careplan_create_req(
   resource: r4.Careplan,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.careplan_to_json(resource), "CarePlan", client)
 }
 
-pub fn careplan_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn careplan_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "CarePlan", client)
 }
 
 pub fn careplan_update_req(
   resource: r4.Careplan,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.careplan_to_json(resource), "CarePlan", client)
 }
 
@@ -693,18 +708,21 @@ pub fn careplan_resp(resp: Response(String)) -> Result(r4.Careplan, ErrResp) {
 pub fn careteam_create_req(
   resource: r4.Careteam,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.careteam_to_json(resource), "CareTeam", client)
 }
 
-pub fn careteam_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn careteam_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "CareTeam", client)
 }
 
 pub fn careteam_update_req(
   resource: r4.Careteam,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.careteam_to_json(resource), "CareTeam", client)
 }
 
@@ -715,18 +733,21 @@ pub fn careteam_resp(resp: Response(String)) -> Result(r4.Careteam, ErrResp) {
 pub fn catalogentry_create_req(
   resource: r4.Catalogentry,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.catalogentry_to_json(resource), "CatalogEntry", client)
 }
 
-pub fn catalogentry_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn catalogentry_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "CatalogEntry", client)
 }
 
 pub fn catalogentry_update_req(
   resource: r4.Catalogentry,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.catalogentry_to_json(resource),
@@ -744,18 +765,21 @@ pub fn catalogentry_resp(
 pub fn chargeitem_create_req(
   resource: r4.Chargeitem,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.chargeitem_to_json(resource), "ChargeItem", client)
 }
 
-pub fn chargeitem_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn chargeitem_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "ChargeItem", client)
 }
 
 pub fn chargeitem_update_req(
   resource: r4.Chargeitem,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.chargeitem_to_json(resource),
@@ -771,7 +795,7 @@ pub fn chargeitem_resp(resp: Response(String)) -> Result(r4.Chargeitem, ErrResp)
 pub fn chargeitemdefinition_create_req(
   resource: r4.Chargeitemdefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.chargeitemdefinition_to_json(resource),
     "ChargeItemDefinition",
@@ -782,14 +806,14 @@ pub fn chargeitemdefinition_create_req(
 pub fn chargeitemdefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ChargeItemDefinition", client)
 }
 
 pub fn chargeitemdefinition_update_req(
   resource: r4.Chargeitemdefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.chargeitemdefinition_to_json(resource),
@@ -807,18 +831,18 @@ pub fn chargeitemdefinition_resp(
 pub fn claim_create_req(
   resource: r4.Claim,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.claim_to_json(resource), "Claim", client)
 }
 
-pub fn claim_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn claim_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Claim", client)
 }
 
 pub fn claim_update_req(
   resource: r4.Claim,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.claim_to_json(resource), "Claim", client)
 }
 
@@ -829,18 +853,21 @@ pub fn claim_resp(resp: Response(String)) -> Result(r4.Claim, ErrResp) {
 pub fn claimresponse_create_req(
   resource: r4.Claimresponse,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.claimresponse_to_json(resource), "ClaimResponse", client)
 }
 
-pub fn claimresponse_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn claimresponse_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "ClaimResponse", client)
 }
 
 pub fn claimresponse_update_req(
   resource: r4.Claimresponse,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.claimresponse_to_json(resource),
@@ -858,7 +885,7 @@ pub fn claimresponse_resp(
 pub fn clinicalimpression_create_req(
   resource: r4.Clinicalimpression,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.clinicalimpression_to_json(resource),
     "ClinicalImpression",
@@ -869,14 +896,14 @@ pub fn clinicalimpression_create_req(
 pub fn clinicalimpression_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ClinicalImpression", client)
 }
 
 pub fn clinicalimpression_update_req(
   resource: r4.Clinicalimpression,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.clinicalimpression_to_json(resource),
@@ -894,18 +921,21 @@ pub fn clinicalimpression_resp(
 pub fn codesystem_create_req(
   resource: r4.Codesystem,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.codesystem_to_json(resource), "CodeSystem", client)
 }
 
-pub fn codesystem_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn codesystem_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "CodeSystem", client)
 }
 
 pub fn codesystem_update_req(
   resource: r4.Codesystem,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.codesystem_to_json(resource),
@@ -921,18 +951,21 @@ pub fn codesystem_resp(resp: Response(String)) -> Result(r4.Codesystem, ErrResp)
 pub fn communication_create_req(
   resource: r4.Communication,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.communication_to_json(resource), "Communication", client)
 }
 
-pub fn communication_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn communication_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Communication", client)
 }
 
 pub fn communication_update_req(
   resource: r4.Communication,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.communication_to_json(resource),
@@ -950,7 +983,7 @@ pub fn communication_resp(
 pub fn communicationrequest_create_req(
   resource: r4.Communicationrequest,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.communicationrequest_to_json(resource),
     "CommunicationRequest",
@@ -961,14 +994,14 @@ pub fn communicationrequest_create_req(
 pub fn communicationrequest_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "CommunicationRequest", client)
 }
 
 pub fn communicationrequest_update_req(
   resource: r4.Communicationrequest,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.communicationrequest_to_json(resource),
@@ -986,7 +1019,7 @@ pub fn communicationrequest_resp(
 pub fn compartmentdefinition_create_req(
   resource: r4.Compartmentdefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.compartmentdefinition_to_json(resource),
     "CompartmentDefinition",
@@ -997,14 +1030,14 @@ pub fn compartmentdefinition_create_req(
 pub fn compartmentdefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "CompartmentDefinition", client)
 }
 
 pub fn compartmentdefinition_update_req(
   resource: r4.Compartmentdefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.compartmentdefinition_to_json(resource),
@@ -1022,18 +1055,21 @@ pub fn compartmentdefinition_resp(
 pub fn composition_create_req(
   resource: r4.Composition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.composition_to_json(resource), "Composition", client)
 }
 
-pub fn composition_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn composition_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Composition", client)
 }
 
 pub fn composition_update_req(
   resource: r4.Composition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.composition_to_json(resource),
@@ -1051,18 +1087,21 @@ pub fn composition_resp(
 pub fn conceptmap_create_req(
   resource: r4.Conceptmap,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.conceptmap_to_json(resource), "ConceptMap", client)
 }
 
-pub fn conceptmap_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn conceptmap_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "ConceptMap", client)
 }
 
 pub fn conceptmap_update_req(
   resource: r4.Conceptmap,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.conceptmap_to_json(resource),
@@ -1078,18 +1117,21 @@ pub fn conceptmap_resp(resp: Response(String)) -> Result(r4.Conceptmap, ErrResp)
 pub fn condition_create_req(
   resource: r4.Condition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.condition_to_json(resource), "Condition", client)
 }
 
-pub fn condition_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn condition_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Condition", client)
 }
 
 pub fn condition_update_req(
   resource: r4.Condition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.condition_to_json(resource),
@@ -1105,18 +1147,18 @@ pub fn condition_resp(resp: Response(String)) -> Result(r4.Condition, ErrResp) {
 pub fn consent_create_req(
   resource: r4.Consent,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.consent_to_json(resource), "Consent", client)
 }
 
-pub fn consent_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn consent_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Consent", client)
 }
 
 pub fn consent_update_req(
   resource: r4.Consent,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.consent_to_json(resource), "Consent", client)
 }
 
@@ -1127,18 +1169,21 @@ pub fn consent_resp(resp: Response(String)) -> Result(r4.Consent, ErrResp) {
 pub fn contract_create_req(
   resource: r4.Contract,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.contract_to_json(resource), "Contract", client)
 }
 
-pub fn contract_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn contract_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Contract", client)
 }
 
 pub fn contract_update_req(
   resource: r4.Contract,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.contract_to_json(resource), "Contract", client)
 }
 
@@ -1149,18 +1194,21 @@ pub fn contract_resp(resp: Response(String)) -> Result(r4.Contract, ErrResp) {
 pub fn coverage_create_req(
   resource: r4.Coverage,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.coverage_to_json(resource), "Coverage", client)
 }
 
-pub fn coverage_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn coverage_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Coverage", client)
 }
 
 pub fn coverage_update_req(
   resource: r4.Coverage,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.coverage_to_json(resource), "Coverage", client)
 }
 
@@ -1171,7 +1219,7 @@ pub fn coverage_resp(resp: Response(String)) -> Result(r4.Coverage, ErrResp) {
 pub fn coverageeligibilityrequest_create_req(
   resource: r4.Coverageeligibilityrequest,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.coverageeligibilityrequest_to_json(resource),
     "CoverageEligibilityRequest",
@@ -1182,14 +1230,14 @@ pub fn coverageeligibilityrequest_create_req(
 pub fn coverageeligibilityrequest_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "CoverageEligibilityRequest", client)
 }
 
 pub fn coverageeligibilityrequest_update_req(
   resource: r4.Coverageeligibilityrequest,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.coverageeligibilityrequest_to_json(resource),
@@ -1211,7 +1259,7 @@ pub fn coverageeligibilityrequest_resp(
 pub fn coverageeligibilityresponse_create_req(
   resource: r4.Coverageeligibilityresponse,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.coverageeligibilityresponse_to_json(resource),
     "CoverageEligibilityResponse",
@@ -1222,14 +1270,14 @@ pub fn coverageeligibilityresponse_create_req(
 pub fn coverageeligibilityresponse_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "CoverageEligibilityResponse", client)
 }
 
 pub fn coverageeligibilityresponse_update_req(
   resource: r4.Coverageeligibilityresponse,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.coverageeligibilityresponse_to_json(resource),
@@ -1251,18 +1299,21 @@ pub fn coverageeligibilityresponse_resp(
 pub fn detectedissue_create_req(
   resource: r4.Detectedissue,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.detectedissue_to_json(resource), "DetectedIssue", client)
 }
 
-pub fn detectedissue_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn detectedissue_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "DetectedIssue", client)
 }
 
 pub fn detectedissue_update_req(
   resource: r4.Detectedissue,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.detectedissue_to_json(resource),
@@ -1280,18 +1331,18 @@ pub fn detectedissue_resp(
 pub fn device_create_req(
   resource: r4.Device,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.device_to_json(resource), "Device", client)
 }
 
-pub fn device_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn device_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Device", client)
 }
 
 pub fn device_update_req(
   resource: r4.Device,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.device_to_json(resource), "Device", client)
 }
 
@@ -1302,7 +1353,7 @@ pub fn device_resp(resp: Response(String)) -> Result(r4.Device, ErrResp) {
 pub fn devicedefinition_create_req(
   resource: r4.Devicedefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.devicedefinition_to_json(resource),
     "DeviceDefinition",
@@ -1313,14 +1364,14 @@ pub fn devicedefinition_create_req(
 pub fn devicedefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "DeviceDefinition", client)
 }
 
 pub fn devicedefinition_update_req(
   resource: r4.Devicedefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.devicedefinition_to_json(resource),
@@ -1338,18 +1389,21 @@ pub fn devicedefinition_resp(
 pub fn devicemetric_create_req(
   resource: r4.Devicemetric,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.devicemetric_to_json(resource), "DeviceMetric", client)
 }
 
-pub fn devicemetric_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn devicemetric_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "DeviceMetric", client)
 }
 
 pub fn devicemetric_update_req(
   resource: r4.Devicemetric,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.devicemetric_to_json(resource),
@@ -1367,18 +1421,21 @@ pub fn devicemetric_resp(
 pub fn devicerequest_create_req(
   resource: r4.Devicerequest,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.devicerequest_to_json(resource), "DeviceRequest", client)
 }
 
-pub fn devicerequest_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn devicerequest_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "DeviceRequest", client)
 }
 
 pub fn devicerequest_update_req(
   resource: r4.Devicerequest,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.devicerequest_to_json(resource),
@@ -1396,7 +1453,7 @@ pub fn devicerequest_resp(
 pub fn deviceusestatement_create_req(
   resource: r4.Deviceusestatement,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.deviceusestatement_to_json(resource),
     "DeviceUseStatement",
@@ -1407,14 +1464,14 @@ pub fn deviceusestatement_create_req(
 pub fn deviceusestatement_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "DeviceUseStatement", client)
 }
 
 pub fn deviceusestatement_update_req(
   resource: r4.Deviceusestatement,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.deviceusestatement_to_json(resource),
@@ -1432,7 +1489,7 @@ pub fn deviceusestatement_resp(
 pub fn diagnosticreport_create_req(
   resource: r4.Diagnosticreport,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.diagnosticreport_to_json(resource),
     "DiagnosticReport",
@@ -1443,14 +1500,14 @@ pub fn diagnosticreport_create_req(
 pub fn diagnosticreport_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "DiagnosticReport", client)
 }
 
 pub fn diagnosticreport_update_req(
   resource: r4.Diagnosticreport,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.diagnosticreport_to_json(resource),
@@ -1468,7 +1525,7 @@ pub fn diagnosticreport_resp(
 pub fn documentmanifest_create_req(
   resource: r4.Documentmanifest,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.documentmanifest_to_json(resource),
     "DocumentManifest",
@@ -1479,14 +1536,14 @@ pub fn documentmanifest_create_req(
 pub fn documentmanifest_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "DocumentManifest", client)
 }
 
 pub fn documentmanifest_update_req(
   resource: r4.Documentmanifest,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.documentmanifest_to_json(resource),
@@ -1504,7 +1561,7 @@ pub fn documentmanifest_resp(
 pub fn documentreference_create_req(
   resource: r4.Documentreference,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.documentreference_to_json(resource),
     "DocumentReference",
@@ -1515,14 +1572,14 @@ pub fn documentreference_create_req(
 pub fn documentreference_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "DocumentReference", client)
 }
 
 pub fn documentreference_update_req(
   resource: r4.Documentreference,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.documentreference_to_json(resource),
@@ -1540,7 +1597,7 @@ pub fn documentreference_resp(
 pub fn effectevidencesynthesis_create_req(
   resource: r4.Effectevidencesynthesis,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.effectevidencesynthesis_to_json(resource),
     "EffectEvidenceSynthesis",
@@ -1551,14 +1608,14 @@ pub fn effectevidencesynthesis_create_req(
 pub fn effectevidencesynthesis_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "EffectEvidenceSynthesis", client)
 }
 
 pub fn effectevidencesynthesis_update_req(
   resource: r4.Effectevidencesynthesis,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.effectevidencesynthesis_to_json(resource),
@@ -1580,18 +1637,21 @@ pub fn effectevidencesynthesis_resp(
 pub fn encounter_create_req(
   resource: r4.Encounter,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.encounter_to_json(resource), "Encounter", client)
 }
 
-pub fn encounter_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn encounter_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Encounter", client)
 }
 
 pub fn encounter_update_req(
   resource: r4.Encounter,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.encounter_to_json(resource),
@@ -1607,18 +1667,21 @@ pub fn encounter_resp(resp: Response(String)) -> Result(r4.Encounter, ErrResp) {
 pub fn endpoint_create_req(
   resource: r4.Endpoint,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.endpoint_to_json(resource), "Endpoint", client)
 }
 
-pub fn endpoint_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn endpoint_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Endpoint", client)
 }
 
 pub fn endpoint_update_req(
   resource: r4.Endpoint,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.endpoint_to_json(resource), "Endpoint", client)
 }
 
@@ -1629,7 +1692,7 @@ pub fn endpoint_resp(resp: Response(String)) -> Result(r4.Endpoint, ErrResp) {
 pub fn enrollmentrequest_create_req(
   resource: r4.Enrollmentrequest,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.enrollmentrequest_to_json(resource),
     "EnrollmentRequest",
@@ -1640,14 +1703,14 @@ pub fn enrollmentrequest_create_req(
 pub fn enrollmentrequest_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "EnrollmentRequest", client)
 }
 
 pub fn enrollmentrequest_update_req(
   resource: r4.Enrollmentrequest,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.enrollmentrequest_to_json(resource),
@@ -1665,7 +1728,7 @@ pub fn enrollmentrequest_resp(
 pub fn enrollmentresponse_create_req(
   resource: r4.Enrollmentresponse,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.enrollmentresponse_to_json(resource),
     "EnrollmentResponse",
@@ -1676,14 +1739,14 @@ pub fn enrollmentresponse_create_req(
 pub fn enrollmentresponse_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "EnrollmentResponse", client)
 }
 
 pub fn enrollmentresponse_update_req(
   resource: r4.Enrollmentresponse,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.enrollmentresponse_to_json(resource),
@@ -1701,18 +1764,21 @@ pub fn enrollmentresponse_resp(
 pub fn episodeofcare_create_req(
   resource: r4.Episodeofcare,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.episodeofcare_to_json(resource), "EpisodeOfCare", client)
 }
 
-pub fn episodeofcare_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn episodeofcare_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "EpisodeOfCare", client)
 }
 
 pub fn episodeofcare_update_req(
   resource: r4.Episodeofcare,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.episodeofcare_to_json(resource),
@@ -1730,7 +1796,7 @@ pub fn episodeofcare_resp(
 pub fn eventdefinition_create_req(
   resource: r4.Eventdefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.eventdefinition_to_json(resource),
     "EventDefinition",
@@ -1741,14 +1807,14 @@ pub fn eventdefinition_create_req(
 pub fn eventdefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "EventDefinition", client)
 }
 
 pub fn eventdefinition_update_req(
   resource: r4.Eventdefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.eventdefinition_to_json(resource),
@@ -1766,18 +1832,21 @@ pub fn eventdefinition_resp(
 pub fn evidence_create_req(
   resource: r4.Evidence,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.evidence_to_json(resource), "Evidence", client)
 }
 
-pub fn evidence_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn evidence_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Evidence", client)
 }
 
 pub fn evidence_update_req(
   resource: r4.Evidence,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.evidence_to_json(resource), "Evidence", client)
 }
 
@@ -1788,7 +1857,7 @@ pub fn evidence_resp(resp: Response(String)) -> Result(r4.Evidence, ErrResp) {
 pub fn evidencevariable_create_req(
   resource: r4.Evidencevariable,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.evidencevariable_to_json(resource),
     "EvidenceVariable",
@@ -1799,14 +1868,14 @@ pub fn evidencevariable_create_req(
 pub fn evidencevariable_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "EvidenceVariable", client)
 }
 
 pub fn evidencevariable_update_req(
   resource: r4.Evidencevariable,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.evidencevariable_to_json(resource),
@@ -1824,7 +1893,7 @@ pub fn evidencevariable_resp(
 pub fn examplescenario_create_req(
   resource: r4.Examplescenario,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.examplescenario_to_json(resource),
     "ExampleScenario",
@@ -1835,14 +1904,14 @@ pub fn examplescenario_create_req(
 pub fn examplescenario_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ExampleScenario", client)
 }
 
 pub fn examplescenario_update_req(
   resource: r4.Examplescenario,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.examplescenario_to_json(resource),
@@ -1860,7 +1929,7 @@ pub fn examplescenario_resp(
 pub fn explanationofbenefit_create_req(
   resource: r4.Explanationofbenefit,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.explanationofbenefit_to_json(resource),
     "ExplanationOfBenefit",
@@ -1871,14 +1940,14 @@ pub fn explanationofbenefit_create_req(
 pub fn explanationofbenefit_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ExplanationOfBenefit", client)
 }
 
 pub fn explanationofbenefit_update_req(
   resource: r4.Explanationofbenefit,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.explanationofbenefit_to_json(resource),
@@ -1896,7 +1965,7 @@ pub fn explanationofbenefit_resp(
 pub fn familymemberhistory_create_req(
   resource: r4.Familymemberhistory,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.familymemberhistory_to_json(resource),
     "FamilyMemberHistory",
@@ -1907,14 +1976,14 @@ pub fn familymemberhistory_create_req(
 pub fn familymemberhistory_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "FamilyMemberHistory", client)
 }
 
 pub fn familymemberhistory_update_req(
   resource: r4.Familymemberhistory,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.familymemberhistory_to_json(resource),
@@ -1929,18 +1998,21 @@ pub fn familymemberhistory_resp(
   any_resp(resp, r4.familymemberhistory_decoder(), "FamilyMemberHistory")
 }
 
-pub fn flag_create_req(resource: r4.Flag, client: FhirClient) -> Request(String) {
+pub fn flag_create_req(
+  resource: r4.Flag,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_create_req(r4.flag_to_json(resource), "Flag", client)
 }
 
-pub fn flag_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn flag_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Flag", client)
 }
 
 pub fn flag_update_req(
   resource: r4.Flag,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.flag_to_json(resource), "Flag", client)
 }
 
@@ -1948,18 +2020,21 @@ pub fn flag_resp(resp: Response(String)) -> Result(r4.Flag, ErrResp) {
   any_resp(resp, r4.flag_decoder(), "Flag")
 }
 
-pub fn goal_create_req(resource: r4.Goal, client: FhirClient) -> Request(String) {
+pub fn goal_create_req(
+  resource: r4.Goal,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_create_req(r4.goal_to_json(resource), "Goal", client)
 }
 
-pub fn goal_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn goal_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Goal", client)
 }
 
 pub fn goal_update_req(
   resource: r4.Goal,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.goal_to_json(resource), "Goal", client)
 }
 
@@ -1970,7 +2045,7 @@ pub fn goal_resp(resp: Response(String)) -> Result(r4.Goal, ErrResp) {
 pub fn graphdefinition_create_req(
   resource: r4.Graphdefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.graphdefinition_to_json(resource),
     "GraphDefinition",
@@ -1981,14 +2056,14 @@ pub fn graphdefinition_create_req(
 pub fn graphdefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "GraphDefinition", client)
 }
 
 pub fn graphdefinition_update_req(
   resource: r4.Graphdefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.graphdefinition_to_json(resource),
@@ -2006,18 +2081,18 @@ pub fn graphdefinition_resp(
 pub fn group_create_req(
   resource: r4.Group,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.group_to_json(resource), "Group", client)
 }
 
-pub fn group_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn group_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Group", client)
 }
 
 pub fn group_update_req(
   resource: r4.Group,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.group_to_json(resource), "Group", client)
 }
 
@@ -2028,7 +2103,7 @@ pub fn group_resp(resp: Response(String)) -> Result(r4.Group, ErrResp) {
 pub fn guidanceresponse_create_req(
   resource: r4.Guidanceresponse,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.guidanceresponse_to_json(resource),
     "GuidanceResponse",
@@ -2039,14 +2114,14 @@ pub fn guidanceresponse_create_req(
 pub fn guidanceresponse_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "GuidanceResponse", client)
 }
 
 pub fn guidanceresponse_update_req(
   resource: r4.Guidanceresponse,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.guidanceresponse_to_json(resource),
@@ -2064,7 +2139,7 @@ pub fn guidanceresponse_resp(
 pub fn healthcareservice_create_req(
   resource: r4.Healthcareservice,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.healthcareservice_to_json(resource),
     "HealthcareService",
@@ -2075,14 +2150,14 @@ pub fn healthcareservice_create_req(
 pub fn healthcareservice_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "HealthcareService", client)
 }
 
 pub fn healthcareservice_update_req(
   resource: r4.Healthcareservice,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.healthcareservice_to_json(resource),
@@ -2100,18 +2175,21 @@ pub fn healthcareservice_resp(
 pub fn imagingstudy_create_req(
   resource: r4.Imagingstudy,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.imagingstudy_to_json(resource), "ImagingStudy", client)
 }
 
-pub fn imagingstudy_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn imagingstudy_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "ImagingStudy", client)
 }
 
 pub fn imagingstudy_update_req(
   resource: r4.Imagingstudy,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.imagingstudy_to_json(resource),
@@ -2129,18 +2207,21 @@ pub fn imagingstudy_resp(
 pub fn immunization_create_req(
   resource: r4.Immunization,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.immunization_to_json(resource), "Immunization", client)
 }
 
-pub fn immunization_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn immunization_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Immunization", client)
 }
 
 pub fn immunization_update_req(
   resource: r4.Immunization,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.immunization_to_json(resource),
@@ -2158,7 +2239,7 @@ pub fn immunization_resp(
 pub fn immunizationevaluation_create_req(
   resource: r4.Immunizationevaluation,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.immunizationevaluation_to_json(resource),
     "ImmunizationEvaluation",
@@ -2169,14 +2250,14 @@ pub fn immunizationevaluation_create_req(
 pub fn immunizationevaluation_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ImmunizationEvaluation", client)
 }
 
 pub fn immunizationevaluation_update_req(
   resource: r4.Immunizationevaluation,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.immunizationevaluation_to_json(resource),
@@ -2194,7 +2275,7 @@ pub fn immunizationevaluation_resp(
 pub fn immunizationrecommendation_create_req(
   resource: r4.Immunizationrecommendation,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.immunizationrecommendation_to_json(resource),
     "ImmunizationRecommendation",
@@ -2205,14 +2286,14 @@ pub fn immunizationrecommendation_create_req(
 pub fn immunizationrecommendation_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ImmunizationRecommendation", client)
 }
 
 pub fn immunizationrecommendation_update_req(
   resource: r4.Immunizationrecommendation,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.immunizationrecommendation_to_json(resource),
@@ -2234,7 +2315,7 @@ pub fn immunizationrecommendation_resp(
 pub fn implementationguide_create_req(
   resource: r4.Implementationguide,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.implementationguide_to_json(resource),
     "ImplementationGuide",
@@ -2245,14 +2326,14 @@ pub fn implementationguide_create_req(
 pub fn implementationguide_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ImplementationGuide", client)
 }
 
 pub fn implementationguide_update_req(
   resource: r4.Implementationguide,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.implementationguide_to_json(resource),
@@ -2270,18 +2351,21 @@ pub fn implementationguide_resp(
 pub fn insuranceplan_create_req(
   resource: r4.Insuranceplan,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.insuranceplan_to_json(resource), "InsurancePlan", client)
 }
 
-pub fn insuranceplan_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn insuranceplan_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "InsurancePlan", client)
 }
 
 pub fn insuranceplan_update_req(
   resource: r4.Insuranceplan,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.insuranceplan_to_json(resource),
@@ -2299,18 +2383,18 @@ pub fn insuranceplan_resp(
 pub fn invoice_create_req(
   resource: r4.Invoice,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.invoice_to_json(resource), "Invoice", client)
 }
 
-pub fn invoice_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn invoice_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Invoice", client)
 }
 
 pub fn invoice_update_req(
   resource: r4.Invoice,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.invoice_to_json(resource), "Invoice", client)
 }
 
@@ -2321,18 +2405,18 @@ pub fn invoice_resp(resp: Response(String)) -> Result(r4.Invoice, ErrResp) {
 pub fn library_create_req(
   resource: r4.Library,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.library_to_json(resource), "Library", client)
 }
 
-pub fn library_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn library_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Library", client)
 }
 
 pub fn library_update_req(
   resource: r4.Library,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.library_to_json(resource), "Library", client)
 }
 
@@ -2343,18 +2427,18 @@ pub fn library_resp(resp: Response(String)) -> Result(r4.Library, ErrResp) {
 pub fn linkage_create_req(
   resource: r4.Linkage,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.linkage_to_json(resource), "Linkage", client)
 }
 
-pub fn linkage_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn linkage_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Linkage", client)
 }
 
 pub fn linkage_update_req(
   resource: r4.Linkage,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.linkage_to_json(resource), "Linkage", client)
 }
 
@@ -2365,18 +2449,21 @@ pub fn linkage_resp(resp: Response(String)) -> Result(r4.Linkage, ErrResp) {
 pub fn listfhir_create_req(
   resource: r4.Listfhir,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.listfhir_to_json(resource), "List", client)
 }
 
-pub fn listfhir_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn listfhir_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "List", client)
 }
 
 pub fn listfhir_update_req(
   resource: r4.Listfhir,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.listfhir_to_json(resource), "List", client)
 }
 
@@ -2387,18 +2474,21 @@ pub fn listfhir_resp(resp: Response(String)) -> Result(r4.Listfhir, ErrResp) {
 pub fn location_create_req(
   resource: r4.Location,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.location_to_json(resource), "Location", client)
 }
 
-pub fn location_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn location_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Location", client)
 }
 
 pub fn location_update_req(
   resource: r4.Location,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.location_to_json(resource), "Location", client)
 }
 
@@ -2409,18 +2499,18 @@ pub fn location_resp(resp: Response(String)) -> Result(r4.Location, ErrResp) {
 pub fn measure_create_req(
   resource: r4.Measure,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.measure_to_json(resource), "Measure", client)
 }
 
-pub fn measure_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn measure_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Measure", client)
 }
 
 pub fn measure_update_req(
   resource: r4.Measure,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.measure_to_json(resource), "Measure", client)
 }
 
@@ -2431,18 +2521,21 @@ pub fn measure_resp(resp: Response(String)) -> Result(r4.Measure, ErrResp) {
 pub fn measurereport_create_req(
   resource: r4.Measurereport,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.measurereport_to_json(resource), "MeasureReport", client)
 }
 
-pub fn measurereport_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn measurereport_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "MeasureReport", client)
 }
 
 pub fn measurereport_update_req(
   resource: r4.Measurereport,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.measurereport_to_json(resource),
@@ -2460,18 +2553,18 @@ pub fn measurereport_resp(
 pub fn media_create_req(
   resource: r4.Media,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.media_to_json(resource), "Media", client)
 }
 
-pub fn media_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn media_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Media", client)
 }
 
 pub fn media_update_req(
   resource: r4.Media,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.media_to_json(resource), "Media", client)
 }
 
@@ -2482,18 +2575,21 @@ pub fn media_resp(resp: Response(String)) -> Result(r4.Media, ErrResp) {
 pub fn medication_create_req(
   resource: r4.Medication,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.medication_to_json(resource), "Medication", client)
 }
 
-pub fn medication_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn medication_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Medication", client)
 }
 
 pub fn medication_update_req(
   resource: r4.Medication,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medication_to_json(resource),
@@ -2509,7 +2605,7 @@ pub fn medication_resp(resp: Response(String)) -> Result(r4.Medication, ErrResp)
 pub fn medicationadministration_create_req(
   resource: r4.Medicationadministration,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicationadministration_to_json(resource),
     "MedicationAdministration",
@@ -2520,14 +2616,14 @@ pub fn medicationadministration_create_req(
 pub fn medicationadministration_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicationAdministration", client)
 }
 
 pub fn medicationadministration_update_req(
   resource: r4.Medicationadministration,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicationadministration_to_json(resource),
@@ -2549,7 +2645,7 @@ pub fn medicationadministration_resp(
 pub fn medicationdispense_create_req(
   resource: r4.Medicationdispense,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicationdispense_to_json(resource),
     "MedicationDispense",
@@ -2560,14 +2656,14 @@ pub fn medicationdispense_create_req(
 pub fn medicationdispense_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicationDispense", client)
 }
 
 pub fn medicationdispense_update_req(
   resource: r4.Medicationdispense,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicationdispense_to_json(resource),
@@ -2585,7 +2681,7 @@ pub fn medicationdispense_resp(
 pub fn medicationknowledge_create_req(
   resource: r4.Medicationknowledge,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicationknowledge_to_json(resource),
     "MedicationKnowledge",
@@ -2596,14 +2692,14 @@ pub fn medicationknowledge_create_req(
 pub fn medicationknowledge_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicationKnowledge", client)
 }
 
 pub fn medicationknowledge_update_req(
   resource: r4.Medicationknowledge,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicationknowledge_to_json(resource),
@@ -2621,7 +2717,7 @@ pub fn medicationknowledge_resp(
 pub fn medicationrequest_create_req(
   resource: r4.Medicationrequest,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicationrequest_to_json(resource),
     "MedicationRequest",
@@ -2632,14 +2728,14 @@ pub fn medicationrequest_create_req(
 pub fn medicationrequest_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicationRequest", client)
 }
 
 pub fn medicationrequest_update_req(
   resource: r4.Medicationrequest,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicationrequest_to_json(resource),
@@ -2657,7 +2753,7 @@ pub fn medicationrequest_resp(
 pub fn medicationstatement_create_req(
   resource: r4.Medicationstatement,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicationstatement_to_json(resource),
     "MedicationStatement",
@@ -2668,14 +2764,14 @@ pub fn medicationstatement_create_req(
 pub fn medicationstatement_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicationStatement", client)
 }
 
 pub fn medicationstatement_update_req(
   resource: r4.Medicationstatement,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicationstatement_to_json(resource),
@@ -2693,7 +2789,7 @@ pub fn medicationstatement_resp(
 pub fn medicinalproduct_create_req(
   resource: r4.Medicinalproduct,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicinalproduct_to_json(resource),
     "MedicinalProduct",
@@ -2704,14 +2800,14 @@ pub fn medicinalproduct_create_req(
 pub fn medicinalproduct_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicinalProduct", client)
 }
 
 pub fn medicinalproduct_update_req(
   resource: r4.Medicinalproduct,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicinalproduct_to_json(resource),
@@ -2729,7 +2825,7 @@ pub fn medicinalproduct_resp(
 pub fn medicinalproductauthorization_create_req(
   resource: r4.Medicinalproductauthorization,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicinalproductauthorization_to_json(resource),
     "MedicinalProductAuthorization",
@@ -2740,14 +2836,14 @@ pub fn medicinalproductauthorization_create_req(
 pub fn medicinalproductauthorization_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicinalProductAuthorization", client)
 }
 
 pub fn medicinalproductauthorization_update_req(
   resource: r4.Medicinalproductauthorization,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicinalproductauthorization_to_json(resource),
@@ -2769,7 +2865,7 @@ pub fn medicinalproductauthorization_resp(
 pub fn medicinalproductcontraindication_create_req(
   resource: r4.Medicinalproductcontraindication,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicinalproductcontraindication_to_json(resource),
     "MedicinalProductContraindication",
@@ -2780,14 +2876,14 @@ pub fn medicinalproductcontraindication_create_req(
 pub fn medicinalproductcontraindication_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicinalProductContraindication", client)
 }
 
 pub fn medicinalproductcontraindication_update_req(
   resource: r4.Medicinalproductcontraindication,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicinalproductcontraindication_to_json(resource),
@@ -2809,7 +2905,7 @@ pub fn medicinalproductcontraindication_resp(
 pub fn medicinalproductindication_create_req(
   resource: r4.Medicinalproductindication,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicinalproductindication_to_json(resource),
     "MedicinalProductIndication",
@@ -2820,14 +2916,14 @@ pub fn medicinalproductindication_create_req(
 pub fn medicinalproductindication_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicinalProductIndication", client)
 }
 
 pub fn medicinalproductindication_update_req(
   resource: r4.Medicinalproductindication,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicinalproductindication_to_json(resource),
@@ -2849,7 +2945,7 @@ pub fn medicinalproductindication_resp(
 pub fn medicinalproductingredient_create_req(
   resource: r4.Medicinalproductingredient,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicinalproductingredient_to_json(resource),
     "MedicinalProductIngredient",
@@ -2860,14 +2956,14 @@ pub fn medicinalproductingredient_create_req(
 pub fn medicinalproductingredient_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicinalProductIngredient", client)
 }
 
 pub fn medicinalproductingredient_update_req(
   resource: r4.Medicinalproductingredient,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicinalproductingredient_to_json(resource),
@@ -2889,7 +2985,7 @@ pub fn medicinalproductingredient_resp(
 pub fn medicinalproductinteraction_create_req(
   resource: r4.Medicinalproductinteraction,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicinalproductinteraction_to_json(resource),
     "MedicinalProductInteraction",
@@ -2900,14 +2996,14 @@ pub fn medicinalproductinteraction_create_req(
 pub fn medicinalproductinteraction_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicinalProductInteraction", client)
 }
 
 pub fn medicinalproductinteraction_update_req(
   resource: r4.Medicinalproductinteraction,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicinalproductinteraction_to_json(resource),
@@ -2929,7 +3025,7 @@ pub fn medicinalproductinteraction_resp(
 pub fn medicinalproductmanufactured_create_req(
   resource: r4.Medicinalproductmanufactured,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicinalproductmanufactured_to_json(resource),
     "MedicinalProductManufactured",
@@ -2940,14 +3036,14 @@ pub fn medicinalproductmanufactured_create_req(
 pub fn medicinalproductmanufactured_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicinalProductManufactured", client)
 }
 
 pub fn medicinalproductmanufactured_update_req(
   resource: r4.Medicinalproductmanufactured,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicinalproductmanufactured_to_json(resource),
@@ -2969,7 +3065,7 @@ pub fn medicinalproductmanufactured_resp(
 pub fn medicinalproductpackaged_create_req(
   resource: r4.Medicinalproductpackaged,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicinalproductpackaged_to_json(resource),
     "MedicinalProductPackaged",
@@ -2980,14 +3076,14 @@ pub fn medicinalproductpackaged_create_req(
 pub fn medicinalproductpackaged_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicinalProductPackaged", client)
 }
 
 pub fn medicinalproductpackaged_update_req(
   resource: r4.Medicinalproductpackaged,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicinalproductpackaged_to_json(resource),
@@ -3009,7 +3105,7 @@ pub fn medicinalproductpackaged_resp(
 pub fn medicinalproductpharmaceutical_create_req(
   resource: r4.Medicinalproductpharmaceutical,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicinalproductpharmaceutical_to_json(resource),
     "MedicinalProductPharmaceutical",
@@ -3020,14 +3116,14 @@ pub fn medicinalproductpharmaceutical_create_req(
 pub fn medicinalproductpharmaceutical_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicinalProductPharmaceutical", client)
 }
 
 pub fn medicinalproductpharmaceutical_update_req(
   resource: r4.Medicinalproductpharmaceutical,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicinalproductpharmaceutical_to_json(resource),
@@ -3049,7 +3145,7 @@ pub fn medicinalproductpharmaceutical_resp(
 pub fn medicinalproductundesirableeffect_create_req(
   resource: r4.Medicinalproductundesirableeffect,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.medicinalproductundesirableeffect_to_json(resource),
     "MedicinalProductUndesirableEffect",
@@ -3060,14 +3156,14 @@ pub fn medicinalproductundesirableeffect_create_req(
 pub fn medicinalproductundesirableeffect_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MedicinalProductUndesirableEffect", client)
 }
 
 pub fn medicinalproductundesirableeffect_update_req(
   resource: r4.Medicinalproductundesirableeffect,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.medicinalproductundesirableeffect_to_json(resource),
@@ -3089,7 +3185,7 @@ pub fn medicinalproductundesirableeffect_resp(
 pub fn messagedefinition_create_req(
   resource: r4.Messagedefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.messagedefinition_to_json(resource),
     "MessageDefinition",
@@ -3100,14 +3196,14 @@ pub fn messagedefinition_create_req(
 pub fn messagedefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MessageDefinition", client)
 }
 
 pub fn messagedefinition_update_req(
   resource: r4.Messagedefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.messagedefinition_to_json(resource),
@@ -3125,18 +3221,21 @@ pub fn messagedefinition_resp(
 pub fn messageheader_create_req(
   resource: r4.Messageheader,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.messageheader_to_json(resource), "MessageHeader", client)
 }
 
-pub fn messageheader_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn messageheader_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "MessageHeader", client)
 }
 
 pub fn messageheader_update_req(
   resource: r4.Messageheader,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.messageheader_to_json(resource),
@@ -3154,7 +3253,7 @@ pub fn messageheader_resp(
 pub fn molecularsequence_create_req(
   resource: r4.Molecularsequence,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.molecularsequence_to_json(resource),
     "MolecularSequence",
@@ -3165,14 +3264,14 @@ pub fn molecularsequence_create_req(
 pub fn molecularsequence_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "MolecularSequence", client)
 }
 
 pub fn molecularsequence_update_req(
   resource: r4.Molecularsequence,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.molecularsequence_to_json(resource),
@@ -3190,18 +3289,21 @@ pub fn molecularsequence_resp(
 pub fn namingsystem_create_req(
   resource: r4.Namingsystem,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.namingsystem_to_json(resource), "NamingSystem", client)
 }
 
-pub fn namingsystem_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn namingsystem_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "NamingSystem", client)
 }
 
 pub fn namingsystem_update_req(
   resource: r4.Namingsystem,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.namingsystem_to_json(resource),
@@ -3219,21 +3321,21 @@ pub fn namingsystem_resp(
 pub fn nutritionorder_create_req(
   resource: r4.Nutritionorder,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.nutritionorder_to_json(resource), "NutritionOrder", client)
 }
 
 pub fn nutritionorder_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "NutritionOrder", client)
 }
 
 pub fn nutritionorder_update_req(
   resource: r4.Nutritionorder,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.nutritionorder_to_json(resource),
@@ -3251,18 +3353,21 @@ pub fn nutritionorder_resp(
 pub fn observation_create_req(
   resource: r4.Observation,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.observation_to_json(resource), "Observation", client)
 }
 
-pub fn observation_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn observation_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Observation", client)
 }
 
 pub fn observation_update_req(
   resource: r4.Observation,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.observation_to_json(resource),
@@ -3280,7 +3385,7 @@ pub fn observation_resp(
 pub fn observationdefinition_create_req(
   resource: r4.Observationdefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.observationdefinition_to_json(resource),
     "ObservationDefinition",
@@ -3291,14 +3396,14 @@ pub fn observationdefinition_create_req(
 pub fn observationdefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ObservationDefinition", client)
 }
 
 pub fn observationdefinition_update_req(
   resource: r4.Observationdefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.observationdefinition_to_json(resource),
@@ -3316,7 +3421,7 @@ pub fn observationdefinition_resp(
 pub fn operationdefinition_create_req(
   resource: r4.Operationdefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.operationdefinition_to_json(resource),
     "OperationDefinition",
@@ -3327,14 +3432,14 @@ pub fn operationdefinition_create_req(
 pub fn operationdefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "OperationDefinition", client)
 }
 
 pub fn operationdefinition_update_req(
   resource: r4.Operationdefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.operationdefinition_to_json(resource),
@@ -3352,7 +3457,7 @@ pub fn operationdefinition_resp(
 pub fn operationoutcome_create_req(
   resource: r4.Operationoutcome,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.operationoutcome_to_json(resource),
     "OperationOutcome",
@@ -3363,14 +3468,14 @@ pub fn operationoutcome_create_req(
 pub fn operationoutcome_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "OperationOutcome", client)
 }
 
 pub fn operationoutcome_update_req(
   resource: r4.Operationoutcome,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.operationoutcome_to_json(resource),
@@ -3388,18 +3493,21 @@ pub fn operationoutcome_resp(
 pub fn organization_create_req(
   resource: r4.Organization,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.organization_to_json(resource), "Organization", client)
 }
 
-pub fn organization_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn organization_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Organization", client)
 }
 
 pub fn organization_update_req(
   resource: r4.Organization,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.organization_to_json(resource),
@@ -3417,7 +3525,7 @@ pub fn organization_resp(
 pub fn organizationaffiliation_create_req(
   resource: r4.Organizationaffiliation,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.organizationaffiliation_to_json(resource),
     "OrganizationAffiliation",
@@ -3428,14 +3536,14 @@ pub fn organizationaffiliation_create_req(
 pub fn organizationaffiliation_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "OrganizationAffiliation", client)
 }
 
 pub fn organizationaffiliation_update_req(
   resource: r4.Organizationaffiliation,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.organizationaffiliation_to_json(resource),
@@ -3457,18 +3565,18 @@ pub fn organizationaffiliation_resp(
 pub fn patient_create_req(
   resource: r4.Patient,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.patient_to_json(resource), "Patient", client)
 }
 
-pub fn patient_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn patient_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Patient", client)
 }
 
 pub fn patient_update_req(
   resource: r4.Patient,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.patient_to_json(resource), "Patient", client)
 }
 
@@ -3479,18 +3587,21 @@ pub fn patient_resp(resp: Response(String)) -> Result(r4.Patient, ErrResp) {
 pub fn paymentnotice_create_req(
   resource: r4.Paymentnotice,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.paymentnotice_to_json(resource), "PaymentNotice", client)
 }
 
-pub fn paymentnotice_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn paymentnotice_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "PaymentNotice", client)
 }
 
 pub fn paymentnotice_update_req(
   resource: r4.Paymentnotice,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.paymentnotice_to_json(resource),
@@ -3508,7 +3619,7 @@ pub fn paymentnotice_resp(
 pub fn paymentreconciliation_create_req(
   resource: r4.Paymentreconciliation,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.paymentreconciliation_to_json(resource),
     "PaymentReconciliation",
@@ -3519,14 +3630,14 @@ pub fn paymentreconciliation_create_req(
 pub fn paymentreconciliation_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "PaymentReconciliation", client)
 }
 
 pub fn paymentreconciliation_update_req(
   resource: r4.Paymentreconciliation,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.paymentreconciliation_to_json(resource),
@@ -3544,18 +3655,18 @@ pub fn paymentreconciliation_resp(
 pub fn person_create_req(
   resource: r4.Person,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.person_to_json(resource), "Person", client)
 }
 
-pub fn person_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn person_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Person", client)
 }
 
 pub fn person_update_req(
   resource: r4.Person,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.person_to_json(resource), "Person", client)
 }
 
@@ -3566,21 +3677,21 @@ pub fn person_resp(resp: Response(String)) -> Result(r4.Person, ErrResp) {
 pub fn plandefinition_create_req(
   resource: r4.Plandefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.plandefinition_to_json(resource), "PlanDefinition", client)
 }
 
 pub fn plandefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "PlanDefinition", client)
 }
 
 pub fn plandefinition_update_req(
   resource: r4.Plandefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.plandefinition_to_json(resource),
@@ -3598,18 +3709,21 @@ pub fn plandefinition_resp(
 pub fn practitioner_create_req(
   resource: r4.Practitioner,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.practitioner_to_json(resource), "Practitioner", client)
 }
 
-pub fn practitioner_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn practitioner_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Practitioner", client)
 }
 
 pub fn practitioner_update_req(
   resource: r4.Practitioner,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.practitioner_to_json(resource),
@@ -3627,7 +3741,7 @@ pub fn practitioner_resp(
 pub fn practitionerrole_create_req(
   resource: r4.Practitionerrole,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.practitionerrole_to_json(resource),
     "PractitionerRole",
@@ -3638,14 +3752,14 @@ pub fn practitionerrole_create_req(
 pub fn practitionerrole_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "PractitionerRole", client)
 }
 
 pub fn practitionerrole_update_req(
   resource: r4.Practitionerrole,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.practitionerrole_to_json(resource),
@@ -3663,18 +3777,21 @@ pub fn practitionerrole_resp(
 pub fn procedure_create_req(
   resource: r4.Procedure,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.procedure_to_json(resource), "Procedure", client)
 }
 
-pub fn procedure_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn procedure_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Procedure", client)
 }
 
 pub fn procedure_update_req(
   resource: r4.Procedure,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.procedure_to_json(resource),
@@ -3690,18 +3807,21 @@ pub fn procedure_resp(resp: Response(String)) -> Result(r4.Procedure, ErrResp) {
 pub fn provenance_create_req(
   resource: r4.Provenance,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.provenance_to_json(resource), "Provenance", client)
 }
 
-pub fn provenance_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn provenance_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Provenance", client)
 }
 
 pub fn provenance_update_req(
   resource: r4.Provenance,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.provenance_to_json(resource),
@@ -3717,18 +3837,21 @@ pub fn provenance_resp(resp: Response(String)) -> Result(r4.Provenance, ErrResp)
 pub fn questionnaire_create_req(
   resource: r4.Questionnaire,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.questionnaire_to_json(resource), "Questionnaire", client)
 }
 
-pub fn questionnaire_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn questionnaire_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Questionnaire", client)
 }
 
 pub fn questionnaire_update_req(
   resource: r4.Questionnaire,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.questionnaire_to_json(resource),
@@ -3746,7 +3869,7 @@ pub fn questionnaire_resp(
 pub fn questionnaireresponse_create_req(
   resource: r4.Questionnaireresponse,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.questionnaireresponse_to_json(resource),
     "QuestionnaireResponse",
@@ -3757,14 +3880,14 @@ pub fn questionnaireresponse_create_req(
 pub fn questionnaireresponse_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "QuestionnaireResponse", client)
 }
 
 pub fn questionnaireresponse_update_req(
   resource: r4.Questionnaireresponse,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.questionnaireresponse_to_json(resource),
@@ -3782,18 +3905,21 @@ pub fn questionnaireresponse_resp(
 pub fn relatedperson_create_req(
   resource: r4.Relatedperson,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.relatedperson_to_json(resource), "RelatedPerson", client)
 }
 
-pub fn relatedperson_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn relatedperson_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "RelatedPerson", client)
 }
 
 pub fn relatedperson_update_req(
   resource: r4.Relatedperson,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.relatedperson_to_json(resource),
@@ -3811,18 +3937,21 @@ pub fn relatedperson_resp(
 pub fn requestgroup_create_req(
   resource: r4.Requestgroup,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.requestgroup_to_json(resource), "RequestGroup", client)
 }
 
-pub fn requestgroup_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn requestgroup_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "RequestGroup", client)
 }
 
 pub fn requestgroup_update_req(
   resource: r4.Requestgroup,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.requestgroup_to_json(resource),
@@ -3840,7 +3969,7 @@ pub fn requestgroup_resp(
 pub fn researchdefinition_create_req(
   resource: r4.Researchdefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.researchdefinition_to_json(resource),
     "ResearchDefinition",
@@ -3851,14 +3980,14 @@ pub fn researchdefinition_create_req(
 pub fn researchdefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ResearchDefinition", client)
 }
 
 pub fn researchdefinition_update_req(
   resource: r4.Researchdefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.researchdefinition_to_json(resource),
@@ -3876,7 +4005,7 @@ pub fn researchdefinition_resp(
 pub fn researchelementdefinition_create_req(
   resource: r4.Researchelementdefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.researchelementdefinition_to_json(resource),
     "ResearchElementDefinition",
@@ -3887,14 +4016,14 @@ pub fn researchelementdefinition_create_req(
 pub fn researchelementdefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ResearchElementDefinition", client)
 }
 
 pub fn researchelementdefinition_update_req(
   resource: r4.Researchelementdefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.researchelementdefinition_to_json(resource),
@@ -3916,18 +4045,21 @@ pub fn researchelementdefinition_resp(
 pub fn researchstudy_create_req(
   resource: r4.Researchstudy,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.researchstudy_to_json(resource), "ResearchStudy", client)
 }
 
-pub fn researchstudy_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn researchstudy_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "ResearchStudy", client)
 }
 
 pub fn researchstudy_update_req(
   resource: r4.Researchstudy,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.researchstudy_to_json(resource),
@@ -3945,7 +4077,7 @@ pub fn researchstudy_resp(
 pub fn researchsubject_create_req(
   resource: r4.Researchsubject,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.researchsubject_to_json(resource),
     "ResearchSubject",
@@ -3956,14 +4088,14 @@ pub fn researchsubject_create_req(
 pub fn researchsubject_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ResearchSubject", client)
 }
 
 pub fn researchsubject_update_req(
   resource: r4.Researchsubject,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.researchsubject_to_json(resource),
@@ -3981,21 +4113,21 @@ pub fn researchsubject_resp(
 pub fn riskassessment_create_req(
   resource: r4.Riskassessment,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.riskassessment_to_json(resource), "RiskAssessment", client)
 }
 
 pub fn riskassessment_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "RiskAssessment", client)
 }
 
 pub fn riskassessment_update_req(
   resource: r4.Riskassessment,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.riskassessment_to_json(resource),
@@ -4013,7 +4145,7 @@ pub fn riskassessment_resp(
 pub fn riskevidencesynthesis_create_req(
   resource: r4.Riskevidencesynthesis,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.riskevidencesynthesis_to_json(resource),
     "RiskEvidenceSynthesis",
@@ -4024,14 +4156,14 @@ pub fn riskevidencesynthesis_create_req(
 pub fn riskevidencesynthesis_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "RiskEvidenceSynthesis", client)
 }
 
 pub fn riskevidencesynthesis_update_req(
   resource: r4.Riskevidencesynthesis,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.riskevidencesynthesis_to_json(resource),
@@ -4049,18 +4181,21 @@ pub fn riskevidencesynthesis_resp(
 pub fn schedule_create_req(
   resource: r4.Schedule,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.schedule_to_json(resource), "Schedule", client)
 }
 
-pub fn schedule_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn schedule_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Schedule", client)
 }
 
 pub fn schedule_update_req(
   resource: r4.Schedule,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.schedule_to_json(resource), "Schedule", client)
 }
 
@@ -4071,7 +4206,7 @@ pub fn schedule_resp(resp: Response(String)) -> Result(r4.Schedule, ErrResp) {
 pub fn searchparameter_create_req(
   resource: r4.Searchparameter,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.searchparameter_to_json(resource),
     "SearchParameter",
@@ -4082,14 +4217,14 @@ pub fn searchparameter_create_req(
 pub fn searchparameter_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "SearchParameter", client)
 }
 
 pub fn searchparameter_update_req(
   resource: r4.Searchparameter,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.searchparameter_to_json(resource),
@@ -4107,21 +4242,21 @@ pub fn searchparameter_resp(
 pub fn servicerequest_create_req(
   resource: r4.Servicerequest,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.servicerequest_to_json(resource), "ServiceRequest", client)
 }
 
 pub fn servicerequest_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "ServiceRequest", client)
 }
 
 pub fn servicerequest_update_req(
   resource: r4.Servicerequest,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.servicerequest_to_json(resource),
@@ -4136,18 +4271,21 @@ pub fn servicerequest_resp(
   any_resp(resp, r4.servicerequest_decoder(), "ServiceRequest")
 }
 
-pub fn slot_create_req(resource: r4.Slot, client: FhirClient) -> Request(String) {
+pub fn slot_create_req(
+  resource: r4.Slot,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_create_req(r4.slot_to_json(resource), "Slot", client)
 }
 
-pub fn slot_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn slot_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Slot", client)
 }
 
 pub fn slot_update_req(
   resource: r4.Slot,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.slot_to_json(resource), "Slot", client)
 }
 
@@ -4158,18 +4296,21 @@ pub fn slot_resp(resp: Response(String)) -> Result(r4.Slot, ErrResp) {
 pub fn specimen_create_req(
   resource: r4.Specimen,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.specimen_to_json(resource), "Specimen", client)
 }
 
-pub fn specimen_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn specimen_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Specimen", client)
 }
 
 pub fn specimen_update_req(
   resource: r4.Specimen,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.specimen_to_json(resource), "Specimen", client)
 }
 
@@ -4180,7 +4321,7 @@ pub fn specimen_resp(resp: Response(String)) -> Result(r4.Specimen, ErrResp) {
 pub fn specimendefinition_create_req(
   resource: r4.Specimendefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.specimendefinition_to_json(resource),
     "SpecimenDefinition",
@@ -4191,14 +4332,14 @@ pub fn specimendefinition_create_req(
 pub fn specimendefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "SpecimenDefinition", client)
 }
 
 pub fn specimendefinition_update_req(
   resource: r4.Specimendefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.specimendefinition_to_json(resource),
@@ -4216,7 +4357,7 @@ pub fn specimendefinition_resp(
 pub fn structuredefinition_create_req(
   resource: r4.Structuredefinition,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.structuredefinition_to_json(resource),
     "StructureDefinition",
@@ -4227,14 +4368,14 @@ pub fn structuredefinition_create_req(
 pub fn structuredefinition_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "StructureDefinition", client)
 }
 
 pub fn structuredefinition_update_req(
   resource: r4.Structuredefinition,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.structuredefinition_to_json(resource),
@@ -4252,18 +4393,21 @@ pub fn structuredefinition_resp(
 pub fn structuremap_create_req(
   resource: r4.Structuremap,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.structuremap_to_json(resource), "StructureMap", client)
 }
 
-pub fn structuremap_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn structuremap_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "StructureMap", client)
 }
 
 pub fn structuremap_update_req(
   resource: r4.Structuremap,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.structuremap_to_json(resource),
@@ -4281,18 +4425,21 @@ pub fn structuremap_resp(
 pub fn subscription_create_req(
   resource: r4.Subscription,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.subscription_to_json(resource), "Subscription", client)
 }
 
-pub fn subscription_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn subscription_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Subscription", client)
 }
 
 pub fn subscription_update_req(
   resource: r4.Subscription,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.subscription_to_json(resource),
@@ -4310,18 +4457,21 @@ pub fn subscription_resp(
 pub fn substance_create_req(
   resource: r4.Substance,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.substance_to_json(resource), "Substance", client)
 }
 
-pub fn substance_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn substance_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "Substance", client)
 }
 
 pub fn substance_update_req(
   resource: r4.Substance,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.substance_to_json(resource),
@@ -4337,7 +4487,7 @@ pub fn substance_resp(resp: Response(String)) -> Result(r4.Substance, ErrResp) {
 pub fn substancenucleicacid_create_req(
   resource: r4.Substancenucleicacid,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.substancenucleicacid_to_json(resource),
     "SubstanceNucleicAcid",
@@ -4348,14 +4498,14 @@ pub fn substancenucleicacid_create_req(
 pub fn substancenucleicacid_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "SubstanceNucleicAcid", client)
 }
 
 pub fn substancenucleicacid_update_req(
   resource: r4.Substancenucleicacid,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.substancenucleicacid_to_json(resource),
@@ -4373,7 +4523,7 @@ pub fn substancenucleicacid_resp(
 pub fn substancepolymer_create_req(
   resource: r4.Substancepolymer,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.substancepolymer_to_json(resource),
     "SubstancePolymer",
@@ -4384,14 +4534,14 @@ pub fn substancepolymer_create_req(
 pub fn substancepolymer_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "SubstancePolymer", client)
 }
 
 pub fn substancepolymer_update_req(
   resource: r4.Substancepolymer,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.substancepolymer_to_json(resource),
@@ -4409,7 +4559,7 @@ pub fn substancepolymer_resp(
 pub fn substanceprotein_create_req(
   resource: r4.Substanceprotein,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.substanceprotein_to_json(resource),
     "SubstanceProtein",
@@ -4420,14 +4570,14 @@ pub fn substanceprotein_create_req(
 pub fn substanceprotein_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "SubstanceProtein", client)
 }
 
 pub fn substanceprotein_update_req(
   resource: r4.Substanceprotein,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.substanceprotein_to_json(resource),
@@ -4445,7 +4595,7 @@ pub fn substanceprotein_resp(
 pub fn substancereferenceinformation_create_req(
   resource: r4.Substancereferenceinformation,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.substancereferenceinformation_to_json(resource),
     "SubstanceReferenceInformation",
@@ -4456,14 +4606,14 @@ pub fn substancereferenceinformation_create_req(
 pub fn substancereferenceinformation_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "SubstanceReferenceInformation", client)
 }
 
 pub fn substancereferenceinformation_update_req(
   resource: r4.Substancereferenceinformation,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.substancereferenceinformation_to_json(resource),
@@ -4485,7 +4635,7 @@ pub fn substancereferenceinformation_resp(
 pub fn substancesourcematerial_create_req(
   resource: r4.Substancesourcematerial,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.substancesourcematerial_to_json(resource),
     "SubstanceSourceMaterial",
@@ -4496,14 +4646,14 @@ pub fn substancesourcematerial_create_req(
 pub fn substancesourcematerial_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "SubstanceSourceMaterial", client)
 }
 
 pub fn substancesourcematerial_update_req(
   resource: r4.Substancesourcematerial,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.substancesourcematerial_to_json(resource),
@@ -4525,7 +4675,7 @@ pub fn substancesourcematerial_resp(
 pub fn substancespecification_create_req(
   resource: r4.Substancespecification,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.substancespecification_to_json(resource),
     "SubstanceSpecification",
@@ -4536,14 +4686,14 @@ pub fn substancespecification_create_req(
 pub fn substancespecification_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "SubstanceSpecification", client)
 }
 
 pub fn substancespecification_update_req(
   resource: r4.Substancespecification,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.substancespecification_to_json(resource),
@@ -4561,21 +4711,21 @@ pub fn substancespecification_resp(
 pub fn supplydelivery_create_req(
   resource: r4.Supplydelivery,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.supplydelivery_to_json(resource), "SupplyDelivery", client)
 }
 
 pub fn supplydelivery_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "SupplyDelivery", client)
 }
 
 pub fn supplydelivery_update_req(
   resource: r4.Supplydelivery,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.supplydelivery_to_json(resource),
@@ -4593,18 +4743,21 @@ pub fn supplydelivery_resp(
 pub fn supplyrequest_create_req(
   resource: r4.Supplyrequest,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.supplyrequest_to_json(resource), "SupplyRequest", client)
 }
 
-pub fn supplyrequest_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn supplyrequest_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "SupplyRequest", client)
 }
 
 pub fn supplyrequest_update_req(
   resource: r4.Supplyrequest,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.supplyrequest_to_json(resource),
@@ -4619,18 +4772,21 @@ pub fn supplyrequest_resp(
   any_resp(resp, r4.supplyrequest_decoder(), "SupplyRequest")
 }
 
-pub fn task_create_req(resource: r4.Task, client: FhirClient) -> Request(String) {
+pub fn task_create_req(
+  resource: r4.Task,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_create_req(r4.task_to_json(resource), "Task", client)
 }
 
-pub fn task_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn task_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   any_read_req(id, "Task", client)
 }
 
 pub fn task_update_req(
   resource: r4.Task,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.task_to_json(resource), "Task", client)
 }
 
@@ -4641,7 +4797,7 @@ pub fn task_resp(resp: Response(String)) -> Result(r4.Task, ErrResp) {
 pub fn terminologycapabilities_create_req(
   resource: r4.Terminologycapabilities,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.terminologycapabilities_to_json(resource),
     "TerminologyCapabilities",
@@ -4652,14 +4808,14 @@ pub fn terminologycapabilities_create_req(
 pub fn terminologycapabilities_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "TerminologyCapabilities", client)
 }
 
 pub fn terminologycapabilities_update_req(
   resource: r4.Terminologycapabilities,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.terminologycapabilities_to_json(resource),
@@ -4681,18 +4837,21 @@ pub fn terminologycapabilities_resp(
 pub fn testreport_create_req(
   resource: r4.Testreport,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.testreport_to_json(resource), "TestReport", client)
 }
 
-pub fn testreport_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn testreport_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "TestReport", client)
 }
 
 pub fn testreport_update_req(
   resource: r4.Testreport,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.testreport_to_json(resource),
@@ -4708,18 +4867,21 @@ pub fn testreport_resp(resp: Response(String)) -> Result(r4.Testreport, ErrResp)
 pub fn testscript_create_req(
   resource: r4.Testscript,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.testscript_to_json(resource), "TestScript", client)
 }
 
-pub fn testscript_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn testscript_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "TestScript", client)
 }
 
 pub fn testscript_update_req(
   resource: r4.Testscript,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.testscript_to_json(resource),
@@ -4735,18 +4897,21 @@ pub fn testscript_resp(resp: Response(String)) -> Result(r4.Testscript, ErrResp)
 pub fn valueset_create_req(
   resource: r4.Valueset,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(r4.valueset_to_json(resource), "ValueSet", client)
 }
 
-pub fn valueset_read_req(id: String, client: FhirClient) -> Request(String) {
+pub fn valueset_read_req(
+  id: String,
+  client: FhirClient,
+) -> Request(Option(Json)) {
   any_read_req(id, "ValueSet", client)
 }
 
 pub fn valueset_update_req(
   resource: r4.Valueset,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(resource.id, r4.valueset_to_json(resource), "ValueSet", client)
 }
 
@@ -4757,7 +4922,7 @@ pub fn valueset_resp(resp: Response(String)) -> Result(r4.Valueset, ErrResp) {
 pub fn verificationresult_create_req(
   resource: r4.Verificationresult,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.verificationresult_to_json(resource),
     "VerificationResult",
@@ -4768,14 +4933,14 @@ pub fn verificationresult_create_req(
 pub fn verificationresult_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "VerificationResult", client)
 }
 
 pub fn verificationresult_update_req(
   resource: r4.Verificationresult,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.verificationresult_to_json(resource),
@@ -4793,7 +4958,7 @@ pub fn verificationresult_resp(
 pub fn visionprescription_create_req(
   resource: r4.Visionprescription,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_create_req(
     r4.visionprescription_to_json(resource),
     "VisionPrescription",
@@ -4804,14 +4969,14 @@ pub fn visionprescription_create_req(
 pub fn visionprescription_read_req(
   id: String,
   client: FhirClient,
-) -> Request(String) {
+) -> Request(Option(Json)) {
   any_read_req(id, "VisionPrescription", client)
 }
 
 pub fn visionprescription_update_req(
   resource: r4.Visionprescription,
   client: FhirClient,
-) -> Result(Request(String), ErrReq) {
+) -> Result(Request(Option(Json)), ErrReq) {
   any_update_req(
     resource.id,
     r4.visionprescription_to_json(resource),

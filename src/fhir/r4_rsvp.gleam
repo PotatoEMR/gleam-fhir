@@ -113,7 +113,12 @@ fn any_delete(
     })
   }
   let handler = rsvp.expect_any_response(handle_read)
-  rsvp.send(req, handler)
+  req
+  |> request.set_body(case req.body {
+    None -> ""
+    Some(body) -> json.to_string(body)
+  })
+  |> rsvp.send(handler)
 }
 
 /// write out search string manually, in case typed search params don't work
@@ -149,7 +154,7 @@ pub fn operation_any(
 }
 
 fn sendreq_handleresponse(
-  req: Request(String),
+  req: Request(Option(Json)),
   res_dec: Decoder(r),
   res_type: String,
   handle_response: fn(Result(r, Err)) -> a,
@@ -164,7 +169,7 @@ fn sendreq_handleresponse(
 }
 
 fn sendreq_handleresponse_andprocess(
-  req: Request(String),
+  req: Request(Option(Json)),
   res_dec: Decoder(r),
   res_type: String,
   handle_response: fn(Result(b, Err)) -> a,
@@ -182,7 +187,12 @@ fn sendreq_handleresponse_andprocess(
     })
   }
   let handler = rsvp.expect_any_response(handle_read)
-  rsvp.send(req, handler)
+  req
+  |> request.set_body(case req.body {
+    None -> ""
+    Some(body) -> json.to_string(body)
+  })
+  |> rsvp.send(handler)
 }
 
 pub fn account_create(

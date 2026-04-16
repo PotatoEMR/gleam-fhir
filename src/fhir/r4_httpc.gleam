@@ -97,7 +97,7 @@ fn any_delete(
   client: FhirClient,
 ) -> Result(r4_sansio.OperationoutcomeOrHTTP, Err) {
   let req = r4_sansio.any_delete_req(id, res_type, client)
-  case httpc.send(req) {
+  case httpc.send(req |> request.set_body("")) {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
       case r4_sansio.http_or_operationoutcome_resp(resp) {
@@ -145,11 +145,18 @@ pub fn operation_any(
 }
 
 fn sendreq_parseresource(
-  req: Request(String),
+  req: Request(Option(Json)),
   res_dec: Decoder(r),
   res_type: String,
 ) -> Result(r, Err) {
-  case httpc.send(req) {
+  case
+    req
+    |> request.set_body(case req.body {
+      None -> ""
+      Some(body) -> json.to_string(body)
+    })
+    |> httpc.send
+  {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
       case r4_sansio.any_resp(resp, res_dec, res_type) {
