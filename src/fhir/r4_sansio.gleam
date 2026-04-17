@@ -154,7 +154,6 @@ pub fn any_delete_req(
   |> request.set_path(
     string.concat([client.basereq.path, "/", res_type, "/", id]),
   )
-  |> request.set_header("Accept", "application/fhir+json")
   |> request.set_method(http.Delete)
 }
 
@@ -280,6 +279,68 @@ pub fn http_or_operationoutcome_resp(
       }
     }
   }
+}
+
+pub type PostBundleType {
+  /// server executes all operations in transaction as one atomic operation
+  Transaction
+  /// server executes each operation in batch independently
+  /// meaning an operation can fail without stopping other operations
+  Batch
+}
+
+pub fn batch_req(
+  reqs: List(Request(Option(Json))),
+  bundle_type: PostBundleType,
+  client: FhirClient,
+) {
+  // each request in list already has serialized json body
+  // so we have to construct bundle json as json
+  // rather than type safe bundle Bundle variable then serialize
+  let base_len = string.length(client.basereq.path) + 1
+  // request path is minus server base part
+  // eg http://hapi.fhir.org/baseR4/Immunization/123 -> Immunization/123
+  let entries =
+    reqs
+    |> list.map(fn(req) {
+      let entry_req =
+        json.object([
+          #(
+            "method",
+            case req.method {
+              http.Get -> "GET"
+              http.Post -> "POST"
+              http.Put -> "PUT"
+              http.Delete -> "DELETE"
+              http.Patch -> "PATCH"
+              _ ->
+                "invalid http verb which should never happen, you probably called batch_req with reqs created or modified by something other than this module"
+            }
+              |> json.string,
+          ),
+          #("url", json.string(string.drop_start(req.path, base_len))),
+        ])
+      let obj = [#("request", entry_req)]
+      let obj = case req.body {
+        None -> obj
+        Some(resource) -> [#("resource", resource), ..obj]
+      }
+      json.object(obj)
+    })
+  let bundle_type = case bundle_type {
+    Transaction -> "transaction"
+    Batch -> "batch"
+  }
+  let batch_bundle =
+    json.object([
+      #("resourceType", json.string("Bundle")),
+      #("type", json.string(bundle_type)),
+      #("entry", json.preprocessed_array(entries)),
+    ])
+  client.basereq
+  |> request.set_header("Content-Type", "application/fhir+json")
+  |> request.set_body(Some(batch_bundle))
+  |> request.set_method(http.Post)
 }
 
 pub fn account_create_req(

@@ -150,7 +150,17 @@ pub fn operation_any(
       params,
       client,
     )
-  sendreq_handleresponse(req, res_decoder, res_type, handle_response)
+  sendreq_handleresponse(req, res_decoder, "Bundle", handle_response)
+}
+
+pub fn batch(
+  reqs: List(Request(Option(Json))),
+  bundle_type: r4_sansio.PostBundleType,
+  client: FhirClient,
+  handle_response: fn(Result(r4.Bundle, Err)) -> msg,
+) -> Effect(msg) {
+  let req = r4_sansio.batch_req(reqs, bundle_type, client)
+  sendreq_handleresponse(req, r4.bundle_decoder(), "Bundle", handle_response)
 }
 
 fn sendreq_handleresponse(

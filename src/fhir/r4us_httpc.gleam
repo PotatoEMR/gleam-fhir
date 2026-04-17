@@ -121,7 +121,7 @@ pub fn search_any(
   client: FhirClient,
 ) -> Result(r4us.Bundle, Err) {
   let req = r4us_sansio.any_search_req(search_string, res_type, client)
-  sendreq_parseresource(req, r4us.bundle_decoder(), res_type)
+  sendreq_parseresource(req, r4us.bundle_decoder(), "Bundle")
 }
 
 /// run any operation string on any resource string, optionally using Parameters
@@ -141,7 +141,7 @@ pub fn operation_any(
       params,
       client,
     )
-  sendreq_parseresource(req, res_decoder, res_type)
+  sendreq_parseresource(req, res_decoder, "Bundle")
 }
 
 fn sendreq_parseresource(
