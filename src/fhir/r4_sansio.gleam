@@ -8,6 +8,7 @@ import gleam/http/response.{type Response}
 import gleam/json.{type Json}
 import gleam/list
 import gleam/option.{type Option, None, Some}
+import gleam/result
 import gleam/string
 import gleam/uri
 
@@ -341,6 +342,17 @@ pub fn batch_req(
   |> request.set_header("Content-Type", "application/fhir+json")
   |> request.set_body(Some(batch_bundle))
   |> request.set_method(http.Post)
+}
+
+pub fn bundle_next_page_req(
+  bundle: r4.Bundle,
+  client: FhirClient,
+) -> Result(Request(Option(Json)), Nil) {
+  result.try(list.find(bundle.link, fn(l) { l.relation == "next" }), fn(link) {
+    result.try(uri.parse(link.url), fn(uri) {
+      Ok(Request(..client.basereq, path: uri.path, query: uri.query))
+    })
+  })
 }
 
 pub fn account_create_req(

@@ -7,6 +7,7 @@ import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
 import gleam/httpc
 import gleam/json.{type Json}
+import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
 
@@ -122,6 +123,50 @@ pub fn search_any(
 ) -> Result(r4.Bundle, Err) {
   let req = r4_sansio.any_search_req(search_string, res_type, client)
   sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
+}
+
+/// get all resources in paginated bundle,
+/// then stick them all in one bundle and pretend not paginated
+///
+/// r4_httpc.search_any("name=e&_count=25", "Patient", client) |> r4_httpc.all_pages(client)
+pub fn all_pages(
+  first_bundle: Result(r4.Bundle, Err),
+  client: FhirClient,
+) -> Result(r4.Bundle, Err) {
+  case all_pages_loop(first_bundle, [], client) {
+    Error(err) -> Error(err)
+    Ok(#(last_bundle, bundles)) -> {
+      let entries =
+        list.fold(from: [], over: bundles, with: fn(acc, bundle) {
+          list.append(bundle.entry, acc)
+        })
+      Ok(r4.Bundle(..last_bundle, entry: entries, link: []))
+    }
+  }
+}
+
+/// searchs each bundle and returns list
+/// also returns last bundle individually
+/// because all_pages smushes everything in there
+pub fn all_pages_loop(
+  curr_bundle: Result(r4.Bundle, Err),
+  acc_bundles: List(r4.Bundle),
+  client: FhirClient,
+) -> Result(#(r4.Bundle, List(r4.Bundle)), Err) {
+  case curr_bundle {
+    Error(err) -> Error(err)
+    Ok(curr_bundle) -> {
+      let acc_bundles = [curr_bundle, ..acc_bundles]
+      case r4_sansio.bundle_next_page_req(curr_bundle, client) {
+        // Error(_) -> reached last page 
+        Error(_) -> Ok(#(curr_bundle, acc_bundles))
+        Ok(req) -> {
+          let next = sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")
+          all_pages_loop(next, acc_bundles, client)
+        }
+      }
+    }
+  }
 }
 
 /// run any operation string on any resource string, optionally using Parameters
