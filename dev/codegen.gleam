@@ -634,6 +634,7 @@ fn gen_fhir(
       fv: fhir_version,
       pkg_prefix: pkg_prefix,
       custom_profile_name: custom_profile_name,
+      all_primitive_ext: all_primitive_ext,
       profiles_dir: profiles_dir,
     )
   let f_sansio = gen_prefix <> "_sansio.gleam"

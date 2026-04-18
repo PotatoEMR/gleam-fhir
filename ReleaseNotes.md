@@ -1,3 +1,9 @@
+## 0.5.0 April 17, 2026
+- Add batch request that takes list of Request(Option(Json))
+  - In order to create batch all requests go from String to Option(Json)
+- Fix 0.4.0 bug where search/operation expect res_type but server returns different reosurc
+- Add sansio get next paginated bundle, and httpc get all paginated bundles at once
+
 ## 0.4.0 April 12, 2026
 - Change response parsing to check for resource of given type (eg AllergyIntolerance) or OperationOutcome rather than go off of http status
 - Change delete operation response parsing

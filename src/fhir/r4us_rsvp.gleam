@@ -139,6 +139,7 @@ pub fn operation_any(
   res_type res_type: String,
   res_id res_id: Option(String),
   res_decoder res_decoder: Decoder(res),
+  return_res_type return_res_type: String,
   client client: FhirClient,
   handle_response handle_response: fn(Result(res, Err)) -> msg,
 ) -> Effect(msg) {
@@ -150,7 +151,7 @@ pub fn operation_any(
       params,
       client,
     )
-  sendreq_handleresponse(req, res_decoder, "Bundle", handle_response)
+  sendreq_handleresponse(req, res_decoder, return_res_type, handle_response)
 }
 
 pub fn batch(

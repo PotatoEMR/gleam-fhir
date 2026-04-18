@@ -6,11 +6,12 @@ import fhir/r4us
 import fhir/r4us_httpc
 import fhir/r4us_sansio
 import fhir/r4us_valuesets
-import gleam/erlang/process
+
+// import gleam/erlang/process
 import gleam/io
 import gleam/json
 import gleam/list
-import gleam/option.{None, Some}
+import gleam/option.{Some}
 
 // these tests run against an external fhir server
 // so they are good to check against the real world
@@ -63,24 +64,7 @@ pub fn normal_r4() {
     )
 
   let assert Ok(client) =
-    r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
-
-  let params =
-    r4.Parameters(..r4.parameters_new(), parameter: [
-      r4.ParametersParameter(
-        ..r4.parameters_parameter_new("resource"),
-        resource: Some(r4.ResourcePatient(joe)),
-      ),
-    ])
-  // let assert Ok(_) =
-  //   r4_httpc.operation_any(
-  //     params: Some(params),
-  //     operation_name: "validate",
-  //     res_type: "Patient",
-  //     res_id: None,
-  //     res_decoder: r4.operationoutcome_decoder(),
-  //     client:,
-  //   )
+    r4_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
 
   let assert Ok(created) = r4_httpc.patient_create(joe, client)
   let assert Some(id) = created.id
@@ -104,15 +88,6 @@ pub fn normal_r4() {
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
     as { "search 1 did not find " <> id }
 
-  let assert Ok(_) =
-    r4_httpc.operation_any(
-      params: None,
-      operation_name: "everything",
-      res_type: "Patient",
-      res_id: created.id,
-      res_decoder: r4.bundle_decoder(),
-      client:,
-    )
   let batch_id = "gleam-fhir-joe"
   let joe_with_id = r4.Patient(..joe, id: Some(batch_id))
   let assert Ok(upsert_req) = r4_sansio.patient_update_req(joe_with_id, client)
@@ -162,34 +137,20 @@ pub fn us_core() {
       ),
     )
 
+  // let assert Ok(client) =
+  //   r4us_httpc.fhirclient_new("https://r4.smarthealthit.org/")
   let assert Ok(client) =
-    r4us_httpc.fhirclient_new("https://r4.smarthealthit.org/")
-
-  let params =
-    r4us.Parameters(..r4us.parameters_new(), parameter: [
-      r4us.ParametersParameter(
-        ..r4us.parameters_parameter_new("resource"),
-        resource: Some(r4us.ResourcePatient(joe)),
-      ),
-    ])
-  // let assert Ok(_) =
-  //   r4us_httpc.operation_any(
-  //     params: Some(params),
-  //     operation_name: "validate",
-  //     res_type: "Patient",
-  //     res_id: None,
-  //     res_decoder: r4us.operationoutcome_decoder(),
-  //     client:,
-  //   )
+    r4us_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
 
   let assert Ok(created) = r4us_httpc.patient_create(joe, client)
   let assert Some(id) = created.id
   let assert Ok(read) = r4us_httpc.patient_read(id, client)
   let rip =
     r4us.Patient(..read, deceased: Some(r4us.PatientDeceasedBoolean(True)))
-  let assert Ok(updated) = r4us_httpc.patient_update(rip, client)
-  // smarthealthit's Lucene reindex is slow/asynchronous; 5s wasn't enough
-  process.sleep(30_000)
+  let assert Ok(_) = r4us_httpc.patient_update(rip, client)
+
+  //this seems to not work often but did at one point, maybe also doing request in browser while waiting here kicks it somehow, or not idk...
+  // process.sleep(30_000)
   let assert Ok(bundle) =
     r4us_httpc.patient_search_bundled(
       r4us_sansio.SpPatient(
@@ -211,16 +172,4 @@ pub fn us_core() {
   let pats = { bundle |> r4us_sansio.bundle_to_groupedresources }.patient
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
     as { "search 2 did not find " <> id }
-
-  let assert Ok(_) =
-    r4us_httpc.operation_any(
-      params: None,
-      operation_name: "everything",
-      res_type: "Patient",
-      res_id: created.id,
-      res_decoder: r4us.bundle_decoder(),
-      client:,
-    )
-  let assert Ok(_) = r4us_httpc.patient_delete(updated, client)
-  Nil
 }

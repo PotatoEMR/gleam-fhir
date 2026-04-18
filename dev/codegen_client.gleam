@@ -183,6 +183,7 @@ pub fn gen(
   fv fhir_version: String,
   pkg_prefix pkg_prefix: String,
   custom_profile_name custom_profile_name: Option(String),
+  all_primitive_ext all_primitive_ext: Bool,
   profiles_dir profiles_dir: String,
 ) {
   let assert Ok(spec) = simplifile.read(spec_file)
@@ -539,11 +540,11 @@ pub fn gen(
     _ -> #("\"next\"", "")
   }
 
-  // primitive-extension packages (custom_profile_name = Some) wrap fields in
+  // primitive-extension packages (all_primitive_ext) wrap fields in
   // Primitive(_), so bundle.link.relation and bundle.link.url need .value
-  let primitive_body_replace = case custom_profile_name {
-    None -> fn(s) { s }
-    Some(_) -> fn(s) {
+  let primitive_body_replace = case all_primitive_ext {
+    False -> fn(s) { s }
+    True -> fn(s) {
       string.replace(
         s,
         "  result.try(list.find(bundle.link, fn(l) { l.relation == NEXTRELATION }), fn(link) {

@@ -62,6 +62,7 @@ pub fn main() {
       res_type: "Patient",
       res_id: None,
       res_decoder: r4.operationoutcome_decoder(),
+      return_res_type: "OperationOutcome",
       client:,
     )
 
@@ -74,6 +75,7 @@ pub fn main() {
       res_type: "Patient",
       res_id: created.id,
       res_decoder: r4.bundle_decoder(),
+      return_res_type: "Bundle",
       client:,
     )
 }
