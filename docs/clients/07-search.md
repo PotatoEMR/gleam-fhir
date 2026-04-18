@@ -47,7 +47,7 @@ pub fn main() {
   let assert Ok(client) =
     r4_httpc.fhirclient_new("https://r4.smarthealthit.org")
 
-  let assert Ok(_) =
+  let assert Ok(bundle) =
     r4_httpc.search_any("name=e&_count=10", "Patient", client)
     |> r4_httpc.all_pages(client)
   bundle |> r4.bundle_to_json |> json.to_string |> io.println
