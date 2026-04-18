@@ -3,4 +3,4 @@
 /build
 erl_crash.dump
 dev/downloads
-src/generated_fhir
+/generated_fhir

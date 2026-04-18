@@ -37,6 +37,7 @@ pages = [
   { title = "- CRUD", path = "clients/crud.html", source = "./docs/clients/06-crud.md" },
   { title = "- Search", path = "clients/search.html", source = "./docs/clients/07-search.md" },
   { title = "- Operations", path = "clients/operations.html", source = "./docs/clients/08-operations.md" },
+  { title = "- Batch/Transaction", path = "clients/batch-transaction.html", source = "./docs/clients/09-batch-transaction.md" },
   { title = "Custom Codegen", path = "codegen/codegen.html", source = "./docs/codegen/01-codegen.md" },
   { title = "- Custom Extension", path = "codegen/customextension.html", source = "./docs/codegen/02-customextension.md" },
   { title = "- Primitive Extension", path = "codegen/primitiveextension.html", source = "./docs/codegen/03-primitiveextension.md" },

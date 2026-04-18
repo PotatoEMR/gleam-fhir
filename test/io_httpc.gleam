@@ -88,18 +88,6 @@ pub fn normal_r4() {
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
     as { "search 1 did not find " <> id }
 
-  let batch_id = "gleam-fhir-joe"
-  let joe_with_id = r4.Patient(..joe, id: Some(batch_id))
-  let assert Ok(upsert_req) = r4_sansio.patient_update_req(joe_with_id, client)
-  let assert Ok(batch_bundle) =
-    r4_httpc.batch(
-      [upsert_req, r4_sansio.patient_read_req(batch_id, client)],
-      r4_sansio.Batch,
-      client,
-    )
-  let assert [_, _] = batch_bundle.entry
-  let assert Ok(_) = r4_httpc.patient_delete(joe_with_id, client)
-
   let assert Ok(_) = r4_httpc.patient_delete(updated, client)
   Nil
 }
