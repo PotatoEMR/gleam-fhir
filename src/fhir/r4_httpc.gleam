@@ -158,7 +158,7 @@ pub fn all_pages_loop(
     Ok(curr_bundle) -> {
       let acc_bundles = [curr_bundle, ..acc_bundles]
       case r4_sansio.bundle_next_page_req(curr_bundle, client) {
-        // Error(_) -> reached last page 
+        // Error(_) -> reached last page
         Error(_) -> Ok(#(curr_bundle, acc_bundles))
         Ok(req) -> {
           let next = sendreq_parseresource(req, r4.bundle_decoder(), "Bundle")

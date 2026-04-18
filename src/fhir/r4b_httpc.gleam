@@ -7,6 +7,7 @@ import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
 import gleam/httpc
 import gleam/json.{type Json}
+import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
 
@@ -97,7 +98,7 @@ fn any_delete(
   client: FhirClient,
 ) -> Result(r4b_sansio.OperationoutcomeOrHTTP, Err) {
   let req = r4b_sansio.any_delete_req(id, res_type, client)
-  case httpc.send(req) {
+  case httpc.send(req |> request.set_body("")) {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
       case r4b_sansio.http_or_operationoutcome_resp(resp) {
@@ -121,7 +122,51 @@ pub fn search_any(
   client: FhirClient,
 ) -> Result(r4b.Bundle, Err) {
   let req = r4b_sansio.any_search_req(search_string, res_type, client)
-  sendreq_parseresource(req, r4b.bundle_decoder(), res_type)
+  sendreq_parseresource(req, r4b.bundle_decoder(), "Bundle")
+}
+
+/// get all resources in paginated bundle,
+/// then stick them all in one bundle and pretend not paginated
+///
+/// r4b_httpc.search_any("name=e&_count=25", "Patient", client) |> r4b_httpc.all_pages(client)
+pub fn all_pages(
+  first_bundle: Result(r4b.Bundle, Err),
+  client: FhirClient,
+) -> Result(r4b.Bundle, Err) {
+  case all_pages_loop(first_bundle, [], client) {
+    Error(err) -> Error(err)
+    Ok(#(last_bundle, bundles)) -> {
+      let entries =
+        list.fold(from: [], over: bundles, with: fn(acc, bundle) {
+          list.append(bundle.entry, acc)
+        })
+      Ok(r4b.Bundle(..last_bundle, entry: entries, link: []))
+    }
+  }
+}
+
+/// searchs each bundle and returns list
+/// also returns last bundle individually
+/// because all_pages smushes everything in there
+pub fn all_pages_loop(
+  curr_bundle: Result(r4b.Bundle, Err),
+  acc_bundles: List(r4b.Bundle),
+  client: FhirClient,
+) -> Result(#(r4b.Bundle, List(r4b.Bundle)), Err) {
+  case curr_bundle {
+    Error(err) -> Error(err)
+    Ok(curr_bundle) -> {
+      let acc_bundles = [curr_bundle, ..acc_bundles]
+      case r4b_sansio.bundle_next_page_req(curr_bundle, client) {
+        // Error(_) -> reached last page
+        Error(_) -> Ok(#(curr_bundle, acc_bundles))
+        Ok(req) -> {
+          let next = sendreq_parseresource(req, r4b.bundle_decoder(), "Bundle")
+          all_pages_loop(next, acc_bundles, client)
+        }
+      }
+    }
+  }
 }
 
 /// run any operation string on any resource string, optionally using Parameters
@@ -141,15 +186,31 @@ pub fn operation_any(
       params,
       client,
     )
-  sendreq_parseresource(req, res_decoder, res_type)
+  sendreq_parseresource(req, res_decoder, "Bundle")
+}
+
+pub fn batch(
+  reqs: List(Request(Option(Json))),
+  bundle_type: r4b_sansio.PostBundleType,
+  client: FhirClient,
+) -> Result(r4b.Bundle, Err) {
+  let req = r4b_sansio.batch_req(reqs, bundle_type, client)
+  sendreq_parseresource(req, r4b.bundle_decoder(), "Bundle")
 }
 
 fn sendreq_parseresource(
-  req: Request(String),
+  req: Request(Option(Json)),
   res_dec: Decoder(r),
   res_type: String,
 ) -> Result(r, Err) {
-  case httpc.send(req) {
+  case
+    req
+    |> request.set_body(case req.body {
+      None -> ""
+      Some(body) -> json.to_string(body)
+    })
+    |> httpc.send
+  {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
       case r4b_sansio.any_resp(resp, res_dec, res_type) {

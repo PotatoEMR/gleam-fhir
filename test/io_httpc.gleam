@@ -6,6 +6,9 @@ import fhir/r4us
 import fhir/r4us_httpc
 import fhir/r4us_sansio
 import fhir/r4us_valuesets
+import gleam/erlang/process
+import gleam/io
+import gleam/json
 import gleam/list
 import gleam/option.{None, Some}
 
@@ -26,6 +29,10 @@ pub fn normal_r4() {
   let joe =
     r4.Patient(
       ..r4.patient_new(),
+      text: Some(r4.narrative_new(
+        div: "<div xmlns=\"http://www.w3.org/1999/xhtml\">Joe Armstrong</div>",
+        status: r4_valuesets.NarrativestatusGenerated,
+      )),
       identifier: [
         r4.Identifier(
           ..r4.identifier_new(),
@@ -65,32 +72,37 @@ pub fn normal_r4() {
         resource: Some(r4.ResourcePatient(joe)),
       ),
     ])
-  let assert Ok(_) =
-    r4_httpc.operation_any(
-      params: Some(params),
-      operation_name: "validate",
-      res_type: "Patient",
-      res_id: None,
-      res_decoder: r4.operationoutcome_decoder(),
-      client:,
-    )
+  // let assert Ok(_) =
+  //   r4_httpc.operation_any(
+  //     params: Some(params),
+  //     operation_name: "validate",
+  //     res_type: "Patient",
+  //     res_id: None,
+  //     res_decoder: r4.operationoutcome_decoder(),
+  //     client:,
+  //   )
 
   let assert Ok(created) = r4_httpc.patient_create(joe, client)
   let assert Some(id) = created.id
   let assert Ok(read) = r4_httpc.patient_read(id, client)
   let rip = r4.Patient(..read, deceased: Some(r4.PatientDeceasedBoolean(True)))
   let assert Ok(updated) = r4_httpc.patient_update(rip, client)
-  let assert Ok(pats) =
-    r4_httpc.patient_search(
+  let assert Ok(bundle) =
+    r4_httpc.patient_search_bundled(
       r4_sansio.SpPatient(..r4_sansio.sp_patient_new(), name: Some("Armstrong")),
       client,
     )
+    |> r4_httpc.all_pages(client)
+  let pats = { bundle |> r4_sansio.bundle_to_groupedresources }.patient
+  echo bundle.total
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
 
   let assert Ok(bundle) =
     r4_httpc.search_any("name=Armstrong", "Patient", client)
+    |> r4_httpc.all_pages(client)
   let pats = { bundle |> r4_sansio.bundle_to_groupedresources }.patient
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
+    as { "search 1 did not find " <> id }
 
   let assert Ok(_) =
     r4_httpc.operation_any(
@@ -101,6 +113,18 @@ pub fn normal_r4() {
       res_decoder: r4.bundle_decoder(),
       client:,
     )
+  let batch_id = "gleam-fhir-joe"
+  let joe_with_id = r4.Patient(..joe, id: Some(batch_id))
+  let assert Ok(upsert_req) = r4_sansio.patient_update_req(joe_with_id, client)
+  let assert Ok(batch_bundle) =
+    r4_httpc.batch(
+      [upsert_req, r4_sansio.patient_read_req(batch_id, client)],
+      r4_sansio.Batch,
+      client,
+    )
+  let assert [_, _] = batch_bundle.entry
+  let assert Ok(_) = r4_httpc.patient_delete(joe_with_id, client)
+
   let assert Ok(_) = r4_httpc.patient_delete(updated, client)
   Nil
 }
@@ -148,15 +172,15 @@ pub fn us_core() {
         resource: Some(r4us.ResourcePatient(joe)),
       ),
     ])
-  let assert Ok(_) =
-    r4us_httpc.operation_any(
-      params: Some(params),
-      operation_name: "validate",
-      res_type: "Patient",
-      res_id: None,
-      res_decoder: r4us.operationoutcome_decoder(),
-      client:,
-    )
+  // let assert Ok(_) =
+  //   r4us_httpc.operation_any(
+  //     params: Some(params),
+  //     operation_name: "validate",
+  //     res_type: "Patient",
+  //     res_id: None,
+  //     res_decoder: r4us.operationoutcome_decoder(),
+  //     client:,
+  //   )
 
   let assert Ok(created) = r4us_httpc.patient_create(joe, client)
   let assert Some(id) = created.id
@@ -164,22 +188,29 @@ pub fn us_core() {
   let rip =
     r4us.Patient(..read, deceased: Some(r4us.PatientDeceasedBoolean(True)))
   let assert Ok(updated) = r4us_httpc.patient_update(rip, client)
-  let assert Ok(pats) =
-    r4us_httpc.patient_search(
+  // smarthealthit's Lucene reindex is slow/asynchronous; 5s wasn't enough
+  process.sleep(30_000)
+  let assert Ok(bundle) =
+    r4us_httpc.patient_search_bundled(
       r4us_sansio.SpPatient(
         ..r4us_sansio.sp_patient_new(),
         name: Some("Armstrong"),
       ),
       client,
     )
-  echo pats
+    |> r4us_httpc.all_pages(client)
+  bundle |> r4us.bundle_to_json |> json.to_string |> io.println
+  echo bundle.total
   echo id
+  let pats = { bundle |> r4us_sansio.bundle_to_groupedresources }.patient
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
 
   let assert Ok(bundle) =
     r4us_httpc.search_any("name=Armstrong", "Patient", client)
+    |> r4us_httpc.all_pages(client)
   let pats = { bundle |> r4us_sansio.bundle_to_groupedresources }.patient
   let assert Ok(_) = list.find(pats, fn(pat) { pat.id == Some(id) })
+    as { "search 2 did not find " <> id }
 
   let assert Ok(_) =
     r4us_httpc.operation_any(

@@ -8,6 +8,7 @@ import gleam/http/response.{type Response}
 import gleam/httpc
 import gleam/result
 import gleam/json.{type Json}
+import gleam/list
 import gleam/option.{type Option, Some, None}
 
 /// FHIR client for sending http requests to server such as
@@ -116,7 +117,51 @@ pub fn search_any(
   client: FhirClient,
 ) -> Result(FHIRVERSION.Bundle, Err) {
   let req = FHIRVERSION_sansio.any_search_req(search_string, res_type, client)
-  sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), res_type)
+  sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), "Bundle")
+}
+
+/// get all resources in paginated bundle,
+/// then stick them all in one bundle and pretend not paginated
+///
+/// FHIRVERSION_httpc.search_any("name=e&_count=25", "Patient", client) |> FHIRVERSION_httpc.all_pages(client)
+pub fn all_pages(
+  first_bundle: Result(FHIRVERSION.Bundle, Err),
+  client: FhirClient,
+) -> Result(FHIRVERSION.Bundle, Err) {
+  case all_pages_loop(first_bundle, [], client) {
+    Error(err) -> Error(err)
+    Ok(#(last_bundle, bundles)) -> {
+      let entries =
+        list.fold(from: [], over: bundles, with: fn(acc, bundle) {
+          list.append(bundle.entry, acc)
+        })
+      Ok(FHIRVERSION.Bundle(..last_bundle, entry: entries, link: []))
+    }
+  }
+}
+
+/// searchs each bundle and returns list
+/// also returns last bundle individually
+/// because all_pages smushes everything in there
+pub fn all_pages_loop(
+  curr_bundle: Result(FHIRVERSION.Bundle, Err),
+  acc_bundles: List(FHIRVERSION.Bundle),
+  client: FhirClient,
+) -> Result(#(FHIRVERSION.Bundle, List(FHIRVERSION.Bundle)), Err) {
+  case curr_bundle {
+    Error(err) -> Error(err)
+    Ok(curr_bundle) -> {
+      let acc_bundles = [curr_bundle, ..acc_bundles]
+      case FHIRVERSION_sansio.bundle_next_page_req(curr_bundle, client) {
+        // Error(_) -> reached last page
+        Error(_) -> Ok(#(curr_bundle, acc_bundles))
+        Ok(req) -> {
+          let next = sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), "Bundle")
+          all_pages_loop(next, acc_bundles, client)
+        }
+      }
+    }
+  }
 }
 
 /// run any operation string on any resource string, optionally using Parameters
@@ -136,7 +181,16 @@ pub fn operation_any(
       params,
       client,
     )
-  sendreq_parseresource(req, res_decoder, res_type)
+  sendreq_parseresource(req, res_decoder, "Bundle")
+}
+
+pub fn batch(
+  reqs: List(Request(Option(Json))),
+  bundle_type: FHIRVERSION_sansio.PostBundleType,
+  client: FhirClient,
+) -> Result(FHIRVERSION.Bundle, Err) {
+  let req = FHIRVERSION_sansio.batch_req(reqs, bundle_type, client)
+  sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), "Bundle")
 }
 
 fn sendreq_parseresource(

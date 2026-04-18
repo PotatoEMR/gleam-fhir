@@ -180,7 +180,7 @@ fn search_param_decoder() -> decode.Decoder(SearchParam) {
 
 pub fn gen(
   spec_file spec_file: String,
-  fv _fhir_version: String,
+  fv fhir_version: String,
   pkg_prefix pkg_prefix: String,
   custom_profile_name custom_profile_name: Option(String),
   profiles_dir profiles_dir: String,
@@ -531,6 +531,40 @@ pub fn gen(
       })
     }"
 
+  let #(next_relation, version_imports) = case fhir_version {
+    "r5" -> #(
+      "FHIRVERSION_valuesets.IanalinkrelationsNext",
+      "import fhir/FHIRVERSION_valuesets",
+    )
+    _ -> #("\"next\"", "")
+  }
+
+  // primitive-extension packages (custom_profile_name = Some) wrap fields in
+  // Primitive(_), so bundle.link.relation and bundle.link.url need .value
+  let primitive_body_replace = case custom_profile_name {
+    None -> fn(s) { s }
+    Some(_) -> fn(s) {
+      string.replace(
+        s,
+        "  result.try(list.find(bundle.link, fn(l) { l.relation == NEXTRELATION }), fn(link) {
+    result.try(uri.parse(link.url), fn(uri) {
+      Ok(Request(..client.basereq, path: uri.path, query: uri.query))
+    })
+  })",
+        "  result.try(
+    list.find(bundle.link, fn(l) { l.relation.value == Some(NEXTRELATION) }),
+    fn(link) {
+      result.try(option.to_result(link.url.value, Nil), fn(url) {
+        result.try(uri.parse(url), fn(uri) {
+          Ok(Request(..client.basereq, path: uri.path, query: uri.query))
+        })
+      })
+    },
+  )",
+      )
+    }
+  }
+
   let sansio =
     string.concat([
       file_text,
@@ -543,6 +577,9 @@ pub fn gen(
       search_encode,
       bundle_to_gt,
     ])
+    |> primitive_body_replace
+    |> string.replace("//FHIR_VERSION_IMPORTS", version_imports)
+    |> string.replace("NEXTRELATION", next_relation)
     |> string.replace("FHIRVERSION", pkg_prefix)
 
   //region httpc

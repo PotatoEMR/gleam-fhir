@@ -113,7 +113,12 @@ fn any_delete(
     })
   }
   let handler = rsvp.expect_any_response(handle_read)
-  rsvp.send(req, handler)
+  req
+  |> request.set_body(case req.body {
+    None -> ""
+    Some(body) -> json.to_string(body)
+  })
+  |> rsvp.send(handler)
 }
 
 /// write out search string manually, in case typed search params don't work
@@ -145,11 +150,21 @@ pub fn operation_any(
       params,
       client,
     )
-  sendreq_handleresponse(req, res_decoder, res_type, handle_response)
+  sendreq_handleresponse(req, res_decoder, "Bundle", handle_response)
+}
+
+pub fn batch(
+  reqs: List(Request(Option(Json))),
+  bundle_type: r4b_sansio.PostBundleType,
+  client: FhirClient,
+  handle_response: fn(Result(r4b.Bundle, Err)) -> msg,
+) -> Effect(msg) {
+  let req = r4b_sansio.batch_req(reqs, bundle_type, client)
+  sendreq_handleresponse(req, r4b.bundle_decoder(), "Bundle", handle_response)
 }
 
 fn sendreq_handleresponse(
-  req: Request(String),
+  req: Request(Option(Json)),
   res_dec: Decoder(r),
   res_type: String,
   handle_response: fn(Result(r, Err)) -> a,
@@ -164,7 +179,7 @@ fn sendreq_handleresponse(
 }
 
 fn sendreq_handleresponse_andprocess(
-  req: Request(String),
+  req: Request(Option(Json)),
   res_dec: Decoder(r),
   res_type: String,
   handle_response: fn(Result(b, Err)) -> a,
@@ -182,7 +197,12 @@ fn sendreq_handleresponse_andprocess(
     })
   }
   let handler = rsvp.expect_any_response(handle_read)
-  rsvp.send(req, handler)
+  req
+  |> request.set_body(case req.body {
+    None -> ""
+    Some(body) -> json.to_string(body)
+  })
+  |> rsvp.send(handler)
 }
 
 pub fn account_create(
