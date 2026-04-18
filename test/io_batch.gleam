@@ -10,7 +10,8 @@ import gleam/option.{Some}
 import gleam/time/timestamp
 
 pub fn main() {
-  // going to create a patient and hapi seems unhappy with one identical to a previously created resource
+  // going to create a patient and hapi seems unhappy
+  // with one identical to a previously created resource
   // so throw some random time in there
   let now = timestamp.system_time() |> timestamp.to_unix_seconds_and_nanoseconds
   let pat_id = "gleam-fhir-joe-" <> int.to_string(now.0)
@@ -35,8 +36,7 @@ pub fn main() {
       gender: Some(r4_valuesets.AdministrativegenderMale),
     )
 
-  let assert Ok(client) =
-    r4_httpc.fhirclient_new("r4.smarthealthit.org")
+  let assert Ok(client) = r4_httpc.fhirclient_new("r4.smarthealthit.org")
 
   // When processing a batch or transaction, a server MAY
   // choose to honor existing logical ids
@@ -47,11 +47,7 @@ pub fn main() {
   let assert Ok(upsert_req) = r4_sansio.patient_update_req(joe, client)
   let read_req = r4_sansio.patient_read_req(pat_id, client)
   let assert Ok(batch_bundle) =
-    r4_httpc.batch(
-      [upsert_req, read_req],
-      r4_sansio.Transaction,
-      client,
-    )
+    r4_httpc.batch([upsert_req, read_req], r4_sansio.Transaction, client)
   batch_bundle |> r4.bundle_to_json |> json.to_string |> io.println
 
   let batch_response = batch_bundle.entry

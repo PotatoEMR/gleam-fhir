@@ -17,7 +17,8 @@ import gleam/option.{Some}
 import gleam/time/timestamp
 
 pub fn main() {
-  // going to create a patient and hapi seems unhappy with one identical to a previously created resource
+  // going to create a patient and hapi seems unhappy
+  // with one identical to a previously created resource
   // so throw some random time in there
   let now = timestamp.system_time() |> timestamp.to_unix_seconds_and_nanoseconds
   let pat_id = "gleam-fhir-joe-" <> int.to_string(now.0)
