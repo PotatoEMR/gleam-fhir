@@ -64,7 +64,7 @@ pub fn normal_r4() {
     )
 
   let assert Ok(client) =
-    r4_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
+    r4_httpc.fhirclient_new("https://hapi.fhir.org/baseR4/")
 
   let assert Ok(created) = r4_httpc.patient_create(joe, client)
   let assert Some(id) = created.id

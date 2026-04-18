@@ -9,7 +9,7 @@ import gleam/json
 // does not end in _test so not run by gleam test
 pub fn main() {
   let assert Ok(client) =
-    r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
+    r4_httpc.fhirclient_new("https://r4.smarthealthit.org")
 
   let assert Ok(_) =
     r4_httpc.search_any("name=e&_count=10", "Patient", client)

@@ -88,7 +88,10 @@ fn create_base_req(
       scheme:,
       host:,
       port: baseurl.port,
-      path: baseurl.path,
+      path: case string.ends_with(baseurl.path, "/") {
+        True -> string.drop_end(baseurl.path, 1)
+        False -> baseurl.path
+      },
       query: None,
     )
   FhirClient(baseurl:, basereq:)

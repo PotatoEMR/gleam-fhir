@@ -30,9 +30,7 @@ const zip_file_names = [
 
 const fhir_url = "https://www.hl7.org/fhir"
 
-fn const_gen_into_dir() {
-  "src" |> filepath.join("generated_fhir")
-}
+const gen_into_dir = "generated_fhir"
 
 fn const_download_dir() {
   "dev" |> filepath.join("downloads")
@@ -74,12 +72,14 @@ pub fn main() {
       Ok(Nil)
     }
   }
-  case simplifile.delete(const_gen_into_dir()) {
-    Ok(_) -> Nil
-    Error(simplifile.Enoent) -> Nil
-    Error(_) -> panic as "could not remove fhir dir"
-  }
-  let assert Ok(_) = simplifile.create_directory_all(const_gen_into_dir())
+  // on you to rm -rf generated_fhir && mkdir generated_fhir
+  // so we can call codegen multiple times in one script
+  // case simplifile.delete(gen_into_dir) {
+  //   Ok(_) -> Nil
+  //   Error(simplifile.Enoent) -> Nil
+  //   Error(_) -> panic as "could not remove fhir dir"
+  // }
+  // let assert Ok(_) = simplifile.create_directory_all(gen_into_dir)
 
   let profiles_dir = const_download_dir() |> filepath.join("profiles")
   let custom_profile =
@@ -345,7 +345,6 @@ fn gen_fhir(
   profiles_dir: String,
   all_primitive_ext: Bool,
 ) -> Nil {
-  let gen_into_dir = const_gen_into_dir()
   let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
 
   let _ = case custom_profile_name {
