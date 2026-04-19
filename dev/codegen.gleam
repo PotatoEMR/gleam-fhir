@@ -3401,38 +3401,50 @@ fn valueset_to_types(vsfile: String, fhir_version: String, profiles_dir: String)
     "dev"
     |> filepath.join("valueset_expansions")
     |> filepath.join(fhir_version)
-  set.fold(from: vs_imports, over: vs_url_set, with: fn(valuesets_acc, vs_url) {
-    let vsname = concept_name_from_url(Some(vs_url))
-    let vs_codes = get_codes(vs_url, expansion_dir, profiles_dir)
-    case vs_codes {
-      Error(_) -> {
-        // would like to gen valuesets for profiles too but not clear how to expand some of them...
-        // eg ValueSet-us-core-condition-code-current.json has filter from snomed is-a
-        // for now will have to leave all codes in profiles as strings :/
-        // could maybe provide codes for simpler codesystems only
-        valuesets_acc
+  let vs_url_sorted =
+    set.to_list(vs_url_set)
+    |> list.sort(fn(a, b) {
+      string.compare(
+        string.lowercase(concept_name_from_url(Some(a))),
+        string.lowercase(concept_name_from_url(Some(b))),
+      )
+    })
+  list.fold(
+    from: vs_imports,
+    over: vs_url_sorted,
+    with: fn(valuesets_acc, vs_url) {
+      let vsname = concept_name_from_url(Some(vs_url))
+      let vs_codes = get_codes(vs_url, expansion_dir, profiles_dir)
+      case vs_codes {
+        Error(_) -> {
+          // would like to gen valuesets for profiles too but not clear how to expand some of them...
+          // eg ValueSet-us-core-condition-code-current.json has filter from snomed is-a
+          // for now will have to leave all codes in profiles as strings :/
+          // could maybe provide codes for simpler codesystems only
+          valuesets_acc
+        }
+        Ok(vs_codes) -> {
+          let vs_named_codes =
+            vs_codes
+            |> list.map(fn(code) {
+              vsname <> string.capitalise(codetovarname(code))
+            })
+          string.concat([
+            valuesets_acc,
+            "pub type ",
+            vsname,
+            "{",
+            string.join(vs_named_codes, "\n"),
+            "}",
+            gen_valueset_encoder(vsname, vs_codes),
+            gen_valueset_to_string(vsname, vs_codes),
+            gen_valueset_from_string(vsname, vs_codes),
+            gen_valueset_decoder(vsname, vs_codes),
+          ])
+        }
       }
-      Ok(vs_codes) -> {
-        let vs_named_codes =
-          vs_codes
-          |> list.map(fn(code) {
-            vsname <> string.capitalise(codetovarname(code))
-          })
-        string.concat([
-          "pub type ",
-          vsname,
-          "{",
-          string.join(vs_named_codes, "\n"),
-          "}",
-          gen_valueset_encoder(vsname, vs_codes),
-          gen_valueset_to_string(vsname, vs_codes),
-          gen_valueset_from_string(vsname, vs_codes),
-          gen_valueset_decoder(vsname, vs_codes),
-          valuesets_acc,
-        ])
-      }
-    }
-  })
+    },
+  )
 }
 
 // https://chat.fhir.org/#narrow/channel/179166-implementers/topic/Kotlin.20FHIR.20model.20code.20generation.20questions/near/524688061

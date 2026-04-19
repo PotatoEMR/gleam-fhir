@@ -237,8 +237,24 @@ pub fn any_resp(
       case tag == resource_type {
         True -> resource_dec |> decode.map(Ok)
         False ->
-          r4b.operationoutcome_decoder()
-          |> decode.map(fn(oo) { Error(ErrOperationoutcome(oo)) })
+          case tag == "OperationOutcome" {
+            True ->
+              r4b.operationoutcome_decoder()
+              |> decode.map(fn(oo) { Error(ErrOperationoutcome(oo)) })
+            // if resourceType tag is neither desired res type or oo,
+            // don't even bother trying to decode
+            False ->
+              decode.failure(Error(ErrNotJson(resp)), "")
+              |> decode.map_errors(fn(_errs) {
+                [
+                  decode.DecodeError(
+                    expected: resource_type <> " or OperationOutcome",
+                    found: tag,
+                    path: ["resourceType"],
+                  ),
+                ]
+              })
+          }
       }
     })
   {
@@ -342,6 +358,7 @@ pub fn batch_req(
       #("entry", json.preprocessed_array(entries)),
     ])
   client.basereq
+  |> request.set_header("Prefer", "return=representation")
   |> request.set_header("Content-Type", "application/fhir+json")
   |> request.set_body(Some(batch_bundle))
   |> request.set_method(http.Post)
