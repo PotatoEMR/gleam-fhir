@@ -1,4 +1,5 @@
-import fhir/r4usp
+import fhir/r4usp/resources
+
 import gleam/json
 import gleam/string
 
@@ -104,14 +105,14 @@ const imm_json_missing_field = "{
 
 pub fn main() {
   let assert Error(json.UnableToDecode([_, dec_err])) =
-    imm_json_no_restype |> json.parse(r4usp.resource_decoder())
+    imm_json_no_restype |> json.parse(resources.resource_decoder())
   assert dec_err.expected |> string.contains("one of Account,")
   let assert Error(json.UnableToDecode([dec_err])) =
-    imm_json_weird_restype |> json.parse(r4usp.resource_decoder())
+    imm_json_weird_restype |> json.parse(resources.resource_decoder())
   //make it clear resource missing valid resource name
   assert dec_err.expected |> string.contains("one of Account,")
   let assert Error(json.UnableToDecode([dec_err])) =
-    imm_json_missing_field |> json.parse(r4usp.resource_decoder())
+    imm_json_missing_field |> json.parse(resources.resource_decoder())
   // mention name of resource that failed to decode
   // at beginning of its path, which technically is not part of its path
   // but probably helpful for debugging/logging and maybe showing user

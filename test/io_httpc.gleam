@@ -1,11 +1,13 @@
-import fhir/r4
-import fhir/r4_httpc
-import fhir/r4_sansio
-import fhir/r4_valuesets
-import fhir/r4us
-import fhir/r4us_httpc
-import fhir/r4us_sansio
-import fhir/r4us_valuesets
+import fhir/r4/client_httpc as r4_httpc
+import fhir/r4/complex_types as ct_r4
+import fhir/r4/resources as r4
+import fhir/r4/sansio as r4_sansio
+import fhir/r4/valuesets as r4_valuesets
+import fhir/r4us/client_httpc as r4us_httpc
+import fhir/r4us/complex_types as ct_r4us
+import fhir/r4us/resources as r4us
+import fhir/r4us/sansio as r4us_sansio
+import fhir/r4us/valuesets as r4us_valuesets
 
 // import gleam/erlang/process
 import gleam/io
@@ -30,29 +32,29 @@ pub fn normal_r4() {
   let joe =
     r4.Patient(
       ..r4.patient_new(),
-      text: Some(r4.narrative_new(
+      text: Some(ct_r4.narrative_new(
         div: "<div xmlns=\"http://www.w3.org/1999/xhtml\">Joe Armstrong</div>",
         status: r4_valuesets.NarrativestatusGenerated,
       )),
       identifier: [
-        r4.Identifier(
-          ..r4.identifier_new(),
+        ct_r4.Identifier(
+          ..ct_r4.identifier_new(),
           system: Some("https://fhir.nhs.uk/Id/nhs-number"),
           value: Some("0123456789"),
         ),
       ],
       name: [
-        r4.Humanname(
-          ..r4.humanname_new(),
+        ct_r4.Humanname(
+          ..ct_r4.humanname_new(),
           given: ["Joe"],
           family: Some("Armstrong"),
         ),
       ],
       gender: Some(r4_valuesets.AdministrativegenderMale),
       marital_status: Some(
-        r4.Codeableconcept(..r4.codeableconcept_new(), coding: [
-          r4.Coding(
-            ..r4.coding_new(),
+        ct_r4.Codeableconcept(..ct_r4.codeableconcept_new(), coding: [
+          ct_r4.Coding(
+            ..ct_r4.coding_new(),
             system: Some(
               "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
             ),
@@ -94,14 +96,14 @@ pub fn normal_r4() {
 
 pub fn us_core() {
   let one_id =
-    r4us.Identifier(
-      ..r4us.identifier_new(),
+    ct_r4us.Identifier(
+      ..ct_r4us.identifier_new(),
       system: Some("https://fhir.nhs.uk/Id/nhs-number"),
       value: Some("0123456789"),
     )
   let one_name =
-    r4us.Humanname(
-      ..r4us.humanname_new(),
+    ct_r4us.Humanname(
+      ..ct_r4us.humanname_new(),
       given: ["Joseph", "Leslie"],
       family: Some("Armstrong"),
     )
@@ -112,9 +114,9 @@ pub fn us_core() {
       name: [one_name],
       gender: Some(r4us_valuesets.AdministrativegenderMale),
       marital_status: Some(
-        r4us.Codeableconcept(..r4us.codeableconcept_new(), coding: [
-          r4us.Coding(
-            ..r4us.coding_new(),
+        ct_r4us.Codeableconcept(..ct_r4us.codeableconcept_new(), coding: [
+          ct_r4us.Coding(
+            ..ct_r4us.coding_new(),
             system: Some(
               "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
             ),

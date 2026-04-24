@@ -1,7 +1,8 @@
-import fhir/r4_httpc
-import fhir/r4usp_httpc
-import fhir/r5
-import fhir/r5_httpc
+import fhir/r4/client_httpc as r4_httpc
+import fhir/r4usp/client_httpc as r4usp_httpc
+import fhir/r5/client_httpc as r5_httpc
+import fhir/r5/resources as r5
+
 import gleam/io
 import gleam/json
 

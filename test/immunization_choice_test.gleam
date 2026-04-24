@@ -1,5 +1,6 @@
+import fhir/r4usp/resources
+
 import check_roundtrip
-import fhir/r4usp
 
 const imm_json = "{
   \"resourceType\": \"Immunization\",
@@ -38,8 +39,8 @@ const imm_json = "{
 pub fn main() {
   check_roundtrip.check_roundtrip(
     imm_json,
-    r4usp.immunization_decoder(),
-    r4usp.immunization_to_json,
+    resources.immunization_decoder(),
+    resources.immunization_to_json,
     "immunization_choice_test",
   )
 }

@@ -1,53 +1,48 @@
+import fhir/r5/complex_types as ct
+import fhir/r5/resources
+import fhir/r5/valuesets
+
 import gleam/json
 import gleam/option.{Some}
 
-import fhir/r5 as fhirversion
-import fhir/r5_valuesets as fhirversionvaluesets
-
 pub fn r5_allergy_test() {
   let myallergy =
-    fhirversion.Allergyintolerance(
-      ..fhirversion.allergyintolerance_new(patient: fhirversion.reference_new()),
+    resources.Allergyintolerance(
+      ..resources.allergyintolerance_new(patient: ct.reference_new()),
       id: Some("abc"),
-      criticality: Some(fhirversionvaluesets.AllergyintolerancecriticalityHigh),
+      criticality: Some(valuesets.AllergyintolerancecriticalityHigh),
       code: Some(
-        fhirversion.Codeableconcept(
-          ..fhirversion.codeableconcept_new(),
-          coding: [
-            fhirversion.Coding(
-              ..fhirversion.coding_new(),
-              system: Some("http://snomed.info/sct"),
-              code: Some("91930004"),
-              display: Some("Allergy to eggs"),
-            ),
-          ],
-        ),
+        ct.Codeableconcept(..ct.codeableconcept_new(), coding: [
+          ct.Coding(
+            ..ct.coding_new(),
+            system: Some("http://snomed.info/sct"),
+            code: Some("91930004"),
+            display: Some("Allergy to eggs"),
+          ),
+        ]),
       ),
-      onset: Some(fhirversion.AllergyintoleranceOnsetAge(
-        fhirversion.Age(
-          ..fhirversion.age_new(),
+      onset: Some(resources.AllergyintoleranceOnsetAge(
+        ct.Age(
+          ..ct.age_new(),
           value: Some(4.0),
           unit: Some("year"),
           system: Some("http://unitsofmeasure.org"),
         ),
       )),
       reaction: [
-        fhirversion.allergyintolerance_reaction_new(
-          manifestation: fhirversion.List1(
-            fhirversion.Codeablereference(
-              ..fhirversion.codeablereference_new(),
+        resources.allergyintolerance_reaction_new(
+          manifestation: ct.List1(
+            ct.Codeablereference(
+              ..ct.codeablereference_new(),
               concept: Some(
-                fhirversion.Codeableconcept(
-                  ..fhirversion.codeableconcept_new(),
-                  coding: [
-                    fhirversion.Coding(
-                      ..fhirversion.coding_new(),
-                      system: Some("http://snomed.info/sct"),
-                      code: Some("247472004"),
-                      display: Some("Hives"),
-                    ),
-                  ],
-                ),
+                ct.Codeableconcept(..ct.codeableconcept_new(), coding: [
+                  ct.Coding(
+                    ..ct.coding_new(),
+                    system: Some("http://snomed.info/sct"),
+                    code: Some("247472004"),
+                    display: Some("Hives"),
+                  ),
+                ]),
               ),
             ),
             [],
@@ -56,15 +51,15 @@ pub fn r5_allergy_test() {
       ],
     )
   let json =
-    myallergy |> fhirversion.allergyintolerance_to_json() |> json.to_string()
+    myallergy |> resources.allergyintolerance_to_json() |> json.to_string()
   let assert Ok(parsed_allergy) =
-    json |> json.parse(fhirversion.allergyintolerance_decoder())
+    json |> json.parse(resources.allergyintolerance_decoder())
   assert parsed_allergy.id == myallergy.id
-  let assert Some(fhirversion.AllergyintoleranceOnsetAge(onset)) =
+  let assert Some(resources.AllergyintoleranceOnsetAge(onset)) =
     parsed_allergy.onset
   assert onset.value == Some(4.0)
   let assert [reaction] = parsed_allergy.reaction
-  let fhirversion.List1(manifestation, _) = reaction.manifestation
+  let ct.List1(manifestation, _) = reaction.manifestation
   let assert Some(cc) = manifestation.concept
   let assert [coding] = cc.coding
   assert coding.system == Some("http://snomed.info/sct")

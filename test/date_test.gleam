@@ -1,4 +1,5 @@
-import fhir/primitive_types as pt
+import fhir/r4/primitive_types as pt
+
 import gleam/list
 
 pub fn main() {

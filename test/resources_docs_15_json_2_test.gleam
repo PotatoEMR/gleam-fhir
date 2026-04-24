@@ -1,4 +1,5 @@
-import fhir/r4
+import fhir/r4/resources
+
 import gleam/dynamic/decode
 import gleam/json
 import gleam/option.{Some}
@@ -57,7 +58,7 @@ pub fn resources_docs_15_json_2_test() {
       "\"patient\"           : {\"reference\": \"Patient/10fe9427-a075-4d8c-8af7-1d4d24f72112\"},",
       "",
     )
-    |> json.parse(r4.allergyintolerance_decoder())
+    |> json.parse(resources.allergyintolerance_decoder())
 
   let assert Error(json.UnableToDecode([
     decode.DecodeError(
@@ -68,16 +69,16 @@ pub fn resources_docs_15_json_2_test() {
   ])) =
     good_json
     |> string.replace("\"low\"", "\"super-serious\"")
-    |> json.parse(r4.allergyintolerance_decoder())
+    |> json.parse(resources.allergyintolerance_decoder())
 
   let assert Error(json.UnableToDecode([
     decode.DecodeError("String", "Int", ["id"]),
   ])) =
     good_json
     |> string.replace("\"9b6a76f1-ee00-4efc-828d-ffbae3cb4220\"", "123")
-    |> json.parse(r4.allergyintolerance_decoder())
+    |> json.parse(resources.allergyintolerance_decoder())
 
   let assert Ok(shellfish_allergy) =
-    good_json |> json.parse(r4.allergyintolerance_decoder())
+    good_json |> json.parse(resources.allergyintolerance_decoder())
   assert shellfish_allergy.id == Some("9b6a76f1-ee00-4efc-828d-ffbae3cb4220")
 }

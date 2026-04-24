@@ -1,5 +1,6 @@
+import fhir/r4/resources
+
 import check_roundtrip
-import fhir/r4
 
 // Patient with birthDate (date), deceasedDateTime (dateTime), meta.lastUpdated (instant)
 const patient_json = "{
@@ -40,8 +41,8 @@ const healthcare_service_json = "{
 pub fn patient_primitives_roundtrip_test() {
   check_roundtrip.check_roundtrip(
     patient_json,
-    r4.patient_decoder(),
-    r4.patient_to_json,
+    resources.patient_decoder(),
+    resources.patient_to_json,
     "patient_primitives",
   )
 }
@@ -49,8 +50,8 @@ pub fn patient_primitives_roundtrip_test() {
 pub fn healthcareservice_time_roundtrip_test() {
   check_roundtrip.check_roundtrip(
     healthcare_service_json,
-    r4.healthcareservice_decoder(),
-    r4.healthcareservice_to_json,
+    resources.healthcareservice_decoder(),
+    resources.healthcareservice_to_json,
     "healthcareservice_time",
   )
 }

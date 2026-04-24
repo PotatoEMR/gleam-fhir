@@ -1,4 +1,4 @@
-import fhir/primitive_types.{
+import fhir/r4/primitive_types.{
   DateTime, NanosecWithPrecision, Time, TimeAndZone, YearMonthDay, Z,
 } as pt
 import gleam/list

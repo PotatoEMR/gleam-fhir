@@ -1,6 +1,8 @@
-import fhir/primitive_types as pt
-import fhir/r4
-import fhir/r4_valuesets
+import fhir/r4/complex_types as ct
+import fhir/r4/primitive_types as pt
+import fhir/r4/resources
+import fhir/r4/valuesets
+
 import gleam/json
 import gleam/option.{None, Some}
 import gleam/time/calendar
@@ -19,22 +21,22 @@ pub fn resources_docs_15_json_1_test() {
     )
 
   let original_allergy =
-    r4.Allergyintolerance(
-      ..r4.allergyintolerance_new(
-        patient: r4.Reference(
-          ..r4.reference_new(),
+    resources.Allergyintolerance(
+      ..resources.allergyintolerance_new(
+        patient: ct.Reference(
+          ..ct.reference_new(),
           reference: Some("Patient/10fe9427-a075-4d8c-8af7-1d4d24f72112"),
         ),
       ),
       id: Some("9b6a76f1-ee00-4efc-828d-ffbae3cb4220"),
       meta: Some(
-        r4.Meta(
-          ..r4.meta_new(),
+        ct.Meta(
+          ..ct.meta_new(),
           version_id: Some("4"),
           last_updated: Some(last_updated_instant),
           tag: [
-            r4.Coding(
-              ..r4.coding_new(),
+            ct.Coding(
+              ..ct.coding_new(),
               system: Some("https://smarthealthit.org/tags"),
               code: Some("synthea-5-2019"),
             ),
@@ -42,9 +44,9 @@ pub fn resources_docs_15_json_1_test() {
         ),
       ),
       clinical_status: Some(
-        r4.Codeableconcept(..r4.codeableconcept_new(), coding: [
-          r4.Coding(
-            ..r4.coding_new(),
+        ct.Codeableconcept(..ct.codeableconcept_new(), coding: [
+          ct.Coding(
+            ..ct.coding_new(),
             system: Some(
               "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
             ),
@@ -53,9 +55,9 @@ pub fn resources_docs_15_json_1_test() {
         ]),
       ),
       verification_status: Some(
-        r4.Codeableconcept(..r4.codeableconcept_new(), coding: [
-          r4.Coding(
-            ..r4.coding_new(),
+        ct.Codeableconcept(..ct.codeableconcept_new(), coding: [
+          ct.Coding(
+            ..ct.coding_new(),
             system: Some(
               "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
             ),
@@ -63,15 +65,15 @@ pub fn resources_docs_15_json_1_test() {
           ),
         ]),
       ),
-      type_: Some(r4_valuesets.AllergyintolerancetypeAllergy),
-      category: [r4_valuesets.AllergyintolerancecategoryFood],
-      criticality: Some(r4_valuesets.AllergyintolerancecriticalityLow),
+      type_: Some(valuesets.AllergyintolerancetypeAllergy),
+      category: [valuesets.AllergyintolerancecategoryFood],
+      criticality: Some(valuesets.AllergyintolerancecriticalityLow),
       code: Some(
-        r4.Codeableconcept(
-          ..r4.codeableconcept_new(),
+        ct.Codeableconcept(
+          ..ct.codeableconcept_new(),
           coding: [
-            r4.Coding(
-              ..r4.coding_new(),
+            ct.Coding(
+              ..ct.coding_new(),
               system: Some("http://snomed.info/sct"),
               code: Some("300913006"),
               display: Some("Shellfish allergy"),
@@ -82,10 +84,11 @@ pub fn resources_docs_15_json_1_test() {
       ),
       recorded_date: Some(recorded_dt),
     )
-  let shellfish_allergy_json = r4.allergyintolerance_to_json(original_allergy)
+  let shellfish_allergy_json =
+    resources.allergyintolerance_to_json(original_allergy)
   let assert Ok(parsed) =
     shellfish_allergy_json
     |> json.to_string
-    |> json.parse(r4.allergyintolerance_decoder())
+    |> json.parse(resources.allergyintolerance_decoder())
   assert parsed == original_allergy
 }

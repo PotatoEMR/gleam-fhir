@@ -1,5 +1,7 @@
+import fhir/r4us/complex_types as ct
+import fhir/r4us/resources
+
 import check_roundtrip
-import fhir/r4us
 import gleam/json
 
 pub fn extension_simple_test() {
@@ -9,7 +11,7 @@ pub fn extension_simple_test() {
       \"valueCode\": \"M\"
     }"
   let assert Ok(Ok(_)) =
-    json.parse(birthsex_json, r4us.us_core_birthsex_decoder())
+    json.parse(birthsex_json, ct.us_core_birthsex_decoder())
 
   let patient =
     "{
@@ -26,11 +28,11 @@ pub fn extension_simple_test() {
     }"
   check_roundtrip.check_roundtrip(
     patient,
-    r4us.patient_decoder(),
-    r4us.patient_to_json,
+    resources.patient_decoder(),
+    resources.patient_to_json,
     "extension_simple_patient",
   )
-  let assert Ok(p) = json.parse(patient, r4us.patient_decoder())
+  let assert Ok(p) = json.parse(patient, resources.patient_decoder())
   let assert [_bs] = p.us_core_birthsex
   let assert [] = p.extension
 }

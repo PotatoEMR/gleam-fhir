@@ -1,5 +1,8 @@
-import fhir/r4
-import fhir/r4_rsvp
+import fhir/r4/resources
+import fhir/r4/complex_types as ct
+import fhir/r4/primitive_types as pt
+import fhir/r4/client_rsvp
+
 import gleam/option.{Some}
 
 pub fn main() {
@@ -10,7 +13,7 @@ pub fn main() {
 // for now just using httpc to check against server
 // may test implementation of wrapper over rsvp later
 fn patient_test() {
-  let fc = r4_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")
+  let fc = client_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")
 
-  let patient = r4.Patient(..r4.patient_new(), active: Some(True))
+  let patient = resources.Patient(..resources.patient_new(), active: Some(True))
 }

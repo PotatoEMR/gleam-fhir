@@ -1,6 +1,8 @@
+import fhir/r4/complex_types as ct
+import fhir/r4/primitive_types as pt
+import fhir/r4/resources
+
 //import check_roundtrip
-import fhir/primitive_types as pt
-import fhir/r4
 import gleam/json
 import gleam/list
 import gleam/option.{None, Some}
@@ -267,7 +269,7 @@ pub fn extension_notcustom_test() {
   }"
 
   let assert Ok(pat) =
-    json.parse(patient_example_sex_and_gender, r4.patient_decoder())
+    json.parse(patient_example_sex_and_gender, resources.patient_decoder())
 
   assert pat.id == Some("patient-example-sex-and-gender")
 
@@ -280,12 +282,12 @@ pub fn extension_notcustom_test() {
     })
   assert list.length(rsg_extensions) == 3
   let find_rsg_by_type_code = fn(exts, code) {
-    list.find(exts, fn(e: r4.Extension) {
+    list.find(exts, fn(e: ct.Extension) {
       case e.ext {
-        r4.ExtComplex(children) ->
+        ct.ExtComplex(children) ->
           case list.find(children, fn(c) { c.url == "type" }) {
-            Ok(r4.Extension(
-              ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(cc)),
+            Ok(ct.Extension(
+              ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(cc)),
               ..,
             )) -> list.any(cc.coding, fn(c) { c.code == Some(code) })
             _ -> False
@@ -294,32 +296,32 @@ pub fn extension_notcustom_test() {
       }
     })
   }
-  let assert Ok(r4.Extension(ext: r4.ExtComplex(rsg_bc_children), ..)) =
+  let assert Ok(ct.Extension(ext: ct.ExtComplex(rsg_bc_children), ..)) =
     find_rsg_by_type_code(rsg_extensions, "76689-9")
-  let assert Ok(r4.Extension(ext: r4.ExtComplex(rsg_ic_children), ..)) =
+  let assert Ok(ct.Extension(ext: ct.ExtComplex(rsg_ic_children), ..)) =
     find_rsg_by_type_code(rsg_extensions, "insurance-card")
-  let assert Ok(r4.Extension(ext: r4.ExtComplex(rsg_dl_children), ..)) =
+  let assert Ok(ct.Extension(ext: ct.ExtComplex(rsg_dl_children), ..)) =
     find_rsg_by_type_code(rsg_extensions, "drivers-license")
 
   // driver's license
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(dl_value)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(dl_value)),
     ..,
   )) = list.find(rsg_dl_children, fn(e) { e.url == "value" })
   let assert [
-    r4.Coding(
+    ct.Coding(
       system: Some("http://ohio.example.gov/drivers-license-sex"),
       code: Some("M"),
       display: Some("Male"),
       ..,
     ),
   ] = dl_value.coding
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(dl_type)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(dl_type)),
     ..,
   )) = list.find(rsg_dl_children, fn(e) { e.url == "type" })
   let assert [
-    r4.Coding(
+    ct.Coding(
       system: Some(
         "http://jurisdiction-specific.example.com/document-type-code-system",
       ),
@@ -328,97 +330,97 @@ pub fn extension_notcustom_test() {
       ..,
     ),
   ] = dl_type.coding
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValuePeriod(dl_effective_period)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValuePeriod(dl_effective_period)),
     ..,
   )) = list.find(rsg_dl_children, fn(e) { e.url == "effectivePeriod" })
   assert dl_effective_period.start
     == Some(pt.DateTime(pt.YearMonthDay(1974, calendar.December, 25), None))
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueDatetime(dl_acquisition_date)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueDatetime(dl_acquisition_date)),
     ..,
   )) = list.find(rsg_dl_children, fn(e) { e.url == "acquisitionDate" })
   assert dl_acquisition_date
     == pt.DateTime(pt.YearMonthDay(2005, calendar.December, 6), None)
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueReference(dl_source_doc)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueReference(dl_source_doc)),
     ..,
   )) = list.find(rsg_dl_children, fn(e) { e.url == "sourceDocument" })
   assert dl_source_doc.reference == Some("DocumentReference/1")
   assert list.find(rsg_dl_children, fn(e) { e.url == "sourceField" })
     == Error(Nil)
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(dl_jurisdiction)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(dl_jurisdiction)),
     ..,
   )) = list.find(rsg_dl_children, fn(e) { e.url == "jurisdiction" })
   let assert [
-    r4.Coding(
+    ct.Coding(
       system: Some("https://www.usps.com/"),
       code: Some("OH"),
       display: Some("Ohio"),
       ..,
     ),
   ] = dl_jurisdiction.coding
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueString(dl_comment)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueString(dl_comment)),
     ..,
   )) = list.find(rsg_dl_children, fn(e) { e.url == "comment" })
   assert dl_comment
     == "Patient transitioned from male to female in 2001, but their driver's license still indicates male."
 
   // insurance card
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(ic_value)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(ic_value)),
     ..,
   )) = list.find(rsg_ic_children, fn(e) { e.url == "value" })
   let assert [
-    r4.Coding(
+    ct.Coding(
       system: Some("http://hl7.org/fhir/administrative-gender"),
       code: Some("male"),
       display: Some("Male"),
       ..,
     ),
   ] = ic_value.coding
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(ic_type)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(ic_type)),
     ..,
   )) = list.find(rsg_ic_children, fn(e) { e.url == "type" })
   let assert [
-    r4.Coding(
+    ct.Coding(
       system: Some("http://local-code-system.org/recorded-sex-or-gender-type"),
       code: Some("insurance-card"),
       display: Some("Insurance Card"),
       ..,
     ),
   ] = ic_type.coding
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValuePeriod(ic_effective_period)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValuePeriod(ic_effective_period)),
     ..,
   )) = list.find(rsg_ic_children, fn(e) { e.url == "effectivePeriod" })
   assert ic_effective_period.start
     == Some(pt.DateTime(pt.YearMonthDay(2021, calendar.May, 25), None))
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueDatetime(ic_acquisition_date)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueDatetime(ic_acquisition_date)),
     ..,
   )) = list.find(rsg_ic_children, fn(e) { e.url == "acquisitionDate" })
   assert ic_acquisition_date
     == pt.DateTime(pt.YearMonthDay(2021, calendar.June, 06), None)
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueReference(ic_source_doc)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueReference(ic_source_doc)),
     ..,
   )) = list.find(rsg_ic_children, fn(e) { e.url == "sourceDocument" })
   assert ic_source_doc.reference == Some("DocumentReference/2")
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueString(ic_source_field)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueString(ic_source_field)),
     ..,
   )) = list.find(rsg_ic_children, fn(e) { e.url == "sourceField" })
   assert ic_source_field == "SEX"
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(ic_jurisdiction)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(ic_jurisdiction)),
     ..,
   )) = list.find(rsg_ic_children, fn(e) { e.url == "jurisdiction" })
   let assert [
-    r4.Coding(
+    ct.Coding(
       system: Some(
         "http://local-code-system.org/recorded-sex-or-gender-jurisdiction",
       ),
@@ -427,100 +429,100 @@ pub fn extension_notcustom_test() {
       ..,
     ),
   ] = ic_jurisdiction.coding
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueString(ic_comment)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueString(ic_comment)),
     ..,
   )) = list.find(rsg_ic_children, fn(e) { e.url == "comment" })
   assert ic_comment
     == "Patient transitioned from male to female in 2001, but their insurance card still indicates male."
 
   // birth certificate
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(bc_value)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(bc_value)),
     ..,
   )) = list.find(rsg_bc_children, fn(e) { e.url == "value" })
   let assert [
-    r4.Coding(
+    ct.Coding(
       system: Some("http://hl7.org/fhir/administrative-gender"),
       code: Some("male"),
       display: Some("Male"),
       ..,
     ),
   ] = bc_value.coding
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(bc_type)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(bc_type)),
     ..,
   )) = list.find(rsg_bc_children, fn(e) { e.url == "type" })
   let assert [
-    r4.Coding(
+    ct.Coding(
       system: Some("http://loinc.org"),
       code: Some("76689-9"),
       display: Some("Sex Assigned At Birth"),
       ..,
     ),
   ] = bc_type.coding
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValuePeriod(bc_effective_period)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValuePeriod(bc_effective_period)),
     ..,
   )) = list.find(rsg_bc_children, fn(e) { e.url == "effectivePeriod" })
   assert bc_effective_period.start
     == Some(pt.DateTime(pt.YearMonthDay(1974, calendar.December, 25), None))
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueDatetime(bc_acquisition_date)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueDatetime(bc_acquisition_date)),
     ..,
   )) = list.find(rsg_bc_children, fn(e) { e.url == "acquisitionDate" })
   assert bc_acquisition_date
     == pt.DateTime(pt.YearMonthDay(2005, calendar.December, 06), None)
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueReference(bc_source_doc)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueReference(bc_source_doc)),
     ..,
   )) = list.find(rsg_bc_children, fn(e) { e.url == "sourceDocument" })
   assert bc_source_doc.reference == Some("DocumentReference/1")
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueString(bc_source_field)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueString(bc_source_field)),
     ..,
   )) = list.find(rsg_bc_children, fn(e) { e.url == "sourceField" })
   assert bc_source_field == "SEX"
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(bc_jurisdiction)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(bc_jurisdiction)),
     ..,
   )) = list.find(rsg_bc_children, fn(e) { e.url == "jurisdiction" })
   let assert [
-    r4.Coding(
+    ct.Coding(
       system: Some("https://www.usps.com/"),
       code: Some("OH"),
       display: Some("Ohio"),
       ..,
     ),
   ] = bc_jurisdiction.coding
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueString(bc_comment)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueString(bc_comment)),
     ..,
   )) = list.find(rsg_bc_children, fn(e) { e.url == "comment" })
   assert bc_comment
     == "Patient transitioned from male to female in 2001, but their birth certificate still indicates male."
 
   // gender identity
-  let assert Ok(r4.Extension(ext: r4.ExtComplex(gi_children), ..)) =
+  let assert Ok(ct.Extension(ext: ct.ExtComplex(gi_children), ..)) =
     list.find(pat.extension, fn(e) {
       e.url
       == "http://hl7.org/fhir/StructureDefinition/individual-genderIdentity"
     })
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueCodeableconcept(gi_cc)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(gi_cc)),
     ..,
   )) = list.find(gi_children, fn(e) { e.url == "value" })
   let assert [gi_coding] = gi_cc.coding
   assert gi_coding.code == Some("446141000124107")
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValuePeriod(gi_period)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValuePeriod(gi_period)),
     ..,
   )) = list.find(gi_children, fn(e) { e.url == "period" })
   assert gi_period.start
     == Some(pt.DateTime(pt.YearMonthDay(2001, calendar.May, 06), None))
   assert gi_period.end == None
-  let assert Ok(r4.Extension(
-    ext: r4.ExtSimple(r4.ExtensionValueString(gi_comment)),
+  let assert Ok(ct.Extension(
+    ext: ct.ExtSimple(ct.ExtensionValueString(gi_comment)),
     ..,
   )) = list.find(gi_children, fn(e) { e.url == "comment" })
   assert gi_comment == "Patient transitioned from male to female in 2001."

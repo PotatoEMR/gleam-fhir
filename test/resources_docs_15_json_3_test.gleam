@@ -1,5 +1,6 @@
-import fhir/r4
-import fhir/r4_valuesets
+import fhir/r4/resources
+import fhir/r4/valuesets
+
 import gleam/json
 import gleam/option.{Some}
 
@@ -48,8 +49,8 @@ pub fn resources_docs_15_json_3_test() {
 }
 "
 
-  let assert Ok(r4.ResourceAllergyintolerance(shellfish_allergy)) =
-    json_could_be_any_resource |> json.parse(r4.resource_decoder())
+  let assert Ok(resources.ResourceAllergyintolerance(shellfish_allergy)) =
+    json_could_be_any_resource |> json.parse(resources.resource_decoder())
   assert shellfish_allergy.criticality
-    == Some(r4_valuesets.AllergyintolerancecriticalityLow)
+    == Some(valuesets.AllergyintolerancecriticalityLow)
 }

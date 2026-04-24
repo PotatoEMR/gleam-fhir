@@ -1,5 +1,6 @@
+import fhir/r4usp/resources
+
 //import check_roundtrip
-import fhir/r4usp
 
 //import fhir/r4usp_valuesets
 //import gleam/io
@@ -221,12 +222,12 @@ const pat_json = "{
 }"
 
 pub fn r4usp_nasty_test() {
-  let assert Ok(_pat) = json.parse(pat_json, r4usp.patient_decoder())
-  // pat |> r4usp.patient_to_json |> json.to_string |> io.println
+  let assert Ok(_pat) = json.parse(pat_json, resources.patient_decoder())
+  // pat |> resources.patient_to_json |> json.to_string |> io.println
   // check_roundtrip.check_roundtrip(
   //   pat_json,
-  //   r4usp.patient_decoder(),
-  //   r4usp.patient_to_json,
+  //   resources.patient_decoder(),
+  //   resources.patient_to_json,
   //   "r4usp",
   // )
 }
