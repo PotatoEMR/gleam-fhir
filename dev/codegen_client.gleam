@@ -308,20 +308,20 @@ pub fn gen(
     gen_specific_crud(
       entries,
       "
-          pub fn NAMELOWER_create_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Request(Option(Json)) {
-            any_create_req(FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
+          pub fn NAMELOWER_create_req(resource: resources.NAMECAPITAL, client: FhirClient) -> Request(Option(Json)) {
+            any_create_req(resources.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
           }
 
           pub fn NAMELOWER_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
             any_read_req(id, \"NAMEUPPER\", client)
           }
 
-          pub fn NAMELOWER_update_req(resource: FHIRVERSION.NAMECAPITAL, client: FhirClient) -> Result(Request(Option(Json)), ErrReq) {
-            any_update_req(resource.id, FHIRVERSION.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
+          pub fn NAMELOWER_update_req(resource: resources.NAMECAPITAL, client: FhirClient) -> Result(Request(Option(Json)), ErrReq) {
+            any_update_req(resource.id, resources.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
           }
 
-          pub fn NAMELOWER_resp(resp: Response(String)) -> Result(FHIRVERSION.NAMECAPITAL, ErrResp) {
-            any_resp(resp, FHIRVERSION.NAMELOWER_decoder(), \"NAMEUPPER\")
+          pub fn NAMELOWER_resp(resp: Response(String)) -> Result(resources.NAMECAPITAL, ErrResp) {
+            any_resp(resp, resources.NAMELOWER_decoder(), \"NAMEUPPER\")
           }
           ",
     )
@@ -473,7 +473,7 @@ pub fn gen(
         string.concat(
           list.map(rest.resource, fn(res) {
             let #(name_lower, name_capital) = id_to_name(res.type_)
-            name_lower <> ": List(FHIRVERSION." <> name_capital <> "),"
+            name_lower <> ": List(resources." <> name_capital <> "),"
           }),
         )
       }),
@@ -505,7 +505,7 @@ pub fn gen(
         string.concat(
           list.map(rest.resource, fn(res) {
             let #(name_lower, name_capital) = id_to_name(res.type_)
-            "FHIRVERSION.Resource"
+            "resources.Resource"
             <> name_capital
             <> "(r) -> GroupedResources(..acc, "
             <> name_lower
@@ -520,7 +520,7 @@ pub fn gen(
   // "r4.ResourceAccount(r) ->
   //   GroupedResources(..acc, account: [r, ..acc.account])"
   let bundle_to_gt =
-    "pub fn bundle_to_groupedresources(from bundle: FHIRVERSION.Bundle) {
+    "pub fn bundle_to_groupedresources(from bundle: resources.Bundle) {
       list.fold(from: groupedresources_new(), over: bundle.entry, with: fn(acc, entry) {
         case entry.resource {
           None -> acc
@@ -534,8 +534,8 @@ pub fn gen(
 
   let #(next_relation, version_imports) = case fhir_version {
     "r5" -> #(
-      "FHIRVERSION_valuesets.IanalinkrelationsNext",
-      "import fhir/FHIRVERSION_valuesets",
+      "valuesets.IanalinkrelationsNext",
+      "import fhir/FHIRVERSION/valuesets",
     )
     _ -> #("\"next\"", "")
   }
@@ -589,13 +589,13 @@ pub fn gen(
       entries,
       "
             pub fn NAMELOWER_create(
-              resource: FHIRVERSION.NAMECAPITAL,
+              resource: resources.NAMECAPITAL,
               client: FhirClient,
-            ) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
+            ) -> Result(resources.NAMECAPITAL, Err) {
               any_create(
-                FHIRVERSION.NAMELOWER_to_json(resource),
+                resources.NAMELOWER_to_json(resource),
                 \"NAMEUPPER\",
-                FHIRVERSION.NAMELOWER_decoder(),
+                resources.NAMELOWER_decoder(),
                 client,
               )
             }
@@ -603,43 +603,43 @@ pub fn gen(
             pub fn NAMELOWER_read(
               id: String,
               client: FhirClient,
-            ) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
-              any_read(id, client, \"NAMEUPPER\", FHIRVERSION.NAMELOWER_decoder())
+            ) -> Result(resources.NAMECAPITAL, Err) {
+              any_read(id, client, \"NAMEUPPER\", resources.NAMELOWER_decoder())
             }
 
             pub fn NAMELOWER_update(
-              resource: FHIRVERSION.NAMECAPITAL,
+              resource: resources.NAMECAPITAL,
               client: FhirClient,
-            ) -> Result(FHIRVERSION.NAMECAPITAL, Err) {
+            ) -> Result(resources.NAMECAPITAL, Err) {
               any_update(
                 resource.id,
-                FHIRVERSION.NAMELOWER_to_json(resource),
+                resources.NAMELOWER_to_json(resource),
                 \"NAMEUPPER\",
-                FHIRVERSION.NAMELOWER_decoder(),
+                resources.NAMELOWER_decoder(),
                 client,
               )
             }
 
             pub fn NAMELOWER_delete(
-              resource: FHIRVERSION.NAMECAPITAL,
+              resource: resources.NAMECAPITAL,
               client: FhirClient,
-            ) -> Result(FHIRVERSION_sansio.OperationoutcomeOrHTTP, Err) {
+            ) -> Result(sansio.OperationoutcomeOrHTTP, Err) {
               case resource.id {
                 Some(id) -> any_delete(id, \"NAMECAPITAL\", client)
                 None -> Error(ErrSansio(ErrNoId))
               }
             }
 
-            pub fn NAMELOWER_search_bundled(sp: FHIRVERSION_sansio.SpNAMECAPITAL, client: FhirClient) {
-              let req = FHIRVERSION_sansio.NAMELOWER_search_req(sp, client)
-              sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), \"Bundle\")
+            pub fn NAMELOWER_search_bundled(sp: sansio.SpNAMECAPITAL, client: FhirClient) {
+              let req = sansio.NAMELOWER_search_req(sp, client)
+              sendreq_parseresource(req, resources.bundle_decoder(), \"Bundle\")
             }
 
-            pub fn NAMELOWER_search(sp: FHIRVERSION_sansio.SpNAMECAPITAL, client: FhirClient) -> Result(List(FHIRVERSION.NAMECAPITAL), Err) {
-              let req = FHIRVERSION_sansio.NAMELOWER_search_req(sp, client)
-              sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), \"Bundle\")
+            pub fn NAMELOWER_search(sp: sansio.SpNAMECAPITAL, client: FhirClient) -> Result(List(resources.NAMECAPITAL), Err) {
+              let req = sansio.NAMELOWER_search_req(sp, client)
+              sendreq_parseresource(req, resources.bundle_decoder(), \"Bundle\")
               |> result.map(fn(bundle) {
-                { bundle |> FHIRVERSION_sansio.bundle_to_groupedresources }.NAMELOWER
+                { bundle |> sansio.bundle_to_groupedresources }.NAMELOWER
               })
             }
             ",
@@ -658,14 +658,14 @@ pub fn gen(
       entries,
       "
             pub fn NAMELOWER_create(
-              resource: FHIRVERSION.NAMECAPITAL,
+              resource: resources.NAMECAPITAL,
               client: FhirClient,
-              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, Err)) -> a,
+              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> a,
             ) -> Effect(a) {
               any_create(
-                FHIRVERSION.NAMELOWER_to_json(resource),
+                resources.NAMELOWER_to_json(resource),
                 \"NAMEUPPER\",
-                FHIRVERSION.NAMELOWER_decoder(),
+                resources.NAMELOWER_decoder(),
                 client,
                 handle_response,
               )
@@ -674,30 +674,30 @@ pub fn gen(
             pub fn NAMELOWER_read(
               id: String,
               client: FhirClient,
-              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, Err)) -> a,
+              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> a,
             ) -> Effect(a) {
-              any_read(id, \"NAMEUPPER\", FHIRVERSION.NAMELOWER_decoder(), client, handle_response)
+              any_read(id, \"NAMEUPPER\", resources.NAMELOWER_decoder(), client, handle_response)
             }
 
             pub fn NAMELOWER_update(
-              resource: FHIRVERSION.NAMECAPITAL,
+              resource: resources.NAMECAPITAL,
               client: FhirClient,
-              handle_response: fn(Result(FHIRVERSION.NAMECAPITAL, Err)) -> a,
+              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> a,
             ) -> Result(Effect(a), ErrNoId) {
               any_update(
                 resource.id,
-                FHIRVERSION.NAMELOWER_to_json(resource),
+                resources.NAMELOWER_to_json(resource),
                 \"NAMEUPPER\",
-                FHIRVERSION.NAMELOWER_decoder(),
+                resources.NAMELOWER_decoder(),
                 client,
                 handle_response,
               )
             }
 
             pub fn NAMELOWER_delete(
-              resource: FHIRVERSION.NAMECAPITAL,
+              resource: resources.NAMECAPITAL,
               client: FhirClient,
-              handle_response: fn(Result(FHIRVERSION_sansio.OperationoutcomeOrHTTP, Err)) -> a,
+              handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> a,
             ) -> Result(Effect(a), ErrNoId) {
               case resource.id {
                 Some(id) -> Ok(any_delete(id, \"NAMEUPPER\", client, handle_response))
@@ -706,26 +706,26 @@ pub fn gen(
             }
 
             pub fn NAMELOWER_search_bundled(
-              search_for search_args: FHIRVERSION_sansio.SpNAMECAPITAL,
+              search_for search_args: sansio.SpNAMECAPITAL,
               with_client client: FhirClient,
-              response_msg handle_response: fn(Result(FHIRVERSION.Bundle, Err)) -> msg,
+              response_msg handle_response: fn(Result(resources.Bundle, Err)) -> msg,
             ) -> Effect(msg) {
-              let req = FHIRVERSION_sansio.NAMELOWER_search_req(search_args, client)
-              sendreq_handleresponse(req, FHIRVERSION.bundle_decoder(), \"Bundle\", handle_response)
+              let req = sansio.NAMELOWER_search_req(search_args, client)
+              sendreq_handleresponse(req, resources.bundle_decoder(), \"Bundle\", handle_response)
             }
 
             pub fn NAMELOWER_search(
-              search_for search_args: FHIRVERSION_sansio.SpNAMECAPITAL,
+              search_for search_args: sansio.SpNAMECAPITAL,
               with_client client: FhirClient,
-              response_msg handle_response: fn(Result(List(FHIRVERSION.NAMECAPITAL), Err)) -> msg,
+              response_msg handle_response: fn(Result(List(resources.NAMECAPITAL), Err)) -> msg,
             ) -> Effect(msg) {
-              let req = FHIRVERSION_sansio.NAMELOWER_search_req(search_args, client)
+              let req = sansio.NAMELOWER_search_req(search_args, client)
               sendreq_handleresponse_andprocess(
                 req,
-                FHIRVERSION.bundle_decoder(),
+                resources.bundle_decoder(),
                 \"Bundle\",
                 handle_response,
-                fn(bundle) { { bundle |> FHIRVERSION_sansio.bundle_to_groupedresources }.NAMELOWER },
+                fn(bundle) { { bundle |> sansio.bundle_to_groupedresources }.NAMELOWER },
               )
             }
             ",

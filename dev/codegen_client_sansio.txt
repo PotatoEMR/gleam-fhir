@@ -1,6 +1,6 @@
-////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION sans-io request/response helpers suitable for building clients on top of, such as FHIRVERSION_httpc.gleam and FHIRVERSION_rsvp.gleam
+////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION sans-io request/response helpers suitable for building clients on top of, such as fhirclient_httpc.gleam and fhirclient_rsvp.gleam
 
-import fhir/FHIRVERSION
+import fhir/FHIRVERSION/resources
 import gleam/dynamic/decode
 import gleam/http
 import gleam/http/request.{type Request, Request}
@@ -22,30 +22,30 @@ pub type ErrBaseUrl {
 }
 
 /// FHIR client for sending http requests to server such as
-/// `let pat = FHIRVERSION.patient_read("123", client)`
+/// `let pat = resources.patient_read("123", client)`
 ///
 /// create client from server base url with fhirclient_new(baseurl)`
 ///
-/// `let assert Ok(client) = FHIRVERSION_sansio.fhirclient_new("FHIRVERSION.smarthealthit.org/")`
+/// `let assert Ok(client) = sansio.fhirclient_new("FHIRVERSION.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_sansio.fhirclient_new("https://FHIRVERSION.smarthealthit.org/")`
+/// `let assert Ok(client) = sansio.fhirclient_new("https://FHIRVERSION.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_sansio.fhirclient_new("https://hapi.fhir.org/baseFHIRVERSION")`
+/// `let assert Ok(client) = sansio.fhirclient_new("https://hapi.fhir.org/baseFHIRVERSION")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_sansio.fhirclient_new("127.0.0.1:8000")`
+/// `let assert Ok(client) = sansio.fhirclient_new("127.0.0.1:8000")`
 pub type FhirClient {
   FhirClient(baseurl: uri.Uri, basereq: Request(Option(Json)))
 }
 
 /// creates a new client from server base url
 ///
-/// `let assert Ok(client) = FHIRVERSION_sansio.fhirclient_new("FHIRVERSION.smarthealthit.org/")`
+/// `let assert Ok(client) = sansio.fhirclient_new("FHIRVERSION.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_sansio.fhirclient_new("https://FHIRVERSION.smarthealthit.org/")`
+/// `let assert Ok(client) = sansio.fhirclient_new("https://FHIRVERSION.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_sansio.fhirclient_new("https://hapi.fhir.org/baseFHIRVERSION")`
+/// `let assert Ok(client) = sansio.fhirclient_new("https://hapi.fhir.org/baseFHIRVERSION")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_sansio.fhirclient_new("127.0.0.1:8000")`
+/// `let assert Ok(client) = sansio.fhirclient_new("127.0.0.1:8000")`
 pub fn fhirclient_new(
   server_base_url in_url: String,
 ) -> Result(FhirClient, ErrBaseUrl) {
@@ -104,7 +104,7 @@ pub type ErrResp {
   ///did not get resource json, often server eg nginx gives basic html response
   ErrNotJson(Response(String))
   ///got operationoutcome error from fhir server
-  ErrOperationoutcome(FHIRVERSION.Operationoutcome)
+  ErrOperationoutcome(resources.Operationoutcome)
 }
 
 pub type ErrReq {
@@ -177,7 +177,7 @@ pub fn any_operation_req(
   res_type: String,
   res_id: Option(String),
   operation_name: String,
-  params: Option(FHIRVERSION.Parameters),
+  params: Option(resources.Parameters),
   client: FhirClient,
 ) -> Request(Option(Json)) {
   let path = case res_id {
@@ -203,7 +203,7 @@ pub fn any_operation_req(
     None -> req
     Some(params) ->
       req
-      |> request.set_body(params |> FHIRVERSION.parameters_to_json |> Some)
+      |> request.set_body(params |> resources.parameters_to_json |> Some)
       |> request.set_method(http.Post)
   }
 }
@@ -236,7 +236,7 @@ pub fn any_resp(resp: Response(String), resource_dec: decode.Decoder(a), resourc
         False ->
           case tag == "OperationOutcome" {
             True ->
-              FHIRVERSION.operationoutcome_decoder()
+              resources.operationoutcome_decoder()
               |> decode.map(fn(oo) { Error(ErrOperationoutcome(oo)) })
             // if resourceType tag is neither desired res type or oo,
             // don't even bother trying to decode
@@ -265,7 +265,7 @@ pub fn any_resp(resp: Response(String), resource_dec: decode.Decoder(a), resourc
 }
 
 pub type OperationoutcomeOrHTTP {
-  SuccessOperationoutcome(FHIRVERSION.Operationoutcome)
+  SuccessOperationoutcome(resources.Operationoutcome)
   SuccessHttpResponse(Response(String))
 }
 
@@ -282,7 +282,7 @@ pub fn http_or_operationoutcome_resp(
         False -> Error(ErrNotJson(resp))
       }
     _ -> {
-      case resp.body |> json.parse(FHIRVERSION.operationoutcome_decoder()) {
+      case resp.body |> json.parse(resources.operationoutcome_decoder()) {
         Ok(decoded_oo) ->
           case resp.status < 300 {
             True -> Ok(SuccessOperationoutcome(decoded_oo))
@@ -362,7 +362,7 @@ pub fn batch_req(
 }
 
 pub fn bundle_next_page_req(
-  bundle: FHIRVERSION.Bundle,
+  bundle: resources.Bundle,
   client: FhirClient,
 ) -> Result(Request(Option(Json)), Nil) {
   result.try(list.find(bundle.link, fn(l) { l.relation == NEXTRELATION }), fn(link) {

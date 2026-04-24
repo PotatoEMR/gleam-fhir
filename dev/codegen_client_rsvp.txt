@@ -1,7 +1,7 @@
 ////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using rsvp
 
-import fhir/FHIRVERSION
-import fhir/FHIRVERSION_sansio
+import fhir/FHIRVERSION/resources
+import fhir/FHIRVERSION/sansio
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
@@ -11,36 +11,36 @@ import lustre/effect.{type Effect}
 import rsvp
 
 /// FHIR client for sending http requests to server such as
-/// `let read_pat_effect = FHIRVERSION_rsvp.patient_read("123", client, msg)`
+/// `let read_pat_effect = fhirclient_rsvp.patient_read("123", client, msg)`
 ///
 /// create client from server base url with fhirclient_new(baseurl)`
 ///
-/// `let assert Ok(client) = FHIRVERSION_rsvp.fhirclient_new("r4.smarthealthit.org/")`
+/// `let assert Ok(client) = fhirclient_rsvp.fhirclient_new("r4.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_rsvp.fhirclient_new("https://r4.smarthealthit.org/")`
+/// `let assert Ok(client) = fhirclient_rsvp.fhirclient_new("https://r4.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")`
+/// `let assert Ok(client) = fhirclient_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_rsvp.fhirclient_new("127.0.0.1:8000")`
+/// `let assert Ok(client) = fhirclient_rsvp.fhirclient_new("127.0.0.1:8000")`
 pub type FhirClient =
-  FHIRVERSION_sansio.FhirClient
+  sansio.FhirClient
 
 /// creates a new client from server base url
 ///
-/// `let assert Ok(client) = FHIRVERSION_rsvp.fhirclient_new("r4.smarthealthit.org/")`
+/// `let assert Ok(client) = fhirclient_rsvp.fhirclient_new("r4.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_rsvp.fhirclient_new("https://r4.smarthealthit.org/")`
+/// `let assert Ok(client) = fhirclient_rsvp.fhirclient_new("https://r4.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")`
+/// `let assert Ok(client) = fhirclient_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_rsvp.fhirclient_new("127.0.0.1:8000")`
-pub fn fhirclient_new(baseurl: String) -> Result(FhirClient, FHIRVERSION_sansio.ErrBaseUrl) {
-  FHIRVERSION_sansio.fhirclient_new(baseurl)
+/// `let assert Ok(client) = fhirclient_rsvp.fhirclient_new("127.0.0.1:8000")`
+pub fn fhirclient_new(baseurl: String) -> Result(FhirClient, sansio.ErrBaseUrl) {
+  sansio.fhirclient_new(baseurl)
 }
 
 pub type Err {
   ErrRsvp(err: rsvp.Error)
-  ErrSansio(err: FHIRVERSION_sansio.ErrResp)
+  ErrSansio(err: sansio.ErrResp)
 }
 
 /// When using rsvp, if you attempt update or delete a resource with no id,
@@ -57,7 +57,7 @@ fn any_create(
   client: FhirClient,
   handle_response: fn(Result(r, Err)) -> a,
 ) -> Effect(a) {
-  let req = FHIRVERSION_sansio.any_create_req(resource, res_type, client)
+  let req = sansio.any_create_req(resource, res_type, client)
   sendreq_handleresponse(req, resource_dec, res_type, handle_response)
 }
 
@@ -68,7 +68,7 @@ fn any_read(
   client: FhirClient,
   handle_response: fn(Result(r, Err)) -> a,
 ) -> Effect(a) {
-  let req = FHIRVERSION_sansio.any_read_req(id, res_type, client)
+  let req = sansio.any_read_req(id, res_type, client)
   sendreq_handleresponse(req, resource_dec, res_type, handle_response)
 }
 
@@ -80,7 +80,7 @@ fn any_update(
   client: FhirClient,
   handle_response: fn(Result(r, Err)) -> a,
 ) -> Result(Effect(a), ErrNoId) {
-  let req = FHIRVERSION_sansio.any_update_req(id, resource, res_type, client)
+  let req = sansio.any_update_req(id, resource, res_type, client)
   case req {
     Ok(req) -> Ok(sendreq_handleresponse(req, resource_dec, res_type, handle_response))
     // from rsvp's point of view it would make more sense to split sansio error into 2 separate errors
@@ -96,14 +96,14 @@ fn any_delete(
   id: String,
   res_type: String,
   client: FhirClient,
-  handle_response: fn(Result(FHIRVERSION_sansio.OperationoutcomeOrHTTP, Err)) -> a,
+  handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> a,
 ) -> Effect(a) {
-  let req = FHIRVERSION_sansio.any_delete_req(id, res_type, client)
+  let req = sansio.any_delete_req(id, res_type, client)
   let handle_read = fn(resp_res: Result(Response(String), rsvp.Error)) {
     handle_response(case resp_res {
       Error(err) -> Error(ErrRsvp(err))
       Ok(resp) ->
-        case FHIRVERSION_sansio.http_or_operationoutcome_resp(resp) {
+        case sansio.http_or_operationoutcome_resp(resp) {
           Ok(oo_or_http) -> Ok(oo_or_http)
           Error(err) -> Error(ErrSansio(err))
         }
@@ -123,15 +123,15 @@ pub fn search_any(
   search_string: String,
   res_type: String,
   client: FhirClient,
-  handle_response: fn(Result(FHIRVERSION.Bundle, Err)) -> msg,
+  handle_response: fn(Result(resources.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = FHIRVERSION_sansio.any_search_req(search_string, res_type, client)
-  sendreq_handleresponse(req, FHIRVERSION.bundle_decoder(), "Bundle", handle_response)
+  let req = sansio.any_search_req(search_string, res_type, client)
+  sendreq_handleresponse(req, resources.bundle_decoder(), "Bundle", handle_response)
 }
 
 // run any operation string on any resource string, optionally using Parameters
 pub fn operation_any(
-  params params: Option(FHIRVERSION.Parameters),
+  params params: Option(resources.Parameters),
   operation_name operation_name: String,
   res_type res_type: String,
   res_id res_id: Option(String),
@@ -141,7 +141,7 @@ pub fn operation_any(
   handle_response handle_response: fn(Result(res, Err)) -> msg,
 ) -> Effect(msg) {
   let req =
-    FHIRVERSION_sansio.any_operation_req(
+    sansio.any_operation_req(
       res_type,
       res_id,
       operation_name,
@@ -153,12 +153,12 @@ pub fn operation_any(
 
 pub fn batch(
   reqs: List(Request(Option(Json))),
-  bundle_type: FHIRVERSION_sansio.PostBundleType,
+  bundle_type: sansio.PostBundleType,
   client: FhirClient,
-  handle_response: fn(Result(FHIRVERSION.Bundle, Err)) -> msg,
+  handle_response: fn(Result(resources.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = FHIRVERSION_sansio.batch_req(reqs, bundle_type, client)
-  sendreq_handleresponse(req, FHIRVERSION.bundle_decoder(), "Bundle", handle_response)
+  let req = sansio.batch_req(reqs, bundle_type, client)
+  sendreq_handleresponse(req, resources.bundle_decoder(), "Bundle", handle_response)
 }
 
 fn sendreq_handleresponse(
@@ -181,7 +181,7 @@ fn sendreq_handleresponse_andprocess(
     handle_response(case resp_res {
       Error(err) -> Error(ErrRsvp(err))
       Ok(resp_res) -> {
-        case FHIRVERSION_sansio.any_resp(resp_res, res_dec, res_type) {
+        case sansio.any_resp(resp_res, res_dec, res_type) {
           Ok(res) -> Ok(process_res(res))
           Error(err) -> Error(ErrSansio(err))
         }

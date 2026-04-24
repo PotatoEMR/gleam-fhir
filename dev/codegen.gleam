@@ -14,12 +14,12 @@ import gleam/result
 import gleam/set
 import gleam/string
 
-//is there a way to add these as dev dependencies but not require for users
+//dev dependencies but not required for users
 import shellout
 import simplifile
 
 //dogfood r4 to parse valuesets
-import fhir/r4
+import fhir/r4/resources
 
 const check_versions = ["r4", "r4b", "r5"]
 
@@ -387,16 +387,20 @@ fn gen_fhir(
     False -> [Nil]
   }
 
-  let gen_prefix = case custom_profile_name {
-    None -> filepath.join(gen_into_dir, fhir_version)
-    Some(name) -> filepath.join(gen_into_dir, name)
-  }
-  let gen_gleamfile = gen_prefix <> ".gleam"
-  let gen_vsfile = gen_prefix <> "_valuesets.gleam"
   let pkg_prefix = case custom_profile_name {
     None -> fhir_version
     Some(name) -> name
   }
+  let gen_dir = filepath.join(gen_into_dir, pkg_prefix)
+  let assert Ok(_) = simplifile.create_directory_all(gen_dir)
+  let f_primitive_types = filepath.join(gen_dir, "primitive_types.gleam")
+  let assert Ok(primitive_types) =
+    simplifile.read(filepath.join("dev", "primitive_types.txt"))
+  let assert Ok(_) =
+    simplifile.write(to: f_primitive_types, contents: primitive_types)
+  io.println("generated " <> f_primitive_types)
+  let gen_gleamfile = filepath.join(gen_dir, "resources.gleam")
+  let gen_vsfile = filepath.join(gen_dir, "valuesets.gleam")
   let need_import_result = case custom_profile_name {
     None -> ""
     Some(_) -> "import gleam/result\n"
@@ -405,11 +409,11 @@ fn gen_fhir(
       import gleam/dynamic/decode.{type Decoder}
       import gleam/option.{type Option, None, Some}
       import gleam/list
-      import fhir/primitive_types.{type Date, type DateTime, type Instant, type Time} as pt
-      import fhir/" <> pkg_prefix <> "_valuesets\n"
+      import fhir/" <> pkg_prefix <> "/primitive_types.{type Date, type DateTime, type Instant, type Time} as pt
+      import fhir/" <> pkg_prefix <> "/valuesets\n"
   let ct_imports = shared_imports <> "import gleam/int
-      import gleam/dict.{type Dict}\n"
-  let r_imports = shared_imports <> "import gleam/bool\n" <> need_import_result
+      import gleam/dict.{type Dict}\n" <> need_import_result
+  let r_imports = shared_imports <> "import gleam/bool\n"
 
   let complex_types_gen =
     file_to_types(
@@ -643,7 +647,7 @@ fn gen_fhir(
   let r_ct_import =
     "import fhir/"
     <> pkg_prefix
-    <> "_complex_types.{type List1, list1_to_json, list1_decoder, none_if_omitted, decode_number} as ct\n"
+    <> "/complex_types.{type List1, list1_to_json, list1_decoder, none_if_omitted, decode_number} as ct\n"
   let r_content =
     string.concat([
       "////[https://hl7.org/fhir/",
@@ -655,7 +659,7 @@ fn gen_fhir(
       r_ct_import,
       resources_gen,
     ])
-  let f_complex_types = gen_prefix <> "_complex_types.gleam"
+  let f_complex_types = filepath.join(gen_dir, "complex_types.gleam")
   let assert Ok(_) = simplifile.write(to: f_complex_types, contents: ct_content)
   io.println("generated " <> f_complex_types)
   let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: r_content)
@@ -676,13 +680,13 @@ fn gen_fhir(
       all_primitive_ext: all_primitive_ext,
       profiles_dir: profiles_dir,
     )
-  let f_sansio = gen_prefix <> "_sansio.gleam"
+  let f_sansio = filepath.join(gen_dir, "sansio.gleam")
   let assert Ok(_) = simplifile.write(to: f_sansio, contents: sansio)
   io.println("generated " <> f_sansio)
-  let f_httpc = gen_prefix <> "_httpc.gleam"
+  let f_httpc = filepath.join(gen_dir, "client_httpc.gleam")
   let assert Ok(_) = simplifile.write(to: f_httpc, contents: httpc_layer)
   io.println("generated " <> f_httpc)
-  let f_rsvp = gen_prefix <> "_rsvp.gleam"
+  let f_rsvp = filepath.join(gen_dir, "client_rsvp.gleam")
   let assert Ok(_) = simplifile.write(to: f_rsvp, contents: rsvp_layer)
   io.println("generated " <> f_rsvp)
 }
@@ -1929,7 +1933,13 @@ fn file_to_types(
                       is_profile_ext_fake_elt
                     {
                       True -> #(decoder_use_acc, [
-                        #(elt_snake, profile_ext_fn_name, elt.min, elt.max),
+                        #(
+                          elt_snake,
+                          bucket_prefix(ComplexTypes, current_bucket)
+                            <> profile_ext_fn_name,
+                          elt.min,
+                          elt.max,
+                        ),
                         ..profile_exts_acc
                       ])
                       False -> #(
@@ -2346,8 +2356,7 @@ fn file_to_types(
                                     -> {
                                       let assert [url, ..] =
                                         string.split(vs, "|")
-                                      fhir_version
-                                      <> "_valuesets."
+                                      "valuesets."
                                       <> string.lowercase(
                                         concept_name_from_url(Some(url)),
                                       )
@@ -2507,8 +2516,7 @@ fn file_to_types(
                                         let assert [vs_url, ..] =
                                           string.split(vs, "|")
                                         let from_str =
-                                          fhir_version
-                                          <> "_valuesets."
+                                          "valuesets."
                                           <> string.lowercase(
                                             concept_name_from_url(Some(vs_url)),
                                           )
@@ -2761,8 +2769,7 @@ fn file_to_types(
                               ))
                             -> {
                               let assert [vs_url, ..] = string.split(vs, "|")
-                              fhir_version
-                              <> "_valuesets."
+                              "valuesets."
                               <> string.lowercase(
                                 concept_name_from_url(Some(vs_url)),
                               )
@@ -2872,8 +2879,7 @@ fn file_to_types(
                             -> {
                               let assert [vs_url, ..] = string.split(vs, "|")
                               let from_str =
-                                fhir_version
-                                <> "_valuesets."
+                                "valuesets."
                                 <> string.lowercase(
                                   concept_name_from_url(Some(vs_url)),
                                 )
@@ -3053,7 +3059,7 @@ fn link_type_from(content_reference: Option(String), resource_name: String) {
 fn string_to_type(
   fhir_type: String,
   allparts: List(String),
-  fhir_version: String,
+  _fhir_version: String,
   elt: Element,
   gen_vsfile: String,
   current: Category,
@@ -3097,9 +3103,7 @@ fn string_to_type(
                               to: gen_vsfile,
                               contents: url <> "\n",
                             )
-                          fhir_version
-                          <> "_valuesets."
-                          <> concept_name_from_url(Some(url))
+                          "valuesets." <> concept_name_from_url(Some(url))
                         }
                       }
                     }
@@ -3147,7 +3151,7 @@ fn string_to_type(
 fn string_to_decoder_type(
   fhir_type: String,
   allparts: List(String),
-  fhir_version: String,
+  _fhir_version: String,
   elt: Element,
   current: Category,
 ) -> String {
@@ -3194,8 +3198,7 @@ fn string_to_decoder_type(
                         True -> "decode.string"
                         //idk whats going on here, probably i dont understand valueset composition
                         False ->
-                          fhir_version
-                          <> "_valuesets."
+                          "valuesets."
                           <> Some(url)
                           |> concept_name_from_url()
                           |> to_snake_case
@@ -3245,7 +3248,7 @@ fn string_to_decoder_type(
 fn string_to_encoder_type(
   fhir_type: String,
   allparts: List(String),
-  fhir_version: String,
+  _fhir_version: String,
   elt: Element,
   current: Category,
 ) -> String {
@@ -3292,8 +3295,7 @@ fn string_to_encoder_type(
                         True -> "json.string"
                         //idk whats going on here, probably i dont understand valueset composition
                         False ->
-                          fhir_version
-                          <> "_valuesets."
+                          "valuesets."
                           <> Some(url)
                           |> concept_name_from_url()
                           |> to_snake_case
@@ -3611,7 +3613,7 @@ fn get_codes(
       profile_vs_json
     }
   }
-  let assert Ok(vs) = vs_json |> json.parse(r4.valueset_decoder())
+  let assert Ok(vs) = vs_json |> json.parse(resources.valueset_decoder())
   // so profiles do not necessarily provide extended valuesets
   // us core will come soon: https://chat.fhir.org/#narrow/channel/179166-implementers/topic/US.20core.20valueset.20expansion.20package.3F/with/574276119
   // this could be a chance to do something clever with recursive codesystem parser
@@ -3619,10 +3621,13 @@ fn get_codes(
   case vs.expansion {
     Some(vs_expansion) ->
       Ok(
-        list.map(vs_expansion.contains, fn(c: r4.ValuesetExpansionContains) {
-          let assert Some(code) = c.code
-          code
-        }),
+        list.map(
+          vs_expansion.contains,
+          fn(c: resources.ValuesetExpansionContains) {
+            let assert Some(code) = c.code
+            code
+          },
+        ),
       )
     None -> {
       case vs.compose {

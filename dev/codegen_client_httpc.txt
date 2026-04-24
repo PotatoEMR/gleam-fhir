@@ -1,7 +1,7 @@
 ////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using httpc
 
-import fhir/FHIRVERSION
-import fhir/FHIRVERSION_sansio
+import fhir/FHIRVERSION/resources
+import fhir/FHIRVERSION/sansio
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
@@ -12,31 +12,31 @@ import gleam/list
 import gleam/option.{type Option, Some, None}
 
 /// FHIR client for sending http requests to server such as
-/// `let pat = FHIRVERSION.patient_read("123", client)`
+/// `let pat = resources.patient_read("123", client)`
 ///
 /// create client from server base url with fhirclient_new(baseurl)`
 ///
-/// `let assert Ok(client) = FHIRVERSION_httpc.fhirclient_new("r4.smarthealthit.org/")`
+/// `let assert Ok(client) = fhirclient_httpc.fhirclient_new("r4.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_httpc.fhirclient_new("https://r4.smarthealthit.org/")`
+/// `let assert Ok(client) = fhirclient_httpc.fhirclient_new("https://r4.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")`
+/// `let assert Ok(client) = fhirclient_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_httpc.fhirclient_new("127.0.0.1:8000")`
+/// `let assert Ok(client) = fhirclient_httpc.fhirclient_new("127.0.0.1:8000")`
 pub type FhirClient =
-  FHIRVERSION_sansio.FhirClient
+  sansio.FhirClient
 
 /// creates a new client from server base url
 ///
-/// `let assert Ok(client) = FHIRVERSION_httpc.fhirclient_new("r4.smarthealthit.org/")`
+/// `let assert Ok(client) = fhirclient_httpc.fhirclient_new("r4.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_httpc.fhirclient_new("https://r4.smarthealthit.org/")`
+/// `let assert Ok(client) = fhirclient_httpc.fhirclient_new("https://r4.smarthealthit.org/")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")`
+/// `let assert Ok(client) = fhirclient_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")`
 ///
-/// `let assert Ok(client) = FHIRVERSION_httpc.fhirclient_new("127.0.0.1:8000")`
-pub fn fhirclient_new(baseurl: String) -> Result(FhirClient, FHIRVERSION_sansio.ErrBaseUrl) {
-  FHIRVERSION_sansio.fhirclient_new(baseurl)
+/// `let assert Ok(client) = fhirclient_httpc.fhirclient_new("127.0.0.1:8000")`
+pub fn fhirclient_new(baseurl: String) -> Result(FhirClient, sansio.ErrBaseUrl) {
+  sansio.fhirclient_new(baseurl)
 }
 
 pub type Err {
@@ -50,7 +50,7 @@ pub type ErrFromSansio {
   ///did not get resource json, often server eg nginx gives basic html response
   ErrNotJson(Response(String))
   ///got operationoutcome error from fhir server
-  ErrOperationoutcome(FHIRVERSION.Operationoutcome)
+  ErrOperationoutcome(resources.Operationoutcome)
   ///could not make an update or delete request because resource has no id
   ErrNoId
 }
@@ -61,7 +61,7 @@ fn any_create(
   resource_dec: Decoder(r),
   client: FhirClient,
 ) -> Result(r, Err) {
-  let req = FHIRVERSION_sansio.any_create_req(resource, res_type, client)
+  let req = sansio.any_create_req(resource, res_type, client)
   sendreq_parseresource(req, resource_dec, res_type)
 }
 
@@ -71,7 +71,7 @@ fn any_read(
   res_type: String,
   resource_dec: Decoder(a),
 ) -> Result(a, Err) {
-  let req = FHIRVERSION_sansio.any_read_req(id, res_type, client)
+  let req = sansio.any_read_req(id, res_type, client)
   sendreq_parseresource(req, resource_dec, res_type)
 }
 
@@ -82,7 +82,7 @@ fn any_update(
   res_dec: Decoder(r),
   client: FhirClient,
 ) -> Result(r, Err) {
-  let req = FHIRVERSION_sansio.any_update_req(id, resource, res_type, client)
+  let req = sansio.any_update_req(id, resource, res_type, client)
   case req {
     Ok(req) -> sendreq_parseresource(req, res_dec, res_type)
     Error(_) -> Error(ErrSansio(ErrNoId))
@@ -94,17 +94,17 @@ fn any_delete(
   id: String,
   res_type: String,
   client: FhirClient,
-) -> Result(FHIRVERSION_sansio.OperationoutcomeOrHTTP, Err) {
-  let req = FHIRVERSION_sansio.any_delete_req(id, res_type, client)
+) -> Result(sansio.OperationoutcomeOrHTTP, Err) {
+  let req = sansio.any_delete_req(id, res_type, client)
   case httpc.send(req |> request.set_body("")) {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
-      case FHIRVERSION_sansio.http_or_operationoutcome_resp(resp) {
+      case sansio.http_or_operationoutcome_resp(resp) {
         Ok(oo_or_http) -> Ok(oo_or_http)
         Error(err) -> Error(ErrSansio(case err {
-          FHIRVERSION_sansio.ErrParseJson(e) -> ErrParseJson(e)
-          FHIRVERSION_sansio.ErrNotJson(e) -> ErrNotJson(e)
-          FHIRVERSION_sansio.ErrOperationoutcome(e) -> ErrOperationoutcome(e)
+          sansio.ErrParseJson(e) -> ErrParseJson(e)
+          sansio.ErrNotJson(e) -> ErrNotJson(e)
+          sansio.ErrOperationoutcome(e) -> ErrOperationoutcome(e)
         }))
       }
   }
@@ -115,19 +115,19 @@ pub fn search_any(
   search_string: String,
   res_type: String,
   client: FhirClient,
-) -> Result(FHIRVERSION.Bundle, Err) {
-  let req = FHIRVERSION_sansio.any_search_req(search_string, res_type, client)
-  sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), "Bundle")
+) -> Result(resources.Bundle, Err) {
+  let req = sansio.any_search_req(search_string, res_type, client)
+  sendreq_parseresource(req, resources.bundle_decoder(), "Bundle")
 }
 
 /// get all resources in paginated bundle,
 /// then stick them all in one bundle and pretend not paginated
 ///
-/// FHIRVERSION_httpc.search_any("name=e&_count=25", "Patient", client) |> FHIRVERSION_httpc.all_pages(client)
+/// fhirclient_httpc.search_any("name=e&_count=25", "Patient", client) |> fhirclient_httpc.all_pages(client)
 pub fn all_pages(
-  first_bundle: Result(FHIRVERSION.Bundle, Err),
+  first_bundle: Result(resources.Bundle, Err),
   client: FhirClient,
-) -> Result(FHIRVERSION.Bundle, Err) {
+) -> Result(resources.Bundle, Err) {
   case all_pages_loop(first_bundle, [], client) {
     Error(err) -> Error(err)
     Ok(#(last_bundle, bundles)) -> {
@@ -135,7 +135,7 @@ pub fn all_pages(
         list.fold(from: [], over: bundles, with: fn(acc, bundle) {
           list.append(bundle.entry, acc)
         })
-      Ok(FHIRVERSION.Bundle(..last_bundle, entry: entries, link: []))
+      Ok(resources.Bundle(..last_bundle, entry: entries, link: []))
     }
   }
 }
@@ -144,19 +144,19 @@ pub fn all_pages(
 /// also returns last bundle individually
 /// because all_pages smushes everything in there
 pub fn all_pages_loop(
-  curr_bundle: Result(FHIRVERSION.Bundle, Err),
-  acc_bundles: List(FHIRVERSION.Bundle),
+  curr_bundle: Result(resources.Bundle, Err),
+  acc_bundles: List(resources.Bundle),
   client: FhirClient,
-) -> Result(#(FHIRVERSION.Bundle, List(FHIRVERSION.Bundle)), Err) {
+) -> Result(#(resources.Bundle, List(resources.Bundle)), Err) {
   case curr_bundle {
     Error(err) -> Error(err)
     Ok(curr_bundle) -> {
       let acc_bundles = [curr_bundle, ..acc_bundles]
-      case FHIRVERSION_sansio.bundle_next_page_req(curr_bundle, client) {
+      case sansio.bundle_next_page_req(curr_bundle, client) {
         // Error(_) -> reached last page
         Error(_) -> Ok(#(curr_bundle, acc_bundles))
         Ok(req) -> {
-          let next = sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), "Bundle")
+          let next = sendreq_parseresource(req, resources.bundle_decoder(), "Bundle")
           all_pages_loop(next, acc_bundles, client)
         }
       }
@@ -166,7 +166,7 @@ pub fn all_pages_loop(
 
 /// run any operation string on any resource string, optionally using Parameters
 pub fn operation_any(
-  params params: Option(FHIRVERSION.Parameters),
+  params params: Option(resources.Parameters),
   operation_name operation_name: String,
   res_type res_type: String,
   res_id res_id: Option(String),
@@ -175,7 +175,7 @@ pub fn operation_any(
   client client: FhirClient,
 ) -> Result(res, Err) {
   let req =
-    FHIRVERSION_sansio.any_operation_req(
+    sansio.any_operation_req(
       res_type,
       res_id,
       operation_name,
@@ -187,11 +187,11 @@ pub fn operation_any(
 
 pub fn batch(
   reqs: List(Request(Option(Json))),
-  bundle_type: FHIRVERSION_sansio.PostBundleType,
+  bundle_type: sansio.PostBundleType,
   client: FhirClient,
-) -> Result(FHIRVERSION.Bundle, Err) {
-  let req = FHIRVERSION_sansio.batch_req(reqs, bundle_type, client)
-  sendreq_parseresource(req, FHIRVERSION.bundle_decoder(), "Bundle")
+) -> Result(resources.Bundle, Err) {
+  let req = sansio.batch_req(reqs, bundle_type, client)
+  sendreq_parseresource(req, resources.bundle_decoder(), "Bundle")
 }
 
 fn sendreq_parseresource(
@@ -209,12 +209,12 @@ fn sendreq_parseresource(
   {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
-      case FHIRVERSION_sansio.any_resp(resp, res_dec, res_type) {
+      case sansio.any_resp(resp, res_dec, res_type) {
         Ok(resource) -> Ok(resource)
         Error(err) -> Error(ErrSansio(case err {
-          FHIRVERSION_sansio.ErrParseJson(e) -> ErrParseJson(e)
-          FHIRVERSION_sansio.ErrNotJson(e) -> ErrNotJson(e)
-          FHIRVERSION_sansio.ErrOperationoutcome(e) -> ErrOperationoutcome(e)
+          sansio.ErrParseJson(e) -> ErrParseJson(e)
+          sansio.ErrNotJson(e) -> ErrNotJson(e)
+          sansio.ErrOperationoutcome(e) -> ErrOperationoutcome(e)
         }))
       }
   }
