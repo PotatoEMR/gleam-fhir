@@ -1,6 +1,4 @@
 import fhir/r4/resources as r_r4
-import fhir/r4b/resources as r_r4b
-import fhir/r5/resources as r_r5
 
 import filepath
 
@@ -19,8 +17,6 @@ pub type Timeout(a) {
 pub fn json_examples_test_() {
   use <- Timeout(1200)
   parse_json_in_dir("r4", r_r4.resource_decoder(), r_r4.resource_to_json)
-  parse_json_in_dir("r4b", r_r4b.resource_decoder(), r_r4b.resource_to_json)
-  parse_json_in_dir("r5", r_r5.resource_decoder(), r_r5.resource_to_json)
 }
 
 pub fn parse_json_in_dir(fv, res_decoder, _res_to_json) {

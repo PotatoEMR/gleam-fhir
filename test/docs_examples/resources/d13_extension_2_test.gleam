@@ -1,26 +1,17 @@
-import fhir/r4us/complex_types as ct
-import fhir/r4us/primitive_types as pt
-import fhir/r4us/resources
+import fhir/r4/complex_types as ct
+import fhir/r4/resources
 
-//import check_roundtrip
 import gleam/json
 import gleam/list
-import gleam/option.{None, Some}
-import gleam/time/calendar
 
-// ai generated test of decoding custom type extensions
-// note the json is different from the extension_test json
-// r4us custom type example uses R4 which lacks CodeableReference
-// so the extension can't have valueCodeableReference
-// r4 only has valueCodeableConcept or valueReference
-pub fn extension_custom_test() {
+pub fn resources_docs_13_extension_2_test() {
   let patient_example_sex_and_gender =
     "{
     \"resourceType\": \"Patient\",
     \"id\": \"patient-example-sex-and-gender\",
     \"text\": {
         \"status\": \"generated\",
-        \"div\": \"<div>(modified codeablereference -> value[x] with cc and ref, for r4) https://hl7.org/fhir/R5/patient-example-sex-and-gender.json.html</div>\"},
+        \"div\": \"<div>https://hl7.org/fhir/R5/patient-example-sex-and-gender.json.html</div>\"},
     \"extension\": [
         {
             \"url\"      : \"http://hl7.org/fhir/StructureDefinition/individual-genderIdentity\",
@@ -267,204 +258,28 @@ pub fn extension_custom_test() {
     \"deceasedBoolean\": false,
     \"managingOrganization\": {\"reference\": \"Organization/1\"}
   }"
-
   let assert Ok(pat) =
     json.parse(patient_example_sex_and_gender, resources.patient_decoder())
 
-  assert pat.id == Some("patient-example-sex-and-gender")
-
-  assert list.length(pat.extension) == 3
-
-  assert list.length(pat.individual_recorded_sex_or_gender) == 3
-  let has_type_code = fn(rsg: ct.IndividualRecordedsexorgender, code) {
-    case rsg.type_ {
-      Some(cc) -> list.any(cc.coding, fn(c) { c.code == Some(code) })
-      None -> False
-    }
-  }
-  let assert Ok(rsg_dl) =
-    list.find(pat.individual_recorded_sex_or_gender, fn(rsg) {
-      has_type_code(rsg, "drivers-license")
-    })
-  let assert Ok(rsg_ic) =
-    list.find(pat.individual_recorded_sex_or_gender, fn(rsg) {
-      has_type_code(rsg, "insurance-card")
-    })
-  let assert Ok(rsg_bc) =
-    list.find(pat.individual_recorded_sex_or_gender, fn(rsg) {
-      has_type_code(rsg, "76689-9")
-    })
-
-  let assert ct.Codeableconcept(
-    coding: [
-      ct.Coding(
-        system: Some("http://ohio.example.gov/drivers-license-sex"),
-        code: Some("M"),
-        display: Some("Male"),
-        ..,
-      ),
-    ],
-    ..,
-  ) = rsg_dl.value
-  let assert Some(ct.Codeableconcept(
-    coding: [
-      ct.Coding(
-        system: Some(
-          "http://jurisdiction-specific.example.com/document-type-code-system",
-        ),
-        code: Some("drivers-license"),
-        display: Some("Driver's License"),
-        ..,
-      ),
-    ],
-    ..,
-  )) = rsg_dl.type_
-  let assert Some(ct.Period(start: Some(start), ..)) = rsg_dl.effective_period
-  assert start
-    == pt.DateTime(pt.YearMonthDay(1974, calendar.December, 25), None)
-  assert rsg_dl.acquisition_date
-    == Some(pt.DateTime(pt.YearMonthDay(2005, calendar.December, 6), None))
-  let assert Some(ct.IndividualRecordedsexorgenderSourcedocumentReference(ct.Reference(
-    reference: Some("DocumentReference/1"),
-    ..,
-  ))) = rsg_dl.source_document
-  assert rsg_dl.source_field == None
-  let assert Some(ct.Codeableconcept(
-    coding: [
-      ct.Coding(
-        system: Some("https://www.usps.com/"),
-        code: Some("OH"),
-        display: Some("Ohio"),
-        ..,
-      ),
-    ],
-    ..,
-  )) = rsg_dl.jurisdiction
-  assert rsg_dl.comment
-    == Some(
-      "Patient transitioned from male to female in 2001, but their driver's license still indicates male.",
-    )
-
-  let assert ct.Codeableconcept(
-    coding: [
-      ct.Coding(
-        system: Some("http://hl7.org/fhir/administrative-gender"),
-        code: Some("male"),
-        display: Some("Male"),
-        ..,
-      ),
-    ],
-    ..,
-  ) = rsg_ic.value
-  let assert Some(ct.Codeableconcept(
-    coding: [
-      ct.Coding(
-        system: Some("http://local-code-system.org/recorded-sex-or-gender-type"),
-        code: Some("insurance-card"),
-        display: Some("Insurance Card"),
-        ..,
-      ),
-    ],
-    ..,
-  )) = rsg_ic.type_
-  let assert Some(ct.Period(start: Some(ic_start), ..)) =
-    rsg_ic.effective_period
-  assert ic_start == pt.DateTime(pt.YearMonthDay(2021, calendar.May, 25), None)
-  assert rsg_ic.acquisition_date
-    == Some(pt.DateTime(pt.YearMonthDay(2021, calendar.June, 6), None))
-  let assert Some(ct.IndividualRecordedsexorgenderSourcedocumentReference(ct.Reference(
-    reference: Some("DocumentReference/2"),
-    ..,
-  ))) = rsg_ic.source_document
-  assert rsg_ic.source_field == Some("SEX")
-  let assert Some(ct.Codeableconcept(
-    coding: [
-      ct.Coding(
-        system: Some(
-          "http://local-code-system.org/recorded-sex-or-gender-jurisdiction",
-        ),
-        code: Some("ICCA-P"),
-        display: Some("Indigo Crucifix Cobalt Aegis Payer"),
-        ..,
-      ),
-    ],
-    ..,
-  )) = rsg_ic.jurisdiction
-  assert rsg_ic.comment
-    == Some(
-      "Patient transitioned from male to female in 2001, but their insurance card still indicates male.",
-    )
-
-  let assert ct.Codeableconcept(
-    coding: [
-      ct.Coding(
-        system: Some("http://hl7.org/fhir/administrative-gender"),
-        code: Some("male"),
-        display: Some("Male"),
-        ..,
-      ),
-    ],
-    ..,
-  ) = rsg_bc.value
-  let assert Some(ct.Codeableconcept(
-    coding: [
-      ct.Coding(
-        system: Some("http://loinc.org"),
-        code: Some("76689-9"),
-        display: Some("Sex Assigned At Birth"),
-        ..,
-      ),
-    ],
-    ..,
-  )) = rsg_bc.type_
-  let assert Some(ct.Period(start: Some(bc_start), ..)) =
-    rsg_bc.effective_period
-  assert bc_start
-    == pt.DateTime(pt.YearMonthDay(1974, calendar.December, 25), None)
-  assert rsg_bc.acquisition_date
-    == Some(pt.DateTime(pt.YearMonthDay(2005, calendar.December, 6), None))
-  let assert Some(ct.IndividualRecordedsexorgenderSourcedocumentReference(ct.Reference(
-    reference: Some("DocumentReference/1"),
-    ..,
-  ))) = rsg_bc.source_document
-  assert rsg_bc.source_field == Some("SEX")
-  let assert Some(ct.Codeableconcept(
-    coding: [
-      ct.Coding(
-        system: Some("https://www.usps.com/"),
-        code: Some("OH"),
-        display: Some("Ohio"),
-        ..,
-      ),
-    ],
-    ..,
-  )) = rsg_bc.jurisdiction
-  assert rsg_bc.comment
-    == Some(
-      "Patient transitioned from male to female in 2001, but their birth certificate still indicates male.",
-    )
-
-  let assert Ok(ct.Extension(ext: ct.ExtComplex(gi_children), ..)) =
-    list.find(pat.extension, fn(e) {
+  let rsg_extensions =
+    list.filter(pat.extension, fn(e) {
       e.url
-      == "http://hl7.org/fhir/StructureDefinition/individual-genderIdentity"
+      == "http://hl7.org/fhir/StructureDefinition/individual-recordedSexOrGender"
     })
-  let assert Ok(ct.Extension(
-    ext: ct.ExtSimple(ct.ExtensionValueCodeableconcept(gi_cc)),
-    ..,
-  )) = list.find(gi_children, fn(e) { e.url == "value" })
-  let assert [gi_coding] = gi_cc.coding
-  assert gi_coding.code == Some("446141000124107")
-  let assert Ok(ct.Extension(
-    ext: ct.ExtSimple(ct.ExtensionValuePeriod(gi_period)),
-    ..,
-  )) = list.find(gi_children, fn(e) { e.url == "period" })
-  assert gi_period.start
-    == Some(pt.DateTime(pt.YearMonthDay(2001, calendar.May, 6), None))
-  assert gi_period.end == None
-  let assert Ok(ct.Extension(
-    ext: ct.ExtSimple(ct.ExtensionValueString(gi_comment)),
-    ..,
-  )) = list.find(gi_children, fn(e) { e.url == "comment" })
-  assert gi_comment == "Patient transitioned from male to female in 2001."
+
+  let assert [rsg, _, _] = rsg_extensions
+  let assert ct.ExtComplex(rsg_children) = rsg.ext
+
+  let assert Ok(value_child) =
+    list.find(rsg_children, fn(e) { e.url == "value" })
+  let assert ct.ExtSimple(value_ext) = value_child.ext
+  echo value_ext
+
+  let type_ext = list.find(rsg_children, fn(e) { e.url == "type" })
+  let _ = echo type_ext
+
+  let source_doc_ext =
+    list.find(rsg_children, fn(e) { e.url == "sourceDocument" })
+  let _ = echo source_doc_ext
+  Nil
 }

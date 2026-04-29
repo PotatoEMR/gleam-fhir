@@ -644,10 +644,17 @@ fn gen_fhir(
       complex_types_gen,
       helpers_block,
     ])
+  let primitive_imports = case string.contains(resources_gen, "Primitive(") {
+    False -> ""
+    True ->
+      ", type Primitive, Primitive, primitive_decoder, primitives_decoder, primitive_to_json, primitives_to_json"
+  }
   let r_ct_import =
     "import fhir/"
     <> pkg_prefix
-    <> "/complex_types.{type List1, list1_to_json, list1_decoder, none_if_omitted, decode_number} as ct\n"
+    <> "/complex_types.{type List1, list1_to_json, list1_decoder, none_if_omitted, decode_number"
+    <> primitive_imports
+    <> "} as ct\n"
   let r_content =
     string.concat([
       "////[https://hl7.org/fhir/",
