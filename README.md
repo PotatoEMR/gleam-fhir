@@ -6,8 +6,6 @@
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
 ![GitHub License](https://img.shields.io/github/license/PotatoEMR/gleam-fhir?color=%23750014)
 
-## Welcome
-
 <div style="display: flex">
 <img src="https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/lucy.svg" title="Gleam Lucy" alt="Gleam Lucy" width="35%">
 <img src="https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/fhir.svg" title="HL7® FHIR® Flame" alt="HL7® FHIR Flame" width="35%">
@@ -26,7 +24,7 @@
 - Primitive extensions, optionally generated for each type
 - Standard extension on all complex type, and optionally type safe extension generation for specific extension
 
-## Warning
+## Warning 
 
 !!! package manager supports r4us ONLY; r4/r4b/r5/r4usp are not available, because of hex.pm package size limits. r4/r4b/r5/r4usp can be found at https://github.com/PotatoEMR/gleam-fhir/tree/main/src/fhir !!!
 
