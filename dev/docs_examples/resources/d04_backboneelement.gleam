@@ -1,12 +1,3 @@
-# Backbone Element
-
-A backbone element is a group of elements specific to the resource the backbone element is in. In Gleam, backbone elements are custom types with a record of all their child fields, much like complex types except they are only used in one specific resource type. For example, the [Patient.contact](https://hl7.org/fhir/R4/patient-definitions.html#Patient.contact) backbone element, `resources.PatientContact` in Gleam, is not used by any other resources. Whereas Patient.contact.telecom uses the [ContactPoint](https://hl7.org/fhir/R4/datatypes.html#ContactPoint) complex type, `complex_types.Contactpoint` in Gleam, which is also used by multiple other resources.
-
-Backbone elements let resources have multiple of some group of elements (using cardinality).
-
-![PatientContact](https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/PatientContact.png)
-
-```gleam
 import fhir/r4/complex_types as ct
 import fhir/r4/resources
 import fhir/r4/valuesets
@@ -57,4 +48,3 @@ pub fn main() {
     )
   echo pat
 }
-```

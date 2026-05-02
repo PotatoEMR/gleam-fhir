@@ -4,6 +4,7 @@ import filepath
 import gleam/dict
 import gleam/dynamic/decode
 import gleam/http/request
+@target(erlang)
 import gleam/httpc
 import gleam/int
 import gleam/io
@@ -36,6 +37,7 @@ fn const_download_dir() {
   "dev" |> filepath.join("downloads")
 }
 
+@target(erlang)
 pub fn main() {
   io.println("🔥🔥🔥 bultaoreune")
 
@@ -338,6 +340,7 @@ pub fn structuredefinition_context_decoder() {
   decode.success(StructuredefinitionContext(expression:))
 }
 
+@target(erlang)
 fn gen_fhir(
   fhir_version: String,
   download_files: Bool,

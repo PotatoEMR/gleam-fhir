@@ -1,3 +1,11 @@
+fhir is a work in progress, tracking todo items at [https://github.com/PotatoEMR/gleam-fhir/issues](https://github.com/PotatoEMR/gleam-fhir/issues), if anything is incorrect, missing, hard to use, or poorly documented, please add an issue.
+
+## 0.6.0
+- split other fhir versions into separate packages, so fhir only provides r4
+- split fhir clients using http clients into separate packages, so fhir only provides resources and sansio
+ - fhir_client_httpc uses httpc
+ - fhir_client_rsvp uses rsvp
+
 ## 0.5.0 April 18, 2026
 - Add batch request that takes list of Request(Option(Json))
   - In order to create batch all requests go from String to Option(Json)
@@ -41,13 +49,3 @@
 - Uses String for Date and DateTime, which will at some point change to a real time type in a breaking change
 - *No* primitive extensions support, so primitive elements will change in some undecided way
 - This is an initial release with various problems, so there could be breaking changes in any module
-
-(once on 1.0.0) [Version number MAJOR.MINOR.PATCH means:](https://semver.org/#semantic-versioning-200)
-
-MAJOR - incompatible API changes
-
-MINOR - backward-compatible functionality added
-
-PATCH - backward-compatible bug fixes
-
-Gleam fhir is a work in progress, tracking todo items at [https://github.com/PotatoEMR/gleam-fhir/issues](https://github.com/PotatoEMR/gleam-fhir/issues), if anything is incorrect, missing, or hard to use, please add an issue.

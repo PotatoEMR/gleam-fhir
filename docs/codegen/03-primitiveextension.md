@@ -8,6 +8,8 @@ In the JSON, instead of field name, primitive extensions go in underscore + name
 
 `r4usp` is `r4us` but with primitive extensions for all fields. Primitive extensions can be generated for specific elements or all elements, see [Custom Codegen](https://hexdocs.pm/fhir/codegen/codegen.html). Again they are technically valid but much more work and may not be needed.
 
+todo make it r4p instead of r4p so not bothering to update this example
+
 ```json
   "_questionnaire": {
     "extension": [

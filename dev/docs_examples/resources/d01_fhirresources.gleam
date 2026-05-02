@@ -4,7 +4,7 @@ import fhir/r4/valuesets
 
 import gleam/option.{Some}
 
-pub fn resources_docs_01_fhirresources_1_test() {
+pub fn main() {
   let pat =
     resources.Patient(
       ..resources.patient_new(),

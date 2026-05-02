@@ -2,8 +2,8 @@ import fhir/r4/complex_types as ct
 
 import gleam/option.{None, Some}
 
-pub fn resources_docs_11_codeableconcept_1_test() {
-  let _terrible_news =
+pub fn main() {
+  let terrible_news =
     ct.Codeableconcept(
       id: None,
       extension: [],
@@ -22,5 +22,5 @@ pub fn resources_docs_11_codeableconcept_1_test() {
       ],
       text: Some("Lactose intolerance"),
     )
-  Nil
+  echo terrible_news
 }

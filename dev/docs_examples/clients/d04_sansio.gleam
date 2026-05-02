@@ -1,17 +1,17 @@
-# sans-io
-
-To send using some other http client, use `fhir/r4/sansio` to create a `Request(Option(Json))` and parse the `Response(String)`.
-
-http clients typically take a `Request(String)`, but fhir sansio keeps request body as JSON to more easily combine multiple requests into a batch.
-
-```gleam
+@target(javascript)
 import fhir/r4/sansio
+@target(javascript)
 import gleam/fetch
+@target(javascript)
 import gleam/http/request
+@target(javascript)
 import gleam/javascript/promise
+@target(javascript)
 import gleam/json
+@target(javascript)
 import gleam/option.{None, Some}
 
+@target(javascript)
 pub fn main() {
   let assert Ok(client) = sansio.fhirclient_new("https://r4.smarthealthit.org/")
   let pat_req =
@@ -31,4 +31,3 @@ pub fn main() {
     })
   })
 }
-```

@@ -1,8 +1,3 @@
-# Bundle
-
-FHIR uses [Bundle](https://build.fhir.org/bundle.html#resource) to send multiple resources for operations such as Search. The element Bundle.entry has cardinality `0..*` so in Gleam it is `List(BundleEntry)`, and Bundle.entry.resource can be any resource so in Gleam `Resource` has a variant for each resource type.
-
-```gleam
 import fhir/r4/complex_types as ct
 import fhir/r4/resources
 import fhir/r4/valuesets
@@ -41,4 +36,3 @@ pub fn main() {
     )
   echo bundle
 }
-```

@@ -4,7 +4,7 @@ import gleam/int
 import gleam/io
 import gleam/option.{None, Some}
 
-pub fn resources_docs_06_choiceelement_2_test() {
+pub fn main() {
   let pat1 =
     resources.Patient(
       ..resources.patient_new(),

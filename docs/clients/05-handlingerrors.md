@@ -4,10 +4,10 @@ Attempting to get a resource from a FHIR server over http has a number of possib
 - from sansio, for problems parsing FHIR resources eg json decode error
 - from http client, for problems on http layer eg can't connect to url
 
-Note FHIR servers will return an `OperationOutcome` resource with details for an error, so `OperationOutcome` is a sansio error variant. For instance you can get an `OperationOutcome` by trying to read a patient with an id that does not exist on the server. Many of the ways an operation can fail probably don't matter, but they're all there if needed, and it probably is worth handling the `OperationOutcome` case.
+Note FHIR servers will return an `OperationOutcome` resource with details for an error, such as trying to read a patient that does not exist on the server, so `OperationOutcome` is a sansio error variant. Many of the ways an operation can fail probably don't matter, but they're all there if needed, and it probably is worth handling the `OperationOutcome` case. A mostly valid FHIR JSON that fails to decode will return the JSON decode error(s), such as missing `1..1` AllergyIntolerance.patient element; a response that is not a JSON will return the entire response as an error, such as an nginx internal server error.
 
 ```gleam
-import fhir/r4_httpc
+import fhir/r4/client_httpc
 import gleam/dynamic/decode
 import gleam/httpc
 import gleam/io
@@ -18,9 +18,9 @@ import gleam/string
 
 pub fn main() {
   let assert Ok(client) =
-    r4_httpc.fhirclient_new("https://r4.smarthealthit.org/")
+    client_httpc.fhirclient_new("https://r4.smarthealthit.org/")
   let pat =
-    r4_httpc.patient_read("87a339d0-8cae-418e-89c7-8651e6aab3c6", client)
+    client_httpc.patient_read("87a339d0-8cae-418e-89c7-8651e6aab3c6", client)
   io.println(case pat {
     Ok(pat) -> {
       case pat.id {
@@ -30,17 +30,17 @@ pub fn main() {
     }
     Error(err) ->
       case err {
-        r4_httpc.ErrHttpc(err) ->
+        client_httpc.ErrHttpc(err) ->
           case err {
             httpc.InvalidUtf8Response -> "InvalidUtf8Response"
             httpc.FailedToConnect(ip4:, ip6:) ->
               "failed to connect: ip4 " <> ip4.code <> ", ip6 " <> ip6.code
             httpc.ResponseTimeout -> "Timeout"
           }
-        r4_httpc.ErrSansio(err) ->
+        client_httpc.ErrSansio(err) ->
           case err {
-            r4_httpc.ErrNotJson(err) -> "not json: " <> err.body
-            r4_httpc.ErrOperationoutcome(err) ->
+            client_httpc.ErrNotJson(err) -> "not json: " <> err.body
+            client_httpc.ErrOperationoutcome(err) ->
               "OperationOutcome: "
               <> [err.issue.first, ..err.issue.rest]
               |> list.map(fn(issue) {
@@ -52,9 +52,9 @@ pub fn main() {
                 <> string.join(issue.location, "at ")
               })
               |> string.join("\n")
-            r4_httpc.ErrNoId ->
+            client_httpc.ErrNoId ->
               panic as "only update/delete should hit this as it comes from calling fn with a resource"
-            r4_httpc.ErrParseJson(err) ->
+            client_httpc.ErrParseJson(err) ->
               case err {
                 json.UnexpectedEndOfInput -> "UnexpectedEndOfInput"
                 json.UnexpectedByte(err) -> "UnexpectedByte " <> err

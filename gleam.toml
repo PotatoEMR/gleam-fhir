@@ -1,5 +1,5 @@
 name = "fhir"
-version = "0.5.0"
+version = "0.6.0"
 
 description = "Type-safe FHIR resources and client"
 licences = ["MIT"]
@@ -20,7 +20,7 @@ pages = [
   { title = "- BackboneElement", path = "resources/backboneelement.html", source = "./docs/resources/04-backboneelement.md" },
   { title = "- Cardinality", path = "resources/cardinality.html", source = "./docs/resources/05-cardinality.md" },
   { title = "- Choice Element", path = "resources/choiceelement.html", source = "./docs/resources/06-choiceelement.md" },
-  { title = "- id vs Identifier", path = "resources/id-vs-identifier.html", source = "./docs/resources/07-idvsidentifier.md" },
+  { title = "- id and Identifier", path = "resources/id-and-identifier.html", source = "./docs/resources/07-idandidentifier.md" },
   { title = "- Reference", path = "resources/reference.html", source = "./docs/resources/08-reference.md" },
   { title = "- code", path = "resources/code.html", source = "./docs/resources/09-code.md" },
   { title = "- Coding", path = "resources/coding.html", source = "./docs/resources/10-coding.md" },
@@ -57,3 +57,5 @@ argv = ">= 1.0.2 and < 2.0.0"
 simplifile = ">= 2.4.0 and < 3.0.0"
 gleam_httpc = ">= 5.0.0 and < 6.0.0"
 filepath = ">= 1.1.2 and < 2.0.0"
+gleam_fetch = ">= 1.4.0 and < 2.0.0"
+gleam_javascript = ">= 1.0.0 and < 2.0.0"

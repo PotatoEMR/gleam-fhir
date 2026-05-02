@@ -1,18 +1,3 @@
-# Extension
-
-FHIR is used in many different systems and countries, making it very difficult for all systems to implement all requirements of all other systems, even though they may be valid requirements. FHIR therefore allows [Extensions](https://build.fhir.org/extensibility.html) to resources and datatypes.
-
-> there can be no stigma associated with the use of extensions by any application, project, or standard - regardless of the institution or jurisdiction that uses or defines the extensions. The use of extensions is what allows the FHIR specification to retain a core simplicity for everyone.
-
-An extension element may have either a value or more child extensions, but not both. So extensions become a tree: simple extensions as leaf nodes with values, and complex nodes as branch nodes with child extensions.
-
-Extensions must have a uri for meaning. The value of an extension may be any primitive value.
-
-![Extension](https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/Extension.png)
-
-While the generated Gleam resources support any complex extension, they are somewhat verbose and require checking url strings. Generate a library version with [Custom Extension](https://hexdocs.pm/fhir/codegen/customextension.html) for nicer specific extensions. By default types do not have primitive extensions; see [Primitive Extension](https://hexdocs.pm/fhir/codegen/primitiveextension.html) to use them.
-
-```gleam
 import fhir/r4/complex_types as ct
 import fhir/r4/resources
 
@@ -297,4 +282,3 @@ const patient_example_sex_and_gender = "{
 \"deceasedBoolean\": false,
 \"managingOrganization\": {\"reference\": \"Organization/1\"}
 }"
-```
