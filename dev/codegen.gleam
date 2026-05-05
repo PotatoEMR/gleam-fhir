@@ -128,16 +128,18 @@ pub fn main() {
 
   use fhir_version <- list.map(check_versions)
 
-  let custom_profile_name = case custom_profile {
-    Error(_) -> None
-    Ok(_) -> {
-      let assert Ok(custom_profile_name) =
-        list.find(args_cased, fn(arg) { string.starts_with(arg, "customname=") })
-        as "if custom=[url] also need arg customname=[pkg name]"
-      let assert [_, custom_profile_name] =
-        string.split(custom_profile_name, "=")
-      Some(custom_profile_name)
+  let custom_profile_name = case
+    list.find(args_cased, fn(arg) { string.starts_with(arg, "customname=") })
+  {
+    Ok(arg) -> {
+      let assert [_, name] = string.split(arg, "=")
+      Some(name)
     }
+    Error(_) ->
+      case custom_profile {
+        Ok(_) -> panic as "if custom=[url] also need arg customname=[pkg name]"
+        Error(_) -> None
+      }
   }
   let profiles_dir = profiles_dir |> filepath.join("package")
 
@@ -404,18 +406,12 @@ fn gen_fhir(
   io.println("generated " <> f_primitive_types)
   let gen_gleamfile = filepath.join(gen_dir, "resources.gleam")
   let gen_vsfile = filepath.join(gen_dir, "valuesets.gleam")
-  let need_import_result = case custom_profile_name {
-    None -> ""
-    Some(_) -> "import gleam/result\n"
-  }
   let shared_imports = "import gleam/json.{type Json}
       import gleam/dynamic/decode.{type Decoder}
       import gleam/option.{type Option, None, Some}
       import gleam/list
       import fhir/" <> pkg_prefix <> "/primitive_types.{type Date, type DateTime, type Instant, type Time} as pt
       import fhir/" <> pkg_prefix <> "/valuesets\n"
-  let ct_imports = shared_imports <> "import gleam/int
-      import gleam/dict.{type Dict}\n" <> need_import_result
   let r_imports = shared_imports <> "import gleam/bool\n"
 
   let complex_types_gen =
@@ -438,6 +434,15 @@ fn gen_fhir(
       all_primitive_ext: all_primitive_ext,
       current_bucket: Resources,
     )
+  let need_import_result = case
+    string.contains(complex_types_gen, "result.")
+    || string.contains(resources_gen, "result.")
+  {
+    True -> "import gleam/result\n"
+    False -> ""
+  }
+  let ct_imports = shared_imports <> "import gleam/int
+      import gleam/dict.{type Dict}\n" <> need_import_result
 
   let list_type_defs =
     "
@@ -757,11 +762,12 @@ fn file_to_types(
   // so store the new versions in a resourcename -> structure dict
   // to be used when looping through resources to generate
   // if this is just vanilla r4/r4b/r5 and not a profile, will not change anything
-  let profile_structures = case custom_profile_name {
-    None -> ProfileFiles(dict.new(), dict.new(), dict.new())
-    Some(_) -> {
-      let assert Ok(files) = simplifile.read_directory(profiles_dir)
-        as { "maybe run with download, custom profile not in " <> profiles_dir }
+  let profile_structures = case
+    custom_profile_name,
+    simplifile.read_directory(profiles_dir)
+  {
+    None, _ | _, Error(_) -> ProfileFiles(dict.new(), dict.new(), dict.new())
+    Some(_), Ok(files) -> {
       files
       |> list.filter(fn(f) { string.starts_with(f, "StructureDefinition") })
       |> list.fold(ProfileFiles(dict.new(), dict.new(), dict.new()), fn(acc, f) {

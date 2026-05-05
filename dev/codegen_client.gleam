@@ -333,20 +333,27 @@ pub fn gen(
   //first entry in bundle has all the search param info
   let assert [first_entry, ..] = bundle.entry
   // dict of base fhir type -> RestResource with profile search params
-  let profile_cs_resources = case custom_profile_name {
-    None -> dict.new()
-    Some(_) -> {
-      let assert Ok(files) = simplifile.read_directory(profiles_dir)
-      let assert Ok(f) =
+  let profile_cs_resources = case
+    custom_profile_name,
+    simplifile.read_directory(profiles_dir)
+  {
+    None, _ | _, Error(_) -> dict.new()
+    Some(_), Ok(files) ->
+      case
         list.find(files, fn(f) { string.starts_with(f, "CapabilityStatement") })
-      let assert Ok(content) = simplifile.read(filepath.join(profiles_dir, f))
-      let assert Ok(res) = json.parse(content, resource_decoder())
-      list.fold(res.rest, dict.new(), fn(outer_acc, rest) {
-        list.fold(rest.resource, outer_acc, fn(inner_acc, rr) {
-          dict.insert(inner_acc, rr.type_, rr)
-        })
-      })
-    }
+      {
+        Error(_) -> dict.new()
+        Ok(f) -> {
+          let assert Ok(content) =
+            simplifile.read(filepath.join(profiles_dir, f))
+          let assert Ok(res) = json.parse(content, resource_decoder())
+          list.fold(res.rest, dict.new(), fn(outer_acc, rest) {
+            list.fold(rest.resource, outer_acc, fn(inner_acc, rr) {
+              dict.insert(inner_acc, rr.type_, rr)
+            })
+          })
+        }
+      }
   }
   let expanded_rest =
     list.map(first_entry.resource.rest, fn(rest) {

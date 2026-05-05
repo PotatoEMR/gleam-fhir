@@ -1,2 +1,2 @@
 rm -rf generated_fhir && mkdir generated_fhir
-gleam run -m codegen r4 custom=https://build.fhir.org/ig/HL7/US-Core/package.tgz customname=r4usp allPrimitiveExt && gleam format
+gleam run -m codegen r4 customname=r4p allPrimitiveExt && gleam format
