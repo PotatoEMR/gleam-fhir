@@ -1,3 +1,8 @@
+cp generated_fhir/r4/primitive_types.gleam src/fhir/r4/primitive_types.gleam
+cp generated_fhir/r4/complex_types.gleam   src/fhir/r4/complex_types.gleam
+cp generated_fhir/r4/resources.gleam       src/fhir/r4/resources.gleam
+cp generated_fhir/r4/sansio.gleam          src/fhir/r4/sansio.gleam
+cp generated_fhir/r4/valuesets.gleam       src/fhir/r4/valuesets.gleam
 cp generated_fhir/r4/client_httpc.gleam    ../fhir_client_httpc/src/fhir/r4/client_httpc.gleam
 cp generated_fhir/r4/client_rsvp.gleam     ../fhir_client_rsvp/src/fhir/r4/client_rsvp.gleam
 
@@ -17,13 +22,13 @@ cp generated_fhir/r4us/valuesets.gleam       ../fhir_r4us/src/fhir/r4us/valueset
 cp generated_fhir/r4us/client_httpc.gleam    ../fhir_r4us_client_httpc/src/fhir/r4us/client_httpc.gleam
 cp generated_fhir/r4us/client_rsvp.gleam     ../fhir_r4us_client_rsvp/src/fhir/r4us/client_rsvp.gleam
 
-cp generated_fhir/r4usp/primitive_types.gleam ../fhir_r4usp/src/fhir/r4usp/primitive_types.gleam
-cp generated_fhir/r4usp/complex_types.gleam   ../fhir_r4usp/src/fhir/r4usp/complex_types.gleam
-cp generated_fhir/r4usp/resources.gleam       ../fhir_r4usp/src/fhir/r4usp/resources.gleam
-cp generated_fhir/r4usp/sansio.gleam          ../fhir_r4usp/src/fhir/r4usp/sansio.gleam
-cp generated_fhir/r4usp/valuesets.gleam       ../fhir_r4usp/src/fhir/r4usp/valuesets.gleam
-cp generated_fhir/r4usp/client_httpc.gleam    ../fhir_r4usp_client_httpc/src/fhir/r4usp/client_httpc.gleam
-cp generated_fhir/r4usp/client_rsvp.gleam     ../fhir_r4usp_client_rsvp/src/fhir/r4usp/client_rsvp.gleam
+cp generated_fhir/r4p/primitive_types.gleam ../fhir_r4p/src/fhir/r4p/primitive_types.gleam
+cp generated_fhir/r4p/complex_types.gleam   ../fhir_r4p/src/fhir/r4p/complex_types.gleam
+cp generated_fhir/r4p/resources.gleam       ../fhir_r4p/src/fhir/r4p/resources.gleam
+cp generated_fhir/r4p/sansio.gleam          ../fhir_r4p/src/fhir/r4p/sansio.gleam
+cp generated_fhir/r4p/valuesets.gleam       ../fhir_r4p/src/fhir/r4p/valuesets.gleam
+cp generated_fhir/r4p/client_httpc.gleam    ../fhir_r4p_client_httpc/src/fhir/r4p/client_httpc.gleam
+cp generated_fhir/r4p/client_rsvp.gleam     ../fhir_r4p_client_rsvp/src/fhir/r4p/client_rsvp.gleam
 
 cp generated_fhir/r5/primitive_types.gleam ../fhir_r5/src/fhir/r5/primitive_types.gleam
 cp generated_fhir/r5/complex_types.gleam   ../fhir_r5/src/fhir/r5/complex_types.gleam

@@ -632,7 +632,7 @@ pub fn gen(
               client: FhirClient,
             ) -> Result(sansio.OperationoutcomeOrHTTP, Err) {
               case resource.id {
-                Some(id) -> any_delete(id, \"NAMECAPITAL\", client)
+                Some(id) -> any_delete(id, resources.RtNAMECAPITAL, client)
                 None -> Error(ErrSansio(ErrNoId))
               }
             }
@@ -707,7 +707,7 @@ pub fn gen(
               handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> a,
             ) -> Result(Effect(a), ErrNoId) {
               case resource.id {
-                Some(id) -> Ok(any_delete(id, \"NAMEUPPER\", client, handle_response))
+                Some(id) -> Ok(any_delete(id, resources.RtNAMECAPITAL, client, handle_response))
                 None -> Error(ErrNoId)
               }
             }

@@ -1,10 +1,12 @@
 fhir is a work in progress, tracking todo items at [https://github.com/PotatoEMR/gleam-fhir/issues](https://github.com/PotatoEMR/gleam-fhir/issues), if anything is incorrect, missing, hard to use, or poorly documented, please add an issue.
 
-## 0.6.0
+## 0.6.0 May 6, 2026
 - split other fhir versions into separate packages, so fhir only provides r4
 - split fhir clients using http clients into separate packages, so fhir only provides resources and sansio
  - fhir_client_httpc uses httpc
  - fhir_client_rsvp uses rsvp
+- switch example package with primitive extensions on all fields from r4 with us core types to plain r4
+- add enum of resource types, and use it to make any_delete public taking resource type rather than actual resource instance
 
 ## 0.5.0 April 18, 2026
 - Add batch request that takes list of Request(Option(Json))

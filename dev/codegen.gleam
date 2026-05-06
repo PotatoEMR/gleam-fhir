@@ -3026,8 +3026,40 @@ fn file_to_types(
         })
         |> string.concat
 
+      let resource_type_variants =
+        res_entries
+        |> list.map(fn(entry_and_camel_type) {
+          "Rt" <> entry_and_camel_type.1 <> "\n"
+        })
+        |> string.concat
+
+      let resource_type_to_string_arms =
+        res_entries
+        |> list.map(fn(entry_and_camel_type) {
+          let resource: Resource = entry_and_camel_type.0
+          let assert Some(fhir_resource_type) = resource.type_
+          "Rt"
+          <> entry_and_camel_type.1
+          <> " -> \""
+          <> fhir_resource_type
+          <> "\"\n"
+        })
+        |> string.concat
+
+      let resource_type_enum =
+        string.concat([
+          "pub type ResourceType{",
+          resource_type_variants,
+          "}\npub fn resource_type_to_string(rt: ResourceType) -> String {
+            case rt {",
+          resource_type_to_string_arms,
+          "}
+        }\n",
+        ])
+
       let resource_enum =
         string.concat([
+          resource_type_enum,
           "pub type Resource{",
           resource_names,
           "}\npub fn resource_to_json(res: Resource) {

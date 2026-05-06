@@ -92,9 +92,9 @@ fn any_update(
   }
 }
 
-fn any_delete(
+pub fn any_delete(
   id: String,
-  res_type: String,
+  res_type: resources.ResourceType,
   client: FhirClient,
   handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> a,
 ) -> Effect(a) {

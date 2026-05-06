@@ -48,11 +48,8 @@ pub fn main() {
   echo updated
 
   // Delete
-  let pat =
-    resources.Patient(..resources.patient_new(), id: Some("sgfdsgfdgfd"), name: [
-      ct.Humanname(..ct.humanname_new(), given: ["Mike"]),
-    ])
-  let assert Ok(deleted) = client_httpc.patient_delete(pat, client)
+  let assert Ok(deleted) =
+    client_httpc.any_delete("sgfdsgfdgfd", resources.RtPatient, client)
   echo deleted
 }
 ```

@@ -118516,6 +118516,306 @@ pub fn visionprescription_decoder() -> Decoder(Visionprescription) {
   ))
 }
 
+pub type ResourceType {
+  RtAccount
+  RtActivitydefinition
+  RtAdverseevent
+  RtAllergyintolerance
+  RtAppointment
+  RtAppointmentresponse
+  RtAuditevent
+  RtBasic
+  RtBinary
+  RtBiologicallyderivedproduct
+  RtBodystructure
+  RtBundle
+  RtCapabilitystatement
+  RtCareplan
+  RtCareteam
+  RtCatalogentry
+  RtChargeitem
+  RtChargeitemdefinition
+  RtClaim
+  RtClaimresponse
+  RtClinicalimpression
+  RtCodesystem
+  RtCommunication
+  RtCommunicationrequest
+  RtCompartmentdefinition
+  RtComposition
+  RtConceptmap
+  RtCondition
+  RtConsent
+  RtContract
+  RtCoverage
+  RtCoverageeligibilityrequest
+  RtCoverageeligibilityresponse
+  RtDetectedissue
+  RtDevice
+  RtDevicedefinition
+  RtDevicemetric
+  RtDevicerequest
+  RtDeviceusestatement
+  RtDiagnosticreport
+  RtDocumentmanifest
+  RtDocumentreference
+  RtEffectevidencesynthesis
+  RtEncounter
+  RtEndpoint
+  RtEnrollmentrequest
+  RtEnrollmentresponse
+  RtEpisodeofcare
+  RtEventdefinition
+  RtEvidence
+  RtEvidencevariable
+  RtExamplescenario
+  RtExplanationofbenefit
+  RtFamilymemberhistory
+  RtFlag
+  RtGoal
+  RtGraphdefinition
+  RtGroup
+  RtGuidanceresponse
+  RtHealthcareservice
+  RtImagingstudy
+  RtImmunization
+  RtImmunizationevaluation
+  RtImmunizationrecommendation
+  RtImplementationguide
+  RtInsuranceplan
+  RtInvoice
+  RtLibrary
+  RtLinkage
+  RtListfhir
+  RtLocation
+  RtMeasure
+  RtMeasurereport
+  RtMedia
+  RtMedication
+  RtMedicationadministration
+  RtMedicationdispense
+  RtMedicationknowledge
+  RtMedicationrequest
+  RtMedicationstatement
+  RtMedicinalproduct
+  RtMedicinalproductauthorization
+  RtMedicinalproductcontraindication
+  RtMedicinalproductindication
+  RtMedicinalproductingredient
+  RtMedicinalproductinteraction
+  RtMedicinalproductmanufactured
+  RtMedicinalproductpackaged
+  RtMedicinalproductpharmaceutical
+  RtMedicinalproductundesirableeffect
+  RtMessagedefinition
+  RtMessageheader
+  RtMolecularsequence
+  RtNamingsystem
+  RtNutritionorder
+  RtObservation
+  RtObservationdefinition
+  RtOperationdefinition
+  RtOperationoutcome
+  RtOrganization
+  RtOrganizationaffiliation
+  RtParameters
+  RtPatient
+  RtPaymentnotice
+  RtPaymentreconciliation
+  RtPerson
+  RtPlandefinition
+  RtPractitioner
+  RtPractitionerrole
+  RtProcedure
+  RtProvenance
+  RtQuestionnaire
+  RtQuestionnaireresponse
+  RtRelatedperson
+  RtRequestgroup
+  RtResearchdefinition
+  RtResearchelementdefinition
+  RtResearchstudy
+  RtResearchsubject
+  RtRiskassessment
+  RtRiskevidencesynthesis
+  RtSchedule
+  RtSearchparameter
+  RtServicerequest
+  RtSlot
+  RtSpecimen
+  RtSpecimendefinition
+  RtStructuredefinition
+  RtStructuremap
+  RtSubscription
+  RtSubstance
+  RtSubstancenucleicacid
+  RtSubstancepolymer
+  RtSubstanceprotein
+  RtSubstancereferenceinformation
+  RtSubstancesourcematerial
+  RtSubstancespecification
+  RtSupplydelivery
+  RtSupplyrequest
+  RtTask
+  RtTerminologycapabilities
+  RtTestreport
+  RtTestscript
+  RtValueset
+  RtVerificationresult
+  RtVisionprescription
+}
+
+pub fn resource_type_to_string(rt: ResourceType) -> String {
+  case rt {
+    RtAccount -> "Account"
+    RtActivitydefinition -> "ActivityDefinition"
+    RtAdverseevent -> "AdverseEvent"
+    RtAllergyintolerance -> "AllergyIntolerance"
+    RtAppointment -> "Appointment"
+    RtAppointmentresponse -> "AppointmentResponse"
+    RtAuditevent -> "AuditEvent"
+    RtBasic -> "Basic"
+    RtBinary -> "Binary"
+    RtBiologicallyderivedproduct -> "BiologicallyDerivedProduct"
+    RtBodystructure -> "BodyStructure"
+    RtBundle -> "Bundle"
+    RtCapabilitystatement -> "CapabilityStatement"
+    RtCareplan -> "CarePlan"
+    RtCareteam -> "CareTeam"
+    RtCatalogentry -> "CatalogEntry"
+    RtChargeitem -> "ChargeItem"
+    RtChargeitemdefinition -> "ChargeItemDefinition"
+    RtClaim -> "Claim"
+    RtClaimresponse -> "ClaimResponse"
+    RtClinicalimpression -> "ClinicalImpression"
+    RtCodesystem -> "CodeSystem"
+    RtCommunication -> "Communication"
+    RtCommunicationrequest -> "CommunicationRequest"
+    RtCompartmentdefinition -> "CompartmentDefinition"
+    RtComposition -> "Composition"
+    RtConceptmap -> "ConceptMap"
+    RtCondition -> "Condition"
+    RtConsent -> "Consent"
+    RtContract -> "Contract"
+    RtCoverage -> "Coverage"
+    RtCoverageeligibilityrequest -> "CoverageEligibilityRequest"
+    RtCoverageeligibilityresponse -> "CoverageEligibilityResponse"
+    RtDetectedissue -> "DetectedIssue"
+    RtDevice -> "Device"
+    RtDevicedefinition -> "DeviceDefinition"
+    RtDevicemetric -> "DeviceMetric"
+    RtDevicerequest -> "DeviceRequest"
+    RtDeviceusestatement -> "DeviceUseStatement"
+    RtDiagnosticreport -> "DiagnosticReport"
+    RtDocumentmanifest -> "DocumentManifest"
+    RtDocumentreference -> "DocumentReference"
+    RtEffectevidencesynthesis -> "EffectEvidenceSynthesis"
+    RtEncounter -> "Encounter"
+    RtEndpoint -> "Endpoint"
+    RtEnrollmentrequest -> "EnrollmentRequest"
+    RtEnrollmentresponse -> "EnrollmentResponse"
+    RtEpisodeofcare -> "EpisodeOfCare"
+    RtEventdefinition -> "EventDefinition"
+    RtEvidence -> "Evidence"
+    RtEvidencevariable -> "EvidenceVariable"
+    RtExamplescenario -> "ExampleScenario"
+    RtExplanationofbenefit -> "ExplanationOfBenefit"
+    RtFamilymemberhistory -> "FamilyMemberHistory"
+    RtFlag -> "Flag"
+    RtGoal -> "Goal"
+    RtGraphdefinition -> "GraphDefinition"
+    RtGroup -> "Group"
+    RtGuidanceresponse -> "GuidanceResponse"
+    RtHealthcareservice -> "HealthcareService"
+    RtImagingstudy -> "ImagingStudy"
+    RtImmunization -> "Immunization"
+    RtImmunizationevaluation -> "ImmunizationEvaluation"
+    RtImmunizationrecommendation -> "ImmunizationRecommendation"
+    RtImplementationguide -> "ImplementationGuide"
+    RtInsuranceplan -> "InsurancePlan"
+    RtInvoice -> "Invoice"
+    RtLibrary -> "Library"
+    RtLinkage -> "Linkage"
+    RtListfhir -> "List"
+    RtLocation -> "Location"
+    RtMeasure -> "Measure"
+    RtMeasurereport -> "MeasureReport"
+    RtMedia -> "Media"
+    RtMedication -> "Medication"
+    RtMedicationadministration -> "MedicationAdministration"
+    RtMedicationdispense -> "MedicationDispense"
+    RtMedicationknowledge -> "MedicationKnowledge"
+    RtMedicationrequest -> "MedicationRequest"
+    RtMedicationstatement -> "MedicationStatement"
+    RtMedicinalproduct -> "MedicinalProduct"
+    RtMedicinalproductauthorization -> "MedicinalProductAuthorization"
+    RtMedicinalproductcontraindication -> "MedicinalProductContraindication"
+    RtMedicinalproductindication -> "MedicinalProductIndication"
+    RtMedicinalproductingredient -> "MedicinalProductIngredient"
+    RtMedicinalproductinteraction -> "MedicinalProductInteraction"
+    RtMedicinalproductmanufactured -> "MedicinalProductManufactured"
+    RtMedicinalproductpackaged -> "MedicinalProductPackaged"
+    RtMedicinalproductpharmaceutical -> "MedicinalProductPharmaceutical"
+    RtMedicinalproductundesirableeffect -> "MedicinalProductUndesirableEffect"
+    RtMessagedefinition -> "MessageDefinition"
+    RtMessageheader -> "MessageHeader"
+    RtMolecularsequence -> "MolecularSequence"
+    RtNamingsystem -> "NamingSystem"
+    RtNutritionorder -> "NutritionOrder"
+    RtObservation -> "Observation"
+    RtObservationdefinition -> "ObservationDefinition"
+    RtOperationdefinition -> "OperationDefinition"
+    RtOperationoutcome -> "OperationOutcome"
+    RtOrganization -> "Organization"
+    RtOrganizationaffiliation -> "OrganizationAffiliation"
+    RtParameters -> "Parameters"
+    RtPatient -> "Patient"
+    RtPaymentnotice -> "PaymentNotice"
+    RtPaymentreconciliation -> "PaymentReconciliation"
+    RtPerson -> "Person"
+    RtPlandefinition -> "PlanDefinition"
+    RtPractitioner -> "Practitioner"
+    RtPractitionerrole -> "PractitionerRole"
+    RtProcedure -> "Procedure"
+    RtProvenance -> "Provenance"
+    RtQuestionnaire -> "Questionnaire"
+    RtQuestionnaireresponse -> "QuestionnaireResponse"
+    RtRelatedperson -> "RelatedPerson"
+    RtRequestgroup -> "RequestGroup"
+    RtResearchdefinition -> "ResearchDefinition"
+    RtResearchelementdefinition -> "ResearchElementDefinition"
+    RtResearchstudy -> "ResearchStudy"
+    RtResearchsubject -> "ResearchSubject"
+    RtRiskassessment -> "RiskAssessment"
+    RtRiskevidencesynthesis -> "RiskEvidenceSynthesis"
+    RtSchedule -> "Schedule"
+    RtSearchparameter -> "SearchParameter"
+    RtServicerequest -> "ServiceRequest"
+    RtSlot -> "Slot"
+    RtSpecimen -> "Specimen"
+    RtSpecimendefinition -> "SpecimenDefinition"
+    RtStructuredefinition -> "StructureDefinition"
+    RtStructuremap -> "StructureMap"
+    RtSubscription -> "Subscription"
+    RtSubstance -> "Substance"
+    RtSubstancenucleicacid -> "SubstanceNucleicAcid"
+    RtSubstancepolymer -> "SubstancePolymer"
+    RtSubstanceprotein -> "SubstanceProtein"
+    RtSubstancereferenceinformation -> "SubstanceReferenceInformation"
+    RtSubstancesourcematerial -> "SubstanceSourceMaterial"
+    RtSubstancespecification -> "SubstanceSpecification"
+    RtSupplydelivery -> "SupplyDelivery"
+    RtSupplyrequest -> "SupplyRequest"
+    RtTask -> "Task"
+    RtTerminologycapabilities -> "TerminologyCapabilities"
+    RtTestreport -> "TestReport"
+    RtTestscript -> "TestScript"
+    RtValueset -> "ValueSet"
+    RtVerificationresult -> "VerificationResult"
+    RtVisionprescription -> "VisionPrescription"
+  }
+}
+
 pub type Resource {
   ResourceAccount(Account)
   ResourceActivitydefinition(Activitydefinition)

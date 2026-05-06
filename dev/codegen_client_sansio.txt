@@ -152,9 +152,10 @@ pub fn any_update_req(
 
 pub fn any_delete_req(
   id: String,
-  res_type: String,
+  res_type: resources.ResourceType,
   client: FhirClient,
 ) -> Request(Option(Json)) {
+  let res_type = resources.resource_type_to_string(res_type)
   client.basereq
   |> request.set_path(
     string.concat([client.basereq.path, "/", res_type, "/", id]),
@@ -226,7 +227,11 @@ fn using_params(params) {
 /// or Error(ErrOperationoutcome(operationoutcome))
 ///
 /// if resp.body is not a JSON, returns Error(ErrNotJson(resp))
-pub fn any_resp(resp: Response(String), resource_dec: decode.Decoder(a), resource_type: String) {
+pub fn any_resp(
+  resp: Response(String),
+  resource_dec: decode.Decoder(a),
+  resource_type: String,
+) -> Result(a, ErrResp) {
   case
     resp.body
     |> json.parse({

@@ -90,9 +90,9 @@ fn any_update(
   }
 }
 
-fn any_delete(
+pub fn any_delete(
   id: String,
-  res_type: String,
+  res_type: resources.ResourceType,
   client: FhirClient,
 ) -> Result(sansio.OperationoutcomeOrHTTP, Err) {
   let req = sansio.any_delete_req(id, res_type, client)

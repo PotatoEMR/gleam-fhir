@@ -1,6 +1,6 @@
 # sans-io
 
-To send using some other http client, use `fhir/r4/sansio` to create a `Request(Option(Json))` and parse the `Response(String)`.
+To send using any http client, use `fhir/r4/sansio` to create a `Request(Option(Json))` and parse the `Response(String)`.
 
 http clients typically take a `Request(String)`, but fhir sansio keeps request body as JSON to more easily combine multiple requests into a batch.
 
