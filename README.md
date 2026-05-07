@@ -24,11 +24,6 @@
 - Primitive extensions, optionally generated for each type
 - Standard extension on all complex type, and optionally type safe extension generation for specific extension
 
-## Warning 
-
-!!! package manager supports r4us ONLY; r4/r4b/r5/r4usp are not available, because of hex.pm package size limits. r4/r4b/r5/r4usp can be found at https://github.com/PotatoEMR/gleam-fhir/tree/main/src/fhir !!!
-
-
 ## Quick Start
 
 ```sh
@@ -100,6 +95,18 @@ pub fn main() {
 gleam run
 ```
 
+## FHIR Versions and HTTP client layers 
+
+The base fhir package provides R4 resources and sansio only. `gleam add` works for r4 packages, as they are published on hex.pm. Other versions are only available as source on github, so they need to be added as github link in gleam.toml (ideally [with the commit sha ref](https://gleam.run/writing-gleam/gleam-toml/#Git-dependencies)). 
+
+|                               | resources and sansio | httpc client | rsvp client |
+| ----------------------------- | ---------------- | ------------ | ----------- |
+| r4                            | gleam add fhir | gleam add fhir_client_httpc | gleam add fhir_client_rsvp |
+| r4b                           | https://github.com/PotatoEMR/fhir_r4b | https://github.com/PotatoEMR/fhir_r4b_client_httpc | https://github.com/PotatoEMR/fhir_r4b_client_rsvp |
+| r5                            | https://github.com/PotatoEMR/fhir_r5 | https://github.com/PotatoEMR/fhir_r5_client_httpc | https://github.com/PotatoEMR/fhir_r5_client_rsvp |
+| r4 with US Core types         | https://github.com/PotatoEMR/fhir_r4us | https://github.com/PotatoEMR/fhir_r4us_client_httpc | https://github.com/PotatoEMR/fhir_r4us_client_rsvp |
+| r4 with primitive extensions  | https://github.com/PotatoEMR/fhir_r4p | https://github.com/PotatoEMR/fhir_r4p_client_httpc | https://github.com/PotatoEMR/fhir_r4p_client_rsvp |
+
 ## AI use
 
 AI in parts of codegen (which creates Gleam code from FHIR data) and some tests. No AI in API design or documentation. 
@@ -108,6 +115,6 @@ AI in parts of codegen (which creates Gleam code from FHIR data) and some tests.
 
 These pages provide only an intro to FHIR and the Gleam implementation. For comprehensive information, see the FHIR docs, e.g. for [R4 AllergyIntolerance](https://hl7.org/fhir/R4/allergyintolerance.html#resource).
 
-Gleam FHIR is not a mature project. For an application with real users and regulations, you are probably better off with a mature FHIR SDK such as [https://docs.fire.ly/](https://docs.fire.ly/). These Gleam FHIR pages are modelled on their .NET SDK documentation.
+Gleam FHIR is not a mature project. Applications with real users and regulations are probably better off with a mature FHIR SDK such as [https://docs.fire.ly/](https://docs.fire.ly/). These Gleam FHIR pages are modelled on their .NET SDK documentation.
 
-[https://chat.fhir.org/](https://chat.fhir.org/) is a public chatroom with many FHIR implementers. If you have a question, there is a good chance someone has asked it there.
+[https://chat.fhir.org/](https://chat.fhir.org/) is a public FHIR chatroom with many questions and answers, for instance in the [implementers](https://chat.fhir.org/#narrow/channel/179166-implementers) channel.
