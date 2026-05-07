@@ -27,7 +27,10 @@
 ## Quick Start
 
 ```sh
-gleam new hello_fhir && cd hello_fhir && gleam add fhir && gleam add fhir_client_httpc
+gleam new hello_fhir
+```
+```sh
+cd hello_fhir && gleam add fhir && gleam add fhir_client_httpc
 ```
 ```gleam
 
