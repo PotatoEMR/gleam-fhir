@@ -32,34 +32,35 @@ gleam new hello_fhir && cd hello_fhir && gleam add fhir  && gleam add fhir_clien
 ```gleam
 
 //In hello_fhir.gleam
-import fhir/r4us
-import fhir/r4us_httpc
-import fhir/r4us_valuesets
+import fhir/r4/client_httpc
+import fhir/r4/complex_types as ct
+import fhir/r4/resources
+import fhir/r4/valuesets
 import gleam/option.{Some}
 
 pub fn main() {
   let joe =
-    r4us.Patient(
-      ..r4us.patient_new(),
+    resources.Patient(
+      ..resources.patient_new(),
       identifier: [
-        r4us.Identifier(
-          ..r4us.identifier_new(),
+        ct.Identifier(
+          ..ct.identifier_new(),
           system: Some("https://fhir.nhs.uk/Id/nhs-number"),
           value: Some("0123456789"),
         ),
       ],
       name: [
-        r4us.Humanname(
-          ..r4us.humanname_new(),
+        ct.Humanname(
+          ..ct.humanname_new(),
           given: ["Joe"],
           family: Some("Armstrong"),
         ),
       ],
-      gender: Some(r4us_valuesets.AdministrativegenderMale),
+      gender: Some(valuesets.AdministrativegenderMale),
       marital_status: Some(
-        r4us.Codeableconcept(..r4us.codeableconcept_new(), coding: [
-          r4us.Coding(
-            ..r4us.coding_new(),
+        ct.Codeableconcept(..ct.codeableconcept_new(), coding: [
+          ct.Coding(
+            ..ct.coding_new(),
             system: Some(
               "http://terminology.hl7.org/CodeSystem/v3-MaritalStatus",
             ),
@@ -73,22 +74,25 @@ pub fn main() {
   echo joe
 
   let assert Ok(client) =
-    r4us_httpc.fhirclient_new("https://r4.smarthealthit.org/")
+    client_httpc.fhirclient_new("https://r4.smarthealthit.org/")
 
   // https://r4.smarthealthit.org/ might be down
   // if `let assert Ok(created)` errors try these alternatives:
   // fhirclient_new("https://hapi.fhir.org/baseR4")
   // fhirclient_new("https://server.fire.ly")
 
-  let assert Ok(created) = r4us_httpc.patient_create(joe, client)
+  let assert Ok(created) = client_httpc.patient_create(joe, client)
   let assert Some(id) = created.id
-  let assert Ok(read) = r4us_httpc.patient_read(id, client)
+  let assert Ok(read) = client_httpc.patient_read(id, client)
   echo read
   let rip =
-    r4us.Patient(..read, deceased: Some(r4us.PatientDeceasedBoolean(True)))
-  let assert Ok(updated) = r4us_httpc.patient_update(rip, client)
+    resources.Patient(
+      ..read,
+      deceased: Some(resources.PatientDeceasedBoolean(True)),
+    )
+  let assert Ok(updated) = client_httpc.patient_update(rip, client)
   echo updated
-  let assert Ok(_) = r4us_httpc.patient_delete(updated, client)
+  let assert Ok(_) = client_httpc.patient_delete(updated, client)
 }
 ```
 ```sh
