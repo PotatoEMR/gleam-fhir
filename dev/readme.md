@@ -1,3 +1,6 @@
+./dev/gen_everything.sh
+./dev/copy_src.sh
+
 gleam run -m codegen r4
 
 gleam run -m codegen r4 download

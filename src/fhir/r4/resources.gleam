@@ -6540,6 +6540,81 @@ pub fn bundle_entry_decoder() -> Decoder(BundleEntry) {
   ))
 }
 
+pub type BundleEntryForgiving {
+  BundleEntryForgiving(
+    id: Option(String),
+    extension: List(ct.Extension),
+    modifier_extension: List(ct.Extension),
+    link: List(BundleLink),
+    full_url: Option(String),
+    resource: Option(Result(Resource, List(decode.DecodeError))),
+    search: Option(BundleEntrySearch),
+    request: Option(BundleEntryRequest),
+    response: Option(BundleEntryResponse),
+  )
+}
+
+pub fn bundle_entry_decoder_forgiving() -> Decoder(BundleEntryForgiving) {
+  use <- decode.recursive
+  use response <- decode.optional_field(
+    "response",
+    None,
+    decode.optional(bundle_entry_response_decoder()),
+  )
+  use request <- decode.optional_field(
+    "request",
+    None,
+    decode.optional(bundle_entry_request_decoder()),
+  )
+  use search <- decode.optional_field(
+    "search",
+    None,
+    decode.optional(bundle_entry_search_decoder()),
+  )
+  use resource <- decode.optional_field(
+    "resource",
+    None,
+    decode.optional(
+      decode.one_of(resource_decoder() |> decode.map(Ok), [
+        decode.dynamic
+        |> decode.map(fn(res_json) { decode.run(res_json, resource_decoder()) }),
+      ]),
+    ),
+  )
+  use full_url <- decode.optional_field(
+    "fullUrl",
+    None,
+    decode.optional(decode.string),
+  )
+  use link <- decode.optional_field(
+    "link",
+    [],
+    decode.list(bundle_link_decoder()),
+  )
+  use modifier_extension <- decode.optional_field(
+    "modifierExtension",
+    [],
+    decode.list(ct.extension_decoder()),
+  )
+  use extension <- decode.optional_field(
+    "extension",
+    [],
+    decode.list(ct.extension_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+  decode.success(BundleEntryForgiving(
+    response:,
+    request:,
+    search:,
+    resource:,
+    full_url:,
+    link:,
+    modifier_extension:,
+    extension:,
+    id:,
+  ))
+}
+
 pub fn bundle_link_to_json(bundle_link: BundleLink) -> Json {
   let BundleLink(url:, relation:, modifier_extension:, extension:, id:) =
     bundle_link
@@ -6705,6 +6780,103 @@ pub fn bundle_decoder() -> Decoder(Bundle) {
     decode.failure(bundle_new(type_:), "resourceType"),
   )
   decode.success(Bundle(
+    signature:,
+    entry:,
+    link:,
+    total:,
+    timestamp:,
+    type_:,
+    identifier:,
+    language:,
+    implicit_rules:,
+    meta:,
+    id:,
+  ))
+}
+
+pub type BundleForgiving {
+  BundleForgiving(
+    id: Option(String),
+    meta: Option(ct.Meta),
+    implicit_rules: Option(String),
+    language: Option(String),
+    identifier: Option(ct.Identifier),
+    type_: valuesets.Bundletype,
+    timestamp: Option(Instant),
+    total: Option(Int),
+    link: List(BundleLink),
+    entry: List(BundleEntryForgiving),
+    signature: Option(ct.Signature),
+  )
+}
+
+pub fn bundle_decoder_forgiving() -> Decoder(BundleForgiving) {
+  use <- decode.recursive
+  use signature <- decode.optional_field(
+    "signature",
+    None,
+    decode.optional(ct.signature_decoder()),
+  )
+  use entry <- decode.optional_field(
+    "entry",
+    [],
+    decode.list(bundle_entry_decoder_forgiving()),
+  )
+  use link <- decode.optional_field(
+    "link",
+    [],
+    decode.list(bundle_link_decoder()),
+  )
+  use total <- decode.optional_field("total", None, decode.optional(decode.int))
+  use timestamp <- decode.optional_field(
+    "timestamp",
+    None,
+    decode.optional(pt.instant_decoder()),
+  )
+  use type_ <- decode.field("type", valuesets.bundletype_decoder())
+  use identifier <- decode.optional_field(
+    "identifier",
+    None,
+    decode.optional(ct.identifier_decoder()),
+  )
+  use language <- decode.optional_field(
+    "language",
+    None,
+    decode.optional(decode.string),
+  )
+  use implicit_rules <- decode.optional_field(
+    "implicitRules",
+    None,
+    decode.optional(decode.string),
+  )
+  use meta <- decode.optional_field(
+    "meta",
+    None,
+    decode.optional(ct.meta_decoder()),
+  )
+  use id <- decode.optional_field("id", None, decode.optional(decode.string))
+
+  use rt <- decode.field("resourceType", decode.string)
+  use <- bool.guard(
+    rt != "Bundle",
+    decode.failure(
+      BundleForgiving(
+        signature:,
+        entry:,
+        link:,
+        total:,
+        timestamp:,
+        type_:,
+        identifier:,
+        language:,
+        implicit_rules:,
+        meta:,
+        id:,
+      ),
+      "resourceType",
+    ),
+  )
+  decode.success(BundleForgiving(
     signature:,
     entry:,
     link:,

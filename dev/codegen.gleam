@@ -2935,7 +2935,17 @@ fn file_to_types(
                         "\n",
                       )
                     }
-                    False ->
+                    False -> {
+                      let decoder =
+                        gen_res_decoder(
+                          fhir_resource_type,
+                          camel_type,
+                          snake_type,
+                          decoder_use,
+                          decoder_success,
+                          is_domainresource,
+                          decoder_always_failure_fordr,
+                        )
                       string.join(
                         [
                           new_doc_link,
@@ -2952,18 +2962,17 @@ fn file_to_types(
                             profile_ext_pre_encoder <> encoder_json_options,
                             is_domainresource,
                           ),
-                          gen_res_decoder(
-                            fhir_resource_type,
+                          decoder,
+                          add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
                             camel_type,
-                            snake_type,
-                            decoder_use,
+                            type_newfields,
+                            decoder,
                             decoder_success,
-                            is_domainresource,
-                            decoder_always_failure_fordr,
                           ),
                         ],
                         "\n",
                       )
+                    }
                   }
                 }
               }
@@ -3535,6 +3544,107 @@ fn gen_res_decoder(
   template
   |> string.replace("RESNAMELOWER", reslower)
   |> string.replace("RESNAMECAMEL", rescamel)
+}
+
+fn add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
+  camel_type: String,
+  type_newfields: String,
+  normal_decoder: String,
+  decoder_success: String,
+) -> String {
+  case camel_type {
+    "Bundle" -> {
+      let typ =
+        type_newfields
+        |> string.replace("pub type Bundle {", "pub type BundleForgiving {")
+        |> string.replace("pub type Bundle\n{", "pub type BundleForgiving\n{")
+        |> string.replace("Bundle(", "BundleForgiving(")
+        |> string.replace(
+          "entry: List(BundleEntry),",
+          "entry: List(BundleEntryForgiving),",
+        )
+
+      let decoder =
+        normal_decoder
+        |> string.replace(
+          "pub fn bundle_decoder() -> Decoder(Bundle)",
+          "pub fn bundle_decoder_forgiving() -> Decoder(BundleForgiving)",
+        )
+        |> string.replace(
+          "decode.list(bundle_entry_decoder())",
+          "decode.list(bundle_entry_decoder_forgiving())",
+        )
+        |> string.replace(
+          "decode.success(Bundle(",
+          "decode.success(BundleForgiving(",
+        )
+        |> string.replace(
+          "decode.failure(bundle_new(type_:), \"resourceType\")",
+          "decode.failure(BundleForgiving("
+            <> decoder_success
+            <> "), \"resourceType\")",
+        )
+        |> string.replace(
+          "decode.failure(bundle_new(type_:,), \"resourceType\")",
+          "decode.failure(BundleForgiving("
+            <> decoder_success
+            <> "), \"resourceType\")",
+        )
+        |> string.replace(
+          "decode.failure(bundle_new(type_:, ), \"resourceType\")",
+          "decode.failure(BundleForgiving("
+            <> decoder_success
+            <> "), \"resourceType\")",
+        )
+
+      typ <> "\n" <> decoder
+    }
+    "BundleEntry" -> {
+      let typ =
+        type_newfields
+        |> string.replace(
+          "pub type BundleEntry {",
+          "pub type BundleEntryForgiving {",
+        )
+        |> string.replace(
+          "pub type BundleEntry\n{",
+          "pub type BundleEntryForgiving\n{",
+        )
+        |> string.replace("BundleEntry(", "BundleEntryForgiving(")
+        |> string.replace(
+          "resource: Option(Resource),",
+          "resource: Option(Result(Resource, List(decode.DecodeError))),",
+        )
+
+      let forgiving_resource_decoder =
+        "decode.optional(
+      decode.one_of(resource_decoder() |> decode.map(Ok), [
+        decode.dynamic
+        |> decode.map(fn(res_json) {
+          decode.run(res_json, resource_decoder())
+        }),
+      ]),
+    )"
+
+      let decoder =
+        normal_decoder
+        |> string.replace(
+          "pub fn bundle_entry_decoder() -> Decoder(BundleEntry)",
+          "pub fn bundle_entry_decoder_forgiving() -> Decoder(BundleEntryForgiving)",
+        )
+        |> string.replace(
+          "decode.optional(resource_decoder())",
+          forgiving_resource_decoder,
+        )
+        |> string.replace(
+          "decode.success(BundleEntry(",
+          "decode.success(BundleEntryForgiving(",
+        )
+
+      typ <> "\n" <> decoder
+    }
+    _ -> ""
+  }
 }
 
 // region valuesets
