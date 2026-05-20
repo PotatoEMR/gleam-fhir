@@ -143,7 +143,7 @@ pub fn all_pages(
 /// searchs each bundle and returns list
 /// also returns last bundle individually
 /// because all_pages smushes everything in there
-pub fn all_pages_loop(
+fn all_pages_loop(
   curr_bundle: Result(resources.Bundle, Err),
   acc_bundles: List(resources.Bundle),
   client: FhirClient,
@@ -163,6 +163,17 @@ pub fn all_pages_loop(
       }
     }
   }
+}
+
+/// instead of failing whole decoder on bundle entry with invalid resource,
+/// return valid resources alongside list of errors
+pub fn search_any_forgiving(
+  search_string: String,
+  res_type: resources.ResourceType,
+  client: FhirClient,
+) -> Result(resources.BundleForgiving, Err) {
+  sansio.any_search_req(search_string, res_type, client)
+  |> sendreq_parseresource(resources.bundle_decoder_forgiving(), resources.RtBundle)
 }
 
 /// run any operation string on any resource type, optionally using Parameters
