@@ -53,7 +53,7 @@ pub type ErrNoId {
 
 fn any_create(
   resource: Json,
-  res_type: String,
+  res_type: resources.ResourceType,
   resource_dec: Decoder(r),
   client: FhirClient,
   handle_response: fn(Result(r, Err)) -> a,
@@ -64,7 +64,7 @@ fn any_create(
 
 fn any_read(
   id: String,
-  res_type: String,
+  res_type: resources.ResourceType,
   resource_dec: Decoder(r),
   client: FhirClient,
   handle_response: fn(Result(r, Err)) -> a,
@@ -76,7 +76,7 @@ fn any_read(
 fn any_update(
   id: Option(String),
   resource: Json,
-  res_type: String,
+  res_type: resources.ResourceType,
   resource_dec: Decoder(r),
   client: FhirClient,
   handle_response: fn(Result(r, Err)) -> a,
@@ -122,22 +122,22 @@ pub fn any_delete(
 /// write out search string manually, in case typed search params don't work
 pub fn search_any(
   search_string: String,
-  res_type: String,
+  res_type: resources.ResourceType,
   client: FhirClient,
   handle_response: fn(Result(resources.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
   let req = sansio.any_search_req(search_string, res_type, client)
-  sendreq_handleresponse(req, resources.bundle_decoder(), "Bundle", handle_response)
+  sendreq_handleresponse(req, resources.bundle_decoder(), resources.RtBundle, handle_response)
 }
 
 // run any operation string on any resource string, optionally using Parameters
 pub fn operation_any(
   params params: Option(resources.Parameters),
   operation_name operation_name: String,
-  res_type res_type: String,
+  res_type res_type: resources.ResourceType,
   res_id res_id: Option(String),
   res_decoder res_decoder: Decoder(res),
-  return_res_type return_res_type: String,
+  return_res_type return_res_type: resources.ResourceType,
   client client: FhirClient,
   handle_response handle_response: fn(Result(res, Err)) -> msg,
 ) -> Effect(msg) {
@@ -159,13 +159,13 @@ pub fn batch(
   handle_response: fn(Result(resources.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
   let req = sansio.batch_req(reqs, bundle_type, client)
-  sendreq_handleresponse(req, resources.bundle_decoder(), "Bundle", handle_response)
+  sendreq_handleresponse(req, resources.bundle_decoder(), resources.RtBundle, handle_response)
 }
 
 fn sendreq_handleresponse(
   req: Request(Option(Json)),
   res_dec: Decoder(r),
-  res_type: String,
+  res_type: resources.ResourceType,
   handle_response: fn(Result(r, Err)) -> a,
 ) -> Effect(a) {
   sendreq_handleresponse_andprocess(req, res_dec, res_type, handle_response, fn(a) { a })
@@ -174,7 +174,7 @@ fn sendreq_handleresponse(
 fn sendreq_handleresponse_andprocess(
   req: Request(Option(Json)),
   res_dec: Decoder(r),
-  res_type: String,
+  res_type: resources.ResourceType,
   handle_response: fn(Result(b, Err)) -> a,
   process_res: fn(r) -> b,
 ) -> Effect(a) {

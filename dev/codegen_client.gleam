@@ -376,60 +376,8 @@ pub fn gen(
         }),
       )
     })
-  let search_encode =
-    list.map(expanded_rest, fn(rest) {
-      list.map(rest.resource, fn(res) {
-        let #(name_lower, name_capital) = id_to_name(res.type_)
-        let sp_arg = case res.search_param {
-          [] -> "_sp"
-          _ -> "sp"
-        }
-        string.concat([
-          "pub fn ",
-          name_lower,
-          "_search_bundled(",
-          sp_arg,
-          ": search_params.",
-          name_capital,
-          ", client: FhirClient) {
-            search_params.to_string([",
-          string.concat(
-            list.map(res.search_param, fn(sp) {
-              "#(\"" <> sp.name <> "\", sp." <> escape_spname(sp.name) <> "),"
-            }),
-          ),
-          "])
-            |> search_any(resources.Rt",
-          name_capital,
-          ", client)
-          }
-
-          pub fn ",
-          name_lower,
-          "_search(",
-          "sp",
-          ": search_params.",
-          name_capital,
-          ", client: FhirClient,
-          ) -> Result(List(resources.",
-          name_capital,
-          "), Err) {
-            case ",
-          name_lower,
-          "_search_bundled(",
-          "sp",
-          ", client) {
-              Ok(bundle) -> Ok({ bundle |> sansio.bundle_to_groupedresources }.",
-          name_lower,
-          ")
-              Error(error) -> Error(error)
-            }
-          }",
-        ])
-      })
-      |> string.concat
-    })
-    |> string.concat
+  let httpc_search_encode = gen_search_encode(expanded_rest, Httpc)
+  let rsvp_search_encode = gen_search_encode(expanded_rest, Rsvp)
 
   let search_type =
     list.map(expanded_rest, fn(rest) {
@@ -665,7 +613,7 @@ pub fn gen(
     |> filepath.join("codegen_client_httpc.txt")
     |> simplifile.read
   let httpc_layer =
-    string.concat([file_text, res_specific_crud, search_encode])
+    string.concat([file_text, res_specific_crud, httpc_search_encode])
     |> string.replace("FHIRVERSION", pkg_prefix)
 
   let rsvp_res_specific_crud =
@@ -679,7 +627,7 @@ pub fn gen(
             ) -> Effect(a) {
               any_create(
                 resources.NAMELOWER_to_json(resource),
-                \"NAMEUPPER\",
+                resources.RtNAMECAPITAL,
                 resources.NAMELOWER_decoder(),
                 client,
                 handle_response,
@@ -691,7 +639,7 @@ pub fn gen(
               client: FhirClient,
               handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> a,
             ) -> Effect(a) {
-              any_read(id, \"NAMEUPPER\", resources.NAMELOWER_decoder(), client, handle_response)
+              any_read(id, resources.RtNAMECAPITAL, resources.NAMELOWER_decoder(), client, handle_response)
             }
 
             pub fn NAMELOWER_update(
@@ -702,7 +650,7 @@ pub fn gen(
               any_update(
                 resource.id,
                 resources.NAMELOWER_to_json(resource),
-                \"NAMEUPPER\",
+                resources.RtNAMECAPITAL,
                 resources.NAMELOWER_decoder(),
                 client,
                 handle_response,
@@ -728,7 +676,7 @@ pub fn gen(
     |> filepath.join("codegen_client_rsvp.txt")
     |> simplifile.read
   let rsvp_layer =
-    string.concat([file_text, rsvp_res_specific_crud])
+    string.concat([file_text, rsvp_res_specific_crud, rsvp_search_encode])
     |> string.replace("FHIRVERSION", pkg_prefix)
 
   let assert Ok(file_text) =
@@ -746,6 +694,92 @@ pub fn gen(
     |> string.replace("FHIRVERSION", pkg_prefix)
 
   #(sansio, httpc_layer, rsvp_layer, search_params)
+}
+
+type SearchClient {
+  Httpc
+  Rsvp
+}
+
+fn gen_search_encode(expanded_rest: List(Rest), client: SearchClient) -> String {
+  list.map(expanded_rest, fn(rest) {
+    list.map(rest.resource, fn(res) {
+      let #(name_lower, name_capital) = id_to_name(res.type_)
+      let sp_arg = case res.search_param {
+        [] -> "_sp"
+        _ -> "sp"
+      }
+      let search_fields =
+        res.search_param
+        |> list.map(fn(sp) {
+          "#(\"" <> sp.name <> "\", sp." <> escape_spname(sp.name) <> "),"
+        })
+        |> string.concat
+
+      let grouped_ok =
+        "Ok({ bundle |> sansio.bundle_to_groupedresources }."
+        <> name_lower
+        <> ")"
+
+      string.concat([
+        "pub fn ",
+        name_lower,
+        "_search_bundled(",
+        sp_arg,
+        ": search_params.",
+        name_capital,
+        ", client: FhirClient",
+        case client {
+          Httpc -> ") {"
+          Rsvp ->
+            ",
+            handle_response: fn(Result(resources.Bundle, Err)) -> msg,
+            ) -> Effect(msg) {"
+        },
+        "
+          search_params.to_string([",
+        search_fields,
+        "])
+          |> search_any(resources.Rt",
+        name_capital,
+        ", client",
+        case client {
+          Httpc -> ")"
+          Rsvp -> ", handle_response)"
+        },
+        "
+        }
+
+        pub fn ",
+        name_lower,
+        "_search(
+        sp: search_params.",
+        name_capital,
+        ", client: FhirClient",
+        case client {
+          Httpc -> ",
+            ) -> Result(List(resources." <> name_capital <> "), Err) {
+              case " <> name_lower <> "_search_bundled(sp, client) {
+                Ok(bundle) -> " <> grouped_ok <> "
+                Error(error) -> Error(error)
+              }
+            }"
+          Rsvp -> ",
+            handle_response: fn(Result(List(resources." <> name_capital <> "), Err)) -> msg,
+            ) -> Effect(msg) {
+              " <> name_lower <> "_search_bundled(sp, client, fn(resp) {
+                handle_response(case resp {
+                  Ok(bundle) -> " <> grouped_ok <> "
+                  Error(error) -> Error(error)
+                })
+              })
+            }"
+        },
+      ])
+    })
+    |> string.concat
+  })
+  |> string.concat
 }
 
 // most of the client stuff is generic so you can just write it in codegen_client.txt
