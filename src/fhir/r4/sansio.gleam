@@ -111,26 +111,46 @@ pub type ErrReq {
   ErrNoId
 }
 
-pub fn any_create_req(resource_json: Json, res_type: String, client: FhirClient) {
+pub fn any_create_req(
+  resource_json: Json,
+  res_type: resources.ResourceType,
+  client: FhirClient,
+) {
   client.basereq
-  |> request.set_path(string.concat([client.basereq.path, "/", res_type]))
+  |> request.set_path(
+    string.concat([
+      client.basereq.path,
+      "/",
+      resources.resource_type_to_string(res_type),
+    ]),
+  )
   |> request.set_header("Content-Type", "application/fhir+json")
   |> request.set_header("Prefer", "return=representation")
   |> request.set_body(Some(resource_json))
   |> request.set_method(http.Post)
 }
 
-pub fn any_read_req(id: String, res_type: String, client: FhirClient) {
+pub fn any_read_req(
+  id: String,
+  res_type: resources.ResourceType,
+  client: FhirClient,
+) {
   client.basereq
   |> request.set_path(
-    string.concat([client.basereq.path, "/", res_type, "/", id]),
+    string.concat([
+      client.basereq.path,
+      "/",
+      resources.resource_type_to_string(res_type),
+      "/",
+      id,
+    ]),
   )
 }
 
 pub fn any_update_req(
   id: Option(String),
   resource_json: Json,
-  res_type: String,
+  res_type: resources.ResourceType,
   client: FhirClient,
 ) -> Result(Request(Option(Json)), ErrReq) {
   case id {
@@ -139,7 +159,13 @@ pub fn any_update_req(
       Ok(
         client.basereq
         |> request.set_path(
-          string.concat([client.basereq.path, "/", res_type, "/", id]),
+          string.concat([
+            client.basereq.path,
+            "/",
+            resources.resource_type_to_string(res_type),
+            "/",
+            id,
+          ]),
         )
         |> request.set_header("Content-Type", "application/fhir+json")
         |> request.set_header("Prefer", "return=representation")
@@ -154,27 +180,38 @@ pub fn any_delete_req(
   res_type: resources.ResourceType,
   client: FhirClient,
 ) -> Request(Option(Json)) {
-  let res_type = resources.resource_type_to_string(res_type)
   client.basereq
   |> request.set_path(
-    string.concat([client.basereq.path, "/", res_type, "/", id]),
+    string.concat([
+      client.basereq.path,
+      "/",
+      resources.resource_type_to_string(res_type),
+      "/",
+      id,
+    ]),
   )
   |> request.set_method(http.Delete)
 }
 
 pub fn any_search_req(
   search_string: String,
-  res_type: String,
+  res_type: resources.ResourceType,
   client: FhirClient,
 ) -> Request(Option(Json)) {
   client.basereq
   |> request.set_path(
-    string.concat([client.basereq.path, "/", res_type, "?", search_string]),
+    string.concat([
+      client.basereq.path,
+      "/",
+      resources.resource_type_to_string(res_type),
+      "?",
+      search_string,
+    ]),
   )
 }
 
 pub fn any_operation_req(
-  res_type: String,
+  res_type: resources.ResourceType,
   res_id: Option(String),
   operation_name: String,
   params: Option(resources.Parameters),
@@ -185,14 +222,20 @@ pub fn any_operation_req(
       string.concat([
         client.basereq.path,
         "/",
-        res_type,
+        resources.resource_type_to_string(res_type),
         "/",
         res_id,
         "/$",
         operation_name,
       ])
     None ->
-      string.concat([client.basereq.path, "/", res_type, "/$", operation_name])
+      string.concat([
+        client.basereq.path,
+        "/",
+        resources.resource_type_to_string(res_type),
+        "/$",
+        operation_name,
+      ])
   }
   let req =
     client.basereq
@@ -215,8 +258,9 @@ pub fn any_operation_req(
 pub fn any_resp(
   resp: Response(String),
   resource_dec: decode.Decoder(a),
-  resource_type: String,
+  resource_type: resources.ResourceType,
 ) -> Result(a, ErrResp) {
+  let resource_type = resources.resource_type_to_string(resource_type)
   case
     resp.body
     |> json.parse({
