@@ -57,7 +57,7 @@ pub type ErrFromSansio {
 
 fn any_create(
   resource: Json,
-  res_type: String,
+  res_type: resources.ResourceType,
   resource_dec: Decoder(r),
   client: FhirClient,
 ) -> Result(r, Err) {
@@ -68,7 +68,7 @@ fn any_create(
 fn any_read(
   id: String,
   client: FhirClient,
-  res_type: String,
+  res_type: resources.ResourceType,
   resource_dec: Decoder(a),
 ) -> Result(a, Err) {
   let req = sansio.any_read_req(id, res_type, client)
@@ -78,7 +78,7 @@ fn any_read(
 fn any_update(
   id: Option(String),
   resource: Json,
-  res_type: String,
+  res_type: resources.ResourceType,
   res_dec: Decoder(r),
   client: FhirClient,
 ) -> Result(r, Err) {
@@ -116,11 +116,8 @@ pub fn search_any(
   res_type: resources.ResourceType,
   client: FhirClient,
 ) -> Result(resources.Bundle, Err) {
-  sansio.any_search_req(
-    search_string,
-    resources.resource_type_to_string(res_type),
-    client)
-  |> sendreq_parseresource(resources.bundle_decoder(), "Bundle")
+  sansio.any_search_req(search_string, res_type, client)
+  |> sendreq_parseresource(resources.bundle_decoder(), resources.RtBundle)
 }
 
 /// get all resources in paginated bundle,
@@ -159,7 +156,8 @@ pub fn all_pages_loop(
         // Error(_) -> reached last page
         Error(_) -> Ok(#(curr_bundle, acc_bundles))
         Ok(req) -> {
-          let next = sendreq_parseresource(req, resources.bundle_decoder(), "Bundle")
+          let next =
+            sendreq_parseresource(req, resources.bundle_decoder(), resources.RtBundle)
           all_pages_loop(next, acc_bundles, client)
         }
       }
@@ -167,14 +165,14 @@ pub fn all_pages_loop(
   }
 }
 
-/// run any operation string on any resource string, optionally using Parameters
+/// run any operation string on any resource type, optionally using Parameters
 pub fn operation_any(
   params params: Option(resources.Parameters),
   operation_name operation_name: String,
-  res_type res_type: String,
+  res_type res_type: resources.ResourceType,
   res_id res_id: Option(String),
   res_decoder res_decoder: Decoder(res),
-  return_res_type return_res_type: String,
+  return_res_type return_res_type: resources.ResourceType,
   client client: FhirClient,
 ) -> Result(res, Err) {
   let req =
@@ -194,13 +192,13 @@ pub fn batch(
   client: FhirClient,
 ) -> Result(resources.Bundle, Err) {
   let req = sansio.batch_req(reqs, bundle_type, client)
-  sendreq_parseresource(req, resources.bundle_decoder(), "Bundle")
+  sendreq_parseresource(req, resources.bundle_decoder(), resources.RtBundle)
 }
 
 fn sendreq_parseresource(
   req: Request(Option(Json)),
   res_dec: Decoder(r),
-  res_type: String,
+  res_type: resources.ResourceType,
 ) -> Result(r, Err) {
   case
     req

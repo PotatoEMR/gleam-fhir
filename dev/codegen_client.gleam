@@ -621,7 +621,7 @@ pub fn gen(
             ) -> Result(resources.NAMECAPITAL, Err) {
               any_create(
                 resources.NAMELOWER_to_json(resource),
-                \"NAMEUPPER\",
+                resources.RtNAMECAPITAL,
                 resources.NAMELOWER_decoder(),
                 client,
               )
@@ -631,7 +631,7 @@ pub fn gen(
               id: String,
               client: FhirClient,
             ) -> Result(resources.NAMECAPITAL, Err) {
-              any_read(id, client, \"NAMEUPPER\", resources.NAMELOWER_decoder())
+              any_read(id, client, resources.RtNAMECAPITAL, resources.NAMELOWER_decoder())
             }
 
             pub fn NAMELOWER_update(
@@ -641,7 +641,7 @@ pub fn gen(
               any_update(
                 resource.id,
                 resources.NAMELOWER_to_json(resource),
-                \"NAMEUPPER\",
+                resources.RtNAMECAPITAL,
                 resources.NAMELOWER_decoder(),
                 client,
               )
