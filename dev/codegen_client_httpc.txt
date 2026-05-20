@@ -2,6 +2,7 @@
 
 import fhir/FHIRVERSION/resources
 import fhir/FHIRVERSION/sansio
+import fhir/FHIRVERSION/search_params
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}

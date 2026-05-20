@@ -209,20 +209,6 @@ pub fn any_operation_req(
   }
 }
 
-fn using_params(params) {
-  list.fold(
-    from: [],
-    over: params,
-    with: fn(acc, param: #(String, Option(String))) {
-      case param.1 {
-        None -> acc
-        Some(p) -> [param.0 <> "=" <> p, ..acc]
-      }
-    },
-  )
-  |> string.join("&")
-}
-
 /// decodes an Ok(resource) of given decoder type
 /// or Error(ErrOperationoutcome(operationoutcome))
 ///

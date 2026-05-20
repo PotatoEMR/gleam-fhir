@@ -686,7 +686,7 @@ fn gen_fhir(
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
 
-  let #(sansio, httpc_layer, rsvp_layer) =
+  let #(sansio, httpc_layer, rsvp_layer, search_params) =
     codegen_client.gen(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
       fv: fhir_version,
@@ -695,15 +695,19 @@ fn gen_fhir(
       all_primitive_ext: all_primitive_ext,
       profiles_dir: profiles_dir,
     )
-  let f_sansio = filepath.join(gen_dir, "sansio.gleam")
-  let assert Ok(_) = simplifile.write(to: f_sansio, contents: sansio)
-  io.println("generated " <> f_sansio)
-  let f_httpc = filepath.join(gen_dir, "client_httpc.gleam")
-  let assert Ok(_) = simplifile.write(to: f_httpc, contents: httpc_layer)
-  io.println("generated " <> f_httpc)
-  let f_rsvp = filepath.join(gen_dir, "client_rsvp.gleam")
-  let assert Ok(_) = simplifile.write(to: f_rsvp, contents: rsvp_layer)
-  io.println("generated " <> f_rsvp)
+  list.each(
+    [
+      #("sansio.gleam", sansio),
+      #("client_httpc.gleam", httpc_layer),
+      #("client_rsvp.gleam", rsvp_layer),
+      #("search_params.gleam", search_params),
+    ],
+    fn(to_file) {
+      let file = filepath.join(gen_dir, to_file.0)
+      let assert Ok(_) = simplifile.write(to: file, contents: to_file.1)
+      io.println("generated " <> to_file.0)
+    },
+  )
 }
 
 // type safe extensions for profiles only

@@ -185,7 +185,7 @@ pub fn gen(
   custom_profile_name custom_profile_name: Option(String),
   all_primitive_ext all_primitive_ext: Bool,
   profiles_dir profiles_dir: String,
-) {
+) -> #(String, String, String, String) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
   // you could use generated bundle decoder here
@@ -304,27 +304,27 @@ pub fn gen(
     })
 
   //region sansio
-  let res_specific_crud =
-    gen_specific_crud(
-      entries,
-      "
-          pub fn NAMELOWER_create_req(resource: resources.NAMECAPITAL, client: FhirClient) -> Request(Option(Json)) {
-            any_create_req(resources.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
-          }
+  // let res_specific_crud =
+  //   gen_specific_crud(
+  //     entries,
+  //     "
+  //         pub fn NAMELOWER_create_req(resource: resources.NAMECAPITAL, client: FhirClient) -> Request(Option(Json)) {
+  //           any_create_req(resources.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
+  //         }
 
-          pub fn NAMELOWER_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
-            any_read_req(id, \"NAMEUPPER\", client)
-          }
+  //         pub fn NAMELOWER_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
+  //           any_read_req(id, \"NAMEUPPER\", client)
+  //         }
 
-          pub fn NAMELOWER_update_req(resource: resources.NAMECAPITAL, client: FhirClient) -> Result(Request(Option(Json)), ErrReq) {
-            any_update_req(resource.id, resources.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
-          }
+  //         pub fn NAMELOWER_update_req(resource: resources.NAMECAPITAL, client: FhirClient) -> Result(Request(Option(Json)), ErrReq) {
+  //           any_update_req(resource.id, resources.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
+  //         }
 
-          pub fn NAMELOWER_resp(resp: Response(String)) -> Result(resources.NAMECAPITAL, ErrResp) {
-            any_resp(resp, resources.NAMELOWER_decoder(), \"NAMEUPPER\")
-          }
-          ",
-    )
+  //         pub fn NAMELOWER_resp(resp: Response(String)) -> Result(resources.NAMECAPITAL, ErrResp) {
+  //           any_resp(resp, resources.NAMELOWER_decoder(), \"NAMEUPPER\")
+  //         }
+  //         ",
+  //   )
   let assert Ok(file_text) =
     "dev"
     |> filepath.join("codegen_client_sansio.txt")
@@ -376,47 +376,46 @@ pub fn gen(
         }),
       )
     })
-  let search_encode =
-    list.map(expanded_rest, fn(rest) {
-      list.map(rest.resource, fn(res) {
-        let #(name_lower, name_capital) = id_to_name(res.type_)
-        let sp_arg = case res.search_param {
-          [] -> "_sp"
-          _ -> "sp"
-        }
-        string.concat([
-          "pub fn ",
-          name_lower,
-          "_search_req(",
-          sp_arg,
-          ": Sp",
-          name_capital,
-          ", client: FhirClient) {
-            let params = using_params([",
-          string.concat(
-            list.map(res.search_param, fn(sp) {
-              "#(\"" <> sp.name <> "\", sp." <> escape_spname(sp.name) <> "),"
-            }),
-          ),
-          "])
-            any_search_req(params, \"",
-          res.base_type,
-          "\", client)
-          }",
-        ])
-      })
-      |> string.concat
-    })
-    |> string.concat
+  // let search_encode =
+  //   list.map(expanded_rest, fn(rest) {
+  //     list.map(rest.resource, fn(res) {
+  //       let #(name_lower, name_capital) = id_to_name(res.type_)
+  //       let sp_arg = case res.search_param {
+  //         [] -> "_sp"
+  //         _ -> "sp"
+  //       }
+  //       string.concat([
+  //         "pub fn ",
+  //         name_lower,
+  //         "_search_req(",
+  //         sp_arg,
+  //         ": Sp",
+  //         name_capital,
+  //         ", client: FhirClient) {
+  //           let params = using_params([",
+  //         string.concat(
+  //           list.map(res.search_param, fn(sp) {
+  //             "#(\"" <> sp.name <> "\", sp." <> escape_spname(sp.name) <> "),"
+  //           }),
+  //         ),
+  //         "])
+  //           any_search_req(params, \"",
+  //         res.base_type,
+  //         "\", client)
+  //         }",
+  //       ])
+  //     })
+  //     |> string.concat
+  //   })
+  //   |> string.concat
 
   let search_type =
     list.map(expanded_rest, fn(rest) {
       list.map(rest.resource, fn(res) {
         let #(_, name_capital) = id_to_name(res.type_)
-        "pub type Sp"
+        "pub type "
         <> name_capital
         <> "{"
-        <> "Sp"
         <> name_capital
         <> "("
         //        <> "include: Option(SpInclude),"
@@ -437,9 +436,9 @@ pub fn gen(
     list.map(expanded_rest, fn(rest) {
       list.map(rest.resource, fn(res) {
         let #(name_lower, name_capital) = id_to_name(res.type_)
-        "pub fn sp_"
+        "pub fn "
         <> name_lower
-        <> "_new(){Sp"
+        <> "_new(){"
         <> name_capital
         //+1 to list.length(res.search_param) if you want includes
         <> {
@@ -464,15 +463,15 @@ pub fn gen(
             string.concat([
               "inc_",
               name_lower,
-              ": Option(SpInclude),revinc_",
+              ": Option(Include),revinc_",
               name_lower,
-              ": Option(SpInclude),",
+              ": Option(Include),",
             ])
           }),
         )
       }),
     )
-  let include_type = "pub type SpInclude {SpInclude(" <> include_type <> ")}"
+  let _include_type = "pub type Include {Include(" <> include_type <> ")}"
 
   let grouped_type =
     string.concat(
@@ -576,13 +575,12 @@ pub fn gen(
   let sansio =
     string.concat([
       file_text,
-      res_specific_crud,
-      search_type,
-      search_type_new,
-      include_type,
+      //res_specific_crud,
+      // search_type,
+      // search_type_new,
       grouped_type,
       grouped_type_new,
-      search_encode,
+      //search_encode,
       bundle_to_gt,
     ])
     |> primitive_body_replace
@@ -637,12 +635,12 @@ pub fn gen(
               }
             }
 
-            pub fn NAMELOWER_search_bundled(sp: sansio.SpNAMECAPITAL, client: FhirClient) {
+            pub fn NAMELOWER_search_bundled(sp: search_params.NAMECAPITAL, client: FhirClient) {
               let req = sansio.NAMELOWER_search_req(sp, client)
               sendreq_parseresource(req, resources.bundle_decoder(), \"Bundle\")
             }
 
-            pub fn NAMELOWER_search(sp: sansio.SpNAMECAPITAL, client: FhirClient) -> Result(List(resources.NAMECAPITAL), Err) {
+            pub fn NAMELOWER_search(sp: search_params.NAMECAPITAL, client: FhirClient) -> Result(List(resources.NAMECAPITAL), Err) {
               let req = sansio.NAMELOWER_search_req(sp, client)
               sendreq_parseresource(req, resources.bundle_decoder(), \"Bundle\")
               |> result.map(fn(bundle) {
@@ -713,7 +711,7 @@ pub fn gen(
             }
 
             pub fn NAMELOWER_search_bundled(
-              search_for search_args: sansio.SpNAMECAPITAL,
+              search_for search_args: search_params.NAMECAPITAL,
               with_client client: FhirClient,
               response_msg handle_response: fn(Result(resources.Bundle, Err)) -> msg,
             ) -> Effect(msg) {
@@ -722,7 +720,7 @@ pub fn gen(
             }
 
             pub fn NAMELOWER_search(
-              search_for search_args: sansio.SpNAMECAPITAL,
+              search_for search_args: search_params.NAMECAPITAL,
               with_client client: FhirClient,
               response_msg handle_response: fn(Result(List(resources.NAMECAPITAL), Err)) -> msg,
             ) -> Effect(msg) {
@@ -746,7 +744,21 @@ pub fn gen(
     string.concat([file_text, rsvp_res_specific_crud])
     |> string.replace("FHIRVERSION", pkg_prefix)
 
-  #(sansio, httpc_layer, rsvp_layer)
+  let assert Ok(file_text) =
+    "dev"
+    |> filepath.join("codegen_client_searchparams.txt")
+    |> simplifile.read
+  let search_params =
+    string.concat([
+      file_text,
+      search_type,
+      search_type_new,
+      //include_type,
+    // could also put include type in but have not gotten all the typed search params working well yet
+    ])
+    |> string.replace("FHIRVERSION", pkg_prefix)
+
+  #(sansio, httpc_layer, rsvp_layer, search_params)
 }
 
 // most of the client stuff is generic so you can just write it in codegen_client.txt
