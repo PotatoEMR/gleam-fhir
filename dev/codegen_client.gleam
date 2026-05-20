@@ -376,38 +376,60 @@ pub fn gen(
         }),
       )
     })
-  // let search_encode =
-  //   list.map(expanded_rest, fn(rest) {
-  //     list.map(rest.resource, fn(res) {
-  //       let #(name_lower, name_capital) = id_to_name(res.type_)
-  //       let sp_arg = case res.search_param {
-  //         [] -> "_sp"
-  //         _ -> "sp"
-  //       }
-  //       string.concat([
-  //         "pub fn ",
-  //         name_lower,
-  //         "_search_req(",
-  //         sp_arg,
-  //         ": Sp",
-  //         name_capital,
-  //         ", client: FhirClient) {
-  //           let params = using_params([",
-  //         string.concat(
-  //           list.map(res.search_param, fn(sp) {
-  //             "#(\"" <> sp.name <> "\", sp." <> escape_spname(sp.name) <> "),"
-  //           }),
-  //         ),
-  //         "])
-  //           any_search_req(params, \"",
-  //         res.base_type,
-  //         "\", client)
-  //         }",
-  //       ])
-  //     })
-  //     |> string.concat
-  //   })
-  //   |> string.concat
+  let search_encode =
+    list.map(expanded_rest, fn(rest) {
+      list.map(rest.resource, fn(res) {
+        let #(name_lower, name_capital) = id_to_name(res.type_)
+        let sp_arg = case res.search_param {
+          [] -> "_sp"
+          _ -> "sp"
+        }
+        string.concat([
+          "pub fn ",
+          name_lower,
+          "_search_bundled(",
+          sp_arg,
+          ": search_params.",
+          name_capital,
+          ", client: FhirClient) {
+            search_params.to_string([",
+          string.concat(
+            list.map(res.search_param, fn(sp) {
+              "#(\"" <> sp.name <> "\", sp." <> escape_spname(sp.name) <> "),"
+            }),
+          ),
+          "])
+            |> search_any(resources.Rt",
+          name_capital,
+          ", client)
+          }
+
+          pub fn ",
+          name_lower,
+          "_search(",
+          "sp",
+          ": search_params.",
+          name_capital,
+          ", client: FhirClient,
+          ) -> Result(List(resources.",
+          name_capital,
+          "), Err) {
+            case ",
+          name_lower,
+          "_search_bundled(",
+          "sp",
+          ", client) {
+              Ok(bundle) -> Ok({ bundle |> sansio.bundle_to_groupedresources }.",
+          name_lower,
+          ")
+              Error(error) -> Error(error)
+            }
+          }",
+        ])
+      })
+      |> string.concat
+    })
+    |> string.concat
 
   let search_type =
     list.map(expanded_rest, fn(rest) {
@@ -635,18 +657,6 @@ pub fn gen(
               }
             }
 
-            pub fn NAMELOWER_search_bundled(sp: search_params.NAMECAPITAL, client: FhirClient) {
-              let req = sansio.NAMELOWER_search_req(sp, client)
-              sendreq_parseresource(req, resources.bundle_decoder(), \"Bundle\")
-            }
-
-            pub fn NAMELOWER_search(sp: search_params.NAMECAPITAL, client: FhirClient) -> Result(List(resources.NAMECAPITAL), Err) {
-              let req = sansio.NAMELOWER_search_req(sp, client)
-              sendreq_parseresource(req, resources.bundle_decoder(), \"Bundle\")
-              |> result.map(fn(bundle) {
-                { bundle |> sansio.bundle_to_groupedresources }.NAMELOWER
-              })
-            }
             ",
     )
 
@@ -655,7 +665,7 @@ pub fn gen(
     |> filepath.join("codegen_client_httpc.txt")
     |> simplifile.read
   let httpc_layer =
-    string.concat([file_text, res_specific_crud])
+    string.concat([file_text, res_specific_crud, search_encode])
     |> string.replace("FHIRVERSION", pkg_prefix)
 
   let rsvp_res_specific_crud =
@@ -710,29 +720,6 @@ pub fn gen(
               }
             }
 
-            pub fn NAMELOWER_search_bundled(
-              search_for search_args: search_params.NAMECAPITAL,
-              with_client client: FhirClient,
-              response_msg handle_response: fn(Result(resources.Bundle, Err)) -> msg,
-            ) -> Effect(msg) {
-              let req = sansio.NAMELOWER_search_req(search_args, client)
-              sendreq_handleresponse(req, resources.bundle_decoder(), \"Bundle\", handle_response)
-            }
-
-            pub fn NAMELOWER_search(
-              search_for search_args: search_params.NAMECAPITAL,
-              with_client client: FhirClient,
-              response_msg handle_response: fn(Result(List(resources.NAMECAPITAL), Err)) -> msg,
-            ) -> Effect(msg) {
-              let req = sansio.NAMELOWER_search_req(search_args, client)
-              sendreq_handleresponse_andprocess(
-                req,
-                resources.bundle_decoder(),
-                \"Bundle\",
-                handle_response,
-                fn(bundle) { { bundle |> sansio.bundle_to_groupedresources }.NAMELOWER },
-              )
-            }
             ",
     )
 

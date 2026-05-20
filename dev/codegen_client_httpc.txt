@@ -7,7 +7,6 @@ import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
 import gleam/httpc
-import gleam/result
 import gleam/json.{type Json}
 import gleam/list
 import gleam/option.{type Option, Some, None}
@@ -114,11 +113,14 @@ pub fn any_delete(
 /// write out search string manually, in case typed search params don't work
 pub fn search_any(
   search_string: String,
-  res_type: String,
+  res_type: resources.ResourceType,
   client: FhirClient,
 ) -> Result(resources.Bundle, Err) {
-  let req = sansio.any_search_req(search_string, res_type, client)
-  sendreq_parseresource(req, resources.bundle_decoder(), "Bundle")
+  sansio.any_search_req(
+    search_string,
+    resources.resource_type_to_string(res_type),
+    client)
+  |> sendreq_parseresource(resources.bundle_decoder(), "Bundle")
 }
 
 /// get all resources in paginated bundle,
