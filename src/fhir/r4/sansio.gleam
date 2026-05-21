@@ -406,6 +406,17 @@ pub fn bundle_next_page_req(
   })
 }
 
+pub fn bundle_next_page_req_forgiving(
+  bundle: resources.BundleForgiving,
+  client: FhirClient,
+) -> Result(Request(Option(Json)), Nil) {
+  result.try(list.find(bundle.link, fn(l) { l.relation == "next" }), fn(link) {
+    result.try(uri.parse(link.url), fn(uri) {
+      Ok(Request(..client.basereq, path: uri.path, query: uri.query))
+    })
+  })
+}
+
 pub type GroupedResources {
   GroupedResources(
     account: List(resources.Account),
