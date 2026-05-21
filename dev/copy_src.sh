@@ -12,7 +12,7 @@ cp generated_fhir/r4b/complex_types.gleam   ../fhir_r4b/src/fhir/r4b/complex_typ
 cp generated_fhir/r4b/resources.gleam       ../fhir_r4b/src/fhir/r4b/resources.gleam
 cp generated_fhir/r4b/sansio.gleam          ../fhir_r4b/src/fhir/r4b/sansio.gleam
 cp generated_fhir/r4b/valuesets.gleam       ../fhir_r4b/src/fhir/r4b/valuesets.gleam
-cp generated_fhir/r4b/search_params.gleam   ../fhir/r4b/search_params.gleam
+cp generated_fhir/r4b/search_params.gleam   ../fhir_r4b/src/fhir/r4b/search_params.gleam
 cp generated_fhir/r4b/client_httpc.gleam    ../fhir_r4b_client_httpc/src/fhir/r4b/client_httpc.gleam
 cp generated_fhir/r4b/client_rsvp.gleam     ../fhir_r4b_client_rsvp/src/fhir/r4b/client_rsvp.gleam
 
@@ -21,7 +21,7 @@ cp generated_fhir/r4us/complex_types.gleam   ../fhir_r4us/src/fhir/r4us/complex_
 cp generated_fhir/r4us/resources.gleam       ../fhir_r4us/src/fhir/r4us/resources.gleam
 cp generated_fhir/r4us/sansio.gleam          ../fhir_r4us/src/fhir/r4us/sansio.gleam
 cp generated_fhir/r4us/valuesets.gleam       ../fhir_r4us/src/fhir/r4us/valuesets.gleam
-cp generated_fhir/r4us/search_params.gleam   ../fhir/r4us/search_params.gleam
+cp generated_fhir/r4us/search_params.gleam   ../fhir_r4us/src/fhir/r4us/search_params.gleam
 cp generated_fhir/r4us/client_httpc.gleam    ../fhir_r4us_client_httpc/src/fhir/r4us/client_httpc.gleam
 cp generated_fhir/r4us/client_rsvp.gleam     ../fhir_r4us_client_rsvp/src/fhir/r4us/client_rsvp.gleam
 
@@ -30,7 +30,7 @@ cp generated_fhir/r4p/complex_types.gleam   ../fhir_r4p/src/fhir/r4p/complex_typ
 cp generated_fhir/r4p/resources.gleam       ../fhir_r4p/src/fhir/r4p/resources.gleam
 cp generated_fhir/r4p/sansio.gleam          ../fhir_r4p/src/fhir/r4p/sansio.gleam
 cp generated_fhir/r4p/valuesets.gleam       ../fhir_r4p/src/fhir/r4p/valuesets.gleam
-cp generated_fhir/r4p/search_params.gleam   ../fhir/r4p/search_params.gleam
+cp generated_fhir/r4p/search_params.gleam   ../fhir_r4p/src/fhir/r4p/search_params.gleam
 cp generated_fhir/r4p/client_httpc.gleam    ../fhir_r4p_client_httpc/src/fhir/r4p/client_httpc.gleam
 cp generated_fhir/r4p/client_rsvp.gleam     ../fhir_r4p_client_rsvp/src/fhir/r4p/client_rsvp.gleam
 
@@ -39,6 +39,6 @@ cp generated_fhir/r5/complex_types.gleam   ../fhir_r5/src/fhir/r5/complex_types.
 cp generated_fhir/r5/resources.gleam       ../fhir_r5/src/fhir/r5/resources.gleam
 cp generated_fhir/r5/sansio.gleam          ../fhir_r5/src/fhir/r5/sansio.gleam
 cp generated_fhir/r5/valuesets.gleam       ../fhir_r5/src/fhir/r5/valuesets.gleam
-cp generated_fhir/r5/search_params.gleam   ../fhir/r5/search_params.gleam
+cp generated_fhir/r5/search_params.gleam   ../fhir_r5/src/fhir/r5/search_params.gleam
 cp generated_fhir/r5/client_httpc.gleam    ../fhir_r5_client_httpc/src/fhir/r5/client_httpc.gleam
 cp generated_fhir/r5/client_rsvp.gleam     ../fhir_r5_client_rsvp/src/fhir/r5/client_rsvp.gleam

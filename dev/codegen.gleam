@@ -3568,6 +3568,7 @@ fn add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
           "entry: List(BundleEntryForgiving),",
         )
 
+      let decoder_success = decoder_success <> "), \"resourceType\")"
       let decoder =
         normal_decoder
         |> string.replace(
@@ -3583,22 +3584,12 @@ fn add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
           "decode.success(BundleForgiving(",
         )
         |> string.replace(
-          "decode.failure(bundle_new(type_:), \"resourceType\")",
-          "decode.failure(BundleForgiving("
-            <> decoder_success
-            <> "), \"resourceType\")",
-        )
-        |> string.replace(
-          "decode.failure(bundle_new(type_:,), \"resourceType\")",
-          "decode.failure(BundleForgiving("
-            <> decoder_success
-            <> "), \"resourceType\")",
-        )
-        |> string.replace(
           "decode.failure(bundle_new(type_:, ), \"resourceType\")",
-          "decode.failure(BundleForgiving("
-            <> decoder_success
-            <> "), \"resourceType\")",
+          "decode.failure(BundleForgiving(" <> decoder_success,
+        )
+        |> string.replace(
+          "decode.failure(bundle_new(), \"resourceType\")",
+          "decode.failure(BundleForgiving(" <> decoder_success,
         )
 
       typ <> "\n" <> decoder
