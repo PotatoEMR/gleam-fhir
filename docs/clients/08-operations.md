@@ -59,10 +59,10 @@ pub fn main() {
     client_httpc.operation_any(
       params: Some(params),
       operation_name: "validate",
-      res_type: "Patient",
+      res_type: resources.RtPatient,
       res_id: None,
       res_decoder: resources.operationoutcome_decoder(),
-      return_res_type: "OperationOutcome",
+      return_res_type: resources.RtOperationoutcome,
       client:,
     )
 
@@ -72,10 +72,10 @@ pub fn main() {
     client_httpc.operation_any(
       params: None,
       operation_name: "everything",
-      res_type: "Patient",
+      res_type: resources.RtPatient,
       res_id: created.id,
       res_decoder: resources.bundle_decoder(),
-      return_res_type: "Bundle",
+      return_res_type: resources.RtBundle,
       client:,
     )
 }

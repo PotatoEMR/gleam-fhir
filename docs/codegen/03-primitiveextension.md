@@ -15,9 +15,15 @@ In the JSON, instead of field name, primitive extensions go in underscore + name
 In Gleam, `fhir/r4p` is `fhir/r4` but with primitive extensions for all fields. Primitive extensions can be generated for specific elements or all elements, see [Custom Codegen](https://hexdocs.pm/fhir/codegen/codegen.html). Again they are technically valid but much more work and may not be needed.
 
 ```gleam
+import fhir/r4p/complex_types
+import fhir/r4p/resources
+import fhir/r4p/valuesets
+import gleam/json
+import gleam/list
+import gleam/option.{Some}
+
 pub fn main() {
-  let assert Ok(name) =
-    json.parse(name_json, complex_types.humanname_decoder())
+  let assert Ok(name) = json.parse(name_json, complex_types.humanname_decoder())
   let assert Some(valuesets.NameuseOfficial) = name.use_.value
   let assert Some(family) = name.family.value
   assert family == "van Hentenryck"
@@ -55,4 +61,37 @@ pub fn main() {
   )) = display.ext
   assert display_value == "Lifelines"
 }
+
+const name_json = "
+  {
+    \"use\" : \"official\",
+    \"family\" : \"van Hentenryck\",
+    \"_family\" : {
+      \"extension\" : [{
+        \"url\" : \"http://hl7.org/fhir/StructureDefinition/humanname-own-prefix\",
+        \"valueString\" : \"van\"
+      }, {
+        \"url\" : \"http://hl7.org/fhir/StructureDefinition/humanname-own-name\",
+        \"valueString\" : \"Hentenryck\"
+      }]
+    },
+    \"given\" : [\"Karen\"]
+  }
+"
+
+const questionnaireresponse_json = "
+  {
+    \"resourceType\" : \"QuestionnaireResponse\",
+    \"status\" : \"completed\",
+    \"authored\" : \"2024-01-01T00:00:00Z\",
+    \"_questionnaire\": {
+      \"extension\": [
+        {
+          \"url\": \"http://hl7.org/fhir/StructureDefinition/display\",
+          \"valueString\": \"Lifelines\"
+        }
+      ]
+    }
+  }
+"
 ```
