@@ -5,6 +5,7 @@ import gleam/dynamic/decode
 import gleam/http
 import gleam/http/request.{type Request, Request}
 import gleam/http/response.{type Response}
+import gleam/int
 import gleam/json.{type Json}
 import gleam/list
 import gleam/option.{type Option, None, Some}
@@ -12,14 +13,6 @@ import gleam/result
 import gleam/string
 import gleam/uri
 //FHIR_VERSION_IMPORTS
-
-/// a problem with your baseurl in `fhirclient_new(baseurl)`,
-/// which you should only see if you have typo in server base url
-pub type ErrBaseUrl {
-  UriParseFail
-  UriNoHttpOrHttps
-  UriNoHost
-}
 
 /// FHIR client for sending http requests to server such as
 /// `let pat = resources.patient_read("123", client)`
@@ -34,7 +27,12 @@ pub type ErrBaseUrl {
 ///
 /// `let assert Ok(client) = sansio.fhirclient_new("127.0.0.1:8000")`
 pub type FhirClient {
-  FhirClient(baseurl: uri.Uri, basereq: Request(Option(Json)))
+  FhirClient(
+    baseurl: uri.Uri,
+    basereq: Request(Option(Json)),
+    print_sent_requests: Logging,
+    print_received_responses: Logging,
+  )
 }
 
 /// creates a new client from server base url
@@ -76,6 +74,28 @@ pub fn fhirclient_new(
   }
 }
 
+/// use SMART app access token when making requests with client
+pub fn set_access_token(client: FhirClient, token: String) -> FhirClient {
+  FhirClient(
+    ..client,
+    basereq: client.basereq
+      |> request.set_header("authorization", "Bearer " <> token),
+  )
+}
+
+/// a problem with your baseurl in `fhirclient_new(baseurl)`,
+/// which you should only see if you have typo in server base url
+pub type ErrBaseUrl {
+  UriParseFail
+  UriNoHttpOrHttps
+  UriNoHost
+}
+
+pub type Logging {
+  LoggingOn
+  LoggingOff
+}
+
 fn create_base_req(
   scheme: http.Scheme,
   host: String,
@@ -95,7 +115,12 @@ fn create_base_req(
       },
       query: None,
     )
-  FhirClient(baseurl:, basereq:)
+  FhirClient(
+    baseurl:,
+    basereq:,
+    print_sent_requests: LoggingOff,
+    print_received_responses: LoggingOff,
+  )
 }
 
 pub type ErrResp {
@@ -416,4 +441,39 @@ pub fn bundle_next_page_req_forgiving(
       Ok(Request(..client.basereq, path: uri.path, query: uri.query))
     })
   })
+}
+
+pub fn req_to_string(req: Request(Option(Json))) -> String {
+  let to_uri = req |> request.to_uri |> uri.to_string
+  let method = req.method |> http.method_to_string
+  let headers =
+    req.headers
+    |> list.map(fn(hdr) { hdr.0 <> ": " <> hdr.1 })
+    |> string.join(", ")
+
+  //kind of duplicating but want to put body at end and maybe this performs better? idk maybe doesn't matter
+  case req.body {
+    Some(body) -> [
+      "to uri:  " <> to_uri,
+      "method:  " <> method,
+      "headers: " <> headers,
+      "body:    " <> json.to_string(body),
+    ]
+    None -> [
+      "to uri:  " <> to_uri,
+      "method:  " <> method,
+      "headers: " <> headers,
+    ]
+  }
+  |> string.join("\n")
+}
+
+pub fn resp_to_string(resp: Response(String)) -> String {
+  let status = resp.status |> int.to_string
+  let headers =
+    resp.headers
+    |> list.map(fn(hdr) { hdr.0 <> ": " <> hdr.1 })
+    |> string.join(", ")
+  ["status:  " <> status, "headers: " <> headers, "body:    " <> resp.body]
+  |> string.join("\n")
 }

@@ -1,9 +1,12 @@
 fhir is a work in progress, tracking todo items at [https://github.com/PotatoEMR/gleam-fhir/issues](https://github.com/PotatoEMR/gleam-fhir/issues), if anything is incorrect, missing, hard to use, or poorly documented, please add an issue.
 
-## 0.7.0 May 6, 2026
+## 0.7.0 ???
 - add bundle_decoder_forgiving that returns errors on individual resources rather than decode failure on whole bundle
   - add search_any_forgiving that decodes response using forgiving bundle decoder 
 - remove non generic CRUD helpers in sans-io (patient read, allergyintolerance read, etc) and update client layers
+- add optional logging configuration in sans-io, and optionally print logs in clients
+- remove client type export and replace with sansio.FhirClient
+- make primitive_type time parsing helper fns private, and add public to_timestamp fns
 
 ## 0.6.0 May 6, 2026
 - split other fhir versions into separate packages, so fhir only provides r4
