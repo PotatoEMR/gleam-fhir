@@ -15,21 +15,21 @@ import gleam/time/calendar
 
 const nanoseconds_per_second: Int = 1_000_000_000
 
-pub const byte_colon: Int = 0x3A
+const byte_colon: Int = 0x3A
 
-pub const byte_minus: Int = 0x2D
+const byte_minus: Int = 0x2D
 
-pub const byte_plus: Int = 0x2B
+const byte_plus: Int = 0x2B
 
-pub const byte_dot: Int = 0x2E
+const byte_dot: Int = 0x2E
 
-pub const byte_zero: Int = 0x30
+const byte_zero: Int = 0x30
 
-pub const byte_nine: Int = 0x39
+const byte_nine: Int = 0x39
 
-pub const byte_t_uppercase: Int = 0x54
+const byte_t_uppercase: Int = 0x54
 
-pub const byte_z_uppercase: Int = 0x5A
+const byte_z_uppercase: Int = 0x5A
 
 /// part of time after decimal point
 /// where precision is number of digits after decimal point
@@ -60,7 +60,7 @@ pub type Sign {
   Minus
 }
 
-pub fn expect_byte(bytes: BitArray, expected: Int) -> Result(BitArray, Nil) {
+fn expect_byte(bytes: BitArray, expected: Int) -> Result(BitArray, Nil) {
   case bytes {
     <<byte, rest:bytes>> -> {
       case byte == expected {
@@ -72,7 +72,7 @@ pub fn expect_byte(bytes: BitArray, expected: Int) -> Result(BitArray, Nil) {
   }
 }
 
-pub fn parse_digits(
+fn parse_digits(
   from bytes: BitArray,
   count count: Int,
 ) -> Result(#(Int, BitArray), Nil) {
@@ -106,11 +106,7 @@ fn parse_digits_loop(
   }
 }
 
-pub fn validate_day(
-  year: Int,
-  month: calendar.Month,
-  day: Int,
-) -> Result(Nil, Nil) {
+fn validate_day(year: Int, month: calendar.Month, day: Int) -> Result(Nil, Nil) {
   let max_day = case month {
     calendar.January
     | calendar.March
@@ -133,21 +129,21 @@ pub fn validate_day(
   }
 }
 
-pub fn validate_hour(hour: Int) -> Result(Nil, Nil) {
+fn validate_hour(hour: Int) -> Result(Nil, Nil) {
   case hour >= 0 && hour <= 23 {
     True -> Ok(Nil)
     False -> Error(Nil)
   }
 }
 
-pub fn validate_minute(minute: Int) -> Result(Nil, Nil) {
+fn validate_minute(minute: Int) -> Result(Nil, Nil) {
   case minute >= 0 && minute <= 59 {
     True -> Ok(Nil)
     False -> Error(Nil)
   }
 }
 
-pub fn validate_second(second: Int) -> Result(Nil, Nil) {
+fn validate_second(second: Int) -> Result(Nil, Nil) {
   // Leap seconds allowed per FHIR spec
   case second >= 0 && second <= 60 {
     True -> Ok(Nil)
@@ -155,7 +151,7 @@ pub fn validate_second(second: Int) -> Result(Nil, Nil) {
   }
 }
 
-pub fn parse_time_of_day(
+fn parse_time_of_day(
   bytes: BitArray,
 ) -> Result(#(Int, Int, Int, Option(NanosecWithPrecision), BitArray), Nil) {
   use #(hour, bytes) <- result.try(parse_digits(from: bytes, count: 2))
@@ -188,7 +184,7 @@ pub fn time_of_day_to_string(
   ])
 }
 
-pub fn parse_optional_fraction_as_nanoseconds(
+fn parse_optional_fraction_as_nanoseconds(
   bytes: BitArray,
 ) -> Result(#(Option(NanosecWithPrecision), BitArray), Nil) {
   case bytes {
@@ -256,7 +252,7 @@ fn parse_fraction_as_nanoseconds_loop(
   }
 }
 
-pub fn parse_timezone(bytes: BitArray) -> Result(#(Timezone, BitArray), Nil) {
+fn parse_timezone(bytes: BitArray) -> Result(#(Timezone, BitArray), Nil) {
   case bytes {
     <<byte, rest:bytes>> -> {
       case byte == byte_z_uppercase {
@@ -322,11 +318,11 @@ pub fn timezone_to_string(tz: Timezone) -> String {
   }
 }
 
-pub fn n2(d: Int) -> String {
+fn n2(d: Int) -> String {
   int.to_string(d) |> string.pad_start(2, "0")
 }
 
-pub fn n4(d: Int) -> String {
+fn n4(d: Int) -> String {
   int.to_string(d) |> string.pad_start(4, "0")
 }
 
