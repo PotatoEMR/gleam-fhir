@@ -5,7 +5,7 @@ fhir is a work in progress, tracking todo items at [https://github.com/PotatoEMR
   - add search_any_forgiving that decodes response using forgiving bundle decoder 
 - remove non generic CRUD helpers in sans-io (patient read, allergyintolerance read, etc) and update client layers
 - add optional logging configuration in sans-io, and optionally print logs in clients
-- remove client type export and replace with sansio.FhirClient
+- remove client_httpc.FhirClient and client_rsvp.FhirClient type aliases in favor of sansio.FhirClient
 - make primitive_type time parsing helper fns private
 
 ## 0.6.0 May 6, 2026
