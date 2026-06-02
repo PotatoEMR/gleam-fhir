@@ -12,3 +12,8 @@ gleam run -m codegen r4 custom=https://build.fhir.org/ig/HL7/US-Core/package.tgz
 beyond that you may have to mess with code yourself, not sure how profiles other than r4 come
 
 valueset expansions from hl7.org/fhir/r4/hl7.fhir.r4.expansions.tgz
+
+because we publish a bunch of example packages for fhir versions and http clients, it's a bit laborious, not terrible but you do have to run a bunch of scripts in order so ok maybe a bit terrible:
+./dev/git_push_all_cores.sh
+./dev/client_deps_from_repo.sh
+./dev/git_push_all_clients.sh

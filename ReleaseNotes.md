@@ -1,6 +1,6 @@
 fhir is a work in progress, tracking todo items at [https://github.com/PotatoEMR/gleam-fhir/issues](https://github.com/PotatoEMR/gleam-fhir/issues), if anything is incorrect, missing, hard to use, or poorly documented, please add an issue.
 
-## 0.7.0 June 1, 2026
+## 0.8.0 June 1, 2026
 - add bundle_decoder_forgiving that returns errors on individual resources rather than decode failure on whole bundle
   - add search_any_forgiving that decodes response using forgiving bundle decoder 
 - remove non generic CRUD helpers in sans-io (patient read, allergyintolerance read, etc) and update client layers
