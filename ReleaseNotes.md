@@ -7,6 +7,7 @@ fhir is a work in progress, tracking todo items at [https://github.com/PotatoEMR
 - add optional logging configuration in sans-io, and optionally print logs in clients
 - remove client_httpc.FhirClient and client_rsvp.FhirClient type aliases in favor of sansio.FhirClient
 - make primitive_type time parsing helper fns private
+- update rsvp client dependency rsvp 1.2.0 => 2.0.0
 
 ## 0.6.0 May 6, 2026
 - split other fhir versions into separate packages, so fhir only provides r4
