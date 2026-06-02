@@ -2,20 +2,20 @@
 
 cd ../fhir_r4b
 git add .
-git commit -m "0.7.0 git ref"
+git commit -m "0.7.0 ready?"
 git push
 
 cd ../fhir_r4us
 git add .
-git commit -m "0.7.0 git ref"
+git commit -m "0.7.0 ready?"
 git push
 
 cd ../fhir_r4p
 git add .
-git commit -m "0.7.0 git ref"
+git commit -m "0.7.0 ready?"
 git push
 
 cd ../fhir_r5
 git add .
-git commit -m "0.7.0 git ref"
+git commit -m "0.7.0 ready?"
 git push

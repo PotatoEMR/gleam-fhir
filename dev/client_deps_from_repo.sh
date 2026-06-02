@@ -5,11 +5,10 @@ set -e
 
 cd ..
 
-# Pinned commit SHAs of base repos' main branches
-SHA_R4B=3954d526b333e694a6eddb5a86c6a38b7fcc9152
-SHA_R4P=8e1a07bc565bddf5fdd546910b58464031fa2575
-SHA_R4US=097125878c770ce1604b676b98997c9fac65688e
-SHA_R5=6851ff903447f7e185893c39146eef0dfc57c315
+SHA_R4B=$(git -C fhir_r4b rev-parse HEAD)
+SHA_R4P=$(git -C fhir_r4p rev-parse HEAD)
+SHA_R4US=$(git -C fhir_r4us rev-parse HEAD)
+SHA_R5=$(git -C fhir_r5 rev-parse HEAD)
 
 cd fhir_client_httpc
 FHIR_VERSION=$(sed -n 's/^version = "\(.*\)"/\1/p' gleam.toml)
