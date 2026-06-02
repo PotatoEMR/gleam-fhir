@@ -449,17 +449,19 @@ pub fn req_to_string(req: Request(Option(Json))) -> String {
   let headers =
     req.headers
     |> list.map(fn(hdr) { hdr.0 <> ": " <> hdr.1 })
-    |> string.join(", ")
+    |> string.join("; ")
 
   //kind of duplicating but want to put body at end and maybe this performs better? idk maybe doesn't matter
   case req.body {
     Some(body) -> [
+      "send request:",
       "to uri:  " <> to_uri,
       "method:  " <> method,
       "headers: " <> headers,
       "body:    " <> json.to_string(body),
     ]
     None -> [
+      "send request:",
       "to uri:  " <> to_uri,
       "method:  " <> method,
       "headers: " <> headers,
@@ -473,7 +475,12 @@ pub fn resp_to_string(resp: Response(String)) -> String {
   let headers =
     resp.headers
     |> list.map(fn(hdr) { hdr.0 <> ": " <> hdr.1 })
-    |> string.join(", ")
-  ["status:  " <> status, "headers: " <> headers, "body:    " <> resp.body]
+    |> string.join("; ")
+  [
+    "receive response:",
+    "status:  " <> status,
+    "headers: " <> headers,
+    "body:    " <> resp.body,
+  ]
   |> string.join("\n")
 }
