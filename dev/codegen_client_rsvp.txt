@@ -15,7 +15,7 @@ import lustre/effect.{type Effect}
 import rsvp
 
 pub type Err {
-  ErrRsvp(err: rsvp.Error)
+  ErrRsvp(err: rsvp.Error(String))
   ErrSansio(err: sansio.ErrResp)
 }
 
@@ -86,7 +86,7 @@ pub fn any_delete(
     sansio.LoggingOn -> req |> sansio.req_to_string |> io.println
     sansio.LoggingOff -> Nil
   }
-  let handle_read = fn(resp_res: Result(Response(String), rsvp.Error)) {
+  let handle_read = fn(resp_res: Result(Response(String), rsvp.Error(String))) {
     case client.print_received_responses {
       sansio.LoggingOn ->
         case resp_res {
@@ -216,7 +216,7 @@ fn sendreq_handleresponse_andprocess(
     sansio.LoggingOn -> req |> sansio.req_to_string |> io.println
     sansio.LoggingOff -> Nil
   }
-  let handle_read = fn(resp_res: Result(Response(String), rsvp.Error)) {
+  let handle_read = fn(resp_res: Result(Response(String), rsvp.Error(String))) {
     case client.print_received_responses {
       sansio.LoggingOn ->
         case resp_res {
@@ -245,7 +245,7 @@ fn sendreq_handleresponse_andprocess(
   |> rsvp.send(handler)
 }
 
-fn rsvp_err_to_string(err: rsvp.Error) -> String {
+fn rsvp_err_to_string(err: rsvp.Error(String)) -> String {
   case err {
     rsvp.BadBody -> "invalid http response body"
     rsvp.BadUrl(url) -> "invalid url: " <> url
