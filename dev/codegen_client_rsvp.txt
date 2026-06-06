@@ -34,7 +34,7 @@ fn any_create(
   handle_response: fn(Result(r, Err)) -> a,
 ) -> Effect(a) {
   let req = sansio.any_create_req(resource, res_type, client)
-  sendreq_handleresponse(req, resource_dec, res_type, handle_response, client)
+  sendreq_handleresponse(req, resource_dec, handle_response, client)
 }
 
 fn any_read(
@@ -45,7 +45,7 @@ fn any_read(
   handle_response: fn(Result(r, Err)) -> a,
 ) -> Effect(a) {
   let req = sansio.any_read_req(id, res_type, client)
-  sendreq_handleresponse(req, resource_dec, res_type, handle_response, client)
+  sendreq_handleresponse(req, resource_dec, handle_response, client)
 }
 
 fn any_update(
@@ -59,18 +59,7 @@ fn any_update(
   let req = sansio.any_update_req(id, resource, res_type, client)
   case req {
     Ok(req) ->
-      Ok(sendreq_handleresponse(
-        req,
-        resource_dec,
-        res_type,
-        handle_response,
-        client,
-      ))
-    // from rsvp's point of view it would make more sense to split sansio error into 2 separate errors
-    // since user creates request and gets effect or error, then sends and gets response or error
-    // ie you know first error must be creating error, and second must be http or parsing error
-    // that said, currently you can only get error creating request from calling update/delete on resource with no id
-    // so maybe it's easy to ignore all of this
+      Ok(sendreq_handleresponse(req, resource_dec, handle_response, client))
     Error(_) -> Error(ErrNoId)
   }
 }
@@ -99,7 +88,7 @@ pub fn any_delete(
     handle_response(case resp_res {
       Error(err) -> Error(ErrRsvp(err))
       Ok(resp) ->
-        case sansio.http_or_operationoutcome_resp(resp) {
+        case sansio.delete_response(resp) {
           Ok(oo_or_http) -> Ok(oo_or_http)
           Error(err) -> Error(ErrSansio(err))
         }
@@ -125,7 +114,6 @@ pub fn search_any(
   sendreq_handleresponse(
     req,
     resources.bundle_decoder(),
-    resources.RtBundle,
     handle_response,
     client,
   )
@@ -143,7 +131,6 @@ pub fn search_any_forgiving(
   sendreq_handleresponse(
     req,
     resources.bundle_decoder_forgiving(),
-    resources.RtBundle,
     handle_response,
     client,
   )
@@ -156,19 +143,12 @@ pub fn operation_any(
   res_type res_type: resources.ResourceType,
   res_id res_id: Option(String),
   res_decoder res_decoder: Decoder(res),
-  return_res_type return_res_type: resources.ResourceType,
   client client: FhirClient,
   handle_response handle_response: fn(Result(res, Err)) -> msg,
 ) -> Effect(msg) {
   let req =
     sansio.any_operation_req(res_type, res_id, operation_name, params, client)
-  sendreq_handleresponse(
-    req,
-    res_decoder,
-    return_res_type,
-    handle_response,
-    client,
-  )
+  sendreq_handleresponse(req, res_decoder, handle_response, client)
 }
 
 pub fn batch(
@@ -181,7 +161,6 @@ pub fn batch(
   sendreq_handleresponse(
     req,
     resources.bundle_decoder(),
-    resources.RtBundle,
     handle_response,
     client,
   )
@@ -190,14 +169,12 @@ pub fn batch(
 fn sendreq_handleresponse(
   req: Request(Option(Json)),
   res_dec: Decoder(r),
-  res_type: resources.ResourceType,
   handle_response: fn(Result(r, Err)) -> a,
   client: FhirClient,
 ) -> Effect(a) {
   sendreq_handleresponse_andprocess(
     req,
     res_dec,
-    res_type,
     handle_response,
     fn(a) { a },
     client,
@@ -207,7 +184,6 @@ fn sendreq_handleresponse(
 fn sendreq_handleresponse_andprocess(
   req: Request(Option(Json)),
   res_dec: Decoder(r),
-  res_type: resources.ResourceType,
   handle_response: fn(Result(b, Err)) -> a,
   process_res: fn(r) -> b,
   client: FhirClient,
@@ -229,7 +205,7 @@ fn sendreq_handleresponse_andprocess(
     handle_response(case resp_res {
       Error(err) -> Error(ErrRsvp(err))
       Ok(resp_res) -> {
-        case sansio.any_resp(resp_res, res_dec, res_type) {
+        case sansio.any_response(resp_res, res_dec) {
           Ok(res) -> Ok(process_res(res))
           Error(err) -> Error(ErrSansio(err))
         }

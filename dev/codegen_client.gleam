@@ -471,7 +471,7 @@ pub fn gen(
       }),
     )
   let grouped_type_new =
-    "pub fn groupedresources_new(){GroupedResources("
+    "pub fn groupedresources_new() -> GroupedResources {GroupedResources("
     <> grouped_type_new
     <> ")}"
 
@@ -496,12 +496,14 @@ pub fn gen(
   // "r4.ResourceAccount(r) ->
   //   GroupedResources(..acc, account: [r, ..acc.account])"
   let bundle_to_gt =
-    "pub fn bundle_to_groupedresources(from bundle: resources.Bundle) {
+    "pub fn bundle_to_groupedresources(from bundle: resources.Bundle) -> GroupedResources {
       list.fold(from: groupedresources_new(), over: bundle.entry, with: fn(acc, entry) {
         case entry.resource {
           None -> acc
           Some(res) ->
-            case res {" <> bundle_to_gt <> "
+            case res {"
+    <> bundle_to_gt
+    <> "
             _ -> acc
             }
         }

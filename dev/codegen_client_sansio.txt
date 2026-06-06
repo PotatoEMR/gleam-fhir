@@ -141,7 +141,7 @@ pub fn any_create_req(
   resource_json: Json,
   res_type: resources.ResourceType,
   client: FhirClient,
-) {
+) -> Request(Option(Json)) {
   client.basereq
   |> request.set_path(
     string.concat([
@@ -160,7 +160,7 @@ pub fn any_read_req(
   id: String,
   res_type: resources.ResourceType,
   client: FhirClient,
-) {
+) -> Request(Option(Json)) {
   client.basereq
   |> request.set_path(
     string.concat([
@@ -278,84 +278,56 @@ pub fn any_operation_req(
 }
 
 /// decodes an Ok(resource) of given decoder type
-/// or Error(ErrOperationoutcome(operationoutcome))
-///
-/// if resp.body is not a JSON, returns Error(ErrNotJson(resp))
-pub fn any_resp(
+/// or an Error:
+/// - decoder error attempting to decode resource
+/// - Operationoutcome error
+/// - non json http response
+pub fn any_response(
   resp: Response(String),
-  resource_dec: decode.Decoder(a),
-  resource_type: resources.ResourceType,
-) -> Result(a, ErrResp) {
-  let resource_type = resources.resource_type_to_string(resource_type)
-  case
-    resp.body
-    |> json.parse({
-      use tag <- decode.field("resourceType", decode.string)
-      case tag == resource_type {
-        True -> resource_dec |> decode.map(Ok)
-        False ->
-          case tag == "OperationOutcome" {
-            True ->
-              resources.operationoutcome_decoder()
-              |> decode.map(fn(oo) { Error(ErrOperationoutcome(oo)) })
-            // if resourceType tag is neither desired res type or oo,
-            // don't even bother trying to decode
-            False ->
-              decode.failure(Error(ErrNotJson(resp)), "")
-              |> decode.map_errors(fn(_errs) {
-                [
-                  decode.DecodeError(
-                    expected: resource_type <> " or OperationOutcome",
-                    found: tag,
-                    path: ["resourceType"],
-                  ),
-                ]
-              })
-          }
-      }
-    })
-  {
-    Ok(decoded) -> decoded
-    Error(json_err) ->
-      case json_err {
-        json.UnableToDecode(_) -> Error(ErrParseJson(json_err))
-        _ -> Error(ErrNotJson(resp))
-      }
+  resource_decoder: decode.Decoder(resource_type),
+) -> Result(resource_type, ErrResp) {
+  case resp.status < 300 {
+    True ->
+      resp.body
+      |> json.parse(resource_decoder)
+      |> result.map_error(ErrParseJson)
+    False ->
+      Error(case resp.body |> json.parse(resources.operationoutcome_decoder()) {
+        Ok(decoded_oo) -> ErrOperationoutcome(decoded_oo)
+        Error(_) -> ErrNotJson(resp)
+      })
+    // here if operationoutcome fails to decode, we discard the error
+    // and instead return response with body as string
+    // technically, body might have been a malformed operationoutcome
+    // which we could maybe check for with Content-Type header
+    // and if it's application/fhir+json then keep operationdecoder outcome
+    // that seems fiddly though whereas this is pretty clean
+    // and I mean if you have a literal malformed operationoutcome error idk
+    // it's an error on an error what are you even going to do with that
+  }
+}
+
+//
+pub fn delete_response(
+  resp: Response(String),
+) -> Result(OperationoutcomeOrHTTP, ErrResp) {
+  case resp.status < 300 {
+    True ->
+      Ok(case resp.body |> json.parse(resources.operationoutcome_decoder()) {
+        Ok(decoded_oo) -> SuccessOperationoutcome(decoded_oo)
+        Error(_) -> SuccessHttpResponse(response.Response(..resp, body: Nil))
+      })
+    False ->
+      Error(case resp.body |> json.parse(resources.operationoutcome_decoder()) {
+        Ok(decoded_oo) -> ErrOperationoutcome(decoded_oo)
+        Error(_) -> ErrNotJson(resp)
+      })
   }
 }
 
 pub type OperationoutcomeOrHTTP {
   SuccessOperationoutcome(resources.Operationoutcome)
-  SuccessHttpResponse(Response(String))
-}
-
-/// returns Ok if http status code 200-299, otherwise Error,
-/// and can return an OperationOutcome or HTTP response,
-/// depending on if server sense OperationOutcome or empty body
-pub fn http_or_operationoutcome_resp(
-  resp: Response(String),
-) -> Result(OperationoutcomeOrHTTP, ErrResp) {
-  case resp.body {
-    "" ->
-      case resp.status < 300 {
-        True -> Ok(SuccessHttpResponse(resp))
-        False -> Error(ErrNotJson(resp))
-      }
-    _ -> {
-      case resp.body |> json.parse(resources.operationoutcome_decoder()) {
-        Ok(decoded_oo) ->
-          case resp.status < 300 {
-            True -> Ok(SuccessOperationoutcome(decoded_oo))
-            False -> Error(ErrOperationoutcome(decoded_oo))
-          }
-        Error(json_err) ->
-          case json_err {
-            json.UnableToDecode(_) -> Error(ErrParseJson(json_err))
-            _ -> Error(ErrNotJson(resp))
-          }
-      }
-    }
-  }
+  SuccessHttpResponse(Response(Nil))
 }
 
 pub type PostBundleType {
@@ -370,7 +342,7 @@ pub fn batch_req(
   reqs: List(Request(Option(Json))),
   bundle_type: PostBundleType,
   client: FhirClient,
-) {
+) -> Request(Option(Json)) {
   // each request in list already has serialized json body
   // so we have to construct bundle json as json
   // rather than type safe bundle Bundle variable then serialize

@@ -35,7 +35,7 @@ fn any_create(
   client: FhirClient,
 ) -> Result(r, Err) {
   let req = sansio.any_create_req(resource, res_type, client)
-  sendreq_parseresource(req, resource_dec, res_type, client)
+  sendreq_parseresource(req, resource_dec, client)
 }
 
 fn any_read(
@@ -45,7 +45,7 @@ fn any_read(
   resource_dec: Decoder(a),
 ) -> Result(a, Err) {
   let req = sansio.any_read_req(id, res_type, client)
-  sendreq_parseresource(req, resource_dec, res_type, client)
+  sendreq_parseresource(req, resource_dec, client)
 }
 
 fn any_update(
@@ -57,7 +57,7 @@ fn any_update(
 ) -> Result(r, Err) {
   let req = sansio.any_update_req(id, resource, res_type, client)
   case req {
-    Ok(req) -> sendreq_parseresource(req, res_dec, res_type, client)
+    Ok(req) -> sendreq_parseresource(req, res_dec, client)
     Error(_) -> Error(ErrSansio(ErrNoId))
     //can have error preparing update request if resource has no id
   }
@@ -72,7 +72,7 @@ pub fn any_delete(
   case httpc.send(req |> request.set_body("")) {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
-      case sansio.http_or_operationoutcome_resp(resp) {
+      case sansio.delete_response(resp) {
         Ok(oo_or_http) -> Ok(oo_or_http)
         Error(err) ->
           Error(
@@ -93,11 +93,7 @@ pub fn search_any(
   client: FhirClient,
 ) -> Result(resources.Bundle, Err) {
   sansio.any_search_req(search_string, res_type, client)
-  |> sendreq_parseresource(
-    resources.bundle_decoder(),
-    resources.RtBundle,
-    client,
-  )
+  |> sendreq_parseresource(resources.bundle_decoder(), client)
 }
 
 /// get all resources in paginated bundle,
@@ -137,12 +133,7 @@ fn all_pages_loop(
         Error(_) -> Ok(#(curr_bundle, acc_bundles))
         Ok(req) -> {
           let next =
-            sendreq_parseresource(
-              req,
-              resources.bundle_decoder(),
-              resources.RtBundle,
-              client,
-            )
+            sendreq_parseresource(req, resources.bundle_decoder(), client)
           all_pages_loop(next, acc_bundles, client)
         }
       }
@@ -184,7 +175,6 @@ fn all_pages_loop_forgiving(
             sendreq_parseresource(
               req,
               resources.bundle_decoder_forgiving(),
-              resources.RtBundle,
               client,
             )
           all_pages_loop_forgiving(next, acc_bundles, client)
@@ -202,11 +192,7 @@ pub fn search_any_forgiving(
   client: FhirClient,
 ) -> Result(resources.BundleForgiving, Err) {
   sansio.any_search_req(search_string, res_type, client)
-  |> sendreq_parseresource(
-    resources.bundle_decoder_forgiving(),
-    resources.RtBundle,
-    client,
-  )
+  |> sendreq_parseresource(resources.bundle_decoder_forgiving(), client)
 }
 
 /// run any operation string on any resource type, optionally using Parameters
@@ -216,12 +202,11 @@ pub fn operation_any(
   res_type res_type: resources.ResourceType,
   res_id res_id: Option(String),
   res_decoder res_decoder: Decoder(res),
-  return_res_type return_res_type: resources.ResourceType,
   client client: FhirClient,
 ) -> Result(res, Err) {
   let req =
     sansio.any_operation_req(res_type, res_id, operation_name, params, client)
-  sendreq_parseresource(req, res_decoder, return_res_type, client)
+  sendreq_parseresource(req, res_decoder, client)
 }
 
 pub fn batch(
@@ -230,18 +215,12 @@ pub fn batch(
   client: FhirClient,
 ) -> Result(resources.Bundle, Err) {
   let req = sansio.batch_req(reqs, bundle_type, client)
-  sendreq_parseresource(
-    req,
-    resources.bundle_decoder(),
-    resources.RtBundle,
-    client,
-  )
+  sendreq_parseresource(req, resources.bundle_decoder(), client)
 }
 
 fn sendreq_parseresource(
   req: Request(Option(Json)),
   res_dec: Decoder(r),
-  res_type: resources.ResourceType,
   client: sansio.FhirClient,
 ) -> Result(r, Err) {
   case client.print_sent_requests {
@@ -266,7 +245,7 @@ fn sendreq_parseresource(
   case resp {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
-      case sansio.any_resp(resp, res_dec, res_type) {
+      case sansio.any_response(resp, res_dec) {
         Ok(resource) -> Ok(resource)
         Error(err) ->
           Error(
