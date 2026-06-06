@@ -19,6 +19,13 @@ pub type Err {
   ErrSansio(err: sansio.ErrResp)
 }
 
+pub fn err_to_string(err: Err) -> String {
+  case err {
+    ErrRsvp(err:) -> rsvp_err_to_string(err)
+    ErrSansio(err:) -> sansio.err_resp_to_string(err)
+  }
+}
+
 /// When using rsvp, if you attempt update or delete a resource with no id,
 /// we do not even send the request or give you an effect to use.
 /// Instead of an effect you get just Error(ErrNoId)

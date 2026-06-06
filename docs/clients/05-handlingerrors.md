@@ -6,7 +6,7 @@ Attempting to get a resource from a FHIR server over http has a number of possib
 
 Note FHIR servers will return an OperationOutcome resource with details for an error, such as trying to read a patient that does not exist on the server, so `ErrOperationoutcome` is a sansio error variant. A mostly valid FHIR JSON that fails to decode will return the JSON decode error(s), such as missing `1..1` AllergyIntolerance.patient element. Other server errors such as nginx internal server error will return the whole http response including http status, headers, and body string.
 
-Many of the ways an operation can fail probably don't matter, but they're all there if needed, and it probably is worth handling the `OperationOutcome` case.
+Many of the ways an operation can fail probably don't matter, but they're all there if needed, and it probably is worth handling the `OperationOutcome` case. `client_httpc.err_to_string` can similarly convert error to string, but may lack context and not be appropriate for showing to users.
 
 ```gleam
 import fhir/r4/client_httpc

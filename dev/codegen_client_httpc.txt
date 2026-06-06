@@ -28,6 +28,20 @@ pub type ErrFromSansio {
   ErrNoId
 }
 
+pub fn err_to_string(err: Err) -> String {
+  case err {
+    ErrSansio(err:) ->
+      case err {
+        ErrParseJson(err) -> sansio.err_resp_to_string(sansio.ErrParseJson(err))
+        ErrServer(err) -> sansio.err_resp_to_string(sansio.ErrServer(err))
+        ErrOperationoutcome(err) ->
+          sansio.err_resp_to_string(sansio.ErrOperationoutcome(err))
+        ErrNoId -> sansio.err_req_to_string
+      }
+    ErrHttpc(err:) -> http_err_to_string(err)
+  }
+}
+
 fn any_create(
   resource: Json,
   res_type: resources.ResourceType,
