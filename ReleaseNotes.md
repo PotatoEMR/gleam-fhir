@@ -4,6 +4,7 @@ fhir is a work in progress, tracking todo items at [https://github.com/PotatoEMR
 - rename ErrNotJson to ErrServer
 - change response parsing to first check http status code instead of body
   - so for example status 401 with empty body will return ErrServer rather than ErrParseJson
+- replace any_resp with any_response, which no longer takes resource type parameter (still takes decoder and uses that for resource type)
 - add error to string functions
 
 ## 0.8.0 June 1, 2026
