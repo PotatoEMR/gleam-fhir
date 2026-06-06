@@ -1,5 +1,8 @@
 ./dev/gen_everything.sh
+gleam format
 ./dev/copy_src.sh
+
+or ./dev/actual_everything_final_real.sh
 
 gleam run -m codegen r4
 

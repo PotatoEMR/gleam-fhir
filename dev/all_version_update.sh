@@ -1,0 +1,15 @@
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r4b/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r4us/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r4p/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r5/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_client_httpc/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_client_rsvp/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r4b_client_httpc/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r4b_client_rsvp/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r4p_client_httpc/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r4p_client_rsvp/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r4us_client_httpc/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r4us_client_rsvp/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r5_client_httpc/gleam.toml
+sed -i 's/^version = "0.8.0"$/version = "0.9.0"/' ../fhir_r5_client_rsvp/gleam.toml

@@ -2,20 +2,20 @@
 
 cd ../fhir_r4b
 git add .
-git commit -m "0.8.0"
+git commit -m "0.9.0"
 git push
 
 cd ../fhir_r4us
 git add .
-git commit -m "0.8.0"
+git commit -m "0.9.0"
 git push
 
 cd ../fhir_r4p
 git add .
-git commit -m "0.8.0"
+git commit -m "0.9.0"
 git push
 
 cd ../fhir_r5
 git add .
-git commit -m "0.8.0"
+git commit -m "0.9.0"
 git push

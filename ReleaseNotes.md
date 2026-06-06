@@ -1,12 +1,18 @@
 fhir is a work in progress, tracking todo items at [https://github.com/PotatoEMR/gleam-fhir/issues](https://github.com/PotatoEMR/gleam-fhir/issues), if anything is incorrect, missing, hard to use, or poorly documented, please add an issue.
 
+## 0.9.0 June 6, 2026
+- rename ErrNotJson to ErrServer
+- change response parsing to first check http status code instead of body
+  - so for example status 401 with empty body will return ErrServer rather than ErrParseJson
+- add error to string functions
+
 ## 0.8.0 June 1, 2026
 - add bundle_decoder_forgiving that returns errors on individual resources rather than decode failure on whole bundle
   - add search_any_forgiving that decodes response using forgiving bundle decoder 
 - remove non generic CRUD helpers in sans-io (patient read, allergyintolerance read, etc) and update client layers
 - add optional logging configuration in sans-io, and optionally print logs in clients
 - remove client_httpc.FhirClient and client_rsvp.FhirClient type aliases in favor of sansio.FhirClient
-- make primitive_type time parsing helper fns private
+- make primitive_type time parsing helper functions private
 - update rsvp client dependency rsvp 1.2.0 => 2.0.0
 
 ## 0.6.0 May 6, 2026
