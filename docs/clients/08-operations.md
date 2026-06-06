@@ -8,6 +8,7 @@ In Gleam, `operation_any` is flexible but makes you construct the operation your
 import fhir/r4/client_httpc
 import fhir/r4/complex_types as ct
 import fhir/r4/resources
+import fhir/r4/sansio
 import fhir/r4/valuesets
 import gleam/option.{None, Some}
 
@@ -44,8 +45,7 @@ pub fn main() {
       ),
     )
 
-  let assert Ok(client) =
-    client_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
+  let assert Ok(client) = sansio.fhirclient_new("https://hapi.fhir.org/baseR4")
 
   let params =
     resources.Parameters(..resources.parameters_new(), parameter: [
@@ -62,7 +62,6 @@ pub fn main() {
       res_type: resources.RtPatient,
       res_id: None,
       res_decoder: resources.operationoutcome_decoder(),
-      return_res_type: resources.RtOperationoutcome,
       client:,
     )
 
@@ -75,7 +74,6 @@ pub fn main() {
       res_type: resources.RtPatient,
       res_id: created.id,
       res_decoder: resources.bundle_decoder(),
-      return_res_type: resources.RtBundle,
       client:,
     )
 }

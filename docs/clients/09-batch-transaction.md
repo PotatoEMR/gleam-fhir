@@ -31,7 +31,7 @@ pub fn main() {
       gender: Some(valuesets.AdministrativegenderMale),
     )
 
-  let assert Ok(client) = client_httpc.fhirclient_new("r4.smarthealthit.org")
+  let assert Ok(client) = sansio.fhirclient_new("r4.smarthealthit.org")
 
   // When processing a batch or transaction, a server MAY
   // choose to honor existing logical ids

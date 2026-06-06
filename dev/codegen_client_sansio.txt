@@ -126,16 +126,59 @@ fn create_base_req(
 pub type ErrResp {
   ///got json but could not parse it, probably a missing required field
   ErrParseJson(json.DecodeError)
-  ///did not get resource json, often server eg nginx gives basic html response
-  ErrNotJson(Response(String))
+  ///did not get resource json, often server eg nginx gives basic html response or empty body with http headers/status code
+  ErrServer(Response(String))
   ///got operationoutcome error from fhir server
   ErrOperationoutcome(resources.Operationoutcome)
+}
+
+/// convert error response to string,
+/// either from a server error response
+/// or problem parsing server's returned resource
+pub fn err_resp_to_string(err: ErrResp) -> String {
+  case err {
+    ErrServer(err) -> "server error: " <> resp_to_string(err)
+    ErrOperationoutcome(err) ->
+      case err.issue.rest {
+        [] ->
+          "OperationOutcome: "
+          <> err.issue.first
+          |> resources.operationoutcome_issue_to_json
+          |> json.to_string
+        _ ->
+          "OperationOutcome issues: "
+          <> [err.issue.first, ..err.issue.rest]
+          |> list.map(resources.operationoutcome_issue_to_json)
+          |> json.preprocessed_array
+          |> json.to_string
+      }
+    ErrParseJson(err) ->
+      "Error parsing returned resource: "
+      <> case err {
+        json.UnexpectedEndOfInput -> "unexpected end of input"
+        json.UnexpectedByte(err) -> "unexpected byte: " <> err
+        json.UnexpectedSequence(err) -> "unexpected sequence: " <> err
+        json.UnableToDecode(errors) ->
+          list.map(errors, fn(error) {
+            let decode.DecodeError(expected:, found:, path:) = error
+            "expected "
+            <> expected
+            <> " but found "
+            <> found
+            <> " at "
+            <> string.join(path, "/")
+          })
+          |> string.join(";")
+      }
+  }
 }
 
 pub type ErrReq {
   ///could not make an update request because resource has no id
   ErrNoId
 }
+
+pub const err_req_to_string = "the resource you're using has no id, but a resource id is needed for this operation"
 
 pub fn any_create_req(
   resource_json: Json,
@@ -294,7 +337,7 @@ pub fn any_response(
     False ->
       Error(case resp.body |> json.parse(resources.operationoutcome_decoder()) {
         Ok(decoded_oo) -> ErrOperationoutcome(decoded_oo)
-        Error(_) -> ErrNotJson(resp)
+        Error(_) -> ErrServer(resp)
       })
     // here if operationoutcome fails to decode, we discard the error
     // and instead return response with body as string
@@ -320,7 +363,7 @@ pub fn delete_response(
     False ->
       Error(case resp.body |> json.parse(resources.operationoutcome_decoder()) {
         Ok(decoded_oo) -> ErrOperationoutcome(decoded_oo)
-        Error(_) -> ErrNotJson(resp)
+        Error(_) -> ErrServer(resp)
       })
   }
 }
@@ -426,14 +469,12 @@ pub fn req_to_string(req: Request(Option(Json))) -> String {
   //kind of duplicating but want to put body at end and maybe this performs better? idk maybe doesn't matter
   case req.body {
     Some(body) -> [
-      "send request:",
       "to uri:  " <> to_uri,
       "method:  " <> method,
       "headers: " <> headers,
       "body:    " <> json.to_string(body),
     ]
     None -> [
-      "send request:",
       "to uri:  " <> to_uri,
       "method:  " <> method,
       "headers: " <> headers,
@@ -449,7 +490,6 @@ pub fn resp_to_string(resp: Response(String)) -> String {
     |> list.map(fn(hdr) { hdr.0 <> ": " <> hdr.1 })
     |> string.join("; ")
   [
-    "receive response:",
     "status:  " <> status,
     "headers: " <> headers,
     "body:    " <> resp.body,

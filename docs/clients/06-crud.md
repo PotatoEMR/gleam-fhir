@@ -20,11 +20,11 @@
 import fhir/r4/client_httpc
 import fhir/r4/complex_types as ct
 import fhir/r4/resources
+import fhir/r4/sansio
 import gleam/option.{Some}
 
 pub fn main() {
-  let assert Ok(client) =
-    client_httpc.fhirclient_new("https://r4.smarthealthit.org/")
+  let assert Ok(client) = sansio.fhirclient_new("https://r4.smarthealthit.org/")
 
   // Create
   let pat =

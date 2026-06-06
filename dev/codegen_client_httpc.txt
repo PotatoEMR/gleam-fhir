@@ -21,7 +21,7 @@ pub type ErrFromSansio {
   ///got json but could not parse it, probably a missing required field
   ErrParseJson(json.DecodeError)
   ///did not get resource json, often server eg nginx gives basic html response
-  ErrNotJson(Response(String))
+  ErrServer(Response(String))
   ///got operationoutcome error from fhir server
   ErrOperationoutcome(resources.Operationoutcome)
   ///could not make an update or delete request because resource has no id
@@ -78,7 +78,7 @@ pub fn any_delete(
           Error(
             ErrSansio(case err {
               sansio.ErrParseJson(e) -> ErrParseJson(e)
-              sansio.ErrNotJson(e) -> ErrNotJson(e)
+              sansio.ErrServer(e) -> ErrServer(e)
               sansio.ErrOperationoutcome(e) -> ErrOperationoutcome(e)
             }),
           )
@@ -251,7 +251,7 @@ fn sendreq_parseresource(
           Error(
             ErrSansio(case err {
               sansio.ErrParseJson(e) -> ErrParseJson(e)
-              sansio.ErrNotJson(e) -> ErrNotJson(e)
+              sansio.ErrServer(e) -> ErrServer(e)
               sansio.ErrOperationoutcome(e) -> ErrOperationoutcome(e)
             }),
           )

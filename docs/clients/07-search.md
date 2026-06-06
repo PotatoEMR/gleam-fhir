@@ -22,8 +22,7 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 
 pub fn main() {
-  let assert Ok(client) =
-    client_httpc.fhirclient_new("https://hapi.fhir.org/baseR4")
+  let assert Ok(client) = sansio.fhirclient_new("https://hapi.fhir.org/baseR4")
 
   //get patient list
   let patients: Result(List(resources.Patient), client_httpc.Err) =
@@ -45,8 +44,7 @@ pub fn main() {
 
   echo pats1 == pats2
 
-  let assert Ok(client) =
-    client_httpc.fhirclient_new("https://r4.smarthealthit.org")
+  let assert Ok(client) = sansio.fhirclient_new("https://r4.smarthealthit.org")
 
   // limit each bundle to 10 patients with _count=10
   // and keep getting bundles as long as the server has more with all_pages
@@ -132,9 +130,7 @@ fn send_bundle_req(
   {
     Error(_) -> Error("http error")
     Ok(resp) ->
-      case
-        sansio.any_resp(resp, resources.bundle_decoder(), resources.RtBundle)
-      {
+      case sansio.any_response(resp, resources.bundle_decoder()) {
         Error(_) -> Error("parse error")
         Ok(bundle) -> Ok(bundle)
       }
