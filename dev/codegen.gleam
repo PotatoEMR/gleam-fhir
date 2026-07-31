@@ -44,7 +44,7 @@ pub fn main() {
   // lower easier but caps matter for urls like
   // https://build.fhir.org/ig/HL7/US-Core/package.tgz
   let args_cased = argv.load().arguments
-  let args_lower = args_cased |> list.map(fn(s) { string.lowercase(s) })
+  let args_lower = args_cased |> list.map(string.lowercase)
 
   case
     list.contains(args_lower, "r4")
