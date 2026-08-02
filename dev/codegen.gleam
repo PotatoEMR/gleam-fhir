@@ -1,8 +1,9 @@
 import argv
 import codegen_client
+import codegen_helpers
+import codegen_profile
 import filepath
 import gleam/dict
-import gleam/dynamic/decode
 import gleam/http/request
 @target(erlang)
 import gleam/httpc
@@ -10,8 +11,10 @@ import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
-import gleam/set
+import gleam/result
+import gleam/set.{type Set}
 import gleam/string
+import shellout
 
 //dev dependencies but not required for users
 import simplifile
@@ -38,7 +41,10 @@ fn const_download_dir() {
 pub fn main() {
   io.println("🔥🔥🔥 bultaoreune")
 
-  let args_lower = argv.load().arguments |> list.map(string.lowercase)
+  // lower easier but caps matter for urls like
+  // https://build.fhir.org/ig/HL7/US-Core/package.tgz
+  let args_cased = argv.load().arguments
+  let args_lower = args_cased |> list.map(fn(s) { string.lowercase(s) })
 
   case
     list.contains(args_lower, "r4")
@@ -77,169 +83,86 @@ pub fn main() {
   // }
   // let assert Ok(_) = simplifile.create_directory_all(gen_into_dir)
 
-  use fhir_version <- list.map(check_versions)
-
-  let _ = case list.contains(args_lower, fhir_version) {
-    True -> gen_fhir(fhir_version, download_files, all_primitive_ext)
-    False -> Nil
-  }
-  Nil
-}
-
-type Bundle {
-  Bundle(entry: List(Entry))
-}
-
-fn bundle_decoder() -> decode.Decoder(Bundle) {
-  use entry <- decode.field("entry", decode.list(entry_decoder()))
-  decode.success(Bundle(entry:))
-}
-
-type Entry {
-  Entry(resource: Resource)
-}
-
-fn entry_decoder() -> decode.Decoder(Entry) {
-  use resource <- decode.field("resource", resource_decoder())
-  decode.success(Entry(resource:))
-}
-
-type Resource {
-  Resource(
-    snapshot: Option(Snapshot),
-    resource_type: String,
-    id: String,
-    name: String,
-    url: String,
-    kind: Option(String),
-    type_: Option(String),
-  )
-}
-
-fn resource_decoder() -> decode.Decoder(Resource) {
-  use snapshot <- decode.optional_field(
-    "snapshot",
-    None,
-    decode.optional(snapshot_decoder()),
-  )
-  use resource_type <- decode.field("resourceType", decode.string)
-  use id <- decode.field("id", decode.string)
-  use name <- decode.field("name", decode.string)
-  use url <- decode.field("url", decode.string)
-  use kind <- decode.optional_field(
-    "kind",
-    None,
-    decode.optional(decode.string),
-  )
-  case resource_type {
-    "StructureDefinition" -> {
-      use type_ <- decode.optional_field(
-        "type",
-        None,
-        decode.optional(decode.string),
-      )
-      decode.success(Resource(
-        snapshot:,
-        resource_type:,
-        id:,
-        name:,
-        url:,
-        kind:,
-        type_:,
-      ))
+  let profiles_dir = const_download_dir() |> filepath.join("profiles")
+  let custom_profile =
+    list.find(args_cased, fn(arg) { string.starts_with(arg, "custom=") })
+  case custom_profile {
+    Error(_) -> Nil
+    Ok(custom_profile) -> {
+      case download_files {
+        False -> Nil
+        True -> {
+          let assert [_, profile_url] = string.split(custom_profile, "=")
+          let assert Ok(req) = request.to(profile_url)
+          let assert Ok(resp) = httpc.send_bits(request.set_body(req, <<>>))
+          let assert Ok(_) = simplifile.create_directory_all(profiles_dir)
+          let tgz_path = profiles_dir |> filepath.join("package.tgz")
+          let assert Ok(Nil) =
+            simplifile.write_bits(to: tgz_path, bits: resp.body)
+          let assert Ok(_) =
+            shellout.command(
+              "tar",
+              ["-xzf", tgz_path, "-C", profiles_dir],
+              ".",
+              [],
+            )
+          let more_exts =
+            const_download_dir()
+            |> filepath.directory_name
+            |> filepath.join("more_custom_extensions")
+          let package_dir = profiles_dir |> filepath.join("package")
+          let _ =
+            result.map(simplifile.read_directory(more_exts), fn(files) {
+              list.each(files, fn(f) {
+                let assert Ok(bits) =
+                  simplifile.read_bits(filepath.join(more_exts, f))
+                let assert Ok(_) =
+                  simplifile.write_bits(filepath.join(package_dir, f), bits)
+              })
+            })
+          io.println("download profile " <> profile_url)
+        }
+      }
     }
-    _ ->
-      decode.success(Resource(
-        snapshot:,
-        resource_type:,
-        id:,
-        name:,
-        url:,
-        kind:,
-        type_: None,
-      ))
   }
-}
 
-type Snapshot {
-  Snapshot(element: List(Element))
-}
+  list.map(check_versions, fn(fhir_version) {
+    let custom_profile_name = case
+      list.find(args_cased, fn(arg) { string.starts_with(arg, "customname=") })
+    {
+      Ok(arg) -> {
+        let assert [_, name] = string.split(arg, "=")
+        Some(name)
+      }
+      Error(_) ->
+        case custom_profile {
+          Ok(_) ->
+            panic as "if custom=[url] also need arg customname=[pkg name]"
+          Error(_) -> None
+        }
+    }
+    let profiles_dir = profiles_dir |> filepath.join("package")
 
-fn snapshot_decoder() -> decode.Decoder(Snapshot) {
-  use element <- decode.optional_field(
-    "element",
-    [],
-    decode.list(element_decoder()),
-  )
-  decode.success(Snapshot(element:))
-}
-
-type Element {
-  Element(
-    id: String,
-    path: String,
-    min: Int,
-    max: String,
-    type_: List(Type),
-    binding: Option(Binding),
-    content_reference: Option(String),
-  )
-}
-
-fn element_decoder() -> decode.Decoder(Element) {
-  use id <- decode.field("id", decode.string)
-  use path <- decode.field("path", decode.string)
-  use min <- decode.field("min", decode.int)
-  use max <- decode.field("max", decode.string)
-  use type_ <- decode.optional_field("type", [], decode.list(type_decoder()))
-  use binding <- decode.optional_field(
-    "binding",
-    None,
-    decode.optional(binding_decoder()),
-  )
-  use content_reference <- decode.optional_field(
-    "contentReference",
-    None,
-    decode.optional(decode.string),
-  )
-  decode.success(Element(
-    id:,
-    path:,
-    min:,
-    max:,
-    type_:,
-    binding:,
-    content_reference:,
-  ))
-}
-
-type Type {
-  Type(code: String)
-}
-
-fn type_decoder() -> decode.Decoder(Type) {
-  use code <- decode.field("code", decode.string)
-  decode.success(Type(code:))
-}
-
-type Binding {
-  Binding(strength: String, value_set: Option(String))
-}
-
-fn binding_decoder() -> decode.Decoder(Binding) {
-  use strength <- decode.field("strength", decode.string)
-  use value_set <- decode.optional_field(
-    "valueSet",
-    None,
-    decode.optional(decode.string),
-  )
-  decode.success(Binding(strength:, value_set:))
+    let _ = case list.contains(args_lower, fhir_version) {
+      True ->
+        gen_fhir(
+          fhir_version,
+          download_files,
+          custom_profile_name,
+          profiles_dir,
+          all_primitive_ext,
+        )
+      False -> Nil
+    }
+  })
 }
 
 @target(erlang)
 fn gen_fhir(
   fhir_version: String,
   download_files: Bool,
+  custom_profile_name: Option(String),
+  profiles_dir: String,
   all_primitive_ext: Bool,
 ) -> Nil {
   let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
@@ -268,7 +191,10 @@ fn gen_fhir(
     False -> [Nil]
   }
 
-  let pkg_prefix = fhir_version
+  let pkg_prefix = case custom_profile_name {
+    Some(name) -> name
+    None -> fhir_version
+  }
   let gen_dir = filepath.join(gen_into_dir, pkg_prefix)
   let assert Ok(_) = simplifile.create_directory_all(gen_dir)
   let f_primitive_types = filepath.join(gen_dir, "primitive_types.gleam")
@@ -287,22 +213,33 @@ fn gen_fhir(
       import fhir/" <> pkg_prefix <> "/valuesets\n"
   let r_imports = shared_imports <> "import gleam/bool\n"
 
-  let complex_types_gen =
+  let #(complex_types_gen, valueset_acc) =
     file_to_types(
       spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
       fv: pkg_prefix,
-      vsfile: gen_vsfile,
       all_primitive_ext: all_primitive_ext,
-      current_bucket: ComplexTypes,
+      current_bucket: codegen_helpers.ComplexTypes,
+      valueset_acc: set.new(),
     )
-  let resources_gen =
+  let #(resources_gen, valueset_acc) =
     file_to_types(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
       fv: pkg_prefix,
-      vsfile: gen_vsfile,
       all_primitive_ext: all_primitive_ext,
-      current_bucket: Resources,
+      current_bucket: codegen_helpers.Resources,
+      valueset_acc:,
     )
+  let #(profile_resourcse, valueset_acc) = case custom_profile_name {
+    None -> #("", valueset_acc)
+    Some(profile_prefix) ->
+      codegen_profile.profile_files_to_types(
+        profile_prefix,
+        profiles_dir,
+        all_primitive_ext,
+        valueset_acc,
+      )
+  }
+  let resources_gen = resources_gen <> profile_resourcse
   let ct_imports = shared_imports <> "import gleam/int\n"
 
   let list_type_defs =
@@ -541,9 +478,7 @@ fn gen_fhir(
   let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: r_content)
   io.println("generated " <> gen_gleamfile)
 
-  // gen valuesets for resource fields with required code binding
-  // which were written as list to file by gen_gleamfile (why this fn needs to know file as temp list)
-  let all_vs = valueset_to_types(gen_vsfile, fhir_version)
+  let all_vs = valueset_to_types(fhir_version, valueset_acc)
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
 
@@ -571,42 +506,17 @@ fn gen_fhir(
   )
 }
 
-// Category: where a top-level FHIR type lives in the split output.
-// All complex-type datatypes (general-purpose, special-purpose, metadata)
-// live together in {prefix}_complex_types.gleam. Resources live in the main
-// {prefix}.gleam. Single complex-types file avoids import cycles from
-// Extension.value[x] referencing metadata types like DataRequirement.
-type Category {
-  ComplexTypes
-  Resources
-}
-
-fn category_of(type_name: String) -> Category {
-  case type_name {
-    "Resource" | "DomainResource" -> Resources
-    _ -> ComplexTypes
-  }
-}
-
-// emit "" if reference stays within current module, else the import alias
-fn bucket_prefix(target: Category, current: Category) -> String {
-  case target == current, target {
-    True, _ -> ""
-    False, ComplexTypes -> "ct."
-    False, Resources -> ""
-  }
-}
-
 fn file_to_types(
   spec_file spec_file: String,
   fv fhir_version: String,
-  vsfile gen_vsfile: String,
   all_primitive_ext all_primitive_ext: Bool,
-  current_bucket current_bucket: Category,
-) -> String {
+  current_bucket current_bucket: codegen_helpers.Category,
+  valueset_acc valueset_acc: Set(String),
+) -> #(String, Set(String)) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
-  let assert Ok(bundle) = json.parse(from: spec, using: bundle_decoder())
+  let assert Ok(bundle) =
+    json.parse(from: spec, using: codegen_helpers.bundle_decoder())
   let entries =
     list.filter(bundle.entry, fn(e) {
       case e.resource.kind, e.resource.name {
@@ -625,23 +535,24 @@ fn file_to_types(
 
   let entries = list.map(entries, fn(entry) { entry.resource })
 
-  let all_resources_and_types =
-    list.fold(entries, "", fn(elt_str_acc, resource: Resource) {
-      //map of type -> fields needed to list out all the BackboneElements
-      //because they're subcomponents eg Allergy -> Reaction
-      //and rather than nested, we want to write fields one after the other
-      let starting_res_fields = dict.new() |> dict.insert(resource.name, [])
-      //we want to write types in order of parsing backbone elements, but map order random
-      //put elts into name of current struct, eg AllergyIntolerance, AllergyIntoleranceReaction...
-      let type_order = [resource.name]
-      let assert Some(snapshot) = resource.snapshot
+  let #(all_resources_and_types, valueset_acc) =
+    list.fold(
+      entries,
+      #("", valueset_acc),
+      fn(acc, resource: codegen_helpers.Resource) {
+        let #(elt_str_acc, valueset_acc) = acc
+        //map of type -> fields needed to list out all the BackboneElements
+        //because they're subcomponents eg Allergy -> Reaction
+        //and rather than nested, we want to write fields one after the other
+        let starting_res_fields = dict.new() |> dict.insert(resource.name, [])
+        //we want to write types in order of parsing backbone elements, but map order random
+        //put elts into name of current struct, eg AllergyIntolerance, AllergyIntoleranceReaction...
+        let type_order = [resource.name]
+        let assert Some(snapshot) = resource.snapshot
 
-      let f_o = #(starting_res_fields, type_order)
+        let f_o = #(starting_res_fields, type_order)
 
-      let gen_str =
-        elt_str_acc
-        <> "\n"
-        <> {
+        let #(resource_types, valueset_acc) = {
           let fields_and_order =
             list.fold(over: snapshot.element, from: f_o, with: fn(f_o, elt) {
               let res_fields = f_o.0
@@ -687,8 +598,9 @@ fn file_to_types(
 
           list.fold(
             over: type_order,
-            from: "",
-            with: fn(old_type_acc, new_type) {
+            from: #("", valueset_acc),
+            with: fn(acc, new_type) {
+              let #(old_type_acc, valueset_acc) = acc
               let new_doc_link = {
                 let link =
                   string.concat([
@@ -703,15 +615,18 @@ fn file_to_types(
               }
 
               let camel_type = case new_type == resource.name {
-                True -> resource.id |> string.replace("-", "_") |> to_camel_case
-                False -> new_type |> to_camel_case
+                True ->
+                  resource.id
+                  |> string.replace("-", "_")
+                  |> codegen_helpers.to_camel_case
+                False -> new_type |> codegen_helpers.to_camel_case
               }
               //conflict gleam list
               let camel_type = case camel_type == "List" {
                 True -> "Listfhir"
                 False -> camel_type
               }
-              let snake_type = to_snake_case(camel_type)
+              let snake_type = codegen_helpers.to_snake_case(camel_type)
               let assert Ok(fields) = dict.get(type_fields, new_type)
               let fields = case resource.name {
                 "SimpleQuantity" ->
@@ -737,11 +652,24 @@ fn file_to_types(
                 decoder_use,
                 decoder_success,
                 decoder_always_failure_fordr,
+                valueset_acc,
               ) =
                 list.fold(
-                  from: #("", list.new(), "", "", "", "", "", "", "", ""),
+                  from: #(
+                    "",
+                    list.new(),
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    valueset_acc,
+                  ),
                   over: fields,
-                  with: fn(acc, elt: Element) {
+                  with: fn(acc, elt: codegen_helpers.Element) {
                     //this should clearly be custom type not tuple
                     let fields_acc = acc.0
                     let choicetypes_acc = acc.1
@@ -753,6 +681,7 @@ fn file_to_types(
                     let decoder_use_acc = acc.7
                     let decoder_success_acc = acc.8
                     let decoder_always_failure_acc = acc.9
+                    let valueset_acc = acc.10
                     //yeah this should be custom type right
                     let allparts =
                       elt.id
@@ -782,8 +711,8 @@ fn file_to_types(
                     let field_name_new =
                       camel_type <> string.capitalise(elt_last_part)
                     let is_primitive = case elt.type_ {
-                      [Type(code: fst_code)] ->
-                        case fst_code {
+                      [fst, ..] ->
+                        case fst.code {
                           "base64Binary"
                           | "boolean"
                           | "canonical"
@@ -812,29 +741,35 @@ fn file_to_types(
                         }
                       _ -> False
                     }
-                    let field_type = case elt.type_ {
+                    let #(field_type, valueset_acc) = case elt.type_ {
                       [one_type] -> {
-                        let base_type =
-                          string_to_type(
+                        let #(base_type, valueset_acc) =
+                          codegen_helpers.string_to_type(
                             one_type.code,
                             allparts,
-                            fhir_version,
                             elt,
-                            gen_vsfile,
                             current_bucket,
+                            valueset_acc,
                           )
-                        case is_primitive {
+                        let field_type = case is_primitive {
                           True -> "Primitive(" <> base_type <> ")"
                           False -> base_type
                         }
+                        #(field_type, valueset_acc)
                       }
-                      [] -> {
-                        link_type_from(elt.content_reference, resource.name)
-                        |> to_camel_case
-                      }
-                      _ -> field_name_new
+                      [] -> #(
+                        {
+                          codegen_helpers.link_type_from(
+                            elt.content_reference,
+                            resource.name,
+                          )
+                          |> codegen_helpers.to_camel_case
+                        },
+                        valueset_acc,
+                      )
+                      _ -> #(field_name_new, valueset_acc)
                     }
-                    let elt_snake = to_snake_case(elt_last_part)
+                    let elt_snake = codegen_helpers.to_snake_case(elt_last_part)
                     let card_min = case is_primitive, elt.max {
                       True, "*" -> 0
                       True, _ -> 1
@@ -844,137 +779,153 @@ fn file_to_types(
                       string.concat([
                         elt_snake,
                         ": ",
-                        cardinality(field_type, card_min, elt.max),
+                        codegen_helpers.cardinality(
+                          field_type,
+                          card_min,
+                          elt.max,
+                        ),
                         ",\n",
                         fields_acc,
                       ])
-                    let choicetypes_acc = case elt.type_ {
-                      [] -> choicetypes_acc
-                      [_] -> choicetypes_acc
-                      _ -> [
-                        string.concat([
-                          "\n",
-                          new_doc_link,
-                          "\npub type ",
-                          field_name_new,
-                          "{",
+                    let #(choicetypes_acc, valueset_acc) = case elt.type_ {
+                      [] -> #(choicetypes_acc, valueset_acc)
+                      [_] -> #(choicetypes_acc, valueset_acc)
+                      _ -> {
+                        let #(choice_fields, valueset_acc) =
                           list.fold(
                             over: elt.type_,
-                            from: "",
+                            from: #("", valueset_acc),
                             with: fn(acc, typ) {
-                              string.concat([
-                                acc,
-                                //add all fields of this choice type
-                                "\n",
-                                field_name_new,
-                                string.capitalise(typ.code),
-                                "(",
-                                elt_snake,
-                                ": ",
-                                string_to_type(
+                              let #(fields_acc, valueset_acc) = acc
+                              let #(choice_type, valueset_acc) =
+                                codegen_helpers.string_to_type(
                                   typ.code,
                                   [
                                     "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
                                   ],
-                                  fhir_version,
-                                  elt,
-                                  gen_vsfile,
-                                  current_bucket,
-                                ),
-                                ")",
-                              ])
-                            },
-                          ),
-                          "}",
-                          //each choice type needs its own to_json and decoder
-                          "\npub fn ",
-                          snake_type,
-                          "_",
-                          elt_last_part |> string.lowercase(),
-                          "_to_json(elt: ",
-                          field_name_new,
-                          ") -> Json {case elt{",
-                          list.fold(
-                            over: elt.type_,
-                            from: "",
-                            with: fn(acc, typ) {
-                              //add all cases of choice type to type_to_json()
-                              string.concat([
-                                acc,
-                                field_name_new,
-                                string.capitalise(typ.code),
-                                "(v) -> ",
-                                string_to_encoder_type(
-                                  typ.code,
-                                  allparts,
-                                  fhir_version,
                                   elt,
                                   current_bucket,
-                                ),
-                                "(v)\n",
-                              ])
-                            },
-                          ),
-                          "}}",
-                          //now the decoder
-                          "\npub fn ",
-                          snake_type,
-                          "_",
-                          elt_last_part |> string.lowercase(),
-                          "_decoder() -> Decoder(",
-                          field_name_new,
-                          "){",
-                          // each choice field here needs to decode from not just type but prefixType
-                          // dateTime -> onsetDateTime or age -> onsetAge etc
-                          // idk will do later!
-                          {
-                            // need to split types into first and rest for decoder because idk
-                            // gleam decode.one_of needs it that way...
-                            // to get an error msg from first or something but it is not a joyful api
-                            let assert [fst_type_, ..rest_type_] = elt.type_
-                            let decode_one_of_first =
-                              gen_choice_field_decoder(
-                                fst_type_.code,
-                                allparts,
-                                fhir_version,
-                                elt,
-                                field_name_new
-                                  <> string.capitalise(fst_type_.code),
-                                elt_last_part_withgleamtype,
-                                current_bucket,
+                                  valueset_acc,
+                                )
+                              #(
+                                string.concat([
+                                  fields_acc,
+                                  //add all fields of this choice type
+                                  "\n",
+                                  field_name_new,
+                                  string.capitalise(typ.code),
+                                  "(",
+                                  elt_snake,
+                                  ": ",
+                                  choice_type,
+                                  ")",
+                                ]),
+                                valueset_acc,
                               )
-                            let decode_one_of_rest =
+                            },
+                          )
+                        #(
+                          [
+                            string.concat([
+                              "\n",
+                              new_doc_link,
+                              "\npub type ",
+                              field_name_new,
+                              "{",
+                              choice_fields,
+                              "}",
+                              //each choice type needs its own to_json and decoder
+                              "\npub fn ",
+                              snake_type,
+                              "_",
+                              elt_last_part |> string.lowercase(),
+                              "_to_json(elt: ",
+                              field_name_new,
+                              ") -> Json {case elt{",
                               list.fold(
-                                over: rest_type_,
+                                over: elt.type_,
                                 from: "",
                                 with: fn(acc, typ) {
                                   //add all cases of choice type to type_to_json()
                                   string.concat([
                                     acc,
-                                    gen_choice_field_decoder(
+                                    field_name_new,
+                                    string.capitalise(typ.code),
+                                    "(v) -> ",
+                                    string_to_encoder_type(
                                       typ.code,
                                       allparts,
                                       fhir_version,
                                       elt,
-                                      field_name_new
-                                        <> string.capitalise(typ.code),
-                                      elt_last_part_withgleamtype,
                                       current_bucket,
                                     ),
+                                    "(v)\n",
                                   ])
                                 },
-                              )
-                            "decode.one_of("
-                            <> decode_one_of_first
-                            <> "["
-                            <> decode_one_of_rest
-                            <> "])"
-                          },
-                          "}",
-                        ]),
-                        ..choicetypes_acc
-                        //add to all choice types
-                      ]
+                              ),
+                              "}}",
+                              //now the decoder
+                              "\npub fn ",
+                              snake_type,
+                              "_",
+                              elt_last_part |> string.lowercase(),
+                              "_decoder() -> Decoder(",
+                              field_name_new,
+                              "){",
+                              // each choice field here needs to decode from not just type but prefixType
+                              // dateTime -> onsetDateTime or age -> onsetAge etc
+                              // idk will do later!
+                              {
+                                // need to split types into first and rest for decoder because idk
+                                // gleam decode.one_of needs it that way...
+                                // to get an error msg from first or something but it is not a joyful api
+                                let assert [fst_type_, ..rest_type_] = elt.type_
+                                let decode_one_of_first =
+                                  gen_choice_field_decoder(
+                                    fst_type_.code,
+                                    allparts,
+                                    fhir_version,
+                                    elt,
+                                    field_name_new
+                                      <> string.capitalise(fst_type_.code),
+                                    elt_last_part_withgleamtype,
+                                    current_bucket,
+                                  )
+                                let decode_one_of_rest =
+                                  list.fold(
+                                    over: rest_type_,
+                                    from: "",
+                                    with: fn(acc, typ) {
+                                      //add all cases of choice type to type_to_json()
+                                      string.concat([
+                                        acc,
+                                        gen_choice_field_decoder(
+                                          typ.code,
+                                          allparts,
+                                          fhir_version,
+                                          elt,
+                                          field_name_new
+                                            <> string.capitalise(typ.code),
+                                          elt_last_part_withgleamtype,
+                                          current_bucket,
+                                        ),
+                                      ])
+                                    },
+                                  )
+                                "decode.one_of("
+                                <> decode_one_of_first
+                                <> "["
+                                <> decode_one_of_rest
+                                <> "])"
+                              },
+                              "}",
+                            ]),
+                            ..choicetypes_acc
+                            //add to all choice types
+                          ],
+                          valueset_acc,
+                        )
+                      }
                     }
                     let #(newfunc_arg, newfunc_field) = case elt.min, elt.max {
                       0, "*" -> #("", elt_snake <> ": [],")
@@ -1066,7 +1017,10 @@ fn file_to_types(
                           current_bucket,
                         )
                       [] -> {
-                        link_type_from(elt.content_reference, resource.name)
+                        codegen_helpers.link_type_from(
+                          elt.content_reference,
+                          resource.name,
+                        )
                         <> "_to_json"
                       }
                       _ ->
@@ -1301,7 +1255,10 @@ fn file_to_types(
                               current_bucket,
                             )
                           [] ->
-                            link_type_from(elt.content_reference, resource.name)
+                            codegen_helpers.link_type_from(
+                              elt.content_reference,
+                              resource.name,
+                            )
                             <> "_decoder()"
                           _ -> panic as "compiler should see this cant happen"
                         }
@@ -1431,6 +1388,7 @@ fn file_to_types(
                       decoder_use_acc,
                       decoder_success_acc,
                       decoder_always_failure_acc,
+                      valueset_acc,
                     )
                   },
                 )
@@ -1471,7 +1429,35 @@ fn file_to_types(
               case camel_type {
                 "Extension" -> {
                   let assert [elt, ..] = fields
-                  "
+                  let #(extension_value_types, valueset_acc) =
+                    list.fold(
+                      over: elt.type_,
+                      from: #("", valueset_acc),
+                      with: fn(acc, typ: codegen_helpers.Type) {
+                        let #(types_acc, valueset_acc) = acc
+                        let #(type_, valueset_acc) =
+                          codegen_helpers.string_to_type(
+                            typ.code,
+                            [],
+                            elt,
+                            codegen_helpers.ComplexTypes,
+                            valueset_acc,
+                          )
+                        #(
+                          string.concat([
+                            types_acc,
+                            "ExtensionValue",
+                            string.capitalise(typ.code),
+                            "(value: ",
+                            type_,
+                            ")",
+                            "\n",
+                          ]),
+                          valueset_acc,
+                        )
+                      },
+                    )
+                  #("
               ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
               pub type Extension {
                 Extension(id: Option(String), url: String, ext: ExtensionSimpleOrComplex)
@@ -1483,21 +1469,7 @@ fn file_to_types(
               }
               ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
               pub type ExtensionValue {
-                " <> list.fold(
-                    over: elt.type_,
-                    from: "",
-                    with: fn(acc: String, typ: Type) -> String {
-                      string.concat([
-                        acc,
-                        "ExtensionValue",
-                        string.capitalise(typ.code),
-                        "(value: ",
-                        string_to_type(typ.code, [], "", elt, "", ComplexTypes),
-                        ")",
-                        "\n",
-                      ])
-                    },
-                  ) <> "
+                " <> extension_value_types <> "
               }
               pub fn extension_to_json(extension: Extension) -> Json {
                 let Extension(id:, url:, ext:) = extension
@@ -1524,7 +1496,7 @@ fn file_to_types(
                     <> case v {" <> list.fold(
                     over: elt.type_,
                     from: "",
-                    with: fn(acc: String, typ: Type) -> String {
+                    with: fn(acc: String, typ: codegen_helpers.Type) -> String {
                       string.concat([
                         acc,
                         "ExtensionValue",
@@ -1547,7 +1519,7 @@ fn file_to_types(
                   " <> list.fold(
                     over: elt.type_,
                     from: "",
-                    with: fn(acc: String, typ: Type) -> String {
+                    with: fn(acc: String, typ: codegen_helpers.Type) -> String {
                       string.concat([
                         acc,
                         "ExtensionValue",
@@ -1558,7 +1530,7 @@ fn file_to_types(
                           [],
                           "",
                           elt,
-                          ComplexTypes,
+                          codegen_helpers.ComplexTypes,
                         ),
                         "(v)\n",
                       ])
@@ -1579,7 +1551,7 @@ fn file_to_types(
                   [" <> list.fold(
                     over: elt.type_,
                     from: "",
-                    with: fn(acc: String, typ: Type) -> String {
+                    with: fn(acc: String, typ: codegen_helpers.Type) -> String {
                       let assert [fst, ..rest] = string.to_graphemes(typ.code)
                       let first_upper =
                         string.uppercase(fst) <> string.concat(rest)
@@ -1593,7 +1565,7 @@ fn file_to_types(
                           [],
                           "",
                           elt,
-                          ComplexTypes,
+                          codegen_helpers.ComplexTypes,
                         )
                           <> ", decode.success)
                        |> decode.map(ExtensionValue"
@@ -1605,7 +1577,7 @@ fn file_to_types(
                   ) <> "],
                 )
               }
-              "
+              ", valueset_acc)
                 }
                 _ -> {
                   let decoder =
@@ -1618,132 +1590,141 @@ fn file_to_types(
                       is_domainresource,
                       decoder_always_failure_fordr,
                     )
-                  string.join(
-                    [
-                      new_doc_link,
-                      type_newfields,
-                      type_choicetypes,
-                      type_new_newfunc,
-                      old_type_acc,
-                      gen_res_encoder(
-                        fhir_resource_type,
-                        camel_type,
-                        snake_type,
-                        encoder_args,
-                        encoder_json_always,
-                        encoder_json_options,
-                        is_domainresource,
-                      ),
-                      decoder,
-                      add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
-                        camel_type,
+                  #(
+                    string.join(
+                      [
+                        new_doc_link,
                         type_newfields,
+                        type_choicetypes,
+                        type_new_newfunc,
+                        old_type_acc,
+                        gen_res_encoder(
+                          fhir_resource_type,
+                          camel_type,
+                          snake_type,
+                          encoder_args,
+                          encoder_json_always,
+                          encoder_json_options,
+                          is_domainresource,
+                        ),
                         decoder,
-                        decoder_success,
-                      ),
-                    ],
-                    "\n",
+                        add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
+                          camel_type,
+                          type_newfields,
+                          decoder,
+                          decoder_success,
+                        ),
+                      ],
+                      "\n",
+                    ),
+                    valueset_acc,
                   )
                 }
               }
             },
           )
         }
-      gen_str
-    })
-  case spec_file |> string.ends_with("profiles-resources.json") {
-    False -> all_resources_and_types
-    True -> {
-      let res_entries =
-        entries
-        |> list.filter(fn(resource) {
-          resource.kind == Some("resource") && resource.name != "DomainResource"
-        })
-        |> list.map(fn(resource) {
-          let camel_type =
-            resource.id |> string.replace("-", "_") |> to_camel_case
-          #(resource, case camel_type {
-            "List" -> "Listfhir"
-            _ -> camel_type
+        let gen_str = elt_str_acc <> "\n" <> resource_types
+        #(gen_str, valueset_acc)
+      },
+    )
+  #(
+    case spec_file |> string.ends_with("profiles-resources.json") {
+      False -> all_resources_and_types
+      True -> {
+        let res_entries =
+          entries
+          |> list.filter(fn(resource) {
+            resource.kind == Some("resource")
+            && resource.name != "DomainResource"
           })
-        })
+          |> list.map(fn(resource) {
+            let camel_type =
+              resource.id
+              |> string.replace("-", "_")
+              |> codegen_helpers.to_camel_case
+            #(resource, case camel_type {
+              "List" -> "Listfhir"
+              _ -> camel_type
+            })
+          })
 
-      let resource_names =
-        res_entries
-        |> list.map(fn(entry_and_camel_type) {
-          let camel_type = entry_and_camel_type.1
-          "Resource" <> camel_type <> "(" <> camel_type <> ")\n"
-        })
-        |> string.concat
+        let resource_names =
+          res_entries
+          |> list.map(fn(entry_and_camel_type) {
+            let camel_type = entry_and_camel_type.1
+            "Resource" <> camel_type <> "(" <> camel_type <> ")\n"
+          })
+          |> string.concat
 
-      let resource_encoders =
-        res_entries
-        |> list.map(fn(entry_and_camel_type) {
-          let camel_type = entry_and_camel_type.1
-          "Resource"
-          <> camel_type
-          <> "(r) -> "
-          <> to_snake_case(camel_type)
-          <> "_to_json(r)\n"
-        })
-        |> string.concat
+        let resource_encoders =
+          res_entries
+          |> list.map(fn(entry_and_camel_type) {
+            let camel_type = entry_and_camel_type.1
+            "Resource"
+            <> camel_type
+            <> "(r) -> "
+            <> codegen_helpers.to_snake_case(camel_type)
+            <> "_to_json(r)\n"
+          })
+          |> string.concat
 
-      let resource_decoders =
-        res_entries
-        |> list.map(fn(entry_and_camel_type) {
-          let camel_type = entry_and_camel_type.1
-          let resource: Resource = entry_and_camel_type.0
-          let assert Some(fhir_resource_type) = resource.type_
-          "\""
-          <> fhir_resource_type
-          <> "\" -> "
-          <> to_snake_case(camel_type)
-          <> "_decoder()  |> decode.map(Resource"
-          <> camel_type
-          <> ")\n"
-        })
-        |> string.concat
+        let resource_decoders =
+          res_entries
+          |> list.map(fn(entry_and_camel_type) {
+            let camel_type = entry_and_camel_type.1
+            let resource: codegen_helpers.Resource = entry_and_camel_type.0
+            let assert Some(fhir_resource_type) = resource.type_
+            "\""
+            <> fhir_resource_type
+            <> "\" -> "
+            <> codegen_helpers.to_snake_case(camel_type)
+            <> "_decoder()  |> decode.map(Resource"
+            <> camel_type
+            <> ")\n"
+          })
+          |> string.concat
 
-      let resource_type_variants =
-        res_entries
-        |> list.map(fn(entry_and_camel_type) {
-          "Rt" <> entry_and_camel_type.1 <> "\n"
-        })
-        |> string.concat
+        let resource_type_variants =
+          res_entries
+          |> list.map(fn(entry_and_camel_type) {
+            "Rt" <> entry_and_camel_type.1 <> "\n"
+          })
+          |> string.concat
 
-      let resource_type_to_string_arms =
-        res_entries
-        |> list.map(fn(entry_and_camel_type) {
-          let resource: Resource = entry_and_camel_type.0
-          let assert Some(fhir_resource_type) = resource.type_
-          "Rt"
-          <> entry_and_camel_type.1
-          <> " -> \""
-          <> fhir_resource_type
-          <> "\"\n"
-        })
-        |> string.concat
+        let resource_type_to_string_arms =
+          res_entries
+          |> list.map(fn(entry_and_camel_type) {
+            let resource: codegen_helpers.Resource = entry_and_camel_type.0
+            let assert Some(fhir_resource_type) = resource.type_
+            "Rt"
+            <> entry_and_camel_type.1
+            <> " -> \""
+            <> fhir_resource_type
+            <> "\"\n"
+          })
+          |> string.concat
 
-      let resource_type_enum =
-        string.concat([
-          "pub type ResourceType{",
-          resource_type_variants,
-          "}\npub fn resource_type_to_string(rt: ResourceType) -> String {
+        let resource_type_enum =
+          string.concat([
+            "pub type ResourceType{",
+            resource_type_variants,
+            "}\npub fn resource_type_to_string(rt: ResourceType) -> String {
             case rt {",
-          resource_type_to_string_arms,
-          "}
+            resource_type_to_string_arms,
+            "}
         }\n",
-        ])
+          ])
 
-      let resource_enum =
-        string.concat([
-          resource_type_enum,
-          "pub type Resource{",
-          resource_names,
-          "}\npub fn resource_to_json(res: Resource) {
+        let resource_enum =
+          string.concat([
+            resource_type_enum,
+            "pub type Resource{",
+            resource_names,
+            "}\npub fn resource_to_json(res: Resource) {
             case res {",
-          resource_encoders,
-          "}
+            resource_encoders,
+            "}
         }\n
         pub fn resource_decoder() -> Decoder(Resource) {
           use tag <- decode.field(\"resourceType\", decode.string)
@@ -1767,109 +1748,12 @@ fn file_to_types(
           })
         }
         ",
-        ])
-      all_resources_and_types <> resource_enum
-    }
-  }
-}
-
-fn link_type_from(content_reference: Option(String), resource_name: String) {
-  let assert Some(link_type) = content_reference
-  let assert [_, link_type] = string.split(link_type, "#")
-  let assert [_, ..rest] = string.split(link_type, ".")
-  [resource_name, ..rest]
-  |> string.join("_")
-  |> string.lowercase()
-}
-
-fn string_to_type(
-  fhir_type: String,
-  allparts: List(String),
-  _fhir_version: String,
-  elt: Element,
-  gen_vsfile: String,
-  current: Category,
-) -> String {
-  case fhir_type {
-    "BackboneElement" ->
-      allparts |> list.map(string.capitalise) |> string.concat()
-    "Element" -> allparts |> list.map(string.capitalise) |> string.concat()
-    "base64Binary" -> "String"
-    "boolean" -> "Bool"
-    "canonical" -> "String"
-    "code" -> {
-      let s = allparts |> string.concat()
-      case s {
-        "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding" ->
-          "String"
-        //not a code idk should we even generate this?
-        _ -> {
-          case elt.binding {
-            Some(x) ->
-              case x.strength {
-                "required" -> {
-                  case x.value_set {
-                    Some(vs) -> {
-                      let assert [url, ..] = string.split(vs, "|")
-                        as "split vs version"
-                      //get rid of |version in http://some.valueset|4.0.1
-                      case
-                        string.contains(url, "v3-Confidentiality")
-                        || string.contains(url, "mimetypes")
-                        || string.contains(url, "currencies")
-                        || string.contains(url, "all-languages")
-                        || string.contains(url, "ucum-units")
-                        || string.contains(url, "color-codes")
-                      {
-                        True -> "String"
-                        //idk whats going on here, probably i dont understand valueset composition
-                        False -> {
-                          let assert Ok(Nil) =
-                            simplifile.append(
-                              to: gen_vsfile,
-                              contents: url <> "\n",
-                            )
-                          "valuesets." <> concept_name_from_url(Some(url))
-                        }
-                      }
-                    }
-                    _ -> panic as "huh idk 2"
-                  }
-                }
-                _ -> "String"
-                //mostly just elt.languages doesnt have "required" code binding
-              }
-            None -> "String"
-            //these codes dont have required binding?
-          }
-        }
+          ])
+        all_resources_and_types <> resource_enum
       }
-    }
-    "date" -> "Date"
-    "dateTime" -> "DateTime"
-    "decimal" -> "Float"
-    "id" -> "String"
-    "instant" -> "Instant"
-    "integer" -> "Int"
-    "integer64" -> "String"
-    "markdown" -> "String"
-    "oid" -> "String"
-    "positiveInt" -> "Int"
-    "string" -> "String"
-    "time" -> "Time"
-    "unsignedInt" -> "Int"
-    "uri" -> "String"
-    "url" -> "String"
-    "uuid" -> "String"
-    "xhtml" -> "String"
-    "http://hl7.org/fhirpath/System.String" -> "String"
-    _ -> {
-      let camel = to_camel_case(fhir_type)
-      bucket_prefix(category_of(camel), current) <> camel
-    }
-    //other complex type case will just be itself eg "Annotation" -> "Annotation"
-    // and will require importing that type
-  }
+    },
+    valueset_acc,
+  )
 }
 
 // this makes the decode.string or decode.int or allergy_intolerance_reaction_decoder() or whatever
@@ -1878,21 +1762,21 @@ fn string_to_decoder_type(
   fhir_type: String,
   allparts: List(String),
   _fhir_version: String,
-  elt: Element,
-  current: Category,
+  elt: codegen_helpers.Element,
+  current: codegen_helpers.Category,
 ) -> String {
   case fhir_type {
     "BackboneElement" ->
       allparts
       |> list.map(string.capitalise)
       |> string.concat()
-      |> to_snake_case()
+      |> codegen_helpers.to_snake_case()
       <> "_decoder()"
     "Element" ->
       allparts
       |> list.map(string.capitalise)
       |> string.concat()
-      |> to_snake_case()
+      |> codegen_helpers.to_snake_case()
       <> "_decoder()"
     "base64Binary" -> "decode.string"
     "boolean" -> "decode.bool"
@@ -1925,9 +1809,9 @@ fn string_to_decoder_type(
                         //idk whats going on here, probably i dont understand valueset composition
                         False ->
                           "valuesets."
-                          <> Some(url)
-                          |> concept_name_from_url()
-                          |> to_snake_case
+                          <> url
+                          |> codegen_helpers.concept_name_from_url()
+                          |> codegen_helpers.to_snake_case
                           <> "_decoder()"
                       }
                     }
@@ -1962,8 +1846,8 @@ fn string_to_decoder_type(
     "xhtml" -> "decode.string"
     "http://hl7.org/fhirpath/System.String" -> "decode.string"
     _ -> {
-      let camel = to_camel_case(fhir_type)
-      bucket_prefix(category_of(camel), current)
+      let camel = codegen_helpers.to_camel_case(fhir_type)
+      codegen_helpers.bucket_prefix(camel, current)
       <> { fhir_type |> string.lowercase() }
       <> "_decoder()"
     }
@@ -1975,21 +1859,21 @@ fn string_to_encoder_type(
   fhir_type: String,
   allparts: List(String),
   _fhir_version: String,
-  elt: Element,
-  current: Category,
+  elt: codegen_helpers.Element,
+  current: codegen_helpers.Category,
 ) -> String {
   case fhir_type {
     "BackboneElement" ->
       allparts
       |> list.map(string.capitalise)
       |> string.concat()
-      |> to_snake_case()
+      |> codegen_helpers.to_snake_case()
       <> "_to_json"
     "Element" ->
       allparts
       |> list.map(string.capitalise)
       |> string.concat()
-      |> to_snake_case()
+      |> codegen_helpers.to_snake_case()
       <> "_to_json"
     "base64Binary" -> "json.string"
     "boolean" -> "json.bool"
@@ -2022,9 +1906,9 @@ fn string_to_encoder_type(
                         //idk whats going on here, probably i dont understand valueset composition
                         False ->
                           "valuesets."
-                          <> Some(url)
-                          |> concept_name_from_url()
-                          |> to_snake_case
+                          <> url
+                          |> codegen_helpers.concept_name_from_url()
+                          |> codegen_helpers.to_snake_case
                           <> "_to_json"
                       }
                     }
@@ -2059,8 +1943,8 @@ fn string_to_encoder_type(
     "xhtml" -> "json.string"
     "http://hl7.org/fhirpath/System.String" -> "json.string"
     _ -> {
-      let camel = to_camel_case(fhir_type)
-      bucket_prefix(category_of(camel), current)
+      let camel = codegen_helpers.to_camel_case(fhir_type)
+      codegen_helpers.bucket_prefix(camel, current)
       <> { fhir_type |> string.lowercase() }
       <> "_to_json"
     }
@@ -2070,7 +1954,7 @@ fn string_to_encoder_type(
 
 fn gen_choicetype_suffixes(
   match_var: String,
-  types: List(Type),
+  types: List(codegen_helpers.Type),
   field_name_new: String,
 ) -> String {
   case types {
@@ -2107,7 +1991,7 @@ fn gen_choice_field_decoder(
   elt,
   choice_option_caps,
   choicetype_last_part,
-  current: Category,
+  current: codegen_helpers.Category,
 ) -> String {
   let assert [fst, ..rest] = type_code |> string.to_graphemes
   let choicetype_parse_label =
@@ -2121,48 +2005,6 @@ fn gen_choice_field_decoder(
   <> ", decode.success) |> decode.map("
   <> choice_option_caps
   <> "),"
-}
-
-// replace capital HelloThere with lowercase hello_there
-// but if the previous character was a capital it will not add an underscore
-fn to_snake_case(input: String) -> String {
-  input
-  |> string.to_graphemes
-  |> list.fold(#("", False), fn(acc, char) {
-    let #(result, prev_was_upper) = acc
-    case char == string.uppercase(char) && char != string.lowercase(char) {
-      True -> {
-        case result, prev_was_upper {
-          "", _ -> #(string.lowercase(char), True)
-          _, True -> #(result <> string.lowercase(char), True)
-          _, False -> #(result <> "_" <> string.lowercase(char), True)
-        }
-      }
-      False -> #(result <> char, False)
-    }
-  })
-  |> fn(pair) { pair.0 }
-}
-
-fn to_camel_case(input: String) -> String {
-  // only first letter and then each backbone elt is capital
-  // so you can see nested backbone elements
-  input
-  |> string.split("_")
-  |> list.map(fn(s) { string.capitalise(s) })
-  |> string.concat
-}
-
-fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
-  case fieldmin, fieldmax {
-    0, "*" -> "List(" <> fieldtype <> ")"
-    1, "*" -> "List1(" <> fieldtype <> ")"
-    2, "*" -> "List2(" <> fieldtype <> ")"
-    3, "*" -> "List3(" <> fieldtype <> ")"
-    0, "1" -> "Option(" <> fieldtype <> ")"
-    1, "1" -> fieldtype
-    _, _ -> panic as "cardinality panic, if you have n..* with n > 3 idk"
-  }
 }
 
 //probably redundant to have both this and valueset encoder/decoder oh well
@@ -2310,40 +2152,10 @@ fn add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
 // region valuesets
 // note we already have a list of required bindings from resources, now need to fill codes in for those
 
-fn concept_name_from_url(u) {
-  let assert Some(url) = u
-  let assert Ok(urlname) = url |> string.split("/") |> list.last()
-  let assert [fst, ..rest] = string.to_graphemes(urlname)
-  let urlname = case fst {
-    "0" -> string.concat(["Zero", ..rest])
-    "1" -> string.concat(["One", ..rest])
-    "2" -> string.concat(["Two", ..rest])
-    "3" -> string.concat(["Three", ..rest])
-    "4" -> string.concat(["Four", ..rest])
-    "5" -> string.concat(["Five", ..rest])
-    "6" -> string.concat(["Six", ..rest])
-    "7" -> string.concat(["Seven", ..rest])
-    "8" -> string.concat(["Eight", ..rest])
-    "9" -> string.concat(["Nine", ..rest])
-    _ -> urlname
-  }
-  urlname
-  |> string.replace(" ", "")
-  |> string.replace("-", "")
-  |> string.replace("_", "")
-  |> string.replace(".", "")
-  |> string.capitalise
-}
-
-fn valueset_to_types(vsfile: String, fhir_version: String) {
+fn valueset_to_types(fhir_version: String, valueset_acc: Set(String)) {
   //the valueset urls needed by element bindings
-  let assert Ok(vs_list) = simplifile.read(vsfile)
   let vs_url_set =
-    list.fold(
-      from: set.new(),
-      over: string.split(vs_list, "\n"),
-      with: fn(acc, vs) { acc |> set.insert(vs) },
-    )
+    valueset_acc
     |> set.delete("")
     |> set.delete("http://unitsofmeasure.org")
     |> set.delete("http://hl7.org/fhir/ValueSet/color-codes")
@@ -2364,15 +2176,15 @@ fn valueset_to_types(vsfile: String, fhir_version: String) {
     set.to_list(vs_url_set)
     |> list.sort(fn(a, b) {
       string.compare(
-        string.lowercase(concept_name_from_url(Some(a))),
-        string.lowercase(concept_name_from_url(Some(b))),
+        string.lowercase(codegen_helpers.concept_name_from_url(a)),
+        string.lowercase(codegen_helpers.concept_name_from_url(b)),
       )
     })
   list.fold(
     from: vs_imports,
     over: vs_url_sorted,
     with: fn(valuesets_acc, vs_url) {
-      let vsname = concept_name_from_url(Some(vs_url))
+      let vsname = codegen_helpers.concept_name_from_url(vs_url)
       let vs_codes = get_codes(vs_url, expansion_dir)
       case vs_codes {
         Error(_) -> valuesets_acc

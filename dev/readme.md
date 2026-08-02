@@ -1,3 +1,5 @@
+codegen.gleam codegen_client.gleam codegen_profile.gleam important files
+
 ./dev/gen_everything.sh
 gleam format
 ./dev/copy_src.sh
