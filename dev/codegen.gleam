@@ -231,9 +231,8 @@ fn gen_fhir(
     )
   let #(profile_resourcse, valueset_acc) = case custom_profile_name {
     None -> #("", valueset_acc)
-    Some(profile_prefix) ->
+    Some(_) ->
       codegen_profile.profile_files_to_types(
-        profile_prefix,
         profiles_dir,
         all_primitive_ext,
         valueset_acc,
@@ -690,8 +689,7 @@ fn file_to_types(
                       |> string.split(".")
                     let assert [_, ..rest_allparts] = allparts
                     let allparts = [resource.name, ..rest_allparts]
-                    let assert Ok(elt_last_part) =
-                      list.reverse(allparts) |> list.first
+                    let assert Ok(elt_last_part) = allparts |> list.last
                     //for choice types, which will have a custom type
                     let elt_last_part_withgleamtype =
                       string.replace(elt_last_part, "[x]", "")
@@ -2215,8 +2213,7 @@ fn valueset_to_types(fhir_version: String, valueset_acc: Set(String)) {
 // https://chat.fhir.org/#narrow/channel/179166-implementers/topic/Kotlin.20FHIR.20model.20code.20generation.20questions/near/524688061
 // kind of pissed after the satisfying experience of getting the recursive valueset/codesystem expansion working in gleam that you can (and must in r4b/r5) simply use the expanded valuesets from terminology download?
 fn get_codes(url: String, expansion_dir: String) -> Result(List(String), Nil) {
-  let assert Ok(vs_file) =
-    url |> string.split("/") |> list.reverse |> list.first
+  let assert Ok(vs_file) = url |> string.split("/") |> list.last
   let expansion =
     expansion_dir |> filepath.join("ValueSet-" <> vs_file <> ".json")
   let assert Ok(vs_json) = simplifile.read(expansion)

@@ -112,6 +112,8 @@ pub type Element {
   Element(
     id: String,
     path: String,
+    slice_name: Option(String),
+    slicing: Option(Slicing),
     min: Int,
     max: String,
     type_: List(Type),
@@ -123,6 +125,16 @@ pub type Element {
 pub fn element_decoder() -> decode.Decoder(Element) {
   use id <- decode.field("id", decode.string)
   use path <- decode.field("path", decode.string)
+  use slice_name <- decode.optional_field(
+    "sliceName",
+    None,
+    decode.optional(decode.string),
+  )
+  use slicing <- decode.optional_field(
+    "slicing",
+    None,
+    decode.optional(slicing_decoder()),
+  )
   use min <- decode.field("min", decode.int)
   use max <- decode.field("max", decode.string)
   use type_ <- decode.optional_field("type", [], decode.list(type_decoder()))
@@ -139,12 +151,43 @@ pub fn element_decoder() -> decode.Decoder(Element) {
   decode.success(Element(
     id:,
     path:,
+    slice_name:,
+    slicing:,
     min:,
     max:,
     type_:,
     binding:,
     content_reference:,
   ))
+}
+
+pub type Slicing {
+  Slicing(discriminator: List(Discriminator), ordered: Bool, rules: String)
+}
+
+pub fn slicing_decoder() -> decode.Decoder(Slicing) {
+  use discriminator <- decode.optional_field(
+    "discriminator",
+    [],
+    decode.list(discriminator_decoder()),
+  )
+  use ordered <- decode.optional_field("ordered", False, decode.bool)
+  use rules <- decode.field("rules", decode.string)
+  decode.success(Slicing(discriminator:, ordered:, rules:))
+}
+
+pub type Discriminator {
+  Discriminator(type_: String, path: String)
+}
+
+pub fn discriminator_decoder() -> decode.Decoder(Discriminator) {
+  use type_ <- decode.field("type", decode.string)
+  use path <- decode.field("path", decode.string)
+  decode.success(Discriminator(type_:, path:))
+}
+
+pub type DiscriminatorCheck {
+  DiscriminatorCheck(path: String, value: String)
 }
 
 pub type Type {
