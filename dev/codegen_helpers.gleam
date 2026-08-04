@@ -112,6 +112,7 @@ pub type Element {
   Element(
     id: String,
     path: String,
+    base: ElementBase,
     slice_name: Option(String),
     slicing: Option(Slicing),
     min: Int,
@@ -125,6 +126,7 @@ pub type Element {
 pub fn element_decoder() -> decode.Decoder(Element) {
   use id <- decode.field("id", decode.string)
   use path <- decode.field("path", decode.string)
+  use base <- decode.field("base", element_base_decoder())
   use slice_name <- decode.optional_field(
     "sliceName",
     None,
@@ -151,6 +153,7 @@ pub fn element_decoder() -> decode.Decoder(Element) {
   decode.success(Element(
     id:,
     path:,
+    base:,
     slice_name:,
     slicing:,
     min:,
@@ -159,6 +162,17 @@ pub fn element_decoder() -> decode.Decoder(Element) {
     binding:,
     content_reference:,
   ))
+}
+
+pub type ElementBase {
+  ElementBase(path: String, min: Int, max: String)
+}
+
+pub fn element_base_decoder() -> decode.Decoder(ElementBase) {
+  use path <- decode.field("path", decode.string)
+  use min <- decode.field("min", decode.int)
+  use max <- decode.field("max", decode.string)
+  decode.success(ElementBase(path:, min:, max:))
 }
 
 pub type Slicing {
@@ -251,6 +265,8 @@ pub fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
     3, "*" -> "List3(" <> fieldtype <> ")"
     0, "1" -> "Option(" <> fieldtype <> ")"
     1, "1" -> fieldtype
+    // TODO ListMaxN
+    0, _n -> "List(" <> fieldtype <> ")"
     _, _ -> panic as "cardinality panic, if you have n..* with n > 3 idk"
   }
 }
@@ -276,7 +292,10 @@ pub fn to_snake_case(input: String) -> String {
   |> fn(pair) { pair.0 }
 }
 
-pub fn link_type_from(content_reference: Option(String), resource_name: String) {
+pub fn link_type_from(
+  content_reference: Option(String),
+  resource_name: String,
+) {
   let assert Some(link_type) = content_reference
   let assert [_, link_type] = string.split(link_type, "#")
   let assert [_, ..rest] = string.split(link_type, ".")

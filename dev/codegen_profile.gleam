@@ -18,6 +18,17 @@ type ProfileFiles {
   )
 }
 
+// profile may not restrict a complex type
+// eg us core medicationrequest dosage is just normal dosage with mustsupport
+// in that case can just use ct.Dosage instead of generating some shit
+// so a) don't generate new type b) use normal ct.Dosage in UsCoreMedicationrequest
+fn does_profile_restrict_complex_type(
+  type_order: List(String),
+  field_path: String,
+) -> Bool {
+  list.contains(type_order, field_path)
+}
+
 pub fn profile_files_to_types(
   profiles_dir: String,
   all_primitive_ext: Bool,
@@ -109,7 +120,10 @@ pub fn profile_files_to_types(
       let #(type_fields, type_order) =
         snapshot.element
         |> list.fold(
-          #(dict.new() |> dict.insert(profile_prefix, []), [profile_prefix]),
+          #(
+            dict.new() |> dict.insert(profile_prefix, []),
+            set.from_list([profile_prefix]),
+          ),
           fn(acc, element) {
             let #(type_fields, type_order) = acc
             let path_parts =
@@ -147,32 +161,41 @@ pub fn profile_files_to_types(
             let type_fields = dict.insert(type_fields, field_parent, fields)
             let type_order = case element.type_ {
               [first, ..] ->
-                case first.code {
-                  "BackboneElement" | "Element" -> [field_path, ..type_order]
-                  _ -> type_order
+                case
+                  first.code,
+                  does_profile_restrict_complex_type(
+                    set.to_list(type_order),
+                    parent_path,
+                  )
+                {
+                  "BackboneElement", True | "Element", True ->
+                    set.insert(type_order, field_path)
+                  _, _ -> type_order
                 }
               [] -> type_order
             }
-            let type_order = case
-              element.slice_name,
-              is_choice,
-              list.contains(type_order, parent_path)
-            {
-              Some(_), False, False -> [parent_path, ..type_order]
-              _, _, _ -> type_order
-            }
-            let type_order = case
-              string.contains(element.id, ":"),
-              list.contains(type_order, field_path)
-            {
-              True, False -> [field_path, ..type_order]
+            let type_order = case element.base, element.slice_name {
+              codegen_helpers.ElementBase(path: _, min:, max:), None
+                if min != element.min || max != element.max
+              -> set.insert(type_order, parent_path)
               _, _ -> type_order
+            }
+            let type_order = case element.slice_name, is_choice {
+              Some(_), False ->
+                type_order
+                |> set.insert(field_parent)
+                |> set.insert(field_path)
+              Some(_), True -> set.insert(type_order, field_path)
+              None, _ -> type_order
             }
             #(type_fields, type_order)
           },
         )
       let type_order =
-        list.filter(type_order, fn(type_) { dict.has_key(type_fields, type_) })
+        type_order
+        |> set.to_list
+        |> list.filter(fn(type_) { dict.has_key(type_fields, type_) })
+        |> list.sort(fn(a, b) { string.compare(b, a) })
       let choice_slice_types =
         list.fold(snapshot.element, dict.new(), fn(acc, slice) {
           case slice.slice_name, slice.type_ {
@@ -188,7 +211,7 @@ pub fn profile_files_to_types(
                 |> string.join("_")
               case
                 string.ends_with(slice.path, "[x]"),
-                list.contains(type_order, slice_path)
+                does_profile_restrict_complex_type(type_order, slice_path)
               {
                 True, True ->
                   dict.insert(
@@ -293,7 +316,7 @@ pub fn profile_files_to_types(
                   }
 
                   let #(base_field_type, valueset_acc) = case
-                    list.contains(type_order, field_path)
+                    does_profile_restrict_complex_type(type_order, field_path)
                   {
                     True -> #(
                       field_path
