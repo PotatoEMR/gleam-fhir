@@ -1,13 +1,11 @@
 # Custom Codegen
 
-Generate custom package for profile
+Download profile from simplifier using custom=name/version
 
 ```sh
-gleam run -m codegen r4 custom=https://build.fhir.org/ig/HL7/US-Core/package.tgz customname=r4us download && gleam format
+gleam run -m codegen r4 custom=hl7.fhir.us.core/9.0.0 customname=r4us download
 ```
 
 download arg downloads files, needed if running for first time
-
-if custom profile, automatically generates custom types for all downloaded extension StructureDefinition json files, can add extensions by putting StructureDefinition in dev/more_custom_extensions
 
 can generate primitive extensions by running with allPrimitiveExt arg (all elements) or putting element names in primitive_extension_list.txt (specific elements)

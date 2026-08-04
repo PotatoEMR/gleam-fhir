@@ -2,19 +2,19 @@ import argv
 import codegen_client
 import codegen_helpers
 import codegen_profile
+import codegen_profile_package_download_no_npm
 import filepath
 import gleam/dict
 import gleam/http/request
 @target(erlang)
 import gleam/httpc
+import gleam/int
 import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
-import gleam/result
 import gleam/set.{type Set}
 import gleam/string
-import shellout
 
 //dev dependencies but not required for users
 import simplifile
@@ -41,8 +41,7 @@ fn const_download_dir() {
 pub fn main() {
   io.println("🔥🔥🔥 bultaoreune")
 
-  // lower easier but caps matter for urls like
-  // https://build.fhir.org/ig/HL7/US-Core/package.tgz
+  // caps used to matter for profile urls, not sure if simplifier cares
   let args_cased = argv.load().arguments
   let args_lower = args_cased |> list.map(fn(s) { string.lowercase(s) })
 
@@ -83,46 +82,33 @@ pub fn main() {
   // }
   // let assert Ok(_) = simplifile.create_directory_all(gen_into_dir)
 
-  let profiles_dir = const_download_dir() |> filepath.join("profiles")
+  let profiles_dir = const_download_dir() |> filepath.join("profile_packages")
   let custom_profile =
     list.find(args_cased, fn(arg) { string.starts_with(arg, "custom=") })
-  case custom_profile {
-    Error(_) -> Nil
+  let profiles_dir = case custom_profile {
+    Error(_) -> ""
     Ok(custom_profile) -> {
+      let assert [_, simplifier_profile] = string.split(custom_profile, "=")
+      let assert [pkg_name, pkg_version] =
+        string.split(simplifier_profile, "/")
+        as "need name and version separated by slash, eg hl7.fhir.us.core/9.0.0"
       case download_files {
         False -> Nil
         True -> {
-          let assert [_, profile_url] = string.split(custom_profile, "=")
-          let assert Ok(req) = request.to(profile_url)
-          let assert Ok(resp) = httpc.send_bits(request.set_body(req, <<>>))
-          let assert Ok(_) = simplifile.create_directory_all(profiles_dir)
-          let tgz_path = profiles_dir |> filepath.join("package.tgz")
-          let assert Ok(Nil) =
-            simplifile.write_bits(to: tgz_path, bits: resp.body)
-          let assert Ok(_) =
-            shellout.command(
-              "tar",
-              ["-xzf", tgz_path, "-C", profiles_dir],
-              ".",
-              [],
+          let packages =
+            codegen_profile_package_download_no_npm.download_package_with_dependencies(
+              pkg_name,
+              pkg_version,
+              profiles_dir,
             )
-          let more_exts =
-            const_download_dir()
-            |> filepath.directory_name
-            |> filepath.join("more_custom_extensions")
-          let package_dir = profiles_dir |> filepath.join("package")
-          let _ =
-            result.map(simplifile.read_directory(more_exts), fn(files) {
-              list.each(files, fn(f) {
-                let assert Ok(bits) =
-                  simplifile.read_bits(filepath.join(more_exts, f))
-                let assert Ok(_) =
-                  simplifile.write_bits(filepath.join(package_dir, f), bits)
-              })
-            })
-          io.println("download profile " <> profile_url)
+          let count = packages |> set.size |> int.to_string
+          io.println("Resolved " <> count <> " packages into " <> profiles_dir)
         }
       }
+      profiles_dir
+      |> filepath.join(pkg_name)
+      |> filepath.join(pkg_version)
+      |> filepath.join("package")
     }
   }
 
@@ -137,11 +123,10 @@ pub fn main() {
       Error(_) ->
         case custom_profile {
           Ok(_) ->
-            panic as "if custom=[url] also need arg customname=[pkg name]"
+            panic as "if custom=[name/version] also need arg customname=[pkg name] for generated modules prefix"
           Error(_) -> None
         }
     }
-    let profiles_dir = profiles_dir |> filepath.join("package")
 
     let _ = case list.contains(args_lower, fhir_version) {
       True ->

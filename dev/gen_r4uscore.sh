@@ -1,2 +1,2 @@
 rm -rf generated_fhir && mkdir generated_fhir
-gleam run -m codegen r4 custom=https://build.fhir.org/ig/HL7/US-Core/package.tgz customname=r4us download && gleam format
+gleam run -m codegen r4 custom=hl7.fhir.us.core/9.0.0 customname=r4us download && gleam format
