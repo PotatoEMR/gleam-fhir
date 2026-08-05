@@ -1,0 +1,50 @@
+this is a simpler way of getting core r4/r4b/r5 already expanded valuesets
+however for profiles we need to download from simplifier and expand them ourselves
+and it'd be kind of bloated to have 2 separate valueset expansion fns when that works for core too
+
+so valuesets used to come from /dev/valueset_expansions but now download from simplifier
+
+// https://chat.fhir.org/#narrow/channel/179166-implementers/topic/Kotlin.20FHIR.20model.20code.20generation.20questions/near/524688061
+// kind of pissed after the satisfying experience of getting the recursive valueset/codesystem expansion working in gleam that you can (and must in r4b/r5) simply use the expanded valuesets from terminology download?
+fn get_codes(url: String, expansion_dir: String) -> Result(List(String), Nil) {
+  let assert Ok(vs_file) = url |> string.split("/") |> list.last
+  let expansion =
+    expansion_dir |> filepath.join("ValueSet-" <> vs_file <> ".json")
+  let assert Ok(vs_json) = simplifile.read(expansion)
+    as { expansion <> " valueset expansion is missing" }
+  let assert Ok(vs) = vs_json |> json.parse(resources.valueset_decoder())
+  // this could be a chance to do something clever with recursive codesystem parser
+  // for now just going to go 1 level of valueset -> compose -> include
+  case vs.expansion {
+    Some(vs_expansion) ->
+      Ok(
+        list.map(
+          vs_expansion.contains,
+          fn(c: resources.ValuesetExpansionContains) {
+            let assert Some(code) = c.code
+            code
+          },
+        ),
+      )
+    None -> {
+      case vs.compose {
+        None -> Error(Nil)
+        Some(vsc) -> {
+          let ret =
+            list.fold(
+              from: [],
+              over: [vsc.include.first, ..vsc.include.rest],
+              with: fn(outer_acc, vsci) {
+                list.fold(
+                  from: outer_acc,
+                  over: vsci.concept,
+                  with: fn(inner_acc, vscic) { [vscic.code, ..inner_acc] },
+                )
+              },
+            )
+          Ok(ret)
+        }
+      }
+    }
+  }
+}

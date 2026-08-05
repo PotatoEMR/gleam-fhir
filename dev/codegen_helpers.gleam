@@ -1,8 +1,13 @@
+import fhir/r4/resources as r4
+import filepath
+import gleam/dict.{type Dict}
 import gleam/dynamic/decode
+import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/set.{type Set}
 import gleam/string
+import simplifile
 
 pub type Bundle {
   Bundle(entry: List(Entry))
@@ -457,4 +462,135 @@ pub fn concept_name_from_url(url) {
   |> string.replace("_", "")
   |> string.replace(".", "")
   |> string.capitalise
+}
+
+pub type VsOrCs {
+  VocValueset(v: r4.Valueset)
+  VocCodesystem(c: r4.Codesystem)
+}
+
+pub fn load_valuesets(package_dir: String) -> Dict(String, VsOrCs) {
+  let assert Ok(files) = simplifile.read_directory(package_dir)
+  list.fold(from: dict.new(), over: files, with: fn(acc, filename) {
+    let path = filepath.join(package_dir, filename)
+    case string.starts_with(filename, "ValueSet-") {
+      True -> {
+        let assert Ok(contents) = simplifile.read(path)
+        case json.parse(contents, r4.valueset_decoder()) {
+          Ok(valueset) ->
+            case valueset.url {
+              Some(url) -> dict.insert(acc, url, VocValueset(valueset))
+              None -> acc
+            }
+          Error(_) -> acc
+        }
+      }
+      False ->
+        case string.starts_with(filename, "CodeSystem-") {
+          True -> {
+            let assert Ok(contents) = simplifile.read(path)
+            //TODO CodeSystem-v2-0229.json has _valueString primitive extension without valueString which our ct.Extension rejects
+            case json.parse(contents, r4.codesystem_decoder()) {
+              Ok(codesystem) ->
+                case codesystem.url {
+                  Some(url) -> dict.insert(acc, url, VocCodesystem(codesystem))
+                  None -> acc
+                }
+              Error(_) -> acc
+            }
+          }
+          False -> acc
+        }
+    }
+  })
+}
+
+pub fn get_codes(
+  url: String,
+  all_vs_or_cs: Dict(String, VsOrCs),
+  exclude_not_selectable: Bool,
+) {
+  case url {
+    "http://unitsofmeasure.org" -> []
+    _ ->
+      case all_vs_or_cs |> dict.get(url) {
+        Error(_) -> panic as url
+        Ok(VocValueset(vs)) -> {
+          case vs.compose {
+            None -> []
+            Some(vsc) ->
+              valuesetcompose_get_codes(
+                vsc,
+                all_vs_or_cs,
+                exclude_not_selectable,
+              )
+          }
+        }
+        Ok(VocCodesystem(cs)) ->
+          codesystemconcepts_get_codes(cs.concept, exclude_not_selectable)
+      }
+  }
+}
+
+fn valuesetcompose_get_codes(
+  vsc: r4.ValuesetCompose,
+  all_vs_or_cs: Dict(String, VsOrCs),
+  exclude_not_selectable: Bool,
+) {
+  list.fold(
+    from: [],
+    over: [vsc.include.first, ..vsc.include.rest],
+    with: fn(outer_acc, vsci) {
+      let outer_acc =
+        list.fold(from: outer_acc, over: vsci.value_set, with: fn(acc, url) {
+          acc
+          |> list.append(get_codes(url, all_vs_or_cs, exclude_not_selectable))
+        })
+      case vsci.concept {
+        [] ->
+          case vsci.system {
+            None -> outer_acc
+            Some(vsci_system) ->
+              outer_acc
+              |> list.append(get_codes(
+                vsci_system,
+                all_vs_or_cs,
+                exclude_not_selectable,
+              ))
+          }
+        concepts ->
+          list.fold(
+            from: outer_acc,
+            over: concepts,
+            with: fn(inner_acc, concept) {
+              inner_acc |> list.append([concept.code])
+            },
+          )
+      }
+    },
+  )
+}
+
+fn codesystemconcepts_get_codes(
+  codesystem_concepts: List(r4.CodesystemConcept),
+  exclude_not_selectable: Bool,
+) {
+  list.fold(from: [], over: codesystem_concepts, with: fn(acc, csc) {
+    let codes =
+      codesystemconcepts_get_codes(csc.concept, exclude_not_selectable)
+    let codes = case
+      exclude_not_selectable
+      && list.any(csc.property, fn(property) {
+        case property.code, property.value {
+          "notSelectable", r4.CodesystemConceptPropertyValueBoolean(True) ->
+            True
+          _, _ -> False
+        }
+      })
+    {
+      True -> codes
+      False -> [csc.code, ..codes]
+    }
+    acc |> list.append(codes)
+  })
 }

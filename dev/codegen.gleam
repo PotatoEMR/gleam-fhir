@@ -19,9 +19,6 @@ import gleam/string
 //dev dependencies but not required for users
 import simplifile
 
-//dogfood r4 to parse valuesets
-import fhir/r4/resources
-
 const check_versions = ["r4", "r4b", "r5"]
 
 const zip_file_names = [
@@ -35,6 +32,15 @@ const gen_into_dir = "generated_fhir"
 
 fn const_download_dir() {
   "dev" |> filepath.join("downloads")
+}
+
+fn simplifier_core_package_version(fhir_version: String) {
+  case fhir_version {
+    "r4" -> "4.0.1"
+    "r4b" -> "4.3.0"
+    "r5" -> "5.0.0"
+    _ -> panic as "unsupported FHIR version"
+  }
 }
 
 @target(erlang)
@@ -153,6 +159,12 @@ fn gen_fhir(
 
   let _ = case download_files {
     True -> {
+      let _ =
+        codegen_profile_package_download_no_npm.download_package_with_dependencies(
+          "hl7.fhir." <> fhir_version <> ".core",
+          simplifier_core_package_version(fhir_version),
+          const_download_dir() |> filepath.join("profile_packages"),
+        )
       let assert Ok(_) = simplifile.create_directory_all(extract_dir_ver)
       use filename <- list.map(zip_file_names)
       io.println(
@@ -2146,10 +2158,14 @@ fn valueset_to_types(fhir_version: String, valueset_acc: Set(String)) {
       fhir_version,
       ") valuesets\n\nimport gleam/dynamic/decode.{type Decoder}\n  import gleam/json.{type Json}\n",
     ])
-  let expansion_dir =
-    "dev"
-    |> filepath.join("valueset_expansions")
-    |> filepath.join(fhir_version)
+  let simplifier_package_version = simplifier_core_package_version(fhir_version)
+  let package_dir =
+    const_download_dir()
+    |> filepath.join("profile_packages")
+    |> filepath.join("hl7.fhir." <> fhir_version <> ".core")
+    |> filepath.join(simplifier_package_version)
+    |> filepath.join("package")
+  let all_vs_or_cs = codegen_helpers.load_valuesets(package_dir)
   let vs_url_sorted =
     set.to_list(vs_url_set)
     |> list.sort(fn(a, b) {
@@ -2163,76 +2179,27 @@ fn valueset_to_types(fhir_version: String, valueset_acc: Set(String)) {
     over: vs_url_sorted,
     with: fn(valuesets_acc, vs_url) {
       let vsname = codegen_helpers.concept_name_from_url(vs_url)
-      let vs_codes = get_codes(vs_url, expansion_dir)
-      case vs_codes {
-        Error(_) -> valuesets_acc
-        Ok(vs_codes) -> {
-          let vs_named_codes =
-            vs_codes
-            |> list.map(fn(code) {
-              vsname <> string.capitalise(codetovarname(code))
-            })
-          string.concat([
-            valuesets_acc,
-            "pub type ",
-            vsname,
-            "{",
-            string.join(vs_named_codes, "\n"),
-            "}",
-            gen_valueset_encoder(vsname, vs_codes),
-            gen_valueset_to_string(vsname, vs_codes),
-            gen_valueset_from_string(vsname, vs_codes),
-            gen_valueset_decoder(vsname, vs_codes),
-          ])
-        }
-      }
+      let vs_codes =
+        codegen_helpers.get_codes(vs_url, all_vs_or_cs, fhir_version == "r4")
+      let vs_named_codes =
+        vs_codes
+        |> list.map(fn(code) {
+          vsname <> string.capitalise(codetovarname(code))
+        })
+      string.concat([
+        valuesets_acc,
+        "pub type ",
+        vsname,
+        "{",
+        string.join(vs_named_codes, "\n"),
+        "}",
+        gen_valueset_encoder(vsname, vs_codes),
+        gen_valueset_to_string(vsname, vs_codes),
+        gen_valueset_from_string(vsname, vs_codes),
+        gen_valueset_decoder(vsname, vs_codes),
+      ])
     },
   )
-}
-
-// https://chat.fhir.org/#narrow/channel/179166-implementers/topic/Kotlin.20FHIR.20model.20code.20generation.20questions/near/524688061
-// kind of pissed after the satisfying experience of getting the recursive valueset/codesystem expansion working in gleam that you can (and must in r4b/r5) simply use the expanded valuesets from terminology download?
-fn get_codes(url: String, expansion_dir: String) -> Result(List(String), Nil) {
-  let assert Ok(vs_file) = url |> string.split("/") |> list.last
-  let expansion =
-    expansion_dir |> filepath.join("ValueSet-" <> vs_file <> ".json")
-  let assert Ok(vs_json) = simplifile.read(expansion)
-    as { expansion <> " valueset expansion is missing" }
-  let assert Ok(vs) = vs_json |> json.parse(resources.valueset_decoder())
-  // this could be a chance to do something clever with recursive codesystem parser
-  // for now just going to go 1 level of valueset -> compose -> include
-  case vs.expansion {
-    Some(vs_expansion) ->
-      Ok(
-        list.map(
-          vs_expansion.contains,
-          fn(c: resources.ValuesetExpansionContains) {
-            let assert Some(code) = c.code
-            code
-          },
-        ),
-      )
-    None -> {
-      case vs.compose {
-        None -> Error(Nil)
-        Some(vsc) -> {
-          let ret =
-            list.fold(
-              from: [],
-              over: [vsc.include.first, ..vsc.include.rest],
-              with: fn(outer_acc, vsci) {
-                list.fold(
-                  from: outer_acc,
-                  over: vsci.concept,
-                  with: fn(inner_acc, vscic) { [vscic.code, ..inner_acc] },
-                )
-              },
-            )
-          Ok(ret)
-        }
-      }
-    }
-  }
 }
 
 fn codetovarname(c: String) {
