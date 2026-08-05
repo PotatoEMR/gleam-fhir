@@ -22,3 +22,19 @@ because we publish a bunch of example packages for fhir versions and http client
 ./dev/git_push_all_cores.sh
 ./dev/client_deps_from_repo.sh
 ./dev/git_push_all_clients.sh
+
+todo - https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-practitioner.html
+
+supposed to be 1..* identifier ie at least one identifier, but can be any of 3 different types
+
+could do something like this
+
+pub type UsCorePractitionerIdentifier {
+  RegularIdentifier(UsCorePractitionerIdentifierRegular)
+  NpiIdentifier(UsCorePractitionerIdentifierNpi)
+  NcsbnidIdentifier(UsCorePractitionerIdentifierNcsbnid)
+}
+identifier: List1(UsCorePractitionerIdentifier)
+
+but then ehh for blood pressure you would not want this because need to guarantuee one of each systolic and diastolic
+I mean does anybody care idk

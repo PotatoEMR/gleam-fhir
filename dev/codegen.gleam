@@ -89,8 +89,7 @@ pub fn main() {
     Error(_) -> ""
     Ok(custom_profile) -> {
       let assert [_, simplifier_profile] = string.split(custom_profile, "=")
-      let assert [pkg_name, pkg_version] =
-        string.split(simplifier_profile, "/")
+      let assert [pkg_name, pkg_version] = string.split(simplifier_profile, "/")
         as "need name and version separated by slash, eg hl7.fhir.us.core/9.0.0"
       case download_files {
         False -> Nil
@@ -214,8 +213,10 @@ fn gen_fhir(
       current_bucket: codegen_helpers.Resources,
       valueset_acc:,
     )
-  let #(profile_resourcse, valueset_acc) = case custom_profile_name {
-    None -> #("", valueset_acc)
+  let #(profile_complex_types, profile_resources, valueset_acc) = case
+    custom_profile_name
+  {
+    None -> #("", "", valueset_acc)
     Some(_) ->
       codegen_profile.profile_files_to_types(
         profiles_dir,
@@ -223,7 +224,8 @@ fn gen_fhir(
         valueset_acc,
       )
   }
-  let resources_gen = resources_gen <> profile_resourcse
+  let complex_types_gen = complex_types_gen <> profile_complex_types
+  let resources_gen = resources_gen <> profile_resources
   let ct_imports = shared_imports <> "import gleam/int\n"
 
   let list_type_defs =
@@ -680,17 +682,10 @@ fn file_to_types(
                       string.replace(elt_last_part, "[x]", "")
                     // withgleamtype still hasnt escaped the gleam types (use, case, etc) but it's expected in json fields
                     // so "\"" <> elt_last_part_withgleamtype <> "\"" should always be actual string for json
-                    let elt_last_part = case elt_last_part_withgleamtype {
-                      //field names cant be reserved gleam words
-                      "type" -> "type_"
-                      "use" -> "use_"
-                      "case" -> "case_"
-                      "const" -> "const_"
-                      "import" -> "import_"
-                      "test" -> "test_"
-                      "assert" -> "assert_"
-                      _ -> elt_last_part_withgleamtype
-                    }
+                    let elt_last_part =
+                      codegen_helpers.escape_field_name(
+                        elt_last_part_withgleamtype,
+                      )
                     let field_name_new =
                       camel_type <> string.capitalise(elt_last_part)
                     let is_primitive = case elt.type_ {

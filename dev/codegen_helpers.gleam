@@ -271,6 +271,19 @@ pub fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
   }
 }
 
+pub fn escape_field_name(name: String) -> String {
+  case name {
+    "type" -> "type_"
+    "use" -> "use_"
+    "case" -> "case_"
+    "const" -> "const_"
+    "import" -> "import_"
+    "test" -> "test_"
+    "assert" -> "assert_"
+    _ -> name
+  }
+}
+
 // replace capital HelloThere with lowercase hello_there
 // but if the previous character was a capital it will not add an underscore
 pub fn to_snake_case(input: String) -> String {
