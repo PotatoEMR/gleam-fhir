@@ -703,7 +703,10 @@ type SearchClient {
   Rsvp
 }
 
-fn gen_search_encode(expanded_rest: List(Rest), client: SearchClient) -> String {
+fn gen_search_encode(
+  expanded_rest: List(Rest),
+  client: SearchClient,
+) -> String {
   list.map(expanded_rest, fn(rest) {
     list.map(rest.resource, fn(res) {
       let #(name_lower, name_capital) = id_to_name(res.type_)

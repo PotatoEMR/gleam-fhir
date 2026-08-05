@@ -92,7 +92,7 @@ pub fn main() {
   let custom_profile =
     list.find(args_cased, fn(arg) { string.starts_with(arg, "custom=") })
   let profiles_dir = case custom_profile {
-    Error(_) -> ""
+    Error(_) -> None
     Ok(custom_profile) -> {
       let assert [_, simplifier_profile] = string.split(custom_profile, "=")
       let assert [pkg_name, pkg_version] = string.split(simplifier_profile, "/")
@@ -114,6 +114,7 @@ pub fn main() {
       |> filepath.join(pkg_name)
       |> filepath.join(pkg_version)
       |> filepath.join("package")
+      |> Some
     }
   }
 
@@ -152,7 +153,7 @@ fn gen_fhir(
   fhir_version: String,
   download_files: Bool,
   custom_profile_name: Option(String),
-  profiles_dir: String,
+  profiles_dir: Option(String),
   all_primitive_ext: Bool,
 ) -> Nil {
   let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
@@ -476,7 +477,7 @@ fn gen_fhir(
   let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: r_content)
   io.println("generated " <> gen_gleamfile)
 
-  let all_vs = valueset_to_types(fhir_version, valueset_acc)
+  let all_vs = valueset_to_types(fhir_version, valueset_acc, profiles_dir)
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
 
@@ -2142,7 +2143,11 @@ fn add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
 // region valuesets
 // note we already have a list of required bindings from resources, now need to fill codes in for those
 
-fn valueset_to_types(fhir_version: String, valueset_acc: Set(String)) {
+fn valueset_to_types(
+  fhir_version: String,
+  valueset_acc: Set(String),
+  profiles_dir: Option(String),
+) {
   //the valueset urls needed by element bindings
   let vs_url_set =
     valueset_acc
@@ -2159,13 +2164,16 @@ fn valueset_to_types(fhir_version: String, valueset_acc: Set(String)) {
       ") valuesets\n\nimport gleam/dynamic/decode.{type Decoder}\n  import gleam/json.{type Json}\n",
     ])
   let simplifier_package_version = simplifier_core_package_version(fhir_version)
-  let package_dir =
-    const_download_dir()
-    |> filepath.join("profile_packages")
-    |> filepath.join("hl7.fhir." <> fhir_version <> ".core")
-    |> filepath.join(simplifier_package_version)
-    |> filepath.join("package")
-  let all_vs_or_cs = codegen_helpers.load_valuesets(package_dir)
+  let package_dir = case profiles_dir {
+    None ->
+      const_download_dir()
+      |> filepath.join("profile_packages")
+      |> filepath.join("hl7.fhir." <> fhir_version <> ".core")
+      |> filepath.join(simplifier_package_version)
+      |> filepath.join("package")
+    Some(profile_package_dir) -> profile_package_dir
+  }
+  let all_vs_or_cs = codegen_helpers.load_valuesets(package_dir, vs_url_set)
   let vs_url_sorted =
     set.to_list(vs_url_set)
     |> list.sort(fn(a, b) {
@@ -2208,6 +2216,8 @@ fn codetovarname(c: String) {
     #(".", ""),
     #("_", ""),
     #("/", ""),
+    #("[", ""),
+    #("]", ""),
     #("!=", "Notequal"),
     #("=", "Equal"),
     #(">=", "Greaterthanoreq"),

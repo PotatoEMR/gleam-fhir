@@ -402,10 +402,12 @@ fn does_profile_restrict_complex_type(
 }
 
 pub fn profile_files_to_types(
-  profiles_dir: String,
+  profiles_dir: Option(String),
   all_primitive_ext: Bool,
   valueset_acc: Set(String),
 ) -> #(String, String, Set(String)) {
+  let assert Some(profiles_dir) = profiles_dir
+    as "if custom profile should have profiles dir"
   let profile_structures = load_profile_files(profiles_dir)
   let profile_resources =
     profile_structures.resources

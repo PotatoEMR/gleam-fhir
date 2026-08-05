@@ -2,6 +2,8 @@ import fhir/r4/resources as r4
 import filepath
 import gleam/dict.{type Dict}
 import gleam/dynamic/decode
+import gleam/int
+import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
@@ -469,11 +471,108 @@ pub type VsOrCs {
   VocCodesystem(c: r4.Codesystem)
 }
 
-pub fn load_valuesets(package_dir: String) -> Dict(String, VsOrCs) {
+fn package_dependencies_decoder() {
+  use dependencies <- decode.optional_field(
+    "dependencies",
+    dict.new(),
+    decode.dict(decode.string, decode.string),
+  )
+  decode.success(dependencies)
+}
+
+fn package_dependencies(package_dir: String) {
+  let package_json = filepath.join(package_dir, "package.json")
+  let assert Ok(contents) = simplifile.read(package_json)
+  let assert Ok(dependencies) =
+    json.parse(contents, package_dependencies_decoder())
+  dependencies
+}
+
+pub fn load_valuesets(
+  package_dir: String,
+  required_value_sets: Set(String),
+) -> Dict(String, VsOrCs) {
+  let package_store =
+    package_dir
+    |> filepath.directory_name
+    |> filepath.directory_name
+    |> filepath.directory_name
+  let required_value_set_files =
+    required_value_sets
+    |> set.map(fn(url) {
+      let assert Ok(url) = url |> string.split("/") |> list.last
+      "ValueSet-" <> url <> ".json"
+    })
+
+  let num_vs_files = required_value_set_files |> set.size |> int.to_string
+  io.println("loading " <> num_vs_files <> " valueset json files")
+
+  load_valuesets_with_dependencies(
+    package_dir,
+    package_store,
+    set.new(),
+    dict.new(),
+    required_value_set_files,
+  )
+  |> fn(result) { result.1 }
+}
+
+fn load_valuesets_with_dependencies(
+  package_dir: String,
+  package_store: String,
+  loaded: Set(String),
+  all_vs_or_cs: Dict(String, VsOrCs),
+  required_value_set_files: Set(String),
+) {
+  case set.contains(loaded, package_dir) {
+    True -> {
+      #(loaded, all_vs_or_cs)
+    }
+    False -> {
+      io.println("loading valuesets from " <> package_dir)
+      let loaded = set.insert(loaded, package_dir)
+      let #(loaded, all_vs_or_cs) =
+        package_dependencies(package_dir)
+        |> dict.to_list
+        |> list.fold(#(loaded, all_vs_or_cs), fn(acc, dependency) {
+          let dependency_dir =
+            package_store
+            |> filepath.join(dependency.0)
+            |> filepath.join(dependency.1)
+            |> filepath.join("package")
+
+          load_valuesets_with_dependencies(
+            dependency_dir,
+            package_store,
+            acc.0,
+            acc.1,
+            required_value_set_files,
+          )
+        })
+
+      let all_vs_or_cs =
+        load_valuesets_from_directory(
+          package_dir,
+          all_vs_or_cs,
+          required_value_set_files,
+        )
+      #(loaded, all_vs_or_cs)
+    }
+  }
+}
+
+fn load_valuesets_from_directory(
+  package_dir: String,
+  all_vs_or_cs: Dict(String, VsOrCs),
+  required_value_set_files: Set(String),
+) {
   let assert Ok(files) = simplifile.read_directory(package_dir)
-  list.fold(from: dict.new(), over: files, with: fn(acc, filename) {
+  list.fold(from: all_vs_or_cs, over: files, with: fn(acc, filename) {
     let path = filepath.join(package_dir, filename)
-    case string.starts_with(filename, "ValueSet-") {
+    case
+      string.starts_with(filename, "ValueSet-")
+      && set.contains(required_value_set_files, filename)
+    {
       True -> {
         let assert Ok(contents) = simplifile.read(path)
         case json.parse(contents, r4.valueset_decoder()) {
