@@ -401,17 +401,66 @@ fn does_profile_restrict_complex_type(
   list.contains(type_order, field_path)
 }
 
+fn required_codeableconcept_value_set(element: codegen_helpers.Element) {
+  case element.type_, element.binding {
+    [type_], Some(binding)
+      if type_.code == "CodeableConcept" && binding.strength == "required"
+    ->
+      case binding.value_set {
+        Some(url) -> Some(canonical_url(url))
+        None -> None
+      }
+    _, _ -> None
+  }
+}
+
+fn available_bound_value_sets(
+  resources: List(codegen_helpers.Resource),
+  package_dirs: List(String),
+) {
+  resources
+  |> list.flat_map(fn(resource) {
+    case resource.snapshot {
+      None -> []
+      Some(snapshot) ->
+        snapshot.element
+        |> list.filter_map(fn(element) {
+          case required_codeableconcept_value_set(element) {
+            Some(url) -> Ok(url)
+            None -> Error(Nil)
+          }
+        })
+    }
+  })
+  |> list.filter(fn(url) {
+    let assert Ok(name) = url |> string.split("/") |> list.last
+    let filename = "ValueSet-" <> name <> ".json"
+    list.any(package_dirs, fn(package_dir) {
+      case simplifile.is_file(filepath.join(package_dir, filename)) {
+        Ok(True) -> True
+        _ -> False
+      }
+    })
+  })
+  |> set.from_list
+}
+
 pub fn profile_files_to_types(
   profiles_dir: Option(String),
   all_primitive_ext: Bool,
   valueset_acc: Set(String),
-) -> #(String, String, Set(String)) {
+) -> #(String, String, Set(String), Set(String)) {
   let assert Some(profiles_dir) = profiles_dir
     as "if custom profile should have profiles dir"
   let profile_structures = load_profile_files(profiles_dir)
   let profile_resources =
     profile_structures.resources
     |> list.sort(fn(a, b) { string.compare(a.id, b.id) })
+  let bound_value_sets =
+    available_bound_value_sets(
+      profile_resources,
+      package_directories(profiles_dir),
+    )
   let #(extension_types, valueset_acc) =
     generate_extension_types(profile_structures.extensions, valueset_acc)
 
@@ -665,6 +714,21 @@ pub fn profile_files_to_types(
                           }
                       }
                   }
+                  let #(base_field_type, valueset_acc) = case
+                    required_codeableconcept_value_set(element)
+                  {
+                    Some(url) ->
+                      case set.contains(bound_value_sets, url) {
+                        True -> #(
+                          "ct.BoundCodeableconcept(valuesets."
+                            <> codegen_helpers.concept_name_from_url(url)
+                            <> ")",
+                          set.insert(valueset_acc, url),
+                        )
+                        False -> #(base_field_type, valueset_acc)
+                      }
+                    None -> #(base_field_type, valueset_acc)
+                  }
                   let field_type = case is_primitive {
                     True -> "Primitive(" <> base_field_type <> ")"
                     False -> base_field_type
@@ -771,4 +835,5 @@ pub fn profile_files_to_types(
       #(extension_types, generated_acc <> generated_profile, valueset_acc)
     },
   )
+  |> fn(result) { #(result.0, result.1, result.2, bound_value_sets) }
 }
