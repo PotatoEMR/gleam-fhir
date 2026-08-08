@@ -227,13 +227,10 @@ fn gen_fhir(
       current_bucket: codegen_helpers.Resources,
       valueset_acc:,
     )
-  let #(
-    profile_complex_types,
-    profile_resources,
-    valueset_acc,
-    bound_value_sets,
-  ) = case custom_profile_name {
-    None -> #("", "", valueset_acc, set.new())
+  let #(profile_complex_types, profile_resources, valueset_acc) = case
+    custom_profile_name
+  {
+    None -> #("", "", valueset_acc)
     Some(_) ->
       codegen_profile.profile_files_to_types(
         profiles_dir,
@@ -502,13 +499,7 @@ fn gen_fhir(
   let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: r_content)
   io.println("generated " <> gen_gleamfile)
 
-  let all_vs =
-    valueset_to_types(
-      fhir_version,
-      valueset_acc,
-      bound_value_sets,
-      profiles_dir,
-    )
+  let all_vs = valueset_to_types(fhir_version, valueset_acc, profiles_dir)
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
 
@@ -2174,40 +2165,23 @@ fn add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
 // region valuesets
 // note we already have a list of required bindings from resources, now need to fill codes in for those
 
-type BoundIncludeCodes {
-  BoundIncludeExpanded(List(String))
-  BoundIncludeString
+type ValuesetIncludeCodes {
+  ValuesetIncludeExpanded(List(String))
+  ValuesetIncludeString
 }
 
-fn valueset_type_source(vsname: String, vs_codes: List(String)) {
-  string.concat([
-    valueset_type_only_source(vsname, vs_codes),
-    gen_valueset_encoder(vsname, vs_codes),
-    gen_valueset_to_string(vsname, vs_codes),
-    gen_valueset_from_string(vsname, vs_codes),
-    gen_valueset_decoder(vsname, vs_codes),
-  ])
-}
-
-fn valueset_type_only_source(vsname: String, vs_codes: List(String)) {
-  let variants =
-    vs_codes
-    |> list.map(fn(code) { vsname <> string.capitalise(codetovarname(code)) })
-  "pub type " <> vsname <> "{" <> string.join(variants, "\n") <> "}\n"
-}
-
-fn bound_include_codes(
+fn valueset_include_codes(
   include: r4.ValuesetComposeInclude,
   all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
   exclude_not_selectable: Bool,
 ) {
   case include.concept, include.filter, include.system {
     [_, ..] as concepts, _, _ ->
-      BoundIncludeExpanded(list.map(concepts, fn(concept) { concept.code }))
-    [], [_first_filter, ..], _ -> BoundIncludeString
+      ValuesetIncludeExpanded(list.map(concepts, fn(concept) { concept.code }))
+    [], [_first_filter, ..], _ -> ValuesetIncludeString
     [], [], Some(system) ->
       case dict.get(all_vs_or_cs, system) {
-        Error(_) -> BoundIncludeString
+        Error(_) -> ValuesetIncludeString
         Ok(_) ->
           case
             codegen_helpers.get_codes(
@@ -2216,15 +2190,15 @@ fn bound_include_codes(
               exclude_not_selectable,
             )
           {
-            [] -> BoundIncludeString
-            codes -> BoundIncludeExpanded(codes)
+            [] -> ValuesetIncludeString
+            codes -> ValuesetIncludeExpanded(codes)
           }
       }
-    [], [], None -> BoundIncludeString
+    [], [], None -> ValuesetIncludeString
   }
 }
 
-fn bound_include_name(include: r4.ValuesetComposeInclude, index: Int) {
+fn valueset_include_name(include: r4.ValuesetComposeInclude, index: Int) {
   case include.system, include.value_set {
     Some(system), _ -> codegen_helpers.concept_name_from_url(system)
     None, [value_set, ..] -> codegen_helpers.concept_name_from_url(value_set)
@@ -2232,78 +2206,85 @@ fn bound_include_name(include: r4.ValuesetComposeInclude, index: Int) {
   }
 }
 
-fn bound_valueset_type_source(
+fn valueset_type_source(
   vs_url: String,
   vsname: String,
   all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
   exclude_not_selectable: Bool,
 ) {
-  let assert Ok(codegen_helpers.VocValueset(valueset)) =
-    dict.get(all_vs_or_cs, vs_url)
-  let assert Some(compose) = valueset.compose
-  let includes = [compose.include.first, ..compose.include.rest]
-  case includes {
-    [include] ->
-      case bound_include_codes(include, all_vs_or_cs, exclude_not_selectable) {
-        BoundIncludeExpanded(codes) -> valueset_type_source(vsname, codes)
-        BoundIncludeString -> {
-          let include_name = bound_include_name(include, 1)
-          "pub type "
-          <> vsname
-          <> "{"
-          <> vsname
-          <> include_name
-          <> "(value: String)}\n"
-        }
+  case dict.get(all_vs_or_cs, vs_url) {
+    Ok(codegen_helpers.VocValueset(valueset)) ->
+      case valueset.compose {
+        Some(compose) ->
+          valueset_compose_type_source(
+            compose,
+            vsname,
+            all_vs_or_cs,
+            exclude_not_selectable,
+          )
+        None -> open_valueset_type_source(vsname)
       }
-    _ -> {
-      let #(variants, component_types, _) =
-        list.fold(includes, #("", "", 1), fn(acc, include) {
-          let #(variants, component_types, index) = acc
-          let include_name = bound_include_name(include, index)
-          let include_name = case
-            includes
-            |> list.filter(fn(other) {
-              bound_include_name(other, index) == include_name
-            })
-            |> list.length
-          {
-            1 -> include_name
-            _ -> include_name <> int.to_string(index)
-          }
-          let variant_name = vsname <> include_name
-          case
-            bound_include_codes(include, all_vs_or_cs, exclude_not_selectable)
-          {
-            BoundIncludeString -> #(
-              variants <> variant_name <> "(value: String)\n",
-              component_types,
-              index + 1,
-            )
-            BoundIncludeExpanded(codes) -> {
-              let component_name = variant_name <> "Codes"
-              #(
-                variants
-                  <> variant_name
-                  <> "(value: "
-                  <> component_name
-                  <> ")\n",
-                component_types
-                  <> valueset_type_only_source(component_name, codes),
-                index + 1,
-              )
-            }
-          }
-        })
-      "pub type " <> vsname <> "{" <> variants <> "}\n" <> component_types
-    }
+    _ -> open_valueset_type_source(vsname)
   }
+}
+
+fn open_valueset_type_source(vsname: String) {
+  "pub type " <> vsname <> "{" <> vsname <> "(value: String)}\n"
+}
+
+fn valueset_compose_type_source(
+  compose: r4.ValuesetCompose,
+  vsname: String,
+  all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
+  exclude_not_selectable: Bool,
+) {
+  let includes = [compose.include.first, ..compose.include.rest]
+  let #(variants, codes, all_expanded, _) =
+    list.fold(includes, #("", [], True, 1), fn(acc, include) {
+      let #(variants, codes, all_expanded, index) = acc
+      case
+        valueset_include_codes(include, all_vs_or_cs, exclude_not_selectable)
+      {
+        ValuesetIncludeExpanded(include_codes) -> #(
+          variants
+            <> {
+            include_codes
+            |> list.map(fn(code) {
+              vsname <> string.capitalise(codetovarname(code)) <> "\n"
+            })
+            |> string.concat
+          },
+          list.append(codes, include_codes),
+          all_expanded,
+          index + 1,
+        )
+        ValuesetIncludeString -> #(
+          variants
+            <> vsname
+            <> valueset_include_name(include, index)
+            <> "(value: String)\n",
+          codes,
+          False,
+          index + 1,
+        )
+      }
+    })
+  let functions = case all_expanded, codes {
+    True, [_, ..] ->
+      string.concat([
+        gen_valueset_encoder(vsname, codes),
+        gen_valueset_to_string(vsname, codes),
+        gen_valueset_from_string(vsname, codes),
+        gen_valueset_decoder(vsname, codes),
+      ])
+    _, _ -> ""
+  }
+  "pub type " <> vsname <> "{" <> variants <> "}\n" <> functions
 }
 
 fn valueset_to_types(
   fhir_version: String,
   valueset_acc: Set(String),
-  bound_value_sets: Set(String),
   profiles_dir: Option(String),
 ) {
   //the valueset urls needed by element bindings
@@ -2345,19 +2326,13 @@ fn valueset_to_types(
     over: vs_url_sorted,
     with: fn(valuesets_acc, vs_url) {
       let vsname = codegen_helpers.concept_name_from_url(vs_url)
-      let source = case set.contains(bound_value_sets, vs_url) {
-        True ->
-          bound_valueset_type_source(
-            vs_url,
-            vsname,
-            all_vs_or_cs,
-            fhir_version == "r4",
-          )
-        False ->
-          codegen_helpers.get_codes(vs_url, all_vs_or_cs, fhir_version == "r4")
-          |> valueset_type_source(vsname, _)
-      }
-      valuesets_acc <> source
+      valuesets_acc
+      <> valueset_type_source(
+        vs_url,
+        vsname,
+        all_vs_or_cs,
+        fhir_version == "r4",
+      )
     },
   )
 }

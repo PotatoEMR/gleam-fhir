@@ -332,6 +332,24 @@ pub fn string_to_type(
   required_value_sets_acc: Set(String),
 ) -> #(String, Set(String)) {
   case fhir_type {
+    "Coding" ->
+      bound_complex_type(
+        "BoundCoding",
+        "Coding",
+        allparts,
+        elt,
+        current,
+        required_value_sets_acc,
+      )
+    "CodeableConcept" ->
+      bound_complex_type(
+        "BoundCodeableconcept",
+        "Codeableconcept",
+        allparts,
+        elt,
+        current,
+        required_value_sets_acc,
+      )
     "code" -> {
       let s = allparts |> string.concat()
       case s {
@@ -379,7 +397,8 @@ pub fn string_to_type(
       }
     }
     // keeping track of required valueset codes
-    // but if type is not a code, couldnt possibly be required code
+    // but if type is not code, Coding, or CodeableConcept, it couldn't
+    // possibly have a required code binding
     non_code_type -> #(
       case non_code_type {
         "BackboneElement" ->
@@ -415,6 +434,36 @@ pub fn string_to_type(
       },
       required_value_sets_acc,
     )
+  }
+}
+
+fn bound_complex_type(
+  bound_type: String,
+  normal_type: String,
+  allparts: List(String),
+  elt: Element,
+  current: Category,
+  required_value_sets_acc: Set(String),
+) -> #(String, Set(String)) {
+  let prefix = bucket_prefix(normal_type, current)
+  case allparts |> string.concat, elt.binding {
+    "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
+      _
+    | _, None
+    | _, Some(Binding(strength: "required", value_set: None))
+    -> #(prefix <> normal_type, required_value_sets_acc)
+    _, Some(Binding(strength: "required", value_set: Some(value_set))) -> {
+      let assert [url, ..] = string.split(value_set, "|")
+      #(
+        prefix
+          <> bound_type
+          <> "(valuesets."
+          <> concept_name_from_url(url)
+          <> ")",
+        set.insert(required_value_sets_acc, url),
+      )
+    }
+    _, Some(_) -> #(prefix <> normal_type, required_value_sets_acc)
   }
 }
 
