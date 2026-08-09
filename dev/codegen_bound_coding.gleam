@@ -113,9 +113,9 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         BoundCodeableconcept(text: None, required:, more: [], extension: [], id: None)
       }
 
-      pub fn bound_codeableconcept_to_json(codeableconcept: BoundCodeableconcept(required_binding), bound_coding_to_json: fn(BoundCoding(required_binding)) -> Json) -> Json {
+      pub fn bound_codeableconcept_to_json(codeableconcept: BoundCodeableconcept(required_binding),  get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
       let BoundCodeableconcept(text:, required:, more:, extension:, id:) = codeableconcept
-      let required_coding = bound_coding_to_json(required)
+      let required_coding = bound_coding_to_json(required, get_code, get_system)
       let other_codings = list.map(more, coding_to_json)
       let all_codings = json.preprocessed_array([required_coding, ..other_codings])
       let fields = [#(\"coding\", all_codings)]
