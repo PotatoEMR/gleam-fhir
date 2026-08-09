@@ -1,3 +1,9 @@
+import codegen_helpers
+import gleam/list
+import gleam/option.{type Option, None, Some}
+import gleam/set.{type Set}
+import gleam/string
+
 pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         BoundCoding(
           id: Option(String),
@@ -213,3 +219,219 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         }
       }
       "
+
+pub type ValuesetIncludeCodes {
+  ValuesetIncludeExpanded(List(ValuesetCodeWithSystem))
+  ValuesetIncludeString(system: String)
+}
+
+// need to keep track of system because some valuesets contain multiple systems
+// but we flatten valuesets to flat list of codes
+// so need to get system from code or create valueset item from system and code
+pub type ValuesetCodeWithSystem {
+  ValuesetCodeWithSystem(code: String, system: String)
+}
+
+pub type OpenValuesetVariant {
+  OpenValuesetVariant(name: String, system: String)
+}
+
+pub fn bound_valueset_function_name(
+  elt: codegen_helpers.Element,
+) -> Option(String) {
+  case elt.type_, elt.binding {
+    [_], Some(binding) ->
+      case binding.strength, binding.value_set {
+        "required", Some(value_set) -> {
+          let assert [url, ..] = string.split(value_set, "|")
+          Some(
+            url
+            |> codegen_helpers.concept_name_from_url
+            |> codegen_helpers.to_snake_case,
+          )
+        }
+        _, _ -> None
+      }
+    _, _ -> None
+  }
+}
+
+pub fn bound_coding_encoder_source(prefix: String, valueset: String) -> String {
+  "fn(coding) { "
+  <> bound_coding_encoder_call_source(prefix, valueset, "coding")
+  <> " }"
+}
+
+pub fn bound_coding_encoder_call_source(
+  prefix: String,
+  valueset: String,
+  value: String,
+) -> String {
+  prefix
+  <> "bound_coding_to_json("
+  <> value
+  <> ", valuesets."
+  <> valueset
+  <> "_to_code, valuesets."
+  <> valueset
+  <> "_system)"
+}
+
+pub fn bound_codeableconcept_encoder_source(
+  prefix: String,
+  valueset: String,
+) -> String {
+  "fn(codeableconcept) { "
+  <> bound_codeableconcept_encoder_call_source(
+    prefix,
+    valueset,
+    "codeableconcept",
+  )
+  <> " }"
+}
+
+pub fn bound_codeableconcept_encoder_call_source(
+  prefix: String,
+  valueset: String,
+  value: String,
+) -> String {
+  prefix
+  <> "bound_codeableconcept_to_json("
+  <> value
+  <> ", valuesets."
+  <> valueset
+  <> "_to_code, valuesets."
+  <> valueset
+  <> "_system)"
+}
+
+pub fn bound_coding_decoder_source(prefix: String, valueset: String) -> String {
+  prefix
+  <> "bound_coding_decoder(valuesets."
+  <> valueset
+  <> "_from_code_and_system, valuesets."
+  <> valueset
+  <> "_failure_variant)"
+}
+
+pub fn bound_codeableconcept_decoder_source(
+  prefix: String,
+  valueset: String,
+) -> String {
+  prefix
+  <> "bound_codeableconcept_decoder(valuesets."
+  <> valueset
+  <> "_from_code_and_system, valuesets."
+  <> valueset
+  <> "_failure_variant)"
+}
+
+pub fn gen_valueset_from_code_and_system(
+  vsname: String,
+  vs_codes: List(ValuesetCodeWithSystem),
+  open_variants: List(OpenValuesetVariant),
+) -> String {
+  let vsname_lower = string.lowercase(vsname)
+  let template =
+    "pub fn CNAMELOWER_from_code_and_system(code: String, system: String) -> Result(CNAMECAPITAL, Nil) {
+    case code, system {"
+    <> list.fold(
+      from: "",
+      over: vs_codes,
+      with: fn(acc: String, member: ValuesetCodeWithSystem) {
+        let ValuesetCodeWithSystem(code:, system:) = member
+        acc
+        <> "\"ACTUALCODE\", \"ACTUALSYSTEM\" -> Ok(CODETYPE)\n"
+        |> string.replace(
+          "CODETYPE",
+          vsname <> string.capitalise(codegen_helpers.codetovarname(code)),
+        )
+        |> string.replace("ACTUALCODE", code)
+        |> string.replace("ACTUALSYSTEM", system)
+      },
+    )
+    <> list.fold(open_variants, "", fn(acc, open_variant) {
+      let OpenValuesetVariant(name:, system:) = open_variant
+      acc <> "code, \"" <> system <> "\" -> Ok(" <> name <> "(code))\n"
+    })
+    <> "_, _ -> Error(Nil)}
+  }
+  "
+  template
+  |> string.replace("CNAMELOWER", vsname_lower)
+  |> string.replace("CNAMECAPITAL", string.capitalise(vsname))
+}
+
+pub fn gen_valueset_system(
+  vsname: String,
+  vs_codes: List(ValuesetCodeWithSystem),
+  open_variants: List(OpenValuesetVariant),
+  systems: Set(String),
+) -> String {
+  let vsname_lower = string.lowercase(vsname)
+  case set.to_list(systems) {
+    [system] ->
+      "pub fn "
+      <> vsname_lower
+      <> "_system(_"
+      <> vsname_lower
+      <> ": "
+      <> vsname
+      <> ") -> String {\n  \""
+      <> system
+      <> "\"\n}\n"
+    _ ->
+      gen_multisystem_valueset_system(
+        vsname,
+        vsname_lower,
+        vs_codes,
+        open_variants,
+      )
+  }
+}
+
+pub fn gen_multisystem_valueset_system(
+  vsname: String,
+  vsname_lower: String,
+  vs_codes: List(ValuesetCodeWithSystem),
+  open_variants: List(OpenValuesetVariant),
+) -> String {
+  let expanded_system_arms =
+    list.fold(vs_codes, "", fn(acc, member) {
+      let ValuesetCodeWithSystem(code:, system:) = member
+      acc
+      <> vsname
+      <> string.capitalise(codegen_helpers.codetovarname(code))
+      <> " -> \""
+      <> system
+      <> "\"\n"
+    })
+  "pub fn "
+  <> vsname_lower
+  <> "_system("
+  <> vsname_lower
+  <> ": "
+  <> vsname
+  <> ") -> String {\n  case "
+  <> vsname_lower
+  <> " {"
+  <> expanded_system_arms
+  <> list.fold(open_variants, "", fn(acc, open_variant) {
+    let OpenValuesetVariant(name:, system:) = open_variant
+    acc <> name <> "(value: _) -> \"" <> system <> "\"\n"
+  })
+  <> "}\n}\n"
+}
+
+pub fn valueset_failure_variant_source(
+  vsname: String,
+  vs_codes: List(ValuesetCodeWithSystem),
+  open_variants: List(OpenValuesetVariant),
+) -> String {
+  case vs_codes, open_variants {
+    [ValuesetCodeWithSystem(code:, ..), ..], _ ->
+      vsname <> string.capitalise(codegen_helpers.codetovarname(code))
+    [], [OpenValuesetVariant(name:, ..), ..] -> name <> "(\"\")"
+    [], [] -> panic as { "ValueSet " <> vsname <> " has no variants" }
+  }
+}
