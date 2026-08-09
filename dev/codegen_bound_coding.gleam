@@ -162,10 +162,20 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         }
       }
 
-      fn find_valueset_coding(in items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)){
-        let is_bound_valueset = fn(coding){
+      fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding)), Nil) {
+        let is_bound_valueset = fn(coding: Coding){
           case coding.code, coding.system {
-            Some(code), Some(system) -> binding_from_code_and_system(code, system)
+            Some(code), Some(system) -> case binding_from_code_and_system(code, system) {
+              Error(_) -> Error(Nil)
+              Ok(binding) -> Ok(BoundCoding(
+                user_selected: coding.user_selected,
+                display: coding.display,
+                code: binding,
+                version: coding.version,
+                extension: coding.extension,
+                id: coding.id,
+              ))
+            }
             _, _ -> Error(Nil)
           }
         }
