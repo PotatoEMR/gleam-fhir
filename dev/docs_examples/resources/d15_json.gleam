@@ -45,28 +45,12 @@ pub fn main() {
           ],
         ),
       ),
-      clinical_status: Some(
-        ct.Codeableconcept(..ct.codeableconcept_new(), coding: [
-          ct.Coding(
-            ..ct.coding_new(),
-            system: Some(
-              "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
-            ),
-            code: Some("active"),
-          ),
-        ]),
-      ),
-      verification_status: Some(
-        ct.Codeableconcept(..ct.codeableconcept_new(), coding: [
-          ct.Coding(
-            ..ct.coding_new(),
-            system: Some(
-              "http://terminology.hl7.org/CodeSystem/allergyintolerance-verification",
-            ),
-            code: Some("confirmed"),
-          ),
-        ]),
-      ),
+      clinical_status: Some(ct.bound_codeableconcept_new(
+        valuesets.AllergyintoleranceclinicalActive,
+      )),
+      verification_status: Some(ct.bound_codeableconcept_new(
+        valuesets.AllergyintoleranceverificationConfirmed,
+      )),
       type_: Some(valuesets.AllergyintolerancetypeAllergy),
       category: [valuesets.AllergyintolerancecategoryFood],
       criticality: Some(valuesets.AllergyintolerancecriticalityLow),

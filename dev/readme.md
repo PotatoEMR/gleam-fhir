@@ -38,3 +38,6 @@ identifier: List1(UsCorePractitionerIdentifier)
 
 but then ehh for blood pressure you would not want this because need to guarantuee one of each systolic and diastolic
 I mean does anybody care idk
+
+todo download valuesets such as http://loinc.org/LL379-9 from web
+currently only download simplifier dependencies

@@ -10,8 +10,13 @@ Both mean negative, so we want a way to represent that single concept in multipl
 
 For example, AllergyIntolerance.code can identify lactose intolerance in both SNOMED and ICD-10. As opposed to the previous example with two separate Codings, this example puts the two Codings in one single CodeableConcept, meaning they both represent the same lactose intolerance in SNOMED and ICD-10.
 
+When a CodeableConcept is bound to valueset with strength required, one of the list of codings must come from the valueset. In Gleam, `BoundCodeableconcept(required_binding)` represents this with two fields:
+- `required: required_binding` which is a coding from the required valueset
+- `more: List(Coding)` which can be any codings that represent the same concept.
+
 ```gleam
 import fhir/r4/complex_types as ct
+import fhir/r4/valuesets
 
 import gleam/option.{None, Some}
 
@@ -36,5 +41,16 @@ pub fn main() {
       text: Some("Lactose intolerance"),
     )
   echo terrible_news
+
+  let allergy_active: ct.BoundCodeableconcept(
+    valuesets.Allergyintoleranceclinical,
+  ) = ct.bound_codeableconcept_new(valuesets.AllergyintoleranceclinicalActive)
+  echo allergy_active.required.code
+  echo valuesets.allergyintoleranceclinical_system(allergy_active.required.code)
+
+  let other_coding_1 = ct.Coding(..ct.coding_new(), code: Some("current"), system: Some("my-made-up-system-1"))
+  let other_coding_2 = ct.Coding(..ct.coding_new(), code: Some("in-progress"), system: Some("my-made-up-system-2"))
+  let allergy_active = ct.BoundCodeableconcept(..allergy_active, more: [other_coding_1, other_coding_2])
+  echo allergy_active
 }
 ```

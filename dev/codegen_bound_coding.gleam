@@ -333,7 +333,7 @@ pub fn gen_valueset_from_code_and_system(
 ) -> String {
   let vsname_lower = string.lowercase(vsname)
   let template =
-    "pub fn CNAMELOWER_from_code_and_system(code: String, system: String) -> Result(CNAMECAPITAL, Nil) {
+    "pub fn CNAMELOWER_from_code_and_system(code code: String, system system: String) -> Result(CNAMECAPITAL, Nil) {
     case code, system {"
     <> list.fold(
       from: "",

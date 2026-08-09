@@ -329,8 +329,8 @@ pub fn string_to_type(
   allparts: List(String),
   elt: Element,
   current: Category,
-  required_value_sets_acc: Set(String),
-) -> #(String, Set(String)) {
+  required_value_sets_acc: Dict(String, ValuesetItem),
+) -> #(String, Dict(String, ValuesetItem)) {
   case fhir_type {
     "Coding" ->
       bound_complex_type(
@@ -380,7 +380,11 @@ pub fn string_to_type(
                         //idk whats going on here, probably i dont understand valueset composition
                         False -> #(
                           "valuesets." <> concept_name_from_url(url),
-                          required_value_sets_acc |> set.insert(url),
+                          insert_valueset(
+                            required_value_sets_acc,
+                            url,
+                            ValuesetCodeOnlyDontNeedSystem,
+                          ),
                         )
                       }
                     }
@@ -443,8 +447,8 @@ fn bound_complex_type(
   allparts: List(String),
   elt: Element,
   current: Category,
-  required_value_sets_acc: Set(String),
-) -> #(String, Set(String)) {
+  required_value_sets_acc: Dict(String, ValuesetItem),
+) -> #(String, Dict(String, ValuesetItem)) {
   let prefix = bucket_prefix(normal_type, current)
   case allparts |> string.concat, elt.binding {
     "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
@@ -460,10 +464,33 @@ fn bound_complex_type(
           <> "(valuesets."
           <> concept_name_from_url(url)
           <> ")",
-        set.insert(required_value_sets_acc, url),
+        insert_valueset(
+          required_value_sets_acc,
+          url,
+          ValuesetBoundCodingOrCcNeedsSystem,
+        ),
       )
     }
     _, Some(_) -> #(prefix <> normal_type, required_value_sets_acc)
+  }
+}
+
+pub type ValuesetItem {
+  ValuesetBoundCodingOrCcNeedsSystem
+  ValuesetCodeOnlyDontNeedSystem
+}
+
+fn insert_valueset(
+  valuesets: Dict(String, ValuesetItem),
+  url: String,
+  item: ValuesetItem,
+) -> Dict(String, ValuesetItem) {
+  case dict.get(valuesets, url), item {
+    Ok(ValuesetBoundCodingOrCcNeedsSystem), _ -> valuesets
+    _, ValuesetBoundCodingOrCcNeedsSystem ->
+      dict.insert(valuesets, url, ValuesetBoundCodingOrCcNeedsSystem)
+    _, ValuesetCodeOnlyDontNeedSystem ->
+      dict.insert(valuesets, url, ValuesetCodeOnlyDontNeedSystem)
   }
 }
 
@@ -740,5 +767,28 @@ fn codesystemconcepts_get_codes(
       False -> [csc.code, ..codes]
     }
     acc |> list.append(codes)
+  })
+}
+
+pub fn codetovarname(c: String) {
+  str_replace_many(c, [
+    #("-", ""),
+    #(".", ""),
+    #("_", ""),
+    #("/", ""),
+    #("[", ""),
+    #("]", ""),
+    #("!=", "Notequal"),
+    #("=", "Equal"),
+    #(">=", "Greaterthanoreq"),
+    #(">", "Greaterthan"),
+    #("<=", "Lessthanoreq"),
+    #("<", "Lessthan"),
+  ])
+}
+
+fn str_replace_many(s: String, badchars: List(#(String, String))) -> String {
+  list.fold(from: s, over: badchars, with: fn(acc, bc) {
+    string.replace(acc, bc.0, bc.1)
   })
 }

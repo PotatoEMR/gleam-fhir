@@ -237,8 +237,8 @@ fn extension_field_name(element: codegen_helpers.Element) -> String {
 fn extension_field_type(
   extension_name: String,
   element: codegen_helpers.Element,
-  valueset_acc: Set(String),
-) -> #(String, String, Set(String)) {
+  valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+) -> #(String, String, dict.Dict(String, codegen_helpers.ValuesetItem)) {
   let field_name = extension_field_name(element)
   case element.type_ {
     [type_] -> {
@@ -289,8 +289,8 @@ fn extension_field_type(
 
 fn generate_extension_types(
   extensions: dict.Dict(String, ExtensionDefinition),
-  valueset_acc: Set(String),
-) -> #(String, Set(String)) {
+  valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+) -> #(String, dict.Dict(String, codegen_helpers.ValuesetItem)) {
   extensions
   |> dict.values
   |> list.sort(fn(a, b) { string.compare(a.name, b.name) })
@@ -369,8 +369,8 @@ fn remove_profile_extension_children(
 fn profile_extension_type(
   element: codegen_helpers.Element,
   extensions: dict.Dict(String, ExtensionDefinition),
-  valueset_acc: Set(String),
-) -> Option(#(String, Set(String))) {
+  valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+) -> Option(#(String, dict.Dict(String, codegen_helpers.ValuesetItem))) {
   case profile_extension_definition(element, extensions) {
     None -> None
     Some(ExtensionDefinition(name:, kind: ComplexExtension(_))) ->
@@ -404,8 +404,8 @@ fn does_profile_restrict_complex_type(
 pub fn profile_files_to_types(
   profiles_dir: Option(String),
   all_primitive_ext: Bool,
-  valueset_acc: Set(String),
-) -> #(String, String, Set(String)) {
+  valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+) -> #(String, String, dict.Dict(String, codegen_helpers.ValuesetItem)) {
   let assert Some(profiles_dir) = profiles_dir
     as "if custom profile should have profiles dir"
   let profile_structures = load_profile_files(profiles_dir)

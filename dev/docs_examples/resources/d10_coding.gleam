@@ -1,5 +1,5 @@
 import fhir/r4/complex_types as ct
-
+import fhir/r4/valuesets
 import gleam/option.{Some}
 
 pub fn main() {
@@ -18,4 +18,18 @@ pub fn main() {
       code: Some("E73.9"),
     )
   echo another_way_to_put_it
+
+  let allergy_active: ct.BoundCoding(valuesets.Allergyintoleranceclinical) =
+    ct.bound_coding_new(valuesets.AllergyintoleranceclinicalActive)
+  echo allergy_active.code
+  echo valuesets.allergyintoleranceclinical_to_code(allergy_active.code)
+  echo valuesets.allergyintoleranceclinical_system(allergy_active.code)
+
+  let assert Ok(inactive_code) =
+    valuesets.allergyintoleranceclinical_from_code_and_system(
+      code: "inactive",
+      system: "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical",
+    )
+  let allergy_inactive = ct.bound_coding_new(inactive_code)
+  echo allergy_inactive.code
 }
