@@ -220,6 +220,64 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
       }
       "
 
+pub const bound_codeable_reference = "      pub type BoundCodeablereference(required_binding) {
+  BoundCodeablereference(
+    id: Option(String),
+    extension: List(Extension),
+    concept: Option(BoundCodeableconcept(required_binding)),
+    reference: Option(Reference),
+  )
+}
+
+pub fn bound_codeablereference_new() -> BoundCodeablereference(required_binding) {
+  BoundCodeablereference(reference: None, concept: None, extension: [], id: None)
+}
+
+pub fn bound_codeablereference_to_json(codeablereference: BoundCodeablereference(required_binding),  get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
+  let BoundCodeablereference(reference:, concept:, extension:, id:) =
+    codeablereference
+  let fields = []
+  let fields = case reference {
+    Some(v) -> [#(\"reference\", reference_to_json(v)), ..fields]
+    None -> fields
+  }
+  let fields = case concept {
+    Some(v) -> [#(\"concept\", bound_codeableconcept_to_json(v, get_code, get_system)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#(\"extension\", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#(\"id\", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn bound_codeablereference_decoder(binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder(BoundCodeablereference(required_binding)) {
+  use <- decode.recursive
+  use reference <- decode.optional_field(
+    \"reference\",
+    None,
+    decode.optional(reference_decoder()),
+  )
+  use concept <- decode.optional_field(
+    \"concept\",
+    None,
+    decode.optional(bound_codeableconcept_decoder(binding_from_code_and_system, failure_placeholder)),
+  )
+  use extension <- decode.optional_field(
+    \"extension\",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
+  decode.success(BoundCodeablereference(reference:, concept:, extension:, id:))
+}
+"
+
 pub type ValuesetIncludeCodes {
   ValuesetIncludeExpanded(List(ValuesetCodeWithSystem))
   ValuesetIncludeString(system: String)
@@ -305,6 +363,34 @@ pub fn bound_codeableconcept_encoder_call_source(
   <> "_system)"
 }
 
+pub fn bound_codeablereference_encoder_source(
+  prefix: String,
+  valueset: String,
+) -> String {
+  "fn(codeablereference) { "
+  <> bound_codeablereference_encoder_call_source(
+    prefix,
+    valueset,
+    "codeablereference",
+  )
+  <> " }"
+}
+
+pub fn bound_codeablereference_encoder_call_source(
+  prefix: String,
+  valueset: String,
+  value: String,
+) -> String {
+  prefix
+  <> "bound_codeablereference_to_json("
+  <> value
+  <> ", valuesets."
+  <> valueset
+  <> "_to_code, valuesets."
+  <> valueset
+  <> "_system)"
+}
+
 pub fn bound_coding_decoder_source(prefix: String, valueset: String) -> String {
   prefix
   <> "bound_coding_decoder(valuesets."
@@ -320,6 +406,18 @@ pub fn bound_codeableconcept_decoder_source(
 ) -> String {
   prefix
   <> "bound_codeableconcept_decoder(valuesets."
+  <> valueset
+  <> "_from_code_and_system, valuesets."
+  <> valueset
+  <> "_failure_variant)"
+}
+
+pub fn bound_codeablereference_decoder_source(
+  prefix: String,
+  valueset: String,
+) -> String {
+  prefix
+  <> "bound_codeablereference_decoder(valuesets."
   <> valueset
   <> "_from_code_and_system, valuesets."
   <> valueset

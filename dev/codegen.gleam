@@ -254,6 +254,12 @@ fn gen_fhir(
   let resources_gen =
     replace_unavailable_bindings(resources_gen, unavailable_valuesets)
     |> replace_failure_variants
+  let bound_codeable_reference_source = case
+    string.contains(resources_gen, "ct.BoundCodeablereference(valuesets.")
+  {
+    True -> codegen_bound_coding.bound_codeable_reference
+    False -> ""
+  }
   let ct_imports = shared_imports <> "import gleam/int\n"
 
   let list_type_defs =
@@ -462,6 +468,7 @@ fn gen_fhir(
       ct_imports,
       list_type_defs,
       codegen_bound_coding.bound_coding_and_cc,
+      bound_codeable_reference_source,
       complex_types_gen,
       helpers_block,
     ])
@@ -536,6 +543,22 @@ fn replace_unavailable_bindings(
       |> codegen_helpers.to_snake_case
     source
     |> string.replace(
+      codegen_bound_coding.bound_codeablereference_encoder_call_source(
+        "",
+        fn_name,
+        "v",
+      ),
+      "codeablereference_to_json(v)",
+    )
+    |> string.replace(
+      codegen_bound_coding.bound_codeablereference_encoder_call_source(
+        "ct.",
+        fn_name,
+        "v",
+      ),
+      "ct.codeablereference_to_json(v)",
+    )
+    |> string.replace(
       codegen_bound_coding.bound_codeableconcept_encoder_call_source(
         "",
         fn_name,
@@ -560,6 +583,17 @@ fn replace_unavailable_bindings(
       "ct.coding_to_json(v)",
     )
     |> string.replace(
+      codegen_bound_coding.bound_codeablereference_encoder_source("", fn_name),
+      "codeablereference_to_json",
+    )
+    |> string.replace(
+      codegen_bound_coding.bound_codeablereference_encoder_source(
+        "ct.",
+        fn_name,
+      ),
+      "ct.codeablereference_to_json",
+    )
+    |> string.replace(
       codegen_bound_coding.bound_codeableconcept_encoder_source("", fn_name),
       "codeableconcept_to_json",
     )
@@ -576,6 +610,17 @@ fn replace_unavailable_bindings(
       "ct.coding_to_json",
     )
     |> string.replace(
+      codegen_bound_coding.bound_codeablereference_decoder_source("", fn_name),
+      "codeablereference_decoder()",
+    )
+    |> string.replace(
+      codegen_bound_coding.bound_codeablereference_decoder_source(
+        "ct.",
+        fn_name,
+      ),
+      "ct.codeablereference_decoder()",
+    )
+    |> string.replace(
       codegen_bound_coding.bound_codeableconcept_decoder_source("", fn_name),
       "codeableconcept_decoder()",
     )
@@ -590,6 +635,10 @@ fn replace_unavailable_bindings(
     |> string.replace(
       codegen_bound_coding.bound_coding_decoder_source("ct.", fn_name),
       "ct.coding_decoder()",
+    )
+    |> string.replace(
+      "BoundCodeablereference(valuesets." <> type_name <> ")",
+      "Codeablereference",
     )
     |> string.replace(
       "BoundCodeableconcept(valuesets." <> type_name <> ")",
@@ -1901,6 +1950,17 @@ fn string_to_decoder_type(
         None -> prefix <> "codeableconcept_decoder()"
       }
     }
+    "CodeableReference" -> {
+      let prefix = codegen_helpers.bucket_prefix("Codeablereference", current)
+      case codegen_bound_coding.bound_valueset_function_name(elt) {
+        Some(valueset) ->
+          codegen_bound_coding.bound_codeablereference_decoder_source(
+            prefix,
+            valueset,
+          )
+        None -> prefix <> "codeablereference_decoder()"
+      }
+    }
     "code" -> {
       let s = allparts |> string.concat()
       case s {
@@ -1997,6 +2057,12 @@ fn string_to_encoder_call(
         valueset,
         value,
       )
+    "CodeableReference", Some(valueset) ->
+      codegen_bound_coding.bound_codeablereference_encoder_call_source(
+        prefix,
+        valueset,
+        value,
+      )
     _, _ ->
       string_to_encoder_type(fhir_type, allparts, fhir_version, elt, current)
       <> "("
@@ -2045,6 +2111,17 @@ fn string_to_encoder_type(
             valueset,
           )
         None -> prefix <> "codeableconcept_to_json"
+      }
+    }
+    "CodeableReference" -> {
+      let prefix = codegen_helpers.bucket_prefix("Codeablereference", current)
+      case codegen_bound_coding.bound_valueset_function_name(elt) {
+        Some(valueset) ->
+          codegen_bound_coding.bound_codeablereference_encoder_source(
+            prefix,
+            valueset,
+          )
+        None -> prefix <> "codeablereference_to_json"
       }
     }
     "code" -> {

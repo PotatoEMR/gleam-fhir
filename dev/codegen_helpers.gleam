@@ -350,6 +350,15 @@ pub fn string_to_type(
         current,
         required_value_sets_acc,
       )
+    "CodeableReference" ->
+      bound_complex_type(
+        "BoundCodeablereference",
+        "Codeablereference",
+        allparts,
+        elt,
+        current,
+        required_value_sets_acc,
+      )
     "code" -> {
       let s = allparts |> string.concat()
       case s {
@@ -401,7 +410,7 @@ pub fn string_to_type(
       }
     }
     // keeping track of required valueset codes
-    // but if type is not code, Coding, or CodeableConcept, it couldn't
+    // but if type is not code, Coding, CodeableConcept, or CodeableReference, it couldn't
     // possibly have a required code binding
     non_code_type -> #(
       case non_code_type {
@@ -519,6 +528,10 @@ pub fn bucket_prefix(type_name: String, current: Category) -> String {
 }
 
 pub fn concept_name_from_url(url) {
+  let url = case url |> string.ends_with("/") {
+    False -> url
+    True -> url |> string.drop_end(1)
+  }
   let assert Ok(urlname) = url |> string.split("/") |> list.last()
   let assert [fst, ..rest] = string.to_graphemes(urlname)
   let urlname = case fst {
@@ -536,9 +549,7 @@ pub fn concept_name_from_url(url) {
   }
   urlname
   |> string.replace(" ", "")
-  |> string.replace("-", "")
-  |> string.replace("_", "")
-  |> string.replace(".", "")
+  |> codetovarname
   |> string.capitalise
 }
 
@@ -772,6 +783,7 @@ fn codesystemconcepts_get_codes(
 
 pub fn codetovarname(c: String) {
   str_replace_many(c, [
+    #(":", ""),
     #("-", ""),
     #(".", ""),
     #("_", ""),

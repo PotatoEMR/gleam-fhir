@@ -31,8 +31,22 @@ pub fn main() {
   echo allergy_active.required.code
   echo valuesets.allergyintoleranceclinical_system(allergy_active.required.code)
 
-  let other_coding_1 = ct.Coding(..ct.coding_new(), code: Some("current"), system: Some("my-made-up-system-1"))
-  let other_coding_2 = ct.Coding(..ct.coding_new(), code: Some("in-progress"), system: Some("my-made-up-system-2"))
-  let allergy_active = ct.BoundCodeableconcept(..allergy_active, more: [other_coding_1, other_coding_2])
+  let other_coding_1 =
+    ct.Coding(
+      ..ct.coding_new(),
+      code: Some("current"),
+      system: Some("my-made-up-system-1"),
+    )
+  let other_coding_2 =
+    ct.Coding(
+      ..ct.coding_new(),
+      code: Some("in-progress"),
+      system: Some("my-made-up-system-2"),
+    )
+  let allergy_active =
+    ct.BoundCodeableconcept(..allergy_active, more: [
+      other_coding_1,
+      other_coding_2,
+    ])
   echo allergy_active
 }

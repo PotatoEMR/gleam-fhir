@@ -10,7 +10,17 @@ CodeableReference has both CodeableConcept and Reference, so it can refer to a g
 
 ![Manifestation](https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/Manifestation.JPG)
 
-To recap, [code](https://hl7.org/fhir/R4/datatypes.html#code) comes from a set of values. [Coding](https://hl7.org/fhir/R4/datatypes.html#Coding) has code plus system the code comes from. [CodeableConcept](https://hl7.org/fhir/R4/datatypes.html#CodeableConcept) represents a concept in different systems using Coding list. [CodeableReference](https://build.fhir.org/references.html#codeablereference) can have a CodeableConcept with a general concept, or a Reference to a specific instance.
+To recap:
+
+[code](https://hl7.org/fhir/R4/datatypes.html#code) comes from a set of values.
+
+-> [Coding](https://hl7.org/fhir/R4/datatypes.html#Coding) has code plus system the code comes from.
+
+-> -> [CodeableConcept](https://hl7.org/fhir/R4/datatypes.html#CodeableConcept) represents a concept in different systems using Coding list. 
+
+-> -> -> [CodeableReference](https://build.fhir.org/references.html#codeablereference) can have a CodeableConcept with a general concept, or a Reference to a specific instance.
+
+Generating a `BoundCodeablereference(required_binding)` is possible by modifying codegen input profile, but the base R5 spec does not have any CodeableReference elements with a required valueset binding, so the default R5 Gleam package does not have any such bound CodeableReference fields.
 
 ```gleam
 import fhir/r5/complex_types as ct
