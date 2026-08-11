@@ -275,6 +275,122 @@ pub fn bound_codeablereference_decoder(binding_from_code_and_system: fn(String, 
   )
   use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
   decode.success(BoundCodeablereference(reference:, concept:, extension:, id:))
+}"
+
+// https://chat.fhir.org/#narrow/channel/179252-IG-creation/topic/Unexpected.20error.20when.20Quantity.2Ecomparator.20missing
+// Cardinality is orthogonal to binding. The binding applies if the element is present. If there's no element, then there's no "concept in this element" for the SHALL to apply to :slight_smile:
+// In the special case of Quantity, the binding is actually to the implicit 'Coding' that is built into the Quantity. That implicit Coding is only considered to be 'present' if either the 'code' or 'system' are there. So it's totally legal to have a Quantity with just a value or a value + unit. (Not best practice, but legal.)
+
+pub const bound_quantity = "pub type BoundQuantity(required_binding) {
+  BoundQuantity(
+    id: Option(String),
+    extension: List(Extension),
+    value: Option(Float),
+    comparator: Option(valuesets.Quantitycomparator),
+    unit: Option(String),
+    code: Option(required_binding)
+  )
+}
+
+pub fn bound_quantity_new() -> BoundQuantity(required_binding) {
+  BoundQuantity(
+    code: None,
+    unit: None,
+    comparator: None,
+    value: None,
+    extension: [],
+    id: None,
+  )
+}
+
+pub fn bound_quantity_to_json(quantity: BoundQuantity(required_binding), get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
+  let BoundQuantity(code:, unit:, comparator:, value:, extension:, id:) =
+    quantity
+    let fields = case code {
+      Some(bound_code) -> [
+         #(\"code\", json.string(get_code(bound_code))),
+         #(\"system\", json.string(get_system(bound_code))),
+      ]
+      None -> []
+    }
+  let fields = case unit {
+    Some(v) -> [#(\"unit\", json.string(v)), ..fields]
+    None -> fields
+  }
+  let fields = case comparator {
+    Some(v) -> [
+      #(\"comparator\", valuesets.quantitycomparator_to_json(v)),
+      ..fields
+    ]
+    None -> fields
+  }
+  let fields = case value {
+    Some(v) -> [#(\"value\", json.float(v)), ..fields]
+    None -> fields
+  }
+  let fields = case extension {
+    [] -> fields
+    _ -> [#(\"extension\", json.array(extension, extension_to_json)), ..fields]
+  }
+  let fields = case id {
+    Some(v) -> [#(\"id\", json.string(v)), ..fields]
+    None -> fields
+  }
+  json.object(fields)
+}
+
+pub fn bound_quantity_decoder(binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Decoder(BoundQuantity(required_binding)) {
+  use <- decode.recursive
+  use code <- decode.optional_field(
+    \"code\",
+    None,
+    decode.optional(decode.string),
+  )
+  use system <- decode.optional_field(
+    \"system\",
+    None,
+    decode.optional(decode.string),
+  )
+  case code, system {
+    None, None -> bound_quantity_decode_rest(None)
+    Some(code), Some(system) -> case   binding_from_code_and_system(code, system) {
+        Error(_) -> decode.failure(bound_quantity_new(), \"need code + system from required ValueSet\")
+        Ok(binding) -> bound_quantity_decode_rest(Some(binding))
+      }
+    _, _ -> decode.failure(bound_quantity_new(), \"need code + system from required ValueSet\")
+  }
+}
+
+fn bound_quantity_decode_rest(with_binding: Option(required_binding)) -> Decoder(BoundQuantity(required_binding)) {
+  use unit <- decode.optional_field(
+    \"unit\",
+    None,
+    decode.optional(decode.string),
+  )
+  use comparator <- decode.optional_field(
+    \"comparator\",
+    None,
+    decode.optional(valuesets.quantitycomparator_decoder()),
+  )
+  use value <- decode.optional_field(
+    \"value\",
+    None,
+    decode.optional(decode_number()),
+  )
+  use extension <- decode.optional_field(
+    \"extension\",
+    [],
+    decode.list(extension_decoder()),
+  )
+  use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
+  decode.success(BoundQuantity(
+    code: with_binding,
+    unit:,
+    comparator:,
+    value:,
+    extension:,
+    id:,
+  ))
 }
 "
 
