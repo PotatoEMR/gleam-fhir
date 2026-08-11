@@ -481,6 +481,7 @@ fn gen_fhir(
       list_type_defs,
       codegen_bound_coding.bound_coding_and_cc,
       bound_codeable_reference_source,
+      codegen_bound_coding.bound_quantity,
       complex_types_gen,
       helpers_block,
     ])
@@ -595,6 +596,18 @@ fn replace_unavailable_bindings(
       "ct.coding_to_json(v)",
     )
     |> string.replace(
+      codegen_bound_coding.bound_quantity_encoder_call_source("", fn_name, "v"),
+      "quantity_to_json(v)",
+    )
+    |> string.replace(
+      codegen_bound_coding.bound_quantity_encoder_call_source(
+        "ct.",
+        fn_name,
+        "v",
+      ),
+      "ct.quantity_to_json(v)",
+    )
+    |> string.replace(
       codegen_bound_coding.bound_codeablereference_encoder_source("", fn_name),
       "codeablereference_to_json",
     )
@@ -620,6 +633,14 @@ fn replace_unavailable_bindings(
     |> string.replace(
       codegen_bound_coding.bound_coding_encoder_source("ct.", fn_name),
       "ct.coding_to_json",
+    )
+    |> string.replace(
+      codegen_bound_coding.bound_quantity_encoder_source("", fn_name),
+      "quantity_to_json",
+    )
+    |> string.replace(
+      codegen_bound_coding.bound_quantity_encoder_source("ct.", fn_name),
+      "ct.quantity_to_json",
     )
     |> string.replace(
       codegen_bound_coding.bound_codeablereference_decoder_source("", fn_name),
@@ -649,6 +670,14 @@ fn replace_unavailable_bindings(
       "ct.coding_decoder()",
     )
     |> string.replace(
+      codegen_bound_coding.bound_quantity_decoder_source("", fn_name),
+      "quantity_decoder()",
+    )
+    |> string.replace(
+      codegen_bound_coding.bound_quantity_decoder_source("ct.", fn_name),
+      "ct.quantity_decoder()",
+    )
+    |> string.replace(
       "BoundCodeablereference(valuesets." <> type_name <> ")",
       "Codeablereference",
     )
@@ -657,6 +686,10 @@ fn replace_unavailable_bindings(
       "Codeableconcept",
     )
     |> string.replace("BoundCoding(valuesets." <> type_name <> ")", "Coding")
+    |> string.replace(
+      "BoundQuantity(valuesets." <> type_name <> ")",
+      "Quantity",
+    )
     |> string.replace("valuesets." <> type_name, "String")
     |> string.replace("valuesets." <> fn_name <> "_to_json", "json.string")
     |> string.replace("valuesets." <> fn_name <> "_decoder()", "decode.string")
@@ -1973,6 +2006,14 @@ fn string_to_decoder_type(
         None -> prefix <> "codeablereference_decoder()"
       }
     }
+    "Quantity" -> {
+      let prefix = codegen_helpers.bucket_prefix("Quantity", current)
+      case codegen_bound_coding.bound_valueset_function_name(elt) {
+        Some(valueset) ->
+          codegen_bound_coding.bound_quantity_decoder_source(prefix, valueset)
+        None -> prefix <> "quantity_decoder()"
+      }
+    }
     "code" -> {
       let s = allparts |> string.concat()
       case s {
@@ -2075,6 +2116,12 @@ fn string_to_encoder_call(
         valueset,
         value,
       )
+    "Quantity", Some(valueset) ->
+      codegen_bound_coding.bound_quantity_encoder_call_source(
+        prefix,
+        valueset,
+        value,
+      )
     _, _ ->
       string_to_encoder_type(fhir_type, allparts, fhir_version, elt, current)
       <> "("
@@ -2134,6 +2181,14 @@ fn string_to_encoder_type(
             valueset,
           )
         None -> prefix <> "codeablereference_to_json"
+      }
+    }
+    "Quantity" -> {
+      let prefix = codegen_helpers.bucket_prefix("Quantity", current)
+      case codegen_bound_coding.bound_valueset_function_name(elt) {
+        Some(valueset) ->
+          codegen_bound_coding.bound_quantity_encoder_source(prefix, valueset)
+        None -> prefix <> "quantity_to_json"
       }
     }
     "code" -> {

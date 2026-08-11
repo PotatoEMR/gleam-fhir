@@ -443,6 +443,15 @@ pub fn string_to_type(
         current,
         required_value_sets_acc,
       )
+    "Quantity" ->
+      bound_complex_type(
+        "BoundQuantity",
+        "Quantity",
+        allparts,
+        elt,
+        current,
+        required_value_sets_acc,
+      )
     "code" -> {
       let s = allparts |> string.concat()
       case s {

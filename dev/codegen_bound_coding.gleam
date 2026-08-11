@@ -507,6 +507,30 @@ pub fn bound_codeablereference_encoder_call_source(
   <> "_system)"
 }
 
+pub fn bound_quantity_encoder_source(
+  prefix: String,
+  valueset: String,
+) -> String {
+  "fn(quantity) { "
+  <> bound_quantity_encoder_call_source(prefix, valueset, "quantity")
+  <> " }"
+}
+
+pub fn bound_quantity_encoder_call_source(
+  prefix: String,
+  valueset: String,
+  value: String,
+) -> String {
+  prefix
+  <> "bound_quantity_to_json("
+  <> value
+  <> ", valuesets."
+  <> valueset
+  <> "_to_code, valuesets."
+  <> valueset
+  <> "_system)"
+}
+
 pub fn bound_coding_decoder_source(prefix: String, valueset: String) -> String {
   prefix
   <> "bound_coding_decoder(valuesets."
@@ -538,6 +562,16 @@ pub fn bound_codeablereference_decoder_source(
   <> "_from_code_and_system, valuesets."
   <> valueset
   <> "_failure_variant)"
+}
+
+pub fn bound_quantity_decoder_source(
+  prefix: String,
+  valueset: String,
+) -> String {
+  prefix
+  <> "bound_quantity_decoder(valuesets."
+  <> valueset
+  <> "_from_code_and_system)"
 }
 
 pub fn gen_valueset_from_code_and_system(

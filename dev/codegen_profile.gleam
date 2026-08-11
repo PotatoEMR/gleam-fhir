@@ -517,7 +517,7 @@ fn plan_whole_value_slice(
             )
           {
             True -> Ok(SlicePlan([#(root.id, BoundCodeableconceptSlice)]))
-            False -> Error("can't generate required binding " <> value_set)
+            False -> Error("can't expand valueset " <> value_set)
           }
         }
         _ -> Error("unsupported $this value pattern")
@@ -616,7 +616,7 @@ fn plan_value_slice(
       plan_system_code_slice(root, elements)
     True, [path] if path == "code" || path == "type" ->
       plan_child_value_slice(root, path, elements)
-    False, _ -> Error("discriminator is not value")
+    False, _ -> Error("")
     True, _ -> Error("unsupported value discriminator path")
   }
 }
@@ -681,6 +681,10 @@ fn prepare_profile_slices(
     let #(current_elements, overrides) = acc
     let assert Some(slicing) = group.slicing
     let roots = direct_slice_roots(group, current_elements)
+    let discriminator_type = case slicing.discriminator {
+      [discriminator, ..] -> discriminator.type_
+      [] -> "unknown"
+    }
     let #(plans, unsupported_ids) =
       list.fold(roots, #([], []), fn(acc, root) {
         let #(plans, unsupported_ids) = acc
@@ -690,7 +694,16 @@ fn prepare_profile_slices(
           Ok(plan) -> #([plan, ..plans], unsupported_ids)
           Error(reason) -> {
             io.println(
-              "not slicing " <> resource_id <> " " <> root.id <> ": " <> reason,
+              "not slicing "
+              <> discriminator_type
+              <> " discriminator "
+              <> resource_id
+              <> " "
+              <> root.id
+              <> case reason {
+                "" -> ""
+                _ -> " because " <> reason
+              },
             )
             #(plans, [root.id, ..unsupported_ids])
           }
