@@ -127,6 +127,11 @@ pub type Element {
     type_: List(Type),
     binding: Option(Binding),
     content_reference: Option(String),
+    fixed_code: Option(String),
+    fixed_uri: Option(String),
+    pattern_coding: Option(DiscriminatorCodingValue),
+    pattern_codeableconcept: Option(DiscriminatorCodeableconceptValue),
+    pattern_identifier: Option(DiscriminatorIdentifierValue),
   )
 }
 
@@ -157,6 +162,31 @@ pub fn element_decoder() -> decode.Decoder(Element) {
     None,
     decode.optional(decode.string),
   )
+  use fixed_code <- decode.optional_field(
+    "fixedCode",
+    None,
+    decode.optional(decode.string),
+  )
+  use fixed_uri <- decode.optional_field(
+    "fixedUri",
+    None,
+    decode.optional(decode.string),
+  )
+  use pattern_coding <- decode.optional_field(
+    "patternCoding",
+    None,
+    decode.optional(discriminator_coding_value_decoder()),
+  )
+  use pattern_codeableconcept <- decode.optional_field(
+    "patternCodeableConcept",
+    None,
+    decode.optional(discriminator_codeableconcept_value_decoder()),
+  )
+  use pattern_identifier <- decode.optional_field(
+    "patternIdentifier",
+    None,
+    decode.optional(discriminator_identifier_value_decoder()),
+  )
   decode.success(Element(
     id:,
     path:,
@@ -168,7 +198,61 @@ pub fn element_decoder() -> decode.Decoder(Element) {
     type_:,
     binding:,
     content_reference:,
+    fixed_code:,
+    fixed_uri:,
+    pattern_coding:,
+    pattern_codeableconcept:,
+    pattern_identifier:,
   ))
+}
+
+pub type DiscriminatorCodingValue {
+  DiscriminatorCodingValue(system: Option(String), code: Option(String))
+}
+
+fn discriminator_coding_value_decoder() {
+  use system <- decode.optional_field(
+    "system",
+    None,
+    decode.optional(decode.string),
+  )
+  use code <- decode.optional_field(
+    "code",
+    None,
+    decode.optional(decode.string),
+  )
+  decode.success(DiscriminatorCodingValue(system:, code:))
+}
+
+pub type DiscriminatorCodeableconceptValue {
+  DiscriminatorCodeableconceptValue(coding: List(DiscriminatorCodingValue))
+}
+
+fn discriminator_codeableconcept_value_decoder() {
+  use coding <- decode.optional_field(
+    "coding",
+    [],
+    decode.list(discriminator_coding_value_decoder()),
+  )
+  decode.success(DiscriminatorCodeableconceptValue(coding:))
+}
+
+pub type DiscriminatorIdentifierValue {
+  DiscriminatorIdentifierValue(system: Option(String), value: Option(String))
+}
+
+fn discriminator_identifier_value_decoder() {
+  use system <- decode.optional_field(
+    "system",
+    None,
+    decode.optional(decode.string),
+  )
+  use value <- decode.optional_field(
+    "value",
+    None,
+    decode.optional(decode.string),
+  )
+  decode.success(DiscriminatorIdentifierValue(system:, value:))
 }
 
 pub type ElementBase {
@@ -556,6 +640,18 @@ pub fn concept_name_from_url(url) {
 pub type VsOrCs {
   VocValueset(v: r4.Valueset)
   VocCodesystem(c: r4.Codesystem)
+}
+
+pub fn valueset_can_generate_system(
+  vs_url: String,
+  all_vs_or_cs: Dict(String, VsOrCs),
+) -> Bool {
+  case dict.get(all_vs_or_cs, vs_url) {
+    Ok(VocValueset(r4.Valueset(compose: Some(compose), ..))) ->
+      [compose.include.first, ..compose.include.rest]
+      |> list.all(fn(include) { include.system != None })
+    _ -> False
+  }
 }
 
 fn package_dependencies_decoder() {

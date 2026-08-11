@@ -228,21 +228,33 @@ fn gen_fhir(
       current_bucket: codegen_helpers.Resources,
       valueset_acc:,
     )
-  let #(profile_complex_types, profile_resources, valueset_acc) = case
-    custom_profile_name
-  {
-    None -> #("", "", valueset_acc)
-    Some(_) ->
-      codegen_profile.profile_files_to_types(
-        profiles_dir,
-        all_primitive_ext,
-        valueset_acc,
-      )
+  let #(
+    profile_complex_types,
+    profile_resources,
+    valueset_acc,
+    preloaded_valuesets,
+  ) = case custom_profile_name {
+    None -> #("", "", valueset_acc, None)
+    Some(_) -> {
+      let assert Some(profiles_dir) = profiles_dir
+      let #(complex_types, resources, valuesets, loaded_valuesets) =
+        codegen_profile.profile_files_to_types(
+          profiles_dir,
+          all_primitive_ext,
+          valueset_acc,
+        )
+      #(complex_types, resources, valuesets, Some(loaded_valuesets))
+    }
   }
   let complex_types_gen = complex_types_gen <> profile_complex_types
   let resources_gen = resources_gen <> profile_resources
   let #(all_vs, unavailable_valuesets, failure_variant_replacements) =
-    valueset_to_types(fhir_version, valueset_acc, profiles_dir)
+    valueset_to_types(
+      fhir_version,
+      valueset_acc,
+      profiles_dir,
+      preloaded_valuesets,
+    )
   let replace_failure_variants = fn(source) {
     list.fold(failure_variant_replacements, source, fn(source, replacement) {
       string.replace(source, replacement.0, replacement.1)
@@ -2476,23 +2488,6 @@ fn valueset_type_source(
   }
 }
 
-fn valueset_can_generate_system(
-  vs_url: String,
-  all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
-) -> Bool {
-  case dict.get(all_vs_or_cs, vs_url) {
-    Ok(codegen_helpers.VocValueset(r4.Valueset(compose: Some(compose), ..))) ->
-      [compose.include.first, ..compose.include.rest]
-      |> list.all(fn(include) {
-        case include.system {
-          Some(_) -> True
-          None -> False
-        }
-      })
-    _ -> False
-  }
-}
-
 fn valueset_compose_type_source(
   compose: r4.ValuesetCompose,
   vsname: String,
@@ -2612,6 +2607,7 @@ fn valueset_to_types(
   fhir_version: String,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   profiles_dir: Option(String),
+  preloaded_valuesets: Option(dict.Dict(String, codegen_helpers.VsOrCs)),
 ) {
   // the valueset urls needed by elements by required bindings
   // and if they are for a code or for coding/cc
@@ -2632,17 +2628,23 @@ fn valueset_to_types(
       fhir_version,
       ") valuesets\n\nimport gleam/dynamic/decode.{type Decoder}\n  import gleam/json.{type Json}\n",
     ])
-  let simplifier_package_version = simplifier_core_package_version(fhir_version)
-  let package_dir = case profiles_dir {
-    None ->
-      const_download_dir()
-      |> filepath.join("profile_packages")
-      |> filepath.join("hl7.fhir." <> fhir_version <> ".core")
-      |> filepath.join(simplifier_package_version)
-      |> filepath.join("package")
-    Some(profile_package_dir) -> profile_package_dir
+  let all_vs_or_cs = case preloaded_valuesets {
+    Some(valuesets) -> valuesets
+    None -> {
+      let simplifier_package_version =
+        simplifier_core_package_version(fhir_version)
+      let package_dir = case profiles_dir {
+        None ->
+          const_download_dir()
+          |> filepath.join("profile_packages")
+          |> filepath.join("hl7.fhir." <> fhir_version <> ".core")
+          |> filepath.join(simplifier_package_version)
+          |> filepath.join("package")
+        Some(profile_package_dir) -> profile_package_dir
+      }
+      codegen_helpers.load_valuesets(package_dir, vs_url_set)
+    }
   }
-  let all_vs_or_cs = codegen_helpers.load_valuesets(package_dir, vs_url_set)
   let vs_url_sorted =
     set.to_list(vs_url_set)
     |> list.sort(fn(a, b) {
@@ -2663,7 +2665,7 @@ fn valueset_to_types(
         codegen_helpers.ValuesetBoundCodingOrCcNeedsSystem -> True
         codegen_helpers.ValuesetCodeOnlyDontNeedSystem -> False
       }
-      case valueset_can_generate_system(vs_url, all_vs_or_cs) {
+      case codegen_helpers.valueset_can_generate_system(vs_url, all_vs_or_cs) {
         True -> {
           let #(valueset_source, replacements) =
             valueset_type_source(
