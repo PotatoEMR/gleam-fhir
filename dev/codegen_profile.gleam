@@ -410,6 +410,7 @@ type SlicePlan {
     root_id: String,
     fhir_type: String,
     slice: codegen_helpers.Element,
+    children: List(codegen_helpers.Element),
   )
 }
 
@@ -646,7 +647,20 @@ fn plan_slice(
   case slicing.discriminator, root.type_ {
     [codegen_helpers.Discriminator(type_: "type", path: "$this")],
       [codegen_helpers.Type(code:, ..)]
-    -> Ok(TypeSlicePlan(root_id: group.id, fhir_type: code, slice: root))
+    ->
+      Ok(TypeSlicePlan(
+        root_id: group.id,
+        fhir_type: code,
+        slice: root,
+        children: list.filter(elements, fn(element) {
+          let prefix = root.id <> "."
+          string.starts_with(element.id, prefix)
+          && !string.contains(
+            string.drop_start(element.id, string.length(prefix)),
+            ".",
+          )
+        }),
+      ))
     _, _ -> plan_value_slice(slicing, root, elements, available_valuesets)
   }
 }
@@ -706,7 +720,7 @@ fn prepare_profile_slices(
 ) -> #(
   List(codegen_helpers.Element),
   dict.Dict(String, SliceFieldType),
-  dict.Dict(String, codegen_helpers.Element),
+  dict.Dict(String, SlicePlan),
 ) {
   let groups =
     elements
@@ -789,8 +803,8 @@ fn prepare_profile_slices(
     let type_slice_overrides =
       list.fold(plans, type_slice_overrides, fn(overrides, plan) {
         case plan {
-          TypeSlicePlan(root_id:, fhir_type:, slice:) ->
-            dict.insert(overrides, type_slice_key(root_id, fhir_type), slice)
+          TypeSlicePlan(root_id:, fhir_type:, ..) ->
+            dict.insert(overrides, type_slice_key(root_id, fhir_type), plan)
           ValueSlicePlan(_) -> overrides
         }
       })
@@ -1202,31 +1216,109 @@ pub fn profile_files_to_types(
                     {
                       [] | [_] -> #("", valueset_acc)
                       choice_types -> {
-                        let #(variants, valueset_acc) =
+                        let #(variants, sliced_types, valueset_acc) =
                           list.fold(
                             over: choice_types,
-                            from: #("", valueset_acc),
+                            from: #("", "", valueset_acc),
                             with: fn(acc, choice) {
-                              let #(variants_acc, valueset_acc) = acc
-                              let #(choice_element, choice_parts) = case
+                              let #(
+                                variants_acc,
+                                sliced_types_acc,
+                                valueset_acc,
+                              ) = acc
+                              let #(variant_type, sliced_type, valueset_acc) = case
                                 dict.get(
                                   type_slice_overrides,
                                   type_slice_key(element.id, choice.code),
                                 )
                               {
-                                Ok(slice) -> #(slice, all_parts)
-                                Error(_) -> #(element, [
-                                  "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
-                                ])
+                                Ok(TypeSlicePlan(slice:, children: [], ..)) -> {
+                                  let #(variant_type, valueset_acc) =
+                                    codegen_helpers.string_to_type(
+                                      choice.code,
+                                      all_parts,
+                                      slice,
+                                      codegen_helpers.Resources,
+                                      valueset_acc,
+                                    )
+                                  #(variant_type, "", valueset_acc)
+                                }
+                                Ok(TypeSlicePlan(children:, ..)) -> {
+                                  let sliced_name =
+                                    choice_type
+                                    <> string.capitalise(choice.code)
+                                    <> "Sliced"
+                                  let #(fields, valueset_acc) =
+                                    children
+                                    |> list.filter(fn(child) {
+                                      child.max != "0"
+                                      && child.fixed_code == None
+                                      && child.fixed_uri == None
+                                    })
+                                    |> list.fold(
+                                      #("", valueset_acc),
+                                      fn(acc, child) {
+                                        let #(fields, valueset_acc) = acc
+                                        let assert [child_type] = child.type_
+                                        let assert Ok(field_name) =
+                                          child.path
+                                          |> string.split(".")
+                                          |> list.last
+                                        let field_name =
+                                          codegen_helpers.escape_field_name(
+                                            field_name,
+                                          )
+                                        let #(gleam_type, valueset_acc) =
+                                          codegen_helpers.string_to_type(
+                                            child_type.code,
+                                            [sliced_name, field_name],
+                                            child,
+                                            codegen_helpers.Resources,
+                                            valueset_acc,
+                                          )
+                                        #(
+                                          fields
+                                            <> "    "
+                                            <> codegen_helpers.to_snake_case(
+                                            field_name,
+                                          )
+                                            <> ": "
+                                            <> codegen_helpers.cardinality(
+                                            gleam_type,
+                                            child.min,
+                                            child.max,
+                                          )
+                                            <> ",\n",
+                                          valueset_acc,
+                                        )
+                                      },
+                                    )
+                                  #(
+                                    sliced_name,
+                                    "pub type "
+                                      <> sliced_name
+                                      <> " {\n  "
+                                      <> sliced_name
+                                      <> "(\n"
+                                      <> fields
+                                      <> "  )\n}\n\n",
+                                    valueset_acc,
+                                  )
+                                }
+                                Error(_) | Ok(ValueSlicePlan(_)) -> {
+                                  let #(variant_type, valueset_acc) =
+                                    codegen_helpers.string_to_type(
+                                      choice.code,
+                                      [
+                                        "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
+                                      ],
+                                      element,
+                                      codegen_helpers.Resources,
+                                      valueset_acc,
+                                    )
+                                  #(variant_type, "", valueset_acc)
+                                }
                               }
-                              let #(variant_type, valueset_acc) =
-                                codegen_helpers.string_to_type(
-                                  choice.code,
-                                  choice_parts,
-                                  choice_element,
-                                  codegen_helpers.Resources,
-                                  valueset_acc,
-                                )
                               #(
                                 variants_acc
                                   <> "  "
@@ -1235,6 +1327,7 @@ pub fn profile_files_to_types(
                                   <> "(value: "
                                   <> variant_type
                                   <> ")\n",
+                                sliced_types_acc <> sliced_type,
                                 valueset_acc,
                               )
                             },
@@ -1244,7 +1337,8 @@ pub fn profile_files_to_types(
                             <> choice_type
                             <> " {\n"
                             <> variants
-                            <> "}\n\n",
+                            <> "}\n\n"
+                            <> sliced_types,
                           valueset_acc,
                         )
                       }
