@@ -405,7 +405,12 @@ fn does_profile_restrict_complex_type(
 }
 
 type SlicePlan {
-  SlicePlan(overrides: List(#(String, SliceFieldType)))
+  ValueSlicePlan(overrides: List(#(String, SliceFieldType)))
+  TypeSlicePlan(
+    root_id: String,
+    fhir_type: String,
+    slice: codegen_helpers.Element,
+  )
 }
 
 type SliceFieldType {
@@ -472,14 +477,18 @@ fn plan_whole_value_slice(
     [codegen_helpers.Type(code: "Coding", ..)], Some(pattern), _, _ ->
       case has_system_and_code(pattern) {
         True ->
-          Ok(SlicePlan([#(root.id, FixedSliceType("ct.CodingDiscriminator"))]))
+          Ok(
+            ValueSlicePlan([
+              #(root.id, FixedSliceType("ct.CodingDiscriminator")),
+            ]),
+          )
         False -> Error("Coding pattern does not fix system and code")
       }
     [codegen_helpers.Type(code: "CodeableConcept", ..)], _, Some(pattern), _ ->
       case is_single_coding_pattern(pattern) {
         True ->
           Ok(
-            SlicePlan([
+            ValueSlicePlan([
               #(root.id, FixedSliceType("ct.CodeableconceptDiscriminator")),
             ]),
           )
@@ -501,7 +510,7 @@ fn plan_whole_value_slice(
         True -> "ct.IdentifierDiscriminatorSystemRequiredValue"
         False -> "ct.IdentifierDiscriminatorSystem"
       }
-      Ok(SlicePlan([#(root.id, FixedSliceType(type_))]))
+      Ok(ValueSlicePlan([#(root.id, FixedSliceType(type_))]))
     }
     [codegen_helpers.Type(code: "CodeableConcept", ..)], _, _, _ ->
       case root.binding {
@@ -516,7 +525,7 @@ fn plan_whole_value_slice(
               available_valuesets,
             )
           {
-            True -> Ok(SlicePlan([#(root.id, BoundCodeableconceptSlice)]))
+            True -> Ok(ValueSlicePlan([#(root.id, BoundCodeableconceptSlice)]))
             False -> Error("can't expand valueset " <> value_set)
           }
         }
@@ -546,7 +555,9 @@ fn plan_system_code_slice(
       {
         True, Some(_), Some(_) ->
           Ok(
-            SlicePlan([#(coding_id, FixedSliceType("ct.CodingDiscriminator"))]),
+            ValueSlicePlan([
+              #(coding_id, FixedSliceType("ct.CodingDiscriminator")),
+            ]),
           )
         _, _, _ -> Error("coding.system and coding.code are not fixed literals")
       }
@@ -576,7 +587,7 @@ fn plan_child_value_slice(
       case is_single_coding_pattern(pattern) {
         True ->
           Ok(
-            SlicePlan([
+            ValueSlicePlan([
               #(root.id, FixedSliceType("ct.IdentifierDiscriminatorType")),
             ]),
           )
@@ -587,7 +598,7 @@ fn plan_child_value_slice(
       case is_single_coding_pattern(pattern) {
         True ->
           Ok(
-            SlicePlan([
+            ValueSlicePlan([
               #(child_id, FixedSliceType("ct.CodeableconceptDiscriminator")),
             ]),
           )
@@ -596,7 +607,11 @@ fn plan_child_value_slice(
     _, _, [codegen_helpers.Type(code: "Coding", ..)], _, Some(pattern) ->
       case has_system_and_code(pattern) {
         True ->
-          Ok(SlicePlan([#(child_id, FixedSliceType("ct.CodingDiscriminator"))]))
+          Ok(
+            ValueSlicePlan([
+              #(child_id, FixedSliceType("ct.CodingDiscriminator")),
+            ]),
+          )
         False -> Error("Coding pattern does not fix system and code")
       }
     _, _, _, _, _ -> Error("unsupported value pattern at " <> child_id)
@@ -619,6 +634,25 @@ fn plan_value_slice(
     False, _ -> Error("")
     True, _ -> Error("unsupported value discriminator path")
   }
+}
+
+fn plan_slice(
+  slicing: codegen_helpers.Slicing,
+  group: codegen_helpers.Element,
+  root: codegen_helpers.Element,
+  elements: List(codegen_helpers.Element),
+  available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+) -> Result(SlicePlan, String) {
+  case slicing.discriminator, root.type_ {
+    [codegen_helpers.Discriminator(type_: "type", path: "$this")],
+      [codegen_helpers.Type(code:, ..)]
+    -> Ok(TypeSlicePlan(root_id: group.id, fhir_type: code, slice: root))
+    _, _ -> plan_value_slice(slicing, root, elements, available_valuesets)
+  }
+}
+
+fn type_slice_key(root_id: String, fhir_type: String) -> String {
+  root_id <> "|" <> fhir_type
 }
 
 fn direct_slice_roots(
@@ -669,7 +703,11 @@ fn prepare_profile_slices(
   resource_id: String,
   elements: List(codegen_helpers.Element),
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
-) -> #(List(codegen_helpers.Element), dict.Dict(String, SliceFieldType)) {
+) -> #(
+  List(codegen_helpers.Element),
+  dict.Dict(String, SliceFieldType),
+  dict.Dict(String, codegen_helpers.Element),
+) {
   let groups =
     elements
     |> list.filter(fn(element) {
@@ -677,8 +715,8 @@ fn prepare_profile_slices(
     })
     |> list.sort(fn(a, b) { string.compare(a.id, b.id) })
 
-  list.fold(groups, #(elements, dict.new()), fn(acc, group) {
-    let #(current_elements, overrides) = acc
+  list.fold(groups, #(elements, dict.new(), dict.new()), fn(acc, group) {
+    let #(current_elements, overrides, type_slice_overrides) = acc
     let assert Some(slicing) = group.slicing
     let roots = direct_slice_roots(group, current_elements)
     let discriminator_type = case slicing.discriminator {
@@ -689,7 +727,13 @@ fn prepare_profile_slices(
       list.fold(roots, #([], []), fn(acc, root) {
         let #(plans, unsupported_ids) = acc
         case
-          plan_value_slice(slicing, root, current_elements, available_valuesets)
+          plan_slice(
+            slicing,
+            group,
+            root,
+            current_elements,
+            available_valuesets,
+          )
         {
           Ok(plan) -> #([plan, ..plans], unsupported_ids)
           Error(reason) -> {
@@ -711,22 +755,44 @@ fn prepare_profile_slices(
       })
     let current_elements =
       remove_element_trees(current_elements, unsupported_ids, True)
+    let type_slice_ids =
+      plans
+      |> list.filter_map(fn(plan) {
+        case plan {
+          TypeSlicePlan(slice:, ..) -> Ok(slice.id)
+          ValueSlicePlan(_) -> Error(Nil)
+        }
+      })
+    let current_elements =
+      remove_element_trees(current_elements, type_slice_ids, True)
     let replacement_ids =
       plans
       |> list.flat_map(fn(plan) {
-        let SlicePlan(overrides: pairs) = plan
-        list.map(pairs, fn(pair) { pair.0 })
+        case plan {
+          ValueSlicePlan(pairs) -> list.map(pairs, fn(pair) { pair.0 })
+          TypeSlicePlan(..) -> []
+        }
       })
     let current_elements =
       remove_element_trees(current_elements, replacement_ids, False)
     let overrides =
       plans
       |> list.flat_map(fn(plan) {
-        let SlicePlan(overrides: pairs) = plan
-        pairs
+        case plan {
+          ValueSlicePlan(pairs) -> pairs
+          TypeSlicePlan(..) -> []
+        }
       })
       |> list.fold(overrides, fn(overrides, pair) {
         dict.insert(overrides, pair.0, pair.1)
+      })
+    let type_slice_overrides =
+      list.fold(plans, type_slice_overrides, fn(overrides, plan) {
+        case plan {
+          TypeSlicePlan(root_id:, fhir_type:, slice:) ->
+            dict.insert(overrides, type_slice_key(root_id, fhir_type), slice)
+          ValueSlicePlan(_) -> overrides
+        }
       })
     let current_elements = case plans {
       [] ->
@@ -738,7 +804,7 @@ fn prepare_profile_slices(
         })
       _ -> current_elements
     }
-    #(current_elements, overrides)
+    #(current_elements, overrides, type_slice_overrides)
   })
 }
 
@@ -823,7 +889,7 @@ pub fn profile_files_to_types(
             snapshot.element,
             profile_structures.extensions,
           )
-        let #(profile_elements, slice_type_overrides) =
+        let #(profile_elements, slice_type_overrides, type_slice_overrides) =
           prepare_profile_slices(
             resource.id,
             profile_elements,
@@ -1142,13 +1208,22 @@ pub fn profile_files_to_types(
                             from: #("", valueset_acc),
                             with: fn(acc, choice) {
                               let #(variants_acc, valueset_acc) = acc
+                              let #(choice_element, choice_parts) = case
+                                dict.get(
+                                  type_slice_overrides,
+                                  type_slice_key(element.id, choice.code),
+                                )
+                              {
+                                Ok(slice) -> #(slice, all_parts)
+                                Error(_) -> #(element, [
+                                  "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
+                                ])
+                              }
                               let #(variant_type, valueset_acc) =
                                 codegen_helpers.string_to_type(
                                   choice.code,
-                                  [
-                                    "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
-                                  ],
-                                  element,
+                                  choice_parts,
+                                  choice_element,
                                   codegen_helpers.Resources,
                                   valueset_acc,
                                 )
