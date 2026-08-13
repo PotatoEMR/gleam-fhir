@@ -904,6 +904,60 @@ pub fn codetovarname(c: String) {
   ])
 }
 
+pub fn gen_choicetype_suffixes(
+  match_var: String,
+  types: List(Type),
+  field_name_new: String,
+) -> String {
+  case types {
+    [_, _, ..] ->
+      string.concat([
+        " <> case ",
+        match_var,
+        " {",
+        list.fold(from: "", over: types, with: fn(suffixes_acc, ct) {
+          let assert [first_letter, ..rest] = ct.code |> string.to_graphemes
+          let capital_ct =
+            string.concat([string.uppercase(first_letter), ..rest])
+          suffixes_acc
+          <> field_name_new
+          <> string.capitalise(ct.code)
+          <> "(_) -> \""
+          <> capital_ct
+          <> "\"\n"
+        }),
+        "}",
+      ])
+    _ -> ""
+  }
+}
+
+pub fn gen_res_encoder(
+  respascal: String,
+  rescamel: String,
+  reslower: String,
+  fields_list: String,
+  fields_json_always: String,
+  fields_json_options: String,
+  is_domainresource: Bool,
+) -> String {
+  let resource_type = case is_domainresource {
+    True ->
+      "\n  let fields = [#(\"resourceType\", json.string(\""
+      <> respascal
+      <> "\")), ..fields]"
+    False -> ""
+  }
+  let template =
+    "pub fn RESNAMELOWER_to_json(RESNAMELOWER: RESNAMECAMEL) -> Json {
+    let RESNAMECAMEL(" <> fields_list <> ") = RESNAMELOWER
+    let fields = [" <> fields_json_always <> "]" <> fields_json_options <> resource_type <> "\njson.object(fields)}
+  "
+  template
+  |> string.replace("RESNAMELOWER", reslower)
+  |> string.replace("RESNAMECAMEL", rescamel)
+}
+
 fn str_replace_many(s: String, badchars: List(#(String, String))) -> String {
   list.fold(from: s, over: badchars, with: fn(acc, bc) {
     string.replace(acc, bc.0, bc.1)

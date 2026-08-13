@@ -4,6 +4,7 @@ import codegen_client
 import codegen_helpers
 import codegen_profile
 import codegen_profile_package_download_no_npm
+import codegen_to_json
 import fhir/r4/resources as r4
 import filepath
 import gleam/dict
@@ -1034,10 +1035,9 @@ fn file_to_types(
                                     field_name_new,
                                     string.capitalise(typ.code),
                                     "(v) -> ",
-                                    string_to_encoder_call(
+                                    codegen_to_json.string_to_encoder_call(
                                       typ.code,
                                       allparts,
-                                      fhir_version,
                                       elt,
                                       current_bucket,
                                       "v",
@@ -1192,10 +1192,9 @@ fn file_to_types(
                     let encoder_args_acc = encoder_args_acc <> elt_snake <> ":,"
                     let field_type_encoder = case elt.type_ {
                       [one_type] ->
-                        string_to_encoder_type(
+                        codegen_to_json.string_to_encoder_type(
                           one_type.code,
                           allparts,
-                          fhir_version,
                           elt,
                           current_bucket,
                         )
@@ -1215,10 +1214,9 @@ fn file_to_types(
                     let field_type_encoder_call = fn(value) {
                       case elt.type_ {
                         [one_type] ->
-                          string_to_encoder_call(
+                          codegen_to_json.string_to_encoder_call(
                             one_type.code,
                             allparts,
-                            fhir_version,
                             elt,
                             current_bucket,
                             value,
@@ -1365,7 +1363,7 @@ fn file_to_types(
                           False -> {
                             //optional case to json, in Some case add to fields list
                             let choicetype_suffixes =
-                              gen_choicetype_suffixes(
+                              codegen_helpers.gen_choicetype_suffixes(
                                 "v",
                                 elt.type_,
                                 field_name_new,
@@ -1412,7 +1410,7 @@ fn file_to_types(
                           False -> {
                             //mandatory case to json, put in first fields list
                             let choicetype_suffixes =
-                              gen_choicetype_suffixes(
+                              codegen_helpers.gen_choicetype_suffixes(
                                 elt_snake,
                                 elt.type_,
                                 field_name_new,
@@ -1719,10 +1717,9 @@ fn file_to_types(
                         "ExtensionValue",
                         string.capitalise(typ.code),
                         "(v) -> ",
-                        string_to_encoder_call(
+                        codegen_to_json.string_to_encoder_call(
                           typ.code,
                           [],
-                          "",
                           elt,
                           codegen_helpers.ComplexTypes,
                           "v",
@@ -1793,7 +1790,7 @@ fn file_to_types(
                         type_choicetypes,
                         type_new_newfunc,
                         old_type_acc,
-                        gen_res_encoder(
+                        codegen_helpers.gen_res_encoder(
                           fhir_resource_type,
                           camel_type,
                           snake_type,
@@ -2088,215 +2085,6 @@ fn string_to_decoder_type(
   }
 }
 
-fn string_to_encoder_call(
-  fhir_type: String,
-  allparts: List(String),
-  fhir_version: String,
-  elt: codegen_helpers.Element,
-  current: codegen_helpers.Category,
-  value: String,
-) -> String {
-  let prefix = codegen_helpers.bucket_prefix("Coding", current)
-  case fhir_type, codegen_bound_coding.bound_valueset_function_name(elt) {
-    "Coding", Some(valueset) ->
-      codegen_bound_coding.bound_coding_encoder_call_source(
-        prefix,
-        valueset,
-        value,
-      )
-    "CodeableConcept", Some(valueset) ->
-      codegen_bound_coding.bound_codeableconcept_encoder_call_source(
-        prefix,
-        valueset,
-        value,
-      )
-    "CodeableReference", Some(valueset) ->
-      codegen_bound_coding.bound_codeablereference_encoder_call_source(
-        prefix,
-        valueset,
-        value,
-      )
-    "Quantity", Some(valueset) ->
-      codegen_bound_coding.bound_quantity_encoder_call_source(
-        prefix,
-        valueset,
-        value,
-      )
-    _, _ ->
-      string_to_encoder_type(fhir_type, allparts, fhir_version, elt, current)
-      <> "("
-      <> value
-      <> ")"
-  }
-}
-
-fn string_to_encoder_type(
-  fhir_type: String,
-  allparts: List(String),
-  _fhir_version: String,
-  elt: codegen_helpers.Element,
-  current: codegen_helpers.Category,
-) -> String {
-  case fhir_type {
-    "BackboneElement" ->
-      allparts
-      |> list.map(string.capitalise)
-      |> string.concat()
-      |> codegen_helpers.to_snake_case()
-      <> "_to_json"
-    "Element" ->
-      allparts
-      |> list.map(string.capitalise)
-      |> string.concat()
-      |> codegen_helpers.to_snake_case()
-      <> "_to_json"
-    "base64Binary" -> "json.string"
-    "boolean" -> "json.bool"
-    "canonical" -> "json.string"
-    "Coding" -> {
-      let prefix = codegen_helpers.bucket_prefix("Coding", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_coding_encoder_source(prefix, valueset)
-        None -> prefix <> "coding_to_json"
-      }
-    }
-    "CodeableConcept" -> {
-      let prefix = codegen_helpers.bucket_prefix("Codeableconcept", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_codeableconcept_encoder_source(
-            prefix,
-            valueset,
-          )
-        None -> prefix <> "codeableconcept_to_json"
-      }
-    }
-    "CodeableReference" -> {
-      let prefix = codegen_helpers.bucket_prefix("Codeablereference", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_codeablereference_encoder_source(
-            prefix,
-            valueset,
-          )
-        None -> prefix <> "codeablereference_to_json"
-      }
-    }
-    "Quantity" -> {
-      let prefix = codegen_helpers.bucket_prefix("Quantity", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_quantity_encoder_source(prefix, valueset)
-        None -> prefix <> "quantity_to_json"
-      }
-    }
-    "code" -> {
-      let s = allparts |> string.concat()
-      case s {
-        "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding" ->
-          "String"
-        //not a code idk should we even generate this?
-        _ -> {
-          case elt.binding {
-            Some(x) ->
-              case x.strength {
-                "required" -> {
-                  case x.value_set {
-                    Some(vs) -> {
-                      let assert [url, ..] = string.split(vs, "|")
-                        as "split vs version"
-                      //get rid of |version in http://some.valueset|4.0.1
-                      case
-                        string.contains(url, "v3-Confidentiality")
-                        || string.contains(url, "mimetypes")
-                        || string.contains(url, "currencies")
-                        || string.contains(url, "all-languages")
-                        || string.contains(url, "ucum-units")
-                        || string.contains(url, "color-codes")
-                      {
-                        True -> "json.string"
-                        //idk whats going on here, probably i dont understand valueset composition
-                        False ->
-                          "valuesets."
-                          <> url
-                          |> codegen_helpers.concept_name_from_url()
-                          |> codegen_helpers.to_snake_case
-                          <> "_to_json"
-                      }
-                    }
-                    _ -> panic as "huh idk 2"
-                  }
-                }
-                _ -> "json.string"
-                //mostly just elt.languages doesnt have "required" code binding
-              }
-            None -> "json.string"
-            //these codes dont have required binding?
-          }
-        }
-      }
-    }
-    "date" -> "pt.date_to_json"
-    "dateTime" -> "pt.datetime_to_json"
-    "decimal" -> "json.float"
-    "id" -> "json.string"
-    "instant" -> "pt.instant_to_json"
-    "integer" -> "json.int"
-    "integer64" -> "json.string"
-    "markdown" -> "json.string"
-    "oid" -> "json.string"
-    "positiveInt" -> "json.int"
-    "string" -> "json.string"
-    "time" -> "pt.time_to_json"
-    "unsignedInt" -> "json.int"
-    "uri" -> "json.string"
-    "url" -> "json.string"
-    "uuid" -> "json.string"
-    "xhtml" -> "json.string"
-    "http://hl7.org/fhirpath/System.String" -> "json.string"
-    _ -> {
-      let camel = codegen_helpers.to_camel_case(fhir_type)
-      codegen_helpers.bucket_prefix(camel, current)
-      <> { fhir_type |> string.lowercase() }
-      <> "_to_json"
-    }
-    //encoder for backbone element eg visionprescription_lensspecification_encoder()
-  }
-}
-
-fn gen_choicetype_suffixes(
-  match_var: String,
-  types: List(codegen_helpers.Type),
-  field_name_new: String,
-) -> String {
-  case types {
-    // choice type encoder requires onsetAge onsetString onsetPeriod whatever to be suffix in json
-    [_, _, ..] ->
-      string.concat([
-        " <> case ",
-        match_var,
-        " {",
-        list.fold(from: "", over: types, with: fn(suffixes_acc, ct) {
-          let assert [first_letter, ..rest] = ct.code |> string.to_graphemes
-          // unlike string.capitalise this doesnt make everything after first lowercase
-          // so createdDateTime doesnt become createdDatetime
-          let capital_ct =
-            string.concat([string.uppercase(first_letter), ..rest])
-          suffixes_acc
-          <> field_name_new
-          <> string.capitalise(ct.code)
-          <> "(_) -> \""
-          <> capital_ct
-          <> "\"\n"
-        }),
-        "}",
-      ])
-    //normal type encoder (not choice type)
-    _ -> ""
-  }
-}
-
 fn gen_choice_field_decoder(
   type_code,
   allparts,
@@ -2318,33 +2106,6 @@ fn gen_choice_field_decoder(
   <> ", decode.success) |> decode.map("
   <> choice_option_caps
   <> "),"
-}
-
-//probably redundant to have both this and valueset encoder/decoder oh well
-fn gen_res_encoder(
-  respascal: String,
-  rescamel: String,
-  reslower: String,
-  fields_list: String,
-  fields_json_always: String,
-  fields_json_options: String,
-  is_domainresource: Bool,
-) -> String {
-  let resource_type = case is_domainresource {
-    True ->
-      "\n  let fields = [#(\"resourceType\", json.string(\""
-      <> respascal
-      <> "\")), ..fields]"
-    False -> ""
-  }
-  let template =
-    "pub fn RESNAMELOWER_to_json(RESNAMELOWER: RESNAMECAMEL) -> Json {
-    let RESNAMECAMEL(" <> fields_list <> ") = RESNAMELOWER
-    let fields = [" <> fields_json_always <> "]" <> fields_json_options <> resource_type <> "\njson.object(fields)}
-  "
-  template
-  |> string.replace("RESNAMELOWER", reslower)
-  |> string.replace("RESNAMECAMEL", rescamel)
 }
 
 fn gen_res_decoder(
