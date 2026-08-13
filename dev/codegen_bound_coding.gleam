@@ -186,9 +186,9 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
           }
         }
         find_elt_and_rest(in: items, one_that: is_bound_valueset)
-      }
+      }"
 
-      fn find_elt_and_rest(
+const find_elt_and_rest = "fn find_elt_and_rest(
         in items: List(a),
         one_that is_desired: fn(a) -> Result(b, Nil)
        ) -> Result(#(b, List(a)), Nil) {
@@ -217,10 +217,9 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
                 }
             }
         }
-      }
+      }"
 
-
-      fn find_n_elts_and_rest(
+const find_n_elts_and_rest = "fn find_n_elts_and_rest(
         in items: List(a),
         items_that are_desired: fn(a) -> Result(b, Nil),
         num to_find: Int
@@ -240,7 +239,7 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
            [first, ..rest] ->
              case are_desired(first) {
                Ok(found_elt) -> {
-                 let found_acc = [found_acc, ..found_acc]
+                 let found_acc = [found_elt, ..found_acc]
                  let to_find = to_find - 1
                  case to_find <= 0 {
                   True -> {
@@ -257,7 +256,48 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
                  }
              }
          }
-       }
+       }"
+
+// note this is basically list.partition,
+// except we also apply fn to matching elts and error if not enough matching
+const find_at_least_n_elts_and_rest = "fn find_at_least_n_elts_and_rest(
+         in items: List(a),
+         items_that are_desired: fn(a) -> Result(b, Nil),
+         at_least to_find: Int,
+        ) -> Result(#(List(b), List(a)), Nil) {
+          find_at_least_n_elts_and_rest_loop(in: items, items_that: are_desired, at_least: to_find, already: [], have: [])
+        }
+
+        fn find_at_least_n_elts_and_rest_loop(
+          in items: List(a),
+          items_that are_desired: fn(a) -> Result(b, Nil),
+          at_least to_find: Int,
+          already past_list: List(a),
+          have found_acc: List(b),
+        ) -> Result(#(List(b), List(a)), Nil) {
+          case items {
+            [] -> case to_find <= 0 {
+              False -> Error(Nil)
+              True -> {
+                let more = past_list |> list.reverse
+                let found_acc = list.reverse(found_acc)
+                Ok(#(found_acc, more))
+              }
+            }
+            [first, ..rest] ->
+              case are_desired(first) {
+                Ok(found_elt) -> {
+                  let found_acc = [found_elt, ..found_acc]
+                  let to_find = to_find - 1
+                  find_at_least_n_elts_and_rest_loop(in: rest, items_that: are_desired, at_least: to_find, already: past_list, have: found_acc)
+                }
+                Error(_) -> {
+                    let others = [first, ..past_list]
+                    find_at_least_n_elts_and_rest_loop(in: rest, items_that: are_desired, at_least: to_find, already: others, have: found_acc)
+                  }
+              }
+          }
+        }
       "
 
 pub const bound_codeable_reference = "      pub type BoundCodeablereference(required_binding) {
