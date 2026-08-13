@@ -218,6 +218,46 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
             }
         }
       }
+
+
+      fn find_n_elts_and_rest(
+        in items: List(a),
+        items_that are_desired: fn(a) -> Result(b, Nil),
+        num to_find: Int
+       ) -> Result(#(List(b), List(a)), Nil) {
+         find_n_elts_and_rest_loop(in: items, items_that: are_desired, num: to_find, already: [], have: [])
+       }
+
+       fn find_n_elts_and_rest_loop(
+         in items: List(a),
+         items_that are_desired: fn(a) -> Result(b, Nil),
+         num to_find: Int,
+         already past_list: List(a),
+         have found_acc: List(b),
+       ) -> Result(#(List(b), List(a)), Nil) {
+         case items {
+           [] -> Error(Nil)
+           [first, ..rest] ->
+             case are_desired(first) {
+               Ok(found_elt) -> {
+                 let found_acc = [found_acc, ..found_acc]
+                 let to_find = to_find - 1
+                 case to_find <= 0 {
+                  True -> {
+                    let more = past_list |> list.reverse |> list.append(rest)
+                    let found_acc = list.reverse(found_acc)
+                    Ok(#(found_acc, more))
+                  }
+                  False -> find_n_elts_and_rest_loop(in: rest, items_that: are_desired, num: to_find, already: past_list, have: found_acc)
+                 }
+               }
+               Error(_) -> {
+                   let others = [first, ..past_list]
+                   find_n_elts_and_rest_loop(in: rest, items_that: are_desired, num: to_find, already: others, have: found_acc)
+                 }
+             }
+         }
+       }
       "
 
 pub const bound_codeable_reference = "      pub type BoundCodeablereference(required_binding) {
