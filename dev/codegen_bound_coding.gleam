@@ -333,6 +333,49 @@ const find_at_least_n_elts_and_rest = "fn find_at_least_n_elts_and_rest(
         }
       "
 
+const find_elts_and_rest = "
+fn find_elts_and_rest(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Result(b, Nil),
+) -> #(List(b), List(a)) {
+  find_elts_and_rest_loop(
+    in: items,
+    items_that: are_desired,
+    found: [],
+    rest: [],
+  )
+}
+
+fn find_elts_and_rest_loop(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Result(b, Nil),
+  found: List(b),
+  rest: List(a),
+) -> #(List(b), List(a)) {
+  case items {
+    [] -> #(list.reverse(found), list.reverse(rest))
+
+    [first, ..items] ->
+      case are_desired(first) {
+        Ok(found_elt) ->
+          find_elts_and_rest_loop(
+            in: items,
+            items_that: are_desired,
+            found: [found_elt, ..found],
+            rest:,
+          )
+        Error(_) ->
+          find_elts_and_rest_loop(
+            in: items,
+            items_that: are_desired,
+            found:,
+            rest: [first, ..rest],
+          )
+      }
+  }
+}
+"
+
 pub const bound_codeable_reference = "      pub type BoundCodeablereference(required_binding) {
   BoundCodeablereference(
     id: Option(String),
