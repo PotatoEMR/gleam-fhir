@@ -349,11 +349,11 @@ fn find_elts_and_rest(
 fn find_elts_and_rest_loop(
   in items: List(a),
   items_that are_desired: fn(a) -> Result(b, Nil),
-  found: List(b),
-  rest: List(a),
+  found found_acc: List(b),
+  rest rest_acc: List(a),
 ) -> #(List(b), List(a)) {
   case items {
-    [] -> #(list.reverse(found), list.reverse(rest))
+    [] -> #(list.reverse(found_acc), list.reverse(rest_acc))
 
     [first, ..items] ->
       case are_desired(first) {
@@ -361,15 +361,15 @@ fn find_elts_and_rest_loop(
           find_elts_and_rest_loop(
             in: items,
             items_that: are_desired,
-            found: [found_elt, ..found],
-            rest:,
+            found: [found_elt, ..found_acc],
+            rest: rest_acc,
           )
         Error(_) ->
           find_elts_and_rest_loop(
             in: items,
             items_that: are_desired,
-            found:,
-            rest: [first, ..rest],
+            found: found_acc,
+            rest: [first, ..rest_acc],
           )
       }
   }
