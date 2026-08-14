@@ -319,35 +319,45 @@ pub type IdentifierDiscriminatorSystemRequiredValue {
 }
 
 pub fn identifier_discriminator_system_required_value_from_identifier(
-  identifier: Identifier,
-  expected_system: String,
-) -> Result(IdentifierDiscriminatorSystemRequiredValue, Nil) {
-  let Identifier(
-    id:,
-    extension:,
-    use_:,
-    type_:,
-    system:,
-    value:,
-    period:,
-    assigner:,
-  ) = identifier
-  case system, value {
-    Some(system), Some(value) -> case system == expected_system {
-      True -> Ok(IdentifierDiscriminatorSystemRequiredValue(
-        id:,
-        extension:,
-        use_:,
-        value:,
-        type_:,
-        period:,
-        assigner:,
-      ))
-      False -> Error(Nil)
-    }
-    _, _ -> Error(Nil)
-  }
-}
+   identifier: Identifier,
+   expected_system: String,
+ ) -> Result(
+   Result(IdentifierDiscriminatorSystemRequiredValue, Nil),
+   Nil,
+ ) {
+   let Identifier(
+     id:,
+     extension:,
+     use_:,
+     type_:,
+     system:,
+     value:,
+     period:,
+     assigner:,
+   ) = identifier
+
+   case system {
+     Some(system) ->
+       case system == expected_system {
+         False -> Error(Nil)
+         True ->
+           case value {
+             None -> Ok(Error(Nil))
+             Some(value) ->
+               Ok(Ok(IdentifierDiscriminatorSystemRequiredValue(
+                 id:,
+                 extension:,
+                 use_:,
+                 value:,
+                 type_:,
+                 period:,
+                 assigner:,
+               )))
+           }
+       }
+     None -> Error(Nil)
+   }
+ }
 
 pub fn identifier_discriminator_system_required_value_to_json(
   identifier: IdentifierDiscriminatorSystemRequiredValue,
