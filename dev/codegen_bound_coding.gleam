@@ -220,6 +220,7 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         }
         find_elt_and_rest(in: items, one_that: is_bound_valueset)
       }"
+  <> find_elt_and_rest
 
 const find_elt_and_rest = "fn find_elt_and_rest(
         in items: List(a),
@@ -252,7 +253,7 @@ const find_elt_and_rest = "fn find_elt_and_rest(
         }
       }"
 
-const find_n_elts_and_rest = "fn find_n_elts_and_rest(
+pub const find_n_elts_and_rest = "fn find_n_elts_and_rest(
         in items: List(a),
         items_that are_desired: fn(a) -> Result(b, Nil),
         num to_find: Int
@@ -293,7 +294,7 @@ const find_n_elts_and_rest = "fn find_n_elts_and_rest(
 
 // note this is basically list.partition,
 // except we also apply fn to matching elts and error if not enough matching
-const find_at_least_n_elts_and_rest = "fn find_at_least_n_elts_and_rest(
+pub const find_at_least_n_elts_and_rest = "fn find_at_least_n_elts_and_rest(
          in items: List(a),
          items_that are_desired: fn(a) -> Result(b, Nil),
          at_least to_find: Int,
@@ -333,7 +334,7 @@ const find_at_least_n_elts_and_rest = "fn find_at_least_n_elts_and_rest(
         }
       "
 
-const find_elts_and_rest = "
+pub const find_elts_and_rest = "
 fn find_elts_and_rest(
   in items: List(a),
   items_that are_desired: fn(a) -> Result(b, Nil),

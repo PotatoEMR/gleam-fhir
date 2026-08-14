@@ -24,7 +24,7 @@ pub fn coding_discriminator_from_coding(
     user_selected:,
   ) = coding
   case coding_system, coding_code {
-    Some(coding_system), Some(coding_code)
+    Some(coding_system), Some(coding_code) ->
       case coding_system == system && coding_code == code {
         True -> Ok(CodingDiscriminator(
           id:,
@@ -263,7 +263,7 @@ pub fn identifier_discriminator_system_from_identifier(
     assigner:,
   ) = identifier
   case system {
-    Some(system) -> if system == expected_system {
+    Some(system) -> case system == expected_system {
       True -> Ok(IdentifierDiscriminatorSystem(
         id:,
         extension:,

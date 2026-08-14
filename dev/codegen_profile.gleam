@@ -3,6 +3,7 @@ import codegen_profile_json.{
   type ExtensionDefinition, type SliceFieldType, type SlicePlan,
   BoundCodeableconceptSlice, ComplexExtension, ExtensionDefinition,
   FixedSliceType, SimpleExtension, TypeSlicePlan, ValueSlicePlan,
+  aggregate_slice_constructor, aggregate_value_slice_roots,
   does_profile_restrict_complex_type, extension_field_name,
   extension_field_to_json_call, find_element, profile_base_field_type,
   profile_extension_definition, profile_field_is_primitive, profile_field_min,
@@ -1067,13 +1068,37 @@ pub fn profile_files_to_types(
                 Error(_) -> gleam_type
               }
               let assert Ok(fields) = dict.get(type_fields, current_type)
+              let aggregate_slice_groups =
+                fields
+                |> list.filter_map(fn(group) {
+                  case aggregate_value_slice_roots(group, fields) {
+                    Some(aggregate) -> Ok(#(group.id, aggregate))
+                    None -> Error(Nil)
+                  }
+                })
+                |> dict.from_list
+              let aggregate_slice_root_ids =
+                aggregate_slice_groups
+                |> dict.values
+                |> list.flat_map(fn(aggregate) {
+                  let #(roots, _) = aggregate
+                  list.filter_map(roots, fn(root) {
+                    case root.min == 0 {
+                      True -> Ok(root.id)
+                      False -> Error(Nil)
+                    }
+                  })
+                })
+                |> set.from_list
               let fields =
                 list.filter(fields, fn(element) {
                   element.max != "0"
+                  && !set.contains(aggregate_slice_root_ids, element.id)
                   && case element.slicing {
                     Some(slicing) ->
                       slicing.rules != "closed"
                       || string.contains(element.path, "[x]")
+                      || dict.has_key(aggregate_slice_groups, element.id)
                     None -> True
                   }
                 })
@@ -1120,11 +1145,89 @@ pub fn profile_files_to_types(
                         slice_type_overrides,
                         valueset_acc,
                       )
+                    // for example identifier slice in https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-practitioner.html
+                    // has identifier 1..* with 2 sliced identifiers NPI and NCSBNID plus open slice
+                    // so we make the whole identifier field a List1
+                    // unfortunately that means you cant directly access one identifier
+                    // but it does enforce minimum 1 identifier overall
+                    //
+                    // and what if parent is 7..* but one sliced child is 3..* ?
+                    // well then need 4..* slice variants plus 3..* specific slice child
+                    let #(base_field_type, aggregate_slice_source, valueset_acc) = case
+                      dict.get(aggregate_slice_groups, element.id)
+                    {
+                      Error(_) -> #(base_field_type, "", valueset_acc)
+                      Ok(#(roots, _)) -> {
+                        let #(variants, valueset_acc) =
+                          list.fold(roots, #("", valueset_acc), fn(acc, root) {
+                            let #(variants, valueset_acc) = acc
+                            let assert Some(slice_name) = root.slice_name
+                            let root_parts =
+                              root.id
+                              |> string.replace("-", "")
+                              |> string.replace(":", ".")
+                              |> string.split(".")
+                            let assert [_, ..root_rest] = root_parts
+                            let root_parts = [profile_prefix, ..root_rest]
+                            let root_field_path = string.join(root_parts, "_")
+                            let #(payload_type, valueset_acc) =
+                              profile_base_field_type(
+                                root,
+                                root_parts,
+                                root_field_path,
+                                choice_type,
+                                profile_structures.extensions,
+                                type_order,
+                                open_slice_type_names,
+                                slice_type_overrides,
+                                valueset_acc,
+                              )
+                            #(
+                              variants
+                                <> "  "
+                                <> aggregate_slice_constructor(
+                                choice_type,
+                                slice_name,
+                                payload_type,
+                              )
+                                <> "(value: "
+                                <> payload_type
+                                <> ")\n",
+                              valueset_acc,
+                            )
+                          })
+                        let variants =
+                          variants
+                          <> "  "
+                          <> aggregate_slice_constructor(
+                            choice_type,
+                            "Open",
+                            base_field_type,
+                          )
+                          <> "(value: "
+                          <> base_field_type
+                          <> ")\n"
+                        #(
+                          choice_type,
+                          "pub type "
+                            <> choice_type
+                            <> " {\n"
+                            <> variants
+                            <> "}\n\n",
+                          valueset_acc,
+                        )
+                      }
+                    }
                     let field_type = case is_primitive {
                       True -> "Primitive(" <> base_field_type <> ")"
                       False -> base_field_type
                     }
-                    let card_min = profile_field_min(element, is_primitive)
+                    let card_min = case
+                      dict.get(aggregate_slice_groups, element.id)
+                    {
+                      Ok(#(_, remaining_minimum)) -> remaining_minimum
+                      Error(_) -> profile_field_min(element, is_primitive)
+                    }
                     let cardinality =
                       codegen_helpers.cardinality(
                         field_type,
@@ -1265,6 +1368,8 @@ pub fn profile_files_to_types(
                       }
                     }
 
+                    let new_choice_source =
+                      aggregate_slice_source <> new_choice_source
                     #(
                       fields_acc
                         <> "    "
