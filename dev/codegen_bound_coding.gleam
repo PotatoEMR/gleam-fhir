@@ -26,6 +26,35 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         )
       }
 
+      pub fn bound_coding_from_coding(
+        coding: Coding,
+        binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
+      ) -> Result(BoundCoding(required_binding), Nil) {
+        let Coding(
+          id:,
+          extension:,
+          system:,
+          version:,
+          code:,
+          display:,
+          user_selected:,
+        ) = coding
+        case code, system {
+          Some(code), Some(system) -> case binding_from_code_and_system(code, system) {
+            Error(Nil) -> Error(Nil)
+            Ok(code) -> Ok(BoundCoding(
+              id:,
+              extension:,
+              code:,
+              version:,
+              display:,
+              user_selected:,
+            ))
+          }
+          _, _ -> Error(Nil)
+        }
+      }
+
       pub fn bound_coding_to_json(coding: BoundCoding(required_binding), get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
         let BoundCoding(
           user_selected:,
@@ -119,6 +148,23 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         BoundCodeableconcept(text: None, required:, more: [], extension: [], id: None)
       }
 
+      pub fn bound_codeableconcept_from_codeableconcept(
+        concept: Codeableconcept,
+        binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
+      ) -> Result(BoundCodeableconcept(required_binding), Nil) {
+        let Codeableconcept(id:, extension:, coding:, text:) = concept
+        case find_valueset_coding(coding, binding_from_code_and_system) {
+          Error(Nil) -> Error(Nil)
+          Ok(#(required, more)) -> Ok(BoundCodeableconcept(
+            id:,
+            extension:,
+            required:,
+            more:,
+            text:,
+          ))
+        }
+      }
+
       pub fn bound_codeableconcept_to_json(codeableconcept: BoundCodeableconcept(required_binding),  get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
       let BoundCodeableconcept(text:, required:, more:, extension:, id:) = codeableconcept
       let required_coding = bound_coding_to_json(required, get_code, get_system)
@@ -169,21 +215,8 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
       }
 
       fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding)), Nil) {
-        let is_bound_valueset = fn(coding: Coding){
-          case coding.code, coding.system {
-            Some(code), Some(system) -> case binding_from_code_and_system(code, system) {
-              Error(_) -> Error(Nil)
-              Ok(binding) -> Ok(BoundCoding(
-                user_selected: coding.user_selected,
-                display: coding.display,
-                code: binding,
-                version: coding.version,
-                extension: coding.extension,
-                id: coding.id,
-              ))
-            }
-            _, _ -> Error(Nil)
-          }
+        let is_bound_valueset = fn(coding: Coding) {
+          bound_coding_from_coding(coding, binding_from_code_and_system)
         }
         find_elt_and_rest(in: items, one_that: is_bound_valueset)
       }"
