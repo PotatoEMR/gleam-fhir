@@ -362,6 +362,57 @@ pub fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
   }
 }
 
+pub fn new_fn_arg_and_field(
+  field_name: String,
+  field_type: String,
+  min: Int,
+  max: String,
+  is_primitive: Bool,
+) -> #(String, String) {
+  case min, max {
+    0, "*" -> #("", field_name <> ": [],")
+    1, "*" ->
+      case is_primitive {
+        True -> #("", field_name <> ": [],")
+        False -> #(
+          field_name <> " " <> field_name <> ": List1(" <> field_type <> "),",
+          field_name <> ":,",
+        )
+      }
+    2, "*" -> #(
+      field_name <> " " <> field_name <> ": List2(" <> field_type <> "),",
+      field_name <> ":,",
+    )
+    3, "*" -> #(
+      field_name <> " " <> field_name <> ": List3(" <> field_type <> "),",
+      field_name <> ":,",
+    )
+    0, "1" -> #(
+      "",
+      field_name
+        <> ": "
+        <> case is_primitive {
+        True -> "Primitive(id: None, ext: [], value: None)"
+        False -> "None"
+      }
+        <> ",",
+    )
+    0, _ -> #("", field_name <> ": [],")
+    1, _ ->
+      case is_primitive {
+        True -> #(
+          "",
+          field_name <> ": Primitive(id: None, ext: [], value: None),",
+        )
+        False -> #(
+          field_name <> " " <> field_name <> ": " <> field_type <> ",",
+          field_name <> ":,",
+        )
+      }
+    _, _ -> panic as "cardinality panic 2"
+  }
+}
+
 pub fn escape_field_name(name: String) -> String {
   case name {
     "type" -> "type_"

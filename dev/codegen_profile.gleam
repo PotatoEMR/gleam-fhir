@@ -1,3 +1,4 @@
+import codegen_bound_coding
 import codegen_helpers
 import codegen_profile_json.{
   type ExtensionDefinition, type SliceFieldType, type SlicePlan,
@@ -319,17 +320,22 @@ fn generate_extension_types(
       SimpleExtension(_) -> #(source, valueset_acc)
       ComplexExtension([]) -> #(source, valueset_acc)
       ComplexExtension(fields) -> {
+        let initial_field_acc = #("", "", "", "", "", "", valueset_acc)
         let #(
           field_source,
           choice_source,
+          newfunc_args,
+          newfunc_fields,
           encoder_args,
           children_source,
           valueset_acc,
         ) =
-          list.fold(fields, #("", "", "", "", valueset_acc), fn(acc, field) {
+          list.fold(fields, initial_field_acc, fn(acc, field) {
             let #(
               field_source,
               choice_source,
+              newfunc_args,
+              newfunc_fields,
               encoder_args,
               children_source,
               valueset_acc,
@@ -338,6 +344,14 @@ fn generate_extension_types(
               extension_field_type(extension.name, field, valueset_acc)
             let field_name =
               field |> extension_field_name |> codegen_helpers.to_snake_case
+            let #(newfunc_arg, newfunc_field) =
+              codegen_helpers.new_fn_arg_and_field(
+                field_name,
+                field_type,
+                field.min,
+                field.max,
+                False,
+              )
             let to_json = fn(value) {
               extension_field_to_json_call(
                 extension.name,
@@ -407,6 +421,8 @@ fn generate_extension_types(
                 <> codegen_helpers.cardinality(field_type, field.min, field.max)
                 <> ",\n",
               choice_source <> new_choice,
+              newfunc_args <> newfunc_arg,
+              newfunc_fields <> newfunc_field,
               encoder_args <> field_name <> ":,",
               children_source <> new_children_source,
               valueset_acc,
@@ -421,6 +437,16 @@ fn generate_extension_types(
             <> "(\n"
             <> field_source
             <> "  )\n}\n\npub fn "
+            <> codegen_helpers.to_snake_case(extension.name)
+            <> "_new("
+            <> newfunc_args
+            <> ") -> "
+            <> extension.name
+            <> " {\n  "
+            <> extension.name
+            <> "("
+            <> newfunc_fields
+            <> ")\n}\n\npub fn "
             <> codegen_helpers.to_snake_case(extension.name)
             <> "_to_json(value: "
             <> extension.name
@@ -915,7 +941,8 @@ pub fn profile_files_to_types(
   let #(extension_types, valueset_acc) =
     generate_extension_types(profile_structures.extensions, valueset_acc)
   let slice_types =
-    codegen_slice_complex_type.slice_coding
+    codegen_bound_coding.found_result
+    <> codegen_slice_complex_type.slice_coding
     <> codegen_slice_complex_type.slice_codeableconcept
     <> codegen_slice_complex_type.slice_identifier_type
     <> codegen_slice_complex_type.slice_identifier_system
@@ -1103,12 +1130,24 @@ pub fn profile_files_to_types(
                   }
                 })
 
-              let #(field_source, choice_source, valueset_acc) =
+              let #(
+                field_source,
+                choice_source,
+                newfunc_args,
+                newfunc_fields,
+                valueset_acc,
+              ) =
                 list.fold(
                   over: fields,
-                  from: #("", "", valueset_acc),
+                  from: #("", "", "", "", valueset_acc),
                   with: fn(acc, element) {
-                    let #(fields_acc, choices_acc, valueset_acc) = acc
+                    let #(
+                      fields_acc,
+                      choices_acc,
+                      newfunc_args_acc,
+                      newfunc_fields_acc,
+                      valueset_acc,
+                    ) = acc
                     let all_parts =
                       element.id
                       |> string.replace("-", "")
@@ -1234,6 +1273,14 @@ pub fn profile_files_to_types(
                         card_min,
                         element.max,
                       )
+                    let #(newfunc_arg, newfunc_field) =
+                      codegen_helpers.new_fn_arg_and_field(
+                        field_name,
+                        field_type,
+                        card_min,
+                        element.max,
+                        is_primitive,
+                      )
 
                     let #(new_choice_source, valueset_acc) = case
                       element.type_
@@ -1272,7 +1319,12 @@ pub fn profile_files_to_types(
                                     choice_type
                                     <> string.capitalise(choice.code)
                                     <> "Sliced"
-                                  let #(fields, valueset_acc) =
+                                  let #(
+                                    fields,
+                                    newfunc_args,
+                                    newfunc_fields,
+                                    valueset_acc,
+                                  ) =
                                     children
                                     |> list.filter(fn(child) {
                                       child.max != "0"
@@ -1280,9 +1332,14 @@ pub fn profile_files_to_types(
                                       && child.fixed_uri == None
                                     })
                                     |> list.fold(
-                                      #("", valueset_acc),
+                                      #("", "", "", valueset_acc),
                                       fn(acc, child) {
-                                        let #(fields, valueset_acc) = acc
+                                        let #(
+                                          fields,
+                                          newfunc_args,
+                                          newfunc_fields,
+                                          valueset_acc,
+                                        ) = acc
                                         let assert [child_type] = child.type_
                                         let assert Ok(field_name) =
                                           child.path
@@ -1290,6 +1347,10 @@ pub fn profile_files_to_types(
                                           |> list.last
                                         let field_name =
                                           codegen_helpers.escape_field_name(
+                                            field_name,
+                                          )
+                                        let field_name =
+                                          codegen_helpers.to_snake_case(
                                             field_name,
                                           )
                                         let #(gleam_type, valueset_acc) =
@@ -1300,12 +1361,18 @@ pub fn profile_files_to_types(
                                             codegen_helpers.Resources,
                                             valueset_acc,
                                           )
+                                        let #(newfunc_arg, newfunc_field) =
+                                          codegen_helpers.new_fn_arg_and_field(
+                                            field_name,
+                                            gleam_type,
+                                            child.min,
+                                            child.max,
+                                            False,
+                                          )
                                         #(
                                           fields
                                             <> "    "
-                                            <> codegen_helpers.to_snake_case(
-                                            field_name,
-                                          )
+                                            <> field_name
                                             <> ": "
                                             <> codegen_helpers.cardinality(
                                             gleam_type,
@@ -1313,6 +1380,8 @@ pub fn profile_files_to_types(
                                             child.max,
                                           )
                                             <> ",\n",
+                                          newfunc_args <> newfunc_arg,
+                                          newfunc_fields <> newfunc_field,
                                           valueset_acc,
                                         )
                                       },
@@ -1325,7 +1394,20 @@ pub fn profile_files_to_types(
                                       <> sliced_name
                                       <> "(\n"
                                       <> fields
-                                      <> "  )\n}\n\n",
+                                      <> "  )\n}\n\n"
+                                      <> "pub fn "
+                                      <> codegen_helpers.to_snake_case(
+                                      sliced_name,
+                                    )
+                                      <> "_new("
+                                      <> newfunc_args
+                                      <> ") -> "
+                                      <> sliced_name
+                                      <> " {\n  "
+                                      <> sliced_name
+                                      <> "("
+                                      <> newfunc_fields
+                                      <> ")\n}\n\n",
                                     valueset_acc,
                                   )
                                 }
@@ -1378,6 +1460,8 @@ pub fn profile_files_to_types(
                         <> cardinality
                         <> ",\n",
                       new_choice_source <> choices_acc,
+                      newfunc_args_acc <> newfunc_arg,
+                      newfunc_fields_acc <> newfunc_field,
                       valueset_acc,
                     )
                   },
@@ -1391,6 +1475,17 @@ pub fn profile_files_to_types(
                 <> "(\n"
                 <> field_source
                 <> "  )\n}\n\n"
+                <> "pub fn "
+                <> codegen_helpers.to_snake_case(gleam_type)
+                <> "_new("
+                <> newfunc_args
+                <> ") -> "
+                <> gleam_type
+                <> " {\n  "
+                <> gleam_type
+                <> "("
+                <> newfunc_fields
+                <> ")\n}\n\n"
                 <> choice_source
               #(declaration <> types_acc, valueset_acc)
             },

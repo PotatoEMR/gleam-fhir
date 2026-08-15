@@ -481,6 +481,7 @@ fn gen_fhir(
       ct_imports,
       list_type_defs,
       codegen_bound_coding.bound_coding_and_cc,
+      codegen_bound_coding.find_elt_and_rest_result,
       bound_codeable_reference_source,
       codegen_bound_coding.bound_quantity,
       complex_types_gen,
@@ -1110,84 +1111,14 @@ fn file_to_types(
                         )
                       }
                     }
-                    let #(newfunc_arg, newfunc_field) = case elt.min, elt.max {
-                      0, "*" -> #("", elt_snake <> ": [],")
-                      1, "*" ->
-                        case is_primitive {
-                          True -> #("", elt_snake <> ": [],")
-                          False -> {
-                            let arg =
-                              string.concat([
-                                elt_snake,
-                                " ",
-                                elt_snake,
-                                ": List1(",
-                                field_type,
-                                "),",
-                              ])
-                            let field = elt_snake <> ":,"
-                            #(arg, field)
-                          }
-                        }
-                      2, "*" -> {
-                        let arg =
-                          string.concat([
-                            elt_snake,
-                            " ",
-                            elt_snake,
-                            ": List2(",
-                            field_type,
-                            "),",
-                          ])
-                        let field = elt_snake <> ":,"
-                        #(arg, field)
-                      }
-                      3, "*" -> {
-                        let arg =
-                          string.concat([
-                            elt_snake,
-                            " ",
-                            elt_snake,
-                            ": List3(",
-                            field_type,
-                            "),",
-                          ])
-                        let field = elt_snake <> ":,"
-                        #(arg, field)
-                      }
-                      0, _ -> #(
-                        "",
-                        elt_snake
-                          <> ": "
-                          <> case is_primitive {
-                          True -> "Primitive(id: None, ext: [], value: None)"
-                          False -> "None"
-                        }
-                          <> ",",
+                    let #(newfunc_arg, newfunc_field) =
+                      codegen_helpers.new_fn_arg_and_field(
+                        elt_snake,
+                        field_type,
+                        elt.min,
+                        elt.max,
+                        is_primitive,
                       )
-                      1, _ ->
-                        case is_primitive {
-                          True -> #(
-                            "",
-                            elt_snake
-                              <> ": Primitive(id: None, ext: [], value: None),",
-                          )
-                          False -> {
-                            let arg =
-                              string.concat([
-                                elt_snake,
-                                " ",
-                                elt_snake,
-                                ": ",
-                                field_type,
-                                ",",
-                              ])
-                            let field = elt_snake <> ":,"
-                            #(arg, field)
-                          }
-                        }
-                      _, _ -> panic as "cardinality panic 2"
-                    }
                     //all the fields for encoder to convert to json
                     let encoder_args_acc = encoder_args_acc <> elt_snake <> ":,"
                     let field_type_encoder = case elt.type_ {
