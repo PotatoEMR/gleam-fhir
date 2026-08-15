@@ -220,8 +220,10 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         }
         find_elt_and_rest_result(in: items, one_that: is_bound_valueset)
       }"
-  <> find_elt_and_rest_result
 
+  //in some cases fn to convert base to profile just needs to check discriminator,
+  // but in others it needs to check discriminator AND if elt is valid in profile,
+  // in this case could be Found(a) or NotFound but also FoundInvalid
 pub const found_result = "
   type Found(a){
     FoundValid(a)
