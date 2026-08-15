@@ -1139,7 +1139,7 @@ pub fn profile_files_to_types(
                 valueset_acc,
               ) =
                 list.fold(
-                  over: fields,
+                  over: list.reverse(fields),
                   from: #("", "", "", "", valueset_acc),
                   with: fn(acc, element) {
                     let #(
