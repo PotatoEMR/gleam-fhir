@@ -315,6 +315,29 @@ pub fn bound_quantity_new() -> BoundQuantity(required_binding) {
   )
 }
 
+pub fn bound_quantity_from_quantity(
+  quantity: Quantity,
+  binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
+) -> Result(BoundQuantity(required_binding), Nil) {
+  let Quantity(id:, extension:, value:, comparator:, unit:, system:, code:) =
+    quantity
+  case code, system {
+    None, None ->
+      Ok(BoundQuantity(
+        id:, extension:, value:, comparator:, unit:, code: None,
+      ))
+    Some(code), Some(system) -> case
+      binding_from_code_and_system(code, system)
+    {
+      Ok(code) -> Ok(BoundQuantity(
+        id:, extension:, value:, comparator:, unit:, code: Some(code),
+      ))
+      Error(_) -> Error(Nil)
+    }
+    _, _ -> Error(Nil)
+  }
+}
+
 pub fn bound_quantity_to_json(quantity: BoundQuantity(required_binding), get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
   let BoundQuantity(code:, unit:, comparator:, value:, extension:, id:) =
     quantity
@@ -733,6 +756,53 @@ fn find_elt_and_rest_result_loop(
 }
 "
 
+pub const find_required_elt_and_rest_result = "fn find_required_elt_and_rest_result(
+  in items: List(a),
+  one_that is_desired: fn(a) -> Result(b, Nil),
+  placeholder placeholder: b,
+  expected expected: String,
+  then next: fn(#(b, List(a))) -> Decoder(c),
+) -> Decoder(c) {
+  case find_elt_and_rest_result(in: items, one_that: is_desired) {
+    Ok(#(value, rest)) ->
+      case find_elt_and_rest_result(in: rest, one_that: is_desired) {
+        Ok(_) -> {
+          use failed <- decode.then(
+            decode.failure(#(value, rest), \"maximum cardinality 1\"),
+          )
+          next(failed)
+        }
+        Error(_) -> next(#(value, rest))
+      }
+    Error(_) -> {
+      use failed <- decode.then(decode.failure(#(placeholder, items), expected))
+      next(failed)
+    }
+  }
+}
+"
+
+pub const find_optional_elt_and_rest_result = "fn find_optional_elt_and_rest_result(
+  in items: List(a),
+  one_that is_desired: fn(a) -> Result(b, Nil),
+  then next: fn(#(Option(b), List(a))) -> Decoder(c),
+) -> Decoder(c) {
+  case find_elt_and_rest_result(in: items, one_that: is_desired) {
+    Error(_) -> next(#(None, items))
+    Ok(#(value, rest)) ->
+      case find_elt_and_rest_result(in: rest, one_that: is_desired) {
+        Ok(_) -> {
+          use failed <- decode.then(
+            decode.failure(#(Some(value), rest), \"maximum cardinality 1\"),
+          )
+          next(failed)
+        }
+        Error(_) -> next(#(Some(value), rest))
+      }
+  }
+}
+"
+
 pub const find_elt_and_rest_found = "fn find_elt_and_rest_found(
   in items: List(a),
   one_that is_desired: fn(a) -> Found(b),
@@ -762,6 +832,71 @@ fn find_elt_and_rest_found_loop(
             already: others,
           )
         }
+      }
+  }
+}
+"
+
+pub const find_required_elt_and_rest_found = "fn find_required_elt_and_rest_found(
+  in items: List(a),
+  one_that is_desired: fn(a) -> Found(b),
+  placeholder placeholder: b,
+  expected expected: String,
+  then next: fn(#(b, List(a))) -> Decoder(c),
+) -> Decoder(c) {
+  case find_elt_and_rest_found(in: items, one_that: is_desired) {
+    FoundValid(#(value, rest)) ->
+      case find_elt_and_rest_found(in: rest, one_that: is_desired) {
+        FoundValid(_) -> {
+          use failed <- decode.then(
+            decode.failure(#(value, rest), \"maximum cardinality 1\"),
+          )
+          next(failed)
+        }
+        FoundInvalid(reason) -> {
+          use failed <- decode.then(decode.failure(#(value, rest), reason))
+          next(failed)
+        }
+        NotFound -> next(#(value, rest))
+      }
+    FoundInvalid(reason) -> {
+      use failed <- decode.then(decode.failure(#(placeholder, items), reason))
+      next(failed)
+    }
+    NotFound -> {
+      use failed <- decode.then(decode.failure(#(placeholder, items), expected))
+      next(failed)
+    }
+  }
+}
+"
+
+pub const find_optional_elt_and_rest_found = "fn find_optional_elt_and_rest_found(
+  in items: List(a),
+  one_that is_desired: fn(a) -> Found(b),
+  then next: fn(#(Option(b), List(a))) -> Decoder(c),
+) -> Decoder(c) {
+  case find_elt_and_rest_found(in: items, one_that: is_desired) {
+    NotFound -> next(#(None, items))
+    FoundInvalid(reason) -> {
+      use failed <- decode.then(decode.failure(#(None, items), reason))
+      next(failed)
+    }
+    FoundValid(#(value, rest)) ->
+      case find_elt_and_rest_found(in: rest, one_that: is_desired) {
+        FoundValid(_) -> {
+          use failed <- decode.then(
+            decode.failure(#(Some(value), rest), \"maximum cardinality 1\"),
+          )
+          next(failed)
+        }
+        FoundInvalid(reason) -> {
+          use failed <- decode.then(
+            decode.failure(#(Some(value), rest), reason),
+          )
+          next(failed)
+        }
+        NotFound -> next(#(Some(value), rest))
       }
   }
 }
@@ -947,6 +1082,28 @@ fn find_at_least_n_elts_and_rest_result_loop(
 }
 "
 
+pub const find_at_least_n_elts_and_rest_result_or_failure = "fn find_at_least_n_elts_and_rest_result_or_failure(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Result(b, Nil),
+  at_least to_find: Int,
+  placeholder placeholder: List(b),
+  expected expected: String,
+  then next: fn(#(List(b), List(a))) -> Decoder(c),
+) -> Decoder(c) {
+  case find_at_least_n_elts_and_rest_result(
+    in: items,
+    items_that: are_desired,
+    at_least: to_find,
+  ) {
+    Ok(found) -> next(found)
+    Error(_) -> {
+      use failed <- decode.then(decode.failure(#(placeholder, items), expected))
+      next(failed)
+    }
+  }
+}
+"
+
 pub const find_at_least_n_elts_and_rest_found = "fn find_at_least_n_elts_and_rest_found(
   in items: List(a),
   items_that are_desired: fn(a) -> Found(b),
@@ -1003,6 +1160,32 @@ fn find_at_least_n_elts_and_rest_found_loop(
           )
         }
       }
+  }
+}
+"
+
+pub const find_at_least_n_elts_and_rest_found_or_failure = "fn find_at_least_n_elts_and_rest_found_or_failure(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Found(b),
+  at_least to_find: Int,
+  placeholder placeholder: List(b),
+  expected expected: String,
+  then next: fn(#(List(b), List(a))) -> Decoder(c),
+) -> Decoder(c) {
+  case find_at_least_n_elts_and_rest_found(
+    in: items,
+    items_that: are_desired,
+    at_least: to_find,
+  ) {
+    FoundValid(found) -> next(found)
+    FoundInvalid(reason) -> {
+      use failed <- decode.then(decode.failure(#(placeholder, items), reason))
+      next(failed)
+    }
+    NotFound -> {
+      use failed <- decode.then(decode.failure(#(placeholder, items), expected))
+      next(failed)
+    }
   }
 }
 "

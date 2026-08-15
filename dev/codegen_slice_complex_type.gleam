@@ -1,3 +1,82 @@
+pub type DiscriminatorCall {
+  ResultDiscriminatorCall(String)
+  FoundDiscriminatorCall(String)
+}
+
+pub fn discriminator_from_base_call(
+  discriminator_type: String,
+  value: String,
+  system: String,
+  code: String,
+) -> Result(DiscriminatorCall, Nil) {
+  case discriminator_type {
+    "ct.CodingDiscriminator" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.coding_discriminator_from_coding("
+        <> value
+        <> ", \""
+        <> system
+        <> "\", \""
+        <> code
+        <> "\")",
+      ))
+    "ct.CodeableconceptDiscriminator" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.codeableconcept_discriminator_from_codeableconcept("
+        <> value
+        <> ", \""
+        <> system
+        <> "\", \""
+        <> code
+        <> "\")",
+      ))
+    "ct.IdentifierDiscriminatorType" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.identifier_discriminator_type_from_identifier("
+        <> value
+        <> ", \""
+        <> system
+        <> "\", \""
+        <> code
+        <> "\")",
+      ))
+    "ct.IdentifierDiscriminatorSystem" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.identifier_discriminator_system_from_identifier("
+        <> value
+        <> ", \""
+        <> system
+        <> "\")",
+      ))
+    "ct.IdentifierDiscriminatorSystemRequiredValue" ->
+      Ok(FoundDiscriminatorCall(
+        "ct.identifier_discriminator_system_required_value_from_identifier("
+        <> value
+        <> ", \""
+        <> system
+        <> "\")",
+      ))
+    _ -> Error(Nil)
+  }
+}
+
+pub fn discriminator_new_call(
+  discriminator_type: String,
+) -> Result(String, Nil) {
+  case discriminator_type {
+    "ct.CodingDiscriminator" -> Ok("ct.coding_discriminator_new()")
+    "ct.CodeableconceptDiscriminator" ->
+      Ok("ct.codeableconcept_discriminator_new()")
+    "ct.IdentifierDiscriminatorType" ->
+      Ok("ct.identifier_discriminator_type_new()")
+    "ct.IdentifierDiscriminatorSystem" ->
+      Ok("ct.identifier_discriminator_system_new()")
+    "ct.IdentifierDiscriminatorSystemRequiredValue" ->
+      Ok("ct.identifier_discriminator_system_required_value_new(\"\")")
+    _ -> Error(Nil)
+  }
+}
+
 pub const slice_coding = "
 pub type CodingDiscriminator {
   CodingDiscriminator(

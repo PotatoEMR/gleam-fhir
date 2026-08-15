@@ -1,6 +1,7 @@
 import argv
 import codegen_bound_coding
 import codegen_client
+import codegen_decode
 import codegen_helpers
 import codegen_profile
 import codegen_profile_package_download_no_npm
@@ -486,17 +487,29 @@ fn gen_fhir(
       codegen_bound_coding.bound_quantity,
       complex_types_gen,
       helpers_block,
+      codegen_decode.array_cardinality_decoders,
     ])
   let primitive_imports = case string.contains(resources_gen, "Primitive(") {
     False -> ""
     True ->
       ", type Primitive, Primitive, primitive_decoder, primitives_decoder, primitive_to_json, primitives_to_json"
   }
+  let profile_decoder_imports = case
+    string.contains(resources_gen, "FoundValid")
+  {
+    True -> ", type Found, FoundValid, FoundInvalid, NotFound"
+    False -> ""
+  }
+  let result_import = case string.contains(resources_gen, "result.") {
+    True -> "import gleam/result\n"
+    False -> ""
+  }
   let r_ct_import =
     "import fhir/"
     <> pkg_prefix
     <> "/complex_types.{type List1, list1_to_json, list1_decoder, none_if_omitted, decode_number"
     <> primitive_imports
+    <> profile_decoder_imports
     <> "} as ct\n"
   let r_content =
     string.concat([
@@ -506,6 +519,7 @@ fn gen_fhir(
       fhir_version,
       ") resources\n",
       r_imports,
+      result_import,
       r_ct_import,
       resources_gen,
     ])
@@ -678,6 +692,28 @@ fn replace_unavailable_bindings(
     |> string.replace(
       codegen_bound_coding.bound_quantity_decoder_source("ct.", fn_name),
       "ct.quantity_decoder()",
+    )
+    |> string.replace(
+      "ct.bound_coding_from_coding(value, valuesets."
+        <> fn_name
+        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
+      "Ok(value)",
+    )
+    |> string.replace(
+      "ct.bound_codeableconcept_from_codeableconcept(value, valuesets."
+        <> fn_name
+        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
+      "Ok(value)",
+    )
+    |> string.replace(
+      "ct.bound_quantity_from_quantity(value, valuesets."
+        <> fn_name
+        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
+      "Ok(value)",
+    )
+    |> string.replace(
+      "case Ok(value) { Ok(value) -> ct.FoundValid(value) Error(_) -> ct.FoundInvalid(\"invalid extension value\") }",
+      "ct.FoundValid(value)",
     )
     |> string.replace(
       "BoundCodeablereference(valuesets." <> type_name <> ")",
@@ -1065,7 +1101,7 @@ fn file_to_types(
                                 // to get an error msg from first or something but it is not a joyful api
                                 let assert [fst_type_, ..rest_type_] = elt.type_
                                 let decode_one_of_first =
-                                  gen_choice_field_decoder(
+                                  codegen_decode.gen_choice_field_decoder(
                                     fst_type_.code,
                                     allparts,
                                     fhir_version,
@@ -1083,7 +1119,7 @@ fn file_to_types(
                                       //add all cases of choice type to type_to_json()
                                       string.concat([
                                         acc,
-                                        gen_choice_field_decoder(
+                                        codegen_decode.gen_choice_field_decoder(
                                           typ.code,
                                           allparts,
                                           fhir_version,
@@ -1370,7 +1406,7 @@ fn file_to_types(
                       [_] | [] -> {
                         let decoder_itself = case elt.type_ {
                           [one_type] ->
-                            string_to_decoder_type(
+                            codegen_decode.string_to_decoder_type(
                               one_type.code,
                               allparts,
                               fhir_version,
@@ -1385,88 +1421,13 @@ fn file_to_types(
                             <> "_decoder()"
                           _ -> panic as "compiler should see this cant happen"
                         }
-                        case elt.max {
-                          "*" ->
-                            case elt.min {
-                              0 ->
-                                case is_primitive {
-                                  True ->
-                                    "primitives_decoder(\""
-                                    <> elt_last_part_withgleamtype
-                                    <> "\","
-                                    <> decoder_itself
-                                    <> ")"
-                                  False ->
-                                    "decode.optional_field(\""
-                                    <> elt_last_part_withgleamtype
-                                    <> "\", [], decode.list("
-                                    <> decoder_itself
-                                    <> "))"
-                                }
-                              1 ->
-                                case is_primitive {
-                                  True ->
-                                    "primitives_decoder(\""
-                                    <> elt_last_part_withgleamtype
-                                    <> "\","
-                                    <> decoder_itself
-                                    <> ")"
-                                  False ->
-                                    "list1_decoder(\""
-                                    <> elt_last_part_withgleamtype
-                                    <> "\","
-                                    <> decoder_itself
-                                    <> ")"
-                                }
-                              2 ->
-                                "list2_decoder(\""
-                                <> elt_last_part_withgleamtype
-                                <> "\","
-                                <> decoder_itself
-                                <> ")"
-                              3 ->
-                                "list3_decoder(\""
-                                <> elt_last_part_withgleamtype
-                                <> "\","
-                                <> decoder_itself
-                                <> ")"
-                              _ -> panic as "list min > 3 not supported"
-                            }
-                          _ ->
-                            case elt.min {
-                              0 ->
-                                case is_primitive {
-                                  True ->
-                                    "primitive_decoder(\""
-                                    <> elt_last_part_withgleamtype
-                                    <> "\","
-                                    <> decoder_itself
-                                    <> ")"
-                                  False ->
-                                    "decode.optional_field(\""
-                                    <> elt_last_part_withgleamtype
-                                    <> "\", None, decode.optional("
-                                    <> decoder_itself
-                                    <> "))"
-                                }
-                              1 ->
-                                case is_primitive {
-                                  True ->
-                                    "primitive_decoder(\""
-                                    <> elt_last_part_withgleamtype
-                                    <> "\","
-                                    <> decoder_itself
-                                    <> ")"
-                                  False ->
-                                    "decode.field(\""
-                                    <> elt_last_part_withgleamtype
-                                    <> "\","
-                                    <> decoder_itself
-                                    <> ")"
-                                }
-                              _ -> panic as "cardinality panic 3"
-                            }
-                        }
+                        codegen_decode.field_decoder(
+                          elt_last_part_withgleamtype,
+                          decoder_itself,
+                          elt.min,
+                          elt.max,
+                          is_primitive,
+                        )
                       }
                       _ -> {
                         let choicetype_decoder_itself =
@@ -1683,7 +1644,7 @@ fn file_to_types(
                         "decode.field(\"value"
                           <> first_upper
                           <> "\", "
-                          <> string_to_decoder_type(
+                          <> codegen_decode.string_to_decoder_type(
                           typ.code,
                           [],
                           "",
@@ -1704,7 +1665,7 @@ fn file_to_types(
                 }
                 _ -> {
                   let decoder =
-                    gen_res_decoder(
+                    codegen_decode.gen_res_decoder(
                       fhir_resource_type,
                       camel_type,
                       snake_type,
@@ -1877,189 +1838,6 @@ fn file_to_types(
     },
     valueset_acc,
   )
-}
-
-// this makes the decode.string or decode.int or allergy_intolerance_reaction_decoder() or whatever
-// could maybe be combined with very similar previous func
-fn string_to_decoder_type(
-  fhir_type: String,
-  allparts: List(String),
-  _fhir_version: String,
-  elt: codegen_helpers.Element,
-  current: codegen_helpers.Category,
-) -> String {
-  case fhir_type {
-    "BackboneElement" ->
-      allparts
-      |> list.map(string.capitalise)
-      |> string.concat()
-      |> codegen_helpers.to_snake_case()
-      <> "_decoder()"
-    "Element" ->
-      allparts
-      |> list.map(string.capitalise)
-      |> string.concat()
-      |> codegen_helpers.to_snake_case()
-      <> "_decoder()"
-    "base64Binary" -> "decode.string"
-    "boolean" -> "decode.bool"
-    "canonical" -> "decode.string"
-    "Coding" -> {
-      let prefix = codegen_helpers.bucket_prefix("Coding", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_coding_decoder_source(prefix, valueset)
-        None -> prefix <> "coding_decoder()"
-      }
-    }
-    "CodeableConcept" -> {
-      let prefix = codegen_helpers.bucket_prefix("Codeableconcept", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_codeableconcept_decoder_source(
-            prefix,
-            valueset,
-          )
-        None -> prefix <> "codeableconcept_decoder()"
-      }
-    }
-    "CodeableReference" -> {
-      let prefix = codegen_helpers.bucket_prefix("Codeablereference", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_codeablereference_decoder_source(
-            prefix,
-            valueset,
-          )
-        None -> prefix <> "codeablereference_decoder()"
-      }
-    }
-    "Quantity" -> {
-      let prefix = codegen_helpers.bucket_prefix("Quantity", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_quantity_decoder_source(prefix, valueset)
-        None -> prefix <> "quantity_decoder()"
-      }
-    }
-    "code" -> {
-      let s = allparts |> string.concat()
-      case s {
-        "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding" ->
-          "String"
-        //not a code idk should we even generate this?
-        _ -> {
-          case elt.binding {
-            Some(x) ->
-              case x.strength {
-                "required" -> {
-                  case x.value_set {
-                    Some(vs) -> {
-                      let assert [url, ..] = string.split(vs, "|")
-                        as "split vs version"
-                      //get rid of |version in http://some.valueset|4.0.1
-                      case
-                        string.contains(url, "v3-Confidentiality")
-                        || string.contains(url, "mimetypes")
-                        || string.contains(url, "currencies")
-                        || string.contains(url, "all-languages")
-                        || string.contains(url, "ucum-units")
-                        || string.contains(url, "color-codes")
-                      {
-                        True -> "decode.string"
-                        //idk whats going on here, probably i dont understand valueset composition
-                        False ->
-                          "valuesets."
-                          <> url
-                          |> codegen_helpers.concept_name_from_url()
-                          |> codegen_helpers.to_snake_case
-                          <> "_decoder()"
-                      }
-                    }
-                    _ -> panic as "huh idk 2"
-                  }
-                }
-                _ -> "decode.string"
-                //mostly just elt.languages doesnt have "required" code binding
-              }
-            None -> "decode.string"
-            //these codes dont have required binding?
-          }
-        }
-      }
-    }
-    "date" -> "pt.date_decoder()"
-    "dateTime" -> "pt.datetime_decoder()"
-    "decimal" -> "decode_number()"
-    "id" -> "decode.string"
-    "instant" -> "pt.instant_decoder()"
-    "integer" -> "decode.int"
-    "integer64" -> "decode.string"
-    "markdown" -> "decode.string"
-    "oid" -> "decode.string"
-    "positiveInt" -> "decode.int"
-    "string" -> "decode.string"
-    "time" -> "pt.time_decoder()"
-    "unsignedInt" -> "decode.int"
-    "uri" -> "decode.string"
-    "url" -> "decode.string"
-    "uuid" -> "decode.string"
-    "xhtml" -> "decode.string"
-    "http://hl7.org/fhirpath/System.String" -> "decode.string"
-    _ -> {
-      let camel = codegen_helpers.to_camel_case(fhir_type)
-      codegen_helpers.bucket_prefix(camel, current)
-      <> { fhir_type |> string.lowercase() }
-      <> "_decoder()"
-    }
-    //decoder for backbone element eg visionprescription_lensspecification_decoder()
-  }
-}
-
-fn gen_choice_field_decoder(
-  type_code,
-  allparts,
-  fhir_version,
-  elt,
-  choice_option_caps,
-  choicetype_last_part,
-  current: codegen_helpers.Category,
-) -> String {
-  let assert [fst, ..rest] = type_code |> string.to_graphemes
-  let choicetype_parse_label =
-    choicetype_last_part <> string.uppercase(fst) <> string.concat(rest)
-  let type_decoder =
-    string_to_decoder_type(type_code, allparts, fhir_version, elt, current)
-  "decode.field(\""
-  <> choicetype_parse_label
-  <> "\", "
-  <> type_decoder
-  <> ", decode.success) |> decode.map("
-  <> choice_option_caps
-  <> "),"
-}
-
-fn gen_res_decoder(
-  respascal: String,
-  rescamel: String,
-  reslower: String,
-  use_list: String,
-  success_list: String,
-  is_domainresource: Bool,
-  decoder_always_failure_fordr: String,
-) {
-  let resource_type = case is_domainresource {
-    True -> "\n    use rt <- decode.field(\"resourceType\", decode.string)
-      use <- bool.guard(rt != \"" <> respascal <> "\", decode.failure(RESNAMELOWER_new(" <> decoder_always_failure_fordr <> "), \"resourceType\"))"
-    False -> ""
-  }
-  let template = "pub fn RESNAMELOWER_decoder() -> Decoder(RESNAMECAMEL) {
-     use <- decode.recursive\n" <> use_list // maybe resource_type should go at beginning so if resourceType not found it doesnt run anything else?
-    // but then would have to come up with dummy values for resource required fields, including valuesets
-    <> resource_type <> "decode.success(RESNAMECAMEL(" <> success_list <> "))}"
-  template
-  |> string.replace("RESNAMELOWER", reslower)
-  |> string.replace("RESNAMECAMEL", rescamel)
 }
 
 fn add_forgiving_type_and_decoder_if_bundle_or_bundleentry(

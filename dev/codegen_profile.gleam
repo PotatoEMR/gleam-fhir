@@ -1,4 +1,5 @@
 import codegen_bound_coding
+import codegen_decode
 import codegen_helpers
 import codegen_profile_json.{
   type ExtensionDefinition, type SliceFieldType, type SlicePlan,
@@ -1507,17 +1508,46 @@ pub fn profile_files_to_types(
             all_primitive_ext,
             valueset_acc,
           )
+        let profile_decoders =
+          codegen_profile_json.generate_decoders(
+            resource_type,
+            snapshot.element,
+            profile_prefix,
+            profile_type,
+            type_order,
+            type_fields,
+            profile_structures.extensions,
+            open_slice_type_names,
+            slice_type_overrides,
+            type_slice_overrides,
+            all_primitive_ext,
+            valueset_acc,
+          )
 
         #(
           extension_types,
-          generated_acc <> generated_profile <> profile_encoders,
+          generated_acc
+            <> generated_profile
+            <> profile_encoders
+            <> profile_decoders,
           valueset_acc,
         )
       },
     )
   #(
     profile_complex_types,
-    profile_resources,
+    codegen_decode.result_or_decode_failure
+      <> codegen_bound_coding.find_elt_and_rest_result
+      <> codegen_bound_coding.find_required_elt_and_rest_result
+      <> codegen_bound_coding.find_optional_elt_and_rest_result
+      <> codegen_bound_coding.find_elt_and_rest_found
+      <> codegen_bound_coding.find_required_elt_and_rest_found
+      <> codegen_bound_coding.find_optional_elt_and_rest_found
+      <> codegen_bound_coding.find_at_least_n_elts_and_rest_result
+      <> codegen_bound_coding.find_at_least_n_elts_and_rest_result_or_failure
+      <> codegen_bound_coding.find_at_least_n_elts_and_rest_found
+      <> codegen_bound_coding.find_at_least_n_elts_and_rest_found_or_failure
+      <> profile_resources,
     valueset_acc,
     available_slice_valuesets,
   )
