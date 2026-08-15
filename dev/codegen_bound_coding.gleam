@@ -227,7 +227,7 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
 pub const found_result = "
   pub type Found(a){
     FoundValid(a)
-    FoundInvalid
+    FoundInvalid(String)
     NotFound
   }
   "
@@ -753,7 +753,7 @@ fn find_elt_and_rest_found_loop(
           let more = past_list |> list.reverse |> list.append(rest)
           FoundValid(#(found_elt, more))
         }
-        FoundInvalid -> FoundInvalid
+        FoundInvalid(err) -> FoundInvalid(err)
         NotFound -> {
           let others = [first, ..past_list]
           find_elt_and_rest_found_loop(
@@ -870,7 +870,7 @@ fn find_n_elts_and_rest_found_loop(
               )
           }
         }
-        FoundInvalid -> FoundInvalid
+        FoundInvalid(err) -> FoundInvalid(err)
         NotFound -> {
           let others = [first, ..past_list]
           find_n_elts_and_rest_found_loop(
@@ -991,7 +991,7 @@ fn find_at_least_n_elts_and_rest_found_loop(
             have: found_acc,
           )
         }
-        FoundInvalid -> FoundInvalid
+        FoundInvalid(err) -> FoundInvalid(err)
         NotFound -> {
           let others = [first, ..past_list]
           find_at_least_n_elts_and_rest_found_loop(

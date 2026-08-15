@@ -464,7 +464,7 @@ pub fn identifier_discriminator_system_required_value_from_identifier(
     Some(system) if system == expected_system ->
       case value {
         None ->
-          FoundInvalid
+          FoundInvalid(\"identifier has system \" <> system <> \" but no required value\")
         Some(value) ->
           FoundValid(IdentifierDiscriminatorSystemRequiredValue(
             id:,
