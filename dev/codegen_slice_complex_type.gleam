@@ -9,6 +9,16 @@ pub type CodingDiscriminator {
   )
 }
 
+pub fn coding_discriminator_new() -> CodingDiscriminator {
+  CodingDiscriminator(
+    id: None,
+    extension: [],
+    version: None,
+    display: None,
+    user_selected: None,
+  )
+}
+
 pub fn coding_discriminator_from_coding(
   coding: Coding,
   system: String,
@@ -74,13 +84,23 @@ pub type CodeableconceptDiscriminator {
   )
 }
 
+pub fn codeableconcept_discriminator_new() -> CodeableconceptDiscriminator {
+  CodeableconceptDiscriminator(
+    id: None,
+    extension: [],
+    discriminator: coding_discriminator_new(),
+    more: [],
+    text: None,
+  )
+}
+
 pub fn codeableconcept_discriminator_from_codeableconcept(
   concept: Codeableconcept,
   system: String,
   code: String,
 ) -> Result(CodeableconceptDiscriminator, Nil) {
   let Codeableconcept(id:, extension:, coding:, text:) = concept
-  case find_elt_and_rest(
+  case find_elt_and_rest_result(
     in: coding,
     one_that: fn(coding) {
       coding_discriminator_from_coding(coding, system, code)
@@ -142,6 +162,73 @@ fn coding_discriminator_to_coding(
 }
 "
 
+// rather than required: fixed system/value and more: rest
+// all codings in this codeableconcept have fixed system and value
+// also requires 1..* coding
+pub const slice_codeableconcept_all_coding_discriminator = "
+pub type CodeableconceptDiscriminatorAllCoding {
+  CodeableconceptDiscriminatorAllCoding(
+    id: Option(String),
+    extension: List(Extension),
+    coding: List1(CodingDiscriminator),
+    text: Option(String),
+  )
+}
+
+pub fn codeableconcept_discriminator_all_coding_new(
+) -> CodeableconceptDiscriminatorAllCoding {
+  CodeableconceptDiscriminatorAllCoding(
+    id: None,
+    extension: [],
+    coding: List1(
+      first: coding_discriminator_new(),
+      rest: [],
+    ),
+    text: None,
+  )
+}
+pub fn codeableconcept_all_codings_discriminator_from_codeableconcept(
+  concept: Codeableconcept,
+  system: String,
+  code: String,
+) -> Result(CodeableconceptDiscriminatorAllCoding, Nil) {
+  let Codeableconcept(id:, extension:, coding:, text:) = concept
+  let discriminator_codings = coding |> list.try_map(fn(hope_has_fixed_system_and_code){
+    coding_discriminator_from_coding(hope_has_fixed_system_and_code, system, code)
+  })
+  case discriminator_codings {
+    Error(_) -> Error(Nil)
+    Ok([first_coding, ..rest_coding]) ->
+      Ok(CodeableconceptDiscriminatorAllCoding(
+        id:,
+        extension:,
+        coding: List1(first_coding, rest_coding),
+        text:,
+      ))
+    Ok(_) -> Error(Nil)
+  }
+}
+
+pub fn codeableconcept_discriminator_all_coding_to_json(
+  concept: CodeableconceptDiscriminatorAllCoding,
+  system: String,
+  code: String,
+) -> Json {
+  let CodeableconceptDiscriminatorAllCoding(
+    id:,
+    extension:,
+    coding:,
+    text:,
+  ) = concept
+  codeableconcept_to_json(Codeableconcept(
+    id:,
+    extension:,
+    coding: [coding.first, ..coding.rest] |> list.map(fn(c){coding_discriminator_to_coding(c, system, code)}),
+    text:,
+  ))
+}
+"
+
 pub const slice_identifier_type = "
 pub type IdentifierDiscriminatorType {
   IdentifierDiscriminatorType(
@@ -153,6 +240,19 @@ pub type IdentifierDiscriminatorType {
     value: Option(String),
     period: Option(Period),
     assigner: Option(Reference),
+  )
+}
+
+pub fn identifier_discriminator_type_new() -> IdentifierDiscriminatorType {
+  IdentifierDiscriminatorType(
+    id: None,
+    extension: [],
+    use_: None,
+    type_: codeableconcept_discriminator_new(),
+    system: None,
+    value: None,
+    period: None,
+    assigner: None,
   )
 }
 
@@ -179,7 +279,7 @@ pub fn identifier_discriminator_type_from_identifier(
         type_system,
         type_code,
       ) {
-        Error(Nil) -> Error(Nil)
+        Error(_) -> Error(Nil)
         Ok(type_) ->
           Ok(IdentifierDiscriminatorType(
             id:,
@@ -245,6 +345,19 @@ pub type IdentifierDiscriminatorSystem {
     type_: Option(Codeableconcept),
     period: Option(Period),
     assigner: Option(Reference),
+  )
+}
+
+pub fn identifier_discriminator_system_new(
+) -> IdentifierDiscriminatorSystem {
+  IdentifierDiscriminatorSystem(
+    id: None,
+    extension: [],
+    use_: None,
+    value: None,
+    type_: None,
+    period: None,
+    assigner: None,
   )
 }
 
@@ -318,46 +431,55 @@ pub type IdentifierDiscriminatorSystemRequiredValue {
   )
 }
 
-pub fn identifier_discriminator_system_required_value_from_identifier(
-   identifier: Identifier,
-   expected_system: String,
- ) -> Result(
-   Result(IdentifierDiscriminatorSystemRequiredValue, Nil),
-   Nil,
- ) {
-   let Identifier(
-     id:,
-     extension:,
-     use_:,
-     type_:,
-     system:,
-     value:,
-     period:,
-     assigner:,
-   ) = identifier
+pub fn identifier_discriminator_system_required_value_new(
+  value value: String,
+) -> IdentifierDiscriminatorSystemRequiredValue {
+  IdentifierDiscriminatorSystemRequiredValue(
+    id: None,
+    extension: [],
+    use_: None,
+    value:,
+    type_: None,
+    period: None,
+    assigner: None,
+  )
+}
 
-   case system {
-     Some(system) ->
-       case system == expected_system {
-         False -> Error(Nil)
-         True ->
-           case value {
-             None -> Ok(Error(Nil))
-             Some(value) ->
-               Ok(Ok(IdentifierDiscriminatorSystemRequiredValue(
-                 id:,
-                 extension:,
-                 use_:,
-                 value:,
-                 type_:,
-                 period:,
-                 assigner:,
-               )))
-           }
-       }
-     None -> Error(Nil)
-   }
- }
+pub fn identifier_discriminator_system_required_value_from_identifier(
+  identifier: Identifier,
+  expected_system: String,
+) -> Found(IdentifierDiscriminatorSystemRequiredValue) {
+  let Identifier(
+    id:,
+    extension:,
+    use_:,
+    type_:,
+    system:,
+    value:,
+    period:,
+    assigner:,
+  ) = identifier
+
+  case system {
+    Some(system) if system == expected_system ->
+      case value {
+        None ->
+          FoundInvalid
+        Some(value) ->
+          FoundValid(IdentifierDiscriminatorSystemRequiredValue(
+            id:,
+            extension:,
+            use_:,
+            value:,
+            type_:,
+            period:,
+            assigner:,
+          ))
+      }
+    _ ->
+      NotFound
+  }
+}
 
 pub fn identifier_discriminator_system_required_value_to_json(
   identifier: IdentifierDiscriminatorSystemRequiredValue,

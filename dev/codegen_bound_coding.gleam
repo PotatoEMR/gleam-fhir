@@ -218,164 +218,17 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         let is_bound_valueset = fn(coding: Coding) {
           bound_coding_from_coding(coding, binding_from_code_and_system)
         }
-        find_elt_and_rest(in: items, one_that: is_bound_valueset)
+        find_elt_and_rest_result(in: items, one_that: is_bound_valueset)
       }"
-  <> find_elt_and_rest
+  <> find_elt_and_rest_result
 
-const find_elt_and_rest = "fn find_elt_and_rest(
-        in items: List(a),
-        one_that is_desired: fn(a) -> Result(b, Nil)
-       ) -> Result(#(b, List(a)), Nil) {
-         find_elt_and_rest_loop(in: items, one_that: is_desired, already: [])
-       }
-
-      fn find_elt_and_rest_loop(
-        in items: List(a),
-        one_that is_desired: fn(a) -> Result(b, Nil),
-        already past_list: List(a)
-      ) -> Result(#(b, List(a)), Nil) {
-        case items {
-          [] -> Error(Nil)
-          [first, ..rest] ->
-            case is_desired(first) {
-              Ok(found_elt) -> {
-                let more = past_list |> list.reverse |> list.append(rest)
-                Ok(#(found_elt, more))
-              }
-              Error(_) -> {
-                  // could also increment index here,
-                  // if we want to keep track of where we found elt
-                  // to not lose order in json roundtrip
-                  let others = [first, ..past_list]
-                  find_elt_and_rest_loop(in: rest, one_that: is_desired, already: others)
-                }
-            }
-        }
-      }"
-
-pub const find_n_elts_and_rest = "fn find_n_elts_and_rest(
-        in items: List(a),
-        items_that are_desired: fn(a) -> Result(b, Nil),
-        num to_find: Int
-       ) -> Result(#(List(b), List(a)), Nil) {
-         find_n_elts_and_rest_loop(in: items, items_that: are_desired, num: to_find, already: [], have: [])
-       }
-
-       fn find_n_elts_and_rest_loop(
-         in items: List(a),
-         items_that are_desired: fn(a) -> Result(b, Nil),
-         num to_find: Int,
-         already past_list: List(a),
-         have found_acc: List(b),
-       ) -> Result(#(List(b), List(a)), Nil) {
-         case items {
-           [] -> Error(Nil)
-           [first, ..rest] ->
-             case are_desired(first) {
-               Ok(found_elt) -> {
-                 let found_acc = [found_elt, ..found_acc]
-                 let to_find = to_find - 1
-                 case to_find <= 0 {
-                  True -> {
-                    let more = past_list |> list.reverse |> list.append(rest)
-                    let found_acc = list.reverse(found_acc)
-                    Ok(#(found_acc, more))
-                  }
-                  False -> find_n_elts_and_rest_loop(in: rest, items_that: are_desired, num: to_find, already: past_list, have: found_acc)
-                 }
-               }
-               Error(_) -> {
-                   let others = [first, ..past_list]
-                   find_n_elts_and_rest_loop(in: rest, items_that: are_desired, num: to_find, already: others, have: found_acc)
-                 }
-             }
-         }
-       }"
-
-// note this is basically list.partition,
-// except we also apply fn to matching elts and error if not enough matching
-pub const find_at_least_n_elts_and_rest = "fn find_at_least_n_elts_and_rest(
-         in items: List(a),
-         items_that are_desired: fn(a) -> Result(b, Nil),
-         at_least to_find: Int,
-        ) -> Result(#(List(b), List(a)), Nil) {
-          find_at_least_n_elts_and_rest_loop(in: items, items_that: are_desired, at_least: to_find, already: [], have: [])
-        }
-
-        fn find_at_least_n_elts_and_rest_loop(
-          in items: List(a),
-          items_that are_desired: fn(a) -> Result(b, Nil),
-          at_least to_find: Int,
-          already past_list: List(a),
-          have found_acc: List(b),
-        ) -> Result(#(List(b), List(a)), Nil) {
-          case items {
-            [] -> case to_find <= 0 {
-              False -> Error(Nil)
-              True -> {
-                let more = past_list |> list.reverse
-                let found_acc = list.reverse(found_acc)
-                Ok(#(found_acc, more))
-              }
-            }
-            [first, ..rest] ->
-              case are_desired(first) {
-                Ok(found_elt) -> {
-                  let found_acc = [found_elt, ..found_acc]
-                  let to_find = to_find - 1
-                  find_at_least_n_elts_and_rest_loop(in: rest, items_that: are_desired, at_least: to_find, already: past_list, have: found_acc)
-                }
-                Error(_) -> {
-                    let others = [first, ..past_list]
-                    find_at_least_n_elts_and_rest_loop(in: rest, items_that: are_desired, at_least: to_find, already: others, have: found_acc)
-                  }
-              }
-          }
-        }
-      "
-
-pub const find_elts_and_rest = "
-fn find_elts_and_rest(
-  in items: List(a),
-  items_that are_desired: fn(a) -> Result(b, Nil),
-) -> #(List(b), List(a)) {
-  find_elts_and_rest_loop(
-    in: items,
-    items_that: are_desired,
-    found: [],
-    rest: [],
-  )
-}
-
-fn find_elts_and_rest_loop(
-  in items: List(a),
-  items_that are_desired: fn(a) -> Result(b, Nil),
-  found found_acc: List(b),
-  rest rest_acc: List(a),
-) -> #(List(b), List(a)) {
-  case items {
-    [] -> #(list.reverse(found_acc), list.reverse(rest_acc))
-
-    [first, ..items] ->
-      case are_desired(first) {
-        Ok(found_elt) ->
-          find_elts_and_rest_loop(
-            in: items,
-            items_that: are_desired,
-            found: [found_elt, ..found_acc],
-            rest: rest_acc,
-          )
-        Error(_) ->
-          find_elts_and_rest_loop(
-            in: items,
-            items_that: are_desired,
-            found: found_acc,
-            rest: [first, ..rest_acc],
-          )
-      }
+pub const found_result = "
+  type Found(a){
+    FoundValid(a)
+    FoundInvalid
+    NotFound
   }
-}
-"
+  "
 
 pub const bound_codeable_reference = "      pub type BoundCodeablereference(required_binding) {
   BoundCodeablereference(
@@ -840,3 +693,357 @@ pub fn valueset_failure_variant_source(
     [], [] -> panic as { "ValueSet " <> vsname <> " has no variants" }
   }
 }
+
+pub const find_elt_and_rest_result = "fn find_elt_and_rest_result(
+  in items: List(a),
+  one_that is_desired: fn(a) -> Result(b, Nil),
+) -> Result(#(b, List(a)), Nil) {
+  find_elt_and_rest_result_loop(
+    in: items,
+    one_that: is_desired,
+    already: [],
+  )
+}
+
+fn find_elt_and_rest_result_loop(
+  in items: List(a),
+  one_that is_desired: fn(a) -> Result(b, Nil),
+  already past_list: List(a),
+) -> Result(#(b, List(a)), Nil) {
+  case items {
+    [] -> Error(Nil)
+    [first, ..rest] ->
+      case is_desired(first) {
+        Ok(found_elt) -> {
+          let more = past_list |> list.reverse |> list.append(rest)
+          Ok(#(found_elt, more))
+        }
+        Error(_) -> {
+          let others = [first, ..past_list]
+          find_elt_and_rest_result_loop(
+            in: rest,
+            one_that: is_desired,
+            already: others,
+          )
+        }
+      }
+  }
+}
+"
+
+pub const find_elt_and_rest_found = "fn find_elt_and_rest_found(
+  in items: List(a),
+  one_that is_desired: fn(a) -> Found(b),
+) -> Found(#(b, List(a))) {
+  find_elt_and_rest_found_loop(in: items, one_that: is_desired, already: [])
+}
+
+fn find_elt_and_rest_found_loop(
+  in items: List(a),
+  one_that is_desired: fn(a) -> Found(b),
+  already past_list: List(a),
+) -> Found(#(b, List(a))) {
+  case items {
+    [] -> NotFound
+    [first, ..rest] ->
+      case is_desired(first) {
+        FoundValid(found_elt) -> {
+          let more = past_list |> list.reverse |> list.append(rest)
+          FoundValid(#(found_elt, more))
+        }
+        FoundInvalid -> FoundInvalid
+        NotFound -> {
+          let others = [first, ..past_list]
+          find_elt_and_rest_found_loop(
+            in: rest,
+            one_that: is_desired,
+            already: others,
+          )
+        }
+      }
+  }
+}
+"
+
+pub const find_n_elts_and_rest_result = "fn find_n_elts_and_rest_result(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Result(b, Nil),
+  num to_find: Int,
+) -> Result(#(List(b), List(a)), Nil) {
+  find_n_elts_and_rest_result_loop(
+    in: items,
+    items_that: are_desired,
+    num: to_find,
+    already: [],
+    have: [],
+  )
+}
+
+fn find_n_elts_and_rest_result_loop(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Result(b, Nil),
+  num to_find: Int,
+  already past_list: List(a),
+  have found_acc: List(b),
+) -> Result(#(List(b), List(a)), Nil) {
+  case items {
+    [] -> Error(Nil)
+    [first, ..rest] ->
+      case are_desired(first) {
+        Ok(found_elt) -> {
+          let found_acc = [found_elt, ..found_acc]
+          let to_find = to_find - 1
+          case to_find <= 0 {
+            True -> {
+              let more = past_list |> list.reverse |> list.append(rest)
+              let found_acc = list.reverse(found_acc)
+              Ok(#(found_acc, more))
+            }
+            False ->
+              find_n_elts_and_rest_result_loop(
+                in: rest,
+                items_that: are_desired,
+                num: to_find,
+                already: past_list,
+                have: found_acc,
+              )
+          }
+        }
+        Error(_) -> {
+          let others = [first, ..past_list]
+          find_n_elts_and_rest_result_loop(
+            in: rest,
+            items_that: are_desired,
+            num: to_find,
+            already: others,
+            have: found_acc,
+          )
+        }
+      }
+  }
+}
+"
+
+pub const find_n_elts_and_rest_found = "fn find_n_elts_and_rest_found(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Found(b),
+  num to_find: Int,
+) -> Found(#(List(b), List(a))) {
+  find_n_elts_and_rest_found_loop(
+    in: items,
+    items_that: are_desired,
+    num: to_find,
+    already: [],
+    have: [],
+  )
+}
+
+fn find_n_elts_and_rest_found_loop(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Found(b),
+  num to_find: Int,
+  already past_list: List(a),
+  have found_acc: List(b),
+) -> Found(#(List(b), List(a))) {
+  case items {
+    [] -> NotFound
+    [first, ..rest] ->
+      case are_desired(first) {
+        FoundValid(found_elt) -> {
+          let found_acc = [found_elt, ..found_acc]
+          let to_find = to_find - 1
+          case to_find <= 0 {
+            True -> {
+              let more = past_list |> list.reverse |> list.append(rest)
+              let found_acc = list.reverse(found_acc)
+              FoundValid(#(found_acc, more))
+            }
+            False ->
+              find_n_elts_and_rest_found_loop(
+                in: rest,
+                items_that: are_desired,
+                num: to_find,
+                already: past_list,
+                have: found_acc,
+              )
+          }
+        }
+        FoundInvalid -> FoundInvalid
+        NotFound -> {
+          let others = [first, ..past_list]
+          find_n_elts_and_rest_found_loop(
+            in: rest,
+            items_that: are_desired,
+            num: to_find,
+            already: others,
+            have: found_acc,
+          )
+        }
+      }
+  }
+}
+"
+
+// These are like list.partition, except they also apply the matching function
+// and return an error if there are not enough matching elements.
+pub const find_at_least_n_elts_and_rest_result = "fn find_at_least_n_elts_and_rest_result(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Result(b, Nil),
+  at_least to_find: Int,
+) -> Result(#(List(b), List(a)), Nil) {
+  find_at_least_n_elts_and_rest_result_loop(
+    in: items,
+    items_that: are_desired,
+    at_least: to_find,
+    already: [],
+    have: [],
+  )
+}
+
+fn find_at_least_n_elts_and_rest_result_loop(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Result(b, Nil),
+  at_least to_find: Int,
+  already past_list: List(a),
+  have found_acc: List(b),
+) -> Result(#(List(b), List(a)), Nil) {
+  case items {
+    [] ->
+      case to_find <= 0 {
+        False -> Error(Nil)
+        True -> {
+          let more = list.reverse(past_list)
+          let found_acc = list.reverse(found_acc)
+          Ok(#(found_acc, more))
+        }
+      }
+    [first, ..rest] ->
+      case are_desired(first) {
+        Ok(found_elt) -> {
+          let found_acc = [found_elt, ..found_acc]
+          let to_find = to_find - 1
+          find_at_least_n_elts_and_rest_result_loop(
+            in: rest,
+            items_that: are_desired,
+            at_least: to_find,
+            already: past_list,
+            have: found_acc,
+          )
+        }
+        Error(_) -> {
+          let others = [first, ..past_list]
+          find_at_least_n_elts_and_rest_result_loop(
+            in: rest,
+            items_that: are_desired,
+            at_least: to_find,
+            already: others,
+            have: found_acc,
+          )
+        }
+      }
+  }
+}
+"
+
+pub const find_at_least_n_elts_and_rest_found = "fn find_at_least_n_elts_and_rest_found(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Found(b),
+  at_least to_find: Int,
+) -> Found(#(List(b), List(a))) {
+  find_at_least_n_elts_and_rest_found_loop(
+    in: items,
+    items_that: are_desired,
+    at_least: to_find,
+    already: [],
+    have: [],
+  )
+}
+
+fn find_at_least_n_elts_and_rest_found_loop(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Found(b),
+  at_least to_find: Int,
+  already past_list: List(a),
+  have found_acc: List(b),
+) -> Found(#(List(b), List(a))) {
+  case items {
+    [] ->
+      case to_find <= 0 {
+        False -> NotFound
+        True -> {
+          let more = list.reverse(past_list)
+          let found_acc = list.reverse(found_acc)
+          FoundValid(#(found_acc, more))
+        }
+      }
+    [first, ..rest] ->
+      case are_desired(first) {
+        FoundValid(found_elt) -> {
+          let found_acc = [found_elt, ..found_acc]
+          let to_find = to_find - 1
+          find_at_least_n_elts_and_rest_found_loop(
+            in: rest,
+            items_that: are_desired,
+            at_least: to_find,
+            already: past_list,
+            have: found_acc,
+          )
+        }
+        FoundInvalid -> FoundInvalid
+        NotFound -> {
+          let others = [first, ..past_list]
+          find_at_least_n_elts_and_rest_found_loop(
+            in: rest,
+            items_that: are_desired,
+            at_least: to_find,
+            already: others,
+            have: found_acc,
+          )
+        }
+      }
+  }
+}
+"
+
+pub const find_elts_and_rest = "
+fn find_elts_and_rest(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Result(b, Nil),
+) -> #(List(b), List(a)) {
+  find_elts_and_rest_loop(
+    in: items,
+    items_that: are_desired,
+    found: [],
+    rest: [],
+  )
+}
+
+fn find_elts_and_rest_loop(
+  in items: List(a),
+  items_that are_desired: fn(a) -> Result(b, Nil),
+  found found_acc: List(b),
+  rest rest_acc: List(a),
+) -> #(List(b), List(a)) {
+  case items {
+    [] -> #(list.reverse(found_acc), list.reverse(rest_acc))
+
+    [first, ..items] ->
+      case are_desired(first) {
+        Ok(found_elt) ->
+          find_elts_and_rest_loop(
+            in: items,
+            items_that: are_desired,
+            found: [found_elt, ..found_acc],
+            rest: rest_acc,
+          )
+        Error(_) ->
+          find_elts_and_rest_loop(
+            in: items,
+            items_that: are_desired,
+            found: found_acc,
+            rest: [first, ..rest_acc],
+          )
+      }
+  }
+}
+"
