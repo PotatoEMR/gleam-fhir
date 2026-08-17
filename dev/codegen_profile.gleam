@@ -994,11 +994,11 @@ pub fn profile_files_to_types(
           "List" -> "Listfhir"
           profile_type -> profile_type
         }
-        let open_slice_type_names =
+        let slice_base_type_names =
           profile_elements
           |> list.filter_map(fn(element) {
             case element.slicing, string.ends_with(element.path, "[x]") {
-              Some(codegen_helpers.Slicing(rules: "open", ..)), False -> {
+              Some(codegen_helpers.Slicing(rules:, ..)), False -> {
                 let assert [_, ..rest] =
                   element.id
                   |> string.replace("-", "")
@@ -1008,7 +1008,12 @@ pub fn profile_files_to_types(
                   [profile_prefix, ..rest]
                   |> string.join("_")
                   |> codegen_helpers.to_camel_case
-                Ok(#(base_name, base_name <> "Open"))
+                let slice_base_name = case rules {
+                  "open" | "openAtEnd" -> base_name <> "Open"
+                  "closed" -> base_name <> "SliceBase"
+                  _ -> panic as { "unknown slicing rule " <> rules }
+                }
+                Ok(#(base_name, slice_base_name))
               }
               _, _ -> Error(Nil)
             }
@@ -1112,7 +1117,7 @@ pub fn profile_files_to_types(
                   |> codegen_helpers.to_camel_case
               }
               let gleam_type = case
-                dict.get(open_slice_type_names, gleam_type)
+                dict.get(slice_base_type_names, gleam_type)
               {
                 Ok(open_name) -> open_name
                 Error(_) -> gleam_type
@@ -1203,7 +1208,7 @@ pub fn profile_files_to_types(
                         choice_type,
                         profile_structures.extensions,
                         type_order,
-                        open_slice_type_names,
+                        slice_base_type_names,
                         slice_type_overrides,
                         valueset_acc,
                       )
@@ -1240,7 +1245,7 @@ pub fn profile_files_to_types(
                                 choice_type,
                                 profile_structures.extensions,
                                 type_order,
-                                open_slice_type_names,
+                                slice_base_type_names,
                                 slice_type_overrides,
                                 valueset_acc,
                               )
@@ -1524,7 +1529,7 @@ pub fn profile_files_to_types(
             type_order,
             type_fields,
             profile_structures.extensions,
-            open_slice_type_names,
+            slice_base_type_names,
             slice_type_overrides,
             type_slice_overrides,
             all_primitive_ext,
@@ -1539,7 +1544,7 @@ pub fn profile_files_to_types(
             type_order,
             type_fields,
             profile_structures.extensions,
-            open_slice_type_names,
+            slice_base_type_names,
             slice_type_overrides,
             type_slice_overrides,
             all_primitive_ext,
