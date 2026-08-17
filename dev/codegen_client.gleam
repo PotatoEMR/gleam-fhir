@@ -185,6 +185,7 @@ pub fn gen(
   custom_profile_name custom_profile_name: Option(String),
   all_primitive_ext all_primitive_ext: Bool,
   profiles_dir profiles_dir: String,
+  gen_specific_resources gen_specific_resources: Option(List(String)),
 ) -> #(String, String, String, String) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
@@ -255,7 +256,12 @@ pub fn gen(
         _, "Parameters" -> False
         _, "Element" -> False
         Some("complex-type"), _ -> True
-        Some("resource"), _ -> True
+        Some("resource"), resname ->
+          case gen_specific_resources {
+            None -> True
+            Some(gen_specific_resources) ->
+              gen_specific_resources |> list.contains(string.lowercase(resname))
+          }
         _, _ -> False
       }
     })
@@ -358,7 +364,15 @@ pub fn gen(
   let expanded_rest =
     list.map(first_entry.resource.rest, fn(rest) {
       Rest(
-        resource: list.flat_map(rest.resource, fn(res) {
+        resource: rest.resource
+        |> list.filter(fn(res) {
+          case gen_specific_resources {
+            None -> True
+            Some(resources) ->
+              list.contains(resources, string.lowercase(res.base_type))
+          }
+        })
+        |> list.flat_map(fn(res) {
           case dict.get(profile_substitutions, res.type_) {
             Error(_) -> [res]
             Ok(profile_names) -> {

@@ -222,10 +222,30 @@ fn extension_definitions(
   |> dict.from_list
 }
 
-fn load_profile_files(profiles_dir: String) -> ProfileFiles {
+fn load_profile_files(
+  profiles_dir: String,
+  gen_specific_resources: Option(List(String)),
+) -> ProfileFiles {
+  let gen_specific_resources = case gen_specific_resources {
+    None -> None
+    Some(gen_specific_resources) ->
+      Some(
+        gen_specific_resources
+        |> list.append(
+          list.map(gen_specific_resources, fn(res) { res <> "profile" }),
+        ),
+      )
+  }
   let structures = root_profile_resources(profiles_dir)
   let resources =
-    list.filter(structures, fn(resource) { resource.kind == Some("resource") })
+    list.filter(structures, fn(resource) {
+      resource.kind == Some("resource")
+      && case gen_specific_resources {
+        None -> True
+        Some(gen_specific_resources) ->
+          list.contains(gen_specific_resources, string.lowercase(resource.name))
+      }
+    })
   let extensions =
     structures
     |> referenced_extension_urls
@@ -883,13 +903,15 @@ pub fn profile_files_to_types(
   profiles_dir: String,
   all_primitive_ext: Bool,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+  gen_specific_resources: Option(List(String)),
 ) -> #(
   String,
   String,
   dict.Dict(String, codegen_helpers.ValuesetItem),
   dict.Dict(String, codegen_helpers.VsOrCs),
 ) {
-  let profile_structures = load_profile_files(profiles_dir)
+  let profile_structures =
+    load_profile_files(profiles_dir, gen_specific_resources)
   let required_valuesets_from_elements = fn(
     elements: List(codegen_helpers.Element),
   ) -> Set(String) {

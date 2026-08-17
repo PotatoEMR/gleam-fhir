@@ -67,6 +67,23 @@ pub fn main() {
 
   let download_files = list.contains(args_lower, "download")
   let all_primitive_ext = list.contains(args_lower, "allprimitiveext")
+  let gen_specific_resources = case
+    list.find(args_lower, fn(arg) { string.starts_with(arg, "resources=") })
+  {
+    Ok(arg) -> {
+      let assert [_, resources] = string.split(arg, "=")
+      Some(
+        resources
+        |> string.split(",")
+        |> list.map(string.lowercase)
+        // always need these resources for the client stuff
+        |> list.prepend("bundle")
+        |> list.prepend("parameters")
+        |> list.prepend("operationoutcome"),
+      )
+    }
+    Error(_) -> None
+  }
   let download_dir = const_download_dir()
 
   let _ = case download_files {
@@ -146,6 +163,7 @@ pub fn main() {
           custom_profile_name,
           profiles_dir,
           all_primitive_ext,
+          gen_specific_resources,
         )
       False -> Nil
     }
@@ -159,6 +177,7 @@ fn gen_fhir(
   custom_profile_name: Option(String),
   profiles_dir: Option(String),
   all_primitive_ext: Bool,
+  gen_specific_resources: Option(List(String)),
 ) -> Nil {
   let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
 
@@ -221,6 +240,7 @@ fn gen_fhir(
       all_primitive_ext: all_primitive_ext,
       current_bucket: codegen_helpers.ComplexTypes,
       valueset_acc: dict.new(),
+      gen_specific_resources:,
     )
   let #(resources_gen, valueset_acc) =
     file_to_types(
@@ -229,6 +249,7 @@ fn gen_fhir(
       all_primitive_ext: all_primitive_ext,
       current_bucket: codegen_helpers.Resources,
       valueset_acc:,
+      gen_specific_resources:,
     )
   let #(
     profile_complex_types,
@@ -244,6 +265,7 @@ fn gen_fhir(
           profiles_dir,
           all_primitive_ext,
           valueset_acc,
+          gen_specific_resources,
         )
       #(complex_types, resources, valuesets, Some(loaded_valuesets))
     }
@@ -540,6 +562,7 @@ fn gen_fhir(
       None,
       all_primitive_ext,
       "",
+      gen_specific_resources,
     )
   list.each(
     [
@@ -740,6 +763,7 @@ fn file_to_types(
   all_primitive_ext all_primitive_ext: Bool,
   current_bucket current_bucket: codegen_helpers.Category,
   valueset_acc valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+  gen_specific_resources gen_specific_resources: Option(List(String)),
 ) -> #(String, dict.Dict(String, codegen_helpers.ValuesetItem)) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
@@ -756,7 +780,12 @@ fn file_to_types(
         _, "Resource" -> False
         _, "Element" -> False
         Some("complex-type"), _ -> True
-        Some("resource"), _ -> True
+        Some("resource"), resname ->
+          case gen_specific_resources {
+            None -> True
+            Some(gen_specific_resources) ->
+              gen_specific_resources |> list.contains(string.lowercase(resname))
+          }
         _, _ -> False
       }
     })
@@ -1815,7 +1844,7 @@ fn file_to_types(
           case tag {" <> resource_decoders <> "
             _ ->
               decode.failure(
-                ResourceEnrollmentrequest(enrollmentrequest_new()),
+                ResourceParameters(parameters_new()),
                 expected: \"\",
               )
               |> decode.map_errors(fn(_errs) {
