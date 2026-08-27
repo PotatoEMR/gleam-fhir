@@ -1,3 +1,4 @@
+import fhir/r4/complex_types as r4ct
 import fhir/r4/resources as r4
 import filepath
 import gleam/dict.{type Dict}
@@ -757,7 +758,13 @@ pub fn load_valuesets(
     dict.new(),
     required_value_set_files,
   )
-  |> fn(result) { result.1 }
+  |> fn(result) {
+    load_valuesets_from_directory(
+      "dev/downloaded_manually_valuesets",
+      result.1,
+      required_value_set_files,
+    )
+  }
 }
 
 fn load_valuesets_with_dependencies(
@@ -767,11 +774,20 @@ fn load_valuesets_with_dependencies(
   all_vs_or_cs: Dict(String, VsOrCs),
   required_value_set_files: Set(String),
 ) {
-  case set.contains(loaded, package_dir) {
-    True -> {
+  let package_json = filepath.join(package_dir, "package.json")
+  let assert Ok(package_exists) = simplifile.is_file(package_json)
+
+  case set.contains(loaded, package_dir), package_exists {
+    True, _ -> {
       #(loaded, all_vs_or_cs)
     }
-    False -> {
+    False, False -> {
+      io.println(
+        "warning: skipping package with no package.json: " <> package_dir,
+      )
+      #(set.insert(loaded, package_dir), all_vs_or_cs)
+    }
+    False, True -> {
       io.println("loading valuesets from " <> package_dir)
       let loaded = set.insert(loaded, package_dir)
       let #(loaded, all_vs_or_cs) =
@@ -819,11 +835,34 @@ fn load_valuesets_from_directory(
       True -> {
         let assert Ok(contents) = simplifile.read(path)
         case json.parse(contents, r4.valueset_decoder()) {
-          Ok(valueset) ->
+          Ok(valueset) -> {
+            let valueset = case valueset.compose, valueset.expansion {
+              None, Some(expansion) -> {
+                let includes =
+                  list.map(expansion.contains, fn(item) {
+                    let assert Some(system) = item.system
+                    let assert Some(code) = item.code
+                    r4.ValuesetComposeInclude(
+                      ..r4.valueset_compose_include_new(),
+                      system: Some(system),
+                      concept: [r4.valueset_compose_include_concept_new(code)],
+                    )
+                  })
+                let assert [first, ..rest] = includes
+                r4.Valueset(
+                  ..valueset,
+                  compose: Some(
+                    r4.valueset_compose_new(r4ct.List1(first:, rest:)),
+                  ),
+                )
+              }
+              _, _ -> valueset
+            }
             case valueset.url {
               Some(url) -> dict.insert(acc, url, VocValueset(valueset))
               None -> acc
             }
+          }
           Error(_) -> acc
         }
       }

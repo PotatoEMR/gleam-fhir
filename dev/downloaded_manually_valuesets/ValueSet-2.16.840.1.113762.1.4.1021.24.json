@@ -1,0 +1,47 @@
+{
+    "resourceType": "ValueSet",
+    "id": "2.16.840.1.113762.1.4.1021.24",
+    "url": "http://cts.nlm.nih.gov/fhir/ValueSet/2.16.840.1.113762.1.4.1021.24",
+    "status": "active",
+    "expansion": {
+        "timestamp": "2024-03-30",
+        "contains": [
+            {
+                "system": "2.16.840.1.113883.5.1008",
+                "version": "2023-02",
+                "code": "ASKU",
+                "display": "asked but unknown"
+            },
+            {
+                "system": "2.16.840.1.113883.5.1",
+                "version": "2023-02",
+                "code": "F",
+                "display": "Female"
+            },
+            {
+                "system": "2.16.840.1.113883.5.1",
+                "version": "2023-02",
+                "code": "M",
+                "display": "Male"
+            },
+            {
+                "system": "2.16.840.1.113883.5.1008",
+                "version": "2023-02",
+                "code": "OTH",
+                "display": "other"
+            },
+            {
+                "system": "2.16.840.1.113883.5.1008",
+                "version": "2023-02",
+                "code": "UNK",
+                "display": "unknown"
+            },
+            {
+                "system": "2.16.840.1.113883.4.642.4.1048",
+                "version": "0.1.0",
+                "code": "asked-declined",
+                "display": "Asked But Declined"
+            }
+        ]
+    }
+}

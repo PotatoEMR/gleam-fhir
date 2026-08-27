@@ -64,7 +64,7 @@ fn read_structure_definition(path: String) -> codegen_helpers.Resource {
 }
 
 fn root_profile_resources(profiles_dir: String) {
-  let assert Ok(files) = simplifile.read_directory(profiles_dir)
+  let assert Ok(files) = simplifile.read_directory(profiles_dir) as profiles_dir
   files
   |> list.filter(fn(file) { string.starts_with(file, "StructureDefinition") })
   |> list.map(fn(file) {

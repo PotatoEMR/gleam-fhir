@@ -1,7 +1,7 @@
 import child_process
 import child_process/stdio
-import fhir/r4/complex_types.{type List1, List1} as ct
-import fhir/r4/resources
+import fhir/r4_gui/complex_types.{type List1, List1} as ct
+import fhir/r4_gui/resources
 import fhir_gui_reslist
 import filepath
 import gleam/dict
@@ -346,10 +346,7 @@ fn run_process(name, args, donemsg) -> Effect(Message) {
       |> child_process.args(args)
       |> child_process.spawn(
         stdio.lines(fn(line) { dispatch(ProcessReturnedLine(line)) })
-        |> stdio.on_exit(fn(_status) {
-          echo "done"
-          dispatch(donemsg)
-        }),
+        |> stdio.on_exit(fn(_status) { dispatch(donemsg) }),
       )
     Nil
   })
@@ -366,7 +363,12 @@ fn parse_structuredefs(dir, structuredefs) -> Effect(Message) {
           Ok(content) ->
             case json.parse(content, resources.structuredefinition_decoder()) {
               Error(err) ->
-                Error("failed to decode StructureDefinition " <> path <> " error: " <> json_err_to_string(err))
+                Error(
+                  "failed to decode StructureDefinition "
+                  <> path
+                  <> " error: "
+                  <> json_err_to_string(err),
+                )
               Ok(value) -> Ok(value)
             }
         }
@@ -426,8 +428,9 @@ fn update(model: Model, message: Message) {
         all_rg
         |> list.any(fn(res) { res.gen == DontGenerate })
       let more_args = case dont_gen_a_res {
-        False -> args
+        False -> more_args
         True -> {
+          echo all_rg
           let gen_res_arg =
             all_rg
             |> list.filter_map(fn(rg) {
@@ -469,8 +472,6 @@ fn update(model: Model, message: Message) {
     GenResource(res, gen, restype) -> {
       let model = case restype {
         Bases -> {
-          echo res
-          echo gen
           let base_resources = model.base_resources |> insert(res, gen)
           Model(..model, base_resources:)
         }
@@ -536,7 +537,12 @@ fn update(model: Model, message: Message) {
           let num = package_names |> list.length |> int.to_string
           let simplifier_response_error =
             Some("found " <> num <> " package names, searching their versions")
-          let model = Model(..model, simplifier_response_error:, profile_search_results: [])
+          let model =
+            Model(
+              ..model,
+              simplifier_response_error:,
+              profile_search_results: [],
+            )
           // should rename this from error
           #(model, effect.batch(search_pkg_effects))
         }
@@ -589,13 +595,8 @@ fn update(model: Model, message: Message) {
       #(model, effect.none())
     }
     DownloadExited -> {
-      echo "download exited"
-      echo model.profile
-      echo model.codegen_dir
       let #(simplifier_response_error, parse_structuredefs_effect) =
         start_parsing_files(model.profile, model.codegen_dir)
-      echo "download exited -> simplifier_response_error now "
-      echo simplifier_response_error
       let model = Model(..model, simplifier_response_error:)
       #(model, parse_structuredefs_effect)
     }
@@ -700,7 +701,7 @@ fn err_to_string(err: rsvp.Error(String)) {
   }
 }
 
-fn json_err_to_string(err){
+fn json_err_to_string(err) {
   case err {
     json.UnexpectedEndOfInput -> "unexpected end of input"
     json.UnexpectedByte(byte) -> "unexpected byte: " <> byte

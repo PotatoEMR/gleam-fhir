@@ -4,8 +4,8 @@ import codegen_client
 import codegen_decode
 import codegen_helpers
 import codegen_profile
-import codegen_profile_package_download_no_npm
 import codegen_to_json
+import download_profile_package
 import fhir/r4/resources as r4
 import filepath
 import gleam/dict
@@ -109,7 +109,7 @@ pub fn main() {
   // }
   // let assert Ok(_) = simplifile.create_directory_all(gen_into_dir)
 
-  let profiles_dir = const_download_dir() |> filepath.join("profile_packages")
+  let profiles_dir = const_download_dir() |> filepath.join("profile_package")
   let custom_profile =
     list.find(args_cased, fn(arg) { string.starts_with(arg, "custom=") })
   let profiles_dir = case custom_profile {
@@ -122,7 +122,7 @@ pub fn main() {
         False -> Nil
         True -> {
           let packages =
-            codegen_profile_package_download_no_npm.download_package_with_dependencies(
+            download_profile_package.download_package_with_dependencies(
               pkg_name,
               pkg_version,
               profiles_dir,
@@ -184,10 +184,10 @@ fn gen_fhir(
   let _ = case download_files {
     True -> {
       let _ =
-        codegen_profile_package_download_no_npm.download_package_with_dependencies(
+        download_profile_package.download_package_with_dependencies(
           "hl7.fhir." <> fhir_version <> ".core",
           simplifier_core_package_version(fhir_version),
-          const_download_dir() |> filepath.join("profile_packages"),
+          const_download_dir() |> filepath.join("profile_package"),
         )
       let assert Ok(_) = simplifile.create_directory_all(extract_dir_ver)
       use filename <- list.map(zip_file_names)
@@ -529,7 +529,7 @@ fn gen_fhir(
   let r_ct_import =
     "import fhir/"
     <> pkg_prefix
-    <> "/complex_types.{type List1, list1_to_json, list1_decoder, none_if_omitted, decode_number"
+    <> "/complex_types.{type List1, list1_to_json, list1_decoder, type List2, list2_to_json, list2_decoder, none_if_omitted, decode_number"
     <> primitive_imports
     <> profile_decoder_imports
     <> "} as ct\n"
@@ -2190,7 +2190,7 @@ fn valueset_to_types(
       let package_dir = case profiles_dir {
         None ->
           const_download_dir()
-          |> filepath.join("profile_packages")
+          |> filepath.join("profile_package")
           |> filepath.join("hl7.fhir." <> fhir_version <> ".core")
           |> filepath.join(simplifier_package_version)
           |> filepath.join("package")

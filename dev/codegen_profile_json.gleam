@@ -1227,11 +1227,21 @@ fn required_binding_conversion(
         |> canonical_url
         |> codegen_helpers.concept_name_from_url
         |> codegen_helpers.to_snake_case
-      let function = case fhir_type {
-        "Coding" -> "ct.bound_coding_from_coding"
-        "CodeableConcept" -> "ct.bound_codeableconcept_from_codeableconcept"
-        "Quantity" -> "ct.bound_quantity_from_quantity"
-        _ -> ""
+      let #(function, second_argument) = case fhir_type {
+        "code" -> #("valuesets." <> valueset <> "_from_code", "")
+        "Coding" -> #(
+          "ct.bound_coding_from_coding",
+          ", valuesets." <> valueset <> "_from_code_and_system",
+        )
+        "CodeableConcept" -> #(
+          "ct.bound_codeableconcept_from_codeableconcept",
+          ", valuesets." <> valueset <> "_from_code_and_system",
+        )
+        "Quantity" -> #(
+          "ct.bound_quantity_from_quantity",
+          ", valuesets." <> valueset <> "_from_code_and_system",
+        )
+        _ -> #("", "")
       }
       case function {
         "" -> None
@@ -1240,9 +1250,8 @@ fn required_binding_conversion(
             function
               <> "("
               <> value
-              <> ", valuesets."
-              <> valueset
-              <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
+              <> second_argument
+              <> ") |> result.replace_error(\"required ValueSet\")",
             "",
             True,
           ))
@@ -2895,12 +2904,9 @@ fn extension_value_classifier(
           codegen_helpers.Resources,
           valueset_acc,
         )
-      let conversion = case string.contains(target_type, "Bound") {
-        True ->
-          required_binding_conversion(field, type_.code, "value")
-          |> option.unwrap(ConversionExpression("value", "", False))
-        False -> ConversionExpression("value", "", False)
-      }
+      let conversion =
+        required_binding_conversion(field, type_.code, "value")
+        |> option.unwrap(ConversionExpression("value", "", False))
       let valid = case conversion.fallible {
         True ->
           "case "

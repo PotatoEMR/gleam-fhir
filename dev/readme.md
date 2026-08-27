@@ -41,3 +41,16 @@ I mean does anybody care idk
 
 todo download valuesets such as http://loinc.org/LL379-9 from web
 currently only download simplifier dependencies
+
+
+dont destructure?
+
+specific field error?
+          _, _, _, _ ->
+                  ct.FoundInvalid(
+                   "UsCoreBloodPressure.component:diastolic valueQuantity should have value, unit, system, and code",
+                 )
+
+component same as base type, unneeded type and conversions that do nothing? particularly open slices
+
+https://chat.fhir.org/#narrow/channel/179262-patient-empowerment/topic/US.20Core.20v8.20and.20Executive.20Order.2014166.3A.20.20what.20now.3F/near/495401257

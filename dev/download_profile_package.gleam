@@ -62,36 +62,42 @@ fn dependencies(package: Package, output: String) -> List(Package) {
   let package_json = directory |> filepath.join("package/package.json")
   let assert Ok(exists) = simplifile.is_file(package_json)
 
-  case exists {
-    True -> Nil
+  let available = case exists {
+    True -> True
     False -> {
       let assert Ok(Nil) = simplifile.create_directory_all(directory)
       let url = registry <> "/" <> name <> "/" <> version
       let assert Ok(request) = request.to(url)
       let assert Ok(response) = httpc.send_bits(request.set_body(request, <<>>))
 
-      let _ = case response.status >= 200 && response.status < 300 {
+      case response.status >= 200 && response.status < 300 {
         False -> {
           let error =
             "GET " <> url <> " returned HTTP " <> int.to_string(response.status)
-          panic as error
+          io.println("Skipping " <> name <> "@" <> version <> ": " <> error)
+          False
         }
-        True -> Nil
+        True -> {
+          let archive = directory |> filepath.join("package.tgz")
+          let assert Ok(Nil) = simplifile.write_bits(archive, response.body)
+          let assert Ok(_) =
+            shellout.command("tar", ["-xzf", archive, "-C", directory], ".", [])
+          True
+        }
       }
-
-      let archive = directory |> filepath.join("package.tgz")
-      let assert Ok(Nil) = simplifile.write_bits(archive, response.body)
-      let assert Ok(_) =
-        shellout.command("tar", ["-xzf", archive, "-C", directory], ".", [])
-      Nil
     }
   }
 
-  let assert Ok(contents) = simplifile.read(package_json)
-  let assert Ok(dependencies) = json.parse(contents, dependency_decoder())
-  dependencies
-  |> dict.to_list
-  |> list.map(fn(dependency) { Package(dependency.0, dependency.1) })
+  case available {
+    False -> []
+    True -> {
+      let assert Ok(contents) = simplifile.read(package_json)
+      let assert Ok(dependencies) = json.parse(contents, dependency_decoder())
+      dependencies
+      |> dict.to_list
+      |> list.map(fn(dependency) { Package(dependency.0, dependency.1) })
+    }
+  }
 }
 
 fn dependency_decoder() {
