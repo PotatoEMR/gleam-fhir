@@ -4,6 +4,7 @@ import fhir/r4/complex_types.{type List1, List1} as ct
 import fhir/r4/resources
 import fhir_gui_reslist
 import filepath
+import gleam/dict
 import gleam/dynamic/decode
 import gleam/int
 import gleam/json
@@ -29,18 +30,27 @@ pub type Model {
   Model(
     codegen_dir: String,
     profile: Option(Profile),
+    fhir_version: FhirVersion,
     base_resources: List(ResGen),
-    profile_search_results: Names,
+    profile_search_results: List(SimplifierProfilePkg),
     simplifier_response_error: Option(String),
     download: Download,
     process_output: List(String),
+    primitive_extensions: Bool,
+    custom_name: Option(String),
+    generating: Generating,
   )
 }
 
 pub type Download {
-  InProgress
+  Downloading
   NotInProgress
   ParsingJsons
+}
+
+pub type Generating {
+  Generating
+  NotGenerating
 }
 
 pub type Profile {
@@ -198,8 +208,11 @@ pub fn insert_elt_in_list(
   List1(first, rest)
 }
 
-pub type Names =
-  List(String)
+pub type FhirVersion {
+  R4
+  R4B
+  R5
+}
 
 const store_profile_dir = "current_profile"
 
@@ -221,7 +234,7 @@ fn init(_) {
   }
   // actually should be if we have start parsing files effect this tuple is demented
   let download = case simplifier_response_error {
-    None -> ParsingJsons
+    None -> NotInProgress
     Some(_) -> NotInProgress
   }
   let base_resources =
@@ -229,12 +242,16 @@ fn init(_) {
   let model =
     Model(
       codegen_dir: pwd |> filepath.join("dev"),
+      fhir_version: R4,
       base_resources:,
       profile:,
       profile_search_results: [],
       simplifier_response_error:,
       download:,
       process_output: [],
+      primitive_extensions: False,
+      custom_name: None,
+      generating: NotGenerating,
     )
   #(model, parse_structuredefs_effect)
 }
@@ -243,11 +260,14 @@ fn init(_) {
 
 pub opaque type Message {
   ClickGenerateCode
-  ClickFhirVersion(List(String))
+  ClickFhirVersion(FhirVersion)
+  ClickPrimitiveExt(Bool)
+  TypeCustomName(String)
   GenResource(res: String, gen: Gen, restype: ResType)
   GenAll(gen: Gen, restype: ResType)
   SearchProfileInput(String)
-  SearchProfileResps(Result(Names, rsvp.Error(String)))
+  SearchProfileResps(Result(List(String), rsvp.Error(String)))
+  SearchProfileVersionResps(Result(SimplifierProfilePkg, rsvp.Error(String)))
   DownloadPackageName(String)
   ProcessReturnedLine(String)
   DownloadExited
@@ -271,6 +291,8 @@ pub type ResType {
 
 // need name and version to download tar
 // could also get description but who cares
+//
+// first get name, will use it to make second call for version
 pub fn package_name_decoder() {
   use name <- decode.field("Name", decode.string)
   decode.success(name)
@@ -286,6 +308,37 @@ fn get_package_names(search_text) {
   rsvp.get(url, handler)
 }
 
+pub type SimplifierProfilePkg {
+  SimplifierProfilePkg(name: String, versions: List(String))
+}
+
+//now we have pkg name, search for versions
+fn package_versions_decoder() {
+  use name <- decode.field("name", decode.string)
+  use versions <- decode.field(
+    "versions",
+    decode.dict(decode.string, decode.dynamic),
+  )
+  let versions = versions |> dict.keys
+  decode.success(SimplifierProfilePkg(name:, versions:))
+}
+
+fn get_package_versions(search_text) {
+  let url = "https://packages.simplifier.net/" <> search_text
+  let handler =
+    rsvp.expect_json(package_versions_decoder(), SearchProfileVersionResps)
+  rsvp.get(url, handler)
+}
+
+fn run_proc_set_first_cmd(model, name, args, donemsg) {
+  let model =
+    Model(..model, process_output: [
+      string.join([name, ..args], " "),
+    ])
+  let run_effect = run_process(name, args, donemsg)
+  #(model, run_effect)
+}
+
 fn run_process(name, args, donemsg) -> Effect(Message) {
   effect.from(fn(dispatch) {
     let _ =
@@ -293,7 +346,10 @@ fn run_process(name, args, donemsg) -> Effect(Message) {
       |> child_process.args(args)
       |> child_process.spawn(
         stdio.lines(fn(line) { dispatch(ProcessReturnedLine(line)) })
-        |> stdio.on_exit(fn(_status) { dispatch(donemsg) }),
+        |> stdio.on_exit(fn(_status) {
+          echo "done"
+          dispatch(donemsg)
+        }),
       )
     Nil
   })
@@ -309,8 +365,8 @@ fn parse_structuredefs(dir, structuredefs) -> Effect(Message) {
           Error(_) -> Error("failed to read file: " <> path)
           Ok(content) ->
             case json.parse(content, resources.structuredefinition_decoder()) {
-              Error(_) ->
-                Error("failed to decode StructureDefinition: " <> path)
+              Error(err) ->
+                Error("failed to decode StructureDefinition " <> path <> " error: " <> json_err_to_string(err))
               Ok(value) -> Ok(value)
             }
         }
@@ -337,17 +393,84 @@ fn save_resource(resource: resources.Structuredefinition, filename: String) {
 fn update(model: Model, message: Message) {
   case message {
     ClickGenerateCode -> {
-      // prolly need fhir version..
-      #(model, effect.none())
+      let name = "gleam"
+      let args = ["run", "-m", "codegen"]
+      let more_args = [
+        case model.fhir_version {
+          R4 -> "r4"
+          R4B -> "r4b"
+          R5 -> "r5"
+        },
+      ]
+      let more_args = case model.custom_name {
+        None -> more_args
+        Some(custom_name) -> ["customname=" <> custom_name, ..more_args]
+      }
+      let more_args = case model.primitive_extensions {
+        True -> ["allPrimitiveExt", ..more_args]
+        False -> more_args
+      }
+      let profile_rg = case model.profile {
+        None -> []
+        Some(profile) ->
+          profile.resources
+          |> list.filter_map(fn(sg) {
+            case sg {
+              Error(_) -> Error(Nil)
+              Ok(sg) -> Ok(sg.rg)
+            }
+          })
+      }
+      let all_rg = model.base_resources |> list.append(profile_rg)
+      let dont_gen_a_res =
+        all_rg
+        |> list.any(fn(res) { res.gen == DontGenerate })
+      let more_args = case dont_gen_a_res {
+        False -> args
+        True -> {
+          let gen_res_arg =
+            all_rg
+            |> list.filter_map(fn(rg) {
+              case rg.gen {
+                Generate -> Ok(rg.res)
+                DontGenerate -> Error(Nil)
+              }
+            })
+            |> string.join(",")
+          ["resources=" <> gen_res_arg, ..more_args]
+        }
+      }
+      let args = args |> list.append(more_args)
+      let model = Model(..model, generating: Generating)
+      run_proc_set_first_cmd(model, name, args, GenerateExited)
     }
-    ClickFhirVersion(res_list) -> {
+    ClickFhirVersion(fhir_version) -> {
+      let res_list = case fhir_version {
+        R4 -> fhir_gui_reslist.r4
+        R4B -> fhir_gui_reslist.r4b
+        R5 -> fhir_gui_reslist.r5
+      }
       let base_resources =
         res_list |> list.map(fn(res) { ResGen(res, Generate) })
-      #(Model(..model, base_resources:), effect.none())
+      #(Model(..model, fhir_version:, base_resources:), effect.none())
+    }
+    ClickPrimitiveExt(primitive_extensions) -> #(
+      Model(..model, primitive_extensions:),
+      effect.none(),
+    )
+    TypeCustomName(custom_name) -> {
+      let custom_name = case custom_name {
+        "" -> None
+        _ -> Some(custom_name)
+      }
+      let model = Model(..model, custom_name:)
+      #(model, effect.none())
     }
     GenResource(res, gen, restype) -> {
       let model = case restype {
         Bases -> {
+          echo res
+          echo gen
           let base_resources = model.base_resources |> insert(res, gen)
           Model(..model, base_resources:)
         }
@@ -397,16 +520,33 @@ fn update(model: Model, message: Message) {
     SearchProfileInput(partial_profile_name) -> {
       let search_effect = case model.download {
         NotInProgress -> get_package_names(partial_profile_name)
-        InProgress | ParsingJsons -> effect.none()
+        Downloading | ParsingJsons -> effect.none()
       }
       #(model, search_effect)
     }
-    SearchProfileResps(resp) -> {
+    SearchProfileResps(resp) ->
+      case resp {
+        Error(err) -> #(
+          Model(..model, simplifier_response_error: Some(err_to_string(err))),
+          effect.none(),
+        )
+        Ok(package_names) -> {
+          let search_pkg_effects =
+            package_names |> list.map(get_package_versions)
+          let num = package_names |> list.length |> int.to_string
+          let simplifier_response_error =
+            Some("found " <> num <> " package names, searching their versions")
+          let model = Model(..model, simplifier_response_error:, profile_search_results: [])
+          // should rename this from error
+          #(model, effect.batch(search_pkg_effects))
+        }
+      }
+    SearchProfileVersionResps(resp) -> {
       let model = case resp {
-        Ok(names) ->
+        Ok(pkg) ->
           Model(
             ..model,
-            profile_search_results: names,
+            profile_search_results: [pkg, ..model.profile_search_results],
             simplifier_response_error: None,
           )
         Error(err) ->
@@ -414,47 +554,53 @@ fn update(model: Model, message: Message) {
       }
       #(model, effect.none())
     }
-    DownloadPackageName(package_name) -> {
-      let profiles_dir =
-        model.codegen_dir
-        |> filepath.join("downloads")
-        |> filepath.join("profile_package")
-      let name = "gleam"
-      let args = [
-        "run",
-        "-m",
-        "download_profile_package",
-        "hl7.fhir.us.core",
-        "9.0.0",
-        profiles_dir,
-      ]
-      let profile =
-        Some(Profile(
-          dir: profiles_dir
-            |> filepath.join("hl7.fhir.us.core")
-            |> filepath.join("9.0.0")
-            |> filepath.join("package"),
-          resources: [],
-          editing_resource: None,
-        ))
-      let model =
-        Model(..model, download: InProgress, profile:, process_output: [
-          string.join([name, ..args], " "),
-        ])
-      let run_effect = run_process(name, args, DownloadExited)
-      #(model, run_effect)
-    }
+    DownloadPackageName(opt) ->
+      case opt |> string.split("/") {
+        [pkg_name, pkg_version] -> {
+          let profiles_dir =
+            model.codegen_dir
+            |> filepath.join("downloads")
+            |> filepath.join("profile_package")
+          let name = "gleam"
+          let args = [
+            "run",
+            "-m",
+            "download_profile_package",
+            pkg_name,
+            pkg_version,
+            profiles_dir,
+          ]
+          let profile =
+            Some(Profile(
+              dir: profiles_dir
+                |> filepath.join(pkg_name)
+                |> filepath.join(pkg_version)
+                |> filepath.join("package"),
+              resources: [],
+              editing_resource: None,
+            ))
+          let model = Model(..model, download: Downloading, profile:)
+          run_proc_set_first_cmd(model, name, args, DownloadExited)
+        }
+        _ -> #(model, effect.none())
+      }
     ProcessReturnedLine(line) -> {
       let model = Model(..model, process_output: [line, ..model.process_output])
       #(model, effect.none())
     }
     DownloadExited -> {
+      echo "download exited"
+      echo model.profile
+      echo model.codegen_dir
       let #(simplifier_response_error, parse_structuredefs_effect) =
         start_parsing_files(model.profile, model.codegen_dir)
+      echo "download exited -> simplifier_response_error now "
+      echo simplifier_response_error
       let model = Model(..model, simplifier_response_error:)
       #(model, parse_structuredefs_effect)
     }
     GenerateExited -> {
+      let model = Model(..model, generating: NotGenerating)
       #(model, effect.none())
     }
     ParseReturnedStructuredefinition(sd_res, rest_sds, dir, filename) -> {
@@ -549,23 +695,26 @@ fn err_to_string(err: rsvp.Error(String)) {
     rsvp.BadUrl(url) -> "bad url: " <> url
     rsvp.HttpError(_resp) -> "http error"
     rsvp.UnhandledResponse(_resp) -> "rsvp error"
-    rsvp.JsonError(err) ->
-      case err {
-        json.UnexpectedEndOfInput -> "unexpected end of input"
-        json.UnexpectedByte(byte) -> "unexpected byte: " <> byte
-        json.UnexpectedSequence(seq) -> "unexpected sequence: " <> seq
-        json.UnableToDecode(errs) ->
-          list.map(errs, fn(err) {
-            "at "
-            <> string.join(err.path, ".")
-            <> " expected "
-            <> err.expected
-            <> " but found "
-            <> err.found
-          })
-          |> string.join("\n")
-      }
+    rsvp.JsonError(err) -> json_err_to_string(err)
     rsvp.NetworkError -> "network error"
+  }
+}
+
+fn json_err_to_string(err){
+  case err {
+    json.UnexpectedEndOfInput -> "unexpected end of input"
+    json.UnexpectedByte(byte) -> "unexpected byte: " <> byte
+    json.UnexpectedSequence(seq) -> "unexpected sequence: " <> seq
+    json.UnableToDecode(errs) ->
+      list.map(errs, fn(err) {
+        "at "
+        <> string.join(err.path, ".")
+        <> " expected "
+        <> err.expected
+        <> " but found "
+        <> err.found
+      })
+      |> string.join("\n")
   }
 }
 
@@ -590,7 +739,7 @@ fn view(model: Model) -> Element(Message) {
           [
             h.div([], [
               h.h2([], [h.text("Choose base resources")]),
-              h.label([event.on_click(ClickFhirVersion(fhir_gui_reslist.r4))], [
+              h.label([event.on_click(ClickFhirVersion(R4))], [
                 h.input([
                   a.name("fhirversion"),
                   a.type_("radio"),
@@ -598,11 +747,11 @@ fn view(model: Model) -> Element(Message) {
                 ]),
                 h.text("R4"),
               ]),
-              h.label([event.on_click(ClickFhirVersion(fhir_gui_reslist.r4b))], [
+              h.label([event.on_click(ClickFhirVersion(R4B))], [
                 h.input([a.name("fhirversion"), a.type_("radio")]),
                 h.text("R4B"),
               ]),
-              h.label([event.on_click(ClickFhirVersion(fhir_gui_reslist.r5))], [
+              h.label([event.on_click(ClickFhirVersion(R5))], [
                 h.input([a.name("fhirversion"), a.type_("radio")]),
                 h.text("R5"),
               ]),
@@ -616,7 +765,7 @@ fn view(model: Model) -> Element(Message) {
             h.div(
               [
                 a.styles([
-                  #("height", "80vh"),
+                  #("height", "55vh"),
                   #("overflow", "auto"),
                   #("margin-top", "5px"),
                 ]),
@@ -627,9 +776,8 @@ fn view(model: Model) -> Element(Message) {
                     h.input([
                       event.on_check(fn(check) {
                         case check {
-                          True -> GenResource(resgen.res, Generate, Profiles)
-                          False ->
-                            GenResource(resgen.res, DontGenerate, Profiles)
+                          True -> GenResource(resgen.res, Generate, Bases)
+                          False -> GenResource(resgen.res, DontGenerate, Bases)
                         }
                       }),
                       a.type_("checkbox"),
@@ -654,7 +802,7 @@ fn view(model: Model) -> Element(Message) {
           [
             h.h2([], [h.text("Download profile")]),
             h.input([
-              a.disabled(model.download == InProgress),
+              a.disabled(model.download == Downloading),
               a.list("results"),
               event.on_input(SearchProfileInput) |> event.debounce(150),
               // a.name("package_name"),
@@ -664,24 +812,37 @@ fn view(model: Model) -> Element(Message) {
               // }),
               event.on_change(DownloadPackageName),
             ]),
-            h.datalist(
-              [a.id("results")],
-              list.map(model.profile_search_results, fn(res) {
+            h.datalist([a.id("results")], {
+              let opts =
+                list.fold(
+                  from: [],
+                  over: model.profile_search_results,
+                  with: fn(outer_acc, pkg) {
+                    list.fold(
+                      from: outer_acc,
+                      over: pkg.versions,
+                      with: fn(inner_acc, version) {
+                        [pkg.name <> "/" <> version, ..inner_acc]
+                      },
+                    )
+                  },
+                )
+              list.map(opts, fn(opt) {
                 h.option(
                   [
-                    a.value(res),
+                    a.value(opt),
                   ],
-                  res,
+                  opt,
                 )
-              }),
-            ),
+              })
+            }),
             h.div(
               [
                 a.style("margin-bottom", "5px"),
               ],
               [
                 h.text(case model.download {
-                  InProgress -> "downloading profile packages..."
+                  Downloading -> "downloading profile packages..."
                   ParsingJsons -> "parsing StructureDefinitions..."
                   NotInProgress ->
                     case model.simplifier_response_error {
@@ -699,7 +860,7 @@ fn view(model: Model) -> Element(Message) {
                   // reversing flex direction keeps scrollbar on bottom, per my good friend see hat gippitty
                   // would do it with js but when running server component seems weird or idk
                   #("flex-direction", "column-reverse"),
-                  #("height", "80vh"),
+                  #("height", "55vh"),
                   #("overflow", "auto"),
                 ]),
               ],
@@ -729,7 +890,7 @@ fn view(model: Model) -> Element(Message) {
               h.div(
                 [
                   a.styles([
-                    #("height", "80vh"),
+                    #("height", "55vh"),
                     #("overflow", "auto"),
                     #("margin-top", "5px"),
                   ]),
@@ -812,7 +973,7 @@ fn view(model: Model) -> Element(Message) {
                       h.div(
                         [
                           a.style("overflow", "auto"),
-                          a.style("height", "80vh"),
+                          a.style("height", "75vh"),
                         ],
                         [
                           h.table(
@@ -893,7 +1054,45 @@ fn view(model: Model) -> Element(Message) {
         ),
       ],
     )
-  h.div([], [h.button([], [h.h1([], [h.text("Generate code")])]), main])
+  h.div([], [
+    h.div(
+      [
+        a.style("display", "flex"),
+        a.style("gap", "10px"),
+        a.style("align-items", "flex-end"),
+      ],
+      [
+        h.button(
+          [
+            a.disabled(model.generating == Generating),
+            event.on_click(ClickGenerateCode),
+          ],
+          [
+            h.h2(
+              [
+                a.style("width", "8em"),
+              ],
+              [
+                case model.generating {
+                  NotGenerating -> h.text("Generate code")
+                  Generating -> h.text("Generating...")
+                },
+              ],
+            ),
+          ],
+        ),
+        h.label([], [
+          h.input([a.type_("checkbox"), event.on_check(ClickPrimitiveExt)]),
+          h.text("primitive extensions"),
+        ]),
+        h.label([], [
+          h.input([a.style("width", "3em"), event.on_change(TypeCustomName)]),
+          h.text("custom name module prefix"),
+        ]),
+      ],
+    ),
+    main,
+  ])
 }
 
 fn cardinality_btn(elt_id, min, max) {
