@@ -233,23 +233,42 @@ fn gen_fhir(
       import fhir/" <> pkg_prefix <> "/valuesets\n"
   let r_imports = shared_imports <> "import gleam/bool\n"
 
-  let #(complex_types_gen, valueset_acc) =
-    file_to_types(
-      spec_file: filepath.join(extract_dir_ver, "profiles-types.json"),
-      fv: pkg_prefix,
-      all_primitive_ext: all_primitive_ext,
-      current_bucket: codegen_helpers.ComplexTypes,
-      valueset_acc: dict.new(),
-      gen_specific_resources:,
-    )
-  let #(resources_gen, valueset_acc) =
+  let complex_types_file = filepath.join(extract_dir_ver, "profiles-types.json")
+  let #(resources_gen, valueset_acc, resource_type_names) =
     file_to_types(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
       fv: pkg_prefix,
       all_primitive_ext: all_primitive_ext,
       current_bucket: codegen_helpers.Resources,
+      valueset_acc: dict.new(),
+      gen_specific_resources:,
+      gen_specific_complex_types: None,
+    )
+  let profile_type_names = case profiles_dir {
+    Some(profiles_dir) ->
+      codegen_profile.required_complex_type_names(
+        profiles_dir,
+        gen_specific_resources,
+      )
+    None -> set.new()
+  }
+  let gen_specific_complex_types = case gen_specific_resources {
+    Some(_) ->
+      resource_type_names
+      |> set.union(profile_type_names)
+      |> required_complex_types(complex_types_file, _)
+      |> Some
+    None -> None
+  }
+  let #(complex_types_gen, valueset_acc, _) =
+    file_to_types(
+      spec_file: complex_types_file,
+      fv: pkg_prefix,
+      all_primitive_ext: all_primitive_ext,
+      current_bucket: codegen_helpers.ComplexTypes,
       valueset_acc:,
       gen_specific_resources:,
+      gen_specific_complex_types:,
     )
   let #(
     profile_complex_types,
@@ -757,6 +776,63 @@ fn replace_unavailable_bindings(
   })
 }
 
+fn required_complex_types(
+  spec_file: String,
+  initial: Set(String),
+) -> Set(String) {
+  let assert Ok(spec) = simplifile.read(spec_file)
+  let assert Ok(bundle) =
+    json.parse(from: spec, using: codegen_helpers.bundle_decoder())
+  let complex_types =
+    list.fold(bundle.entry, dict.new(), fn(types, entry) {
+      case entry.resource.kind, entry.resource.name {
+        Some("complex-type"), "Base"
+        | Some("complex-type"), "BackboneElement"
+        | Some("complex-type"), "Element"
+        -> types
+        Some("complex-type"), name -> dict.insert(types, name, entry.resource)
+        _, _ -> types
+      }
+    })
+  required_complex_types_loop(complex_types, initial, set.new())
+}
+
+fn required_complex_types_loop(
+  complex_types: dict.Dict(String, codegen_helpers.Resource),
+  pending: Set(String),
+  required: Set(String),
+) -> Set(String) {
+  case set.to_list(pending) {
+    [] -> required
+    [name, ..] -> {
+      let pending = set.delete(pending, name)
+      case set.contains(required, name), dict.get(complex_types, name) {
+        True, _ | _, Error(_) ->
+          required_complex_types_loop(complex_types, pending, required)
+        False, Ok(resource) -> {
+          let dependencies = case resource.snapshot {
+            None -> []
+            Some(snapshot) ->
+              snapshot.element
+              |> list.flat_map(fn(element) {
+                element.type_ |> list.map(fn(type_) { type_.code })
+              })
+          }
+          let pending =
+            list.fold(dependencies, pending, fn(pending, dependency) {
+              set.insert(pending, dependency)
+            })
+          required_complex_types_loop(
+            complex_types,
+            pending,
+            set.insert(required, name),
+          )
+        }
+      }
+    }
+  }
+}
+
 fn file_to_types(
   spec_file spec_file: String,
   fv fhir_version: String,
@@ -764,7 +840,8 @@ fn file_to_types(
   current_bucket current_bucket: codegen_helpers.Category,
   valueset_acc valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   gen_specific_resources gen_specific_resources: Option(List(String)),
-) -> #(String, dict.Dict(String, codegen_helpers.ValuesetItem)) {
+  gen_specific_complex_types gen_specific_complex_types: Option(Set(String)),
+) -> #(String, dict.Dict(String, codegen_helpers.ValuesetItem), Set(String)) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
   let assert Ok(bundle) =
@@ -779,7 +856,11 @@ fn file_to_types(
         _, "BackboneElement" -> False
         _, "Resource" -> False
         _, "Element" -> False
-        Some("complex-type"), _ -> True
+        Some("complex-type"), name ->
+          case gen_specific_complex_types {
+            Some(names) -> set.contains(names, name)
+            None -> True
+          }
         Some("resource"), resname ->
           case gen_specific_resources {
             None -> True
@@ -791,6 +872,18 @@ fn file_to_types(
     })
 
   let entries = list.map(entries, fn(entry) { entry.resource })
+  let referenced_type_names =
+    entries
+    |> list.flat_map(fn(resource) {
+      case resource.snapshot {
+        Some(snapshot) -> snapshot.element
+        None -> []
+      }
+    })
+    |> list.flat_map(fn(element) {
+      element.type_ |> list.map(fn(type_) { type_.code })
+    })
+    |> set.from_list
 
   let #(all_resources_and_types, valueset_acc) =
     list.fold(
@@ -1866,6 +1959,7 @@ fn file_to_types(
       }
     },
     valueset_acc,
+    referenced_type_names,
   )
 }
 

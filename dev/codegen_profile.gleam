@@ -253,6 +253,35 @@ fn load_profile_files(
   ProfileFiles(resources:, extensions:)
 }
 
+pub fn required_complex_type_names(
+  profiles_dir: String,
+  gen_specific_resources: Option(List(String)),
+) -> Set(String) {
+  let profile_files = load_profile_files(profiles_dir, gen_specific_resources)
+  let resource_elements =
+    profile_files.resources
+    |> list.flat_map(fn(resource) {
+      case resource.snapshot {
+        Some(snapshot) -> snapshot.element
+        None -> []
+      }
+    })
+  let extension_elements =
+    profile_files.extensions
+    |> dict.values
+    |> list.flat_map(fn(extension) {
+      case extension.kind {
+        SimpleExtension(element) -> [element]
+        ComplexExtension(elements) -> elements
+      }
+    })
+  list.append(resource_elements, extension_elements)
+  |> list.flat_map(fn(element) {
+    element.type_ |> list.map(fn(type_) { type_.code })
+  })
+  |> set.from_list
+}
+
 fn extension_field_type(
   extension_name: String,
   element: codegen_helpers.Element,
