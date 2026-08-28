@@ -754,6 +754,12 @@ fn replace_unavailable_bindings(
       "Ok(value)",
     )
     |> string.replace(
+      "valuesets."
+        <> fn_name
+        <> "_from_code(value) |> result.replace_error(\"required ValueSet\")",
+      "Ok(value)",
+    )
+    |> string.replace(
       "case Ok(value) { Ok(value) -> ct.FoundValid(value) Error(_) -> ct.FoundInvalid(\"invalid extension value\") }",
       "ct.FoundValid(value)",
     )
