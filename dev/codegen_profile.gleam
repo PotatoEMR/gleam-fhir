@@ -60,6 +60,7 @@ fn read_structure_definition(path: String) -> codegen_helpers.Resource {
   let assert Ok(contents) = simplifile.read(path)
   let assert Ok(resource) =
     json.parse(contents, codegen_helpers.resource_decoder())
+    as "profile structure definitions downloaded"
   resource
 }
 
@@ -558,14 +559,16 @@ fn discriminator_paths(slicing: codegen_helpers.Slicing) -> List(String) {
   slicing.discriminator
   |> list.filter_map(fn(discriminator) {
     case discriminator.type_ {
-      "value" -> Ok(discriminator.path)
+      "value" | "pattern" -> Ok(discriminator.path)
       _ -> Error(Nil)
     }
   })
   |> list.sort(string.compare)
 }
 
-fn only_value_discriminators(slicing: codegen_helpers.Slicing) -> Bool {
+fn only_value_or_pattern_discriminators(
+  slicing: codegen_helpers.Slicing,
+) -> Bool {
   list.length(discriminator_paths(slicing))
   == list.length(slicing.discriminator)
 }
@@ -731,7 +734,10 @@ fn plan_value_slice(
   elements: List(codegen_helpers.Element),
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
 ) -> Result(SlicePlan, String) {
-  case only_value_discriminators(slicing), discriminator_paths(slicing) {
+  case
+    only_value_or_pattern_discriminators(slicing),
+    discriminator_paths(slicing)
+  {
     True, ["$this"] ->
       plan_whole_value_slice(root, elements, available_valuesets)
     True, ["coding.code", "coding.system"] ->
@@ -800,7 +806,7 @@ fn is_extension_slicing(group: codegen_helpers.Element) -> Bool {
   case group.slicing {
     Some(slicing) ->
       element_type_is(group, "Extension")
-      && only_value_discriminators(slicing)
+      && only_value_or_pattern_discriminators(slicing)
       && discriminator_paths(slicing) == ["url"]
     None -> False
   }
