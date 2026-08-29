@@ -2080,31 +2080,49 @@ fn valueset_include_codes(
         }),
       )
     [_, ..], _, None -> panic as "ValueSet include with concepts has no system"
-    [], [_first_filter, ..], Some(system) ->
+    [], [_, ..], Some(system) ->
       codegen_bound_coding.ValuesetIncludeString(system:)
-    [], [_first_filter, ..], None ->
-      panic as "ValueSet include with filters has no system"
+    [], [_, ..], None -> panic as "ValueSet include with filters has no system"
     [], [], Some(system) ->
       case dict.get(all_vs_or_cs, system) {
         Error(_) -> codegen_bound_coding.ValuesetIncludeString(system:)
         Ok(_) ->
           case
-            codegen_helpers.get_codes(
+            codegen_helpers.get_codes_with_system(
               system,
               all_vs_or_cs,
               exclude_not_selectable,
             )
           {
             [] -> codegen_bound_coding.ValuesetIncludeString(system:)
-            codes ->
+            members ->
               codegen_bound_coding.ValuesetIncludeExpanded(
-                list.map(codes, fn(code) {
-                  codegen_bound_coding.ValuesetCodeWithSystem(code:, system:)
+                list.map(members, fn(member) {
+                  codegen_bound_coding.ValuesetCodeWithSystem(
+                    code: member.1,
+                    system: member.0,
+                  )
                 }),
               )
           }
       }
-    [], [], None -> panic as "ValueSet include has no system"
+    [], [], None ->
+      codegen_bound_coding.ValuesetIncludeExpanded(
+        include.value_set
+        |> list.flat_map(fn(value_set) {
+          codegen_helpers.get_codes_with_system(
+            value_set,
+            all_vs_or_cs,
+            exclude_not_selectable,
+          )
+        })
+        |> list.map(fn(member) {
+          codegen_bound_coding.ValuesetCodeWithSystem(
+            code: member.1,
+            system: member.0,
+          )
+        }),
+      )
   }
 }
 
