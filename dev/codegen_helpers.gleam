@@ -710,7 +710,16 @@ pub fn valueset_can_generate_system(
   case dict.get(all_vs_or_cs, vs_url) {
     Ok(VocValueset(r4.Valueset(compose: Some(compose), ..))) ->
       [compose.include.first, ..compose.include.rest]
-      |> list.all(fn(include) { include.system != None })
+      |> list.all(fn(include) {
+        case include.system, include.value_set {
+          Some(_), _ -> True
+          None, [] -> False
+          None, value_sets ->
+            list.all(value_sets, fn(value_set) {
+              valueset_can_generate_system(value_set, all_vs_or_cs)
+            })
+        }
+      })
     _ -> False
   }
 }
@@ -743,28 +752,83 @@ pub fn load_valuesets(
     |> filepath.directory_name
   let required_value_set_files =
     required_value_sets
-    |> set.map(fn(url) {
-      let assert Ok(url) = url |> string.split("/") |> list.last
-      "ValueSet-" <> url <> ".json"
-    })
+    |> set.map(value_set_filename)
 
   let num_vs_files = required_value_set_files |> set.size |> int.to_string
   io.println("loading " <> num_vs_files <> " valueset json files")
 
-  load_valuesets_with_dependencies(
-    package_dir,
-    package_store,
-    set.new(),
-    dict.new(),
-    required_value_set_files,
-  )
-  |> fn(result) {
-    load_valuesets_from_directory(
-      "dev/downloaded_manually_valuesets",
-      result.1,
+  let #(package_directories, all_vs_or_cs) =
+    load_valuesets_with_dependencies(
+      package_dir,
+      package_store,
+      set.new(),
+      dict.new(),
       required_value_set_files,
     )
+  let all_vs_or_cs =
+    load_valuesets_from_directory(
+      "dev/downloaded_manually_valuesets",
+      all_vs_or_cs,
+      required_value_set_files,
+    )
+  load_imported_valuesets(
+    set.insert(package_directories, "dev/downloaded_manually_valuesets"),
+    all_vs_or_cs,
+    required_value_set_files,
+  )
+}
+
+fn load_imported_valuesets(
+  package_directories: Set(String),
+  all_vs_or_cs: Dict(String, VsOrCs),
+  loaded_value_set_files: Set(String),
+) -> Dict(String, VsOrCs) {
+  let imported_value_set_files =
+    all_vs_or_cs
+    |> dict.to_list
+    |> list.flat_map(fn(entry) {
+      case entry.1 {
+        VocCodesystem(_) -> []
+        VocValueset(r4.Valueset(compose: None, ..)) -> []
+        VocValueset(r4.Valueset(compose: Some(compose), ..)) ->
+          list.append(
+            [compose.include.first, ..compose.include.rest],
+            compose.exclude,
+          )
+          |> list.flat_map(fn(include) { include.value_set })
+          |> list.map(value_set_filename)
+      }
+    })
+    |> set.from_list
+    |> set.difference(loaded_value_set_files)
+
+  case set.is_empty(imported_value_set_files) {
+    True -> all_vs_or_cs
+    False -> {
+      let all_vs_or_cs =
+        package_directories
+        |> set.fold(all_vs_or_cs, fn(all_vs_or_cs, package_dir) {
+          imported_value_set_files
+          |> set.fold(all_vs_or_cs, fn(all_vs_or_cs, filename) {
+            load_valueset_file(
+              filepath.join(package_dir, filename),
+              all_vs_or_cs,
+            )
+          })
+        })
+      load_imported_valuesets(
+        package_directories,
+        all_vs_or_cs,
+        set.union(loaded_value_set_files, imported_value_set_files),
+      )
+    }
   }
+}
+
+fn value_set_filename(url: String) -> String {
+  let assert [url, ..] = string.split(url, "|")
+  let assert Ok(name) = url |> string.split("/") |> list.last
+  "ValueSet-" <> name <> ".json"
 }
 
 fn load_valuesets_with_dependencies(
@@ -785,7 +849,7 @@ fn load_valuesets_with_dependencies(
       io.println(
         "warning: skipping package with no package.json: " <> package_dir,
       )
-      #(set.insert(loaded, package_dir), all_vs_or_cs)
+      #(loaded, all_vs_or_cs)
     }
     False, True -> {
       io.println("loading valuesets from " <> package_dir)
@@ -832,40 +896,7 @@ fn load_valuesets_from_directory(
       string.starts_with(filename, "ValueSet-")
       && set.contains(required_value_set_files, filename)
     {
-      True -> {
-        let assert Ok(contents) = simplifile.read(path)
-        case json.parse(contents, r4.valueset_decoder()) {
-          Ok(valueset) -> {
-            let valueset = case valueset.compose, valueset.expansion {
-              None, Some(expansion) -> {
-                let includes =
-                  list.map(expansion.contains, fn(item) {
-                    let assert Some(system) = item.system
-                    let assert Some(code) = item.code
-                    r4.ValuesetComposeInclude(
-                      ..r4.valueset_compose_include_new(),
-                      system: Some(system),
-                      concept: [r4.valueset_compose_include_concept_new(code)],
-                    )
-                  })
-                let assert [first, ..rest] = includes
-                r4.Valueset(
-                  ..valueset,
-                  compose: Some(
-                    r4.valueset_compose_new(r4ct.List1(first:, rest:)),
-                  ),
-                )
-              }
-              _, _ -> valueset
-            }
-            case valueset.url {
-              Some(url) -> dict.insert(acc, url, VocValueset(valueset))
-              None -> acc
-            }
-          }
-          Error(_) -> acc
-        }
-      }
+      True -> load_valueset_file(path, acc)
       False ->
         case string.starts_with(filename, "CodeSystem-") {
           True -> {
@@ -886,67 +917,105 @@ fn load_valuesets_from_directory(
   })
 }
 
-pub fn get_codes(
+fn load_valueset_file(path: String, all_vs_or_cs: Dict(String, VsOrCs)) {
+  case simplifile.is_file(path) {
+    Ok(True) -> {
+      let assert Ok(contents) = simplifile.read(path)
+      case json.parse(contents, r4.valueset_decoder()) {
+        Error(_) -> all_vs_or_cs
+        Ok(valueset) -> {
+          let valueset = case valueset.compose, valueset.expansion {
+            None, Some(expansion) -> {
+              let includes =
+                list.map(expansion.contains, fn(item) {
+                  let assert Some(system) = item.system
+                  let assert Some(code) = item.code
+                  r4.ValuesetComposeInclude(
+                    ..r4.valueset_compose_include_new(),
+                    system: Some(system),
+                    concept: [r4.valueset_compose_include_concept_new(code)],
+                  )
+                })
+              let assert [first, ..rest] = includes
+              r4.Valueset(
+                ..valueset,
+                compose: Some(
+                  r4.valueset_compose_new(r4ct.List1(first:, rest:)),
+                ),
+              )
+            }
+            _, _ -> valueset
+          }
+          case valueset.url {
+            Some(url) -> dict.insert(all_vs_or_cs, url, VocValueset(valueset))
+            None -> all_vs_or_cs
+          }
+        }
+      }
+    }
+    _ -> all_vs_or_cs
+  }
+}
+
+pub fn get_codes_with_system(
   url: String,
   all_vs_or_cs: Dict(String, VsOrCs),
   exclude_not_selectable: Bool,
 ) {
+  let assert [url, ..] = string.split(url, "|")
   case url {
     "http://unitsofmeasure.org" -> []
     _ ->
-      case all_vs_or_cs |> dict.get(url) {
+      case dict.get(all_vs_or_cs, url) {
         Error(_) -> panic as url
-        Ok(VocValueset(vs)) -> {
+        Ok(VocValueset(vs)) ->
           case vs.compose {
             None -> []
-            Some(vsc) ->
-              valuesetcompose_get_codes(
-                vsc,
+            Some(compose) ->
+              valuesetcompose_get_codes_with_system(
+                compose,
                 all_vs_or_cs,
                 exclude_not_selectable,
               )
           }
-        }
         Ok(VocCodesystem(cs)) ->
           codesystemconcepts_get_codes(cs.concept, exclude_not_selectable)
+          |> list.map(fn(code) { #(url, code) })
       }
   }
 }
 
-fn valuesetcompose_get_codes(
-  vsc: r4.ValuesetCompose,
+fn valuesetcompose_get_codes_with_system(
+  compose: r4.ValuesetCompose,
   all_vs_or_cs: Dict(String, VsOrCs),
   exclude_not_selectable: Bool,
 ) {
   list.fold(
-    from: [],
-    over: [vsc.include.first, ..vsc.include.rest],
-    with: fn(outer_acc, vsci) {
-      let outer_acc =
-        list.fold(from: outer_acc, over: vsci.value_set, with: fn(acc, url) {
-          acc
-          |> list.append(get_codes(url, all_vs_or_cs, exclude_not_selectable))
-        })
-      case vsci.concept {
-        [] ->
-          case vsci.system {
-            None -> outer_acc
-            Some(vsci_system) ->
-              outer_acc
-              |> list.append(get_codes(
-                vsci_system,
-                all_vs_or_cs,
-                exclude_not_selectable,
-              ))
-          }
-        concepts ->
-          list.fold(
-            from: outer_acc,
-            over: concepts,
-            with: fn(inner_acc, concept) {
-              inner_acc |> list.append([concept.code])
-            },
+    [compose.include.first, ..compose.include.rest],
+    [],
+    fn(members, include) {
+      let members =
+        include.value_set
+        |> list.fold(members, fn(members, value_set) {
+          list.append(
+            get_codes_with_system(
+              value_set,
+              all_vs_or_cs,
+              exclude_not_selectable,
+            ),
+            members,
           )
+        })
+      case include.concept, include.system {
+        [_, ..] as concepts, Some(system) ->
+          concepts
+          |> list.map(fn(concept) { #(system, concept.code) })
+          |> list.append(members)
+        [_, ..], None -> panic as "ValueSet include with concepts has no system"
+        [], Some(system) ->
+          get_codes_with_system(system, all_vs_or_cs, exclude_not_selectable)
+          |> list.append(members)
+        [], None -> members
       }
     },
   )
