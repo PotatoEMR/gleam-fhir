@@ -67,6 +67,7 @@ pub fn main() {
 
   let download_files = list.contains(args_lower, "download")
   let all_primitive_ext = list.contains(args_lower, "allprimitiveext")
+  let preserve_slice_order = list.contains(args_lower, "order")
   let gen_specific_resources = case
     list.find(args_lower, fn(arg) { string.starts_with(arg, "resources=") })
   {
@@ -163,6 +164,7 @@ pub fn main() {
           custom_profile_name,
           profiles_dir,
           all_primitive_ext,
+          preserve_slice_order,
           gen_specific_resources,
         )
       False -> Nil
@@ -177,6 +179,7 @@ fn gen_fhir(
   custom_profile_name: Option(String),
   profiles_dir: Option(String),
   all_primitive_ext: Bool,
+  preserve_slice_order: Bool,
   gen_specific_resources: Option(List(String)),
 ) -> Nil {
   let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
@@ -283,6 +286,7 @@ fn gen_fhir(
         codegen_profile.profile_files_to_types(
           profiles_dir,
           all_primitive_ext,
+          preserve_slice_order,
           valueset_acc,
           gen_specific_resources,
         )
@@ -315,9 +319,44 @@ fn gen_fhir(
     True -> codegen_bound_coding.bound_codeable_reference
     False -> ""
   }
-  let ct_imports = shared_imports <> "import gleam/int\n"
-
   let generated_types_and_resources = complex_types_gen <> resources_gen
+  let uses_slice_elt = string.contains(resources_gen, "ct.SliceElt(")
+  let ct_imports =
+    shared_imports
+    <> "import gleam/int\n"
+    <> case uses_slice_elt {
+      True -> "import gleam/order\n"
+      False -> ""
+    }
+  let slice_elt_type = case uses_slice_elt {
+    True ->
+      "
+      pub type SliceElt(a) {
+        SliceElt(value: a, internal_gleam_fhir_index: Option(Int))
+      }
+
+      pub fn slice_elt_new(value: a) -> SliceElt(a) {
+        SliceElt(value:, internal_gleam_fhir_index: None)
+      }
+
+      pub fn slice_elts_to_values(slice_elts: List(SliceElt(a))) -> List(a) {
+        slice_elts
+        |> list.sort(fn(first, second) {
+          case
+            first.internal_gleam_fhir_index,
+            second.internal_gleam_fhir_index
+          {
+            Some(first), Some(second) -> int.compare(first, second)
+            Some(_), None -> order.Lt
+            None, Some(_) -> order.Gt
+            None, None -> order.Eq
+          }
+        })
+        |> list.map(fn(slice_elt) { slice_elt.value })
+      }
+      "
+    False -> ""
+  }
   let uses_list1 = string.contains(generated_types_and_resources, "List1(")
   let uses_list2 = string.contains(generated_types_and_resources, "List2(")
   let uses_list3 = string.contains(generated_types_and_resources, "List3(")
@@ -557,6 +596,7 @@ fn gen_fhir(
       ") complex types\n",
       ct_imports,
       list_type_defs,
+      slice_elt_type,
       codegen_bound_coding.bound_coding_and_cc,
       codegen_bound_coding.find_elt_and_rest_result,
       bound_codeable_reference_source,

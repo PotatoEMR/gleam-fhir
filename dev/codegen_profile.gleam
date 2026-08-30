@@ -989,6 +989,7 @@ fn prepare_profile_slices(
 pub fn profile_files_to_types(
   profiles_dir: String,
   all_primitive_ext: Bool,
+  preserve_slice_order: Bool,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   gen_specific_resources: Option(List(String)),
 ) -> #(
@@ -1393,6 +1394,22 @@ pub fn profile_files_to_types(
                       True -> "Primitive(" <> base_field_type <> ")"
                       False -> base_field_type
                     }
+                    let is_resource_slice_elt =
+                      preserve_slice_order
+                      && element.base.max != "1"
+                      && !dict.has_key(aggregate_slice_groups, element.id)
+                      && !string.contains(element.path, "[x]")
+                      && !list.any(element.type_, fn(type_) {
+                        type_.code == "Extension"
+                      })
+                      && case element.slice_name, element.slicing {
+                        Some(_), _ | _, Some(_) -> True
+                        None, None -> False
+                      }
+                    let field_type = case is_resource_slice_elt {
+                      True -> "ct.SliceElt(" <> field_type <> ")"
+                      False -> field_type
+                    }
                     let card_min = case
                       dict.get(aggregate_slice_groups, element.id)
                     {
@@ -1637,6 +1654,7 @@ pub fn profile_files_to_types(
             slice_type_overrides,
             type_slice_overrides,
             all_primitive_ext,
+            preserve_slice_order,
             valueset_acc,
           )
         let profile_decoders =
@@ -1652,6 +1670,7 @@ pub fn profile_files_to_types(
             slice_type_overrides,
             type_slice_overrides,
             all_primitive_ext,
+            preserve_slice_order,
             valueset_acc,
             base_elements,
           )

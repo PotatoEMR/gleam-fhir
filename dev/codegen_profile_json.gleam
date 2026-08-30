@@ -738,6 +738,7 @@ type DecodeContext {
     slice_type_overrides: dict.Dict(String, SliceFieldType),
     type_slice_overrides: dict.Dict(String, SlicePlan),
     all_primitive_ext: Bool,
+    preserve_slice_order: Bool,
     valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
     base_elements: dict.Dict(String, codegen_helpers.Element),
   )
@@ -2841,6 +2842,12 @@ fn slice_group_support_source(
   roots: List(codegen_helpers.Element),
   aggregate: Option(#(List(codegen_helpers.Element), Int)),
 ) -> String {
+  let slice_elt_type = fn(type_) {
+    case context.preserve_slice_order {
+      True -> "ct.SliceElt(" <> type_ <> ")"
+      False -> type_
+    }
+  }
   let natural_group_type = slice_group_type_name(parent_type, group)
   let #(_, _, _, _, base_type) =
     profile_element_names(context, parent_type, group)
@@ -2874,11 +2881,19 @@ fn slice_group_support_source(
         |> list.map(fn(root) {
           let #(_, _, _, field_name, field_type) =
             profile_element_names(context, parent_type, root)
-          "    " <> field_name <> ": List(" <> field_type <> "),\n"
+          "    "
+          <> field_name
+          <> ": List("
+          <> slice_elt_type(field_type)
+          <> "),\n"
         })
         |> string.concat
       let accumulator_fields = case open {
-        True -> accumulator_fields <> "    open: List(" <> base_type <> "),\n"
+        True ->
+          accumulator_fields
+          <> "    open: List("
+          <> slice_elt_type(base_type)
+          <> "),\n"
         False -> accumulator_fields
       }
       let parsed_variants =
@@ -2912,12 +2927,20 @@ fn slice_group_support_source(
           "    "
           <> field_name
           <> ": "
-          <> codegen_helpers.cardinality(field_type, root.min, root.max)
+          <> codegen_helpers.cardinality(
+            slice_elt_type(field_type),
+            root.min,
+            root.max,
+          )
           <> ",\n"
         })
         |> string.concat
       let result_fields = case open {
-        True -> result_fields <> "    open: List(" <> base_type <> "),\n"
+        True ->
+          result_fields
+          <> "    open: List("
+          <> slice_elt_type(base_type)
+          <> "),\n"
         False -> result_fields
       }
       "type "
@@ -3726,8 +3749,11 @@ fn slice_fold_source(
         _ -> panic as "sliced group is unexpectedly a choice"
       }
   }
+  let is_aggregate = aggregate != None
   let indexed =
-    list.any(roots, fn(root) {
+    context.preserve_slice_order
+    && !is_aggregate
+    || list.any(roots, fn(root) {
       resource_slice_match(
         context,
         parent_type,
@@ -3737,7 +3763,12 @@ fn slice_fold_source(
         "Slice",
       ).fallible
     })
-  let is_aggregate = aggregate != None
+  let stored_value = fn(value) {
+    case context.preserve_slice_order {
+      True -> "ct.SliceElt(" <> value <> ", Some(index))"
+      False -> value
+    }
+  }
   let natural_group_type = slice_group_type_name(parent_type, group)
   let group_type = case aggregate {
     Some(_) -> aggregate_slice_type_name(natural_group_type, base_type)
@@ -3823,7 +3854,9 @@ fn slice_fold_source(
           <> accumulator_type
           <> "(..accumulator, "
           <> root_field
-          <> ": [value, ..accumulator."
+          <> ": ["
+          <> stored_value("value")
+          <> ", ..accumulator."
           <> root_field
           <> "]))\n"
         })
@@ -3834,7 +3867,9 @@ fn slice_fold_source(
           <> parsed_type
           <> "Open(value)) ->\n            Ok("
           <> accumulator_type
-          <> "(..accumulator, open: [value, ..accumulator.open]))\n"
+          <> "(..accumulator, open: ["
+          <> stored_value("value")
+          <> ", ..accumulator.open]))\n"
         "closed" -> ""
         _ -> ""
       }
@@ -4038,7 +4073,13 @@ fn slice_fold_source(
             root_field,
             slice_cardinality_placeholder(
               root,
-              slice_placeholder(context, root, match),
+              case context.preserve_slice_order {
+                True ->
+                  "ct.SliceElt("
+                  <> slice_placeholder(context, root, match)
+                  <> ", None)"
+                False -> slice_placeholder(context, root, match)
+              },
             ),
           )
         })
@@ -4745,6 +4786,7 @@ pub fn generate_decoders(
   slice_type_overrides: dict.Dict(String, SliceFieldType),
   type_slice_overrides: dict.Dict(String, SlicePlan),
   all_primitive_ext: Bool,
+  preserve_slice_order: Bool,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   base_elements: dict.Dict(String, codegen_helpers.Element),
 ) -> String {
@@ -4760,6 +4802,7 @@ pub fn generate_decoders(
       slice_type_overrides:,
       type_slice_overrides:,
       all_primitive_ext:,
+      preserve_slice_order:,
       valueset_acc:,
       base_elements:,
     )
@@ -4845,6 +4888,7 @@ pub fn generate_to_json(
   slice_type_overrides: dict.Dict(String, SliceFieldType),
   type_slice_overrides: dict.Dict(String, SlicePlan),
   all_primitive_ext: Bool,
+  preserve_slice_order: Bool,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
 ) -> #(String, dict.Dict(String, codegen_helpers.ValuesetItem)) {
   list.fold(
@@ -5083,6 +5127,11 @@ pub fn generate_to_json(
                 valueset_acc,
               )
               None, [_, ..] if !is_choice_path -> {
+                let indexed_slice_group =
+                  preserve_slice_order
+                  && !list.any(element.type_, fn(type_) {
+                    type_.code == "Extension"
+                  })
                 let open_encoder = case aggregate_encoder {
                   "" ->
                     profile_element_encoder_type(
@@ -5144,21 +5193,32 @@ pub fn generate_to_json(
                           )
                       }
                     }
+                    let indexed_root_call = fn(value) {
+                      case indexed_slice_group {
+                        True ->
+                          "ct.SliceElt("
+                          <> root_call(value <> ".value")
+                          <> ", "
+                          <> value
+                          <> ".internal_gleam_fhir_index)"
+                        False -> root_call(value)
+                      }
+                    }
                     let #(value, is_single) = case root.min, root.max {
                       0, "1" -> #(
                         "case "
                           <> root_field_name
                           <> " { Some(value) -> ["
-                          <> root_call("value")
+                          <> indexed_root_call("value")
                           <> "] None -> [] }",
                         False,
                       )
-                      1, "1" -> #(root_call(root_field_name), True)
+                      1, "1" -> #(indexed_root_call(root_field_name), True)
                       1, "*" -> #(
                         "fn(values) { let ct.List1(first, rest) = values ["
-                          <> root_call("first")
+                          <> indexed_root_call("first")
                           <> ", ..list.map(rest, fn(value) { "
-                          <> root_call("value")
+                          <> indexed_root_call("value")
                           <> " })] }("
                           <> root_field_name
                           <> ")",
@@ -5166,11 +5226,11 @@ pub fn generate_to_json(
                       )
                       2, "*" -> #(
                         "fn(values) { let ct.List2(first, second, rest) = values ["
-                          <> root_call("first")
+                          <> indexed_root_call("first")
                           <> ", "
-                          <> root_call("second")
+                          <> indexed_root_call("second")
                           <> ", ..list.map(rest, fn(value) { "
-                          <> root_call("value")
+                          <> indexed_root_call("value")
                           <> " })] }("
                           <> root_field_name
                           <> ")",
@@ -5178,13 +5238,13 @@ pub fn generate_to_json(
                       )
                       3, "*" -> #(
                         "fn(values) { let ct.List3(first, second, third, rest) = values ["
-                          <> root_call("first")
+                          <> indexed_root_call("first")
                           <> ", "
-                          <> root_call("second")
+                          <> indexed_root_call("second")
                           <> ", "
-                          <> root_call("third")
+                          <> indexed_root_call("third")
                           <> ", ..list.map(rest, fn(value) { "
-                          <> root_call("value")
+                          <> indexed_root_call("value")
                           <> " })] }("
                           <> root_field_name
                           <> ")",
@@ -5194,7 +5254,7 @@ pub fn generate_to_json(
                         "list.map("
                           <> root_field_name
                           <> ", fn(value) { "
-                          <> root_call("value")
+                          <> indexed_root_call("value")
                           <> " })",
                         False,
                       )
@@ -5205,53 +5265,61 @@ pub fn generate_to_json(
                       False -> #(single_values, [value, ..list_values])
                     }
                   })
+                let open_indexed_call = fn(value) {
+                  case indexed_slice_group {
+                    True ->
+                      "ct.SliceElt("
+                      <> open_encoder
+                      <> "("
+                      <> value
+                      <> ".value), "
+                      <> value
+                      <> ".internal_gleam_fhir_index)"
+                    False -> open_encoder <> "(" <> value <> ")"
+                  }
+                }
                 let open_values = case element.max, card_min {
                   "*", 0 ->
-                    "list.map(" <> field_name <> ", " <> open_encoder <> ")"
+                    "list.map("
+                    <> field_name
+                    <> ", fn(value) { "
+                    <> open_indexed_call("value")
+                    <> " })"
                   "*", 1 ->
                     "fn(values) { let ct.List1(first, rest) = values ["
-                    <> open_encoder
-                    <> "(first), ..list.map(rest, "
-                    <> open_encoder
-                    <> ")] }("
+                    <> open_indexed_call("first")
+                    <> ", ..list.map(rest, fn(value) { "
+                    <> open_indexed_call("value")
+                    <> " })] }("
                     <> field_name
                     <> ")"
                   "*", 2 ->
                     "fn(values) { let ct.List2(first, second, rest) = values ["
-                    <> open_encoder
-                    <> "(first), "
-                    <> open_encoder
-                    <> "(second), ..list.map(rest, "
-                    <> open_encoder
-                    <> ")] }("
+                    <> open_indexed_call("first")
+                    <> ", "
+                    <> open_indexed_call("second")
+                    <> ", ..list.map(rest, fn(value) { "
+                    <> open_indexed_call("value")
+                    <> " })] }("
                     <> field_name
                     <> ")"
                   "*", 3 ->
                     "fn(values) { let ct.List3(first, second, third, rest) = values ["
-                    <> open_encoder
-                    <> "(first), "
-                    <> open_encoder
-                    <> "(second), "
-                    <> open_encoder
-                    <> "(third), ..list.map(rest, "
-                    <> open_encoder
-                    <> ")] }("
+                    <> open_indexed_call("first")
+                    <> ", "
+                    <> open_indexed_call("second")
+                    <> ", "
+                    <> open_indexed_call("third")
+                    <> ", ..list.map(rest, fn(value) { "
+                    <> open_indexed_call("value")
+                    <> " })] }("
                     <> field_name
                     <> ")"
                   "1", 0 ->
                     "case "
                     <> field_name
                     <> " { Some(value) -> ["
-                    <> profile_element_encoder_call(
-                      element,
-                      base_field_type,
-                      all_parts,
-                      field_path,
-                      type_order,
-                      slice_type_overrides,
-                      snapshot_elements,
-                      "value",
-                    )
+                    <> open_indexed_call("value")
                     <> "] None -> [] }"
                   _, _ -> panic as "unsupported open slice cardinality"
                 }
@@ -5274,6 +5342,11 @@ pub fn generate_to_json(
                   json_optional
                   <> "\nlet slice_values = "
                   <> slice_values
+                  <> case indexed_slice_group {
+                    True ->
+                      "\nlet slice_values = ct.slice_elts_to_values(slice_values)"
+                    False -> ""
+                  }
                   <> "\nlet fields = case slice_values {\n  [] -> fields\n  values -> [#(\""
                   <> json_field_name
                   <> "\", json.preprocessed_array(values)), ..fields]\n}"
