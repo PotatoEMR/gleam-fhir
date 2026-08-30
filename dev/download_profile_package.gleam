@@ -18,6 +18,8 @@ import simplifile
 
 const registry = "https://packages.simplifier.net"
 
+const fallback_registry = "https://packages2.fhir.org/web"
+
 type Package {
   Package(name: String, version: String)
 }
@@ -66,9 +68,25 @@ fn dependencies(package: Package, output: String) -> List(Package) {
     True -> True
     False -> {
       let assert Ok(Nil) = simplifile.create_directory_all(directory)
-      let url = registry <> "/" <> name <> "/" <> version
-      let assert Ok(request) = request.to(url)
-      let assert Ok(response) = httpc.send_bits(request.set_body(request, <<>>))
+      let primary_url = registry <> "/" <> name <> "/" <> version
+      let assert Ok(primary_request) = request.to(primary_url)
+      let assert Ok(primary_response) =
+        httpc.send_bits(request.set_body(primary_request, <<>>))
+
+      let #(url, response) = case
+        primary_response.status >= 200 && primary_response.status < 300
+      {
+        True -> #(primary_url, primary_response)
+        False -> {
+          let fallback_url =
+            fallback_registry <> "/" <> name <> "-" <> version <> ".tgz"
+          io.println("Retrying from " <> fallback_url)
+          let assert Ok(fallback_request) = request.to(fallback_url)
+          let assert Ok(fallback_response) =
+            httpc.send_bits(request.set_body(fallback_request, <<>>))
+          #(fallback_url, fallback_response)
+        }
+      }
 
       case response.status >= 200 && response.status < 300 {
         False -> {
