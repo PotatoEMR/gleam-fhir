@@ -5,10 +5,11 @@ import codegen_profile_json.{
   type ExtensionDefinition, type SliceFieldType, type SlicePlan,
   BoundCodeableconceptSlice, ComplexExtension, ExtensionDefinition,
   FixedSliceType, SimpleExtension, TypeSlicePlan, ValueSlicePlan,
-  aggregate_slice_constructor, aggregate_value_slice_roots,
-  does_profile_restrict_complex_type, extension_field_name,
-  extension_field_to_json_call, find_element, profile_base_field_type,
-  profile_extension_definition, profile_field_is_primitive, profile_field_min,
+  aggregate_slice_constructor, aggregate_slice_type_name,
+  aggregate_value_slice_roots, does_profile_restrict_complex_type,
+  extension_field_name, extension_field_to_json_call, find_element,
+  profile_base_field_type, profile_extension_definition,
+  profile_field_is_primitive, profile_field_min,
 }
 import codegen_slice_complex_type
 import codegen_to_json
@@ -118,6 +119,44 @@ fn package_directories(profiles_dir: String) {
         })
     }
   })
+}
+
+fn base_structure_elements(
+  profiles_dir: String,
+  profile_elements: List(codegen_helpers.Element),
+) -> dict.Dict(String, codegen_helpers.Element) {
+  let directories = package_directories(profiles_dir)
+  profile_elements
+  |> list.filter_map(fn(element) {
+    element.base.path
+    |> string.split(".")
+    |> list.first
+  })
+  |> set.from_list
+  |> set.to_list
+  |> list.flat_map(fn(root) {
+    directories
+    |> list.find_map(fn(directory) {
+      let path =
+        filepath.join(directory, "StructureDefinition-" <> root <> ".json")
+      case simplifile.is_file(path) {
+        Ok(True) -> {
+          let resource = read_structure_definition(path)
+          case
+            resource.url == "http://hl7.org/fhir/StructureDefinition/" <> root,
+            resource.snapshot
+          {
+            True, Some(snapshot) -> Ok(snapshot.element)
+            _, _ -> Error(Nil)
+          }
+        }
+        _ -> Error(Nil)
+      }
+    })
+    |> result.unwrap([])
+  })
+  |> list.map(fn(element) { #(element.path, element) })
+  |> dict.from_list
 }
 
 fn extension_fields(resource: codegen_helpers.Resource) {
@@ -574,6 +613,7 @@ fn only_value_or_pattern_discriminators(
 }
 
 fn plan_whole_value_slice(
+  group: codegen_helpers.Element,
   root: codegen_helpers.Element,
   elements: List(codegen_helpers.Element),
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
@@ -612,9 +652,12 @@ fn plan_whole_value_slice(
         value: None,
       ))
     -> {
-      let requires_value = case find_element(elements, root.id <> ".value") {
-        Ok(value) -> value.min > 0
-        Error(_) -> False
+      let requires_value = case
+        find_element(elements, root.id <> ".value"),
+        find_element(elements, group.id <> ".value")
+      {
+        Ok(value), _ | _, Ok(value) -> value.min > 0
+        _, _ -> False
       }
       let type_ = case requires_value {
         True -> "ct.IdentifierDiscriminatorSystemRequiredValue"
@@ -659,17 +702,19 @@ fn plan_system_code_slice(
   {
     Ok(coding), Ok(code), Ok(system) ->
       case
+        element_type_is(root, "CodeableConcept"),
         element_type_is(coding, "Coding"),
         code.fixed_code,
         system.fixed_uri
       {
-        True, Some(_), Some(_) ->
+        True, True, Some(_), Some(_) ->
           Ok(
             ValueSlicePlan([
-              #(coding_id, FixedSliceType("ct.CodingDiscriminator")),
+              #(root.id, FixedSliceType("ct.CodeableconceptDiscriminator")),
             ]),
           )
-        _, _, _ -> Error("coding.system and coding.code are not fixed literals")
+        _, _, _, _ ->
+          Error("coding.system and coding.code are not fixed literals")
       }
     _, _, _ -> Error("coding.system and coding.code are not fixed literals")
   }
@@ -730,6 +775,7 @@ fn plan_child_value_slice(
 
 fn plan_value_slice(
   slicing: codegen_helpers.Slicing,
+  group: codegen_helpers.Element,
   root: codegen_helpers.Element,
   elements: List(codegen_helpers.Element),
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
@@ -739,7 +785,7 @@ fn plan_value_slice(
     discriminator_paths(slicing)
   {
     True, ["$this"] ->
-      plan_whole_value_slice(root, elements, available_valuesets)
+      plan_whole_value_slice(group, root, elements, available_valuesets)
     True, ["coding.code", "coding.system"] ->
       plan_system_code_slice(root, elements)
     True, [path] if path == "code" || path == "type" ->
@@ -773,7 +819,8 @@ fn plan_slice(
           )
         }),
       ))
-    _, _ -> plan_value_slice(slicing, root, elements, available_valuesets)
+    _, _ ->
+      plan_value_slice(slicing, group, root, elements, available_valuesets)
   }
 }
 
@@ -879,58 +926,63 @@ fn prepare_profile_slices(
           }
         }
       })
-    let current_elements =
-      remove_element_trees(current_elements, unsupported_ids, True)
-    let type_slice_ids =
-      plans
-      |> list.filter_map(fn(plan) {
-        case plan {
-          TypeSlicePlan(slice:, ..) -> Ok(slice.id)
-          ValueSlicePlan(_) -> Error(Nil)
-        }
-      })
-    let current_elements =
-      remove_element_trees(current_elements, type_slice_ids, True)
-    let replacement_ids =
-      plans
-      |> list.flat_map(fn(plan) {
-        case plan {
-          ValueSlicePlan(pairs) -> list.map(pairs, fn(pair) { pair.0 })
-          TypeSlicePlan(..) -> []
-        }
-      })
-    let current_elements =
-      remove_element_trees(current_elements, replacement_ids, False)
-    let overrides =
-      plans
-      |> list.flat_map(fn(plan) {
-        case plan {
-          ValueSlicePlan(pairs) -> pairs
-          TypeSlicePlan(..) -> []
-        }
-      })
-      |> list.fold(overrides, fn(overrides, pair) {
-        dict.insert(overrides, pair.0, pair.1)
-      })
-    let type_slice_overrides =
-      list.fold(plans, type_slice_overrides, fn(overrides, plan) {
-        case plan {
-          TypeSlicePlan(root_id:, fhir_type:, ..) ->
-            dict.insert(overrides, type_slice_key(root_id, fhir_type), plan)
-          ValueSlicePlan(_) -> overrides
-        }
-      })
-    let current_elements = case plans {
-      [] ->
-        list.map(current_elements, fn(element) {
-          case element.id == group.id {
-            True -> codegen_helpers.Element(..element, slicing: None)
-            False -> element
-          }
-        })
-      _ -> current_elements
+    case unsupported_ids {
+      [_, ..] -> {
+        let root_ids = list.map(roots, fn(root) { root.id })
+        let current_elements =
+          current_elements
+          |> remove_element_trees(root_ids, True)
+          |> list.map(fn(element) {
+            case element.id == group.id {
+              True -> codegen_helpers.Element(..element, slicing: None)
+              False -> element
+            }
+          })
+        #(current_elements, overrides, type_slice_overrides)
+      }
+      [] -> {
+        let type_slice_ids =
+          plans
+          |> list.filter_map(fn(plan) {
+            case plan {
+              TypeSlicePlan(slice:, ..) -> Ok(slice.id)
+              ValueSlicePlan(_) -> Error(Nil)
+            }
+          })
+        let current_elements =
+          remove_element_trees(current_elements, type_slice_ids, True)
+        let replacement_ids =
+          plans
+          |> list.flat_map(fn(plan) {
+            case plan {
+              ValueSlicePlan(pairs) -> list.map(pairs, fn(pair) { pair.0 })
+              TypeSlicePlan(..) -> []
+            }
+          })
+        let current_elements =
+          remove_element_trees(current_elements, replacement_ids, False)
+        let overrides =
+          plans
+          |> list.flat_map(fn(plan) {
+            case plan {
+              ValueSlicePlan(pairs) -> pairs
+              TypeSlicePlan(..) -> []
+            }
+          })
+          |> list.fold(overrides, fn(overrides, pair) {
+            dict.insert(overrides, pair.0, pair.1)
+          })
+        let type_slice_overrides =
+          list.fold(plans, type_slice_overrides, fn(overrides, plan) {
+            case plan {
+              TypeSlicePlan(root_id:, fhir_type:, ..) ->
+                dict.insert(overrides, type_slice_key(root_id, fhir_type), plan)
+              ValueSlicePlan(_) -> overrides
+            }
+          })
+        #(current_elements, overrides, type_slice_overrides)
+      }
     }
-    #(current_elements, overrides, type_slice_overrides)
   })
 }
 
@@ -973,6 +1025,7 @@ pub fn profile_files_to_types(
         Some(snapshot) -> snapshot.element
       }
     })
+  let base_elements = base_structure_elements(profiles_dir, resource_elements)
   let extension_elements =
     profile_structures.extensions
     |> dict.values
@@ -1032,8 +1085,23 @@ pub fn profile_files_to_types(
         let slice_base_type_names =
           profile_elements
           |> list.filter_map(fn(element) {
-            case element.slicing, string.ends_with(element.path, "[x]") {
-              Some(codegen_helpers.Slicing(rules:, ..)), False -> {
+            case
+              element.slicing,
+              string.ends_with(element.path, "[x]"),
+              aggregate_value_slice_roots(element, profile_elements),
+              element.type_
+            {
+              Some(codegen_helpers.Slicing(rules:, ..)), False, None, _
+              | Some(codegen_helpers.Slicing(rules:, ..)),
+                False,
+                Some(_),
+                [codegen_helpers.Type(code: "BackboneElement", ..)]
+              | Some(codegen_helpers.Slicing(rules:, ..)),
+                False,
+                Some(_),
+                [codegen_helpers.Type(code: "Element", ..)]
+              | Some(codegen_helpers.Slicing(rules:, ..)), False, Some(_), []
+              -> {
                 let assert [_, ..rest] =
                   element.id
                   |> string.replace("-", "")
@@ -1050,7 +1118,7 @@ pub fn profile_files_to_types(
                 }
                 Ok(#(base_name, slice_base_name))
               }
-              _, _ -> Error(Nil)
+              _, _, _, _ -> Error(Nil)
             }
           })
           |> dict.from_list
@@ -1183,6 +1251,8 @@ pub fn profile_files_to_types(
               let fields =
                 list.filter(fields, fn(element) {
                   element.max != "0"
+                  && element.fixed_code == None
+                  && element.fixed_uri == None
                   && !set.contains(aggregate_slice_root_ids, element.id)
                   && case element.slicing {
                     Some(slicing) ->
@@ -1247,19 +1317,18 @@ pub fn profile_files_to_types(
                         slice_type_overrides,
                         valueset_acc,
                       )
-                    // for example identifier slice in https://build.fhir.org/ig/HL7/US-Core/StructureDefinition-us-core-practitioner.html
-                    // has identifier 1..* with 2 sliced identifiers NPI and NCSBNID plus open slice
-                    // so we make the whole identifier field a List1
-                    // unfortunately that means you cant directly access one identifier
-                    // but it does enforce minimum 1 identifier overall
-                    //
-                    // and what if parent is 7..* but one sliced child is 3..* ?
-                    // well then need 4..* slice variants plus 3..* specific slice child
+                    // If named slices do not enforce the group minimum, use a
+                    // variant collection whose cardinality enforces the remainder.
                     let #(base_field_type, aggregate_slice_source, valueset_acc) = case
                       dict.get(aggregate_slice_groups, element.id)
                     {
                       Error(_) -> #(base_field_type, "", valueset_acc)
                       Ok(#(roots, _)) -> {
+                        let aggregate_type =
+                          aggregate_slice_type_name(
+                            choice_type,
+                            base_field_type,
+                          )
                         let #(variants, valueset_acc) =
                           list.fold(roots, #("", valueset_acc), fn(acc, root) {
                             let #(variants, valueset_acc) = acc
@@ -1277,7 +1346,7 @@ pub fn profile_files_to_types(
                                 root,
                                 root_parts,
                                 root_field_path,
-                                choice_type,
+                                aggregate_type,
                                 profile_structures.extensions,
                                 type_order,
                                 slice_base_type_names,
@@ -1288,7 +1357,7 @@ pub fn profile_files_to_types(
                               variants
                                 <> "  "
                                 <> aggregate_slice_constructor(
-                                choice_type,
+                                aggregate_type,
                                 slice_name,
                                 payload_type,
                               )
@@ -1302,7 +1371,7 @@ pub fn profile_files_to_types(
                           variants
                           <> "  "
                           <> aggregate_slice_constructor(
-                            choice_type,
+                            aggregate_type,
                             "Open",
                             base_field_type,
                           )
@@ -1310,9 +1379,9 @@ pub fn profile_files_to_types(
                           <> base_field_type
                           <> ")\n"
                         #(
-                          choice_type,
+                          aggregate_type,
                           "pub type "
-                            <> choice_type
+                            <> aggregate_type
                             <> " {\n"
                             <> variants
                             <> "}\n\n",
@@ -1584,6 +1653,7 @@ pub fn profile_files_to_types(
             type_slice_overrides,
             all_primitive_ext,
             valueset_acc,
+            base_elements,
           )
 
         #(
@@ -1596,19 +1666,74 @@ pub fn profile_files_to_types(
         )
       },
     )
+  let result_search_source = case
+    string.contains(profile_resources, "find_required_elt_and_rest_result("),
+    string.contains(profile_resources, "find_optional_elt_and_rest_result("),
+    string.contains(
+      profile_resources,
+      "find_at_least_n_elts_and_rest_result_or_failure(",
+    )
+  {
+    False, False, False -> ""
+    required, optional, repeated ->
+      codegen_bound_coding.find_elt_and_rest_result
+      <> case required {
+        True -> codegen_bound_coding.find_required_elt_and_rest_result
+        False -> ""
+      }
+      <> case optional {
+        True -> codegen_bound_coding.find_optional_elt_and_rest_result
+        False -> ""
+      }
+      <> case repeated {
+        True ->
+          codegen_bound_coding.find_at_least_n_elts_and_rest_result
+          <> codegen_bound_coding.find_at_least_n_elts_and_rest_result_or_failure
+        False -> ""
+      }
+  }
+  let found_search_source = case
+    string.contains(profile_resources, "find_required_elt_and_rest_found("),
+    string.contains(profile_resources, "find_optional_elt_and_rest_found("),
+    string.contains(
+      profile_resources,
+      "find_at_least_n_elts_and_rest_found_or_failure(",
+    ),
+    string.contains(profile_resources, "find_at_least_n_elts_and_rest_found(")
+  {
+    False, False, False, False -> ""
+    required, optional, repeated_with_failure, repeated ->
+      codegen_bound_coding.find_elt_and_rest_found
+      <> case required {
+        True -> codegen_bound_coding.find_required_elt_and_rest_found
+        False -> ""
+      }
+      <> case optional {
+        True -> codegen_bound_coding.find_optional_elt_and_rest_found
+        False -> ""
+      }
+      <> case repeated_with_failure || repeated {
+        True -> codegen_bound_coding.find_at_least_n_elts_and_rest_found
+        False -> ""
+      }
+      <> case repeated_with_failure {
+        True ->
+          codegen_bound_coding.find_at_least_n_elts_and_rest_found_or_failure
+        False -> ""
+      }
+  }
   #(
     profile_complex_types,
-    codegen_decode.result_or_decode_failure
-      <> codegen_bound_coding.find_elt_and_rest_result
-      <> codegen_bound_coding.find_required_elt_and_rest_result
-      <> codegen_bound_coding.find_optional_elt_and_rest_result
-      <> codegen_bound_coding.find_elt_and_rest_found
-      <> codegen_bound_coding.find_required_elt_and_rest_found
-      <> codegen_bound_coding.find_optional_elt_and_rest_found
-      <> codegen_bound_coding.find_at_least_n_elts_and_rest_result
-      <> codegen_bound_coding.find_at_least_n_elts_and_rest_result_or_failure
-      <> codegen_bound_coding.find_at_least_n_elts_and_rest_found
-      <> codegen_bound_coding.find_at_least_n_elts_and_rest_found_or_failure
+    case string.contains(profile_resources, "result_or_decode_failure(") {
+      True -> codegen_decode.result_or_decode_failure
+      False -> ""
+    }
+      <> result_search_source
+      <> found_search_source
+      <> case string.contains(profile_resources, "slice_acc_errors(") {
+      True -> codegen_profile_json.slice_acc_errors_source
+      False -> ""
+    }
       <> profile_resources,
     valueset_acc,
     available_slice_valuesets,

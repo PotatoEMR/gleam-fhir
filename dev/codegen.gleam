@@ -231,7 +231,7 @@ fn gen_fhir(
       import gleam/list
       import fhir/" <> pkg_prefix <> "/primitive_types.{type Date, type DateTime, type Instant, type Time} as pt
       import fhir/" <> pkg_prefix <> "/valuesets\n"
-  let r_imports = shared_imports <> "import gleam/bool\n"
+  let r_imports = shared_imports <> "import gleam/bool\nimport gleam/int\n"
 
   let complex_types_file = filepath.join(extract_dir_ver, "profiles-types.json")
   let #(resources_gen, valueset_acc, resource_type_names) =
@@ -317,43 +317,43 @@ fn gen_fhir(
   }
   let ct_imports = shared_imports <> "import gleam/int\n"
 
+  let generated_types_and_resources = complex_types_gen <> resources_gen
+  let uses_list1 = string.contains(generated_types_and_resources, "List1(")
+  let uses_list2 = string.contains(generated_types_and_resources, "List2(")
+  let uses_list3 = string.contains(generated_types_and_resources, "List3(")
   let list_type_defs =
-    "
+    case uses_list1 {
+      True ->
+        "
       /// 1..*
       pub type List1(a){ List1(first: a, rest: List(a)) }
-
+      "
+      False -> ""
+    }
+    <> case uses_list2 {
+      True ->
+        "
       /// 2..*
       pub type List2(a){ List2(first: a, second: a, rest: List(a)) }
-
+      "
+      False -> ""
+    }
+    <> case uses_list3 {
+      True ->
+        "
       /// 3..*
       pub type List3(a){ List3(first: a, second: a, third: a, rest: List(a)) }
-    "
+      "
+      False -> ""
+    }
 
-  let helpers_block =
-    "
-      //std lib decode.optional supports myfield: null but what if myfield is omitted from json entirely?
-      pub fn none_if_omitted(d: decode.Decoder(a)) -> decode.Decoder(Option(a)) {
-        decode.one_of(d |> decode.map(Some), [decode.success(None)])
-      }
-
-      //std lib decode.float will NOT decode numbers without decimal point eg 4, only 4.0
-      pub fn decode_number() {
-        decode.one_of(decode.float, [decode.map(decode.int, int.to_float)])
-      }
-
+  let list_helpers =
+    case uses_list1 {
+      True ->
+        "
       pub fn list1_to_json(l: List1(a), tj: fn(a) -> Json) {
         let List1(first:, rest:) = l
         json.array([first, ..rest], tj)
-      }
-
-      pub fn list2_to_json(l: List2(a), tj: fn(a) -> Json) {
-        let List2(first:, second:, rest:) = l
-        json.array([first, second, ..rest], tj)
-      }
-
-      pub fn list3_to_json(l: List3(a), tj: fn(a) -> Json) {
-        let List3(first:, second:, third:, rest:) = l
-        json.array([first, second, third, ..rest], tj)
       }
 
       pub fn list1_decoder(
@@ -370,6 +370,16 @@ fn gen_fhir(
           }
         }
       }
+      "
+      False -> ""
+    }
+    <> case uses_list2 {
+      True ->
+        "
+      pub fn list2_to_json(l: List2(a), tj: fn(a) -> Json) {
+        let List2(first:, second:, rest:) = l
+        json.array([first, second, ..rest], tj)
+      }
 
       pub fn list2_decoder(
         name: String,
@@ -385,6 +395,16 @@ fn gen_fhir(
           }
         }
       }
+      "
+      False -> ""
+    }
+    <> case uses_list3 {
+      True ->
+        "
+      pub fn list3_to_json(l: List3(a), tj: fn(a) -> Json) {
+        let List3(first:, second:, third:, rest:) = l
+        json.array([first, second, third, ..rest], tj)
+      }
 
       pub fn list3_decoder(
         name: String,
@@ -399,6 +419,21 @@ fn gen_fhir(
             next(List3(first: fail_decode_to_satisfy_gleam_type, second: fail_decode_to_satisfy_gleam_type, third: fail_decode_to_satisfy_gleam_type, rest: []))
           }
         }
+      }
+      "
+      False -> ""
+    }
+
+  let helpers_block =
+    "
+      //std lib decode.optional supports myfield: null but what if myfield is omitted from json entirely?
+      pub fn none_if_omitted(d: decode.Decoder(a)) -> decode.Decoder(Option(a)) {
+        decode.one_of(d |> decode.map(Some), [decode.success(None)])
+      }
+
+      //std lib decode.float will NOT decode numbers without decimal point eg 4, only 4.0
+      pub fn decode_number() {
+        decode.one_of(decode.float, [decode.map(decode.int, int.to_float)])
       }
 
       pub type Primitive(a) {
@@ -527,20 +562,40 @@ fn gen_fhir(
       bound_codeable_reference_source,
       codegen_bound_coding.bound_quantity,
       complex_types_gen,
+      list_helpers,
       helpers_block,
       codegen_decode.array_cardinality_decoders,
     ])
-  let primitive_imports = case string.contains(resources_gen, "Primitive(") {
-    False -> ""
-    True ->
-      ", type Primitive, Primitive, primitive_decoder, primitives_decoder, primitive_to_json, primitives_to_json"
-  }
-  let profile_decoder_imports = case
-    string.contains(resources_gen, "FoundValid")
-  {
-    True -> ", type Found, FoundValid, FoundInvalid, NotFound"
-    False -> ""
-  }
+  let resource_complex_imports =
+    [
+      #("type List1", "List1("),
+      #("list1_to_json", "list1_to_json("),
+      #("list1_decoder", "list1_decoder("),
+      #("type List2", "List2("),
+      #("list2_to_json", "list2_to_json("),
+      #("list2_decoder", "list2_decoder("),
+      #("type List3", "List3("),
+      #("list3_to_json", "list3_to_json("),
+      #("list3_decoder", "list3_decoder("),
+      #("none_if_omitted", "none_if_omitted("),
+      #("decode_number", "decode_number("),
+      #("type Primitive", "Primitive("),
+      #("Primitive", "Primitive("),
+      #("primitive_decoder", "primitive_decoder("),
+      #("primitives_decoder", "primitives_decoder("),
+      #("primitive_to_json", "primitive_to_json("),
+      #("primitives_to_json", "primitives_to_json("),
+      #("type Found", "Found("),
+      #("FoundValid", "FoundValid"),
+      #("FoundInvalid", "FoundInvalid"),
+      #("NotFound", "NotFound"),
+    ]
+    |> list.filter_map(fn(item) {
+      case string.contains(resources_gen, item.1) {
+        True -> Ok(item.0)
+        False -> Error(Nil)
+      }
+    })
   let result_import = case string.contains(resources_gen, "result.") {
     True -> "import gleam/result\n"
     False -> ""
@@ -548,9 +603,8 @@ fn gen_fhir(
   let r_ct_import =
     "import fhir/"
     <> pkg_prefix
-    <> "/complex_types.{type List1, list1_to_json, list1_decoder, type List2, list2_to_json, list2_decoder, none_if_omitted, decode_number"
-    <> primitive_imports
-    <> profile_decoder_imports
+    <> "/complex_types.{"
+    <> string.join(resource_complex_imports, ", ")
     <> "} as ct\n"
   let r_content =
     string.concat([

@@ -77,6 +77,38 @@ pub fn discriminator_new_call(
   }
 }
 
+pub fn discriminator_from_required_profile_call(
+  discriminator_type: String,
+  value: String,
+  system: String,
+) -> Result(DiscriminatorCall, Nil) {
+  case discriminator_type {
+    "ct.IdentifierDiscriminatorSystemRequiredValue" ->
+      Ok(ResultDiscriminatorCall(
+        "case "
+        <> value
+        <> ".system == \""
+        <> system
+        <> "\" { False -> Error(Nil) True -> Ok(ct.IdentifierDiscriminatorSystemRequiredValue(id: "
+        <> value
+        <> ".id, extension: "
+        <> value
+        <> ".extension, use_: "
+        <> value
+        <> ".use_, value: "
+        <> value
+        <> ".value, type_: "
+        <> value
+        <> ".type_, period: "
+        <> value
+        <> ".period, assigner: "
+        <> value
+        <> ".assigner)) }",
+      ))
+    _ -> Error(Nil)
+  }
+}
+
 pub const slice_coding = "
 pub type CodingDiscriminator {
   CodingDiscriminator(
