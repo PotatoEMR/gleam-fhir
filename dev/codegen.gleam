@@ -237,7 +237,7 @@ fn gen_fhir(
   let r_imports = shared_imports <> "import gleam/bool\nimport gleam/int\n"
 
   let complex_types_file = filepath.join(extract_dir_ver, "profiles-types.json")
-  let #(resources_gen, valueset_acc, resource_type_names) =
+  let #(resources_gen, valueset_acc, resource_type_names, core_resource_entries) =
     file_to_types(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
       fv: pkg_prefix,
@@ -263,7 +263,7 @@ fn gen_fhir(
       |> Some
     None -> None
   }
-  let #(complex_types_gen, valueset_acc, _) =
+  let #(complex_types_gen, valueset_acc, _, _) =
     file_to_types(
       spec_file: complex_types_file,
       fv: pkg_prefix,
@@ -278,11 +278,18 @@ fn gen_fhir(
     profile_resources,
     valueset_acc,
     preloaded_valuesets,
+    profile_resource_entries,
   ) = case custom_profile_name {
-    None -> #("", "", valueset_acc, None)
+    None -> #("", "", valueset_acc, None, [])
     Some(_) -> {
       let assert Some(profiles_dir) = profiles_dir
-      let #(complex_types, resources, valuesets, loaded_valuesets) =
+      let #(
+        complex_types,
+        resources,
+        valuesets,
+        loaded_valuesets,
+        resource_entries,
+      ) =
         codegen_profile.profile_files_to_types(
           profiles_dir,
           all_primitive_ext,
@@ -290,11 +297,212 @@ fn gen_fhir(
           valueset_acc,
           gen_specific_resources,
         )
-      #(complex_types, resources, valuesets, Some(loaded_valuesets))
+      #(
+        complex_types,
+        resources,
+        valuesets,
+        Some(loaded_valuesets),
+        resource_entries,
+      )
     }
   }
   let complex_types_gen = complex_types_gen <> profile_complex_types
-  let resources_gen = resources_gen <> profile_resources
+  let resource_entries =
+    list.append(core_resource_entries, profile_resource_entries)
+  let resource_names =
+    resource_entries
+    |> list.map(fn(resource_entry) {
+      let gleam_type = resource_entry.1
+      "Resource" <> gleam_type <> "(" <> gleam_type <> ")\n"
+    })
+    |> string.concat
+  let resource_encoders =
+    resource_entries
+    |> list.map(fn(resource_entry) {
+      let gleam_type = resource_entry.1
+      "Resource"
+      <> gleam_type
+      <> "(resource) -> "
+      <> codegen_helpers.to_snake_case(gleam_type)
+      <> "_to_json(resource)\n"
+    })
+    |> string.concat
+  let resource_types =
+    resource_entries
+    |> list.fold([], fn(resource_types, resource_entry) {
+      case list.contains(resource_types, resource_entry.0) {
+        True -> resource_types
+        False -> [resource_entry.0, ..resource_types]
+      }
+    })
+    |> list.reverse
+  let resource_decoders =
+    resource_types
+    |> list.map(fn(resource_type) {
+      let matching_entries =
+        list.filter(resource_entries, fn(resource_entry) {
+          resource_entry.0 == resource_type
+        })
+      case matching_entries {
+        [resource_entry] -> {
+          let gleam_type = resource_entry.1
+          "\""
+          <> resource_type
+          <> "\" -> "
+          <> codegen_helpers.to_snake_case(gleam_type)
+          <> "_decoder() |> decode.map(Resource"
+          <> gleam_type
+          <> ")\n"
+        }
+        [first_entry, ..rest_entries] -> {
+          let first_gleam_type = first_entry.1
+          let first_profile_decoder =
+            "#(\""
+            <> first_entry.2
+            <> "\", "
+            <> codegen_helpers.to_snake_case(first_gleam_type)
+            <> "_decoder() |> decode.map(Resource"
+            <> first_gleam_type
+            <> "))"
+          let rest_profile_decoders =
+            rest_entries
+            |> list.map(fn(resource_entry) {
+              let gleam_type = resource_entry.1
+              "#(\""
+              <> resource_entry.2
+              <> "\", "
+              <> codegen_helpers.to_snake_case(gleam_type)
+              <> "_decoder() |> decode.map(Resource"
+              <> gleam_type
+              <> "))"
+            })
+            |> string.join(",\n")
+          "\""
+          <> resource_type
+          <> "\" -> match_profile(ct.List1("
+          <> first_profile_decoder
+          <> ", ["
+          <> rest_profile_decoders
+          <> "]))\n"
+        }
+        [] -> panic as "resource type has no generated decoder"
+      }
+    })
+    |> string.concat
+  let resource_type_variants =
+    resource_types
+    |> list.map(fn(resource_type) {
+      let gleam_type =
+        resource_type
+        |> string.replace("-", "_")
+        |> codegen_helpers.to_camel_case
+      let gleam_type = case gleam_type {
+        "List" -> "Listfhir"
+        _ -> gleam_type
+      }
+      "Rt" <> gleam_type <> "\n"
+    })
+    |> string.concat
+  let resource_type_to_string_arms =
+    resource_types
+    |> list.map(fn(resource_type) {
+      let gleam_type =
+        resource_type
+        |> string.replace("-", "_")
+        |> codegen_helpers.to_camel_case
+      let gleam_type = case gleam_type {
+        "List" -> "Listfhir"
+        _ -> gleam_type
+      }
+      "Rt" <> gleam_type <> " -> \"" <> resource_type <> "\"\n"
+    })
+    |> string.concat
+  let uses_profile_match =
+    list.any(resource_types, fn(resource_type) {
+      list.length(
+        list.filter(resource_entries, fn(resource_entry) {
+          resource_entry.0 == resource_type
+        }),
+      )
+      > 1
+    })
+  let match_profile_source = case uses_profile_match {
+    False -> ""
+    True ->
+      "fn match_profile(profile_decoders: ct.List1(#(String, Decoder(a)))) -> Decoder(a) {
+        let ct.List1(first_profile_decoder, rest_profile_decoders) = profile_decoders
+        use found_profiles <- decode.optional_field(
+          \"meta\",
+          [],
+          decode.optional_field(
+            \"profile\",
+            [],
+            decode.list(decode.string),
+            decode.success,
+          ),
+        )
+        case list.find(
+          [first_profile_decoder, ..rest_profile_decoders],
+          fn(profile_decoder) {
+            let #(profile_name, _decoder) = profile_decoder
+            list.any(found_profiles, fn(found_profile) {
+              found_profile |> string.starts_with(profile_name)
+            })
+          },
+        ) {
+          Ok(#(_profile_name, decoder)) -> decoder
+          Error(Nil) -> {
+            let #(_profile_name, first_decoder) = first_profile_decoder
+            decode.one_of(
+              first_decoder,
+              list.map(rest_profile_decoders, fn(profile_decoder) {
+                let #(_profile_name, decoder) = profile_decoder
+                decoder
+              }),
+            )
+          }
+        }
+      }\n"
+  }
+  let resource_enum = "pub type ResourceType {" <> resource_type_variants <> "}
+      pub fn resource_type_to_string(resource_type: ResourceType) -> String {
+        case resource_type {" <> resource_type_to_string_arms <> "}
+      }
+
+      pub type Resource {" <> resource_names <> "}
+      pub fn resource_to_json(resource: Resource) {
+        case resource {" <> resource_encoders <> "}
+      }
+
+      " <> match_profile_source <> "pub fn resource_decoder() -> Decoder(Resource) {
+        use tag <- decode.field(\"resourceType\", decode.string)
+        case tag {" <> resource_decoders <> "_ ->
+            decode.failure(
+              ResourceParameters(parameters_new()),
+              expected: \"\",
+            )
+            |> decode.map_errors(fn(_errors) {
+              [decode.DecodeError(
+                expected: \"one of Account, ActivityDefinition, AdverseEvent, AllergyIntolerance... or any resource name\",
+                found: tag,
+                path: [\"resourceType\"],
+              )]
+            })
+        }
+        |> decode.map_errors(fn(errors) {
+          list.map(errors, fn(error) {
+            decode.DecodeError(..error, path: [\"(\" <> tag <> \")\", ..error.path])
+          })
+        })
+      }
+      "
+  let resources_gen = resources_gen <> profile_resources <> resource_enum
+  let r_imports =
+    r_imports
+    <> case uses_profile_match {
+      True -> "import gleam/string\n"
+      False -> ""
+    }
   let #(all_vs, unavailable_valuesets, failure_variant_replacements) =
     valueset_to_types(
       fhir_version,
@@ -933,7 +1141,12 @@ fn file_to_types(
   valueset_acc valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   gen_specific_resources gen_specific_resources: Option(List(String)),
   gen_specific_complex_types gen_specific_complex_types: Option(Set(String)),
-) -> #(String, dict.Dict(String, codegen_helpers.ValuesetItem), Set(String)) {
+) -> #(
+  String,
+  dict.Dict(String, codegen_helpers.ValuesetItem),
+  Set(String),
+  List(#(String, String, String)),
+) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
   let assert Ok(bundle) =
@@ -1926,132 +2139,33 @@ fn file_to_types(
         #(gen_str, valueset_acc)
       },
     )
-  #(
-    case spec_file |> string.ends_with("profiles-resources.json") {
-      False -> all_resources_and_types
-      True -> {
-        let res_entries =
-          entries
-          |> list.filter(fn(resource) {
-            resource.kind == Some("resource")
-            && resource.name != "DomainResource"
-          })
-          |> list.map(fn(resource) {
-            let camel_type =
-              resource.id
-              |> string.replace("-", "_")
-              |> codegen_helpers.to_camel_case
-            #(resource, case camel_type {
-              "List" -> "Listfhir"
-              _ -> camel_type
-            })
-          })
-
-        let resource_names =
-          res_entries
-          |> list.map(fn(entry_and_camel_type) {
-            let camel_type = entry_and_camel_type.1
-            "Resource" <> camel_type <> "(" <> camel_type <> ")\n"
-          })
-          |> string.concat
-
-        let resource_encoders =
-          res_entries
-          |> list.map(fn(entry_and_camel_type) {
-            let camel_type = entry_and_camel_type.1
-            "Resource"
-            <> camel_type
-            <> "(r) -> "
-            <> codegen_helpers.to_snake_case(camel_type)
-            <> "_to_json(r)\n"
-          })
-          |> string.concat
-
-        let resource_decoders =
-          res_entries
-          |> list.map(fn(entry_and_camel_type) {
-            let camel_type = entry_and_camel_type.1
-            let resource: codegen_helpers.Resource = entry_and_camel_type.0
-            let assert Some(fhir_resource_type) = resource.type_
-            "\""
-            <> fhir_resource_type
-            <> "\" -> "
-            <> codegen_helpers.to_snake_case(camel_type)
-            <> "_decoder()  |> decode.map(Resource"
-            <> camel_type
-            <> ")\n"
-          })
-          |> string.concat
-
-        let resource_type_variants =
-          res_entries
-          |> list.map(fn(entry_and_camel_type) {
-            "Rt" <> entry_and_camel_type.1 <> "\n"
-          })
-          |> string.concat
-
-        let resource_type_to_string_arms =
-          res_entries
-          |> list.map(fn(entry_and_camel_type) {
-            let resource: codegen_helpers.Resource = entry_and_camel_type.0
-            let assert Some(fhir_resource_type) = resource.type_
-            "Rt"
-            <> entry_and_camel_type.1
-            <> " -> \""
-            <> fhir_resource_type
-            <> "\"\n"
-          })
-          |> string.concat
-
-        let resource_type_enum =
-          string.concat([
-            "pub type ResourceType{",
-            resource_type_variants,
-            "}\npub fn resource_type_to_string(rt: ResourceType) -> String {
-            case rt {",
-            resource_type_to_string_arms,
-            "}
-        }\n",
-          ])
-
-        let resource_enum =
-          string.concat([
-            resource_type_enum,
-            "pub type Resource{",
-            resource_names,
-            "}\npub fn resource_to_json(res: Resource) {
-            case res {",
-            resource_encoders,
-            "}
-        }\n
-        pub fn resource_decoder() -> Decoder(Resource) {
-          use tag <- decode.field(\"resourceType\", decode.string)
-          case tag {" <> resource_decoders <> "
-            _ ->
-              decode.failure(
-                ResourceParameters(parameters_new()),
-                expected: \"\",
-              )
-              |> decode.map_errors(fn(_errs) {
-                [decode.DecodeError(
-                  expected: \"one of Account, ActivityDefinition, AdverseEvent, AllergyIntolerance... or any resource name\",
-                  found: tag,
-                  path: [\"resourceType\"],
-                )]
-              })
-          } |> decode.map_errors(fn(errs){
-            list.map(errs, fn(err){
-              decode.DecodeError(..err, path: [\"(\" <> tag <> \")\", ..err.path])
-            })
-          })
+  let resource_entries = case
+    spec_file |> string.ends_with("profiles-resources.json")
+  {
+    False -> []
+    True ->
+      entries
+      |> list.filter(fn(resource) {
+        resource.kind == Some("resource") && resource.name != "DomainResource"
+      })
+      |> list.map(fn(resource) {
+        let assert Some(resource_type) = resource.type_
+        let gleam_type =
+          resource.id
+          |> string.replace("-", "_")
+          |> codegen_helpers.to_camel_case
+        let gleam_type = case gleam_type {
+          "List" -> "Listfhir"
+          _ -> gleam_type
         }
-        ",
-          ])
-        all_resources_and_types <> resource_enum
-      }
-    },
+        #(resource_type, gleam_type, resource.url)
+      })
+  }
+  #(
+    all_resources_and_types,
     valueset_acc,
     referenced_type_names,
+    resource_entries,
   )
 }
 

@@ -1106,6 +1106,7 @@ pub fn profile_files_to_types(
   String,
   dict.Dict(String, codegen_helpers.ValuesetItem),
   dict.Dict(String, codegen_helpers.VsOrCs),
+  List(#(String, String, String)),
 ) {
   let profile_structures =
     load_profile_files(profiles_dir, gen_specific_resources)
@@ -1159,6 +1160,19 @@ pub fn profile_files_to_types(
   let profile_resources =
     profile_structures.resources
     |> list.sort(fn(a, b) { string.compare(a.id, b.id) })
+  let profile_resource_entries =
+    list.map(profile_resources, fn(resource) {
+      let assert Some(resource_type) = resource.type_
+      let profile_type =
+        resource.id
+        |> string.replace("-", "_")
+        |> codegen_helpers.to_camel_case
+      let profile_type = case profile_type {
+        "List" -> "Listfhir"
+        _ -> profile_type
+      }
+      #(resource_type, profile_type, resource.url)
+    })
   let #(extension_types, valueset_acc) =
     generate_extension_types(
       profile_structures.extensions,
@@ -1561,6 +1575,22 @@ pub fn profile_files_to_types(
                         element.max,
                         is_primitive,
                       )
+                    let newfunc_field = case
+                      current_type == profile_prefix,
+                      field_name
+                    {
+                      True, "meta" -> "    meta: Some(ct.Meta(
+                          id: None,
+                          extension: [],
+                          version_id: None,
+                          last_updated: None,
+                          source: None,
+                          profile: [\"" <> resource.url <> "\"],
+                          security: [],
+                          tag: [],
+                        )),\n"
+                      _, _ -> newfunc_field
+                    }
 
                     let #(new_choice_source, valueset_acc) = case
                       element.type_
@@ -1856,5 +1886,6 @@ pub fn profile_files_to_types(
       <> profile_resources,
     valueset_acc,
     available_slice_valuesets,
+    profile_resource_entries,
   )
 }
