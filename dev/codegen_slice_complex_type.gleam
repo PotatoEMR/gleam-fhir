@@ -1,6 +1,5 @@
 pub type DiscriminatorCall {
   ResultDiscriminatorCall(String)
-  FoundDiscriminatorCall(String)
 }
 
 pub fn discriminator_from_base_call(
@@ -49,12 +48,26 @@ pub fn discriminator_from_base_call(
         <> "\")",
       ))
     "ct.IdentifierDiscriminatorSystemRequiredValue" ->
-      Ok(FoundDiscriminatorCall(
-        "ct.identifier_discriminator_system_required_value_from_identifier("
+      Ok(ResultDiscriminatorCall(
+        "case "
         <> value
-        <> ", \""
+        <> ".system, "
+        <> value
+        <> ".value { Some(system), Some(required_value) if system == \""
         <> system
-        <> "\")",
+        <> "\" -> Ok(ct.IdentifierDiscriminatorSystemRequiredValue(id: "
+        <> value
+        <> ".id, extension: "
+        <> value
+        <> ".extension, use_: "
+        <> value
+        <> ".use_, value: required_value, type_: "
+        <> value
+        <> ".type_, period: "
+        <> value
+        <> ".period, assigner: "
+        <> value
+        <> ".assigner)) _, _ -> Error(Nil) }",
       ))
     _ -> Error(Nil)
   }
@@ -554,42 +567,6 @@ pub fn identifier_discriminator_system_required_value_new(
     period: None,
     assigner: None,
   )
-}
-
-pub fn identifier_discriminator_system_required_value_from_identifier(
-  identifier: Identifier,
-  expected_system: String,
-) -> Found(IdentifierDiscriminatorSystemRequiredValue) {
-  let Identifier(
-    id:,
-    extension:,
-    use_:,
-    type_:,
-    system:,
-    value:,
-    period:,
-    assigner:,
-  ) = identifier
-
-  case system {
-    Some(system) if system == expected_system ->
-      case value {
-        None ->
-          FoundInvalid(\"identifier has system \" <> system <> \" but no required value\")
-        Some(value) ->
-          FoundValid(IdentifierDiscriminatorSystemRequiredValue(
-            id:,
-            extension:,
-            use_:,
-            value:,
-            type_:,
-            period:,
-            assigner:,
-          ))
-      }
-    _ ->
-      NotFound
-  }
 }
 
 pub fn identifier_discriminator_system_required_value_to_json(

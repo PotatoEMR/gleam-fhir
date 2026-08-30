@@ -625,10 +625,6 @@ fn gen_fhir(
       #("primitives_decoder", "primitives_decoder("),
       #("primitive_to_json", "primitive_to_json("),
       #("primitives_to_json", "primitives_to_json("),
-      #("type Found", "Found("),
-      #("FoundValid", "FoundValid"),
-      #("FoundInvalid", "FoundInvalid"),
-      #("NotFound", "NotFound"),
     ]
     |> list.filter_map(fn(item) {
       case string.contains(resources_gen, item.1) {
@@ -852,10 +848,6 @@ fn replace_unavailable_bindings(
         <> fn_name
         <> "_from_code(value) |> result.replace_error(\"required ValueSet\")",
       "Ok(value)",
-    )
-    |> string.replace(
-      "case Ok(value) { Ok(value) -> ct.FoundValid(value) Error(_) -> ct.FoundInvalid(\"invalid extension value\") }",
-      "ct.FoundValid(value)",
     )
     |> string.replace(
       "BoundCodeablereference(valuesets." <> type_name <> ")",

@@ -179,7 +179,7 @@ fn extension_fields(resource: codegen_helpers.Resource) {
         Ok(value) ->
           case value.type_ {
             [_] -> Some(SimpleExtension(value))
-            _ -> Some(ComplexExtension([value]))
+            _ -> Some(ComplexExtension([value], "closed"))
           }
         Error(_) -> None
       }
@@ -209,7 +209,16 @@ fn extension_fields(resource: codegen_helpers.Resource) {
           }
         })
         |> list.reverse
-      Some(ComplexExtension(fields))
+      let slicing_rules =
+        snapshot.element
+        |> list.find(fn(element) { element.id == "Extension.extension" })
+        |> result.map(fn(element) {
+          element.slicing
+          |> option.map(fn(slicing) { slicing.rules })
+          |> option.unwrap("closed")
+        })
+        |> result.unwrap("closed")
+      Some(ComplexExtension(fields, slicing_rules))
     }
   }
 }
@@ -312,7 +321,7 @@ pub fn required_complex_type_names(
     |> list.flat_map(fn(extension) {
       case extension.kind {
         SimpleExtension(element) -> [element]
-        ComplexExtension(elements) -> elements
+        ComplexExtension(elements, _) -> elements
       }
     })
   list.append(resource_elements, extension_elements)
@@ -399,17 +408,26 @@ fn extension_field_type(
 
 fn generate_extension_types(
   extensions: dict.Dict(String, ExtensionDefinition),
+  preserve_slice_order: Bool,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
 ) -> #(String, dict.Dict(String, codegen_helpers.ValuesetItem)) {
+  let extension_slice_elt_source = case
+    preserve_slice_order && dict.size(extensions) > 0
+  {
+    True ->
+      "pub type ExtensionSliceElt(a) {\n  ExtensionSliceElt(\n    value: a,\n    id: Option(String),\n    internal_gleam_fhir_index: Option(Int),\n  )\n}\n\npub fn extension_slice_elt_new(value: a) -> ExtensionSliceElt(a) {\n  ExtensionSliceElt(value:, id: None, internal_gleam_fhir_index: None)\n}\n\n"
+    False -> ""
+  }
   extensions
   |> dict.values
   |> list.sort(fn(a, b) { string.compare(a.name, b.name) })
-  |> list.fold(#("", valueset_acc), fn(acc, extension) {
+  |> list.fold(#(extension_slice_elt_source, valueset_acc), fn(acc, extension) {
     let #(source, valueset_acc) = acc
     case extension.kind {
       SimpleExtension(_) -> #(source, valueset_acc)
-      ComplexExtension([]) -> #(source, valueset_acc)
-      ComplexExtension(fields) -> {
+      ComplexExtension([], _) -> #(source, valueset_acc)
+      ComplexExtension(fields, slicing_rules) -> {
+        let open = slicing_rules != "closed"
         let initial_field_acc = #("", "", "", "", "", "", valueset_acc)
         let #(
           field_source,
@@ -432,23 +450,44 @@ fn generate_extension_types(
             ) = acc
             let #(field_type, new_choice, valueset_acc) =
               extension_field_type(extension.name, field, valueset_acc)
+            let stored_field_type = case preserve_slice_order {
+              True -> "ExtensionSliceElt(" <> field_type <> ")"
+              False -> field_type
+            }
             let field_name =
               field |> extension_field_name |> codegen_helpers.to_snake_case
             let #(newfunc_arg, newfunc_field) =
               codegen_helpers.new_fn_arg_and_field(
                 field_name,
-                field_type,
+                stored_field_type,
                 field.min,
                 field.max,
                 False,
               )
             let to_json = fn(value) {
-              extension_field_to_json_call(
-                extension.name,
-                field,
-                field_type,
-                value,
-              )
+              let encoded =
+                extension_field_to_json_call(
+                  extension.name,
+                  field,
+                  field_type,
+                  case preserve_slice_order {
+                    True -> value <> ".value"
+                    False -> value
+                  },
+                  case preserve_slice_order {
+                    True -> Some(value <> ".id")
+                    False -> None
+                  },
+                )
+              case preserve_slice_order {
+                True ->
+                  "SliceElt("
+                  <> encoded
+                  <> ", "
+                  <> value
+                  <> ".internal_gleam_fhir_index)"
+                False -> encoded
+              }
             }
             let new_children_source = case field.min, field.max {
               0, "1" ->
@@ -508,7 +547,11 @@ fn generate_extension_types(
                 <> "    "
                 <> field_name
                 <> ": "
-                <> codegen_helpers.cardinality(field_type, field.min, field.max)
+                <> codegen_helpers.cardinality(
+                stored_field_type,
+                field.min,
+                field.max,
+              )
                 <> ",\n",
               choice_source <> new_choice,
               newfunc_args <> newfunc_arg,
@@ -518,6 +561,79 @@ fn generate_extension_types(
               valueset_acc,
             )
           })
+        let open_field_source = case open {
+          True -> {
+            let field_type = case preserve_slice_order {
+              True -> "SliceElt(Extension)"
+              False -> "Extension"
+            }
+            "    extension: List(" <> field_type <> "),\n"
+          }
+          False -> ""
+        }
+        let open_new_field = case open {
+          True -> "extension: [],"
+          False -> ""
+        }
+        let open_encoder_arg = case open {
+          True -> "extension:,"
+          False -> ""
+        }
+        let initial_children = case open, preserve_slice_order {
+          False, _ -> "  let children = []"
+          True, False ->
+            "  let children = list.map(extension, extension_to_json)"
+          True, True ->
+            "  let children = list.map(extension, fn(value) { SliceElt(extension_to_json(value.value), value.internal_gleam_fhir_index) })"
+        }
+        let ordered_children = case preserve_slice_order {
+          True -> "\n  let children = slice_elts_to_values(children)"
+          False -> ""
+        }
+        let json_fields =
+          "[#(\"url\", json.string(url)), #(\"extension\", json.preprocessed_array(children))]"
+        let encoder_name =
+          codegen_helpers.to_snake_case(extension.name) <> "_to_json"
+        let encoder_body =
+          "  let "
+          <> extension.name
+          <> "("
+          <> open_encoder_arg
+          <> encoder_args
+          <> ") = value\n"
+          <> initial_children
+          <> children_source
+          <> ordered_children
+          <> case preserve_slice_order {
+            True ->
+              "\n  let fields = "
+              <> json_fields
+              <> "\n  let fields = case id { Some(id) -> [#(\"id\", json.string(id)), ..fields] None -> fields }\n  json.object(fields)"
+            False -> "\n  json.object(" <> json_fields <> ")"
+          }
+          <> "\n}\n\n"
+        let encoder_source = case preserve_slice_order {
+          True ->
+            "pub fn "
+            <> encoder_name
+            <> "(value: "
+            <> extension.name
+            <> ", url: String) -> Json {\n  "
+            <> encoder_name
+            <> "_with_id(value, url, None)\n}\n\npub fn "
+            <> encoder_name
+            <> "_with_id(value: "
+            <> extension.name
+            <> ", url: String, id: Option(String)) -> Json {\n"
+            <> encoder_body
+          False ->
+            "pub fn "
+            <> encoder_name
+            <> "(value: "
+            <> extension.name
+            <> ", url: String) -> Json {\n"
+            <> encoder_body
+        }
         #(
           source
             <> "pub type "
@@ -525,6 +641,7 @@ fn generate_extension_types(
             <> " {\n  "
             <> extension.name
             <> "(\n"
+            <> open_field_source
             <> field_source
             <> "  )\n}\n\npub fn "
             <> codegen_helpers.to_snake_case(extension.name)
@@ -535,18 +652,10 @@ fn generate_extension_types(
             <> " {\n  "
             <> extension.name
             <> "("
+            <> open_new_field
             <> newfunc_fields
-            <> ")\n}\n\npub fn "
-            <> codegen_helpers.to_snake_case(extension.name)
-            <> "_to_json(value: "
-            <> extension.name
-            <> ", url: String) -> Json {\n  let "
-            <> extension.name
-            <> "("
-            <> encoder_args
-            <> ") = value\n  let children = []"
-            <> children_source
-            <> "\n  json.object([#(\"url\", json.string(url)), #(\"extension\", json.preprocessed_array(children))])\n}\n\n"
+            <> ")\n}\n\n"
+            <> encoder_source
             <> choice_source,
           valueset_acc,
         )
@@ -1033,7 +1142,7 @@ pub fn profile_files_to_types(
     |> list.flat_map(fn(extension) {
       case extension.kind {
         SimpleExtension(element) -> [element]
-        ComplexExtension(elements) -> elements
+        ComplexExtension(elements, _) -> elements
       }
     })
   let required_valuesets =
@@ -1051,10 +1160,13 @@ pub fn profile_files_to_types(
     profile_structures.resources
     |> list.sort(fn(a, b) { string.compare(a.id, b.id) })
   let #(extension_types, valueset_acc) =
-    generate_extension_types(profile_structures.extensions, valueset_acc)
+    generate_extension_types(
+      profile_structures.extensions,
+      preserve_slice_order,
+      valueset_acc,
+    )
   let slice_types =
-    codegen_bound_coding.found_result
-    <> codegen_slice_complex_type.slice_coding
+    codegen_slice_complex_type.slice_coding
     <> codegen_slice_complex_type.slice_codeableconcept
     <> codegen_slice_complex_type.slice_identifier_type
     <> codegen_slice_complex_type.slice_identifier_system
@@ -1399,15 +1511,34 @@ pub fn profile_files_to_types(
                       && element.base.max != "1"
                       && !dict.has_key(aggregate_slice_groups, element.id)
                       && !string.contains(element.path, "[x]")
-                      && !list.any(element.type_, fn(type_) {
-                        type_.code == "Extension"
-                      })
+                      && {
+                        let extension_group =
+                          list.any(element.type_, fn(type_) {
+                            type_.code == "Extension"
+                          })
+                        !extension_group
+                        || element.slice_name != None
+                        || list.any(fields, fn(candidate) {
+                          candidate.path == element.path
+                          && candidate.slice_name != None
+                        })
+                      }
                       && case element.slice_name, element.slicing {
                         Some(_), _ | _, Some(_) -> True
                         None, None -> False
                       }
                     let field_type = case is_resource_slice_elt {
-                      True -> "ct.SliceElt(" <> field_type <> ")"
+                      True ->
+                        case
+                          profile_extension_definition(
+                            element,
+                            profile_structures.extensions,
+                          )
+                        {
+                          Some(_) ->
+                            "ct.ExtensionSliceElt(" <> field_type <> ")"
+                          None -> "ct.SliceElt(" <> field_type <> ")"
+                        }
                       False -> field_type
                     }
                     let card_min = case
@@ -1711,36 +1842,6 @@ pub fn profile_files_to_types(
         False -> ""
       }
   }
-  let found_search_source = case
-    string.contains(profile_resources, "find_required_elt_and_rest_found("),
-    string.contains(profile_resources, "find_optional_elt_and_rest_found("),
-    string.contains(
-      profile_resources,
-      "find_at_least_n_elts_and_rest_found_or_failure(",
-    ),
-    string.contains(profile_resources, "find_at_least_n_elts_and_rest_found(")
-  {
-    False, False, False, False -> ""
-    required, optional, repeated_with_failure, repeated ->
-      codegen_bound_coding.find_elt_and_rest_found
-      <> case required {
-        True -> codegen_bound_coding.find_required_elt_and_rest_found
-        False -> ""
-      }
-      <> case optional {
-        True -> codegen_bound_coding.find_optional_elt_and_rest_found
-        False -> ""
-      }
-      <> case repeated_with_failure || repeated {
-        True -> codegen_bound_coding.find_at_least_n_elts_and_rest_found
-        False -> ""
-      }
-      <> case repeated_with_failure {
-        True ->
-          codegen_bound_coding.find_at_least_n_elts_and_rest_found_or_failure
-        False -> ""
-      }
-  }
   #(
     profile_complex_types,
     case string.contains(profile_resources, "result_or_decode_failure(") {
@@ -1748,7 +1849,6 @@ pub fn profile_files_to_types(
       False -> ""
     }
       <> result_search_source
-      <> found_search_source
       <> case string.contains(profile_resources, "slice_acc_errors(") {
       True -> codegen_profile_json.slice_acc_errors_source
       False -> ""
