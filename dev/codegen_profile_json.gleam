@@ -649,6 +649,7 @@ pub fn profile_extension_encoder_call(
   extension: ExtensionDefinition,
   value: String,
   id: Option(String),
+  preserve_slice_order: Bool,
 ) -> String {
   let assert [codegen_helpers.Type(profile: [url, ..], ..), ..] = element.type_
   case extension.kind {
@@ -684,17 +685,20 @@ pub fn profile_extension_encoder_call(
     ComplexExtension(..) -> {
       let encoder =
         "ct." <> codegen_helpers.to_snake_case(extension.name) <> "_to_json"
-      case id {
-        None -> encoder <> "(" <> value <> ", \"" <> canonical_url(url) <> "\")"
-        Some(id) ->
+      case preserve_slice_order {
+        True ->
           encoder
-          <> "_with_id("
+          <> "("
           <> value
           <> ", \""
           <> canonical_url(url)
           <> "\", "
-          <> id
+          <> case id {
+            None -> "None"
+            Some(id) -> id
+          }
           <> ")"
+        False -> encoder <> "(" <> value <> ", \"" <> canonical_url(url) <> "\")"
       }
     }
   }
@@ -4597,14 +4601,26 @@ fn extension_classifier_source(
             _, _ -> panic as "unsupported extension cardinality"
           }
         })
+      let fold_function = case preserve_slice_order {
+        True -> "list.index_fold"
+        False -> "list.fold"
+      }
+      let index_parameter = case preserve_slice_order {
+        True -> ", index"
+        False -> ""
+      }
       let body =
         "{\n      let accumulator: Result("
         <> accumulator_name
-        <> ", String) =\n        list.index_fold(\n          children,\n          Ok("
+        <> ", String) =\n        "
+        <> fold_function
+        <> "(\n          children,\n          Ok("
         <> accumulator_name
         <> "("
         <> initial_values
-        <> ")),\n          fn(accumulator_result, child, index) {\n            case accumulator_result {\n              Error(reason) -> Error(reason)\n              Ok(accumulator) ->\n                case child.url {\n"
+        <> ")),\n          fn(accumulator_result, child"
+        <> index_parameter
+        <> ") {\n            case accumulator_result {\n              Error(reason) -> Error(reason)\n              Ok(accumulator) ->\n                case child.url {\n"
         <> child_cases
         <> "                }\n            }\n          },\n        )\n      case accumulator {\n        Error(reason) -> Error(reason)\n        Ok(accumulator) ->\n          "
         <> finish
@@ -5284,6 +5300,7 @@ pub fn generate_to_json(
                             extension,
                             value,
                             id,
+                            preserve_slice_order,
                           )
                         None ->
                           profile_element_encoder_call(

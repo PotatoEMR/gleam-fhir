@@ -619,12 +619,6 @@ fn generate_extension_types(
             <> encoder_name
             <> "(value: "
             <> extension.name
-            <> ", url: String) -> Json {\n  "
-            <> encoder_name
-            <> "_with_id(value, url, None)\n}\n\npub fn "
-            <> encoder_name
-            <> "_with_id(value: "
-            <> extension.name
             <> ", url: String, id: Option(String)) -> Json {\n"
             <> encoder_body
           False ->
