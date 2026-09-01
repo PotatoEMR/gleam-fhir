@@ -736,6 +736,46 @@ fn gen_fhir(
           }
       }
 
+      pub fn primitive_slice_to_json(
+        old_fields: List(#(String, Json)),
+        primitive: a,
+        field_value_to_json: fn(a) -> Option(Json),
+        field_rest_to_json: fn(a) -> Option(Json),
+        name: String,
+      ) {
+        let old_fields = case field_rest_to_json(primitive) {
+          None -> old_fields
+          Some(value) -> [#(\"_\" <> name, value), ..old_fields]
+        }
+        case field_value_to_json(primitive) {
+          None -> old_fields
+          Some(value) -> [#(name, value), ..old_fields]
+        }
+      }
+
+      pub fn primitive_slice_list_to_json(
+        old_fields: List(#(String, Json)),
+        field: List(a),
+        field_value_to_json: fn(a) -> Option(Json),
+        field_rest_to_json: fn(a) -> Option(Json),
+        name: String,
+      ) {
+        let vals = list.map(field, fn(value) {
+          json.nullable(field_value_to_json(value), fn(json) { json })
+        })
+        let exts = list.map(field, fn(value) {
+          json.nullable(field_rest_to_json(value), fn(json) { json })
+        })
+        let old_fields = case list.any(vals, fn(j) { j != json.null() }) {
+          False -> old_fields
+          True -> [#(name, json.preprocessed_array(vals)), ..old_fields]
+        }
+        case list.any(exts, fn(j) { j != json.null() }) {
+          False -> old_fields
+          True -> [#(\"_\" <> name, json.preprocessed_array(exts)), ..old_fields]
+        }
+      }
+
       pub fn primitive_ext_part_decoder() {
         use ext <- decode.optional_field(
           \"extension\",
@@ -772,6 +812,42 @@ fn gen_fhir(
               Primitive(id:, ext:, value:,)
           })
           next(together)
+      }
+
+      pub fn primitive_slice_decoder(
+        name: String,
+        thing_decoder: Decoder(a),
+        convert: fn(Primitive(a)) -> Decoder(b),
+        next: fn(b) -> Decoder(c),
+      ) -> Decoder(c) {
+        use primitive <- primitive_decoder(name, thing_decoder)
+        use value <- decode.then(convert(primitive))
+        next(value)
+      }
+
+      pub fn primitive_slice_list_decoder(
+        name: String,
+        thing_decoder: Decoder(a),
+        convert: fn(Primitive(a)) -> Decoder(b),
+        next: fn(List(b)) -> Decoder(c),
+      ) -> Decoder(c) {
+        use primitives <- primitives_decoder(name, thing_decoder)
+        primitive_slice_list_from_primitives(primitives, convert, next)
+      }
+
+      fn primitive_slice_list_from_primitives(
+        primitives: List(Primitive(a)),
+        convert: fn(Primitive(a)) -> Decoder(b),
+        next: fn(List(b)) -> Decoder(c),
+      ) -> Decoder(c) {
+        case primitives {
+          [] -> next([])
+          [first, ..rest] -> {
+            use first <- decode.then(convert(first))
+            use rest <- primitive_slice_list_from_primitives(rest, convert)
+            next([first, ..rest])
+          }
+        }
       }
 
       pub fn map2_fillnone(list1: List(Option(a)), list2: List(Option(b)), with fun: fn(Option(a), Option(b)) -> c) -> List(c) {
@@ -828,11 +904,15 @@ fn gen_fhir(
       #("none_if_omitted", "none_if_omitted("),
       #("decode_number", "decode_number("),
       #("type Primitive", "Primitive("),
-      #("Primitive", "Primitive("),
+      #("Primitive", "Primitive(id:"),
       #("primitive_decoder", "primitive_decoder("),
       #("primitives_decoder", "primitives_decoder("),
+      #("primitive_slice_decoder", "primitive_slice_decoder("),
+      #("primitive_slice_list_decoder", "primitive_slice_list_decoder("),
       #("primitive_to_json", "primitive_to_json("),
       #("primitives_to_json", "primitives_to_json("),
+      #("primitive_slice_to_json", "primitive_slice_to_json("),
+      #("primitive_slice_list_to_json", "primitive_slice_list_to_json("),
     ]
     |> list.filter_map(fn(item) {
       case string.contains(resources_gen, item.1) {

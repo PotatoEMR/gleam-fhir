@@ -9,7 +9,8 @@ import codegen_profile_json.{
   aggregate_value_slice_roots, does_profile_restrict_complex_type,
   extension_field_name, extension_field_to_json_call, find_element,
   profile_base_field_type, profile_extension_definition,
-  profile_field_is_primitive, profile_field_min,
+  profile_field_is_primitive, profile_field_is_primitive_slice,
+  profile_field_min,
 }
 import codegen_slice_complex_type
 import codegen_to_json
@@ -1287,6 +1288,27 @@ pub fn profile_files_to_types(
                   |> string.join("_")
                 _, _ -> parent_path
               }
+              let element = case
+                string.ends_with(element.id, ".value"),
+                set.contains(type_order, parent_path)
+              {
+                True, True -> {
+                  let primitive_id = string.drop_end(element.id, 6)
+                  case list.find(profile_elements, fn(candidate) {
+                    candidate.id == primitive_id
+                    && profile_field_is_primitive(candidate, "", True)
+                  }) {
+                    Ok(primitive) ->
+                      codegen_helpers.Element(
+                        ..element,
+                        type_: primitive.type_,
+                        binding: primitive.binding,
+                      )
+                    Error(_) -> element
+                  }
+                }
+                _, _ -> element
+              }
               let fields = case dict.get(type_fields, field_parent) {
                 Ok(fields) -> [element, ..fields]
                 Error(_) -> [element]
@@ -1329,7 +1351,34 @@ pub fn profile_files_to_types(
             },
           )
         let type_order =
-          type_order
+          list.fold(
+            list.reverse(profile_elements),
+            type_order,
+            fn(type_order, element) {
+              let path_parts =
+                element.id
+                |> string.replace("-", "")
+                |> string.replace(":", ".")
+                |> string.split(".")
+              let assert [_, ..rest] = path_parts
+              let path_parts = [profile_prefix, ..rest]
+              let field_path = string.join(path_parts, "_")
+              let parent_path =
+                path_parts
+                |> list.reverse
+                |> list.drop(1)
+                |> list.reverse
+                |> string.join("_")
+              case set.contains(type_order, field_path) {
+                False -> type_order
+                True ->
+                  case parent_path != "" && dict.has_key(type_fields, parent_path) {
+                    True -> set.insert(type_order, parent_path)
+                    False -> type_order
+                  }
+              }
+            },
+          )
           |> set.to_list
           |> list.filter(fn(type_) { dict.has_key(type_fields, type_) })
           |> list.sort(fn(a, b) { string.compare(b, a) })
@@ -1430,6 +1479,13 @@ pub fn profile_files_to_types(
                         element,
                         json_field_name,
                         all_primitive_ext,
+                      )
+                    let is_primitive_slice =
+                      profile_field_is_primitive_slice(
+                        element,
+                        json_field_name,
+                        type_order,
+                        field_path,
                       )
 
                     let #(base_field_type, valueset_acc) =
@@ -1559,7 +1615,11 @@ pub fn profile_files_to_types(
                       dict.get(aggregate_slice_groups, element.id)
                     {
                       Ok(#(_, remaining_minimum)) -> remaining_minimum
-                      Error(_) -> profile_field_min(element, is_primitive)
+                      Error(_) ->
+                        profile_field_min(
+                          element,
+                          is_primitive || is_primitive_slice,
+                        )
                     }
                     let cardinality =
                       codegen_helpers.cardinality(

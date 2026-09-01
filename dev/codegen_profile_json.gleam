@@ -223,10 +223,9 @@ pub fn profile_base_field_type(
   }
 }
 
-pub fn profile_field_is_primitive(
+pub fn profile_field_has_primitive_type(
   element: codegen_helpers.Element,
   json_field_name: String,
-  all_primitive_ext: Bool,
 ) -> Bool {
   case element.type_ {
     [only_type] ->
@@ -258,9 +257,27 @@ pub fn profile_field_is_primitive(
         only_type.code,
       )
       && json_field_name != "id"
-      && all_primitive_ext
     _ -> False
   }
+}
+
+pub fn profile_field_is_primitive(
+  element: codegen_helpers.Element,
+  json_field_name: String,
+  all_primitive_ext: Bool,
+) -> Bool {
+  all_primitive_ext
+  && profile_field_has_primitive_type(element, json_field_name)
+}
+
+pub fn profile_field_is_primitive_slice(
+  element: codegen_helpers.Element,
+  json_field_name: String,
+  type_order: List(String),
+  field_path: String,
+) -> Bool {
+  profile_field_has_primitive_type(element, json_field_name)
+  && does_profile_restrict_complex_type(type_order, field_path)
 }
 
 pub fn profile_field_min(
@@ -796,6 +813,30 @@ fn profile_json_field_name(
     }
     _, _ -> name
   }
+}
+
+fn is_primitive_slice_record(
+  snapshot_elements: List(codegen_helpers.Element),
+  profile_prefix: String,
+  type_order: List(String),
+  current_type: String,
+) -> Bool {
+  list.any(snapshot_elements, fn(element) {
+    let parts =
+      element.id
+      |> string.replace("-", "")
+      |> string.replace(":", ".")
+      |> string.split(".")
+    let assert [_, ..rest] = parts
+    let field_path = string.join([profile_prefix, ..rest], "_")
+    profile_field_is_primitive_slice(
+      element,
+      profile_json_field_name(element, ""),
+      type_order,
+      field_path,
+    )
+    && field_path == current_type
+  })
 }
 
 fn conversion_is_identity(expression: ConversionExpression) -> Bool {
@@ -1861,6 +1902,13 @@ fn field_decoder_expression(
     profile_element_names(context, parent_type, element)
   let is_primitive =
     profile_field_is_primitive(element, json_name, context.all_primitive_ext)
+  let is_primitive_slice =
+    profile_field_is_primitive_slice(
+      element,
+      json_name,
+      context.type_order,
+      field_path,
+    )
   let target_min = profile_field_min(element, is_primitive)
   let decoder = case dict.get(context.slice_type_overrides, element.id) {
     Ok(FixedSliceType(discriminator_type)) -> {
@@ -1913,28 +1961,65 @@ fn field_decoder_expression(
         _ -> codegen_helpers.to_snake_case(field_type) <> "_decoder()"
       }
   }
-  case element.type_, element.base.max, element.max, target_min, is_primitive {
-    _, base_max, "1", 0, False if base_max != "1" ->
-      "ct.optional_one_from_array_decoder(\""
+  case is_primitive_slice {
+    True -> {
+      let assert [type_] = element.type_
+      let primitive_decoder =
+        codegen_decode.string_to_decoder_type(
+          type_.code,
+          all_parts,
+          "r4",
+          element,
+          codegen_helpers.Resources,
+        )
+      let helper = case element.max {
+        "1" -> "primitive_slice_decoder"
+        _ -> "primitive_slice_list_decoder"
+      }
+      helper
+      <> "(\""
       <> json_name
       <> "\", "
-      <> decoder
-      <> ")"
-    _, base_max, "1", _, False if base_max != "1" ->
-      "ct.one_from_array_decoder(\"" <> json_name <> "\", " <> decoder <> ")"
-    [_, _, ..], _, _, 0, _ -> "decode.then(none_if_omitted(" <> decoder <> "))"
-    [_, _, ..], _, _, _, _ -> "decode.then(" <> decoder <> ")"
-    _, _, _, _, _ ->
-      codegen_decode.field_decoder(
-        json_name,
-        decoder,
+      <> primitive_decoder
+      <> ", "
+      <> codegen_helpers.to_snake_case(field_type)
+      <> "_from_primitive)"
+    }
+    False ->
+      case
+        element.type_,
+        element.base.max,
+        element.max,
         target_min,
-        case element.max == "1" {
-          True -> "1"
-          False -> "*"
-        },
-        is_primitive,
-      )
+        is_primitive
+      {
+        _, base_max, "1", 0, False if base_max != "1" ->
+          "ct.optional_one_from_array_decoder(\""
+          <> json_name
+          <> "\", "
+          <> decoder
+          <> ")"
+        _, base_max, "1", _, False if base_max != "1" ->
+          "ct.one_from_array_decoder(\""
+          <> json_name
+          <> "\", "
+          <> decoder
+          <> ")"
+        [_, _, ..], _, _, 0, _ ->
+          "decode.then(none_if_omitted(" <> decoder <> "))"
+        [_, _, ..], _, _, _, _ -> "decode.then(" <> decoder <> ")"
+        _, _, _, _, _ ->
+          codegen_decode.field_decoder(
+            json_name,
+            decoder,
+            target_min,
+            case element.max == "1" {
+              True -> "1"
+              False -> "*"
+            },
+            is_primitive,
+          )
+      }
   }
 }
 
@@ -2003,6 +2088,7 @@ fn choice_decoder_source(
             children,
             None,
             True,
+            False,
           )
         }
         _ -> source
@@ -3146,6 +3232,7 @@ fn extension_slice_fold_source(
   parent_type: String,
   group: codegen_helpers.Element,
   roots: List(codegen_helpers.Element),
+  primitive: Bool,
 ) -> SliceGroupDecode {
   let #(_, _, json_name, field_name, _base_type) =
     profile_element_names(context, parent_type, group)
@@ -3267,16 +3354,20 @@ fn extension_slice_fold_source(
   let base_values = field_name <> "_base_values"
   let accumulator = field_name <> "_accumulator"
   let result_name = field_name <> "_slices"
+  let base_values_source = case primitive {
+    True -> "  let " <> base_values <> " = primitive.ext\n"
+    False ->
+      "  use "
+      <> base_values
+      <> " <- decode.optional_field(\""
+      <> json_name
+      <> "\", [], decode.list(ct.extension_decoder()))\n"
+  }
   let fold_source =
-    "  use "
-    <> base_values
-    <> " <- decode.optional_field(\""
-    <> json_name
-    <> "\", [], decode.list(ct.extension_decoder()))\n  let "
+    base_values_source
+    <> "  let "
     <> accumulator
-    <> ": Result(\n    "
-    <> accumulator_type
-    <> ",\n    List(decode.DecodeError),\n  ) =\n    list.index_fold(\n      "
+    <> " =\n    list.index_fold(\n      "
     <> base_values
     <> ",\n      Ok("
     <> accumulator_type
@@ -3627,15 +3718,13 @@ fn ordinary_slice_fold_source(
     "  use "
     <> base_values
     <> " <- decode.optional_field(\""
-    <> json_name
-    <> "\", [], decode.list("
-    <> base_decoder
-    <> "))\n  let "
-    <> accumulator
-    <> ": Result("
-    <> accumulator_type
-    <> ", List(decode.DecodeError)) =\n    "
-    <> fold_function
+      <> json_name
+      <> "\", [], decode.list("
+      <> base_decoder
+      <> "))\n  let "
+      <> accumulator
+      <> " =\n    "
+      <> fold_function
     <> "(\n      "
     <> base_values
     <> ",\n      Ok("
@@ -3889,13 +3978,14 @@ fn slice_fold_source(
   group: codegen_helpers.Element,
   roots: List(codegen_helpers.Element),
   aggregate: Option(#(List(codegen_helpers.Element), Int)),
+  primitive: Bool,
 ) -> SliceGroupDecode {
   case
     list.any(group.type_, fn(type_) { type_.code == "Extension" }),
     aggregate
   {
     True, None ->
-      extension_slice_fold_source(context, parent_type, group, roots)
+      extension_slice_fold_source(context, parent_type, group, roots, primitive)
     _, _ ->
       ordinary_slice_fold_source(context, parent_type, group, roots, aggregate)
   }
@@ -3907,8 +3997,9 @@ fn slice_group_bindings(
   group: codegen_helpers.Element,
   roots: List(codegen_helpers.Element),
   aggregate: Option(#(List(codegen_helpers.Element), Int)),
+  primitive: Bool,
 ) -> SliceGroupDecode {
-  slice_fold_source(context, parent_type, group, roots, aggregate)
+  slice_fold_source(context, parent_type, group, roots, aggregate, primitive)
 }
 
 fn record_decoder_from_fields(
@@ -3917,6 +4008,7 @@ fn record_decoder_from_fields(
   fields: List(codegen_helpers.Element),
   resource_type: Option(String),
   omit_fixed: Bool,
+  primitive: Bool,
 ) -> String {
   let constructor_fields =
     profile_fields(fields)
@@ -3960,6 +4052,8 @@ fn record_decoder_from_fields(
   let #(bindings, choices, slice_decodes) =
     list.fold(fields, #("", "", []), fn(acc, element) {
       let #(bindings, choices, slice_decodes) = acc
+      let #(_, _, json_name, field_name, _) =
+        profile_element_names(context, target_type, element)
       case dict.get(slice_groups, element.id) {
         Ok(roots) -> {
           let aggregate = aggregate_value_slice_roots(element, fields)
@@ -3970,6 +4064,7 @@ fn record_decoder_from_fields(
               element,
               roots,
               aggregate,
+              primitive,
             )
           #(bindings <> slice_decode.source, choices, [
             slice_decode,
@@ -3978,15 +4073,18 @@ fn record_decoder_from_fields(
         }
         Error(_) ->
           case
+            primitive && { json_name == "value" || json_name == "id" },
             list.contains(slice_root_ids, element.id),
             list.any(constructor_fields, fn(field) { field.id == element.id }),
             omit_fixed
             && { element.fixed_code != None || element.fixed_uri != None }
           {
-            True, _, _ | _, False, False -> #(bindings, choices, slice_decodes)
-            _, _, True -> {
-              let assert Ok(json_name) =
-                element.path |> string.split(".") |> list.last
+            True, _, _, _ | _, True, _, _ | _, _, False, False -> #(
+              bindings,
+              choices,
+              slice_decodes,
+            )
+            _, _, _, True -> {
               let variable =
                 json_name
                 |> codegen_helpers.escape_field_name
@@ -4002,9 +4100,7 @@ fn record_decoder_from_fields(
                 slice_decodes,
               )
             }
-            _, True, False -> {
-              let #(_, _, _, field_name, _) =
-                profile_element_names(context, target_type, element)
+            _, _, True, False -> {
               #(
                 bindings
                   <> "  use "
@@ -4030,22 +4126,35 @@ fn record_decoder_from_fields(
     |> dict.from_list
   let placeholder_arguments =
     list.fold(constructor_fields, "", fn(arguments, element) {
-      let #(_, _, _, field_name, _) =
+      let #(_, _, json_name, field_name, _) =
         profile_element_names(context, target_type, element)
       arguments
       <> "    "
       <> field_name
-      <> case dict.get(placeholder_fields, field_name) {
-        Ok(value) -> ": " <> value
-        Error(_) -> ":"
+      <> case primitive, json_name {
+        True, "value" -> ": primitive.value"
+        True, "id" -> ": primitive.id"
+        _, _ ->
+          case dict.get(placeholder_fields, field_name) {
+            Ok(value) -> ": " <> value
+            Error(_) -> ":"
+          }
       }
       <> ",\n"
     })
   let arguments =
     list.fold(constructor_fields, "", fn(arguments, element) {
-      let #(_, _, _, field_name, _) =
+      let #(_, _, json_name, field_name, _) =
         profile_element_names(context, target_type, element)
-      arguments <> "    " <> field_name <> ":,\n"
+      arguments
+      <> "    "
+      <> field_name
+      <> case primitive, json_name {
+        True, "value" -> ": primitive.value"
+        True, "id" -> ": primitive.id"
+        _, _ -> ":"
+      }
+      <> ",\n"
     })
   let placeholder =
     "  let placeholder = "
@@ -4174,12 +4283,33 @@ fn record_decoder_from_fields(
       <> "]) })\n  }\n"
     }
   }
+  let primitive_value_type = case primitive {
+    False -> ""
+    True -> {
+      let assert Ok(value_field) =
+        list.find(constructor_fields, fn(element) {
+          profile_json_field_name(element, "") == "value"
+        })
+      let #(_, _, _, _, field_type) =
+        profile_element_names(context, target_type, value_field)
+      field_type
+    }
+  }
   choices
   <> "pub fn "
   <> codegen_helpers.to_snake_case(target_type)
-  <> "_decoder() -> Decoder("
-  <> target_type
-  <> ") {\n  use <- decode.recursive\n"
+  <> case primitive {
+    True ->
+      "_from_primitive(\n  primitive: Primitive("
+      <> primitive_value_type
+      <> "),\n) -> Decoder("
+      <> target_type
+      <> ") {\n"
+    False ->
+      "_decoder() -> Decoder("
+      <> target_type
+      <> ") {\n  use <- decode.recursive\n"
+  }
   <> bindings
   <> slice_decoder_bindings
   <> case typed_slice_decoders {
@@ -4788,6 +4918,12 @@ pub fn generate_decoders(
           False -> None
         },
         omit_fixed,
+        is_primitive_slice_record(
+          snapshot_elements,
+          profile_prefix,
+          type_order,
+          current_type,
+        ),
       )
     })
   extension_classifiers
@@ -4828,6 +4964,13 @@ pub fn generate_to_json(
         Error(_) -> gleam_type
       }
       let assert Ok(fields) = dict.get(type_fields, current_type)
+      let primitive_slice_record =
+        is_primitive_slice_record(
+          snapshot_elements,
+          profile_prefix,
+          type_order,
+          current_type,
+        )
       let aggregate_slice_groups =
         fields
         |> list.filter_map(fn(group) {
@@ -4861,9 +5004,10 @@ pub fn generate_to_json(
       let fixed_json_always =
         fields
         |> list.filter_map(fn(element) {
+          let json_name = profile_json_field_name(element, "")
           case element.fixed_code, element.fixed_uri {
+            _, _ if primitive_slice_record && json_name == "value" -> Error(Nil)
             Some(value), _ | _, Some(value) -> {
-              let json_name = profile_json_field_name(element, "")
               Ok(
                 "#(\"" <> json_name <> "\", json.string(\"" <> value <> "\")),",
               )
@@ -4874,7 +5018,12 @@ pub fn generate_to_json(
         |> string.concat
       let fields =
         list.filter(fields, fn(element) {
-          element.fixed_code == None && element.fixed_uri == None
+          element.fixed_code == None
+          && element.fixed_uri == None
+          && {
+            !primitive_slice_record
+            || profile_json_field_name(element, "") != "value"
+          }
         })
       let #(
         encoder_args,
@@ -5021,6 +5170,13 @@ pub fn generate_to_json(
                 json_field_name,
                 all_primitive_ext,
               )
+            let is_primitive_slice =
+              profile_field_is_primitive_slice(
+                element,
+                json_field_name,
+                type_order,
+                field_path,
+              )
             let card_min = case
               dict.has_key(aggregate_slice_groups, element.id)
             {
@@ -5029,7 +5185,8 @@ pub fn generate_to_json(
                   dict.get(aggregate_slice_groups, element.id)
                 remaining_minimum
               }
-              False -> profile_field_min(element, is_primitive)
+              False ->
+                profile_field_min(element, is_primitive || is_primitive_slice)
             }
             let encoder_args = encoder_args <> field_name <> ":,"
             let slice_roots =
@@ -5038,15 +5195,40 @@ pub fn generate_to_json(
               })
             let is_choice_path = string.contains(element.path, "[x]")
 
-            case element.slice_name, slice_roots {
-              Some(_), _ -> #(
+            case element.slice_name, slice_roots, is_primitive_slice {
+              Some(_), _, _ -> #(
                 encoder_args,
                 json_always,
                 json_optional,
                 choice_encoders,
                 valueset_acc,
               )
-              None, [_, ..] if !is_choice_path -> {
+              None, _, True -> {
+                let encoder = codegen_helpers.to_snake_case(base_field_type)
+                let helper = case element.max {
+                  "1" -> "primitive_slice_to_json"
+                  _ -> "primitive_slice_list_to_json"
+                }
+                #(
+                  encoder_args,
+                  json_always,
+                  json_optional
+                    <> "\nlet fields = "
+                    <> helper
+                    <> "(fields, "
+                    <> field_name
+                    <> ", "
+                    <> encoder
+                    <> "_value_to_json, "
+                    <> encoder
+                    <> "_rest_to_json, \""
+                    <> json_field_name
+                    <> "\")",
+                  aggregate_encoder <> choice_encoders,
+                  valueset_acc,
+                )
+              }
+              None, [_, ..], False if !is_choice_path -> {
                 let indexed_slice_group = preserve_slice_order
                 let open_encoder = case aggregate_encoder {
                   "" ->
@@ -5287,7 +5469,7 @@ pub fn generate_to_json(
                   valueset_acc,
                 )
               }
-              None, _ -> {
+              None, _, False -> {
                 let encoder = case aggregate_encoder {
                   "" ->
                     profile_element_encoder_type(
@@ -5429,16 +5611,61 @@ pub fn generate_to_json(
             }
           },
         )
-      let encoder =
-        codegen_helpers.gen_res_encoder(
-          resource_type,
-          gleam_type,
-          codegen_helpers.to_snake_case(gleam_type),
-          encoder_args,
-          json_always,
-          json_optional,
-          current_type == profile_prefix,
-        )
+      let encoder = case primitive_slice_record {
+        False ->
+          codegen_helpers.gen_res_encoder(
+            resource_type,
+            gleam_type,
+            codegen_helpers.to_snake_case(gleam_type),
+            encoder_args,
+            json_always,
+            json_optional,
+            current_type == profile_prefix,
+          )
+        True -> {
+          let assert Ok(value_fields) = dict.get(type_fields, current_type)
+          let assert Ok(value_field) =
+            list.find(value_fields, fn(element) {
+              profile_json_field_name(element, "") == "value"
+            })
+          let assert [value_type] = value_field.type_
+          let value_parts =
+            value_field.id
+            |> string.replace("-", "")
+            |> string.replace(":", ".")
+            |> string.split(".")
+          let assert [_, ..value_rest] = value_parts
+          let value_parts = [profile_prefix, ..value_rest]
+          let value_call =
+            codegen_to_json.string_to_encoder_call(
+              value_type.code,
+              value_parts,
+              value_field,
+              codegen_helpers.Resources,
+              "value",
+            )
+          let encoder_name = codegen_helpers.to_snake_case(gleam_type)
+          "pub fn "
+          <> encoder_name
+          <> "_value_to_json(primitive: "
+          <> gleam_type
+          <> ") -> Option(Json) {\n  case primitive.value {\n    Some(value) -> Some("
+          <> value_call
+          <> ")\n    None -> None\n  }\n}\n\npub fn "
+          <> encoder_name
+          <> "_rest_to_json(primitive: "
+          <> gleam_type
+          <> ") -> Option(Json) {\n  let "
+          <> gleam_type
+          <> "(value: _,"
+          <> encoder_args
+          <> ") = primitive\n  let fields = ["
+          <> json_always
+          <> "]"
+          <> json_optional
+          <> "\n  case fields {\n    [] -> None\n    _ -> Some(json.object(fields))\n  }\n}\n\n"
+        }
+      }
       #(encoder <> choice_encoders <> encoders_acc, valueset_acc)
     },
   )
