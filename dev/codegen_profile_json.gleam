@@ -532,10 +532,22 @@ fn fixed_slice_encoder_call(
     }
     "ct.IdentifierDiscriminatorSystem"
     | "ct.IdentifierDiscriminatorSystemRequiredValue" -> {
-      let assert Some(codegen_helpers.DiscriminatorIdentifierValue(
-        system: Some(system),
-        ..,
-      )) = element.pattern_identifier
+      let system = case element.pattern_identifier {
+        Some(codegen_helpers.DiscriminatorIdentifierValue(
+          system: Some(system),
+          ..,
+        )) -> system
+        _ -> {
+          let system_id = case element.slice_name {
+            Some(slice_name) -> element.path <> ":" <> slice_name <> ".system"
+            None -> element.id <> ".system"
+          }
+          let assert Ok(system_element) =
+            find_element(snapshot_elements, system_id)
+          let assert Some(system) = system_element.fixed_uri
+          system
+        }
+      }
       let function_name = case slice_type {
         "ct.IdentifierDiscriminatorSystem" ->
           "ct.identifier_discriminator_system_to_json"
@@ -1064,9 +1076,20 @@ fn discriminator_literals(
     -> Ok(#(system, ""))
     _, _, _ -> {
       let descendants = context.snapshot_elements
+      let system_id = case element.slice_name {
+        Some(slice_name) -> element.path <> ":" <> slice_name <> ".system"
+        None -> element.id <> ".system"
+      }
+      let system_element = case
+        list.find(descendants, fn(child) {
+          child.id == system_id
+        })
+      {
+        Ok(child) -> Ok(child)
+        Error(_) -> Error(Nil)
+      }
       let system =
-        descendants
-        |> list.find(fn(child) { child.id == element.id <> ".system" })
+        system_element
         |> result.try(fn(child) { option.to_result(child.fixed_uri, Nil) })
       let code =
         descendants
@@ -1074,6 +1097,7 @@ fn discriminator_literals(
         |> result.try(fn(child) { option.to_result(child.fixed_code, Nil) })
       case system, code {
         Ok(system), Ok(code) -> Ok(#(system, code))
+        Ok(system), Error(_) -> Ok(#(system, ""))
         _, _ -> {
           let coding_system =
             descendants

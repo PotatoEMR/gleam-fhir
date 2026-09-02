@@ -69,7 +69,23 @@ fn read_structure_definition(path: String) -> codegen_helpers.Resource {
 fn root_profile_resources(profiles_dir: String) {
   let assert Ok(files) = simplifile.read_directory(profiles_dir) as profiles_dir
   files
-  |> list.filter(fn(file) { string.starts_with(file, "StructureDefinition") })
+  |> list.filter(fn(file) {
+    let path = filepath.join(profiles_dir, file)
+    case simplifile.read(path) {
+      Error(_) -> False
+      Ok(contents) ->
+        case json.parse(contents, decode.dynamic) {
+          Error(_) -> False
+          Ok(value) ->
+            decode.run(
+              value,
+              decode.field("resourceType", decode.string, fn(value) {
+                decode.success(value)
+              }),
+            ) == Ok("StructureDefinition")
+        }
+    }
+  })
   |> list.map(fn(file) {
     read_structure_definition(filepath.join(profiles_dir, file))
   })
@@ -892,6 +908,27 @@ fn plan_value_slice(
       plan_whole_value_slice(group, root, elements, available_valuesets)
     True, ["coding.code", "coding.system"] ->
       plan_system_code_slice(root, elements)
+    True, ["system"] ->
+      case group.type_ {
+        [codegen_helpers.Type(code: "Identifier", ..)] -> {
+          let system_id = root.id <> ".system"
+          let assert Ok(system_element) = find_element(elements, system_id)
+          let assert Some(_) = system_element.fixed_uri
+          let requires_value = case
+            find_element(elements, root.id <> ".value"),
+            find_element(elements, group.id <> ".value")
+          {
+            Ok(value), _ | _, Ok(value) -> value.min > 0
+            _, _ -> False
+          }
+          let type_ = case requires_value {
+            True -> "ct.IdentifierDiscriminatorSystemRequiredValue"
+            False -> "ct.IdentifierDiscriminatorSystem"
+          }
+          Ok(ValueSlicePlan([#(root.id, FixedSliceType(type_))]))
+        }
+        _ -> Error("unsupported system discriminator type")
+      }
     True, [path] if path == "code" || path == "type" ->
       plan_child_value_slice(root, path, elements)
     False, _ -> Error("")
