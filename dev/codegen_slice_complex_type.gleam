@@ -19,6 +19,14 @@ pub fn discriminator_from_base_call(
         <> code
         <> "\")",
       ))
+    "ct.CodingDiscriminatorFixeduri" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.coding_discriminator_fixeduri_from_coding("
+        <> value
+        <> ", \""
+        <> system
+        <> "\")",
+      ))
     "ct.CodeableconceptDiscriminator" ->
       Ok(ResultDiscriminatorCall(
         "ct.codeableconcept_discriminator_from_codeableconcept("
@@ -78,6 +86,8 @@ pub fn discriminator_new_call(
 ) -> Result(String, Nil) {
   case discriminator_type {
     "ct.CodingDiscriminator" -> Ok("ct.coding_discriminator_new()")
+    "ct.CodingDiscriminatorFixeduri" ->
+      Ok("ct.coding_discriminator_fixeduri_new(\"\", \"\")")
     "ct.CodeableconceptDiscriminator" ->
       Ok("ct.codeableconcept_discriminator_new()")
     "ct.IdentifierDiscriminatorType" ->
@@ -192,6 +202,86 @@ pub fn coding_discriminator_to_json(
     version:,
     code: Some(code),
     display:,
+    user_selected:,
+  ))
+}
+"
+
+pub const slice_coding_fixeduri = "
+pub type CodingDiscriminatorFixeduri {
+  CodingDiscriminatorFixeduri(
+    id: Option(String),
+    extension: List(Extension),
+    code: String,
+    version: Option(String),
+    display: String,
+    user_selected: Option(Bool),
+  )
+}
+
+pub fn coding_discriminator_fixeduri_new(
+  code code: String,
+  display display: String,
+) -> CodingDiscriminatorFixeduri {
+  CodingDiscriminatorFixeduri(
+    id: None,
+    extension: [],
+    version: None,
+    code:,
+    display:,
+    user_selected: None,
+  )
+}
+
+pub fn coding_discriminator_fixeduri_from_coding(
+  coding: Coding,
+  system: String,
+) -> Result(CodingDiscriminatorFixeduri, Nil) {
+  let Coding(
+    id:,
+    extension:,
+    system: coding_system,
+    version:,
+    code: coding_code,
+    display: coding_display,
+    user_selected:,
+  ) = coding
+  case coding_system, coding_code, coding_display {
+    Some(coding_system), Some(coding_code), Some(coding_display) ->
+      case coding_system == system {
+        True -> Ok(CodingDiscriminatorFixeduri(
+          id:,
+          extension:,
+          version:,
+          code: coding_code,
+          display: coding_display,
+          user_selected:,
+        ))
+        False -> Error(Nil)
+      }
+    _, _, _ -> Error(Nil)
+  }
+}
+
+pub fn coding_discriminator_fixeduri_to_json(
+  coding: CodingDiscriminatorFixeduri,
+  system: String,
+) -> Json {
+  let CodingDiscriminatorFixeduri(
+    id:,
+    extension:,
+    version:,
+    code:,
+    display:,
+    user_selected:,
+  ) = coding
+  coding_to_json(Coding(
+    id:,
+    extension:,
+    system: Some(system),
+    version:,
+    code: Some(code),
+    display: Some(display),
     user_selected:,
   ))
 }

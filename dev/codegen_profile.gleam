@@ -927,6 +927,19 @@ fn plan_value_slice(
           }
           Ok(ValueSlicePlan([#(root.id, FixedSliceType(type_))]))
         }
+        [codegen_helpers.Type(code: "Coding", ..)] -> {
+          let assert Ok(system) = find_element(elements, root.id <> ".system")
+          let assert Ok(code) = find_element(elements, root.id <> ".code")
+          let assert Ok(display) = find_element(elements, root.id <> ".display")
+          let assert Some(_) = system.fixed_uri
+          case code.min > 0, display.min > 0 {
+            True, True ->
+              Ok(ValueSlicePlan([
+                #(root.id, FixedSliceType("ct.CodingDiscriminatorFixeduri")),
+              ]))
+            _, _ -> Error("Coding slice does not require code and display")
+          }
+        }
         _ -> Error("unsupported system discriminator type")
       }
     True, [path] if path == "code" || path == "type" ->
@@ -1213,6 +1226,7 @@ pub fn profile_files_to_types(
     )
   let slice_types =
     codegen_slice_complex_type.slice_coding
+    <> codegen_slice_complex_type.slice_coding_fixeduri
     <> codegen_slice_complex_type.slice_codeableconcept
     <> codegen_slice_complex_type.slice_identifier_type
     <> codegen_slice_complex_type.slice_identifier_system

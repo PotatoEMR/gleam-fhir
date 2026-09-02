@@ -192,6 +192,8 @@ pub fn profile_base_field_type(
             )
             False ->
               case element.type_ {
+                [codegen_helpers.Type(code: "Element", ..)] ->
+                  #("ct." <> base_payload_type(element, "Element"), valueset_acc)
                 [only_type] ->
                   codegen_helpers.string_to_type(
                     only_type.code,
@@ -504,6 +506,16 @@ fn fixed_slice_encoder_call(
       <> code
       <> "\")"
     }
+    "ct.CodingDiscriminatorFixeduri" -> {
+      let assert Ok(system_element) =
+        find_element(snapshot_elements, element.id <> ".system")
+      let assert Some(system) = system_element.fixed_uri
+      "ct.coding_discriminator_fixeduri_to_json("
+      <> value
+      <> ", \""
+      <> system
+      <> "\")"
+    }
     "ct.CodeableconceptDiscriminator" -> {
       let #(system, code) = case element.pattern_codeableconcept {
         Some(codegen_helpers.DiscriminatorCodeableconceptValue(coding: [
@@ -601,6 +613,10 @@ pub fn profile_element_encoder_type(
         does_profile_restrict_complex_type(type_order, field_path),
         element.type_
       {
+        False, [codegen_helpers.Type(code: "Element", ..)] ->
+          "ct."
+          <> codegen_helpers.to_snake_case(base_payload_type(element, "Element"))
+          <> "_to_json"
         False, [only_type] ->
           codegen_to_json.string_to_encoder_type(
             only_type.code,
@@ -631,6 +647,10 @@ pub fn profile_element_encoder_call(
         does_profile_restrict_complex_type(type_order, field_path),
         element.type_
       {
+        False, [codegen_helpers.Type(code: "Element", ..)] ->
+          "ct."
+          <> codegen_helpers.to_snake_case(base_payload_type(element, "Element"))
+          <> "(" <> value <> ")"
         False, [only_type] ->
           codegen_to_json.string_to_encoder_call(
             only_type.code,
@@ -1976,6 +1996,12 @@ fn field_decoder_expression(
             does_profile_restrict_complex_type(context.type_order, field_path)
           {
             True -> codegen_helpers.to_snake_case(field_type) <> "_decoder()"
+            False if type_.code == "Element" ->
+              "ct."
+              <> codegen_helpers.to_snake_case(
+                base_payload_type(element, "Element"),
+              )
+              <> "_decoder()"
             False ->
               codegen_decode.string_to_decoder_type(
                 type_.code,
