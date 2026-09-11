@@ -259,7 +259,6 @@ fn init(_) {
 pub opaque type Message {
   ClickGenerateCode
   ClickFhirVersion(FhirVersion)
-  TypeCustomName(String)
   GenResource(res: String, gen: Gen, restype: ResType)
   GenAll(gen: Gen, restype: ResType)
   SearchProfileInput(String)
@@ -452,14 +451,6 @@ fn update(model: Model, message: Message) {
       let base_resources =
         res_list |> list.map(fn(res) { ResGen(res, Generate) })
       #(Model(..model, fhir_version:, base_resources:), effect.none())
-    }
-    TypeCustomName(custom_name) -> {
-      let custom_name = case custom_name {
-        "" -> None
-        _ -> Some(custom_name)
-      }
-      let model = Model(..model, custom_name:)
-      #(model, effect.none())
     }
     GenResource(res, gen, restype) -> {
       let model = case restype {
@@ -1082,10 +1073,6 @@ fn view(model: Model) -> Element(Message) {
             ),
           ],
         ),
-        h.label([], [
-          h.input([a.style("width", "3em"), event.on_change(TypeCustomName)]),
-          h.text("custom name module prefix"),
-        ]),
       ],
     ),
     main,
