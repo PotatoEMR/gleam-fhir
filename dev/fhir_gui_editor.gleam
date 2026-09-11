@@ -359,6 +359,9 @@ fn parse_structuredefs(dir, structuredefs) -> Effect(Message) {
       [first_structuredef_filename, ..rest_structuredef_filenames] -> {
         let path = dir |> filepath.join(first_structuredef_filename)
         let res = case simplifile.read(path) {
+          // unfortunately we also get errors for files that are not structuredefinitions
+          // could do a check or something idk
+          // for now just not including errors we return that contain string "resourceType"
           Error(_) -> Error("failed to read file: " <> path)
           Ok(content) ->
             case json.parse(content, resources.structuredefinition_decoder()) {
@@ -608,12 +611,17 @@ fn update(model: Model, message: Message) {
       case model.profile {
         None -> #(model, effect.none())
         Some(profile) -> {
-          let sg = case sd_res {
-            Error(err) -> Error(err)
-            Ok(sd_res) ->
-              Ok(StructureGen(ResGen(sd_res.name, Generate), sd_res, filename))
+          let resources = case sd_res {
+            Error(err) ->
+              case string.contains(err, "resourceType") {
+                True -> profile.resources
+                False -> [Error(err), ..profile.resources]
+              }
+            Ok(sd_res) -> [
+              Ok(StructureGen(ResGen(sd_res.name, Generate), sd_res, filename)),
+              ..profile.resources
+            ]
           }
-          let resources = [sg, ..profile.resources]
           let profile = Some(Profile(..profile, resources:))
           // this is kind of clever, we parse one structuredefinition json at a time
           // so you see them stream in instead of waiting while showing nothing until they all parse
@@ -676,8 +684,11 @@ fn start_parsing_files(profile: Option(Profile), store_profile_dir_in: String) {
             )
           let structuredefs =
             structuredefs
-            |> list.filter(fn(filename) {
-              string.starts_with(filename, "StructureDefinition")
+            |> list.filter(fn(structure_definition_path) {
+              case simplifile.is_file(profile.dir |> filepath.join(structure_definition_path)) {
+                Ok(True) -> True
+                _ -> False
+              }
             })
             |> list.sort(string.compare)
           Ok(parse_structuredefs(profile.dir, structuredefs))
@@ -803,7 +814,7 @@ fn view(model: Model) -> Element(Message) {
           [
             h.h2([], [h.text("Download profile")]),
             h.input([
-              a.disabled(model.download == Downloading),
+              a.disabled(model.download == Downloading || model.download == ParsingJsons),
               a.list("results"),
               event.on_input(SearchProfileInput) |> event.debounce(150),
               // a.name("package_name"),
