@@ -36,7 +36,6 @@ pub type Model {
     simplifier_response_error: Option(String),
     download: Download,
     process_output: List(String),
-    primitive_extensions: Bool,
     custom_name: Option(String),
     generating: Generating,
   )
@@ -249,7 +248,6 @@ fn init(_) {
       simplifier_response_error:,
       download:,
       process_output: [],
-      primitive_extensions: False,
       custom_name: None,
       generating: NotGenerating,
     )
@@ -261,7 +259,6 @@ fn init(_) {
 pub opaque type Message {
   ClickGenerateCode
   ClickFhirVersion(FhirVersion)
-  ClickPrimitiveExt(Bool)
   TypeCustomName(String)
   GenResource(res: String, gen: Gen, restype: ResType)
   GenAll(gen: Gen, restype: ResType)
@@ -411,10 +408,6 @@ fn update(model: Model, message: Message) {
         None -> more_args
         Some(custom_name) -> ["customname=" <> custom_name, ..more_args]
       }
-      let more_args = case model.primitive_extensions {
-        True -> ["allPrimitiveExt", ..more_args]
-        False -> more_args
-      }
       let profile_rg = case model.profile {
         None -> []
         Some(profile) ->
@@ -460,10 +453,6 @@ fn update(model: Model, message: Message) {
         res_list |> list.map(fn(res) { ResGen(res, Generate) })
       #(Model(..model, fhir_version:, base_resources:), effect.none())
     }
-    ClickPrimitiveExt(primitive_extensions) -> #(
-      Model(..model, primitive_extensions:),
-      effect.none(),
-    )
     TypeCustomName(custom_name) -> {
       let custom_name = case custom_name {
         "" -> None
@@ -1093,10 +1082,6 @@ fn view(model: Model) -> Element(Message) {
             ),
           ],
         ),
-        h.label([], [
-          h.input([a.type_("checkbox"), event.on_check(ClickPrimitiveExt)]),
-          h.text("primitive extensions"),
-        ]),
         h.label([], [
           h.input([a.style("width", "3em"), event.on_change(TypeCustomName)]),
           h.text("custom name module prefix"),
