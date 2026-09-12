@@ -38,6 +38,7 @@ pub type Model {
     process_output: List(String),
     custom_name: Option(String),
     generating: Generating,
+    pkgver_req_num: Int,
   )
 }
 
@@ -250,6 +251,7 @@ fn init(_) {
       process_output: [],
       custom_name: None,
       generating: NotGenerating,
+      pkgver_req_num: 0,
     )
   #(model, parse_structuredefs_effect)
 }
@@ -263,7 +265,10 @@ pub opaque type Message {
   GenAll(gen: Gen, restype: ResType)
   SearchProfileInput(String)
   SearchProfileResps(Result(List(String), rsvp.Error(String)))
-  SearchProfileVersionResps(Result(SimplifierProfilePkg, rsvp.Error(String)))
+  SearchProfileVersionResps(
+    pkgver_req_num: Int,
+    pkgver_response: Result(SimplifierProfilePkg, rsvp.Error(String)),
+  )
   DownloadPackageName(String)
   ProcessReturnedLine(String)
   DownloadExited
@@ -319,10 +324,12 @@ fn package_versions_decoder() {
   decode.success(SimplifierProfilePkg(name:, versions:))
 }
 
-fn get_package_versions(search_text) {
+fn get_package_versions(search_text, pkgver_req_num) {
   let url = "https://packages.simplifier.net/" <> search_text
   let handler =
-    rsvp.expect_json(package_versions_decoder(), SearchProfileVersionResps)
+    rsvp.expect_json(package_versions_decoder(), fn(resp) {
+      SearchProfileVersionResps(pkgver_req_num, resp)
+    })
   rsvp.get(url, handler)
 }
 
@@ -515,14 +522,19 @@ fn update(model: Model, message: Message) {
           effect.none(),
         )
         Ok(package_names) -> {
+          let pkgver_req_num = model.pkgver_req_num + 1
           let search_pkg_effects =
-            package_names |> list.map(get_package_versions)
+            package_names
+            |> list.map(fn(package_name) {
+              get_package_versions(package_name, pkgver_req_num)
+            })
           let num = package_names |> list.length |> int.to_string
           let simplifier_response_error =
             Some("found " <> num <> " package names, searching their versions")
           let model =
             Model(
               ..model,
+              pkgver_req_num:,
               simplifier_response_error:,
               profile_search_results: [],
             )
@@ -530,19 +542,26 @@ fn update(model: Model, message: Message) {
           #(model, effect.batch(search_pkg_effects))
         }
       }
-    SearchProfileVersionResps(resp) -> {
-      let model = case resp {
-        Ok(pkg) ->
-          Model(
-            ..model,
-            profile_search_results: [pkg, ..model.profile_search_results],
-            simplifier_response_error: None,
-          )
-        Error(err) ->
-          Model(..model, simplifier_response_error: Some(err_to_string(err)))
+    SearchProfileVersionResps(num, resp) ->
+      case num == model.pkgver_req_num {
+        False -> #(model, effect.none())
+        True -> {
+          let model = case resp {
+            Ok(pkg) ->
+              Model(
+                ..model,
+                profile_search_results: [pkg, ..model.profile_search_results],
+                simplifier_response_error: None,
+              )
+            Error(err) ->
+              Model(
+                ..model,
+                simplifier_response_error: Some(err_to_string(err)),
+              )
+          }
+          #(model, effect.none())
+        }
       }
-      #(model, effect.none())
-    }
     DownloadPackageName(opt) ->
       case opt |> string.split("/") {
         [pkg_name, pkg_version] -> {
@@ -665,10 +684,7 @@ fn start_parsing_files(profile: Option(Profile), store_profile_dir_in: String) {
           let structuredefs =
             structuredefs
             |> list.filter(fn(structure_definition_path) {
-              case simplifile.is_file(profile.dir |> filepath.join(structure_definition_path)) {
-                Ok(True) -> True
-                _ -> False
-              }
+              string.ends_with(structure_definition_path, ".json")
             })
             |> list.sort(string.compare)
           Ok(parse_structuredefs(profile.dir, structuredefs))
@@ -794,7 +810,9 @@ fn view(model: Model) -> Element(Message) {
           [
             h.h2([], [h.text("Download profile")]),
             h.input([
-              a.disabled(model.download == Downloading || model.download == ParsingJsons),
+              a.disabled(
+                model.download == Downloading || model.download == ParsingJsons,
+              ),
               a.list("results"),
               event.on_input(SearchProfileInput) |> event.debounce(150),
               // a.name("package_name"),
