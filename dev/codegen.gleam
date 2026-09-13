@@ -141,19 +141,16 @@ pub fn main() {
   }
 
   list.map(check_versions, fn(fhir_version) {
-    let custom_profile_name = case
-      list.find(args_cased, fn(arg) { string.starts_with(arg, "customname=") })
-    {
-      Ok(arg) -> {
-        let assert [_, name] = string.split(arg, "=")
-        Some(name)
+    let custom_profile_name = case custom_profile {
+      Ok(custom_profile) -> {
+        let assert [_, simplifier_profile] = string.split(custom_profile, "=")
+        let gen_folder_name =
+          simplifier_profile
+          |> string.replace("/", "_")
+          |> string.replace(".", "_")
+        Some(gen_folder_name)
       }
-      Error(_) ->
-        case custom_profile {
-          Ok(_) ->
-            panic as "if custom=[name/version] also need arg customname=[pkg name] for generated modules prefix"
-          Error(_) -> None
-        }
+      Error(_) -> None
     }
 
     let _ = case list.contains(args_lower, fhir_version) {
