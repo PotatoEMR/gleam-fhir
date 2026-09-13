@@ -4389,7 +4389,8 @@ fn extension_value_branch(
   on_success: fn(String) -> String,
   on_error: fn(String) -> String,
 ) -> #(String, String) {
-  let field_name = extension_field_name(field) |> codegen_helpers.to_snake_case
+  let raw_field_name = extension_field_name(field)
+  let field_name = raw_field_name |> codegen_helpers.to_snake_case
   let #(target_type, cases) = case field.type_ {
     [type_] -> {
       let #(target_type, _) =
@@ -4433,7 +4434,7 @@ fn extension_value_branch(
       )
     }
     types -> {
-      let target_type = extension_name <> string.capitalise(field_name)
+      let target_type = extension_name <> string.capitalise(raw_field_name)
       let cases =
         types
         |> list.map(fn(type_) {
