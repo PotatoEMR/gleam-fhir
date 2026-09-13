@@ -1934,6 +1934,7 @@ pub fn profile_files_to_types(
             type_slice_overrides,
             preserve_slice_order,
             valueset_acc,
+            available_slice_valuesets,
             base_elements,
           )
 

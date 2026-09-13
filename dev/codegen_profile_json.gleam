@@ -818,6 +818,7 @@ type DecodeContext {
     type_slice_overrides: dict.Dict(String, SlicePlan),
     preserve_slice_order: Bool,
     valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+    available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
     base_elements: dict.Dict(String, codegen_helpers.Element),
   )
 }
@@ -3343,6 +3344,7 @@ fn extension_slice_fold_source(
               canonical_url(url),
               "extension",
               context.valueset_acc,
+              context.available_valuesets,
               store,
               decode_error,
             )
@@ -4345,6 +4347,7 @@ fn extension_value_branch(
   expected_url: String,
   source: String,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+  available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
   on_success: fn(String) -> String,
   on_error: fn(String) -> String,
 ) -> #(String, String) {
@@ -4363,6 +4366,22 @@ fn extension_value_branch(
       let conversion =
         required_binding_conversion(field, type_.code, "value")
         |> option.unwrap(ConversionExpression("value", "", False))
+      let conversion = case field.binding {
+        Some(codegen_helpers.Binding(
+          strength: "required",
+          value_set: Some(value_set),
+        )) ->
+          case
+            codegen_helpers.valueset_can_generate_system(
+              canonical_url(value_set),
+              available_valuesets,
+            )
+          {
+            True -> conversion
+            False -> IdentityConversion("value", "", False)
+          }
+        _ -> conversion
+      }
       let conversion =
         ConversionExpression(
           string.replace(
@@ -4425,6 +4444,7 @@ fn extension_classifier_source(
   url: String,
   extension: ExtensionDefinition,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+  available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
   preserve_slice_order: Bool,
 ) -> String {
   let _ = profile_prefix
@@ -4469,6 +4489,7 @@ fn extension_classifier_source(
             field_url,
             "child",
             valueset_acc,
+            available_valuesets,
             store,
             fn(reason) { "Error(" <> reason <> ")" },
           )
@@ -4866,6 +4887,7 @@ pub fn generate_decoders(
   type_slice_overrides: dict.Dict(String, SlicePlan),
   preserve_slice_order: Bool,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+  available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
   base_elements: dict.Dict(String, codegen_helpers.Element),
 ) -> String {
   let context =
@@ -4881,6 +4903,7 @@ pub fn generate_decoders(
       type_slice_overrides:,
       preserve_slice_order:,
       valueset_acc:,
+      available_valuesets:,
       base_elements:,
     )
   let extension_classifiers =
@@ -4902,6 +4925,7 @@ pub fn generate_decoders(
         item.0,
         item.1,
         valueset_acc,
+        available_valuesets,
         preserve_slice_order,
       )
     })
