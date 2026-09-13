@@ -183,7 +183,6 @@ pub fn gen(
   fv fhir_version: String,
   pkg_prefix pkg_prefix: String,
   custom_profile_name custom_profile_name: Option(String),
-  all_primitive_ext all_primitive_ext: Bool,
   profiles_dir profiles_dir: String,
   gen_specific_resources gen_specific_resources: Option(List(String)),
 ) -> #(String, String, String, String) {
@@ -532,32 +531,6 @@ pub fn gen(
     _ -> #("\"next\"", "")
   }
 
-  // primitive-extension packages (all_primitive_ext) wrap fields in
-  // Primitive(_), so bundle.link.relation and bundle.link.url need .value
-  let primitive_body_replace = case all_primitive_ext {
-    False -> fn(s) { s }
-    True -> fn(s) {
-      string.replace(
-        s,
-        "  result.try(list.find(bundle.link, fn(l) { l.relation == NEXTRELATION }), fn(link) {
-    result.try(uri.parse(link.url), fn(uri) {
-      Ok(Request(..client.basereq, path: uri.path, query: uri.query))
-    })
-  })",
-        "  result.try(
-    list.find(bundle.link, fn(l) { l.relation.value == Some(NEXTRELATION) }),
-    fn(link) {
-      result.try(option.to_result(link.url.value, Nil), fn(url) {
-        result.try(uri.parse(url), fn(uri) {
-          Ok(Request(..client.basereq, path: uri.path, query: uri.query))
-        })
-      })
-    },
-  )",
-      )
-    }
-  }
-
   let sansio =
     string.concat([
       file_text,
@@ -569,7 +542,6 @@ pub fn gen(
       //search_encode,
       bundle_to_gt,
     ])
-    |> primitive_body_replace
     |> string.replace("//FHIR_VERSION_IMPORTS", version_imports)
     |> string.replace("NEXTRELATION", next_relation)
     |> string.replace("FHIRVERSION", pkg_prefix)

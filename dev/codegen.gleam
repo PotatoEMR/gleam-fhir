@@ -66,7 +66,6 @@ pub fn main() {
   }
 
   let download_files = list.contains(args_lower, "download")
-  let all_primitive_ext = list.contains(args_lower, "allprimitiveext")
   let preserve_slice_order = list.contains(args_lower, "order")
   let gen_specific_resources = case
     list.find(args_lower, fn(arg) { string.starts_with(arg, "resources=") })
@@ -160,7 +159,6 @@ pub fn main() {
           download_files,
           custom_profile_name,
           profiles_dir,
-          all_primitive_ext,
           preserve_slice_order,
           gen_specific_resources,
         )
@@ -175,7 +173,6 @@ fn gen_fhir(
   download_files: Bool,
   custom_profile_name: Option(String),
   profiles_dir: Option(String),
-  all_primitive_ext: Bool,
   preserve_slice_order: Bool,
   gen_specific_resources: Option(List(String)),
 ) -> Nil {
@@ -238,7 +235,6 @@ fn gen_fhir(
     file_to_types(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
       fv: pkg_prefix,
-      all_primitive_ext: all_primitive_ext,
       current_bucket: codegen_helpers.Resources,
       valueset_acc: dict.new(),
       gen_specific_resources:,
@@ -264,7 +260,6 @@ fn gen_fhir(
     file_to_types(
       spec_file: complex_types_file,
       fv: pkg_prefix,
-      all_primitive_ext: all_primitive_ext,
       current_bucket: codegen_helpers.ComplexTypes,
       valueset_acc:,
       gen_specific_resources:,
@@ -289,7 +284,6 @@ fn gen_fhir(
       ) =
         codegen_profile.profile_files_to_types(
           profiles_dir,
-          all_primitive_ext,
           preserve_slice_order,
           valueset_acc,
           gen_specific_resources,
@@ -954,7 +948,6 @@ fn gen_fhir(
       fhir_version,
       pkg_prefix,
       None,
-      all_primitive_ext,
       "",
       gen_specific_resources,
     )
@@ -1213,7 +1206,6 @@ fn required_complex_types_loop(
 fn file_to_types(
   spec_file spec_file: String,
   fv fhir_version: String,
-  all_primitive_ext all_primitive_ext: Bool,
   current_bucket current_bucket: codegen_helpers.Category,
   valueset_acc valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   gen_specific_resources gen_specific_resources: Option(List(String)),
@@ -1434,37 +1426,7 @@ fn file_to_types(
                       )
                     let field_name_new =
                       camel_type <> string.capitalise(elt_last_part)
-                    let is_primitive = case elt.type_ {
-                      [fst, ..] ->
-                        case fst.code {
-                          "base64Binary"
-                          | "boolean"
-                          | "canonical"
-                          | "code"
-                          | "date"
-                          | "dateTime"
-                          | "decimal"
-                          | "id"
-                          | "instant"
-                          | "integer"
-                          | "integer64"
-                          | "markdown"
-                          | "oid"
-                          | "positiveInt"
-                          | "string"
-                          | "time"
-                          | "unsignedInt"
-                          | "uri"
-                          | "url"
-                          | "uuid"
-                          | "xhtml"
-                          | "http://hl7.org/fhirpath/System.String" ->
-                            elt_last_part_withgleamtype != "id"
-                            && all_primitive_ext
-                          _ -> False
-                        }
-                      _ -> False
-                    }
+                    let is_primitive = False
                     let #(field_type, valueset_acc) = case elt.type_ {
                       [one_type] -> {
                         let #(base_type, valueset_acc) =
@@ -1475,10 +1437,7 @@ fn file_to_types(
                             current_bucket,
                             valueset_acc,
                           )
-                        let field_type = case is_primitive {
-                          True -> "Primitive(" <> base_type <> ")"
-                          False -> base_type
-                        }
+                        let field_type = base_type
                         #(field_type, valueset_acc)
                       }
                       [] -> #(
@@ -1494,11 +1453,7 @@ fn file_to_types(
                       _ -> #(field_name_new, valueset_acc)
                     }
                     let elt_snake = codegen_helpers.to_snake_case(elt_last_part)
-                    let card_min = case is_primitive, elt.max {
-                      True, "*" -> 0
-                      True, _ -> 1
-                      False, _ -> elt.min
-                    }
+                    let card_min = elt.min
                     let this_type_fields =
                       string.concat([
                         elt_snake,
@@ -1704,85 +1659,39 @@ fn file_to_types(
                       encoder_always_acc,
                       decoder_always_failure_acc,
                     ) = case elt.min, elt.max {
-                      0, "*" ->
-                        case is_primitive {
-                          True -> {
-                            let opts =
-                              encoder_optional_acc
-                              <> "\nlet fields = primitives_to_json(fields, "
-                              <> elt_snake
-                              <> ", "
-                              <> field_type_encoder
-                              <> ", \""
-                              <> elt_last_part_withgleamtype
-                              <> "\")"
-                            #(
-                              opts,
-                              encoder_always_acc,
-                              decoder_always_failure_acc,
-                            )
-                          }
-                          False -> {
-                            //0..* list: omit from json if empty
-                            let opts =
-                              encoder_optional_acc
-                              <> "\nlet fields = case "
-                              <> elt_snake
-                              <> " {
+                      0, "*" -> {
+                        //0..* list: omit from json if empty
+                        let opts =
+                          encoder_optional_acc
+                          <> "\nlet fields = case "
+                          <> elt_snake
+                          <> " {
                         [] -> fields
                         _ -> [#(\""
-                              <> elt_last_part_withgleamtype
-                              <> "\", json.array("
-                              <> elt_snake
-                              <> ","
-                              <> field_type_encoder
-                              <> ")), ..fields]
+                          <> elt_last_part_withgleamtype
+                          <> "\", json.array("
+                          <> elt_snake
+                          <> ","
+                          <> field_type_encoder
+                          <> ")), ..fields]
                           }"
-                            #(
-                              opts,
-                              encoder_always_acc,
-                              decoder_always_failure_acc,
-                            )
-                          }
-                        }
-                      1, "*" ->
-                        case is_primitive {
-                          True -> {
-                            let opts =
-                              encoder_optional_acc
-                              <> "\nlet fields = primitives_to_json(fields, "
-                              <> elt_snake
-                              <> ", "
-                              <> field_type_encoder
-                              <> ", \""
-                              <> elt_last_part_withgleamtype
-                              <> "\")"
-                            #(
-                              opts,
-                              encoder_always_acc,
-                              decoder_always_failure_acc,
-                            )
-                          }
-                          False -> {
-                            //1..* list: always present, destructure List1
-                            let always =
-                              encoder_always_acc
-                              <> "#(\""
-                              <> elt_last_part_withgleamtype
-                              <> "\", list1_to_json("
-                              <> elt_snake
-                              <> ","
-                              <> field_type_encoder
-                              <> ")),"
-                            let decoder_always_failure =
-                              decoder_always_failure_acc <> elt_snake <> ":, "
-                            #(
-                              encoder_optional_acc,
-                              always,
-                              decoder_always_failure,
-                            )
-                          }
-                        }
+                        #(opts, encoder_always_acc, decoder_always_failure_acc)
+                      }
+                      1, "*" -> {
+                        //1..* list: always present, destructure List1
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part_withgleamtype
+                          <> "\", list1_to_json("
+                          <> elt_snake
+                          <> ","
+                          <> field_type_encoder
+                          <> ")),"
+                        let decoder_always_failure =
+                          decoder_always_failure_acc <> elt_snake <> ":, "
+                        #(encoder_optional_acc, always, decoder_always_failure)
+                      }
                       2, "*" -> {
                         //2..* list: always present, destructure List2
                         let always =
@@ -1813,97 +1722,51 @@ fn file_to_types(
                           decoder_always_failure_acc <> elt_snake <> ":, "
                         #(encoder_optional_acc, always, decoder_always_failure)
                       }
-                      0, "1" ->
-                        case is_primitive {
-                          True -> {
-                            let opts =
-                              encoder_optional_acc
-                              <> "\nlet fields = primitive_to_json(fields, "
-                              <> elt_snake
-                              <> ", "
-                              <> field_type_encoder
-                              <> ", \""
-                              <> elt_last_part_withgleamtype
-                              <> "\")"
-                            #(
-                              opts,
-                              encoder_always_acc,
-                              decoder_always_failure_acc,
-                            )
-                          }
-                          False -> {
-                            //optional case to json, in Some case add to fields list
-                            let choicetype_suffixes =
-                              codegen_helpers.gen_choicetype_suffixes(
-                                "v",
-                                elt.type_,
-                                field_name_new,
-                              )
-                            let opts =
-                              encoder_optional_acc
-                              <> "\nlet fields = case "
-                              <> elt_snake
-                              <> " {
+                      0, "1" -> {
+                        //optional case to json, in Some case add to fields list
+                        let choicetype_suffixes =
+                          codegen_helpers.gen_choicetype_suffixes(
+                            "v",
+                            elt.type_,
+                            field_name_new,
+                          )
+                        let opts =
+                          encoder_optional_acc
+                          <> "\nlet fields = case "
+                          <> elt_snake
+                          <> " {
                         Some(v) -> [#(\""
-                              <> elt_last_part_withgleamtype
-                              <> "\""
-                              <> choicetype_suffixes
-                              <> ", "
-                              <> field_type_encoder_call("v")
-                              <> "), ..fields]
+                          <> elt_last_part_withgleamtype
+                          <> "\""
+                          <> choicetype_suffixes
+                          <> ", "
+                          <> field_type_encoder_call("v")
+                          <> "), ..fields]
                           None -> fields
                         }"
-                            #(
-                              opts,
-                              encoder_always_acc,
-                              decoder_always_failure_acc,
-                            )
-                          }
-                        }
-                      1, "1" ->
-                        case is_primitive {
-                          True -> {
-                            let opts =
-                              encoder_optional_acc
-                              <> "\nlet fields = primitive_to_json(fields, "
-                              <> elt_snake
-                              <> ", "
-                              <> field_type_encoder
-                              <> ", \""
-                              <> elt_last_part_withgleamtype
-                              <> "\")"
-                            #(
-                              opts,
-                              encoder_always_acc,
-                              decoder_always_failure_acc,
-                            )
-                          }
-                          False -> {
-                            //mandatory case to json, put in first fields list
-                            let choicetype_suffixes =
-                              codegen_helpers.gen_choicetype_suffixes(
-                                elt_snake,
-                                elt.type_,
-                                field_name_new,
-                              )
-                            let always =
-                              encoder_always_acc
-                              <> "#(\""
-                              <> elt_last_part_withgleamtype
-                              <> "\""
-                              <> choicetype_suffixes
-                              <> ", "
-                              <> field_type_encoder_call(elt_snake)
-                              <> "),"
-                            let decoder_always_failure =
-                              decoder_always_failure_acc <> elt_snake <> ":, "
-                            #(
-                              encoder_optional_acc,
-                              always,
-                              decoder_always_failure,
-                            )
-                          }
-                        }
+                        #(opts, encoder_always_acc, decoder_always_failure_acc)
+                      }
+                      1, "1" -> {
+                        //mandatory case to json, put in first fields list
+                        let choicetype_suffixes =
+                          codegen_helpers.gen_choicetype_suffixes(
+                            elt_snake,
+                            elt.type_,
+                            field_name_new,
+                          )
+                        let always =
+                          encoder_always_acc
+                          <> "#(\""
+                          <> elt_last_part_withgleamtype
+                          <> "\""
+                          <> choicetype_suffixes
+                          <> ", "
+                          <> field_type_encoder_call(elt_snake)
+                          <> "),"
+                        let decoder_always_failure =
+                          decoder_always_failure_acc <> elt_snake <> ":, "
+                        #(encoder_optional_acc, always, decoder_always_failure)
+                      }
                       _, _ -> panic as "cardinality panic 72"
                     }
                     let field_type_decoder = case elt.type_ {

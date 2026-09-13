@@ -265,15 +265,6 @@ pub fn profile_field_has_primitive_type(
   }
 }
 
-pub fn profile_field_is_primitive(
-  element: codegen_helpers.Element,
-  json_field_name: String,
-  all_primitive_ext: Bool,
-) -> Bool {
-  all_primitive_ext
-  && profile_field_has_primitive_type(element, json_field_name)
-}
-
 pub fn profile_field_is_primitive_slice(
   element: codegen_helpers.Element,
   json_field_name: String,
@@ -825,7 +816,6 @@ type DecodeContext {
     slice_base_type_names: dict.Dict(String, String),
     slice_type_overrides: dict.Dict(String, SliceFieldType),
     type_slice_overrides: dict.Dict(String, SlicePlan),
-    all_primitive_ext: Bool,
     preserve_slice_order: Bool,
     valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
     base_elements: dict.Dict(String, codegen_helpers.Element),
@@ -1678,14 +1668,9 @@ fn record_conversion_from_fields(
     })
     |> list.fold(#("", ""), fn(acc, element) {
       let #(bindings, arguments) = acc
-      let #(_, field_path, json_name, field_name, field_type) =
+      let #(_, field_path, _json_name, field_name, field_type) =
         profile_element_names(context, target_type, element)
-      let is_primitive =
-        profile_field_is_primitive(
-          element,
-          json_name,
-          context.all_primitive_ext,
-        )
+      let is_primitive = False
       let target_min = profile_field_min(element, is_primitive)
       let inner_value = case element.base.min, element.base.max {
         1, max if max != "*" -> "source." <> field_name
@@ -1951,8 +1936,7 @@ fn field_decoder_expression(
 ) -> String {
   let #(all_parts, field_path, json_name, _, field_type) =
     profile_element_names(context, parent_type, element)
-  let is_primitive =
-    profile_field_is_primitive(element, json_name, context.all_primitive_ext)
+  let is_primitive = False
   let is_primitive_slice =
     profile_field_is_primitive_slice(
       element,
@@ -2175,17 +2159,9 @@ fn profile_record_base_expression(
     fields
     |> profile_fields
     |> list.map(fn(field) {
-      let #(_, _, json_name, field_name, _) =
+      let #(_, _, _json_name, field_name, _) =
         profile_element_names(context, profile_type, field)
-      let source_min =
-        profile_field_min(
-          field,
-          profile_field_is_primitive(
-            field,
-            json_name,
-            context.all_primitive_ext,
-          ),
-        )
+      let source_min = profile_field_min(field, False)
       let source = value <> "." <> field_name
       let expression = case
         field.base.min,
@@ -2306,10 +2282,9 @@ fn profile_record_placeholder(
     fields
     |> profile_fields
     |> list.filter_map(fn(field) {
-      let #(_, _, json_name, field_name, field_type) =
+      let #(_, _, _json_name, field_name, field_type) =
         profile_element_names(context, target_type, field)
-      let is_primitive =
-        profile_field_is_primitive(field, json_name, context.all_primitive_ext)
+      let is_primitive = False
       let minimum = profile_field_min(field, is_primitive)
       case
         minimum > 0
@@ -2664,7 +2639,7 @@ fn direct_slice_record_expression(
     target_fields
     |> profile_fields
     |> list.try_map(fn(target) {
-      let #(_, _, target_json_name, target_field_name, target_field_type) =
+      let #(_, _, _target_json_name, target_field_name, target_field_type) =
         profile_element_names(context, target_type, target)
       case target.id == discriminator.id {
         True -> Ok(target_field_name <> ": matched")
@@ -2674,26 +2649,10 @@ fn direct_slice_record_expression(
               candidate.slice_name == None && candidate.path == target.path
             }),
           )
-          let #(_, _, source_json_name, source_field_name, source_field_type) =
+          let #(_, _, _source_json_name, source_field_name, source_field_type) =
             profile_element_names(context, base_type, source_field)
-          let target_min =
-            profile_field_min(
-              target,
-              profile_field_is_primitive(
-                target,
-                target_json_name,
-                context.all_primitive_ext,
-              ),
-            )
-          let source_min =
-            profile_field_min(
-              source_field,
-              profile_field_is_primitive(
-                source_field,
-                source_json_name,
-                context.all_primitive_ext,
-              ),
-            )
+          let target_min = profile_field_min(target, False)
+          let source_min = profile_field_min(source_field, False)
           case
             target_field_type == source_field_type,
             target_min == source_min,
@@ -4905,7 +4864,6 @@ pub fn generate_decoders(
   slice_base_type_names: dict.Dict(String, String),
   slice_type_overrides: dict.Dict(String, SliceFieldType),
   type_slice_overrides: dict.Dict(String, SlicePlan),
-  all_primitive_ext: Bool,
   preserve_slice_order: Bool,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   base_elements: dict.Dict(String, codegen_helpers.Element),
@@ -4921,7 +4879,6 @@ pub fn generate_decoders(
       slice_base_type_names:,
       slice_type_overrides:,
       type_slice_overrides:,
-      all_primitive_ext:,
       preserve_slice_order:,
       valueset_acc:,
       base_elements:,
@@ -5014,7 +4971,6 @@ pub fn generate_to_json(
   slice_base_type_names: dict.Dict(String, String),
   slice_type_overrides: dict.Dict(String, SliceFieldType),
   type_slice_overrides: dict.Dict(String, SlicePlan),
-  all_primitive_ext: Bool,
   preserve_slice_order: Bool,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
 ) -> #(String, dict.Dict(String, codegen_helpers.ValuesetItem)) {
@@ -5235,12 +5191,7 @@ pub fn generate_to_json(
                 )
               }
             }
-            let is_primitive =
-              profile_field_is_primitive(
-                element,
-                json_field_name,
-                all_primitive_ext,
-              )
+            let is_primitive = False
             let is_primitive_slice =
               profile_field_is_primitive_slice(
                 element,

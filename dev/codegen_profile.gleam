@@ -9,7 +9,7 @@ import codegen_profile_json.{
   aggregate_value_slice_roots, does_profile_restrict_complex_type,
   extension_field_name, extension_field_to_json_call, find_element,
   profile_base_field_type, profile_extension_definition,
-  profile_field_is_primitive, profile_field_is_primitive_slice,
+  profile_field_has_primitive_type, profile_field_is_primitive_slice,
   profile_field_min,
 }
 import codegen_slice_complex_type
@@ -1145,7 +1145,6 @@ fn prepare_profile_slices(
 
 pub fn profile_files_to_types(
   profiles_dir: String,
-  all_primitive_ext: Bool,
   preserve_slice_order: Bool,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   gen_specific_resources: Option(List(String)),
@@ -1345,7 +1344,7 @@ pub fn profile_files_to_types(
                   case
                     list.find(profile_elements, fn(candidate) {
                       candidate.id == primitive_id
-                      && profile_field_is_primitive(candidate, "", True)
+                      && profile_field_has_primitive_type(candidate, "")
                     })
                   {
                     Ok(primitive) ->
@@ -1526,12 +1525,7 @@ pub fn profile_files_to_types(
                     let choice_type =
                       gleam_type <> string.capitalise(safe_field_name)
 
-                    let is_primitive =
-                      profile_field_is_primitive(
-                        element,
-                        json_field_name,
-                        all_primitive_ext,
-                      )
+                    let is_primitive = False
                     let is_primitive_slice =
                       profile_field_is_primitive_slice(
                         element,
@@ -1624,10 +1618,7 @@ pub fn profile_files_to_types(
                         )
                       }
                     }
-                    let field_type = case is_primitive {
-                      True -> "Primitive(" <> base_field_type <> ")"
-                      False -> base_field_type
-                    }
+                    let field_type = base_field_type
                     let is_resource_slice_elt =
                       preserve_slice_order
                       && element.base.max != "1"
@@ -1926,7 +1917,6 @@ pub fn profile_files_to_types(
             slice_base_type_names,
             slice_type_overrides,
             type_slice_overrides,
-            all_primitive_ext,
             preserve_slice_order,
             valueset_acc,
           )
@@ -1942,7 +1932,6 @@ pub fn profile_files_to_types(
             slice_base_type_names,
             slice_type_overrides,
             type_slice_overrides,
-            all_primitive_ext,
             preserve_slice_order,
             valueset_acc,
             base_elements,
