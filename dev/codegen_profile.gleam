@@ -82,7 +82,8 @@ fn root_profile_resources(profiles_dir: String) {
               decode.field("resourceType", decode.string, fn(value) {
                 decode.success(value)
               }),
-            ) == Ok("StructureDefinition")
+            )
+            == Ok("StructureDefinition")
         }
     }
   })
@@ -934,9 +935,11 @@ fn plan_value_slice(
           let assert Some(_) = system.fixed_uri
           case code.min > 0, display.min > 0 {
             True, True ->
-              Ok(ValueSlicePlan([
-                #(root.id, FixedSliceType("ct.CodingDiscriminatorFixeduri")),
-              ]))
+              Ok(
+                ValueSlicePlan([
+                  #(root.id, FixedSliceType("ct.CodingDiscriminatorFixeduri")),
+                ]),
+              )
             _, _ -> Error("Coding slice does not require code and display")
           }
         }
@@ -1339,10 +1342,12 @@ pub fn profile_files_to_types(
               {
                 True, True -> {
                   let primitive_id = string.drop_end(element.id, 6)
-                  case list.find(profile_elements, fn(candidate) {
-                    candidate.id == primitive_id
-                    && profile_field_is_primitive(candidate, "", True)
-                  }) {
+                  case
+                    list.find(profile_elements, fn(candidate) {
+                      candidate.id == primitive_id
+                      && profile_field_is_primitive(candidate, "", True)
+                    })
+                  {
                     Ok(primitive) ->
                       codegen_helpers.Element(
                         ..element,
@@ -1417,7 +1422,9 @@ pub fn profile_files_to_types(
               case set.contains(type_order, field_path) {
                 False -> type_order
                 True ->
-                  case parent_path != "" && dict.has_key(type_fields, parent_path) {
+                  case
+                    parent_path != "" && dict.has_key(type_fields, parent_path)
+                  {
                     True -> set.insert(type_order, parent_path)
                     False -> type_order
                   }

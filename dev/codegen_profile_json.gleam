@@ -192,8 +192,10 @@ pub fn profile_base_field_type(
             )
             False ->
               case element.type_ {
-                [codegen_helpers.Type(code: "Element", ..)] ->
-                  #("ct." <> base_payload_type(element, "Element"), valueset_acc)
+                [codegen_helpers.Type(code: "Element", ..)] -> #(
+                  "ct." <> base_payload_type(element, "Element"),
+                  valueset_acc,
+                )
                 [only_type] ->
                   codegen_helpers.string_to_type(
                     only_type.code,
@@ -650,7 +652,9 @@ pub fn profile_element_encoder_call(
         False, [codegen_helpers.Type(code: "Element", ..)] ->
           "ct."
           <> codegen_helpers.to_snake_case(base_payload_type(element, "Element"))
-          <> "(" <> value <> ")"
+          <> "("
+          <> value
+          <> ")"
         False, [only_type] ->
           codegen_to_json.string_to_encoder_call(
             only_type.code,
@@ -730,7 +734,8 @@ pub fn profile_extension_encoder_call(
             Some(id) -> id
           }
           <> ")"
-        False -> encoder <> "(" <> value <> ", \"" <> canonical_url(url) <> "\")"
+        False ->
+          encoder <> "(" <> value <> ", \"" <> canonical_url(url) <> "\")"
       }
     }
   }
@@ -1101,9 +1106,7 @@ fn discriminator_literals(
         None -> element.id <> ".system"
       }
       let system_element = case
-        list.find(descendants, fn(child) {
-          child.id == system_id
-        })
+        list.find(descendants, fn(child) { child.id == system_id })
       {
         Ok(child) -> Ok(child)
         Error(_) -> Error(Nil)
@@ -1998,9 +2001,10 @@ fn field_decoder_expression(
             True -> codegen_helpers.to_snake_case(field_type) <> "_decoder()"
             False if type_.code == "Element" ->
               "ct."
-              <> codegen_helpers.to_snake_case(
-                base_payload_type(element, "Element"),
-              )
+              <> codegen_helpers.to_snake_case(base_payload_type(
+                element,
+                "Element",
+              ))
               <> "_decoder()"
             False ->
               codegen_decode.string_to_decoder_type(
@@ -3772,13 +3776,13 @@ fn ordinary_slice_fold_source(
     "  use "
     <> base_values
     <> " <- decode.optional_field(\""
-      <> json_name
-      <> "\", [], decode.list("
-      <> base_decoder
-      <> "))\n  let "
-      <> accumulator
-      <> " =\n    "
-      <> fold_function
+    <> json_name
+    <> "\", [], decode.list("
+    <> base_decoder
+    <> "))\n  let "
+    <> accumulator
+    <> " =\n    "
+    <> fold_function
     <> "(\n      "
     <> base_values
     <> ",\n      Ok("
