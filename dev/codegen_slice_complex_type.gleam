@@ -1,3 +1,5 @@
+import gleam/option.{type Option, Some}
+
 pub type DiscriminatorCall {
   ResultDiscriminatorCall(String)
 }
@@ -7,76 +9,91 @@ pub fn discriminator_from_base_call(
   value: String,
   system: String,
   code: String,
+  display: Option(String),
 ) -> Result(DiscriminatorCall, Nil) {
   case discriminator_type {
-    "ct.CodingDiscriminator" ->
-      Ok(ResultDiscriminatorCall(
-        "ct.coding_discriminator_from_coding("
-        <> value
-        <> ", \""
-        <> system
-        <> "\", \""
-        <> code
-        <> "\")",
-      ))
-    "ct.CodingDiscriminatorFixeduri" ->
-      Ok(ResultDiscriminatorCall(
-        "ct.coding_discriminator_fixeduri_from_coding("
-        <> value
-        <> ", \""
-        <> system
-        <> "\")",
-      ))
-    "ct.CodeableconceptDiscriminator" ->
-      Ok(ResultDiscriminatorCall(
-        "ct.codeableconcept_discriminator_from_codeableconcept("
-        <> value
-        <> ", \""
-        <> system
-        <> "\", \""
-        <> code
-        <> "\")",
-      ))
-    "ct.IdentifierDiscriminatorType" ->
-      Ok(ResultDiscriminatorCall(
-        "ct.identifier_discriminator_type_from_identifier("
-        <> value
-        <> ", \""
-        <> system
-        <> "\", \""
-        <> code
-        <> "\")",
-      ))
-    "ct.IdentifierDiscriminatorSystem" ->
-      Ok(ResultDiscriminatorCall(
-        "ct.identifier_discriminator_system_from_identifier("
-        <> value
-        <> ", \""
-        <> system
-        <> "\")",
-      ))
-    "ct.IdentifierDiscriminatorSystemRequiredValue" ->
+    "FixedValueDiscriminator" ->
       Ok(ResultDiscriminatorCall(
         "case "
         <> value
-        <> ".system, "
-        <> value
-        <> ".value { Some(system), Some(required_value) if system == \""
+        <> " == \""
         <> system
-        <> "\" -> Ok(ct.IdentifierDiscriminatorSystemRequiredValue(id: "
+        <> "\" { True -> Ok("
         <> value
-        <> ".id, extension: "
-        <> value
-        <> ".extension, use_: "
-        <> value
-        <> ".use_, value: required_value, type_: "
-        <> value
-        <> ".type_, period: "
-        <> value
-        <> ".period, assigner: "
-        <> value
-        <> ".assigner)) _, _ -> Error(Nil) }",
+        <> ") False -> Error(Nil) }",
       ))
+    "ct.CodingFixedSystem" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.coding_fixed_system_from_coding("
+        <> value
+        <> ", \""
+        <> system
+        <> "\")",
+      ))
+    "ct.CodingFixedSystemCode" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.coding_fixed_system_code_from_coding("
+        <> value
+        <> ", \""
+        <> system
+        <> "\", \""
+        <> code
+        <> "\")",
+      ))
+    "ct.CodingFixedSystemCodeDisplay" -> {
+      let assert Some(display) = display
+      Ok(ResultDiscriminatorCall(
+        "ct.coding_fixed_system_code_display_from_coding("
+        <> value
+        <> ", \""
+        <> system
+        <> "\", \""
+        <> code
+        <> "\", \""
+        <> display
+        <> "\")",
+      ))
+    }
+    "ct.CodingFixedSystemRequiredCodeDisplay" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.coding_fixed_system_required_code_display_from_coding("
+        <> value
+        <> ", \""
+        <> system
+        <> "\")",
+      ))
+    "ct.CodeableconceptFixedSystemCode" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.codeableconcept_fixed_system_code_from_codeableconcept("
+        <> value
+        <> ", \""
+        <> system
+        <> "\", \""
+        <> code
+        <> "\")",
+      ))
+    "ct.CodeableconceptFixedSystem" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.codeableconcept_fixed_system_from_codeableconcept("
+        <> value
+        <> ", \""
+        <> system
+        <> "\")",
+      ))
+    "ct.CodeableconceptFixedSystemCodeDisplay" -> {
+      let assert Some(display) = display
+      Ok(ResultDiscriminatorCall(
+        "ct.codeableconcept_fixed_system_code_display_from_codeableconcept("
+        <> value
+        <> ", \""
+        <> system
+        <> "\", \""
+        <> code
+        <> "\", \""
+        <> display
+        <> "\")",
+      ))
+    }
     _ -> Error(Nil)
   }
 }
@@ -85,56 +102,105 @@ pub fn discriminator_new_call(
   discriminator_type: String,
 ) -> Result(String, Nil) {
   case discriminator_type {
-    "ct.CodingDiscriminator" -> Ok("ct.coding_discriminator_new()")
-    "ct.CodingDiscriminatorFixeduri" ->
-      Ok("ct.coding_discriminator_fixeduri_new(\"\", \"\")")
-    "ct.CodeableconceptDiscriminator" ->
-      Ok("ct.codeableconcept_discriminator_new()")
-    "ct.IdentifierDiscriminatorType" ->
-      Ok("ct.identifier_discriminator_type_new()")
-    "ct.IdentifierDiscriminatorSystem" ->
-      Ok("ct.identifier_discriminator_system_new()")
-    "ct.IdentifierDiscriminatorSystemRequiredValue" ->
-      Ok("ct.identifier_discriminator_system_required_value_new(\"\")")
+    "ct.CodingFixedSystem" -> Ok("ct.coding_fixed_system_new()")
+    "ct.CodingFixedSystemCode" -> Ok("ct.coding_fixed_system_code_new()")
+    "ct.CodingFixedSystemCodeDisplay" ->
+      Ok("ct.coding_fixed_system_code_display_new()")
+    "ct.CodingFixedSystemRequiredCodeDisplay" ->
+      Ok("ct.coding_fixed_system_required_code_display_new(\"\", \"\")")
+    "ct.CodeableconceptFixedSystemCode" ->
+      Ok("ct.codeableconcept_fixed_system_code_new()")
+    "ct.CodeableconceptFixedSystem" ->
+      Ok("ct.codeableconcept_fixed_system_new()")
+    "ct.CodeableconceptFixedSystemCodeDisplay" ->
+      Ok("ct.codeableconcept_fixed_system_code_display_new()")
     _ -> Error(Nil)
   }
 }
 
 pub fn discriminator_from_required_profile_call(
-  discriminator_type: String,
-  value: String,
-  system: String,
+  _discriminator_type: String,
+  _value: String,
+  _system: String,
 ) -> Result(DiscriminatorCall, Nil) {
-  case discriminator_type {
-    "ct.IdentifierDiscriminatorSystemRequiredValue" ->
-      Ok(ResultDiscriminatorCall(
-        "case "
-        <> value
-        <> ".system == \""
-        <> system
-        <> "\" { False -> Error(Nil) True -> Ok(ct.IdentifierDiscriminatorSystemRequiredValue(id: "
-        <> value
-        <> ".id, extension: "
-        <> value
-        <> ".extension, use_: "
-        <> value
-        <> ".use_, value: "
-        <> value
-        <> ".value, type_: "
-        <> value
-        <> ".type_, period: "
-        <> value
-        <> ".period, assigner: "
-        <> value
-        <> ".assigner)) }",
-      ))
-    _ -> Error(Nil)
-  }
+  Error(Nil)
 }
 
 pub const slice_coding = "
-pub type CodingDiscriminator {
-  CodingDiscriminator(
+pub type CodingFixedSystem {
+  CodingFixedSystem(
+    id: Option(String),
+    extension: List(Extension),
+    version: Option(String),
+    code: Option(String),
+    display: Option(String),
+    user_selected: Option(Bool),
+  )
+}
+
+pub fn coding_fixed_system_new() -> CodingFixedSystem {
+  CodingFixedSystem(
+    id: None,
+    extension: [],
+    version: None,
+    code: None,
+    display: None,
+    user_selected: None,
+  )
+}
+
+pub fn coding_fixed_system_from_coding(
+  coding: Coding,
+  system: String,
+) -> Result(CodingFixedSystem, Nil) {
+  let Coding(
+    id:,
+    extension:,
+    system: coding_system,
+    version:,
+    code:,
+    display:,
+    user_selected:,
+  ) = coding
+  case coding_system == Some(system) {
+    True ->
+      Ok(CodingFixedSystem(
+        id:,
+        extension:,
+        version:,
+        code:,
+        display:,
+        user_selected:,
+      ))
+    False -> Error(Nil)
+  }
+}
+
+pub fn coding_fixed_system_to_json(
+  coding: CodingFixedSystem,
+  system: String,
+) -> Json {
+  let CodingFixedSystem(
+    id:,
+    extension:,
+    version:,
+    code:,
+    display:,
+    user_selected:,
+  ) = coding
+  coding_to_json(Coding(
+    id:,
+    extension:,
+    system: Some(system),
+    version:,
+    code:,
+    display:,
+    user_selected:,
+  ))
+}
+
+pub type CodingFixedSystemCode {
+  CodingFixedSystemCode(
     id: Option(String),
     extension: List(Extension),
     version: Option(String),
@@ -143,8 +209,8 @@ pub type CodingDiscriminator {
   )
 }
 
-pub fn coding_discriminator_new() -> CodingDiscriminator {
-  CodingDiscriminator(
+pub fn coding_fixed_system_code_new() -> CodingFixedSystemCode {
+  CodingFixedSystemCode(
     id: None,
     extension: [],
     version: None,
@@ -153,11 +219,11 @@ pub fn coding_discriminator_new() -> CodingDiscriminator {
   )
 }
 
-pub fn coding_discriminator_from_coding(
+pub fn coding_fixed_system_code_from_coding(
   coding: Coding,
   system: String,
   code: String,
-) -> Result(CodingDiscriminator, Nil) {
+) -> Result(CodingFixedSystemCode, Nil) {
   let Coding(
     id:,
     extension:,
@@ -168,9 +234,9 @@ pub fn coding_discriminator_from_coding(
     user_selected:,
   ) = coding
   case coding_system, coding_code {
-    Some(coding_system), Some(coding_code) ->
-      case coding_system == system && coding_code == code {
-        True -> Ok(CodingDiscriminator(
+    Some(coding_system_value), Some(coding_code_value) ->
+      case coding_system_value == system && coding_code_value == code {
+        True -> Ok(CodingFixedSystemCode(
           id:,
           extension:,
           version:,
@@ -183,12 +249,12 @@ pub fn coding_discriminator_from_coding(
   }
 }
 
-pub fn coding_discriminator_to_json(
-  coding: CodingDiscriminator,
+pub fn coding_fixed_system_code_to_json(
+  coding: CodingFixedSystemCode,
   system: String,
   code: String,
 ) -> Json {
-  let CodingDiscriminator(
+  let CodingFixedSystemCode(
     id:,
     extension:,
     version:,
@@ -207,36 +273,31 @@ pub fn coding_discriminator_to_json(
 }
 "
 
-pub const slice_coding_fixeduri = "
-pub type CodingDiscriminatorFixeduri {
-  CodingDiscriminatorFixeduri(
+pub const slice_coding_display = "
+pub type CodingFixedSystemCodeDisplay {
+  CodingFixedSystemCodeDisplay(
     id: Option(String),
     extension: List(Extension),
-    code: String,
     version: Option(String),
-    display: String,
     user_selected: Option(Bool),
   )
 }
 
-pub fn coding_discriminator_fixeduri_new(
-  code code: String,
-  display display: String,
-) -> CodingDiscriminatorFixeduri {
-  CodingDiscriminatorFixeduri(
+pub fn coding_fixed_system_code_display_new() -> CodingFixedSystemCodeDisplay {
+  CodingFixedSystemCodeDisplay(
     id: None,
     extension: [],
     version: None,
-    code:,
-    display:,
     user_selected: None,
   )
 }
 
-pub fn coding_discriminator_fixeduri_from_coding(
+pub fn coding_fixed_system_code_display_from_coding(
   coding: Coding,
   system: String,
-) -> Result(CodingDiscriminatorFixeduri, Nil) {
+  code: String,
+  display: String,
+) -> Result(CodingFixedSystemCodeDisplay, Nil) {
   let Coding(
     id:,
     extension:,
@@ -247,9 +308,91 @@ pub fn coding_discriminator_fixeduri_from_coding(
     user_selected:,
   ) = coding
   case coding_system, coding_code, coding_display {
-    Some(coding_system), Some(coding_code), Some(coding_display) ->
-      case coding_system == system {
-        True -> Ok(CodingDiscriminatorFixeduri(
+    Some(coding_system_value), Some(coding_code_value), Some(coding_display_value) ->
+      case
+        coding_system_value == system
+        && coding_code_value == code
+        && coding_display_value == display
+      {
+        True -> Ok(CodingFixedSystemCodeDisplay(
+          id:,
+          extension:,
+          version:,
+          user_selected:,
+        ))
+        False -> Error(Nil)
+      }
+    _, _, _ -> Error(Nil)
+  }
+}
+
+pub fn coding_fixed_system_code_display_to_json(
+  coding: CodingFixedSystemCodeDisplay,
+  system: String,
+  code: String,
+  display: String,
+) -> Json {
+  let CodingFixedSystemCodeDisplay(
+    id:,
+    extension:,
+    version:,
+    user_selected:,
+  ) = coding
+  coding_to_json(Coding(
+    id:,
+    extension:,
+    system: Some(system),
+    version:,
+    code: Some(code),
+    display: Some(display),
+    user_selected:,
+  ))
+}
+"
+
+pub const slice_coding_fixeduri = "
+pub type CodingFixedSystemRequiredCodeDisplay {
+  CodingFixedSystemRequiredCodeDisplay(
+    id: Option(String),
+    extension: List(Extension),
+    code: String,
+    version: Option(String),
+    display: String,
+    user_selected: Option(Bool),
+  )
+}
+
+pub fn coding_fixed_system_required_code_display_new(
+  code code: String,
+  display display: String,
+) -> CodingFixedSystemRequiredCodeDisplay {
+  CodingFixedSystemRequiredCodeDisplay(
+    id: None,
+    extension: [],
+    version: None,
+    code:,
+    display:,
+    user_selected: None,
+  )
+}
+
+pub fn coding_fixed_system_required_code_display_from_coding(
+  coding: Coding,
+  system: String,
+) -> Result(CodingFixedSystemRequiredCodeDisplay, Nil) {
+  let Coding(
+    id:,
+    extension:,
+    system: coding_system,
+    version:,
+    code: coding_code,
+    display: coding_display,
+    user_selected:,
+  ) = coding
+  case coding_system, coding_code, coding_display {
+    Some(coding_system_value), Some(coding_code), Some(coding_display) ->
+      case coding_system_value == system {
+        True -> Ok(CodingFixedSystemRequiredCodeDisplay(
           id:,
           extension:,
           version:,
@@ -263,11 +406,11 @@ pub fn coding_discriminator_fixeduri_from_coding(
   }
 }
 
-pub fn coding_discriminator_fixeduri_to_json(
-  coding: CodingDiscriminatorFixeduri,
+pub fn coding_fixed_system_required_code_display_to_json(
+  coding: CodingFixedSystemRequiredCodeDisplay,
   system: String,
 ) -> Json {
-  let CodingDiscriminatorFixeduri(
+  let CodingFixedSystemRequiredCodeDisplay(
     id:,
     extension:,
     version:,
@@ -288,76 +431,159 @@ pub fn coding_discriminator_fixeduri_to_json(
 "
 
 pub const slice_codeableconcept = "
-pub type CodeableconceptDiscriminator {
-  CodeableconceptDiscriminator(
+pub type CodeableconceptFixedSystem {
+  CodeableconceptFixedSystem(
     id: Option(String),
     extension: List(Extension),
-    discriminator: CodingDiscriminator ,
-    more: List(Coding),
+    disc: CodingFixedSystem,
+    others: List(Coding),
     text: Option(String),
   )
 }
 
-pub fn codeableconcept_discriminator_new() -> CodeableconceptDiscriminator {
-  CodeableconceptDiscriminator(
+pub fn codeableconcept_fixed_system_new() -> CodeableconceptFixedSystem {
+  CodeableconceptFixedSystem(
     id: None,
     extension: [],
-    discriminator: coding_discriminator_new(),
-    more: [],
+    disc: coding_fixed_system_new(),
+    others: [],
     text: None,
   )
 }
 
-pub fn codeableconcept_discriminator_from_codeableconcept(
+pub fn codeableconcept_fixed_system_from_codeableconcept(
   concept: Codeableconcept,
   system: String,
-  code: String,
-) -> Result(CodeableconceptDiscriminator, Nil) {
+) -> Result(CodeableconceptFixedSystem, Nil) {
   let Codeableconcept(id:, extension:, coding:, text:) = concept
   case find_elt_and_rest_result(
     in: coding,
-    one_that: fn(coding) {
-      coding_discriminator_from_coding(coding, system, code)
-    },
+    one_that: fn(coding) { coding_fixed_system_from_coding(coding, system) },
   ) {
     Error(Nil) -> Error(Nil)
-    Ok(#(discriminator, more)) ->
-      Ok(CodeableconceptDiscriminator(
+    Ok(#(disc, others)) ->
+      Ok(CodeableconceptFixedSystem(
         id:,
         extension:,
-        discriminator:,
-        more:,
+        disc:,
+        others:,
         text:,
       ))
   }
 }
 
-pub fn codeableconcept_discriminator_to_json(
-  concept: CodeableconceptDiscriminator,
+pub fn codeableconcept_fixed_system_to_json(
+  concept: CodeableconceptFixedSystem,
   system: String,
-  code: String,
 ) -> Json {
-  let CodeableconceptDiscriminator(
+  let CodeableconceptFixedSystem(
     id:,
     extension:,
-    discriminator:,
-    more:,
+    disc:,
+    others:,
     text:,
   ) = concept
   codeableconcept_to_json(Codeableconcept(
     id:,
     extension:,
-    coding: [coding_discriminator_to_coding(discriminator, system, code), ..more],
+    coding: [coding_fixed_system_to_coding(disc, system), ..others],
     text:,
   ))
 }
 
-fn coding_discriminator_to_coding(
-  coding: CodingDiscriminator,
+fn coding_fixed_system_to_coding(
+  coding: CodingFixedSystem,
+  system: String,
+) -> Coding {
+  let CodingFixedSystem(
+    id:,
+    extension:,
+    version:,
+    code:,
+    display:,
+    user_selected:,
+  ) = coding
+  Coding(
+    id:,
+    extension:,
+    system: Some(system),
+    version:,
+    code:,
+    display:,
+    user_selected:,
+  )
+}
+
+pub type CodeableconceptFixedSystemCode {
+  CodeableconceptFixedSystemCode(
+    id: Option(String),
+    extension: List(Extension),
+    disc: CodingFixedSystemCode,
+    others: List(Coding),
+    text: Option(String),
+  )
+}
+
+pub fn codeableconcept_fixed_system_code_new() -> CodeableconceptFixedSystemCode {
+  CodeableconceptFixedSystemCode(
+    id: None,
+    extension: [],
+    disc: coding_fixed_system_code_new(),
+    others: [],
+    text: None,
+  )
+}
+
+pub fn codeableconcept_fixed_system_code_from_codeableconcept(
+  concept: Codeableconcept,
+  system: String,
+  code: String,
+) -> Result(CodeableconceptFixedSystemCode, Nil) {
+  let Codeableconcept(id:, extension:, coding:, text:) = concept
+  case find_elt_and_rest_result(
+    in: coding,
+    one_that: fn(coding) {
+      coding_fixed_system_code_from_coding(coding, system, code)
+    },
+  ) {
+    Error(Nil) -> Error(Nil)
+    Ok(#(disc, others)) ->
+      Ok(CodeableconceptFixedSystemCode(
+        id:,
+        extension:,
+        disc:,
+        others:,
+        text:,
+      ))
+  }
+}
+
+pub fn codeableconcept_fixed_system_code_to_json(
+  concept: CodeableconceptFixedSystemCode,
+  system: String,
+  code: String,
+) -> Json {
+  let CodeableconceptFixedSystemCode(
+    id:,
+    extension:,
+    disc:,
+    others:,
+    text:,
+  ) = concept
+  codeableconcept_to_json(Codeableconcept(
+    id:,
+    extension:,
+    coding: [coding_fixed_system_code_to_coding(disc, system, code), ..others],
+    text:,
+  ))
+}
+
+fn coding_fixed_system_code_to_coding(
+  coding: CodingFixedSystemCode,
   system: String,
   code: String,
 ) -> Coding {
-  let CodingDiscriminator(
+  let CodingFixedSystemCode(
     id:,
     extension:,
     version:,
@@ -376,311 +602,102 @@ fn coding_discriminator_to_coding(
 }
 "
 
-// rather than required: fixed system/value and more: rest
-// all codings in this codeableconcept have fixed system and value
-// also requires 1..* coding
-pub const slice_codeableconcept_all_coding_discriminator = "
-pub type CodeableconceptDiscriminatorAllCoding {
-  CodeableconceptDiscriminatorAllCoding(
+pub const slice_codeableconcept_display = "
+pub type CodeableconceptFixedSystemCodeDisplay {
+  CodeableconceptFixedSystemCodeDisplay(
     id: Option(String),
     extension: List(Extension),
-    coding: List1(CodingDiscriminator),
+    disc: CodingFixedSystemCodeDisplay,
+    others: List(Coding),
     text: Option(String),
   )
 }
 
-pub fn codeableconcept_discriminator_all_coding_new(
-) -> CodeableconceptDiscriminatorAllCoding {
-  CodeableconceptDiscriminatorAllCoding(
+pub fn codeableconcept_fixed_system_code_display_new(
+) -> CodeableconceptFixedSystemCodeDisplay {
+  CodeableconceptFixedSystemCodeDisplay(
     id: None,
     extension: [],
-    coding: List1(
-      first: coding_discriminator_new(),
-      rest: [],
-    ),
+    disc: coding_fixed_system_code_display_new(),
+    others: [],
     text: None,
   )
 }
-pub fn codeableconcept_all_codings_discriminator_from_codeableconcept(
+
+pub fn codeableconcept_fixed_system_code_display_from_codeableconcept(
   concept: Codeableconcept,
   system: String,
   code: String,
-) -> Result(CodeableconceptDiscriminatorAllCoding, Nil) {
+  display: String,
+) -> Result(CodeableconceptFixedSystemCodeDisplay, Nil) {
   let Codeableconcept(id:, extension:, coding:, text:) = concept
-  let discriminator_codings = coding |> list.try_map(fn(hope_has_fixed_system_and_code){
-    coding_discriminator_from_coding(hope_has_fixed_system_and_code, system, code)
-  })
-  case discriminator_codings {
-    Error(_) -> Error(Nil)
-    Ok([first_coding, ..rest_coding]) ->
-      Ok(CodeableconceptDiscriminatorAllCoding(
+  case find_elt_and_rest_result(
+    in: coding,
+    one_that: fn(coding) {
+      coding_fixed_system_code_display_from_coding(
+        coding,
+        system,
+        code,
+        display,
+      )
+    },
+  ) {
+    Error(Nil) -> Error(Nil)
+    Ok(#(disc, others)) ->
+      Ok(CodeableconceptFixedSystemCodeDisplay(
         id:,
         extension:,
-        coding: List1(first_coding, rest_coding),
+        disc:,
+        others:,
         text:,
       ))
-    Ok(_) -> Error(Nil)
   }
 }
 
-pub fn codeableconcept_discriminator_all_coding_to_json(
-  concept: CodeableconceptDiscriminatorAllCoding,
+pub fn codeableconcept_fixed_system_code_display_to_json(
+  concept: CodeableconceptFixedSystemCodeDisplay,
   system: String,
   code: String,
+  display: String,
 ) -> Json {
-  let CodeableconceptDiscriminatorAllCoding(
+  let CodeableconceptFixedSystemCodeDisplay(
     id:,
     extension:,
-    coding:,
+    disc:,
+    others:,
     text:,
   ) = concept
   codeableconcept_to_json(Codeableconcept(
     id:,
     extension:,
-    coding: [coding.first, ..coding.rest] |> list.map(fn(c){coding_discriminator_to_coding(c, system, code)}),
+    coding: [
+      coding_fixed_system_code_display_to_coding(disc, system, code, display),
+      ..others
+    ],
     text:,
   ))
 }
-"
 
-pub const slice_identifier_type = "
-pub type IdentifierDiscriminatorType {
-  IdentifierDiscriminatorType(
-    id: Option(String),
-    extension: List(Extension),
-    use_: Option(valuesets.Identifieruse),
-    type_: CodeableconceptDiscriminator,
-    system: Option(String),
-    value: Option(String),
-    period: Option(Period),
-    assigner: Option(Reference),
-  )
-}
-
-pub fn identifier_discriminator_type_new() -> IdentifierDiscriminatorType {
-  IdentifierDiscriminatorType(
-    id: None,
-    extension: [],
-    use_: None,
-    type_: codeableconcept_discriminator_new(),
-    system: None,
-    value: None,
-    period: None,
-    assigner: None,
-  )
-}
-
-pub fn identifier_discriminator_type_from_identifier(
-  identifier: Identifier,
-  type_system: String,
-  type_code: String,
-) -> Result(IdentifierDiscriminatorType, Nil) {
-  let Identifier(
-    id:,
-    extension:,
-    use_:,
-    type_:,
-    system:,
-    value:,
-    period:,
-    assigner:,
-  ) = identifier
-  case type_ {
-    None -> Error(Nil)
-    Some(type_) ->
-      case codeableconcept_discriminator_from_codeableconcept(
-        type_,
-        type_system,
-        type_code,
-      ) {
-        Error(_) -> Error(Nil)
-        Ok(type_) ->
-          Ok(IdentifierDiscriminatorType(
-            id:,
-            extension:,
-            use_:,
-            type_:,
-            system:,
-            value:,
-            period:,
-            assigner:,
-          ))
-      }
-  }
-}
-
-pub fn identifier_discriminator_type_to_json(
-  identifier: IdentifierDiscriminatorType,
-  type_system: String,
-  type_code: String,
-) -> Json {
-  let IdentifierDiscriminatorType(
-    id:,
-    extension:,
-    use_:,
-    type_:,
-    system:,
-    value:,
-    period:,
-    assigner:,
-  ) = identifier
-  let CodeableconceptDiscriminator(
-    id: type_id,
-    extension: type_extension,
-    discriminator:,
-    more:,
-    text: type_text,
-  ) = type_
-  identifier_to_json(Identifier(
-    id:,
-    extension:,
-    use_:,
-    type_: Some(Codeableconcept(
-      id: type_id,
-      extension: type_extension,
-      coding: [coding_discriminator_to_coding(discriminator, type_system, type_code), ..more],
-      text: type_text,
-    )),
-    system:,
-    value:,
-    period:,
-    assigner:,
-  ))
-}
-"
-
-pub const slice_identifier_system = "
-pub type IdentifierDiscriminatorSystem {
-  IdentifierDiscriminatorSystem(
-    id: Option(String),
-    extension: List(Extension),
-    use_: Option(valuesets.Identifieruse),
-    value: Option(String),
-    type_: Option(Codeableconcept),
-    period: Option(Period),
-    assigner: Option(Reference),
-  )
-}
-
-pub fn identifier_discriminator_system_new(
-) -> IdentifierDiscriminatorSystem {
-  IdentifierDiscriminatorSystem(
-    id: None,
-    extension: [],
-    use_: None,
-    value: None,
-    type_: None,
-    period: None,
-    assigner: None,
-  )
-}
-
-pub fn identifier_discriminator_system_from_identifier(
-  identifier: Identifier,
-  expected_system: String,
-) -> Result(IdentifierDiscriminatorSystem, Nil) {
-  let Identifier(
-    id:,
-    extension:,
-    use_:,
-    type_:,
-    system:,
-    value:,
-    period:,
-    assigner:,
-  ) = identifier
-  case system {
-    Some(system) -> case system == expected_system {
-      True -> Ok(IdentifierDiscriminatorSystem(
-        id:,
-        extension:,
-        use_:,
-        value:,
-        type_:,
-        period:,
-        assigner:,
-      ))
-      False -> Error(Nil)
-    }
-    _ -> Error(Nil)
-  }
-}
-
-pub fn identifier_discriminator_system_to_json(
-  identifier: IdentifierDiscriminatorSystem,
+fn coding_fixed_system_code_display_to_coding(
+  coding: CodingFixedSystemCodeDisplay,
   system: String,
-) -> Json {
-  let IdentifierDiscriminatorSystem(
+  code: String,
+  display: String,
+) -> Coding {
+  let CodingFixedSystemCodeDisplay(
     id:,
     extension:,
-    use_:,
-    value:,
-    type_:,
-    period:,
-    assigner:,
-  ) = identifier
-  identifier_to_json(Identifier(
+    version:,
+    user_selected:,
+  ) = coding
+  Coding(
     id:,
     extension:,
-    use_:,
-    type_:,
     system: Some(system),
-    value:,
-    period:,
-    assigner:,
-  ))
-}
-"
-
-pub const slice_identifier_system_reqvalue = "
-pub type IdentifierDiscriminatorSystemRequiredValue {
-  IdentifierDiscriminatorSystemRequiredValue(
-    id: Option(String),
-    extension: List(Extension),
-    use_: Option(valuesets.Identifieruse),
-    value: String,
-    type_: Option(Codeableconcept),
-    period: Option(Period),
-    assigner: Option(Reference),
+    version:,
+    code: Some(code),
+    display: Some(display),
+    user_selected:,
   )
-}
-
-pub fn identifier_discriminator_system_required_value_new(
-  value value: String,
-) -> IdentifierDiscriminatorSystemRequiredValue {
-  IdentifierDiscriminatorSystemRequiredValue(
-    id: None,
-    extension: [],
-    use_: None,
-    value:,
-    type_: None,
-    period: None,
-    assigner: None,
-  )
-}
-
-pub fn identifier_discriminator_system_required_value_to_json(
-  identifier: IdentifierDiscriminatorSystemRequiredValue,
-  system: String,
-) -> Json {
-  let IdentifierDiscriminatorSystemRequiredValue(
-    id:,
-    extension:,
-    use_:,
-    value:,
-    type_:,
-    period:,
-    assigner:,
-  ) = identifier
-  identifier_to_json(Identifier(
-    id:,
-    extension:,
-    use_:,
-    type_:,
-    system: Some(system),
-    value: Some(value),
-    period:,
-    assigner:,
-  ))
 }
 "

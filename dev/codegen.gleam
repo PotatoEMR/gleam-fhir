@@ -816,6 +816,31 @@ fn gen_fhir(
         next(value)
       }
 
+      pub fn primitive_choice_slice_decoder(
+        name: String,
+        thing_decoder: Decoder(a),
+        convert: fn(Primitive(a)) -> Decoder(b),
+        next: fn(b) -> Decoder(c),
+      ) -> Decoder(c) {
+        use value_present <- decode.optional_field(
+          name,
+          False,
+          decode.dynamic |> decode.map(fn(_) { True }),
+        )
+        use extension_present <- decode.optional_field(
+          \"_\" <> name,
+          False,
+          decode.dynamic |> decode.map(fn(_) { True }),
+        )
+        case value_present || extension_present {
+          True -> primitive_slice_decoder(name, thing_decoder, convert, next)
+          False -> {
+            use _ <- decode.field(name, thing_decoder)
+            primitive_slice_decoder(name, thing_decoder, convert, next)
+          }
+        }
+      }
+
       pub fn primitive_slice_list_decoder(
         name: String,
         thing_decoder: Decoder(a),
@@ -898,6 +923,7 @@ fn gen_fhir(
       #("Primitive", "Primitive(id:"),
       #("primitive_decoder", "primitive_decoder("),
       #("primitives_decoder", "primitives_decoder("),
+      #("primitive_choice_slice_decoder", "primitive_choice_slice_decoder("),
       #("primitive_slice_decoder", "primitive_slice_decoder("),
       #("primitive_slice_list_decoder", "primitive_slice_list_decoder("),
       #("primitive_to_json", "primitive_to_json("),
@@ -950,6 +976,7 @@ fn gen_fhir(
       None,
       "",
       gen_specific_resources,
+      profile_resource_entries,
     )
   list.each(
     [
@@ -1471,14 +1498,13 @@ fn file_to_types(
                       _ -> #(field_name_new, valueset_acc)
                     }
                     let elt_snake = codegen_helpers.to_snake_case(elt_last_part)
-                    let card_min = elt.min
                     let this_type_fields =
                       string.concat([
                         elt_snake,
                         ": ",
                         codegen_helpers.cardinality(
                           field_type,
-                          card_min,
+                          elt.min,
                           elt.max,
                         ),
                         ",\n",
@@ -2234,6 +2260,7 @@ fn valueset_include_codes(
           codegen_bound_coding.ValuesetCodeWithSystem(
             code: concept.code,
             system:,
+            variant: "",
           )
         }),
       )
@@ -2259,6 +2286,7 @@ fn valueset_include_codes(
                   codegen_bound_coding.ValuesetCodeWithSystem(
                     code: member.1,
                     system: member.0,
+                    variant: "",
                   )
                 }),
               )
@@ -2278,6 +2306,7 @@ fn valueset_include_codes(
           codegen_bound_coding.ValuesetCodeWithSystem(
             code: member.1,
             system: member.0,
+            variant: "",
           )
         }),
       )
@@ -2305,6 +2334,7 @@ fn valueset_type_source(
         Some(compose) ->
           valueset_compose_type_source(
             compose,
+            vs_url,
             vsname,
             all_vs_or_cs,
             exclude_not_selectable,
@@ -2320,32 +2350,21 @@ fn valueset_type_source(
 
 fn valueset_compose_type_source(
   compose: r4.ValuesetCompose,
+  vs_url: String,
   vsname: String,
   all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
   exclude_not_selectable: Bool,
   needs_system: Bool,
 ) {
   let includes = [compose.include.first, ..compose.include.rest]
-  let #(variants, codes, open_variants, systems, _) =
-    list.fold(includes, #("", [], [], set.new(), 1), fn(acc, include) {
-      let #(variants, codes, open_variants, systems, index) = acc
+  let #(codes, open_variants, systems, _) =
+    list.fold(includes, #([], [], set.new(), 1), fn(acc, include) {
+      let #(codes, open_variants, systems, index) = acc
       case
         valueset_include_codes(include, all_vs_or_cs, exclude_not_selectable)
       {
         codegen_bound_coding.ValuesetIncludeExpanded(include_codes) -> #(
-          variants
-            <> {
-            include_codes
-            |> list.map(fn(member) {
-              let codegen_bound_coding.ValuesetCodeWithSystem(code:, ..) =
-                member
-              vsname
-              <> string.capitalise(codegen_helpers.codetovarname(code))
-              <> "\n"
-            })
-            |> string.concat
-          },
-          list.append(codes, include_codes),
+          list.fold(include_codes, codes, fn(codes, code) { [code, ..codes] }),
           open_variants,
           include_codes
             |> list.fold(systems, fn(systems, member) {
@@ -2358,7 +2377,6 @@ fn valueset_compose_type_source(
         codegen_bound_coding.ValuesetIncludeString(system) -> {
           let variant_name = vsname <> valueset_include_name(include, index)
           #(
-            variants <> variant_name <> "(value: String)\n",
             codes,
             [
               codegen_bound_coding.OpenValuesetVariant(
@@ -2373,6 +2391,63 @@ fn valueset_compose_type_source(
         }
       }
     })
+  let codes = list.reverse(codes)
+  let open_variants = case needs_system, open_variants {
+    False, [_, _, ..] -> [
+      codegen_bound_coding.OpenValuesetVariant(
+        name: vsname <> "Other",
+        system: "",
+      ),
+    ]
+    _, _ -> open_variants
+  }
+  let #(_, duplicate_codes) =
+    list.fold(codes, #(set.new(), set.new()), fn(acc, member) {
+      let #(seen_codes, duplicate_codes) = acc
+      let codegen_bound_coding.ValuesetCodeWithSystem(code:, ..) = member
+      case set.contains(seen_codes, code) {
+        True -> #(seen_codes, set.insert(duplicate_codes, code))
+        False -> #(set.insert(seen_codes, code), duplicate_codes)
+      }
+    })
+  let assert Ok(vs_url_name) = vs_url |> string.split("/") |> list.last
+  let assert Ok(vs_namespace) = vs_url_name |> string.split("-") |> list.first
+  let vs_namespace =
+    vs_namespace |> codegen_helpers.codetovarname |> string.capitalise
+  let codes =
+    list.map(codes, fn(member) {
+      let codegen_bound_coding.ValuesetCodeWithSystem(code:, system:, ..) =
+        member
+      let code_name = code |> codegen_helpers.codetovarname |> string.capitalise
+      let variant = case set.contains(duplicate_codes, code) {
+        False -> code_name
+        True -> {
+          let system_name = codegen_helpers.concept_name_from_url(system)
+          let system_name = case string.starts_with(system_name, vs_namespace) {
+            True ->
+              system_name
+              |> string.drop_start(string.length(vs_namespace))
+              |> string.capitalise
+            False -> system_name
+          }
+          system_name <> code_name
+        }
+      }
+      codegen_bound_coding.ValuesetCodeWithSystem(..member, variant:)
+    })
+  let variants =
+    codes
+    |> list.map(fn(member) {
+      let codegen_bound_coding.ValuesetCodeWithSystem(variant:, ..) = member
+      vsname <> variant <> "\n"
+    })
+    |> string.concat
+    |> string.append(
+      list.fold(open_variants, "", fn(acc, open_variant) {
+        let codegen_bound_coding.OpenValuesetVariant(name:, ..) = open_variant
+        acc <> name <> "(value: String)\n"
+      }),
+    )
   let code_functions = case needs_system, open_variants, codes {
     True, _, _ ->
       string.concat([
@@ -2383,19 +2458,18 @@ fn valueset_compose_type_source(
           codes,
           open_variants,
         ),
-        case open_variants, codes {
-          [], [_, ..] -> gen_valueset_decoder(vsname, codes)
-          _, _ -> ""
+        case open_variants, codes, set.is_empty(duplicate_codes) {
+          [], [_, ..], True -> gen_valueset_decoder(vsname, codes, [])
+          _, _, _ -> ""
         },
       ])
-    False, [], [_, ..] ->
+    False, _, _ ->
       string.concat([
         gen_valueset_encoder(vsname),
-        gen_valueset_to_code(vsname, codes, []),
-        gen_valueset_from_code(vsname, codes),
-        gen_valueset_decoder(vsname, codes),
+        gen_valueset_to_code(vsname, codes, open_variants),
+        gen_valueset_from_code(vsname, codes, open_variants),
+        gen_valueset_decoder(vsname, codes, open_variants),
       ])
-    False, _, _ -> ""
   }
   let system_function = case needs_system {
     True ->
@@ -2548,13 +2622,11 @@ fn gen_valueset_to_code(
       from: "",
       over: vs_codes,
       with: fn(acc: String, member: codegen_bound_coding.ValuesetCodeWithSystem) {
-        let codegen_bound_coding.ValuesetCodeWithSystem(code:, ..) = member
+        let codegen_bound_coding.ValuesetCodeWithSystem(code:, variant:, ..) =
+          member
         acc
         <> "CODETYPE -> \"ACTUALCODE\"\n"
-        |> string.replace(
-          "CODETYPE",
-          vsname <> string.capitalise(codegen_helpers.codetovarname(code)),
-        )
+        |> string.replace("CODETYPE", vsname <> variant)
         |> string.replace("ACTUALCODE", code)
       },
     ) <> list.fold(open_variants, "", fn(acc, open_variant) {
@@ -2571,29 +2643,30 @@ fn gen_valueset_to_code(
 fn gen_valueset_decoder(
   vsname: String,
   vs_codes: List(codegen_bound_coding.ValuesetCodeWithSystem),
+  open_variants: List(codegen_bound_coding.OpenValuesetVariant),
 ) -> String {
   let vsname_lower = vsname |> string.lowercase()
-  let assert Ok(codegen_bound_coding.ValuesetCodeWithSystem(code: fail_code, ..)) =
-    list.first(vs_codes)
-    as vsname
+  let fallback = case open_variants, vs_codes {
+    [codegen_bound_coding.OpenValuesetVariant(name:, ..), ..], _ ->
+      "decode.success(" <> name <> "(variant))"
+    [], [codegen_bound_coding.ValuesetCodeWithSystem(variant:, ..), ..] ->
+      "decode.failure(" <> vsname <> variant <> ", \"CNAMECAPITAL\")"
+    [], [] -> panic as { "ValueSet " <> vsname <> " has no codes" }
+  }
   let template = "pub fn CNAMELOWER_decoder() -> Decoder(CNAMECAPITAL) {
     use variant <- decode.then(decode.string)
     case variant {" <> list.fold(
       from: "",
       over: vs_codes,
       with: fn(acc: String, member: codegen_bound_coding.ValuesetCodeWithSystem) {
-        let codegen_bound_coding.ValuesetCodeWithSystem(code:, ..) = member
+        let codegen_bound_coding.ValuesetCodeWithSystem(code:, variant:, ..) =
+          member
         acc
         <> "\"ACTUALCODE\" -> decode.success(CODETYPE)\n"
-        |> string.replace(
-          "CODETYPE",
-          vsname <> string.capitalise(codegen_helpers.codetovarname(code)),
-        )
+        |> string.replace("CODETYPE", vsname <> variant)
         |> string.replace("ACTUALCODE", code)
       },
-    ) <> "_ -> decode.failure(" <> vsname <> string.capitalise(
-      codegen_helpers.codetovarname(fail_code),
-    ) <> ", \"CNAMECAPITAL\")}
+    ) <> "_ -> " <> fallback <> "}
   }
   "
   template
@@ -2604,24 +2677,28 @@ fn gen_valueset_decoder(
 fn gen_valueset_from_code(
   vsname: String,
   vs_codes: List(codegen_bound_coding.ValuesetCodeWithSystem),
+  open_variants: List(codegen_bound_coding.OpenValuesetVariant),
 ) -> String {
   let vsname_lower = vsname |> string.lowercase()
+  let fallback = case open_variants {
+    [codegen_bound_coding.OpenValuesetVariant(name:, ..), ..] ->
+      "Ok(" <> name <> "(code))"
+    [] -> "Error(Nil)"
+  }
   let template =
     "pub fn CNAMELOWER_from_code(code: String) -> Result(CNAMECAPITAL, Nil) {
     case code {" <> list.fold(
       from: "",
       over: vs_codes,
       with: fn(acc: String, member: codegen_bound_coding.ValuesetCodeWithSystem) {
-        let codegen_bound_coding.ValuesetCodeWithSystem(code:, ..) = member
+        let codegen_bound_coding.ValuesetCodeWithSystem(code:, variant:, ..) =
+          member
         acc
         <> "\"ACTUALCODE\" -> Ok(CODETYPE)\n"
-        |> string.replace(
-          "CODETYPE",
-          vsname <> string.capitalise(codegen_helpers.codetovarname(code)),
-        )
+        |> string.replace("CODETYPE", vsname <> variant)
         |> string.replace("ACTUALCODE", code)
       },
-    ) <> "_ -> Error(Nil)}
+    ) <> "_ -> " <> fallback <> "}
   }
   "
   template

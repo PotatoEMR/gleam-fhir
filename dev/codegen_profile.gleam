@@ -3,20 +3,21 @@ import codegen_decode
 import codegen_helpers
 import codegen_profile_json.{
   type ExtensionDefinition, type SliceFieldType, type SlicePlan,
-  BoundCodeableconceptSlice, ComplexExtension, ExtensionDefinition,
-  FixedSliceType, SimpleExtension, TypeSlicePlan, ValueSlicePlan,
-  aggregate_slice_constructor, aggregate_slice_type_name,
-  aggregate_value_slice_roots, does_profile_restrict_complex_type,
-  extension_field_name, extension_field_to_json_call, find_element,
-  profile_base_field_type, profile_extension_definition,
-  profile_field_has_primitive_type, profile_field_is_primitive_slice,
-  profile_field_min,
+  BoundCodeableconceptSlice, BoundCodingSlice, ComplexExtension,
+  ExtensionDefinition, FixedSliceType, FixedValueDiscriminator, SimpleExtension,
+  TypeSlicePlan, ValueSlicePlan, aggregate_slice_constructor,
+  aggregate_slice_type_name, aggregate_value_slice_roots,
+  does_profile_restrict_complex_type, extension_field_name,
+  extension_field_to_json_call, find_element, profile_base_field_type,
+  profile_extension_definition, profile_field_has_primitive_type,
+  profile_field_is_primitive_slice, profile_field_min,
 }
 import codegen_slice_complex_type
 import codegen_to_json
 import filepath
 import gleam/dict
 import gleam/dynamic/decode
+import gleam/int
 import gleam/io
 import gleam/json
 import gleam/list
@@ -30,6 +31,7 @@ type ProfileFiles {
   ProfileFiles(
     resources: List(codegen_helpers.Resource),
     extensions: dict.Dict(String, ExtensionDefinition),
+    datatype_profiles: dict.Dict(String, codegen_helpers.Resource),
   )
 }
 
@@ -113,42 +115,18 @@ fn referenced_extension_urls(resources: List(codegen_helpers.Resource)) {
   |> set.from_list
 }
 
-fn package_directories(profiles_dir: String) {
-  let package_store =
-    profiles_dir
-    |> filepath.directory_name
-    |> filepath.directory_name
-    |> filepath.directory_name
-  let assert Ok(package_names) = simplifile.read_directory(package_store)
-
-  package_names
-  |> list.flat_map(fn(package_name) {
-    let package_path = filepath.join(package_store, package_name)
-    case simplifile.read_directory(package_path) {
-      Error(_) -> []
-      Ok(versions) ->
-        list.filter_map(versions, fn(version) {
-          let directory =
-            package_path |> filepath.join(version) |> filepath.join("package")
-          case simplifile.is_directory(directory) {
-            Ok(True) -> Ok(directory)
-            _ -> Error(Nil)
-          }
-        })
-    }
-  })
-}
-
 fn base_structure_elements(
   profiles_dir: String,
   profile_elements: List(codegen_helpers.Element),
 ) -> dict.Dict(String, codegen_helpers.Element) {
-  let directories = package_directories(profiles_dir)
+  let directories = codegen_helpers.package_directories(profiles_dir)
   profile_elements
-  |> list.filter_map(fn(element) {
-    element.base.path
-    |> string.split(".")
-    |> list.first
+  |> list.flat_map(fn(element) {
+    let type_roots = list.map(element.type_, fn(type_) { type_.code })
+    case element.base.path |> string.split(".") |> list.first {
+      Ok(root) -> [root, ..type_roots]
+      Error(_) -> type_roots
+    }
   })
   |> set.from_list
   |> set.to_list
@@ -245,7 +223,7 @@ fn extension_definitions(
   profiles_dir: String,
   referenced_urls: Set(String),
 ) -> dict.Dict(String, ExtensionDefinition) {
-  package_directories(profiles_dir)
+  codegen_helpers.package_directories(profiles_dir)
   |> list.flat_map(fn(package_dir) {
     let index_path = filepath.join(package_dir, ".index.json")
     case simplifile.read(index_path) {
@@ -313,11 +291,68 @@ fn load_profile_files(
           list.contains(gen_specific_resources, string.lowercase(resource.name))
       }
     })
+  let datatype_profile_urls =
+    resources
+    |> list.flat_map(fn(resource) {
+      case resource.snapshot {
+        None -> []
+        Some(snapshot) ->
+          snapshot.element
+          |> list.flat_map(fn(element) {
+            element.type_
+            |> list.flat_map(fn(type_) {
+              case type_.code {
+                "Coding" | "CodeableConcept" | "Identifier" ->
+                  list.map(type_.profile, canonical_url)
+                _ -> []
+              }
+            })
+          })
+      }
+    })
+    |> set.from_list
+  let datatype_profiles =
+    codegen_helpers.package_directories(profiles_dir)
+    |> list.flat_map(fn(package_dir) {
+      let index_path = filepath.join(package_dir, ".index.json")
+      case simplifile.read(index_path) {
+        Error(_) -> []
+        Ok(contents) -> {
+          let assert Ok(files) = json.parse(contents, package_index_decoder())
+          files
+          |> list.filter_map(fn(file) {
+            case file.url {
+              Some(url) -> {
+                case set.contains(datatype_profile_urls, canonical_url(url)) {
+                  False -> Error(Nil)
+                  True -> {
+                    let resource =
+                      read_structure_definition(filepath.join(
+                        package_dir,
+                        file.filename,
+                      ))
+                    case resource.type_ {
+                      Some("Coding")
+                      | Some("CodeableConcept")
+                      | Some("Identifier") ->
+                        Ok(#(canonical_url(url), resource))
+                      _ -> Error(Nil)
+                    }
+                  }
+                }
+              }
+              _ -> Error(Nil)
+            }
+          })
+        }
+      }
+    })
+    |> dict.from_list
   let extensions =
-    structures
+    list.append(resources, dict.values(datatype_profiles))
     |> referenced_extension_urls
     |> extension_definitions(profiles_dir, _)
-  ProfileFiles(resources:, extensions:)
+  ProfileFiles(resources:, extensions:, datatype_profiles:)
 }
 
 pub fn required_complex_type_names(
@@ -700,18 +735,85 @@ fn element_type_is(element: codegen_helpers.Element, expected: String) -> Bool {
   }
 }
 
-fn has_system_and_code(
-  value: codegen_helpers.DiscriminatorCodingValue,
-) -> Bool {
-  value.system != None && value.code != None
+fn coding_type_from_elements(
+  coding: codegen_helpers.Element,
+  elements: List(codegen_helpers.Element),
+) -> Result(String, String) {
+  let #(pattern_system, pattern_code, pattern_display) = case
+    coding.pattern_coding
+  {
+    Some(codegen_helpers.DiscriminatorCodingValue(system:, code:, display:)) -> #(
+      system,
+      code,
+      display,
+    )
+    None -> #(None, None, None)
+  }
+  let child_system =
+    find_element(elements, coding.id <> ".system")
+    |> result.map(fn(element) { element.fixed_uri })
+    |> result.unwrap(None)
+  let child_code =
+    find_element(elements, coding.id <> ".code")
+    |> result.map(fn(element) { element.fixed_code })
+    |> result.unwrap(None)
+  let system = case pattern_system, child_system {
+    Some(pattern), Some(child) if pattern != child ->
+      panic as { "conflicting Coding system constraints for " <> coding.id }
+    Some(pattern), _ -> Some(pattern)
+    None, child -> child
+  }
+  let code = case pattern_code, child_code {
+    Some(pattern), Some(child) if pattern != child ->
+      panic as { "conflicting Coding code constraints for " <> coding.id }
+    Some(pattern), _ -> Some(pattern)
+    None, child -> child
+  }
+  case system, code, pattern_display {
+    Some(_), Some(_), Some(_) -> Ok("ct.CodingFixedSystemCodeDisplay")
+    Some(_), Some(_), None -> Ok("ct.CodingFixedSystemCode")
+    Some(_), None, None -> Ok("ct.CodingFixedSystem")
+    _, _, _ -> Error("Coding pattern has unsupported fixed fields")
+  }
 }
 
-fn is_single_coding_pattern(
-  value: codegen_helpers.DiscriminatorCodeableconceptValue,
-) -> Bool {
-  case value.coding {
-    [coding] -> has_system_and_code(coding)
-    _ -> False
+fn codeableconcept_type_from_elements(
+  concept: codegen_helpers.Element,
+  elements: List(codegen_helpers.Element),
+) -> Result(String, String) {
+  let coding = case concept.pattern_codeableconcept {
+    Some(codegen_helpers.DiscriminatorCodeableconceptValue(coding: [pattern])) ->
+      Ok(
+        codegen_helpers.Element(
+          ..concept,
+          id: concept.id <> ".coding",
+          path: concept.path <> ".coding",
+          slice_name: None,
+          slicing: None,
+          type_: [
+            codegen_helpers.Type(
+              code: "Coding",
+              target_profile: [],
+              profile: [],
+            ),
+          ],
+          pattern_coding: Some(pattern),
+          pattern_codeableconcept: None,
+        ),
+      )
+    Some(_) -> Error("CodeableConcept pattern has more than one Coding")
+    None ->
+      find_element(elements, concept.id <> ".coding")
+      |> result.replace_error("missing CodeableConcept coding element")
+  }
+  use coding <- result.try(coding)
+  use coding_type <- result.try(coding_type_from_elements(coding, elements))
+  case coding_type {
+    "ct.CodingFixedSystem" -> Ok("ct.CodeableconceptFixedSystem")
+    "ct.CodingFixedSystemCode" -> Ok("ct.CodeableconceptFixedSystemCode")
+    "ct.CodingFixedSystemCodeDisplay" ->
+      Ok("ct.CodeableconceptFixedSystemCodeDisplay")
+    _ -> Error("unsupported CodeableConcept Coding type")
   }
 }
 
@@ -734,78 +836,189 @@ fn only_value_or_pattern_discriminators(
 }
 
 fn plan_whole_value_slice(
-  group: codegen_helpers.Element,
+  _group: codegen_helpers.Element,
   root: codegen_helpers.Element,
   elements: List(codegen_helpers.Element),
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
 ) -> Result(SlicePlan, String) {
-  case
-    root.type_,
-    root.pattern_coding,
-    root.pattern_codeableconcept,
-    root.pattern_identifier
-  {
-    [codegen_helpers.Type(code: "Coding", ..)], Some(pattern), _, _ ->
-      case has_system_and_code(pattern) {
-        True ->
-          Ok(
-            ValueSlicePlan([
-              #(root.id, FixedSliceType("ct.CodingDiscriminator")),
-            ]),
+  case root.type_ {
+    [codegen_helpers.Type(code: "Coding", ..)] ->
+      case coding_type_from_elements(root, elements) {
+        Ok(type_) -> {
+          use #(system, code, display) <- result.try(
+            codegen_profile_json.discriminator_literals(root, [root, ..elements])
+            |> result.replace_error("missing discriminator literals"),
           )
-        False -> Error("Coding pattern does not fix system and code")
-      }
-    [codegen_helpers.Type(code: "CodeableConcept", ..)], _, Some(pattern), _ ->
-      case is_single_coding_pattern(pattern) {
-        True ->
           Ok(
-            ValueSlicePlan([
-              #(root.id, FixedSliceType("ct.CodeableconceptDiscriminator")),
-            ]),
+            ValueSlicePlan(
+              root_id: root.id,
+              overrides: [
+                #(
+                  root.id,
+                  FixedSliceType(
+                    type_,
+                    [root, ..elements],
+                    system,
+                    code,
+                    display,
+                  ),
+                ),
+              ],
+              nested: [],
+            ),
           )
-        False -> Error("CodeableConcept pattern is not one system/code pair")
+        }
+        Error(_) ->
+          case root.binding {
+            Some(codegen_helpers.Binding(
+              strength: "required",
+              value_set: Some(value_set),
+            )) -> {
+              let value_set = canonical_url(value_set)
+              case
+                codegen_helpers.valueset_can_generate_discriminator(
+                  value_set,
+                  available_valuesets,
+                )
+              {
+                True ->
+                  Ok(
+                    ValueSlicePlan(
+                      root_id: root.id,
+                      overrides: [#(root.id, BoundCodingSlice)],
+                      nested: [],
+                    ),
+                  )
+                False ->
+                  Error(
+                    "cant expand valueset required for discriminator "
+                    <> value_set,
+                  )
+              }
+            }
+            _ -> Error("unsupported Coding $this value pattern")
+          }
       }
-    [codegen_helpers.Type(code: "Identifier", ..)],
-      _,
-      _,
-      Some(codegen_helpers.DiscriminatorIdentifierValue(
-        system: Some(_),
-        value: None,
-      ))
-    -> {
-      let requires_value = case
-        find_element(elements, root.id <> ".value"),
-        find_element(elements, group.id <> ".value")
-      {
-        Ok(value), _ | _, Ok(value) -> value.min > 0
-        _, _ -> False
+    [codegen_helpers.Type(code: "CodeableConcept", ..)] ->
+      case codeableconcept_type_from_elements(root, elements) {
+        Ok(type_) -> {
+          use #(system, code, display) <- result.try(
+            codegen_profile_json.discriminator_literals(root, [root, ..elements])
+            |> result.replace_error("missing discriminator literals"),
+          )
+          Ok(
+            ValueSlicePlan(
+              root_id: root.id,
+              overrides: [
+                #(
+                  root.id,
+                  FixedSliceType(
+                    type_,
+                    [root, ..elements],
+                    system,
+                    code,
+                    display,
+                  ),
+                ),
+              ],
+              nested: [],
+            ),
+          )
+        }
+        Error(_) ->
+          case root.binding {
+            Some(codegen_helpers.Binding(
+              strength: "required",
+              value_set: Some(value_set),
+            )) -> {
+              let value_set = canonical_url(value_set)
+              case
+                codegen_helpers.valueset_can_generate_discriminator(
+                  value_set,
+                  available_valuesets,
+                )
+              {
+                True ->
+                  Ok(
+                    ValueSlicePlan(
+                      root_id: root.id,
+                      overrides: [#(root.id, BoundCodeableconceptSlice)],
+                      nested: [],
+                    ),
+                  )
+                False ->
+                  Error(
+                    "cant expand valueset required for discriminator "
+                    <> value_set,
+                  )
+              }
+            }
+            _ -> Error("unsupported CodeableConcept $this value pattern")
+          }
       }
-      let type_ = case requires_value {
-        True -> "ct.IdentifierDiscriminatorSystemRequiredValue"
-        False -> "ct.IdentifierDiscriminatorSystem"
-      }
-      Ok(ValueSlicePlan([#(root.id, FixedSliceType(type_))]))
-    }
-    [codegen_helpers.Type(code: "CodeableConcept", ..)], _, _, _ ->
-      case root.binding {
-        Some(codegen_helpers.Binding(
-          strength: "required",
-          value_set: Some(value_set),
+    [codegen_helpers.Type(code: "Identifier", ..)] ->
+      case root.pattern_identifier {
+        Some(codegen_helpers.DiscriminatorIdentifierValue(
+          system: Some(system),
+          value: None,
         )) -> {
-          let value_set = canonical_url(value_set)
-          case
-            codegen_helpers.valueset_can_generate_system(
-              value_set,
-              available_valuesets,
-            )
-          {
-            True -> Ok(ValueSlicePlan([#(root.id, BoundCodeableconceptSlice)]))
-            False -> Error("can't expand valueset " <> value_set)
+          let system_override = #(
+            root.id <> ".system",
+            FixedValueDiscriminator(system),
+          )
+          case find_element(elements, root.id <> ".type") {
+            Ok(type_) ->
+              case codeableconcept_type_from_elements(type_, elements) {
+                Ok(type_name) -> {
+                  use #(type_system, type_code, type_display) <- result.try(
+                    codegen_profile_json.discriminator_literals(type_, [
+                      type_,
+                      ..elements
+                    ])
+                    |> result.replace_error("missing discriminator literals"),
+                  )
+                  Ok(
+                    ValueSlicePlan(
+                      root_id: root.id,
+                      overrides: [
+                        system_override,
+                        #(
+                          type_.id,
+                          FixedSliceType(
+                            type_name,
+                            [type_, ..elements],
+                            type_system,
+                            type_code,
+                            type_display,
+                          ),
+                        ),
+                      ],
+                      nested: [],
+                    ),
+                  )
+                }
+                Error(_) ->
+                  Ok(
+                    ValueSlicePlan(
+                      root_id: root.id,
+                      overrides: [system_override],
+                      nested: [],
+                    ),
+                  )
+              }
+            Error(_) ->
+              Ok(
+                ValueSlicePlan(
+                  root_id: root.id,
+                  overrides: [system_override],
+                  nested: [],
+                ),
+              )
           }
         }
-        _ -> Error("unsupported $this value pattern")
+        _ -> Error("unsupported Identifier $this value pattern")
       }
-    _, _, _, _ -> Error("unsupported $this value pattern")
+    _ -> Error("unsupported $this value pattern")
   }
 }
 
@@ -814,30 +1027,41 @@ fn plan_system_code_slice(
   elements: List(codegen_helpers.Element),
 ) -> Result(SlicePlan, String) {
   let coding_id = root.id <> ".coding"
-  let code_id = coding_id <> ".code"
-  let system_id = coding_id <> ".system"
   case
     find_element(elements, coding_id),
-    find_element(elements, code_id),
-    find_element(elements, system_id)
+    element_type_is(root, "CodeableConcept")
   {
-    Ok(coding), Ok(code), Ok(system) ->
-      case
-        element_type_is(root, "CodeableConcept"),
-        element_type_is(coding, "Coding"),
-        code.fixed_code,
-        system.fixed_uri
-      {
-        True, True, Some(_), Some(_) ->
-          Ok(
-            ValueSlicePlan([
-              #(root.id, FixedSliceType("ct.CodeableconceptDiscriminator")),
-            ]),
+    Ok(_), True ->
+      case codeableconcept_type_from_elements(root, elements) {
+        Ok("ct.CodeableconceptFixedSystemCode" as type_)
+        | Ok("ct.CodeableconceptFixedSystemCodeDisplay" as type_) -> {
+          use #(system, code, display) <- result.try(
+            codegen_profile_json.discriminator_literals(root, [root, ..elements])
+            |> result.replace_error("missing discriminator literals"),
           )
-        _, _, _, _ ->
-          Error("coding.system and coding.code are not fixed literals")
+          Ok(
+            ValueSlicePlan(
+              root_id: root.id,
+              overrides: [
+                #(
+                  root.id,
+                  FixedSliceType(
+                    type_,
+                    [root, ..elements],
+                    system,
+                    code,
+                    display,
+                  ),
+                ),
+              ],
+              nested: [],
+            ),
+          )
+        }
+        Ok(_) -> Error("don't have discriminator fixed system/fixed code")
+        Error(reason) -> Error(reason)
       }
-    _, _, _ -> Error("coding.system and coding.code are not fixed literals")
+    _, _ -> Error("missing CodeableConcept Coding constraints")
   }
 }
 
@@ -845,52 +1069,105 @@ fn plan_child_value_slice(
   root: codegen_helpers.Element,
   path: String,
   elements: List(codegen_helpers.Element),
+  available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+  planned_slices: dict.Dict(String, SlicePlan),
 ) -> Result(SlicePlan, String) {
   let child_id = root.id <> "." <> path
   use child <- result.try(
     find_element(elements, child_id)
     |> result.replace_error("missing discriminator element " <> child_id),
   )
-  case
-    root.type_,
-    path,
-    child.type_,
-    child.pattern_codeableconcept,
-    child.pattern_coding
-  {
-    [codegen_helpers.Type(code: "Identifier", ..)], "type", _, Some(pattern), _
-    ->
-      case is_single_coding_pattern(pattern) {
-        True ->
-          Ok(
-            ValueSlicePlan([
-              #(root.id, FixedSliceType("ct.IdentifierDiscriminatorType")),
-            ]),
+  case child.type_ {
+    [codegen_helpers.Type(code: "CodeableConcept", ..)] ->
+      case codeableconcept_type_from_elements(child, elements) {
+        Ok(type_) -> {
+          use #(system, code, display) <- result.try(
+            codegen_profile_json.discriminator_literals(child, [
+              child,
+              ..elements
+            ])
+            |> result.replace_error("missing discriminator literals"),
           )
-        False -> Error("Identifier.type pattern is not one system/code pair")
-      }
-    _, _, [codegen_helpers.Type(code: "CodeableConcept", ..)], Some(pattern), _
-    ->
-      case is_single_coding_pattern(pattern) {
-        True ->
           Ok(
-            ValueSlicePlan([
-              #(child_id, FixedSliceType("ct.CodeableconceptDiscriminator")),
-            ]),
+            ValueSlicePlan(
+              root_id: root.id,
+              overrides: [
+                #(
+                  child_id,
+                  FixedSliceType(
+                    type_,
+                    [child, ..elements],
+                    system,
+                    code,
+                    display,
+                  ),
+                ),
+              ],
+              nested: [],
+            ),
           )
-        False -> Error("CodeableConcept pattern is not one system/code pair")
+        }
+        Error(_) -> {
+          let nested_group = find_element(elements, child_id <> ".coding")
+          case nested_group {
+            Ok(codegen_helpers.Element(slicing: Some(_), ..)) -> {
+              let nested_group = result.unwrap(nested_group, child)
+              let nested_roots = direct_slice_roots(nested_group, elements)
+              case
+                nested_roots,
+                list.try_map(nested_roots, fn(nested_root) {
+                  dict.get(planned_slices, nested_root.id)
+                })
+              {
+                [_, ..], Ok(nested) ->
+                  Ok(ValueSlicePlan(root_id: root.id, overrides: [], nested:))
+                _, _ ->
+                  plan_whole_value_slice(
+                    root,
+                    child,
+                    elements,
+                    available_valuesets,
+                  )
+              }
+            }
+            _ ->
+              plan_whole_value_slice(root, child, elements, available_valuesets)
+          }
+        }
       }
-    _, _, [codegen_helpers.Type(code: "Coding", ..)], _, Some(pattern) ->
-      case has_system_and_code(pattern) {
-        True ->
+    [codegen_helpers.Type(code: "Coding", ..)] ->
+      case coding_type_from_elements(child, elements) {
+        Ok(type_) -> {
+          use #(system, code, display) <- result.try(
+            codegen_profile_json.discriminator_literals(child, [
+              child,
+              ..elements
+            ])
+            |> result.replace_error("missing discriminator literals"),
+          )
           Ok(
-            ValueSlicePlan([
-              #(child_id, FixedSliceType("ct.CodingDiscriminator")),
-            ]),
+            ValueSlicePlan(
+              root_id: root.id,
+              overrides: [
+                #(
+                  child_id,
+                  FixedSliceType(
+                    type_,
+                    [child, ..elements],
+                    system,
+                    code,
+                    display,
+                  ),
+                ),
+              ],
+              nested: [],
+            ),
           )
-        False -> Error("Coding pattern does not fix system and code")
+        }
+        Error(_) ->
+          plan_whole_value_slice(root, child, elements, available_valuesets)
       }
-    _, _, _, _, _ -> Error("unsupported value pattern at " <> child_id)
+    _ -> Error("unsupported value pattern at " <> child_id)
   }
 }
 
@@ -900,6 +1177,7 @@ fn plan_value_slice(
   root: codegen_helpers.Element,
   elements: List(codegen_helpers.Element),
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+  planned_slices: dict.Dict(String, SlicePlan),
 ) -> Result(SlicePlan, String) {
   case
     only_value_or_pattern_discriminators(slicing),
@@ -907,46 +1185,257 @@ fn plan_value_slice(
   {
     True, ["$this"] ->
       plan_whole_value_slice(group, root, elements, available_valuesets)
-    True, ["coding.code", "coding.system"] ->
+    True, ["code", "system"] | True, ["code"] ->
+      case element_type_is(root, "Coding") {
+        True ->
+          case coding_type_from_elements(root, elements) {
+            Ok("ct.CodingFixedSystemCode" as type_)
+            | Ok("ct.CodingFixedSystemCodeDisplay" as type_) -> {
+              use #(system, code, display) <- result.try(
+                codegen_profile_json.discriminator_literals(root, [
+                  root,
+                  ..elements
+                ])
+                |> result.replace_error("missing discriminator literals"),
+              )
+              Ok(
+                ValueSlicePlan(
+                  root_id: root.id,
+                  overrides: [
+                    #(
+                      root.id,
+                      FixedSliceType(
+                        type_,
+                        [root, ..elements],
+                        system,
+                        code,
+                        display,
+                      ),
+                    ),
+                  ],
+                  nested: [],
+                ),
+              )
+            }
+            Ok(_) -> Error("don't have discriminator fixed system/fixed code")
+            Error(reason) -> Error(reason)
+          }
+        False ->
+          plan_child_value_slice(
+            root,
+            "code",
+            elements,
+            available_valuesets,
+            planned_slices,
+          )
+      }
+    True, ["coding.code", "coding.system"] | True, ["coding.code"] ->
       plan_system_code_slice(root, elements)
+    True, ["coding"] ->
+      case codeableconcept_type_from_elements(root, elements) {
+        Ok(type_) -> {
+          use #(system, code, display) <- result.try(
+            codegen_profile_json.discriminator_literals(root, [root, ..elements])
+            |> result.replace_error("missing discriminator literals"),
+          )
+          Ok(
+            ValueSlicePlan(
+              root_id: root.id,
+              overrides: [
+                #(
+                  root.id,
+                  FixedSliceType(
+                    type_,
+                    [root, ..elements],
+                    system,
+                    code,
+                    display,
+                  ),
+                ),
+              ],
+              nested: [],
+            ),
+          )
+        }
+        Error(reason) -> Error(reason)
+      }
     True, ["system"] ->
       case group.type_ {
         [codegen_helpers.Type(code: "Identifier", ..)] -> {
           let system_id = root.id <> ".system"
-          let assert Ok(system_element) = find_element(elements, system_id)
-          let assert Some(_) = system_element.fixed_uri
-          let requires_value = case
-            find_element(elements, root.id <> ".value"),
-            find_element(elements, group.id <> ".value")
-          {
-            Ok(value), _ | _, Ok(value) -> value.min > 0
-            _, _ -> False
+          case find_element(elements, system_id) {
+            Ok(codegen_helpers.Element(fixed_uri: Some(system), ..)) ->
+              case find_element(elements, root.id <> ".type") {
+                Ok(type_) ->
+                  case codeableconcept_type_from_elements(type_, elements) {
+                    Ok(type_name) -> {
+                      use #(type_system, type_code, type_display) <- result.try(
+                        codegen_profile_json.discriminator_literals(type_, [
+                          type_,
+                          ..elements
+                        ])
+                        |> result.replace_error(
+                          "missing discriminator literals",
+                        ),
+                      )
+                      Ok(
+                        ValueSlicePlan(
+                          root_id: root.id,
+                          overrides: [
+                            #(
+                              root.id <> ".system",
+                              FixedValueDiscriminator(system),
+                            ),
+                            #(
+                              type_.id,
+                              FixedSliceType(
+                                type_name,
+                                [type_, ..elements],
+                                type_system,
+                                type_code,
+                                type_display,
+                              ),
+                            ),
+                          ],
+                          nested: [],
+                        ),
+                      )
+                    }
+                    Error(_) ->
+                      Ok(
+                        ValueSlicePlan(
+                          root_id: root.id,
+                          overrides: [
+                            #(
+                              root.id <> ".system",
+                              FixedValueDiscriminator(system),
+                            ),
+                          ],
+                          nested: [],
+                        ),
+                      )
+                  }
+                Error(_) ->
+                  Ok(
+                    ValueSlicePlan(
+                      root_id: root.id,
+                      overrides: [
+                        #(root.id <> ".system", FixedValueDiscriminator(system)),
+                      ],
+                      nested: [],
+                    ),
+                  )
+              }
+            _ -> Error("Identifier slice has no system literal")
           }
-          let type_ = case requires_value {
-            True -> "ct.IdentifierDiscriminatorSystemRequiredValue"
-            False -> "ct.IdentifierDiscriminatorSystem"
-          }
-          Ok(ValueSlicePlan([#(root.id, FixedSliceType(type_))]))
         }
         [codegen_helpers.Type(code: "Coding", ..)] -> {
-          let assert Ok(system) = find_element(elements, root.id <> ".system")
-          let assert Ok(code) = find_element(elements, root.id <> ".code")
-          let assert Ok(display) = find_element(elements, root.id <> ".display")
-          let assert Some(_) = system.fixed_uri
-          case code.min > 0, display.min > 0 {
-            True, True ->
-              Ok(
-                ValueSlicePlan([
-                  #(root.id, FixedSliceType("ct.CodingDiscriminatorFixeduri")),
-                ]),
+          case find_element(elements, root.id <> ".system") {
+            Error(_) | Ok(codegen_helpers.Element(fixed_uri: None, ..)) ->
+              case root.binding {
+                Some(codegen_helpers.Binding(
+                  strength: "required",
+                  value_set: Some(value_set),
+                )) -> {
+                  let value_set = canonical_url(value_set)
+                  case
+                    codegen_helpers.valueset_can_generate_discriminator(
+                      value_set,
+                      available_valuesets,
+                    )
+                  {
+                    True ->
+                      Ok(
+                        ValueSlicePlan(
+                          root_id: root.id,
+                          overrides: [#(root.id, BoundCodingSlice)],
+                          nested: [],
+                        ),
+                      )
+                    False ->
+                      Error(
+                        "cant expand valueset required for discriminator "
+                        <> value_set,
+                      )
+                  }
+                }
+                _ -> Error("Coding slice has no system literal")
+              }
+            Ok(_) -> {
+              use #(system, code, display) <- result.try(
+                codegen_profile_json.discriminator_literals(root, [
+                  root,
+                  ..elements
+                ])
+                |> result.replace_error("missing discriminator literals"),
               )
-            _, _ -> Error("Coding slice does not require code and display")
+              let required_code = case
+                find_element(elements, root.id <> ".code")
+              {
+                Ok(code) -> code.min > 0
+                Error(_) -> False
+              }
+              let required_display = case
+                find_element(elements, root.id <> ".display")
+              {
+                Ok(display) -> display.min > 0
+                Error(_) -> False
+              }
+              Ok(
+                ValueSlicePlan(
+                  root_id: root.id,
+                  overrides: [
+                    #(
+                      root.id,
+                      FixedSliceType(
+                        case required_code, required_display {
+                          True, True ->
+                            "ct.CodingFixedSystemRequiredCodeDisplay"
+                          _, _ -> "ct.CodingFixedSystem"
+                        },
+                        [root, ..elements],
+                        system,
+                        code,
+                        display,
+                      ),
+                    ),
+                  ],
+                  nested: [],
+                ),
+              )
+            }
           }
         }
         _ -> Error("unsupported system discriminator type")
       }
-    True, [path] if path == "code" || path == "type" ->
-      plan_child_value_slice(root, path, elements)
+    True, [path] -> {
+      let assert [first, ..] = string.split(path, ".")
+      plan_child_value_slice(
+        root,
+        first,
+        elements,
+        available_valuesets,
+        planned_slices,
+      )
+    }
+    True, [first_path, ..rest_paths] -> {
+      let assert [first, ..] = string.split(first_path, ".")
+      case
+        list.all(rest_paths, fn(path) {
+          string.starts_with(path, first <> ".") || path == first
+        })
+      {
+        True ->
+          plan_child_value_slice(
+            root,
+            first,
+            elements,
+            available_valuesets,
+            planned_slices,
+          )
+        False -> Error("value discriminator paths do not share one child")
+      }
+    }
     False, _ -> Error("")
     True, _ -> Error("unsupported value discriminator path")
   }
@@ -958,6 +1447,7 @@ fn plan_slice(
   root: codegen_helpers.Element,
   elements: List(codegen_helpers.Element),
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+  planned_slices: dict.Dict(String, SlicePlan),
 ) -> Result(SlicePlan, String) {
   case slicing.discriminator, root.type_ {
     [codegen_helpers.Discriminator(type_: "type", path: "$this")],
@@ -967,17 +1457,43 @@ fn plan_slice(
         root_id: group.id,
         fhir_type: code,
         slice: root,
-        children: list.filter(elements, fn(element) {
-          let prefix = root.id <> "."
-          string.starts_with(element.id, prefix)
-          && !string.contains(
-            string.drop_start(element.id, string.length(prefix)),
-            ".",
-          )
-        }),
+        children: elements
+          |> list.filter(fn(element) {
+            let prefix = root.id <> "."
+            string.starts_with(element.id, prefix)
+            && !string.contains(
+              string.drop_start(element.id, string.length(prefix)),
+              ".",
+            )
+          })
+          |> list.map(fn(element) {
+            case element.id == root.id <> ".value", element.type_ {
+              True, [type_] ->
+                case
+                  string.starts_with(
+                    type_.code,
+                    "http://hl7.org/fhirpath/System.",
+                  )
+                {
+                  True ->
+                    codegen_helpers.Element(..element, type_: [
+                      codegen_helpers.Type(..type_, code:),
+                    ])
+                  False -> element
+                }
+              _, _ -> element
+            }
+          }),
       ))
     _, _ ->
-      plan_value_slice(slicing, group, root, elements, available_valuesets)
+      plan_value_slice(
+        slicing,
+        group,
+        root,
+        elements,
+        available_valuesets,
+        planned_slices,
+      )
   }
 }
 
@@ -1033,114 +1549,373 @@ fn prepare_profile_slices(
   resource_id: String,
   elements: List(codegen_helpers.Element),
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+  datatype_profiles: dict.Dict(String, codegen_helpers.Resource),
 ) -> #(
   List(codegen_helpers.Element),
   dict.Dict(String, SliceFieldType),
   dict.Dict(String, SlicePlan),
+  Set(String),
 ) {
+  let profiled_identifier_children =
+    elements
+    |> list.filter(fn(element) {
+      element.slice_name != None && element_type_is(element, "Identifier")
+    })
+    |> list.flat_map(fn(root) {
+      root.type_
+      |> list.flat_map(fn(type_) {
+        type_.profile
+        |> list.find_map(fn(url) {
+          dict.get(datatype_profiles, canonical_url(url))
+        })
+        |> result.map(fn(profile) {
+          case profile.snapshot {
+            None -> []
+            Some(snapshot) ->
+              snapshot.element
+              |> list.filter_map(fn(child) {
+                case string.starts_with(child.id, "Identifier.") {
+                  False -> Error(Nil)
+                  True -> {
+                    let suffix = string.drop_start(child.id, 10)
+                    let path_suffix = string.drop_start(child.path, 10)
+                    let child_id = root.id <> suffix
+                    case find_element(elements, child_id) {
+                      Ok(existing) -> {
+                        let fixed_uri = case
+                          existing.fixed_uri,
+                          child.fixed_uri
+                        {
+                          Some(value), Some(inherited) if value != inherited ->
+                            panic as {
+                              "conflicting Identifier system constraints for "
+                              <> child_id
+                            }
+                          Some(value), _ -> Some(value)
+                          None, inherited -> inherited
+                        }
+                        let fixed_code = case
+                          existing.fixed_code,
+                          child.fixed_code
+                        {
+                          Some(value), Some(inherited) if value != inherited ->
+                            panic as {
+                              "conflicting Identifier code constraints for "
+                              <> child_id
+                            }
+                          Some(value), _ -> Some(value)
+                          None, inherited -> inherited
+                        }
+                        Ok(
+                          codegen_helpers.Element(
+                            ..existing,
+                            min: int.max(existing.min, child.min),
+                            max: case existing.max, child.max {
+                              "*", inherited -> inherited
+                              value, "*" -> value
+                              value, inherited -> {
+                                let assert Ok(value) = int.parse(value)
+                                let assert Ok(inherited) = int.parse(inherited)
+                                int.min(value, inherited) |> int.to_string
+                              }
+                            },
+                            binding: case existing.binding {
+                              Some(_) -> existing.binding
+                              None -> child.binding
+                            },
+                            fixed_code:,
+                            fixed_uri:,
+                            pattern_coding: case existing.pattern_coding {
+                              Some(_) -> existing.pattern_coding
+                              None -> child.pattern_coding
+                            },
+                            pattern_codeableconcept: case
+                              existing.pattern_codeableconcept
+                            {
+                              Some(_) -> existing.pattern_codeableconcept
+                              None -> child.pattern_codeableconcept
+                            },
+                            pattern_identifier: case
+                              existing.pattern_identifier
+                            {
+                              Some(_) -> existing.pattern_identifier
+                              None -> child.pattern_identifier
+                            },
+                          ),
+                        )
+                      }
+                      Error(_) ->
+                        Ok(
+                          codegen_helpers.Element(
+                            ..child,
+                            id: child_id,
+                            path: root.path <> path_suffix,
+                          ),
+                        )
+                    }
+                  }
+                }
+              })
+          }
+        })
+        |> result.unwrap([])
+      })
+    })
+  let profiled_identifier_child_ids =
+    profiled_identifier_children
+    |> list.map(fn(element) { element.id })
+    |> set.from_list
+  let elements =
+    elements
+    |> list.filter(fn(element) {
+      !set.contains(profiled_identifier_child_ids, element.id)
+    })
+    |> list.append(profiled_identifier_children)
+  let identifier_children = [
+    "id",
+    "extension",
+    "use",
+    "type",
+    "system",
+    "value",
+    "period",
+    "assigner",
+  ]
+  let inherited_identifier_children =
+    elements
+    |> list.filter(fn(element) {
+      element.slice_name != None
+      && element.pattern_identifier != None
+      && element_type_is(element, "Identifier")
+    })
+    |> list.flat_map(fn(root) {
+      identifier_children
+      |> list.filter_map(fn(child_name) {
+        let child_id = root.id <> "." <> child_name
+        case find_element(elements, child_id) {
+          Ok(_) -> Error(Nil)
+          Error(_) ->
+            case find_element(elements, root.path <> "." <> child_name) {
+              Ok(child) ->
+                Ok(
+                  codegen_helpers.Element(
+                    ..child,
+                    id: child_id,
+                    slice_name: None,
+                  ),
+                )
+              Error(_) -> Error(Nil)
+            }
+        }
+      })
+    })
+  let elements = list.append(elements, inherited_identifier_children)
+  let elements =
+    list.map(elements, fn(element) {
+      case string.ends_with(element.id, ".system"), element.fixed_uri {
+        True, None -> {
+          let parent_id = string.drop_end(element.id, 7)
+          case find_element(elements, parent_id) {
+            Ok(codegen_helpers.Element(
+              type_: [codegen_helpers.Type(code: "Identifier", ..)],
+              pattern_identifier: Some(codegen_helpers.DiscriminatorIdentifierValue(
+                system: Some(system),
+                ..,
+              )),
+              ..,
+            )) -> codegen_helpers.Element(..element, fixed_uri: Some(system))
+            _ -> element
+          }
+        }
+        _, _ -> element
+      }
+    })
   let groups =
     elements
     |> list.filter(fn(element) {
       element.slicing != None && !is_extension_slicing(element)
     })
-    |> list.sort(fn(a, b) { string.compare(a.id, b.id) })
+    |> list.sort(fn(a, b) { string.compare(b.id, a.id) })
 
-  list.fold(groups, #(elements, dict.new(), dict.new()), fn(acc, group) {
-    let #(current_elements, overrides, type_slice_overrides) = acc
-    let assert Some(slicing) = group.slicing
-    let roots = direct_slice_roots(group, current_elements)
-    let discriminator_type = case slicing.discriminator {
-      [discriminator, ..] -> discriminator.type_
-      [] -> "unknown"
-    }
-    let #(plans, unsupported_ids) =
-      list.fold(roots, #([], []), fn(acc, root) {
-        let #(plans, unsupported_ids) = acc
-        case
-          plan_slice(
-            slicing,
-            group,
-            root,
+  list.fold(
+    groups,
+    #(elements, dict.new(), dict.new(), dict.new(), set.new()),
+    fn(acc, group) {
+      let #(
+        current_elements,
+        overrides,
+        type_slice_overrides,
+        planned_slices,
+        nested_value_discriminators,
+      ) = acc
+      let assert Some(slicing) = group.slicing
+      let roots = direct_slice_roots(group, current_elements)
+      let discriminator_type = case slicing.discriminator {
+        [discriminator, ..] -> discriminator.type_
+        [] -> "unknown"
+      }
+      let #(plans, unsupported_ids) =
+        list.fold(roots, #([], []), fn(acc, root) {
+          let #(plans, unsupported_ids) = acc
+          case
+            plan_slice(
+              slicing,
+              group,
+              root,
+              current_elements,
+              available_valuesets,
+              planned_slices,
+            )
+          {
+            Ok(plan) -> #([plan, ..plans], unsupported_ids)
+            Error(reason) -> {
+              let message = case
+                string.starts_with(
+                  reason,
+                  "cant expand valueset required for discriminator ",
+                )
+              {
+                True ->
+                  "not slicing because "
+                  <> reason
+                  <> " for "
+                  <> resource_id
+                  <> " "
+                  <> root.id
+                False ->
+                  "not slicing "
+                  <> discriminator_type
+                  <> " discriminator "
+                  <> resource_id
+                  <> " "
+                  <> root.id
+                  <> case reason {
+                    "" -> ""
+                    _ -> " because " <> reason
+                  }
+              }
+              io.println(message)
+              #(plans, [root.id, ..unsupported_ids])
+            }
+          }
+        })
+      let keep_supported_open_slices =
+        unsupported_ids != [] && plans != [] && slicing.rules == "open"
+      let current_elements = case keep_supported_open_slices {
+        True -> remove_element_trees(current_elements, unsupported_ids, True)
+        False -> current_elements
+      }
+      let unsupported_ids = case keep_supported_open_slices {
+        True -> []
+        False -> unsupported_ids
+      }
+      case unsupported_ids {
+        [_, ..] -> {
+          let root_ids = list.map(roots, fn(root) { root.id })
+          let current_elements =
+            current_elements
+            |> remove_element_trees(root_ids, True)
+            |> list.map(fn(element) {
+              case element.id == group.id {
+                True -> codegen_helpers.Element(..element, slicing: None)
+                False -> element
+              }
+            })
+          #(
             current_elements,
-            available_valuesets,
+            overrides,
+            type_slice_overrides,
+            planned_slices,
+            nested_value_discriminators,
           )
-        {
-          Ok(plan) -> #([plan, ..plans], unsupported_ids)
-          Error(reason) -> {
-            io.println(
-              "not slicing "
-              <> discriminator_type
-              <> " discriminator "
-              <> resource_id
-              <> " "
-              <> root.id
-              <> case reason {
-                "" -> ""
-                _ -> " because " <> reason
+        }
+        [] -> {
+          let type_slice_ids =
+            plans
+            |> list.filter_map(fn(plan) {
+              case plan {
+                TypeSlicePlan(slice:, ..) -> Ok(slice.id)
+                ValueSlicePlan(..) -> Error(Nil)
+              }
+            })
+          let current_elements =
+            remove_element_trees(current_elements, type_slice_ids, True)
+          let replacement_ids =
+            plans
+            |> list.flat_map(fn(plan) {
+              case plan {
+                ValueSlicePlan(overrides:, ..) ->
+                  list.map(overrides, fn(pair) { pair.0 })
+                TypeSlicePlan(..) -> []
+              }
+            })
+          let current_elements =
+            remove_element_trees(current_elements, replacement_ids, False)
+          let overrides =
+            plans
+            |> list.flat_map(fn(plan) {
+              case plan {
+                ValueSlicePlan(overrides:, ..) -> overrides
+                TypeSlicePlan(..) -> []
+              }
+            })
+            |> list.fold(overrides, fn(overrides, pair) {
+              dict.insert(overrides, pair.0, pair.1)
+            })
+          let type_slice_overrides =
+            list.fold(plans, type_slice_overrides, fn(overrides, plan) {
+              case plan {
+                TypeSlicePlan(root_id:, fhir_type:, ..) ->
+                  dict.insert(
+                    overrides,
+                    type_slice_key(root_id, fhir_type),
+                    plan,
+                  )
+                ValueSlicePlan(..) -> overrides
+              }
+            })
+          let planned_slices =
+            list.fold(plans, planned_slices, fn(planned_slices, plan) {
+              case plan {
+                ValueSlicePlan(root_id:, ..) ->
+                  dict.insert(planned_slices, root_id, plan)
+                TypeSlicePlan(slice:, ..) ->
+                  dict.insert(planned_slices, slice.id, plan)
+              }
+            })
+          let nested_value_discriminators =
+            list.fold(
+              plans,
+              nested_value_discriminators,
+              fn(nested_value_discriminators, plan) {
+                case plan {
+                  ValueSlicePlan(root_id:, nested: [_, ..], ..) ->
+                    set.insert(nested_value_discriminators, root_id)
+                  _ -> nested_value_discriminators
+                }
               },
             )
-            #(plans, [root.id, ..unsupported_ids])
-          }
+          #(
+            current_elements,
+            overrides,
+            type_slice_overrides,
+            planned_slices,
+            nested_value_discriminators,
+          )
         }
-      })
-    case unsupported_ids {
-      [_, ..] -> {
-        let root_ids = list.map(roots, fn(root) { root.id })
-        let current_elements =
-          current_elements
-          |> remove_element_trees(root_ids, True)
-          |> list.map(fn(element) {
-            case element.id == group.id {
-              True -> codegen_helpers.Element(..element, slicing: None)
-              False -> element
-            }
-          })
-        #(current_elements, overrides, type_slice_overrides)
       }
-      [] -> {
-        let type_slice_ids =
-          plans
-          |> list.filter_map(fn(plan) {
-            case plan {
-              TypeSlicePlan(slice:, ..) -> Ok(slice.id)
-              ValueSlicePlan(_) -> Error(Nil)
-            }
-          })
-        let current_elements =
-          remove_element_trees(current_elements, type_slice_ids, True)
-        let replacement_ids =
-          plans
-          |> list.flat_map(fn(plan) {
-            case plan {
-              ValueSlicePlan(pairs) -> list.map(pairs, fn(pair) { pair.0 })
-              TypeSlicePlan(..) -> []
-            }
-          })
-        let current_elements =
-          remove_element_trees(current_elements, replacement_ids, False)
-        let overrides =
-          plans
-          |> list.flat_map(fn(plan) {
-            case plan {
-              ValueSlicePlan(pairs) -> pairs
-              TypeSlicePlan(..) -> []
-            }
-          })
-          |> list.fold(overrides, fn(overrides, pair) {
-            dict.insert(overrides, pair.0, pair.1)
-          })
-        let type_slice_overrides =
-          list.fold(plans, type_slice_overrides, fn(overrides, plan) {
-            case plan {
-              TypeSlicePlan(root_id:, fhir_type:, ..) ->
-                dict.insert(overrides, type_slice_key(root_id, fhir_type), plan)
-              ValueSlicePlan(_) -> overrides
-            }
-          })
-        #(current_elements, overrides, type_slice_overrides)
-      }
-    }
-  })
+    },
+  )
+  |> fn(result) {
+    let #(
+      elements,
+      overrides,
+      type_slice_overrides,
+      _,
+      nested_value_discriminators,
+    ) = result
+    #(elements, overrides, type_slice_overrides, nested_value_discriminators)
+  }
 }
 
 pub fn profile_files_to_types(
@@ -1169,7 +1944,7 @@ pub fn profile_files_to_types(
             strength: "required",
             value_set: Some(value_set),
           ))
-        -> Ok(canonical_url(value_set))
+        -> Ok(value_set)
         _, _ -> Error(Nil)
       }
     })
@@ -1228,29 +2003,39 @@ pub fn profile_files_to_types(
     )
   let slice_types =
     codegen_slice_complex_type.slice_coding
+    <> codegen_slice_complex_type.slice_coding_display
     <> codegen_slice_complex_type.slice_coding_fixeduri
     <> codegen_slice_complex_type.slice_codeableconcept
-    <> codegen_slice_complex_type.slice_identifier_type
-    <> codegen_slice_complex_type.slice_identifier_system
-    <> codegen_slice_complex_type.slice_identifier_system_reqvalue
+    <> codegen_slice_complex_type.slice_codeableconcept_display
 
-  let #(profile_complex_types, profile_resources, valueset_acc) =
+  let #(profile_complex_types, profile_resources, valueset_acc, _) =
     list.fold(
       over: profile_resources,
-      from: #(slice_types <> extension_types, "", valueset_acc),
+      from: #(slice_types <> extension_types, "", valueset_acc, set.new()),
       with: fn(acc, resource) {
-        let #(extension_types, generated_acc, valueset_acc) = acc
+        let #(
+          extension_types,
+          generated_acc,
+          valueset_acc,
+          generated_extension_classifiers,
+        ) = acc
         let assert Some(snapshot) = resource.snapshot
         let profile_elements =
           remove_profile_extension_children(
             snapshot.element,
             profile_structures.extensions,
           )
-        let #(profile_elements, slice_type_overrides, type_slice_overrides) =
+        let #(
+          profile_elements,
+          slice_type_overrides,
+          type_slice_overrides,
+          nested_value_discriminators,
+        ) =
           prepare_profile_slices(
             resource.id,
             profile_elements,
             available_slice_valuesets,
+            profile_structures.datatype_profiles,
           )
         let profile_prefix = string.replace(resource.id, "-", "_")
         let profile_type = case codegen_helpers.to_camel_case(profile_prefix) {
@@ -1386,12 +2171,15 @@ pub fn profile_files_to_types(
               }
               let type_order = case element.slice_name, is_choice {
                 Some(_), False ->
-                  case dict.has_key(slice_type_overrides, element.id) {
-                    True -> set.insert(type_order, field_parent)
-                    False ->
+                  case
+                    set.contains(nested_value_discriminators, element.id),
+                    dict.has_key(slice_type_overrides, element.id)
+                  {
+                    True, _ | False, False ->
                       type_order
                       |> set.insert(field_parent)
                       |> set.insert(field_path)
+                    False, True -> set.insert(type_order, field_parent)
                   }
                 Some(_), True -> set.insert(type_order, field_path)
                 None, _ -> type_order
@@ -1484,7 +2272,7 @@ pub fn profile_files_to_types(
                   && case element.slicing {
                     Some(slicing) ->
                       slicing.rules != "closed"
-                      || string.contains(element.path, "[x]")
+                      || string.ends_with(element.path, "[x]")
                       || dict.has_key(aggregate_slice_groups, element.id)
                     None -> True
                   }
@@ -1525,7 +2313,6 @@ pub fn profile_files_to_types(
                     let choice_type =
                       gleam_type <> string.capitalise(safe_field_name)
 
-                    let is_primitive = False
                     let is_primitive_slice =
                       profile_field_is_primitive_slice(
                         element,
@@ -1533,6 +2320,7 @@ pub fn profile_files_to_types(
                         type_order,
                         field_path,
                       )
+                    let is_primitive = False
 
                     let #(base_field_type, valueset_acc) =
                       profile_base_field_type(
@@ -1623,7 +2411,7 @@ pub fn profile_files_to_types(
                       preserve_slice_order
                       && element.base.max != "1"
                       && !dict.has_key(aggregate_slice_groups, element.id)
-                      && !string.contains(element.path, "[x]")
+                      && !string.ends_with(element.path, "[x]")
                       && {
                         let extension_group =
                           list.any(element.type_, fn(type_) {
@@ -1664,12 +2452,30 @@ pub fn profile_files_to_types(
                           is_primitive || is_primitive_slice,
                         )
                     }
-                    let cardinality =
-                      codegen_helpers.cardinality(
-                        field_type,
-                        card_min,
-                        element.max,
-                      )
+                    let cardinality = case card_min, element.max {
+                      min, "*" if min > 3 ->
+                        panic as {
+                          "unsupported cardinality "
+                          <> int.to_string(min)
+                          <> "..* for "
+                          <> element.id
+                        }
+                      min, max if min != 0 && min != 1 && max != "*" ->
+                        panic as {
+                          "unsupported cardinality "
+                          <> int.to_string(min)
+                          <> ".."
+                          <> max
+                          <> " for "
+                          <> element.id
+                        }
+                      _, _ ->
+                        codegen_helpers.cardinality(
+                          field_type,
+                          card_min,
+                          element.max,
+                        )
+                    }
                     let #(newfunc_arg, newfunc_field) =
                       codegen_helpers.new_fn_arg_and_field(
                         field_name,
@@ -1727,21 +2533,62 @@ pub fn profile_files_to_types(
                                     )
                                   #(variant_type, "", valueset_acc)
                                 }
-                                Ok(TypeSlicePlan(children:, ..)) -> {
+                                Ok(TypeSlicePlan(slice: _, children:, ..)) -> {
                                   let sliced_name =
                                     choice_type
                                     <> string.capitalise(choice.code)
                                     <> "Sliced"
+                                  let aggregate_slice_groups =
+                                    children
+                                    |> list.filter_map(fn(group) {
+                                      case
+                                        aggregate_value_slice_roots(
+                                          group,
+                                          children,
+                                        )
+                                      {
+                                        Some(aggregate) ->
+                                          Ok(#(group.id, aggregate))
+                                        None -> Error(Nil)
+                                      }
+                                    })
+                                    |> dict.from_list
+                                  let omitted_slice_roots =
+                                    aggregate_slice_groups
+                                    |> dict.values
+                                    |> list.flat_map(fn(aggregate) {
+                                      let #(roots, _) = aggregate
+                                      list.filter(roots, fn(root) {
+                                        root.min == 0
+                                      })
+                                    })
+                                  let type_fields =
+                                    list.filter(children, fn(child) {
+                                      child.max != "0"
+                                      && !list.any(
+                                        omitted_slice_roots,
+                                        fn(root) { root.id == child.id },
+                                      )
+                                      && case child.slicing {
+                                        Some(slicing) ->
+                                          slicing.rules != "closed"
+                                          || string.ends_with(child.path, "[x]")
+                                          || dict.has_key(
+                                            aggregate_slice_groups,
+                                            child.id,
+                                          )
+                                        None -> True
+                                      }
+                                    })
                                   let #(
                                     fields,
                                     newfunc_args,
                                     newfunc_fields,
                                     valueset_acc,
                                   ) =
-                                    children
+                                    type_fields
                                     |> list.filter(fn(child) {
-                                      child.max != "0"
-                                      && child.fixed_code == None
+                                      child.fixed_code == None
                                       && child.fixed_uri == None
                                     })
                                     |> list.fold(
@@ -1753,32 +2600,95 @@ pub fn profile_files_to_types(
                                           newfunc_fields,
                                           valueset_acc,
                                         ) = acc
-                                        let assert [child_type] = child.type_
-                                        let assert Ok(field_name) =
+                                        let assert Ok(json_field_name) =
                                           child.path
                                           |> string.split(".")
                                           |> list.last
+                                        let field_name = case child.slice_name {
+                                          Some(slice_name) -> slice_name
+                                          None -> json_field_name
+                                        }
                                         let field_name =
-                                          codegen_helpers.escape_field_name(
-                                            field_name,
-                                          )
-                                        let field_name =
-                                          codegen_helpers.to_snake_case(
-                                            field_name,
-                                          )
+                                          field_name
+                                          |> codegen_helpers.escape_field_name
+                                          |> codegen_helpers.to_snake_case
+                                        let all_parts = [
+                                          sliced_name,
+                                          field_name,
+                                        ]
+                                        let field_path =
+                                          string.join(all_parts, "_")
                                         let #(gleam_type, valueset_acc) =
-                                          codegen_helpers.string_to_type(
-                                            child_type.code,
-                                            [sliced_name, field_name],
+                                          profile_base_field_type(
                                             child,
-                                            codegen_helpers.Resources,
+                                            all_parts,
+                                            field_path,
+                                            "",
+                                            profile_structures.extensions,
+                                            type_order,
+                                            slice_base_type_names,
+                                            slice_type_overrides,
                                             valueset_acc,
                                           )
+                                        let is_slice_elt =
+                                          preserve_slice_order
+                                          && child.base.max != "1"
+                                          && !dict.has_key(
+                                            aggregate_slice_groups,
+                                            child.id,
+                                          )
+                                          && !string.ends_with(
+                                            child.path,
+                                            "[x]",
+                                          )
+                                          && {
+                                            let extension_group =
+                                              list.any(child.type_, fn(type_) {
+                                                type_.code == "Extension"
+                                              })
+                                            !extension_group
+                                            || child.slice_name != None
+                                            || list.any(
+                                              type_fields,
+                                              fn(candidate) {
+                                                candidate.path == child.path
+                                                && candidate.slice_name != None
+                                              },
+                                            )
+                                          }
+                                          && case
+                                            child.slice_name,
+                                            child.slicing
+                                          {
+                                            Some(_), _ | _, Some(_) -> True
+                                            None, None -> False
+                                          }
+                                        let gleam_type = case is_slice_elt {
+                                          True ->
+                                            case
+                                              profile_extension_definition(
+                                                child,
+                                                profile_structures.extensions,
+                                              )
+                                            {
+                                              Some(_) ->
+                                                "ct.ExtensionSliceElt("
+                                                <> gleam_type
+                                                <> ")"
+                                              None ->
+                                                "ct.SliceElt("
+                                                <> gleam_type
+                                                <> ")"
+                                            }
+                                          False -> gleam_type
+                                        }
+                                        let child_min =
+                                          profile_field_min(child, False)
                                         let #(newfunc_arg, newfunc_field) =
                                           codegen_helpers.new_fn_arg_and_field(
                                             field_name,
                                             gleam_type,
-                                            child.min,
+                                            child_min,
                                             child.max,
                                             False,
                                           )
@@ -1789,7 +2699,7 @@ pub fn profile_files_to_types(
                                             <> ": "
                                             <> codegen_helpers.cardinality(
                                             gleam_type,
-                                            child.min,
+                                            child_min,
                                             child.max,
                                           )
                                             <> ",\n",
@@ -1824,7 +2734,7 @@ pub fn profile_files_to_types(
                                     valueset_acc,
                                   )
                                 }
-                                Error(_) | Ok(ValueSlicePlan(_)) -> {
+                                Error(_) | Ok(ValueSlicePlan(..)) -> {
                                   let #(variant_type, valueset_acc) =
                                     codegen_helpers.string_to_type(
                                       choice.code,
@@ -1920,7 +2830,7 @@ pub fn profile_files_to_types(
             preserve_slice_order,
             valueset_acc,
           )
-        let profile_decoders =
+        let #(profile_decoders, generated_extension_classifiers) =
           codegen_profile_json.generate_decoders(
             resource_type,
             snapshot.element,
@@ -1931,11 +2841,13 @@ pub fn profile_files_to_types(
             profile_structures.extensions,
             slice_base_type_names,
             slice_type_overrides,
+            nested_value_discriminators,
             type_slice_overrides,
             preserve_slice_order,
             valueset_acc,
             available_slice_valuesets,
             base_elements,
+            generated_extension_classifiers,
           )
 
         #(
@@ -1945,6 +2857,7 @@ pub fn profile_files_to_types(
             <> profile_encoders
             <> profile_decoders,
           valueset_acc,
+          generated_extension_classifiers,
         )
       },
     )

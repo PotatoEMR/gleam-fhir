@@ -1,3 +1,4 @@
+import codegen_helpers
 import filepath
 import gleam/dict
 import gleam/dynamic/decode
@@ -185,6 +186,7 @@ pub fn gen(
   custom_profile_name custom_profile_name: Option(String),
   profiles_dir profiles_dir: String,
   gen_specific_resources gen_specific_resources: Option(List(String)),
+  profile_resource_entries profile_resource_entries: List(#(String, String, String)),
 ) -> #(String, String, String, String) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
@@ -307,6 +309,16 @@ pub fn gen(
           })
       }
     })
+  let client_entries =
+    list.map(entries, fn(entry) {
+      let #(name_lower, name_capital) = id_to_name(entry.resource.id)
+      #(name_lower, name_capital, entry.resource.type_)
+    })
+    |> list.append(
+      list.map(profile_resource_entries, fn(entry) {
+        #(codegen_helpers.to_snake_case(entry.1), entry.1, entry.0)
+      }),
+    )
 
   //region sansio
   // let res_specific_crud =
@@ -549,7 +561,7 @@ pub fn gen(
   //region httpc
   let res_specific_crud =
     gen_specific_crud(
-      entries,
+      client_entries,
       "
             pub fn NAMELOWER_create(
               resource: resources.NAMECAPITAL,
@@ -557,7 +569,7 @@ pub fn gen(
             ) -> Result(resources.NAMECAPITAL, Err) {
               any_create(
                 resources.NAMELOWER_to_json(resource),
-                resources.RtNAMECAPITAL,
+                resources.RtNAMERT,
                 resources.NAMELOWER_decoder(),
                 client,
               )
@@ -567,7 +579,7 @@ pub fn gen(
               id: String,
               client: FhirClient,
             ) -> Result(resources.NAMECAPITAL, Err) {
-              any_read(id, client, resources.RtNAMECAPITAL, resources.NAMELOWER_decoder())
+              any_read(id, client, resources.RtNAMERT, resources.NAMELOWER_decoder())
             }
 
             pub fn NAMELOWER_update(
@@ -577,7 +589,7 @@ pub fn gen(
               any_update(
                 resource.id,
                 resources.NAMELOWER_to_json(resource),
-                resources.RtNAMECAPITAL,
+                resources.RtNAMERT,
                 resources.NAMELOWER_decoder(),
                 client,
               )
@@ -588,7 +600,7 @@ pub fn gen(
               client: FhirClient,
             ) -> Result(sansio.OperationoutcomeOrHTTP, Err) {
               case resource.id {
-                Some(id) -> any_delete(id, resources.RtNAMECAPITAL, client)
+                Some(id) -> any_delete(id, resources.RtNAMERT, client)
                 None -> Error(ErrSansio(ErrNoId))
               }
             }
@@ -606,7 +618,7 @@ pub fn gen(
 
   let rsvp_res_specific_crud =
     gen_specific_crud(
-      entries,
+      client_entries,
       "
             pub fn NAMELOWER_create(
               resource: resources.NAMECAPITAL,
@@ -615,7 +627,7 @@ pub fn gen(
             ) -> Effect(a) {
               any_create(
                 resources.NAMELOWER_to_json(resource),
-                resources.RtNAMECAPITAL,
+                resources.RtNAMERT,
                 resources.NAMELOWER_decoder(),
                 client,
                 handle_response,
@@ -627,7 +639,7 @@ pub fn gen(
               client: FhirClient,
               handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> a,
             ) -> Effect(a) {
-              any_read(id, resources.RtNAMECAPITAL, resources.NAMELOWER_decoder(), client, handle_response)
+              any_read(id, resources.RtNAMERT, resources.NAMELOWER_decoder(), client, handle_response)
             }
 
             pub fn NAMELOWER_update(
@@ -638,7 +650,7 @@ pub fn gen(
               any_update(
                 resource.id,
                 resources.NAMELOWER_to_json(resource),
-                resources.RtNAMECAPITAL,
+                resources.RtNAMERT,
                 resources.NAMELOWER_decoder(),
                 client,
                 handle_response,
@@ -651,7 +663,7 @@ pub fn gen(
               handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> a,
             ) -> Result(Effect(a), ErrNoId) {
               case resource.id {
-                Some(id) -> Ok(any_delete(id, resources.RtNAMECAPITAL, client, handle_response))
+                Some(id) -> Ok(any_delete(id, resources.RtNAMERT, client, handle_response))
                 None -> Error(ErrNoId)
               }
             }
@@ -775,13 +787,18 @@ fn gen_search_encode(
 
 // most of the client stuff is generic so you can just write it in codegen_client.txt
 // only the wrappers are resource specific, to be type safe rather than strings, and need to be generated
-fn gen_specific_crud(entries: List(Entry), template: String) -> String {
+fn gen_specific_crud(
+  entries: List(#(String, String, String)),
+  template: String,
+) -> String {
   list.map(entries, fn(entry) {
-    let #(name_lower, name_capital) = id_to_name(entry.resource.id)
+    let #(name_lower, name_capital, resource_type) = entry
+    let #(_, route_type) = id_to_name(resource_type)
     template
     |> string.replace("NAMELOWER", name_lower)
-    |> string.replace("NAMEUPPER", entry.resource.type_)
+    |> string.replace("NAMEUPPER", resource_type)
     |> string.replace("NAMECAPITAL", name_capital)
+    |> string.replace("NAMERT", route_type)
   })
   |> string.concat
 }

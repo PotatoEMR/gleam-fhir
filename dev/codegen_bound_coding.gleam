@@ -377,7 +377,7 @@ pub fn bound_quantity_decoder(binding_from_code_and_system: fn(String, String) -
   )
   case code, system {
     None, None -> bound_quantity_decode_rest(None)
-    Some(code), Some(system) -> case   binding_from_code_and_system(code, system) {
+    Some(code), Some(system) -> case binding_from_code_and_system(code, system) {
         Error(_) -> decode.failure(bound_quantity_new(), \"need code + system from required ValueSet\")
         Ok(binding) -> bound_quantity_decode_rest(Some(binding))
       }
@@ -427,7 +427,7 @@ pub type ValuesetIncludeCodes {
 // but we flatten valuesets to flat list of codes
 // so need to get system from code or create valueset item from system and code
 pub type ValuesetCodeWithSystem {
-  ValuesetCodeWithSystem(code: String, system: String)
+  ValuesetCodeWithSystem(code: String, system: String, variant: String)
 }
 
 pub type OpenValuesetVariant {
@@ -611,13 +611,10 @@ pub fn gen_valueset_from_code_and_system(
       from: "",
       over: vs_codes,
       with: fn(acc: String, member: ValuesetCodeWithSystem) {
-        let ValuesetCodeWithSystem(code:, system:) = member
+        let ValuesetCodeWithSystem(code:, system:, variant:) = member
         acc
         <> "\"ACTUALCODE\", \"ACTUALSYSTEM\" -> Ok(CODETYPE)\n"
-        |> string.replace(
-          "CODETYPE",
-          vsname <> string.capitalise(codegen_helpers.codetovarname(code)),
-        )
+        |> string.replace("CODETYPE", vsname <> variant)
         |> string.replace("ACTUALCODE", code)
         |> string.replace("ACTUALSYSTEM", system)
       },
@@ -670,13 +667,8 @@ pub fn gen_multisystem_valueset_system(
 ) -> String {
   let expanded_system_arms =
     list.fold(vs_codes, "", fn(acc, member) {
-      let ValuesetCodeWithSystem(code:, system:) = member
-      acc
-      <> vsname
-      <> string.capitalise(codegen_helpers.codetovarname(code))
-      <> " -> \""
-      <> system
-      <> "\"\n"
+      let ValuesetCodeWithSystem(system:, variant:, ..) = member
+      acc <> vsname <> variant <> " -> \"" <> system <> "\"\n"
     })
   "pub fn "
   <> vsname_lower
@@ -701,8 +693,7 @@ pub fn valueset_failure_variant_source(
   open_variants: List(OpenValuesetVariant),
 ) -> String {
   case vs_codes, open_variants {
-    [ValuesetCodeWithSystem(code:, ..), ..], _ ->
-      vsname <> string.capitalise(codegen_helpers.codetovarname(code))
+    [ValuesetCodeWithSystem(variant:, ..), ..], _ -> vsname <> variant
     [], [OpenValuesetVariant(name:, ..), ..] -> name <> "(\"\")"
     [], [] -> panic as { "ValueSet " <> vsname <> " has no variants" }
   }

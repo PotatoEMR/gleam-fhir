@@ -168,11 +168,33 @@ pub fn element_decoder() -> decode.Decoder(Element) {
     None,
     decode.optional(decode.string),
   )
+  use pattern_code <- decode.optional_field(
+    "patternCode",
+    None,
+    decode.optional(decode.string),
+  )
+  let fixed_code = case fixed_code, pattern_code {
+    Some(fixed), Some(pattern) if fixed != pattern ->
+      panic as { "conflicting fixedCode and patternCode for " <> id }
+    Some(fixed), _ -> Some(fixed)
+    None, pattern -> pattern
+  }
   use fixed_uri <- decode.optional_field(
     "fixedUri",
     None,
     decode.optional(decode.string),
   )
+  use pattern_uri <- decode.optional_field(
+    "patternUri",
+    None,
+    decode.optional(decode.string),
+  )
+  let fixed_uri = case fixed_uri, pattern_uri {
+    Some(fixed), Some(pattern) if fixed != pattern ->
+      panic as { "conflicting fixedUri and patternUri for " <> id }
+    Some(fixed), _ -> Some(fixed)
+    None, pattern -> pattern
+  }
   use pattern_coding <- decode.optional_field(
     "patternCoding",
     None,
@@ -208,7 +230,11 @@ pub fn element_decoder() -> decode.Decoder(Element) {
 }
 
 pub type DiscriminatorCodingValue {
-  DiscriminatorCodingValue(system: Option(String), code: Option(String))
+  DiscriminatorCodingValue(
+    system: Option(String),
+    code: Option(String),
+    display: Option(String),
+  )
 }
 
 fn discriminator_coding_value_decoder() {
@@ -222,7 +248,12 @@ fn discriminator_coding_value_decoder() {
     None,
     decode.optional(decode.string),
   )
-  decode.success(DiscriminatorCodingValue(system:, code:))
+  use display <- decode.optional_field(
+    "display",
+    None,
+    decode.optional(decode.string),
+  )
+  decode.success(DiscriminatorCodingValue(system:, code:, display:))
 }
 
 pub type DiscriminatorCodeableconceptValue {
@@ -359,7 +390,15 @@ pub fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
     1, "1" -> fieldtype
     // TODO ListMaxN
     0, _n -> "List(" <> fieldtype <> ")"
-    _, _ -> panic as "cardinality panic, if you have n..* with n > 3 idk"
+    _, _ ->
+      panic as {
+        "unsupported cardinality "
+        <> int.to_string(fieldmin)
+        <> ".."
+        <> fieldmax
+        <> " for "
+        <> fieldtype
+      }
   }
 }
 
@@ -724,6 +763,34 @@ pub fn valueset_can_generate_system(
   }
 }
 
+pub fn valueset_can_generate_discriminator(
+  vs_url: String,
+  all_vs_or_cs: Dict(String, VsOrCs),
+) -> Bool {
+  case dict.get(all_vs_or_cs, vs_url) {
+    Ok(VocValueset(r4.Valueset(compose: Some(compose), ..))) ->
+      compose.exclude == []
+      && [compose.include.first, ..compose.include.rest]
+      |> list.all(fn(include) {
+        case
+          include.concept,
+          include.filter,
+          include.system,
+          include.value_set
+        {
+          [_, ..], [], Some(_), [] -> True
+          [], [], Some(_), [] -> True
+          [], [], None, [_, ..] as value_sets ->
+            list.all(value_sets, fn(value_set) {
+              valueset_can_generate_discriminator(value_set, all_vs_or_cs)
+            })
+          _, _, _, _ -> False
+        }
+      })
+    _ -> False
+  }
+}
+
 fn package_dependencies_decoder() {
   use dependencies <- decode.optional_field(
     "dependencies",
@@ -741,49 +808,123 @@ fn package_dependencies(package_dir: String) {
   dependencies
 }
 
+pub fn package_directories(profiles_dir: String) {
+  let package_store =
+    profiles_dir
+    |> filepath.directory_name
+    |> filepath.directory_name
+    |> filepath.directory_name
+  package_directories_loop([#(profiles_dir, 0)], package_store, dict.new())
+  |> dict.to_list
+  |> list.sort(fn(first, second) { int.compare(second.1, first.1) })
+  |> list.map(fn(entry) { entry.0 })
+}
+
+fn package_directories_loop(
+  pending: List(#(String, Int)),
+  package_store: String,
+  directories: Dict(String, Int),
+) -> Dict(String, Int) {
+  case pending {
+    [] -> directories
+    [#(package_dir, depth), ..rest] ->
+      case dict.get(directories, package_dir) {
+        Ok(previous_depth) if previous_depth <= depth ->
+          package_directories_loop(rest, package_store, directories)
+        Error(_) | Ok(_) -> {
+          let dependencies = package_dependencies(package_dir)
+          let pending =
+            dependencies
+            |> dict.to_list
+            |> list.fold(rest, fn(pending, dependency) {
+              let dependency_dir =
+                package_store
+                |> filepath.join(dependency.0)
+                |> filepath.join(dependency.1)
+                |> filepath.join("package")
+              [#(dependency_dir, depth + 1), ..pending]
+            })
+          package_directories_loop(
+            pending,
+            package_store,
+            dict.insert(directories, package_dir, depth),
+          )
+        }
+      }
+  }
+}
+
 pub fn load_valuesets(
   package_dir: String,
   required_value_sets: Set(String),
 ) -> Dict(String, VsOrCs) {
-  let package_store =
-    package_dir
-    |> filepath.directory_name
-    |> filepath.directory_name
-    |> filepath.directory_name
   let required_value_set_files =
     required_value_sets
     |> set.map(value_set_filename)
+  let required_versions =
+    required_value_sets
+    |> set.fold(dict.new(), insert_required_valueset_version)
 
   let num_vs_files = required_value_set_files |> set.size |> int.to_string
   io.println("loading " <> num_vs_files <> " valueset json files")
 
-  let #(package_directories, all_vs_or_cs) =
-    load_valuesets_with_dependencies(
-      package_dir,
-      package_store,
-      set.new(),
-      dict.new(),
-      required_value_set_files,
-    )
+  let package_directories = package_directories(package_dir)
+  let all_vs_or_cs =
+    package_directories
+    |> list.fold(dict.new(), fn(all_vs_or_cs, directory) {
+      io.println("loading valuesets from " <> directory)
+      load_valuesets_from_directory(
+        directory,
+        all_vs_or_cs,
+        required_value_set_files,
+        required_versions,
+      )
+    })
+  let manual_directory = "dev/downloaded_manually_valuesets"
   let all_vs_or_cs =
     load_valuesets_from_directory(
-      "dev/downloaded_manually_valuesets",
+      manual_directory,
       all_vs_or_cs,
       required_value_set_files,
+      required_versions,
     )
   load_imported_valuesets(
-    set.insert(package_directories, "dev/downloaded_manually_valuesets"),
+    list.append(package_directories, [manual_directory]),
     all_vs_or_cs,
     required_value_set_files,
+    required_versions,
   )
 }
 
+fn insert_required_valueset_version(
+  versions: Dict(String, String),
+  reference: String,
+) -> Dict(String, String) {
+  case string.split(reference, "|") {
+    [url, version] ->
+      case dict.get(versions, url) {
+        Ok(previous) if previous != version ->
+          panic as {
+            "conflicting required ValueSet versions for "
+            <> url
+            <> ": "
+            <> previous
+            <> " and "
+            <> version
+          }
+        _ -> dict.insert(versions, url, version)
+      }
+    _ -> versions
+  }
+}
+
 fn load_imported_valuesets(
-  package_directories: Set(String),
+  package_directories: List(String),
   all_vs_or_cs: Dict(String, VsOrCs),
   loaded_value_set_files: Set(String),
+  required_versions: Dict(String, String),
 ) -> Dict(String, VsOrCs) {
-  let imported_value_set_files =
+  let imported_value_sets =
     all_vs_or_cs
     |> dict.to_list
     |> list.flat_map(fn(entry) {
@@ -796,10 +937,15 @@ fn load_imported_valuesets(
             compose.exclude,
           )
           |> list.flat_map(fn(include) { include.value_set })
-          |> list.map(value_set_filename)
       }
     })
     |> set.from_list
+  let required_versions =
+    imported_value_sets
+    |> set.fold(required_versions, insert_required_valueset_version)
+  let imported_value_set_files =
+    imported_value_sets
+    |> set.map(value_set_filename)
     |> set.difference(loaded_value_set_files)
 
   case set.is_empty(imported_value_set_files) {
@@ -807,12 +953,13 @@ fn load_imported_valuesets(
     False -> {
       let all_vs_or_cs =
         package_directories
-        |> set.fold(all_vs_or_cs, fn(all_vs_or_cs, package_dir) {
+        |> list.fold(all_vs_or_cs, fn(all_vs_or_cs, package_dir) {
           imported_value_set_files
           |> set.fold(all_vs_or_cs, fn(all_vs_or_cs, filename) {
             load_valueset_file(
               filepath.join(package_dir, filename),
               all_vs_or_cs,
+              required_versions,
             )
           })
         })
@@ -820,6 +967,7 @@ fn load_imported_valuesets(
         package_directories,
         all_vs_or_cs,
         set.union(loaded_value_set_files, imported_value_set_files),
+        required_versions,
       )
     }
   }
@@ -831,63 +979,11 @@ fn value_set_filename(url: String) -> String {
   "ValueSet-" <> name <> ".json"
 }
 
-fn load_valuesets_with_dependencies(
-  package_dir: String,
-  package_store: String,
-  loaded: Set(String),
-  all_vs_or_cs: Dict(String, VsOrCs),
-  required_value_set_files: Set(String),
-) {
-  let package_json = filepath.join(package_dir, "package.json")
-  let assert Ok(package_exists) = simplifile.is_file(package_json)
-
-  case set.contains(loaded, package_dir), package_exists {
-    True, _ -> {
-      #(loaded, all_vs_or_cs)
-    }
-    False, False -> {
-      io.println(
-        "warning: skipping package with no package.json: " <> package_dir,
-      )
-      #(loaded, all_vs_or_cs)
-    }
-    False, True -> {
-      io.println("loading valuesets from " <> package_dir)
-      let loaded = set.insert(loaded, package_dir)
-      let #(loaded, all_vs_or_cs) =
-        package_dependencies(package_dir)
-        |> dict.to_list
-        |> list.fold(#(loaded, all_vs_or_cs), fn(acc, dependency) {
-          let dependency_dir =
-            package_store
-            |> filepath.join(dependency.0)
-            |> filepath.join(dependency.1)
-            |> filepath.join("package")
-
-          load_valuesets_with_dependencies(
-            dependency_dir,
-            package_store,
-            acc.0,
-            acc.1,
-            required_value_set_files,
-          )
-        })
-
-      let all_vs_or_cs =
-        load_valuesets_from_directory(
-          package_dir,
-          all_vs_or_cs,
-          required_value_set_files,
-        )
-      #(loaded, all_vs_or_cs)
-    }
-  }
-}
-
 fn load_valuesets_from_directory(
   package_dir: String,
   all_vs_or_cs: Dict(String, VsOrCs),
   required_value_set_files: Set(String),
+  required_versions: Dict(String, String),
 ) {
   let assert Ok(files) = simplifile.read_directory(package_dir)
   list.fold(from: all_vs_or_cs, over: files, with: fn(acc, filename) {
@@ -896,7 +992,7 @@ fn load_valuesets_from_directory(
       string.starts_with(filename, "ValueSet-")
       && set.contains(required_value_set_files, filename)
     {
-      True -> load_valueset_file(path, acc)
+      True -> load_valueset_file(path, acc, required_versions)
       False ->
         case string.starts_with(filename, "CodeSystem-") {
           True -> {
@@ -917,7 +1013,11 @@ fn load_valuesets_from_directory(
   })
 }
 
-fn load_valueset_file(path: String, all_vs_or_cs: Dict(String, VsOrCs)) {
+fn load_valueset_file(
+  path: String,
+  all_vs_or_cs: Dict(String, VsOrCs),
+  required_versions: Dict(String, String),
+) {
   case simplifile.is_file(path) {
     Ok(True) -> {
       let assert Ok(contents) = simplifile.read(path)
@@ -947,7 +1047,13 @@ fn load_valueset_file(path: String, all_vs_or_cs: Dict(String, VsOrCs)) {
             _, _ -> valueset
           }
           case valueset.url {
-            Some(url) -> dict.insert(all_vs_or_cs, url, VocValueset(valueset))
+            Some(url) ->
+              case dict.get(required_versions, url), valueset.version {
+                Ok(required), Some(version) if required != version ->
+                  all_vs_or_cs
+                Ok(_), None -> all_vs_or_cs
+                _, _ -> dict.insert(all_vs_or_cs, url, VocValueset(valueset))
+              }
             None -> all_vs_or_cs
           }
         }
