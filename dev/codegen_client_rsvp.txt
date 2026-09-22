@@ -175,24 +175,8 @@ pub fn batch(
 
 fn sendreq_handleresponse(
   req: Request(Option(Json)),
-  res_dec: Decoder(r),
-  handle_response: fn(Result(r, Err)) -> a,
-  client: FhirClient,
-) -> Effect(a) {
-  sendreq_handleresponse_andprocess(
-    req,
-    res_dec,
-    handle_response,
-    fn(a) { a },
-    client,
-  )
-}
-
-fn sendreq_handleresponse_andprocess(
-  req: Request(Option(Json)),
-  res_dec: Decoder(r),
-  handle_response: fn(Result(b, Err)) -> a,
-  process_res: fn(r) -> b,
+  res_dec: Decoder(resource),
+  handle_response: fn(Result(resource, Err)) -> a,
   client: FhirClient,
 ) -> Effect(a) {
   case client.print_sent_requests {
@@ -213,7 +197,7 @@ fn sendreq_handleresponse_andprocess(
       Error(err) -> Error(ErrRsvp(err))
       Ok(resp_res) -> {
         case sansio.any_response(resp_res, res_dec) {
-          Ok(res) -> Ok(process_res(res))
+          Ok(res) -> Ok(res)
           Error(err) -> Error(ErrSansio(err))
         }
       }
