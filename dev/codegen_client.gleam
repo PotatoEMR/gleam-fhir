@@ -185,8 +185,11 @@ pub fn gen(
   pkg_prefix pkg_prefix: String,
   custom_profile_name custom_profile_name: Option(String),
   profiles_dir profiles_dir: String,
+  capability_statement_file capability_statement_file: Option(String),
   gen_specific_resources gen_specific_resources: Option(List(String)),
-  profile_resource_entries profile_resource_entries: List(#(String, String, String)),
+  profile_resource_entries profile_resource_entries: List(
+    #(String, String, String),
+  ),
 ) -> #(String, String, String, String) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
@@ -352,54 +355,69 @@ pub fn gen(
   // dict of base fhir type -> RestResource with profile search params
   let profile_cs_resources = case
     custom_profile_name,
-    simplifile.read_directory(profiles_dir)
+    capability_statement_file
   {
-    None, _ | _, Error(_) -> dict.new()
-    Some(_), Ok(files) ->
-      case
-        list.find(files, fn(f) { string.starts_with(f, "CapabilityStatement") })
-      {
-        Error(_) -> dict.new()
-        Ok(f) -> {
-          let assert Ok(content) =
-            simplifile.read(filepath.join(profiles_dir, f))
-          let assert Ok(res) = json.parse(content, resource_decoder())
-          list.fold(res.rest, dict.new(), fn(outer_acc, rest) {
-            list.fold(rest.resource, outer_acc, fn(inner_acc, rr) {
-              dict.insert(inner_acc, rr.type_, rr)
-            })
-          })
-        }
-      }
+    Some(_), Some(filename) -> {
+      let assert Ok(content) =
+        simplifile.read(filepath.join(profiles_dir, filename))
+      let assert Ok(res) = json.parse(content, resource_decoder())
+      list.fold(res.rest, dict.new(), fn(outer_acc, rest) {
+        list.fold(rest.resource, outer_acc, fn(inner_acc, rr) {
+          dict.insert(inner_acc, rr.type_, rr)
+        })
+      })
+    }
+    _, _ -> dict.new()
   }
   let expanded_rest =
     list.map(first_entry.resource.rest, fn(rest) {
-      Rest(
-        resource: rest.resource
-        |> list.filter(fn(res) {
-          case gen_specific_resources {
-            None -> True
-            Some(resources) ->
-              list.contains(resources, string.lowercase(res.base_type))
-          }
-        })
-        |> list.flat_map(fn(res) {
-          case dict.get(profile_substitutions, res.type_) {
-            Error(_) -> [res]
-            Ok(profile_names) -> {
+      Rest(resource: list.append(
+        rest.resource
+          |> list.filter(fn(res) {
+            case gen_specific_resources {
+              None -> True
+              Some(resources) ->
+                list.contains(resources, string.lowercase(res.base_type))
+            }
+          })
+          |> list.flat_map(fn(res) {
+            case dict.get(profile_substitutions, res.type_) {
+              Error(_) -> [res]
+              Ok(profile_names) -> {
+                let search_param = case
+                  dict.get(profile_cs_resources, res.type_)
+                {
+                  Ok(profile_res) -> profile_res.search_param
+                  Error(_) -> res.search_param
+                }
+                list.map(profile_names, fn(pname) {
+                  RestResource(..res, type_: pname, search_param:)
+                })
+              }
+            }
+          }),
+        list.filter_map(profile_resource_entries, fn(entry) {
+          let #(base_type, profile_type, _) = entry
+          case
+            list.find(rest.resource, fn(res) { res.base_type == base_type })
+          {
+            Error(_) -> Error(Nil)
+            Ok(base_res) -> {
               let search_param = case
-                dict.get(profile_cs_resources, res.type_)
+                dict.get(profile_cs_resources, base_type)
               {
                 Ok(profile_res) -> profile_res.search_param
-                Error(_) -> res.search_param
+                Error(_) -> base_res.search_param
               }
-              list.map(profile_names, fn(pname) {
-                RestResource(..res, type_: pname, search_param:)
-              })
+              let profile_name =
+                profile_type
+                |> codegen_helpers.to_snake_case
+                |> string.replace("_", "-")
+              Ok(RestResource(..base_res, type_: profile_name, search_param:))
             }
           }
         }),
-      )
+      ))
     })
   let httpc_search_encode = gen_search_encode(expanded_rest, Httpc)
   let rsvp_search_encode = gen_search_encode(expanded_rest, Rsvp)
@@ -708,6 +726,7 @@ fn gen_search_encode(
   list.map(expanded_rest, fn(rest) {
     list.map(rest.resource, fn(res) {
       let #(name_lower, name_capital) = id_to_name(res.type_)
+      let #(_, route_type) = id_to_name(res.base_type)
       let sp_arg = case res.search_param {
         [] -> "_sp"
         _ -> "sp"
@@ -744,7 +763,7 @@ fn gen_search_encode(
         search_fields,
         "])
           |> search_any(resources.Rt",
-        name_capital,
+        route_type,
         ", client",
         case client {
           Httpc -> ")"

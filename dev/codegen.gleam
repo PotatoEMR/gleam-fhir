@@ -67,6 +67,17 @@ pub fn main() {
 
   let download_files = list.contains(args_lower, "download")
   let preserve_slice_order = list.contains(args_lower, "order")
+  let capability_statement_file = case
+    list.find(args_cased, fn(arg) {
+      string.starts_with(arg, "CapabilityStatement=")
+    })
+  {
+    Ok(arg) -> {
+      let assert [_, filename] = string.split(arg, "=")
+      Some(filename)
+    }
+    Error(_) -> None
+  }
   let gen_specific_resources = case
     list.find(args_lower, fn(arg) { string.starts_with(arg, "resources=") })
   {
@@ -159,6 +170,7 @@ pub fn main() {
           download_files,
           custom_profile_name,
           profiles_dir,
+          capability_statement_file,
           preserve_slice_order,
           gen_specific_resources,
         )
@@ -173,6 +185,7 @@ fn gen_fhir(
   download_files: Bool,
   custom_profile_name: Option(String),
   profiles_dir: Option(String),
+  capability_statement_file: Option(String),
   preserve_slice_order: Bool,
   gen_specific_resources: Option(List(String)),
 ) -> Nil {
@@ -973,8 +986,12 @@ fn gen_fhir(
       filepath.join(extract_dir_ver, "profiles-resources.json"),
       fhir_version,
       pkg_prefix,
-      None,
-      "",
+      custom_profile_name,
+      case profiles_dir {
+        Some(dir) -> dir
+        None -> ""
+      },
+      capability_statement_file,
       gen_specific_resources,
       profile_resource_entries,
     )
