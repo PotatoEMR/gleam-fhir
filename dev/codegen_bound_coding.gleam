@@ -4,7 +4,9 @@ import gleam/option.{type Option, None, Some}
 import gleam/set.{type Set}
 import gleam/string
 
-pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
+pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
+  string.concat([
+    "pub type BoundCoding(required_binding) {
         BoundCoding(
           id: Option(String),
           extension: List(Extension),
@@ -137,7 +139,14 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         BoundCodeableconcept(
           id: Option(String),
           extension: List(Extension),
-          required: BoundCoding(required_binding),
+",
+    case preserve_slice_order {
+      True ->
+        "          internal_gleam_fhir_index: Option(Int),
+"
+      False -> ""
+    },
+    "          required: BoundCoding(required_binding),
           more: List(Coding),
           text: Option(String),
         )
@@ -145,8 +154,16 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
 
       pub fn bound_codeableconcept_new(code: required_binding) -> BoundCodeableconcept(required_binding) {
         let required = bound_coding_new(code)
-        BoundCodeableconcept(text: None, required:, more: [], extension: [], id: None)
-      }
+",
+    case preserve_slice_order {
+      True ->
+        "        BoundCodeableconcept(internal_gleam_fhir_index: None, text: None, required:, more: [], extension: [], id: None)
+"
+      False ->
+        "        BoundCodeableconcept(text: None, required:, more: [], extension: [], id: None)
+"
+    },
+    "      }
 
       pub fn bound_codeableconcept_from_codeableconcept(
         concept: Codeableconcept,
@@ -155,8 +172,17 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         let Codeableconcept(id:, extension:, coding:, text:) = concept
         case find_valueset_coding(coding, binding_from_code_and_system) {
           Error(Nil) -> Error(Nil)
-          Ok(#(required, more)) -> Ok(BoundCodeableconcept(
-            id:,
+",
+    case preserve_slice_order {
+      True ->
+        "          Ok(#(required, more, index)) -> Ok(BoundCodeableconcept(
+            internal_gleam_fhir_index: Some(index),
+"
+      False ->
+        "          Ok(#(required, more)) -> Ok(BoundCodeableconcept(
+"
+    },
+    "            id:,
             extension:,
             required:,
             more:,
@@ -166,11 +192,31 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
       }
 
       pub fn bound_codeableconcept_to_json(codeableconcept: BoundCodeableconcept(required_binding),  get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
-      let BoundCodeableconcept(text:, required:, more:, extension:, id:) = codeableconcept
-      let required_coding = bound_coding_to_json(required, get_code, get_system)
+",
+    case preserve_slice_order {
+      True ->
+        "      let BoundCodeableconcept(internal_gleam_fhir_index:, text:, required:, more:, extension:, id:) = codeableconcept
+"
+      False ->
+        "      let BoundCodeableconcept(text:, required:, more:, extension:, id:) = codeableconcept
+"
+    },
+    "      let required_coding = bound_coding_to_json(required, get_code, get_system)
       let other_codings = list.map(more, coding_to_json)
-      let all_codings = json.preprocessed_array([required_coding, ..other_codings])
-      let fields = [#(\"coding\", all_codings)]
+",
+    case preserve_slice_order {
+      True ->
+        "      let codings = case internal_gleam_fhir_index {
+        None -> [required_coding, ..other_codings]
+        Some(index) -> insert_at(required_coding, other_codings, index)
+      }
+      let all_codings = json.preprocessed_array(codings)
+"
+      False ->
+        "      let all_codings = json.preprocessed_array([required_coding, ..other_codings])
+"
+    },
+    "      let fields = [#(\"coding\", all_codings)]
         let fields = case text {
           Some(v) -> [#(\"text\", json.string(v)), ..fields]
           None -> fields
@@ -197,8 +243,16 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
         case valueset_coding {
           Error(_) -> decode.failure(bound_codeableconcept_new(failure_placeholder),
           \"need a coding with code + system from required ValueSet\")
-          Ok(#(required, more)) -> {
-          use text <- decode.optional_field(
+",
+    case preserve_slice_order {
+      True ->
+        "          Ok(#(required, more, index)) -> {
+"
+      False ->
+        "          Ok(#(required, more)) -> {
+"
+    },
+    "          use text <- decode.optional_field(
             \"text\",
             None,
             decode.optional(decode.string),
@@ -209,17 +263,35 @@ pub const bound_coding_and_cc = "pub type BoundCoding(required_binding) {
             decode.list(extension_decoder()),
           )
           use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
-          decode.success(BoundCodeableconcept(text:, required:, more:, extension:, id:))
-          }
+",
+    case preserve_slice_order {
+      True ->
+        "          decode.success(BoundCodeableconcept(internal_gleam_fhir_index: Some(index), text:, required:, more:, extension:, id:))
+"
+      False ->
+        "          decode.success(BoundCodeableconcept(text:, required:, more:, extension:, id:))
+"
+    },
+    "          }
         }
       }
 
-      fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding)), Nil) {
-        let is_bound_valueset = fn(coding: Coding) {
+",
+    case preserve_slice_order {
+      True ->
+        "      fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding), Int), Nil) {
+"
+      False ->
+        "      fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding)), Nil) {
+"
+    },
+    "        let is_bound_valueset = fn(coding: Coding) {
           bound_coding_from_coding(coding, binding_from_code_and_system)
         }
         find_elt_and_rest_result(in: items, one_that: is_bound_valueset)
-      }"
+      }",
+  ])
+}
 
 pub const bound_codeable_reference = "      pub type BoundCodeablereference(required_binding) {
   BoundCodeablereference(
@@ -699,42 +771,85 @@ pub fn valueset_failure_variant_source(
   }
 }
 
-pub const find_elt_and_rest_result = "fn find_elt_and_rest_result(
+pub fn find_elt_and_rest_result(preserve_slice_order: Bool) -> String {
+  string.concat([
+    "fn find_elt_and_rest_result(
   in items: List(a),
   one_that is_desired: fn(a) -> Result(b, Nil),
-) -> Result(#(b, List(a)), Nil) {
-  find_elt_and_rest_result_loop(
+",
+    case preserve_slice_order {
+      True ->
+        ") -> Result(#(b, List(a), Int), Nil) {
+"
+      False ->
+        ") -> Result(#(b, List(a)), Nil) {
+"
+    },
+    "  find_elt_and_rest_result_loop(
     in: items,
     one_that: is_desired,
     already: [],
-  )
+",
+    case preserve_slice_order {
+      True ->
+        "    at: 0,
+"
+      False -> ""
+    },
+    "  )
 }
 
 fn find_elt_and_rest_result_loop(
   in items: List(a),
   one_that is_desired: fn(a) -> Result(b, Nil),
   already past_list: List(a),
-) -> Result(#(b, List(a)), Nil) {
-  case items {
+",
+    case preserve_slice_order {
+      True ->
+        "  at index: Int,
+) -> Result(#(b, List(a), Int), Nil) {
+"
+      False ->
+        ") -> Result(#(b, List(a)), Nil) {
+"
+    },
+    "  case items {
     [] -> Error(Nil)
     [first, ..rest] ->
       case is_desired(first) {
         Ok(found_elt) -> {
           let more = past_list |> list.reverse |> list.append(rest)
-          Ok(#(found_elt, more))
-        }
+",
+    case preserve_slice_order {
+      True ->
+        "          Ok(#(found_elt, more, index))
+"
+      False ->
+        "          Ok(#(found_elt, more))
+"
+    },
+    "        }
         Error(_) -> {
           let others = [first, ..past_list]
           find_elt_and_rest_result_loop(
             in: rest,
             one_that: is_desired,
             already: others,
-          )
+",
+    case preserve_slice_order {
+      True ->
+        "            at: index + 1,
+"
+      False -> ""
+    },
+    "          )
         }
       }
   }
 }
-"
+",
+  ])
+}
 
 pub const find_required_elt_and_rest_result = "fn find_required_elt_and_rest_result(
   in items: List(a),
@@ -965,5 +1080,11 @@ fn find_elts_and_rest_loop(
           )
       }
   }
+}
+"
+
+pub const insert_at = "fn insert_at(elt: a, in: List(a), at: Int) {
+  let #(before, after) = list.split(in, at)
+  before |> list.append([elt, ..after])
 }
 "

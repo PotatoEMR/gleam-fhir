@@ -910,8 +910,12 @@ fn gen_fhir(
       ct_imports,
       list_type_defs,
       slice_elt_type,
-      codegen_bound_coding.bound_coding_and_cc,
-      codegen_bound_coding.find_elt_and_rest_result,
+      codegen_bound_coding.bound_coding_and_cc(preserve_slice_order),
+      codegen_bound_coding.find_elt_and_rest_result(preserve_slice_order),
+      case preserve_slice_order {
+        True -> codegen_bound_coding.insert_at
+        False -> ""
+      },
       bound_codeable_reference_source,
       codegen_bound_coding.bound_quantity,
       complex_types_gen,

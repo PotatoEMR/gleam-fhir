@@ -1,4 +1,5 @@
 import gleam/option.{type Option, Some}
+import gleam/string
 
 pub type DiscriminatorCall {
   ResultDiscriminatorCall(String)
@@ -430,12 +431,21 @@ pub fn coding_fixed_system_required_code_display_to_json(
 }
 "
 
-pub const slice_codeableconcept = "
+pub fn slice_codeableconcept(preserve_slice_order: Bool) -> String {
+  string.concat([
+    "
 pub type CodeableconceptFixedSystem {
   CodeableconceptFixedSystem(
     id: Option(String),
     extension: List(Extension),
-    disc: CodingFixedSystem,
+",
+    case preserve_slice_order {
+      True ->
+        "    internal_gleam_fhir_index: Option(Int),
+"
+      False -> ""
+    },
+    "    disc: CodingFixedSystem,
     others: List(Coding),
     text: Option(String),
   )
@@ -445,7 +455,14 @@ pub fn codeableconcept_fixed_system_new() -> CodeableconceptFixedSystem {
   CodeableconceptFixedSystem(
     id: None,
     extension: [],
-    disc: coding_fixed_system_new(),
+",
+    case preserve_slice_order {
+      True ->
+        "    internal_gleam_fhir_index: None,
+"
+      False -> ""
+    },
+    "    disc: coding_fixed_system_new(),
     others: [],
     text: None,
   )
@@ -461,11 +478,26 @@ pub fn codeableconcept_fixed_system_from_codeableconcept(
     one_that: fn(coding) { coding_fixed_system_from_coding(coding, system) },
   ) {
     Error(Nil) -> Error(Nil)
-    Ok(#(disc, others)) ->
-      Ok(CodeableconceptFixedSystem(
+",
+    case preserve_slice_order {
+      True ->
+        "    Ok(#(disc, others, index)) ->
+"
+      False ->
+        "    Ok(#(disc, others)) ->
+"
+    },
+    "      Ok(CodeableconceptFixedSystem(
         id:,
         extension:,
-        disc:,
+",
+    case preserve_slice_order {
+      True ->
+        "        internal_gleam_fhir_index: Some(index),
+"
+      False -> ""
+    },
+    "        disc:,
         others:,
         text:,
       ))
@@ -479,15 +511,41 @@ pub fn codeableconcept_fixed_system_to_json(
   let CodeableconceptFixedSystem(
     id:,
     extension:,
-    disc:,
+",
+    case preserve_slice_order {
+      True ->
+        "    internal_gleam_fhir_index:,
+"
+      False -> ""
+    },
+    "    disc:,
     others:,
     text:,
   ) = concept
-  codeableconcept_to_json(Codeableconcept(
+",
+    case preserve_slice_order {
+      True ->
+        "  let selected_coding = coding_fixed_system_to_coding(disc, system)
+  let coding = case internal_gleam_fhir_index {
+    None -> [selected_coding, ..others]
+    Some(index) -> insert_at(selected_coding, others, index)
+  }
+"
+      False -> ""
+    },
+    "  codeableconcept_to_json(Codeableconcept(
     id:,
     extension:,
-    coding: [coding_fixed_system_to_coding(disc, system), ..others],
-    text:,
+",
+    case preserve_slice_order {
+      True ->
+        "    coding:,
+"
+      False ->
+        "    coding: [coding_fixed_system_to_coding(disc, system), ..others],
+"
+    },
+    "    text:,
   ))
 }
 
@@ -518,7 +576,14 @@ pub type CodeableconceptFixedSystemCode {
   CodeableconceptFixedSystemCode(
     id: Option(String),
     extension: List(Extension),
-    disc: CodingFixedSystemCode,
+",
+    case preserve_slice_order {
+      True ->
+        "    internal_gleam_fhir_index: Option(Int),
+"
+      False -> ""
+    },
+    "    disc: CodingFixedSystemCode,
     others: List(Coding),
     text: Option(String),
   )
@@ -528,7 +593,14 @@ pub fn codeableconcept_fixed_system_code_new() -> CodeableconceptFixedSystemCode
   CodeableconceptFixedSystemCode(
     id: None,
     extension: [],
-    disc: coding_fixed_system_code_new(),
+",
+    case preserve_slice_order {
+      True ->
+        "    internal_gleam_fhir_index: None,
+"
+      False -> ""
+    },
+    "    disc: coding_fixed_system_code_new(),
     others: [],
     text: None,
   )
@@ -547,11 +619,26 @@ pub fn codeableconcept_fixed_system_code_from_codeableconcept(
     },
   ) {
     Error(Nil) -> Error(Nil)
-    Ok(#(disc, others)) ->
-      Ok(CodeableconceptFixedSystemCode(
+",
+    case preserve_slice_order {
+      True ->
+        "    Ok(#(disc, others, index)) ->
+"
+      False ->
+        "    Ok(#(disc, others)) ->
+"
+    },
+    "      Ok(CodeableconceptFixedSystemCode(
         id:,
         extension:,
-        disc:,
+",
+    case preserve_slice_order {
+      True ->
+        "        internal_gleam_fhir_index: Some(index),
+"
+      False -> ""
+    },
+    "        disc:,
         others:,
         text:,
       ))
@@ -566,15 +653,41 @@ pub fn codeableconcept_fixed_system_code_to_json(
   let CodeableconceptFixedSystemCode(
     id:,
     extension:,
-    disc:,
+",
+    case preserve_slice_order {
+      True ->
+        "    internal_gleam_fhir_index:,
+"
+      False -> ""
+    },
+    "    disc:,
     others:,
     text:,
   ) = concept
-  codeableconcept_to_json(Codeableconcept(
+",
+    case preserve_slice_order {
+      True ->
+        "  let selected_coding = coding_fixed_system_code_to_coding(disc, system, code)
+  let coding = case internal_gleam_fhir_index {
+    None -> [selected_coding, ..others]
+    Some(index) -> insert_at(selected_coding, others, index)
+  }
+"
+      False -> ""
+    },
+    "  codeableconcept_to_json(Codeableconcept(
     id:,
     extension:,
-    coding: [coding_fixed_system_code_to_coding(disc, system, code), ..others],
-    text:,
+",
+    case preserve_slice_order {
+      True ->
+        "    coding:,
+"
+      False ->
+        "    coding: [coding_fixed_system_code_to_coding(disc, system, code), ..others],
+"
+    },
+    "    text:,
   ))
 }
 
@@ -600,14 +713,25 @@ fn coding_fixed_system_code_to_coding(
     user_selected:,
   )
 }
-"
+",
+  ])
+}
 
-pub const slice_codeableconcept_display = "
+pub fn slice_codeableconcept_display(preserve_slice_order: Bool) -> String {
+  string.concat([
+    "
 pub type CodeableconceptFixedSystemCodeDisplay {
   CodeableconceptFixedSystemCodeDisplay(
     id: Option(String),
     extension: List(Extension),
-    disc: CodingFixedSystemCodeDisplay,
+",
+    case preserve_slice_order {
+      True ->
+        "    internal_gleam_fhir_index: Option(Int),
+"
+      False -> ""
+    },
+    "    disc: CodingFixedSystemCodeDisplay,
     others: List(Coding),
     text: Option(String),
   )
@@ -618,7 +742,14 @@ pub fn codeableconcept_fixed_system_code_display_new(
   CodeableconceptFixedSystemCodeDisplay(
     id: None,
     extension: [],
-    disc: coding_fixed_system_code_display_new(),
+",
+    case preserve_slice_order {
+      True ->
+        "    internal_gleam_fhir_index: None,
+"
+      False -> ""
+    },
+    "    disc: coding_fixed_system_code_display_new(),
     others: [],
     text: None,
   )
@@ -643,11 +774,26 @@ pub fn codeableconcept_fixed_system_code_display_from_codeableconcept(
     },
   ) {
     Error(Nil) -> Error(Nil)
-    Ok(#(disc, others)) ->
-      Ok(CodeableconceptFixedSystemCodeDisplay(
+",
+    case preserve_slice_order {
+      True ->
+        "    Ok(#(disc, others, index)) ->
+"
+      False ->
+        "    Ok(#(disc, others)) ->
+"
+    },
+    "      Ok(CodeableconceptFixedSystemCodeDisplay(
         id:,
         extension:,
-        disc:,
+",
+    case preserve_slice_order {
+      True ->
+        "        internal_gleam_fhir_index: Some(index),
+"
+      False -> ""
+    },
+    "        disc:,
         others:,
         text:,
       ))
@@ -663,18 +809,44 @@ pub fn codeableconcept_fixed_system_code_display_to_json(
   let CodeableconceptFixedSystemCodeDisplay(
     id:,
     extension:,
-    disc:,
+",
+    case preserve_slice_order {
+      True ->
+        "    internal_gleam_fhir_index:,
+"
+      False -> ""
+    },
+    "    disc:,
     others:,
     text:,
   ) = concept
-  codeableconcept_to_json(Codeableconcept(
+",
+    case preserve_slice_order {
+      True ->
+        "  let selected_coding = coding_fixed_system_code_display_to_coding(disc, system, code, display)
+  let coding = case internal_gleam_fhir_index {
+    None -> [selected_coding, ..others]
+    Some(index) -> insert_at(selected_coding, others, index)
+  }
+"
+      False -> ""
+    },
+    "  codeableconcept_to_json(Codeableconcept(
     id:,
     extension:,
-    coding: [
+",
+    case preserve_slice_order {
+      True ->
+        "    coding:,
+"
+      False ->
+        "    coding: [
       coding_fixed_system_code_display_to_coding(disc, system, code, display),
       ..others
     ],
-    text:,
+"
+    },
+    "    text:,
   ))
 }
 
@@ -700,4 +872,6 @@ fn coding_fixed_system_code_display_to_coding(
     user_selected:,
   )
 }
-"
+",
+  ])
+}

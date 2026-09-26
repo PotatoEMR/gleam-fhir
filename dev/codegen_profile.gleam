@@ -2005,8 +2005,10 @@ pub fn profile_files_to_types(
     codegen_slice_complex_type.slice_coding
     <> codegen_slice_complex_type.slice_coding_display
     <> codegen_slice_complex_type.slice_coding_fixeduri
-    <> codegen_slice_complex_type.slice_codeableconcept
-    <> codegen_slice_complex_type.slice_codeableconcept_display
+    <> codegen_slice_complex_type.slice_codeableconcept(preserve_slice_order)
+    <> codegen_slice_complex_type.slice_codeableconcept_display(
+      preserve_slice_order,
+    )
 
   let #(profile_complex_types, profile_resources, valueset_acc, _) =
     list.fold(
@@ -2871,7 +2873,7 @@ pub fn profile_files_to_types(
   {
     False, False, False -> ""
     required, optional, repeated ->
-      codegen_bound_coding.find_elt_and_rest_result
+      codegen_bound_coding.find_elt_and_rest_result(False)
       <> case required {
         True -> codegen_bound_coding.find_required_elt_and_rest_result
         False -> ""
