@@ -747,7 +747,7 @@ fn slice_group_to_json_source(
       let root_parts = [profile_prefix, ..root_rest]
       let assert Ok(root_last) = root_parts |> list.last
       let root_field_name =
-        root_last
+        option.unwrap(root.slice_name, root_last)
         |> codegen_helpers.escape_field_name
         |> codegen_helpers.to_snake_case
       let root_field_path = string.join(root_parts, "_")
@@ -1293,7 +1293,7 @@ fn profile_element_names(
   let assert Ok(last) = parts |> list.last
   let json_name = profile_json_field_name(element, last)
   let field_name =
-    last
+    option.unwrap(element.slice_name, last)
     |> string.replace("[x]", "")
     |> codegen_helpers.escape_field_name
     |> codegen_helpers.to_snake_case
@@ -1925,17 +1925,25 @@ fn field_inner_conversion(
             [type_] ->
               required_binding_conversion(element, type_.code, inner_value)
               |> option.unwrap(IdentityConversion(inner_value, "", False))
-            _ ->
+            _ -> {
+              let source_type =
+                option.unwrap(source_choice_type, base_choice_name(element))
               ConversionExpression(
                 codegen_helpers.to_snake_case(field_type)
                   <> "_from_"
-                  <> codegen_helpers.to_snake_case(base_choice_name(element))
+                  <> codegen_helpers.to_snake_case(source_type)
                   <> "("
                   <> value
                   <> ")",
-                "",
+                choice_conversion_source(
+                  context,
+                  field_type,
+                  element,
+                  source_type,
+                ),
                 True,
               )
+            }
           }
       }
   }
@@ -2064,13 +2072,13 @@ fn record_conversion_from_fields(
       Ok("  use _ <- result.try(" <> check <> ")\n")
     })
     |> string.concat
-  let #(bindings, arguments) =
+  let #(bindings, arguments, helpers) =
     fields
     |> list.filter(fn(element) {
       element.fixed_code == None && element.fixed_uri == None
     })
-    |> list.fold(#("", ""), fn(acc, element) {
-      let #(bindings, arguments) = acc
+    |> list.fold(#("", "", ""), fn(acc, element) {
+      let #(bindings, arguments, helpers) = acc
       let #(_, field_path, _json_name, field_name, field_type) =
         profile_element_names(context, target_type, element)
       let is_primitive = False
@@ -2152,11 +2160,13 @@ fn record_conversion_from_fields(
         False -> "  let " <> field_name <> " = " <> converted.expression <> "\n"
       }
       #(
-        bindings <> converted.helpers <> binding,
+        bindings <> binding,
         arguments <> "    " <> field_name <> ":,\n",
+        helpers <> converted.helpers,
       )
     })
-  "fn "
+  helpers
+  <> "fn "
   <> function_name
   <> "(source: "
   <> base_type
@@ -2244,12 +2254,11 @@ fn record_conversion_source(
 
 fn choice_conversion_source(
   context: DecodeContext,
-  parent_type: String,
+  choice_type: String,
   element: codegen_helpers.Element,
+  source_choice_type: String,
 ) -> String {
-  let #(_, _, _, _, choice_type) =
-    profile_element_names(context, parent_type, element)
-  let base_choice = base_choice_name(element)
+  let base_choice = source_choice_type
   let #(cases, helpers) =
     list.fold(element.type_, #("", ""), fn(acc, choice) {
       let #(cases, helpers) = acc
@@ -3070,9 +3079,13 @@ fn slice_group_support_source(
       let result_fields = case open {
         True ->
           result_fields
-          <> "    open: List("
-          <> open_slice_elt_type(base_type)
-          <> "),\n"
+          <> "    open: "
+          <> codegen_helpers.cardinality(
+            open_slice_elt_type(base_type),
+            profile_field_min(group, False),
+            group.max,
+          )
+          <> ",\n"
         False -> result_fields
       }
       "type "
@@ -3971,7 +3984,7 @@ fn extension_slice_fold_source(
   roots: List(codegen_helpers.Element),
   primitive: Bool,
 ) -> SliceGroupDecode {
-  let #(_, _, json_name, field_name, _base_type) =
+  let #(_, _, json_name, field_name, base_type) =
     profile_element_names(context, parent_type, group)
   let assert Some(slicing) = group.slicing
   let group_type = slice_group_type_name(parent_type, group)
@@ -4116,7 +4129,30 @@ fn extension_slice_fold_source(
     <> "              _ -> "
     <> unmatched
     <> "\n            }\n        }\n      },\n    )\n"
-  let all_optional = list.all(roots, fn(root) { root.min == 0 })
+  let open_group =
+    codegen_helpers.Element(..group, min: profile_field_min(group, False))
+  let open_value = case open_group.min, open_group.max {
+    0, "1" ->
+      "case list.reverse(accumulator.open) { [value, ..] -> Some(value) [] -> None }"
+    _, _ -> "list.reverse(accumulator.open)"
+  }
+  let open_placeholder = case slicing.rules {
+    "open" | "openAtEnd" ->
+      slice_cardinality_placeholder(open_group, fn() {
+        let value = base_slice_placeholder(context, base_type)
+        case context.preserve_slice_order {
+          True -> "ct.SliceElt(" <> value <> ", None)"
+          False -> value
+        }
+      })
+    _ -> ""
+  }
+  let all_optional =
+    list.all(roots, fn(root) { root.min == 0 })
+    && case slicing.rules {
+      "open" | "openAtEnd" -> open_group.min == 0
+      _ -> True
+    }
   let result_values =
     roots
     |> list.map(fn(root) {
@@ -4143,7 +4179,7 @@ fn extension_slice_fold_source(
   let constructor_fields = case slicing.rules {
     "open" | "openAtEnd" ->
       list.append(constructor_fields, [
-        "open: list.reverse(accumulator.open)",
+        "open: " <> open_value,
       ])
     "closed" -> constructor_fields
     _ -> constructor_fields
@@ -4181,6 +4217,21 @@ fn extension_slice_fold_source(
             ),
           )
         })
+      let cardinalities = case slicing.rules {
+        "open" | "openAtEnd" ->
+          list.append(cardinalities, [
+            #(
+              "open",
+              slice_cardinality_expression(
+                open_group,
+                "list.reverse(accumulator.open)",
+                json_name,
+                False,
+              ),
+            ),
+          ])
+        _ -> cardinalities
+      }
       let bindings =
         cardinalities
         |> list.map(fn(item) {
@@ -4203,10 +4254,6 @@ fn extension_slice_fold_source(
       <> group_type
       <> "Slices("
       <> { names |> list.map(fn(name) { name <> ":" }) |> string.join(", ") }
-      <> case slicing.rules {
-        "open" | "openAtEnd" -> ", open: list.reverse(accumulator.open)"
-        _ -> ""
-      }
       <> "))\n        "
       <> { names |> list.map(fn(_) { "_" }) |> string.join(", ") }
       <> " -> Error(list.flatten(["
@@ -4236,7 +4283,7 @@ fn extension_slice_fold_source(
           }
         })
       let values = case slicing.rules {
-        "open" | "openAtEnd" -> list.append(values, ["[]"])
+        "open" | "openAtEnd" -> list.append(values, [open_placeholder])
         _ -> values
       }
       Some(group_type <> "Slices(" <> string.join(values, ", ") <> ")")
@@ -4265,7 +4312,7 @@ fn extension_slice_fold_source(
     success_pattern: "Ok(" <> group_type <> "Slices(" <> value_fields <> "))",
     value_pattern: group_type <> "Slices(" <> value_fields <> ")",
     decoder_placeholder:,
-    placeholder_fields: [#(field_name, "[]")],
+    placeholder_fields: [#(field_name, open_placeholder)],
   )
 }
 
@@ -4534,7 +4581,7 @@ fn ordinary_slice_fold_source(
       )
     }
     None -> {
-      let cardinalities =
+      let named_cardinalities =
         roots
         |> list.map(fn(root) {
           let #(_, _, _, root_field, _) =
@@ -4550,6 +4597,32 @@ fn ordinary_slice_fold_source(
             ),
           )
         })
+      let open_group =
+        codegen_helpers.Element(..group, min: profile_field_min(group, False))
+      let cardinalities = case slicing.rules {
+        "open" | "openAtEnd" ->
+          list.append(named_cardinalities, [
+            #(
+              open_group,
+              "open",
+              slice_cardinality_expression(
+                open_group,
+                "list.reverse(accumulator.open)",
+                json_name,
+                False,
+              ),
+            ),
+          ])
+        _ -> named_cardinalities
+      }
+      let open_placeholder = case slicing.rules {
+        "open" | "openAtEnd" ->
+          slice_cardinality_placeholder(open_group, fn() {
+            let value = base_slice_placeholder(context, base_type)
+            stored_open_value(value)
+          })
+        _ -> ""
+      }
       let result_bindings =
         cardinalities
         |> list.map(fn(item) {
@@ -4570,10 +4643,6 @@ fn ordinary_slice_fold_source(
           <> "Slices("
           <> only
           <> ":,"
-          <> case slicing.rules {
-            "open" | "openAtEnd" -> " open: list.reverse(accumulator.open),"
-            _ -> ""
-          }
           <> "))\n        Error(errors) -> Error(errors)\n      }\n"
         _ ->
           "      case "
@@ -4588,10 +4657,6 @@ fn ordinary_slice_fold_source(
             |> list.map(fn(value) { value <> ":" })
             |> string.join(", ")
           }
-          <> case slicing.rules {
-            "open" | "openAtEnd" -> ", open: list.reverse(accumulator.open)"
-            _ -> ""
-          }
           <> "))\n        "
           <> { result_values |> list.map(fn(_) { "_" }) |> string.join(", ") }
           <> " -> Error(list.flatten(["
@@ -4603,7 +4668,9 @@ fn ordinary_slice_fold_source(
           <> "]))\n      }\n"
       }
       let result_source = case
-        list.all(roots, fn(root) { root.min == 0 && root.max == "*" })
+        list.all(cardinalities, fn(item) {
+          item.0.min == 0 && item.0.max == "*"
+        })
       {
         True ->
           "  let "
@@ -4620,10 +4687,6 @@ fn ordinary_slice_fold_source(
             })
             |> string.join(", ")
           }
-          <> case slicing.rules {
-            "open" | "openAtEnd" -> ", open: list.reverse(accumulator.open)"
-            _ -> ""
-          }
           <> "))\n    Error(errors) -> Error(errors)\n  }\n"
         False ->
           "  let "
@@ -4637,14 +4700,15 @@ fn ordinary_slice_fold_source(
       }
       let success_fields =
         result_values
-        |> list.map(fn(value) { value <> ":" })
+        |> list.map(fn(value) {
+          case value {
+            "open" -> "open: " <> field_name
+            _ -> value <> ":"
+          }
+        })
         |> string.join(", ")
-      let success_fields = case slicing.rules {
-        "open" | "openAtEnd" -> success_fields <> ", open: " <> field_name
-        _ -> success_fields
-      }
       let named_placeholder_fields =
-        cardinalities
+        named_cardinalities
         |> list.map(fn(item) {
           let #(root, root_field, _) = item
           #(
@@ -4668,7 +4732,8 @@ fn ordinary_slice_fold_source(
         named_placeholder_fields
         |> list.map(fn(field) { field.0 <> ": " <> field.1 })
       let decoder_fields = case slicing.rules {
-        "open" | "openAtEnd" -> list.append(decoder_fields, ["open: []"])
+        "open" | "openAtEnd" ->
+          list.append(decoder_fields, ["open: " <> open_placeholder])
         _ -> decoder_fields
       }
       let decoder_placeholder =
@@ -4689,7 +4754,7 @@ fn ordinary_slice_fold_source(
         <> " slices\")\n      |> decode.map_errors(fn(_) { errors })\n  }\n"
       let placeholder_fields = case slicing.rules {
         "open" | "openAtEnd" -> [
-          #(field_name, "[]"),
+          #(field_name, open_placeholder),
           ..named_placeholder_fields
         ]
         _ -> named_placeholder_fields
@@ -5654,20 +5719,7 @@ pub fn generate_decoders(
         False -> source
         True ->
           source
-          <> {
-            let assert Ok(fields) = dict.get(type_fields, current_type)
-            let target_type =
-              profile_type_name(context, current_type, profile_type)
-            let choice_conversions =
-              fields
-              |> list.filter(fn(element) { list.length(element.type_) > 1 })
-              |> list.fold("", fn(source, element) {
-                source
-                <> choice_conversion_source(context, target_type, element)
-              })
-            record_conversion_source(context, current_type, profile_type)
-            <> choice_conversions
-          }
+          <> record_conversion_source(context, current_type, profile_type)
       }
     })
   let decoders =
@@ -5829,7 +5881,10 @@ pub fn generate_to_json(
               last_part
               |> string.replace("[x]", "")
               |> codegen_helpers.escape_field_name
-            let field_name = codegen_helpers.to_snake_case(safe_field_name)
+            let field_name =
+              option.unwrap(element.slice_name, safe_field_name)
+              |> codegen_helpers.escape_field_name
+              |> codegen_helpers.to_snake_case
             let choice_type = gleam_type <> string.capitalise(safe_field_name)
             let #(open_field_type, valueset_acc) =
               profile_base_field_type(
@@ -6023,7 +6078,7 @@ pub fn generate_to_json(
                     let root_parts = [profile_prefix, ..root_rest]
                     let assert Ok(root_last) = root_parts |> list.last
                     let root_field_name =
-                      root_last
+                      option.unwrap(root.slice_name, root_last)
                       |> codegen_helpers.escape_field_name
                       |> codegen_helpers.to_snake_case
                     let root_field_path = string.join(root_parts, "_")

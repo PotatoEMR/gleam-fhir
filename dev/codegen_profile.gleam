@@ -2311,7 +2311,9 @@ pub fn profile_files_to_types(
                     let safe_field_name =
                       codegen_helpers.escape_field_name(json_field_name)
                     let field_name =
-                      codegen_helpers.to_snake_case(safe_field_name)
+                      option.unwrap(element.slice_name, safe_field_name)
+                      |> codegen_helpers.escape_field_name
+                      |> codegen_helpers.to_snake_case
                     let choice_type =
                       gleam_type <> string.capitalise(safe_field_name)
 

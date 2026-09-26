@@ -470,6 +470,7 @@ pub fn escape_field_name(name: String) -> String {
 // but if the previous character was a capital it will not add an underscore
 pub fn to_snake_case(input: String) -> String {
   input
+  |> string.replace("-", "_")
   |> string.to_graphemes
   |> list.fold(#("", False), fn(acc, char) {
     let #(result, prev_was_upper) = acc
@@ -1167,6 +1168,17 @@ pub fn codetovarname(c: String) {
     #("<=", "Lessthanoreq"),
     #("<", "Lessthan"),
   ])
+  |> string.to_utf_codepoints
+  |> list.map(fn(codepoint) {
+    case string.utf_codepoint_to_int(codepoint) {
+      value if value > 127 -> {
+        let assert Ok(hex) = int.to_base_string(value, 16)
+        "U" <> hex
+      }
+      _ -> string.from_utf_codepoints([codepoint])
+    }
+  })
+  |> string.concat
 }
 
 pub fn gen_choicetype_suffixes(
