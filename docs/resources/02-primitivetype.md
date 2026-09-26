@@ -19,6 +19,8 @@ Time is represented in valid FHIR formats with primitive types for date, dateTim
 
 A code field can be either an enum from valuesets if the field has a required binding, or a String if not.
 
+FHIR omits empty string fields, so instead of `Some("")` use `None`.
+
 | Primitive Type | In Gleam |
 | ------------ | ------------------------------------------ |
 | base64Binary | String                                     |
