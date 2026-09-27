@@ -640,9 +640,9 @@ pub fn gen(
       "
             pub fn NAMELOWER_create(
               resource: resources.NAMECAPITAL,
-              client: FhirClient,
-              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> a,
-            ) -> Effect(a) {
+              client: FhirClient(msg),
+              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> msg,
+            ) -> Effect(msg) {
               any_create(
                 resources.NAMELOWER_to_json(resource),
                 resources.RtNAMERT,
@@ -654,17 +654,17 @@ pub fn gen(
 
             pub fn NAMELOWER_read(
               id: String,
-              client: FhirClient,
-              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> a,
-            ) -> Effect(a) {
+              client: FhirClient(msg),
+              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> msg,
+            ) -> Effect(msg) {
               any_read(id, resources.RtNAMERT, resources.NAMELOWER_decoder(), client, handle_response)
             }
 
             pub fn NAMELOWER_update(
               resource: resources.NAMECAPITAL,
-              client: FhirClient,
-              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> a,
-            ) -> Result(Effect(a), ErrNoId) {
+              client: FhirClient(msg),
+              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> msg,
+            ) -> Result(Effect(msg), ErrNoId) {
               any_update(
                 resource.id,
                 resources.NAMELOWER_to_json(resource),
@@ -677,9 +677,9 @@ pub fn gen(
 
             pub fn NAMELOWER_delete(
               resource: resources.NAMECAPITAL,
-              client: FhirClient,
-              handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> a,
-            ) -> Result(Effect(a), ErrNoId) {
+              client: FhirClient(msg),
+              handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> msg,
+            ) -> Result(Effect(msg), ErrNoId) {
               case resource.id {
                 Some(id) -> Ok(any_delete(id, resources.RtNAMERT, client, handle_response))
                 None -> Error(ErrNoId)
@@ -754,7 +754,7 @@ fn gen_search_encode(
         case client {
           Httpc -> ") {"
           Rsvp ->
-            ",
+            "(msg),
             handle_response: fn(Result(resources.Bundle, Err)) -> msg,
             ) -> Effect(msg) {"
         },
@@ -786,7 +786,7 @@ fn gen_search_encode(
                 Error(error) -> Error(error)
               }
             }"
-          Rsvp -> ",
+          Rsvp -> "(msg),
             handle_response: fn(Result(List(resources." <> name_capital <> "), Err)) -> msg,
             ) -> Effect(msg) {
               " <> name_lower <> "_search_bundled(sp, client, fn(resp) {

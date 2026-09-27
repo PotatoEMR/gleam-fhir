@@ -532,10 +532,20 @@ fn gen_fhir(
     False -> ""
   }
   let generated_types_and_resources = complex_types_gen <> resources_gen
-  let uses_slice_elt = string.contains(resources_gen, "ct.SliceElt(")
+  let uses_slice_elt =
+    string.contains(resources_gen, "ct.SliceElt(")
+    || string.contains(complex_types_gen, "SliceElt(")
   let ct_imports =
     shared_imports
     <> "import gleam/int\n"
+    <> case string.contains(complex_types_gen, "result.") {
+      True -> "import gleam/result\n"
+      False -> ""
+    }
+    <> case string.contains(complex_types_gen, "bool.") {
+      True -> "import gleam/bool\n"
+      False -> ""
+    }
     <> case uses_slice_elt {
       True -> "import gleam/order\n"
       False -> ""

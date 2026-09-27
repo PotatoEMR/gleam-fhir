@@ -2320,7 +2320,7 @@ pub fn profile_files_to_types(
   let #(profile_complex_types, profile_resources, valueset_acc, _) =
     list.fold(
       over: profile_definitions,
-      from: #(slice_types <> extension_types, "", valueset_acc, set.new()),
+      from: #(slice_types <> extension_types, "", valueset_acc, dict.new()),
       with: fn(acc, resource) {
         let #(
           extension_types,
@@ -2328,6 +2328,19 @@ pub fn profile_files_to_types(
           valueset_acc,
           generated_extension_classifiers,
         ) = acc
+        let current_bucket = case resource.kind {
+          Some("complex-type") -> codegen_helpers.ComplexTypes
+          _ -> codegen_helpers.Resources
+        }
+        let complex_prefix =
+          codegen_helpers.bucket_prefix("Quantity", current_bucket)
+        let classifier_key = case current_bucket {
+          codegen_helpers.ComplexTypes -> "complex"
+          codegen_helpers.Resources -> "resources"
+        }
+        let classifier_sets = generated_extension_classifiers
+        let generated_extension_classifiers =
+          dict.get(classifier_sets, classifier_key) |> result.unwrap(set.new())
         let assert Some(snapshot) = resource.snapshot
         let profile_elements =
           remove_profile_extension_children(
@@ -2657,6 +2670,7 @@ pub fn profile_files_to_types(
 
                     let #(base_field_type, valueset_acc) =
                       profile_base_field_type(
+                        current_bucket,
                         element,
                         all_parts,
                         field_path,
@@ -2694,6 +2708,7 @@ pub fn profile_files_to_types(
                             let root_field_path = string.join(root_parts, "_")
                             let #(payload_type, valueset_acc) =
                               profile_base_field_type(
+                                current_bucket,
                                 root,
                                 root_parts,
                                 root_field_path,
@@ -2772,8 +2787,12 @@ pub fn profile_files_to_types(
                           )
                         {
                           Some(_) ->
-                            "ct.ExtensionSliceElt(" <> field_type <> ")"
-                          None -> "ct.SliceElt(" <> field_type <> ")"
+                            complex_prefix
+                            <> "ExtensionSliceElt("
+                            <> field_type
+                            <> ")"
+                          None ->
+                            complex_prefix <> "SliceElt(" <> field_type <> ")"
                         }
                       False -> field_type
                     }
@@ -2863,7 +2882,7 @@ pub fn profile_files_to_types(
                                       choice.code,
                                       all_parts,
                                       slice,
-                                      codegen_helpers.Resources,
+                                      current_bucket,
                                       valueset_acc,
                                     )
                                   #(variant_type, "", valueset_acc)
@@ -2955,6 +2974,7 @@ pub fn profile_files_to_types(
                                           string.join(all_parts, "_")
                                         let #(gleam_type, valueset_acc) =
                                           profile_base_field_type(
+                                            current_bucket,
                                             child,
                                             all_parts,
                                             field_path,
@@ -3008,11 +3028,13 @@ pub fn profile_files_to_types(
                                               )
                                             {
                                               Some(_) ->
-                                                "ct.ExtensionSliceElt("
+                                                complex_prefix
+                                                <> "ExtensionSliceElt("
                                                 <> gleam_type
                                                 <> ")"
                                               None ->
-                                                "ct.SliceElt("
+                                                complex_prefix
+                                                <> "SliceElt("
                                                 <> gleam_type
                                                 <> ")"
                                             }
@@ -3073,6 +3095,7 @@ pub fn profile_files_to_types(
                                 Error(_) | Ok(ValueSlicePlan(..)) -> {
                                   let #(variant_type, valueset_acc) =
                                     profile_base_field_type(
+                                      current_bucket,
                                       codegen_helpers.Element(..element, type_: [
                                         choice,
                                       ]),
@@ -3158,6 +3181,7 @@ pub fn profile_files_to_types(
         let assert Some(resource_type) = resource.type_
         let #(profile_encoders, valueset_acc) =
           codegen_profile_json.generate_to_json(
+            current_bucket,
             resource_type,
             resource.kind == Some("resource"),
             snapshot.element,
@@ -3175,6 +3199,7 @@ pub fn profile_files_to_types(
           )
         let #(profile_decoders, generated_extension_classifiers) =
           codegen_profile_json.generate_decoders(
+            current_bucket,
             resource_type,
             resource.kind == Some("resource"),
             snapshot.element,
@@ -3196,55 +3221,83 @@ pub fn profile_files_to_types(
             generated_extension_classifiers,
           )
 
+        let generated_source =
+          generated_profile <> profile_encoders <> profile_decoders
+        let #(extension_types, generated_acc) = case current_bucket {
+          codegen_helpers.ComplexTypes -> #(
+            extension_types <> generated_source,
+            generated_acc,
+          )
+          codegen_helpers.Resources -> #(
+            extension_types,
+            generated_acc <> generated_source,
+          )
+        }
         #(
           extension_types,
-          generated_acc
-            <> generated_profile
-            <> profile_encoders
-            <> profile_decoders,
+          generated_acc,
           valueset_acc,
-          generated_extension_classifiers,
+          dict.insert(
+            classifier_sets,
+            classifier_key,
+            generated_extension_classifiers,
+          ),
         )
       },
     )
-  let result_search_source = case
-    string.contains(profile_resources, "find_required_elt_and_rest_result("),
-    string.contains(profile_resources, "find_optional_elt_and_rest_result("),
-    string.contains(
-      profile_resources,
-      "find_at_least_n_elts_and_rest_result_or_failure(",
+  let assert [profile_complex_types, profile_resources] =
+    list.map(
+      [
+        #(codegen_helpers.ComplexTypes, profile_complex_types),
+        #(codegen_helpers.Resources, profile_resources),
+      ],
+      fn(entry) {
+        let #(current_bucket, source) = entry
+        let result_search_source = case
+          string.contains(source, "find_required_elt_and_rest_result("),
+          string.contains(source, "find_optional_elt_and_rest_result("),
+          string.contains(
+            source,
+            "find_at_least_n_elts_and_rest_result_or_failure(",
+          )
+        {
+          False, False, False -> ""
+          required, optional, repeated ->
+            case current_bucket {
+              codegen_helpers.Resources ->
+                codegen_bound_coding.find_elt_and_rest_result(False)
+              codegen_helpers.ComplexTypes -> ""
+            }
+            <> case required {
+              True -> codegen_bound_coding.find_required_elt_and_rest_result
+              False -> ""
+            }
+            <> case optional {
+              True -> codegen_bound_coding.find_optional_elt_and_rest_result
+              False -> ""
+            }
+            <> case repeated {
+              True ->
+                codegen_bound_coding.find_at_least_n_elts_and_rest_result
+                <> codegen_bound_coding.find_at_least_n_elts_and_rest_result_or_failure
+              False -> ""
+            }
+        }
+        case string.contains(source, "result_or_decode_failure(") {
+          True -> codegen_decode.result_or_decode_failure
+          False -> ""
+        }
+        <> result_search_source
+        <> case string.contains(source, "slice_acc_errors(") {
+          True -> codegen_profile_json.slice_acc_errors_source
+          False -> ""
+        }
+        <> source
+      },
     )
-  {
-    False, False, False -> ""
-    required, optional, repeated ->
-      codegen_bound_coding.find_elt_and_rest_result(False)
-      <> case required {
-        True -> codegen_bound_coding.find_required_elt_and_rest_result
-        False -> ""
-      }
-      <> case optional {
-        True -> codegen_bound_coding.find_optional_elt_and_rest_result
-        False -> ""
-      }
-      <> case repeated {
-        True ->
-          codegen_bound_coding.find_at_least_n_elts_and_rest_result
-          <> codegen_bound_coding.find_at_least_n_elts_and_rest_result_or_failure
-        False -> ""
-      }
-  }
   #(
     profile_complex_types,
-    case string.contains(profile_resources, "result_or_decode_failure(") {
-      True -> codegen_decode.result_or_decode_failure
-      False -> ""
-    }
-      <> result_search_source
-      <> case string.contains(profile_resources, "slice_acc_errors(") {
-      True -> codegen_profile_json.slice_acc_errors_source
-      False -> ""
-    }
-      <> profile_resources,
+    profile_resources,
     valueset_acc,
     available_slice_valuesets,
     profile_resource_entries,

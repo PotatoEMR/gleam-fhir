@@ -1,3 +1,4 @@
+import codegen_helpers
 import gleam/option.{type Option, Some}
 import gleam/string
 
@@ -6,12 +7,14 @@ pub type DiscriminatorCall {
 }
 
 pub fn discriminator_from_base_call(
+  current_bucket: codegen_helpers.Category,
   discriminator_type: String,
   value: String,
   system: String,
   code: String,
   display: Option(String),
 ) -> Result(DiscriminatorCall, Nil) {
+  let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
   case discriminator_type {
     "FixedValueDiscriminator" ->
       Ok(ResultDiscriminatorCall(
@@ -25,7 +28,8 @@ pub fn discriminator_from_base_call(
       ))
     "ct.CodingFixedSystem" ->
       Ok(ResultDiscriminatorCall(
-        "ct.coding_fixed_system_from_coding("
+        complex_prefix
+        <> "coding_fixed_system_from_coding("
         <> value
         <> ", \""
         <> system
@@ -33,7 +37,8 @@ pub fn discriminator_from_base_call(
       ))
     "ct.CodingFixedSystemCode" ->
       Ok(ResultDiscriminatorCall(
-        "ct.coding_fixed_system_code_from_coding("
+        complex_prefix
+        <> "coding_fixed_system_code_from_coding("
         <> value
         <> ", \""
         <> system
@@ -44,7 +49,8 @@ pub fn discriminator_from_base_call(
     "ct.CodingFixedSystemCodeDisplay" -> {
       let assert Some(display) = display
       Ok(ResultDiscriminatorCall(
-        "ct.coding_fixed_system_code_display_from_coding("
+        complex_prefix
+        <> "coding_fixed_system_code_display_from_coding("
         <> value
         <> ", \""
         <> system
@@ -57,7 +63,8 @@ pub fn discriminator_from_base_call(
     }
     "ct.CodingFixedSystemRequiredCodeDisplay" ->
       Ok(ResultDiscriminatorCall(
-        "ct.coding_fixed_system_required_code_display_from_coding("
+        complex_prefix
+        <> "coding_fixed_system_required_code_display_from_coding("
         <> value
         <> ", \""
         <> system
@@ -65,7 +72,8 @@ pub fn discriminator_from_base_call(
       ))
     "ct.CodeableconceptList1FixedSystemCode" ->
       Ok(ResultDiscriminatorCall(
-        "ct.codeableconcept_list1_fixed_system_code_from_codeableconcept("
+        complex_prefix
+        <> "codeableconcept_list1_fixed_system_code_from_codeableconcept("
         <> value
         <> ", \""
         <> system
@@ -77,7 +85,8 @@ pub fn discriminator_from_base_call(
       ))
     "ct.CodeableconceptFixedSystemCode" ->
       Ok(ResultDiscriminatorCall(
-        "ct.codeableconcept_fixed_system_code_from_codeableconcept("
+        complex_prefix
+        <> "codeableconcept_fixed_system_code_from_codeableconcept("
         <> value
         <> ", \""
         <> system
@@ -87,7 +96,8 @@ pub fn discriminator_from_base_call(
       ))
     "ct.CodeableconceptList1FixedSystem" ->
       Ok(ResultDiscriminatorCall(
-        "ct.codeableconcept_list1_fixed_system_from_codeableconcept("
+        complex_prefix
+        <> "codeableconcept_list1_fixed_system_from_codeableconcept("
         <> value
         <> ", \""
         <> system
@@ -96,7 +106,8 @@ pub fn discriminator_from_base_call(
       ))
     "ct.CodeableconceptFixedSystem" ->
       Ok(ResultDiscriminatorCall(
-        "ct.codeableconcept_fixed_system_from_codeableconcept("
+        complex_prefix
+        <> "codeableconcept_fixed_system_from_codeableconcept("
         <> value
         <> ", \""
         <> system
@@ -105,7 +116,8 @@ pub fn discriminator_from_base_call(
     "ct.CodeableconceptList1FixedSystemCodeDisplay" -> {
       let assert Some(display) = display
       Ok(ResultDiscriminatorCall(
-        "ct.codeableconcept_list1_fixed_system_code_display_from_codeableconcept("
+        complex_prefix
+        <> "codeableconcept_list1_fixed_system_code_display_from_codeableconcept("
         <> value
         <> ", \""
         <> system
@@ -122,7 +134,8 @@ pub fn discriminator_from_base_call(
     "ct.CodeableconceptFixedSystemCodeDisplay" -> {
       let assert Some(display) = display
       Ok(ResultDiscriminatorCall(
-        "ct.codeableconcept_fixed_system_code_display_from_codeableconcept("
+        complex_prefix
+        <> "codeableconcept_fixed_system_code_display_from_codeableconcept("
         <> value
         <> ", \""
         <> system
@@ -138,33 +151,54 @@ pub fn discriminator_from_base_call(
 }
 
 pub fn discriminator_new_call(
+  current_bucket: codegen_helpers.Category,
   discriminator_type: String,
 ) -> Result(String, Nil) {
+  let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
   case discriminator_type {
-    "ct.CodingFixedSystem" -> Ok("ct.coding_fixed_system_new()")
-    "ct.CodingFixedSystemCode" -> Ok("ct.coding_fixed_system_code_new()")
+    "ct.CodingFixedSystem" -> Ok(complex_prefix <> "coding_fixed_system_new()")
+    "ct.CodingFixedSystemCode" ->
+      Ok(complex_prefix <> "coding_fixed_system_code_new()")
     "ct.CodingFixedSystemCodeDisplay" ->
-      Ok("ct.coding_fixed_system_code_display_new()")
+      Ok(complex_prefix <> "coding_fixed_system_code_display_new()")
     "ct.CodingFixedSystemRequiredCodeDisplay" ->
-      Ok("ct.coding_fixed_system_required_code_display_new(\"\", \"\")")
+      Ok(
+        complex_prefix
+        <> "coding_fixed_system_required_code_display_new(\"\", \"\")",
+      )
     "ct.CodeableconceptList1FixedSystemCode" ->
       Ok(
-        "ct.codeableconcept_list1_fixed_system_code_new(ct.List1(first: ct.coding_fixed_system_code_new(), rest: []))",
+        complex_prefix
+        <> "codeableconcept_list1_fixed_system_code_new("
+        <> complex_prefix
+        <> "List1(first: "
+        <> complex_prefix
+        <> "coding_fixed_system_code_new(), rest: []))",
       )
     "ct.CodeableconceptFixedSystemCode" ->
-      Ok("ct.codeableconcept_fixed_system_code_new()")
+      Ok(complex_prefix <> "codeableconcept_fixed_system_code_new()")
     "ct.CodeableconceptList1FixedSystem" ->
       Ok(
-        "ct.codeableconcept_list1_fixed_system_new(ct.List1(first: ct.coding_fixed_system_new(), rest: []))",
+        complex_prefix
+        <> "codeableconcept_list1_fixed_system_new("
+        <> complex_prefix
+        <> "List1(first: "
+        <> complex_prefix
+        <> "coding_fixed_system_new(), rest: []))",
       )
     "ct.CodeableconceptFixedSystem" ->
-      Ok("ct.codeableconcept_fixed_system_new()")
+      Ok(complex_prefix <> "codeableconcept_fixed_system_new()")
     "ct.CodeableconceptList1FixedSystemCodeDisplay" ->
       Ok(
-        "ct.codeableconcept_list1_fixed_system_code_display_new(ct.List1(first: ct.coding_fixed_system_code_display_new(), rest: []))",
+        complex_prefix
+        <> "codeableconcept_list1_fixed_system_code_display_new("
+        <> complex_prefix
+        <> "List1(first: "
+        <> complex_prefix
+        <> "coding_fixed_system_code_display_new(), rest: []))",
       )
     "ct.CodeableconceptFixedSystemCodeDisplay" ->
-      Ok("ct.codeableconcept_fixed_system_code_display_new()")
+      Ok(complex_prefix <> "codeableconcept_fixed_system_code_display_new()")
     _ -> Error(Nil)
   }
 }
