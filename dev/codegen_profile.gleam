@@ -1227,6 +1227,18 @@ fn plan_child_value_slice(
         Error(_) ->
           plan_whole_value_slice(root, child, elements, available_valuesets)
       }
+    [codegen_helpers.Type(code: "code", ..)] ->
+      case child.fixed_code {
+        Some(code) ->
+          Ok(
+            ValueSlicePlan(
+              root_id: root.id,
+              overrides: [#(child_id, FixedValueDiscriminator(code))],
+              nested: [],
+            ),
+          )
+        None -> Error("missing code discriminator literal at " <> child_id)
+      }
     _ -> Error("unsupported value pattern at " <> child_id)
   }
 }
@@ -2005,7 +2017,21 @@ fn prepare_profile_slices(
                 {
                   True -> #(
                     [plan, ..plans],
-                    nested_value_discriminators,
+                    case
+                      list.any(replacements, fn(replacement) {
+                        case replacement.1 {
+                          FixedValueDiscriminator(_) ->
+                            case find_element(current_elements, replacement.0) {
+                              Ok(child) -> element_type_is(child, "code")
+                              Error(_) -> False
+                            }
+                          _ -> False
+                        }
+                      })
+                    {
+                      True -> set.insert(nested_value_discriminators, root_id)
+                      False -> nested_value_discriminators
+                    },
                     checks,
                   )
                   False -> #(
