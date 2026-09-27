@@ -63,6 +63,18 @@ pub fn discriminator_from_base_call(
         <> system
         <> "\")",
       ))
+    "ct.CodeableconceptList1FixedSystemCode" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.codeableconcept_list1_fixed_system_code_from_codeableconcept("
+        <> value
+        <> ", \""
+        <> system
+        <> "\""
+        <> ", \""
+        <> code
+        <> "\""
+        <> ")",
+      ))
     "ct.CodeableconceptFixedSystemCode" ->
       Ok(ResultDiscriminatorCall(
         "ct.codeableconcept_fixed_system_code_from_codeableconcept("
@@ -73,6 +85,15 @@ pub fn discriminator_from_base_call(
         <> code
         <> "\")",
       ))
+    "ct.CodeableconceptList1FixedSystem" ->
+      Ok(ResultDiscriminatorCall(
+        "ct.codeableconcept_list1_fixed_system_from_codeableconcept("
+        <> value
+        <> ", \""
+        <> system
+        <> "\""
+        <> ")",
+      ))
     "ct.CodeableconceptFixedSystem" ->
       Ok(ResultDiscriminatorCall(
         "ct.codeableconcept_fixed_system_from_codeableconcept("
@@ -81,6 +102,23 @@ pub fn discriminator_from_base_call(
         <> system
         <> "\")",
       ))
+    "ct.CodeableconceptList1FixedSystemCodeDisplay" -> {
+      let assert Some(display) = display
+      Ok(ResultDiscriminatorCall(
+        "ct.codeableconcept_list1_fixed_system_code_display_from_codeableconcept("
+        <> value
+        <> ", \""
+        <> system
+        <> "\""
+        <> ", \""
+        <> code
+        <> "\""
+        <> ", \""
+        <> display
+        <> "\""
+        <> ")",
+      ))
+    }
     "ct.CodeableconceptFixedSystemCodeDisplay" -> {
       let assert Some(display) = display
       Ok(ResultDiscriminatorCall(
@@ -109,10 +147,22 @@ pub fn discriminator_new_call(
       Ok("ct.coding_fixed_system_code_display_new()")
     "ct.CodingFixedSystemRequiredCodeDisplay" ->
       Ok("ct.coding_fixed_system_required_code_display_new(\"\", \"\")")
+    "ct.CodeableconceptList1FixedSystemCode" ->
+      Ok(
+        "ct.codeableconcept_list1_fixed_system_code_new(ct.List1(first: ct.coding_fixed_system_code_new(), rest: []))",
+      )
     "ct.CodeableconceptFixedSystemCode" ->
       Ok("ct.codeableconcept_fixed_system_code_new()")
+    "ct.CodeableconceptList1FixedSystem" ->
+      Ok(
+        "ct.codeableconcept_list1_fixed_system_new(ct.List1(first: ct.coding_fixed_system_new(), rest: []))",
+      )
     "ct.CodeableconceptFixedSystem" ->
       Ok("ct.codeableconcept_fixed_system_new()")
+    "ct.CodeableconceptList1FixedSystemCodeDisplay" ->
+      Ok(
+        "ct.codeableconcept_list1_fixed_system_code_display_new(ct.List1(first: ct.coding_fixed_system_code_display_new(), rest: []))",
+      )
     "ct.CodeableconceptFixedSystemCodeDisplay" ->
       Ok("ct.codeableconcept_fixed_system_code_display_new()")
     _ -> Error(Nil)
@@ -875,3 +925,158 @@ fn coding_fixed_system_code_display_to_coding(
 ",
   ])
 }
+
+pub const slice_codeableconcept_list1 = "
+pub type CodeableconceptList1FixedSystem {
+  CodeableconceptList1FixedSystem(
+    id: Option(String),
+    extension: List(Extension),
+    coding: List1(CodingFixedSystem),
+    text: Option(String),
+  )
+}
+
+pub fn codeableconcept_list1_fixed_system_new(
+  coding coding: List1(CodingFixedSystem),
+) -> CodeableconceptList1FixedSystem {
+  CodeableconceptList1FixedSystem(id: None, extension: [], coding:, text: None)
+}
+
+pub fn codeableconcept_list1_fixed_system_from_codeableconcept(
+  concept: Codeableconcept,
+  system: String,
+) -> Result(CodeableconceptList1FixedSystem, Nil) {
+  let Codeableconcept(id:, extension:, coding:, text:) = concept
+  case list.try_map(coding, fn(value) {
+    coding_fixed_system_from_coding(value, system)
+  }) {
+    Ok([first, ..rest]) -> Ok(CodeableconceptList1FixedSystem(
+      id:,
+      extension:,
+      coding: List1(first:, rest:),
+      text:,
+    ))
+    Ok([]) | Error(_) -> Error(Nil)
+  }
+}
+
+pub fn codeableconcept_list1_fixed_system_to_json(
+  concept: CodeableconceptList1FixedSystem,
+  system: String,
+) -> Json {
+  let CodeableconceptList1FixedSystem(id:, extension:, coding:, text:) = concept
+  let List1(first:, rest:) = coding
+  codeableconcept_to_json(Codeableconcept(
+    id:,
+    extension:,
+    coding: list.map([first, ..rest], fn(value) {
+      coding_fixed_system_to_coding(value, system)
+    }),
+    text:,
+  ))
+}
+
+pub type CodeableconceptList1FixedSystemCode {
+  CodeableconceptList1FixedSystemCode(
+    id: Option(String),
+    extension: List(Extension),
+    coding: List1(CodingFixedSystemCode),
+    text: Option(String),
+  )
+}
+
+pub fn codeableconcept_list1_fixed_system_code_new(
+  coding coding: List1(CodingFixedSystemCode),
+) -> CodeableconceptList1FixedSystemCode {
+  CodeableconceptList1FixedSystemCode(id: None, extension: [], coding:, text: None)
+}
+
+pub fn codeableconcept_list1_fixed_system_code_from_codeableconcept(
+  concept: Codeableconcept,
+  system: String,
+  code: String,
+) -> Result(CodeableconceptList1FixedSystemCode, Nil) {
+  let Codeableconcept(id:, extension:, coding:, text:) = concept
+  case list.try_map(coding, fn(value) {
+    coding_fixed_system_code_from_coding(value, system, code)
+  }) {
+    Ok([first, ..rest]) -> Ok(CodeableconceptList1FixedSystemCode(
+      id:,
+      extension:,
+      coding: List1(first:, rest:),
+      text:,
+    ))
+    Ok([]) | Error(_) -> Error(Nil)
+  }
+}
+
+pub fn codeableconcept_list1_fixed_system_code_to_json(
+  concept: CodeableconceptList1FixedSystemCode,
+  system: String,
+  code: String,
+) -> Json {
+  let CodeableconceptList1FixedSystemCode(id:, extension:, coding:, text:) = concept
+  let List1(first:, rest:) = coding
+  codeableconcept_to_json(Codeableconcept(
+    id:,
+    extension:,
+    coding: list.map([first, ..rest], fn(value) {
+      coding_fixed_system_code_to_coding(value, system, code)
+    }),
+    text:,
+  ))
+}
+
+pub type CodeableconceptList1FixedSystemCodeDisplay {
+  CodeableconceptList1FixedSystemCodeDisplay(
+    id: Option(String),
+    extension: List(Extension),
+    coding: List1(CodingFixedSystemCodeDisplay),
+    text: Option(String),
+  )
+}
+
+pub fn codeableconcept_list1_fixed_system_code_display_new(
+  coding coding: List1(CodingFixedSystemCodeDisplay),
+) -> CodeableconceptList1FixedSystemCodeDisplay {
+  CodeableconceptList1FixedSystemCodeDisplay(id: None, extension: [], coding:, text: None)
+}
+
+pub fn codeableconcept_list1_fixed_system_code_display_from_codeableconcept(
+  concept: Codeableconcept,
+  system: String,
+  code: String,
+  display: String,
+) -> Result(CodeableconceptList1FixedSystemCodeDisplay, Nil) {
+  let Codeableconcept(id:, extension:, coding:, text:) = concept
+  case list.try_map(coding, fn(value) {
+    coding_fixed_system_code_display_from_coding(value, system, code, display)
+  }) {
+    Ok([first, ..rest]) -> Ok(CodeableconceptList1FixedSystemCodeDisplay(
+      id:,
+      extension:,
+      coding: List1(first:, rest:),
+      text:,
+    ))
+    Ok([]) | Error(_) -> Error(Nil)
+  }
+}
+
+pub fn codeableconcept_list1_fixed_system_code_display_to_json(
+  concept: CodeableconceptList1FixedSystemCodeDisplay,
+  system: String,
+  code: String,
+  display: String,
+) -> Json {
+  let CodeableconceptList1FixedSystemCodeDisplay(id:, extension:, coding:, text:) = concept
+  let List1(first:, rest:) = coding
+  codeableconcept_to_json(Codeableconcept(
+    id:,
+    extension:,
+    coding: list.map([first, ..rest], fn(value) {
+      coding_fixed_system_code_display_to_coding(value, system, code, display)
+    }),
+    text:,
+  ))
+}
+"

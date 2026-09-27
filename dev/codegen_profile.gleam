@@ -868,12 +868,26 @@ fn codeableconcept_type_from_elements(
   }
   use coding <- result.try(coding)
   use coding_type <- result.try(coding_type_from_elements(coding, elements))
-  case coding_type {
-    "ct.CodingFixedSystem" -> Ok("ct.CodeableconceptFixedSystem")
-    "ct.CodingFixedSystemCode" -> Ok("ct.CodeableconceptFixedSystemCode")
-    "ct.CodingFixedSystemCodeDisplay" ->
-      Ok("ct.CodeableconceptFixedSystemCodeDisplay")
-    _ -> Error("unsupported CodeableConcept Coding type")
+  // A concept pattern requires a matching coding, while unsliced child
+  // constraints apply to every coding in the required list.
+  case concept.pattern_codeableconcept, coding.slicing, coding.min, coding.max {
+    None, None, 1, "*" ->
+      case coding_type {
+        "ct.CodingFixedSystem" -> Ok("ct.CodeableconceptList1FixedSystem")
+        "ct.CodingFixedSystemCode" ->
+          Ok("ct.CodeableconceptList1FixedSystemCode")
+        "ct.CodingFixedSystemCodeDisplay" ->
+          Ok("ct.CodeableconceptList1FixedSystemCodeDisplay")
+        _ -> Error("unsupported CodeableConcept Coding type")
+      }
+    _, _, _, _ ->
+      case coding_type {
+        "ct.CodingFixedSystem" -> Ok("ct.CodeableconceptFixedSystem")
+        "ct.CodingFixedSystemCode" -> Ok("ct.CodeableconceptFixedSystemCode")
+        "ct.CodingFixedSystemCodeDisplay" ->
+          Ok("ct.CodeableconceptFixedSystemCodeDisplay")
+        _ -> Error("unsupported CodeableConcept Coding type")
+      }
   }
 }
 
@@ -1094,7 +1108,9 @@ fn plan_system_code_slice(
     Ok(_), True ->
       case codeableconcept_type_from_elements(root, elements) {
         Ok("ct.CodeableconceptFixedSystemCode" as type_)
-        | Ok("ct.CodeableconceptFixedSystemCodeDisplay" as type_) -> {
+        | Ok("ct.CodeableconceptFixedSystemCodeDisplay" as type_)
+        | Ok("ct.CodeableconceptList1FixedSystemCode" as type_)
+        | Ok("ct.CodeableconceptList1FixedSystemCodeDisplay" as type_) -> {
           use #(system, code, display) <- result.try(
             codegen_profile_json.discriminator_literals(root, [root, ..elements])
             |> result.replace_error("missing discriminator literals"),
@@ -1976,14 +1992,23 @@ fn prepare_profile_slices(
                                 type_name
                                 == "ct.CodingFixedSystemRequiredCodeDisplay"
                                 && { field == "code" || field == "display" }
+                              let required_coding_list =
+                                string.starts_with(
+                                  type_name,
+                                  "ct.CodeableconceptList1",
+                                )
+                                && field == "coding"
                               let cardinality_preserved = case
+                                required_coding_list,
                                 fixed_field,
                                 required_field
                               {
-                                True, _ -> child.min <= 1 && child.max == "1"
-                                False, True ->
+                                True, _, _ -> child.min == 1 && child.max == "*"
+                                False, True, _ ->
+                                  child.min <= 1 && child.max == "1"
+                                False, False, True ->
                                   child.min == 1 && child.max == "1"
-                                False, False ->
+                                False, False, False ->
                                   child.min == child.base.min
                                   && child.max == child.base.max
                               }
@@ -2290,6 +2315,7 @@ pub fn profile_files_to_types(
     <> codegen_slice_complex_type.slice_codeableconcept_display(
       preserve_slice_order,
     )
+    <> codegen_slice_complex_type.slice_codeableconcept_list1
 
   let #(profile_complex_types, profile_resources, valueset_acc, _) =
     list.fold(

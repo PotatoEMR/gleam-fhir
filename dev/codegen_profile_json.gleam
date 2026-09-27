@@ -550,12 +550,29 @@ fn fixed_slice_encoder_call(
       <> ", \""
       <> system
       <> "\")"
+    "ct.CodeableconceptList1FixedSystem" ->
+      "ct.codeableconcept_list1_fixed_system_to_json("
+      <> value
+      <> ", \""
+      <> system
+      <> "\""
+      <> ")"
     "ct.CodeableconceptFixedSystem" ->
       "ct.codeableconcept_fixed_system_to_json("
       <> value
       <> ", \""
       <> system
       <> "\")"
+    "ct.CodeableconceptList1FixedSystemCode" ->
+      "ct.codeableconcept_list1_fixed_system_code_to_json("
+      <> value
+      <> ", \""
+      <> system
+      <> "\""
+      <> ", \""
+      <> code
+      <> "\""
+      <> ")"
     "ct.CodeableconceptFixedSystemCode" ->
       "ct.codeableconcept_fixed_system_code_to_json("
       <> value
@@ -564,6 +581,21 @@ fn fixed_slice_encoder_call(
       <> "\", \""
       <> code
       <> "\")"
+    "ct.CodeableconceptList1FixedSystemCodeDisplay" -> {
+      let assert Some(display) = display
+      "ct.codeableconcept_list1_fixed_system_code_display_to_json("
+      <> value
+      <> ", \""
+      <> system
+      <> "\""
+      <> ", \""
+      <> code
+      <> "\""
+      <> ", \""
+      <> display
+      <> "\""
+      <> ")"
+    }
     "ct.CodeableconceptFixedSystemCodeDisplay" -> {
       let assert Some(display) = display
       "ct.codeableconcept_fixed_system_code_display_to_json("
