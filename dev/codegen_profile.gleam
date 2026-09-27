@@ -293,16 +293,6 @@ fn load_profile_files(
   profiles_dir: String,
   gen_specific_resources: Option(List(String)),
 ) -> ProfileFiles {
-  let gen_specific_resources = case gen_specific_resources {
-    None -> None
-    Some(gen_specific_resources) ->
-      Some(
-        gen_specific_resources
-        |> list.append(
-          list.map(gen_specific_resources, fn(res) { res <> "profile" }),
-        ),
-      )
-  }
   let structures = root_profile_resources(profiles_dir)
   let resources =
     list.filter(structures, fn(resource) {

@@ -79,7 +79,9 @@ pub fn main() {
     Error(_) -> None
   }
   let gen_specific_resources = case
-    list.find(args_lower, fn(arg) { string.starts_with(arg, "resources=") })
+    list.find(args_lower, fn(arg) {
+      string.starts_with(arg, "structuredefinitions=")
+    })
   {
     Ok(arg) -> {
       let assert [_, resources] = string.split(arg, "=")
