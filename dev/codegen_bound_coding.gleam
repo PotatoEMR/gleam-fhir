@@ -1,4 +1,7 @@
 import codegen_helpers
+import fhir/r4/resources as r4
+import gleam/dict
+import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/set.{type Set}
@@ -1088,3 +1091,67 @@ pub const insert_at = "fn insert_at(elt: a, in: List(a), at: Int) {
   before |> list.append([elt, ..after])
 }
 "
+
+pub fn valueset_include_codes(
+  include: r4.ValuesetComposeInclude,
+  all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
+  exclude_not_selectable: Bool,
+) {
+  case include.concept, include.filter, include.system {
+    [_, ..] as concepts, _, Some(system) ->
+      ValuesetIncludeExpanded(
+        list.map(concepts, fn(concept) {
+          ValuesetCodeWithSystem(code: concept.code, system:, variant: "")
+        }),
+      )
+    [_, ..], _, None -> panic as "ValueSet include with concepts has no system"
+    [], [_, ..], Some(system) -> ValuesetIncludeString(system:)
+    [], [_, ..], None -> panic as "ValueSet include with filters has no system"
+    [], [], Some(system) ->
+      case dict.get(all_vs_or_cs, system) {
+        Error(_) -> ValuesetIncludeString(system:)
+        Ok(_) ->
+          case
+            codegen_helpers.get_codes_with_system(
+              system,
+              all_vs_or_cs,
+              exclude_not_selectable,
+            )
+          {
+            [] -> ValuesetIncludeString(system:)
+            members ->
+              ValuesetIncludeExpanded(
+                list.map(members, fn(member) {
+                  ValuesetCodeWithSystem(
+                    code: member.1,
+                    system: member.0,
+                    variant: "",
+                  )
+                }),
+              )
+          }
+      }
+    [], [], None ->
+      ValuesetIncludeExpanded(
+        include.value_set
+        |> list.flat_map(fn(value_set) {
+          codegen_helpers.get_codes_with_system(
+            value_set,
+            all_vs_or_cs,
+            exclude_not_selectable,
+          )
+        })
+        |> list.map(fn(member) {
+          ValuesetCodeWithSystem(code: member.1, system: member.0, variant: "")
+        }),
+      )
+  }
+}
+
+pub fn valueset_include_name(include: r4.ValuesetComposeInclude, index: Int) {
+  case include.system, include.value_set {
+    Some(system), _ -> codegen_helpers.concept_name_from_url(system)
+    None, [value_set, ..] -> codegen_helpers.concept_name_from_url(value_set)
+    None, [] -> "Include" <> int.to_string(index)
+  }
+}

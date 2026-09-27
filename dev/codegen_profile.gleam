@@ -36,7 +36,13 @@ type ProfileFiles {
 }
 
 type PackageIndexFile {
-  PackageIndexFile(filename: String, url: Option(String), type_: Option(String))
+  PackageIndexFile(
+    filename: String,
+    url: Option(String),
+    type_: Option(String),
+    resource_type: Option(String),
+    kind: Option(String),
+  )
 }
 
 fn package_index_decoder() {
@@ -52,7 +58,23 @@ fn package_index_file_decoder() {
     None,
     decode.optional(decode.string),
   )
-  decode.success(PackageIndexFile(filename:, url:, type_:))
+  use resource_type <- decode.optional_field(
+    "resourceType",
+    None,
+    decode.optional(decode.string),
+  )
+  use kind <- decode.optional_field(
+    "kind",
+    None,
+    decode.optional(decode.string),
+  )
+  decode.success(PackageIndexFile(
+    filename:,
+    url:,
+    type_:,
+    resource_type:,
+    kind:,
+  ))
 }
 
 fn canonical_url(url: String) -> String {
@@ -302,9 +324,8 @@ fn load_profile_files(
             element.type_
             |> list.flat_map(fn(type_) {
               case type_.code {
-                "Coding" | "CodeableConcept" | "Identifier" ->
-                  list.map(type_.profile, canonical_url)
-                _ -> []
+                "Extension" -> []
+                _ -> list.map(type_.profile, canonical_url)
               }
             })
           })
@@ -320,25 +341,29 @@ fn load_profile_files(
         Ok(contents) -> {
           let assert Ok(files) = json.parse(contents, package_index_decoder())
           files
+          |> list.filter(fn(file) {
+            file.resource_type == Some("StructureDefinition")
+            && file.kind == Some("complex-type")
+            && file.type_ != Some("Extension")
+          })
           |> list.filter_map(fn(file) {
             case file.url {
               Some(url) -> {
-                case set.contains(datatype_profile_urls, canonical_url(url)) {
-                  False -> Error(Nil)
-                  True -> {
-                    let resource =
-                      read_structure_definition(filepath.join(
-                        package_dir,
-                        file.filename,
-                      ))
-                    case resource.type_ {
-                      Some("Coding")
-                      | Some("CodeableConcept")
-                      | Some("Identifier") ->
-                        Ok(#(canonical_url(url), resource))
-                      _ -> Error(Nil)
+                let resource =
+                  read_structure_definition(filepath.join(
+                    package_dir,
+                    file.filename,
+                  ))
+                case resource.kind, resource.type_ {
+                  Some("complex-type"), Some(type_) if type_ != "Extension" ->
+                    case
+                      canonical_url(url)
+                      == "http://hl7.org/fhir/StructureDefinition/" <> type_
+                    {
+                      True -> Error(Nil)
+                      False -> Ok(#(canonical_url(url), resource))
                     }
-                  }
+                  _, _ -> Error(Nil)
                 }
               }
               _ -> Error(Nil)
@@ -348,6 +373,38 @@ fn load_profile_files(
       }
     })
     |> dict.from_list
+  // Follow datatype references transitively, including references from datatypes.
+  let datatype_profile_urls =
+    list.fold(
+      dict.values(datatype_profiles),
+      datatype_profile_urls,
+      fn(urls, _) {
+        list.fold(set.to_list(urls), urls, fn(urls, url) {
+          case dict.get(datatype_profiles, url) {
+            Error(_) -> urls
+            Ok(profile) -> {
+              let assert Some(snapshot) = profile.snapshot
+              list.fold(snapshot.element, urls, fn(urls, element) {
+                list.fold(element.type_, urls, fn(urls, type_) {
+                  case type_.code {
+                    "Extension" -> urls
+                    _ ->
+                      set.union(
+                        urls,
+                        set.from_list(list.map(type_.profile, canonical_url)),
+                      )
+                  }
+                })
+              })
+            }
+          }
+        })
+      },
+    )
+  let datatype_profiles =
+    dict.filter(datatype_profiles, fn(url, _) {
+      set.contains(datatype_profile_urls, url)
+    })
   let extensions =
     list.append(resources, dict.values(datatype_profiles))
     |> referenced_extension_urls
@@ -361,7 +418,10 @@ pub fn required_complex_type_names(
 ) -> Set(String) {
   let profile_files = load_profile_files(profiles_dir, gen_specific_resources)
   let resource_elements =
-    profile_files.resources
+    list.append(
+      profile_files.resources,
+      dict.values(profile_files.datatype_profiles),
+    )
     |> list.flat_map(fn(resource) {
       case resource.snapshot {
         Some(snapshot) -> snapshot.element
@@ -1555,6 +1615,7 @@ fn prepare_profile_slices(
   dict.Dict(String, SliceFieldType),
   dict.Dict(String, SlicePlan),
   Set(String),
+  dict.Dict(String, SliceFieldType),
 ) {
   let profiled_identifier_children =
     elements
@@ -1739,7 +1800,7 @@ fn prepare_profile_slices(
 
   list.fold(
     groups,
-    #(elements, dict.new(), dict.new(), dict.new(), set.new()),
+    #(elements, dict.new(), dict.new(), dict.new(), set.new(), dict.new()),
     fn(acc, group) {
       let #(
         current_elements,
@@ -1747,6 +1808,7 @@ fn prepare_profile_slices(
         type_slice_overrides,
         planned_slices,
         nested_value_discriminators,
+        slice_discriminator_checks,
       ) = acc
       let assert Some(slicing) = group.slicing
       let roots = direct_slice_roots(group, current_elements)
@@ -1799,6 +1861,171 @@ fn prepare_profile_slices(
             }
           }
         })
+      let #(plans, nested_value_discriminators, slice_discriminator_checks) =
+        list.fold(
+          plans,
+          #([], nested_value_discriminators, slice_discriminator_checks),
+          fn(acc, plan) {
+            let #(plans, nested_value_discriminators, checks) = acc
+            case plan {
+              ValueSlicePlan(root_id:, overrides: replacements, ..) -> {
+                // A constrained CodeableConcept may still reuse a shared Coding.
+                let replacements =
+                  list.flat_map(replacements, fn(replacement) {
+                    let coding = {
+                      use _ <- result.try(case replacement.1 {
+                        FixedSliceType(type_name, ..) ->
+                          case
+                            string.starts_with(type_name, "ct.Codeableconcept")
+                          {
+                            True -> Ok(Nil)
+                            False -> Error(Nil)
+                          }
+                        _ -> Error(Nil)
+                      })
+                      use element <- result.try(find_element(
+                        current_elements,
+                        replacement.0 <> ".coding",
+                      ))
+                      use type_name <- result.try(
+                        coding_type_from_elements(element, current_elements)
+                        |> result.replace_error(Nil),
+                      )
+                      use #(system, code, display) <- result.try(
+                        codegen_profile_json.discriminator_literals(
+                          element,
+                          current_elements,
+                        )
+                        |> result.replace_error(Nil),
+                      )
+                      Ok(#(
+                        element.id,
+                        FixedSliceType(
+                          type_name,
+                          current_elements,
+                          system,
+                          code,
+                          display,
+                        ),
+                      ))
+                    }
+                    case coding {
+                      Ok(coding) -> [replacement, coding]
+                      Error(_) -> [replacement]
+                    }
+                  })
+                let replacements_kept =
+                  list.filter(replacements, fn(replacement) {
+                    case replacement.1 {
+                      FixedSliceType(type_name, _, system, code, display) -> {
+                        let fields = case
+                          string.starts_with(type_name, "ct.Codeableconcept")
+                        {
+                          True -> [
+                            "id",
+                            "extension",
+                            "coding",
+                            "text",
+                            "coding.id",
+                            "coding.extension",
+                            "coding.version",
+                            "coding.system",
+                            "coding.code",
+                            "coding.display",
+                            "coding.userSelected",
+                          ]
+                          False -> [
+                            "id",
+                            "extension",
+                            "version",
+                            "system",
+                            "code",
+                            "display",
+                            "userSelected",
+                          ]
+                        }
+                        let prefix = replacement.0 <> "."
+                        !list.any(current_elements, fn(child) {
+                          case string.starts_with(child.id, prefix) {
+                            False -> False
+                            True -> {
+                              let field =
+                                string.drop_start(
+                                  child.id,
+                                  string.length(prefix),
+                                )
+                              let fixed_field = case field {
+                                "system" | "coding.system" -> system != ""
+                                "code" | "coding.code" -> code != ""
+                                "display" | "coding.display" -> display != None
+                                _ -> False
+                              }
+                              let required_field =
+                                type_name
+                                == "ct.CodingFixedSystemRequiredCodeDisplay"
+                                && { field == "code" || field == "display" }
+                              let cardinality_preserved = case
+                                fixed_field,
+                                required_field
+                              {
+                                True, _ -> child.min <= 1 && child.max == "1"
+                                False, True ->
+                                  child.min == 1 && child.max == "1"
+                                False, False ->
+                                  child.min == child.base.min
+                                  && child.max == child.base.max
+                              }
+                              child.slice_name != None
+                              || !list.contains(fields, field)
+                              || list.any(child.type_, fn(type_) {
+                                type_.profile != []
+                              })
+                              || !cardinality_preserved
+                              || case child.binding {
+                                Some(binding) ->
+                                  binding.strength == "required" && !fixed_field
+                                None -> False
+                              }
+                            }
+                          }
+                        })
+                      }
+                      _ -> True
+                    }
+                  })
+                let checks =
+                  list.fold(replacements, checks, fn(checks, replacement) {
+                    case list.contains(replacements_kept, replacement) {
+                      True -> checks
+                      False -> dict.insert(checks, replacement.0, replacement.1)
+                    }
+                  })
+                case
+                  list.length(replacements_kept) == list.length(replacements)
+                {
+                  True -> #(
+                    [plan, ..plans],
+                    nested_value_discriminators,
+                    checks,
+                  )
+                  False -> #(
+                    [
+                      ValueSlicePlan(..plan, overrides: replacements_kept),
+                      ..plans
+                    ],
+                    set.insert(nested_value_discriminators, root_id),
+                    checks,
+                  )
+                }
+              }
+              TypeSlicePlan(..) -> #(
+                [plan, ..plans],
+                nested_value_discriminators,
+                checks,
+              )
+            }
+          },
+        )
       let keep_supported_open_slices =
         unsupported_ids != [] && plans != [] && slicing.rules == "open"
       let current_elements = case keep_supported_open_slices {
@@ -1827,6 +2054,7 @@ fn prepare_profile_slices(
             type_slice_overrides,
             planned_slices,
             nested_value_discriminators,
+            slice_discriminator_checks,
           )
         }
         [] -> {
@@ -1901,6 +2129,7 @@ fn prepare_profile_slices(
             type_slice_overrides,
             planned_slices,
             nested_value_discriminators,
+            slice_discriminator_checks,
           )
         }
       }
@@ -1913,8 +2142,15 @@ fn prepare_profile_slices(
       type_slice_overrides,
       _,
       nested_value_discriminators,
+      slice_discriminator_checks,
     ) = result
-    #(elements, overrides, type_slice_overrides, nested_value_discriminators)
+    #(
+      elements,
+      overrides,
+      type_slice_overrides,
+      nested_value_discriminators,
+      slice_discriminator_checks,
+    )
   }
 }
 
@@ -1951,7 +2187,10 @@ pub fn profile_files_to_types(
     |> set.from_list
   }
   let resource_elements =
-    profile_structures.resources
+    list.append(
+      profile_structures.resources,
+      dict.values(profile_structures.datatype_profiles),
+    )
     |> list.flat_map(fn(resource) {
       case resource.snapshot {
         None -> []
@@ -1995,6 +2234,22 @@ pub fn profile_files_to_types(
       }
       #(resource_type, profile_type, resource.url)
     })
+  let profile_definitions =
+    list.append(
+      profile_resources,
+      dict.values(profile_structures.datatype_profiles),
+    )
+    |> list.sort(fn(a, b) { string.compare(a.id, b.id) })
+  let datatype_types =
+    profile_definitions
+    |> list.filter(fn(profile) { profile.kind == Some("complex-type") })
+    |> list.map(fn(profile) {
+      #(
+        canonical_url(profile.url),
+        profile.id |> string.replace("-", "_") |> codegen_helpers.to_camel_case,
+      )
+    })
+    |> dict.from_list
   let #(extension_types, valueset_acc) =
     generate_extension_types(
       profile_structures.extensions,
@@ -2012,7 +2267,7 @@ pub fn profile_files_to_types(
 
   let #(profile_complex_types, profile_resources, valueset_acc, _) =
     list.fold(
-      over: profile_resources,
+      over: profile_definitions,
       from: #(slice_types <> extension_types, "", valueset_acc, set.new()),
       with: fn(acc, resource) {
         let #(
@@ -2032,6 +2287,7 @@ pub fn profile_files_to_types(
           slice_type_overrides,
           type_slice_overrides,
           nested_value_discriminators,
+          slice_discriminator_checks,
         ) =
           prepare_profile_slices(
             resource.id,
@@ -2040,9 +2296,15 @@ pub fn profile_files_to_types(
             profile_structures.datatype_profiles,
           )
         let profile_prefix = string.replace(resource.id, "-", "_")
-        let profile_type = case codegen_helpers.to_camel_case(profile_prefix) {
-          "List" -> "Listfhir"
-          profile_type -> profile_type
+        let profile_type = case
+          dict.get(datatype_types, canonical_url(resource.url))
+        {
+          Ok(profile_type) -> profile_type
+          Error(_) ->
+            case codegen_helpers.to_camel_case(profile_prefix) {
+              "List" -> "Listfhir"
+              profile_type -> profile_type
+            }
         }
         let slice_base_type_names =
           profile_elements
@@ -2268,8 +2530,23 @@ pub fn profile_files_to_types(
               let fields =
                 list.filter(fields, fn(element) {
                   element.max != "0"
-                  && element.fixed_code == None
-                  && element.fixed_uri == None
+                  && {
+                    element.fixed_code == None
+                    && element.fixed_uri == None
+                    || {
+                      let assert [_, ..rest] =
+                        element.id
+                        |> string.replace("-", "")
+                        |> string.replace(":", ".")
+                        |> string.split(".")
+                      profile_field_is_primitive_slice(
+                        element,
+                        "",
+                        type_order,
+                        string.join([profile_prefix, ..rest], "_"),
+                      )
+                    }
+                  }
                   && !set.contains(aggregate_slice_root_ids, element.id)
                   && case element.slicing {
                     Some(slicing) ->
@@ -2336,6 +2613,7 @@ pub fn profile_files_to_types(
                         type_order,
                         slice_base_type_names,
                         slice_type_overrides,
+                        datatype_types,
                         valueset_acc,
                       )
                     // If named slices do not enforce the group minimum, use a
@@ -2372,6 +2650,7 @@ pub fn profile_files_to_types(
                                 type_order,
                                 slice_base_type_names,
                                 slice_type_overrides,
+                                datatype_types,
                                 valueset_acc,
                               )
                             #(
@@ -2632,6 +2911,7 @@ pub fn profile_files_to_types(
                                             type_order,
                                             slice_base_type_names,
                                             slice_type_overrides,
+                                            datatype_types,
                                             valueset_acc,
                                           )
                                         let is_slice_elt =
@@ -2740,13 +3020,18 @@ pub fn profile_files_to_types(
                                 }
                                 Error(_) | Ok(ValueSlicePlan(..)) -> {
                                   let #(variant_type, valueset_acc) =
-                                    codegen_helpers.string_to_type(
-                                      choice.code,
-                                      [
-                                        "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
-                                      ],
-                                      element,
-                                      codegen_helpers.Resources,
+                                    profile_base_field_type(
+                                      codegen_helpers.Element(..element, type_: [
+                                        choice,
+                                      ]),
+                                      all_parts,
+                                      "",
+                                      choice_type,
+                                      profile_structures.extensions,
+                                      type_order,
+                                      slice_base_type_names,
+                                      slice_type_overrides,
+                                      datatype_types,
                                       valueset_acc,
                                     )
                                   #(variant_type, "", valueset_acc)
@@ -2822,6 +3107,7 @@ pub fn profile_files_to_types(
         let #(profile_encoders, valueset_acc) =
           codegen_profile_json.generate_to_json(
             resource_type,
+            resource.kind == Some("resource"),
             snapshot.element,
             profile_prefix,
             profile_type,
@@ -2830,6 +3116,7 @@ pub fn profile_files_to_types(
             profile_structures.extensions,
             slice_base_type_names,
             slice_type_overrides,
+            datatype_types,
             type_slice_overrides,
             preserve_slice_order,
             valueset_acc,
@@ -2837,6 +3124,7 @@ pub fn profile_files_to_types(
         let #(profile_decoders, generated_extension_classifiers) =
           codegen_profile_json.generate_decoders(
             resource_type,
+            resource.kind == Some("resource"),
             snapshot.element,
             profile_prefix,
             profile_type,
@@ -2845,7 +3133,9 @@ pub fn profile_files_to_types(
             profile_structures.extensions,
             slice_base_type_names,
             slice_type_overrides,
+            datatype_types,
             nested_value_discriminators,
+            slice_discriminator_checks,
             type_slice_overrides,
             preserve_slice_order,
             valueset_acc,

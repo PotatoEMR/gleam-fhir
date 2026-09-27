@@ -2269,79 +2269,6 @@ fn add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
 // region valuesets
 // note we already have a list of required bindings from resources, now need to fill codes in for those
 
-fn valueset_include_codes(
-  include: r4.ValuesetComposeInclude,
-  all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
-  exclude_not_selectable: Bool,
-) {
-  case include.concept, include.filter, include.system {
-    [_, ..] as concepts, _, Some(system) ->
-      codegen_bound_coding.ValuesetIncludeExpanded(
-        list.map(concepts, fn(concept) {
-          codegen_bound_coding.ValuesetCodeWithSystem(
-            code: concept.code,
-            system:,
-            variant: "",
-          )
-        }),
-      )
-    [_, ..], _, None -> panic as "ValueSet include with concepts has no system"
-    [], [_, ..], Some(system) ->
-      codegen_bound_coding.ValuesetIncludeString(system:)
-    [], [_, ..], None -> panic as "ValueSet include with filters has no system"
-    [], [], Some(system) ->
-      case dict.get(all_vs_or_cs, system) {
-        Error(_) -> codegen_bound_coding.ValuesetIncludeString(system:)
-        Ok(_) ->
-          case
-            codegen_helpers.get_codes_with_system(
-              system,
-              all_vs_or_cs,
-              exclude_not_selectable,
-            )
-          {
-            [] -> codegen_bound_coding.ValuesetIncludeString(system:)
-            members ->
-              codegen_bound_coding.ValuesetIncludeExpanded(
-                list.map(members, fn(member) {
-                  codegen_bound_coding.ValuesetCodeWithSystem(
-                    code: member.1,
-                    system: member.0,
-                    variant: "",
-                  )
-                }),
-              )
-          }
-      }
-    [], [], None ->
-      codegen_bound_coding.ValuesetIncludeExpanded(
-        include.value_set
-        |> list.flat_map(fn(value_set) {
-          codegen_helpers.get_codes_with_system(
-            value_set,
-            all_vs_or_cs,
-            exclude_not_selectable,
-          )
-        })
-        |> list.map(fn(member) {
-          codegen_bound_coding.ValuesetCodeWithSystem(
-            code: member.1,
-            system: member.0,
-            variant: "",
-          )
-        }),
-      )
-  }
-}
-
-fn valueset_include_name(include: r4.ValuesetComposeInclude, index: Int) {
-  case include.system, include.value_set {
-    Some(system), _ -> codegen_helpers.concept_name_from_url(system)
-    None, [value_set, ..] -> codegen_helpers.concept_name_from_url(value_set)
-    None, [] -> "Include" <> int.to_string(index)
-  }
-}
-
 fn valueset_type_source(
   vs_url: String,
   vsname: String,
@@ -2382,7 +2309,11 @@ fn valueset_compose_type_source(
     list.fold(includes, #([], [], set.new(), 1), fn(acc, include) {
       let #(codes, open_variants, systems, index) = acc
       case
-        valueset_include_codes(include, all_vs_or_cs, exclude_not_selectable)
+        codegen_bound_coding.valueset_include_codes(
+          include,
+          all_vs_or_cs,
+          exclude_not_selectable,
+        )
       {
         codegen_bound_coding.ValuesetIncludeExpanded(include_codes) -> #(
           list.fold(include_codes, codes, fn(codes, code) { [code, ..codes] }),
@@ -2396,7 +2327,8 @@ fn valueset_compose_type_source(
           index + 1,
         )
         codegen_bound_coding.ValuesetIncludeString(system) -> {
-          let variant_name = vsname <> valueset_include_name(include, index)
+          let variant_name =
+            vsname <> codegen_bound_coding.valueset_include_name(include, index)
           #(
             codes,
             [
