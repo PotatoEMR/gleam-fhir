@@ -27,6 +27,19 @@ import gleam/set.{type Set}
 import gleam/string
 import simplifile
 
+type SliceHelper {
+  CodingSystem
+  CodingSystemCode
+  CodingSystemCodeDisplay
+  CodingSystemRequiredCodeDisplay
+  ConceptSystem
+  ConceptSystemCode
+  ConceptSystemCodeDisplay
+  ConceptList1System
+  ConceptList1SystemCode
+  ConceptList1SystemCodeDisplay
+}
+
 type ProfileFiles {
   ProfileFiles(
     resources: List(codegen_helpers.Resource),
@@ -2297,26 +2310,23 @@ pub fn profile_files_to_types(
       preserve_slice_order,
       valueset_acc,
     )
-  let slice_types =
-    codegen_slice_complex_type.slice_coding
-    <> codegen_slice_complex_type.slice_coding_display
-    <> codegen_slice_complex_type.slice_coding_fixeduri
-    <> codegen_slice_complex_type.slice_codeableconcept(preserve_slice_order)
-    <> codegen_slice_complex_type.slice_codeableconcept_display(
-      preserve_slice_order,
-    )
-    <> codegen_slice_complex_type.slice_codeableconcept_list1
-
-  let #(profile_complex_types, profile_resources, valueset_acc, _) =
+  let #(
+    profile_complex_types,
+    profile_resources,
+    valueset_acc,
+    _,
+    slice_helpers,
+  ) =
     list.fold(
       over: profile_definitions,
-      from: #(slice_types <> extension_types, "", valueset_acc, dict.new()),
+      from: #(extension_types, "", valueset_acc, dict.new(), set.new()),
       with: fn(acc, resource) {
         let #(
           extension_types,
           generated_acc,
           valueset_acc,
           generated_extension_classifiers,
+          slice_helpers,
         ) = acc
         let current_bucket = case resource.kind {
           Some("complex-type") -> codegen_helpers.ComplexTypes
@@ -2350,6 +2360,51 @@ pub fn profile_files_to_types(
             available_slice_valuesets,
             profile_structures.datatype_profiles,
           )
+        let slice_helpers =
+          list.append(
+            dict.values(slice_type_overrides),
+            dict.values(slice_discriminator_checks),
+          )
+          |> list.fold(slice_helpers, fn(helpers, override) {
+            case override {
+              FixedSliceType(type_name, ..) ->
+                case type_name {
+                  "ct.CodingFixedSystem" -> set.insert(helpers, CodingSystem)
+                  "ct.CodingFixedSystemCode" ->
+                    set.insert(helpers, CodingSystemCode)
+                  "ct.CodingFixedSystemCodeDisplay" ->
+                    set.insert(helpers, CodingSystemCodeDisplay)
+                  "ct.CodingFixedSystemRequiredCodeDisplay" ->
+                    set.insert(helpers, CodingSystemRequiredCodeDisplay)
+                  "ct.CodeableconceptFixedSystem" ->
+                    helpers
+                    |> set.insert(ConceptSystem)
+                    |> set.insert(CodingSystem)
+                  "ct.CodeableconceptFixedSystemCode" ->
+                    helpers
+                    |> set.insert(ConceptSystemCode)
+                    |> set.insert(CodingSystemCode)
+                  "ct.CodeableconceptFixedSystemCodeDisplay" ->
+                    helpers
+                    |> set.insert(ConceptSystemCodeDisplay)
+                    |> set.insert(CodingSystemCodeDisplay)
+                  "ct.CodeableconceptList1FixedSystem" ->
+                    helpers
+                    |> set.insert(ConceptList1System)
+                    |> set.insert(CodingSystem)
+                  "ct.CodeableconceptList1FixedSystemCode" ->
+                    helpers
+                    |> set.insert(ConceptList1SystemCode)
+                    |> set.insert(CodingSystemCode)
+                  "ct.CodeableconceptList1FixedSystemCodeDisplay" ->
+                    helpers
+                    |> set.insert(ConceptList1SystemCodeDisplay)
+                    |> set.insert(CodingSystemCodeDisplay)
+                  _ -> helpers
+                }
+              _ -> helpers
+            }
+          })
         let profile_prefix = string.replace(resource.id, "-", "_")
         let profile_type = case
           dict.get(datatype_types, canonical_url(resource.url))
@@ -3232,9 +3287,55 @@ pub fn profile_files_to_types(
             classifier_key,
             generated_extension_classifiers,
           ),
+          slice_helpers,
         )
       },
     )
+  let #(concept_system_source, concept_system_code_source) =
+    codegen_slice_complex_type.slice_codeableconcept(preserve_slice_order)
+  let slice_types =
+    [
+      #(CodingSystem, codegen_slice_complex_type.slice_coding_fixed_system),
+      #(
+        CodingSystemCode,
+        codegen_slice_complex_type.slice_coding_fixed_system_code,
+      ),
+      #(
+        CodingSystemCodeDisplay,
+        codegen_slice_complex_type.slice_coding_display,
+      ),
+      #(
+        CodingSystemRequiredCodeDisplay,
+        codegen_slice_complex_type.slice_coding_fixeduri,
+      ),
+      #(ConceptSystem, concept_system_source),
+      #(ConceptSystemCode, concept_system_code_source),
+      #(
+        ConceptSystemCodeDisplay,
+        codegen_slice_complex_type.slice_codeableconcept_display(
+          preserve_slice_order,
+        ),
+      ),
+      #(
+        ConceptList1System,
+        codegen_slice_complex_type.slice_codeableconcept_list1_fixed_system,
+      ),
+      #(
+        ConceptList1SystemCode,
+        codegen_slice_complex_type.slice_codeableconcept_list1_fixed_system_code,
+      ),
+      #(
+        ConceptList1SystemCodeDisplay,
+        codegen_slice_complex_type.slice_codeableconcept_list1_fixed_system_code_display,
+      ),
+    ]
+    |> list.fold("", fn(source, entry) {
+      case set.contains(slice_helpers, entry.0) {
+        True -> source <> entry.1
+        False -> source
+      }
+    })
+  let profile_complex_types = slice_types <> profile_complex_types
   let assert [profile_complex_types, profile_resources] =
     list.map(
       [

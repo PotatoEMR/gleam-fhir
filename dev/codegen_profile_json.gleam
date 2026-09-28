@@ -2294,7 +2294,16 @@ fn record_conversion_from_fields(
     Some(discriminator) -> {
       let #(_, _, _, field_name, field_type) =
         profile_element_names(context, target_type, discriminator)
-      ", " <> field_name <> " " <> field_name <> ": " <> field_type
+      let parameter_type = case discriminator.max {
+        "1" -> field_type
+        _ ->
+          codegen_helpers.cardinality(
+            field_type,
+            profile_field_min(discriminator, False),
+            discriminator.max,
+          )
+      }
+      ", " <> field_name <> " " <> field_name <> ": " <> parameter_type
     }
     None -> ""
   }
@@ -2402,15 +2411,18 @@ fn record_conversion_from_fields(
             source_field_type,
           )
       }
-      let converted =
-        conversion_for_cardinality(
-          context.current_bucket,
-          inner,
-          element,
-          "source." <> field_name,
-          target_min,
-          is_primitive,
-        )
+      let converted = case is_discriminator, element.max {
+        True, max if max != "1" -> IdentityConversion(field_name, "", False)
+        _, _ ->
+          conversion_for_cardinality(
+            context.current_bucket,
+            inner,
+            element,
+            "source." <> field_name,
+            target_min,
+            is_primitive,
+          )
+      }
       let binding = case converted.fallible {
         True ->
           "  use "
@@ -4051,7 +4063,15 @@ fn slice_converter_source(
     Error(_) -> {
       let #(_, _, _, discriminator_field, discriminator_type) =
         profile_element_names(context, target_type, discriminator)
-      let discriminator_parameter_type = discriminator_type
+      let discriminator_parameter_type = case discriminator.max {
+        "1" -> discriminator_type
+        _ ->
+          codegen_helpers.cardinality(
+            discriminator_type,
+            profile_field_min(discriminator, False),
+            discriminator.max,
+          )
+      }
       let record_converter =
         codegen_helpers.to_snake_case(target_type)
         <> "_try_from_"
@@ -4084,24 +4104,35 @@ fn slice_converter_source(
           <> "\", found: \"invalid JSON\", path: [\""
           <> json_name
           <> "\", int.to_string(index)])])\n  }\n"
-        _, _ ->
-          "  case "
-          <> slice_record_validation(
-            context,
-            target_type,
-            base_type,
-            "source",
-            json_name,
-          )
-          <> " {\n    Error(errors) -> Error(errors)\n    Ok(_) ->\n      case "
-          <> record_converter
-          <> "("
-          <> record_converter_arguments
-          <> ") {\n        Ok(value) -> Ok(value)\n        Error(reason) -> Error([decode.DecodeError(expected: \""
-          <> target_type
-          <> "\", found: reason, path: [\""
-          <> json_name
-          <> "\", int.to_string(index)])])\n      }\n  }\n"
+        _, _ -> {
+          let conversion =
+            "case "
+            <> record_converter
+            <> "("
+            <> record_converter_arguments
+            <> ") {\n  Ok(value) -> Ok(value)\n  Error(reason) -> Error([decode.DecodeError(expected: \""
+            <> target_type
+            <> "\", found: reason, path: [\""
+            <> json_name
+            <> "\", int.to_string(index)])])\n}"
+          case
+            slice_record_validation(
+              context,
+              target_type,
+              base_type,
+              "source",
+              json_name,
+            )
+          {
+            "Ok(Nil)" -> "  " <> conversion <> "\n"
+            validation ->
+              "  case "
+              <> validation
+              <> " {\n    Error(errors) -> Error(errors)\n    Ok(_) -> "
+              <> conversion
+              <> "\n  }\n"
+          }
+        }
       }
       "fn "
       <> slice_converter_name(context.current_bucket, target_type, base_type)
@@ -4256,9 +4287,17 @@ fn resource_slice_match(
               )
             }
           }
-          case source_min, source_max {
-            0, "1" | 1, "1" -> Nil
-            _, _ ->
+          let repeated_fixed_coding =
+            source_min == 0
+            && source_max == "*"
+            && discriminator.min == 0
+            && discriminator.max == "*"
+            && discriminator.base.path == "CodeableConcept.coding"
+            && discriminator.pattern_coding == None
+            && string.starts_with(discriminator_type, "ct.CodingFixed")
+          case source_min, source_max, repeated_fixed_coding {
+            0, "1", _ | 1, "1", _ | 0, "*", True -> Nil
+            _, _, _ ->
               panic as {
                 "unsupported slice source discriminator cardinality "
                 <> int.to_string(source_min)
@@ -4284,8 +4323,31 @@ fn resource_slice_match(
             0, "1" -> "value"
             _, _ -> discriminator_value
           }
-          let expression = case discriminator_override {
-            FixedSliceType(..) | BoundCodeableconceptSlice | BoundCodingSlice ->
+          let expression = case repeated_fixed_coding, discriminator_override {
+            True, FixedSliceType(..) -> {
+              let assert Ok(codegen_slice_complex_type.ResultDiscriminatorCall(
+                check,
+              )) =
+                codegen_slice_complex_type.discriminator_from_base_call(
+                  context.current_bucket,
+                  discriminator_type,
+                  "coding",
+                  system,
+                  code,
+                  display,
+                )
+              "case "
+              <> source
+              <> "."
+              <> discriminator_field
+              <> " { [] -> Error(Nil) codings -> list.try_map(codings, fn(coding) { "
+              <> check
+              <> " }) }"
+            }
+            _, FixedSliceType(..)
+            | _, BoundCodeableconceptSlice
+            | _, BoundCodingSlice
+            ->
               slice_match(
                 context,
                 base_type,
@@ -4293,7 +4355,7 @@ fn resource_slice_match(
                 discriminator,
                 discriminator_value,
               )
-            _ -> {
+            _, _ -> {
               let assert Ok(call) =
                 codegen_slice_complex_type.discriminator_from_base_call(
                   context.current_bucket,
