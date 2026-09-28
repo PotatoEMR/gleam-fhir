@@ -10,7 +10,6 @@ import fhir/r4/resources as r4
 import filepath
 import gleam/dict
 import gleam/http/request
-@target(erlang)
 import gleam/httpc
 import gleam/int
 import gleam/io
@@ -47,7 +46,6 @@ fn simplifier_core_package_version(fhir_version: String) {
   }
 }
 
-@target(erlang)
 pub fn main() {
   io.println("🔥🔥🔥 bultaoreune")
 
@@ -181,7 +179,6 @@ pub fn main() {
   })
 }
 
-@target(erlang)
 fn gen_fhir(
   fhir_version: String,
   download_files: Bool,

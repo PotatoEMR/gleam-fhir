@@ -442,7 +442,7 @@ fn update(model: Model, message: Message) {
               }
             })
             |> string.join(",")
-          ["resources=" <> gen_res_arg, ..more_args]
+          ["structuredefinitions=" <> gen_res_arg, ..more_args]
         }
       }
       let args = args |> list.append(more_args)
