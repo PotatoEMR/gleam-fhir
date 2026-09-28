@@ -1,12 +1,12 @@
 ////[https://hl7.org/fhir/r4](https://hl7.org/fhir/r4) resources
 
-import fhir/r4/complex_types.{
+import fhir/r4_gen/complex_types.{
   type List1, decode_number, list1_decoder, list1_to_json, none_if_omitted,
 } as ct
-import fhir/r4/primitive_types.{
+import fhir/r4_gen/primitive_types.{
   type Date, type DateTime, type Instant, type Time,
 } as pt
-import fhir/r4/valuesets
+import fhir/r4_gen/valuesets
 import gleam/bool
 import gleam/dynamic/decode.{type Decoder}
 import gleam/json.{type Json}

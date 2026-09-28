@@ -6,7 +6,7 @@ import codegen_helpers
 import codegen_profile
 import codegen_to_json
 import download_profile_package
-import fhir/r4/resources as r4
+import fhir/r4_gen/resources as r4
 import filepath
 import gleam/dict
 import gleam/http/request
@@ -31,7 +31,7 @@ const zip_file_names = [
 
 const fhir_url = "https://www.hl7.org/fhir"
 
-const gen_into_dir = "generated_fhir"
+const gen_into_dir = "src/fhir"
 
 fn const_download_dir() {
   "dev" |> filepath.join("downloads")

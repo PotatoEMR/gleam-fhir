@@ -1,5 +1,5 @@
 import codegen_helpers
-import fhir/r4/resources as r4
+import fhir/r4_gen/resources as r4
 import gleam/dict
 import gleam/int
 import gleam/list

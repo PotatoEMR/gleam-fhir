@@ -1,5 +1,5 @@
-import fhir/r4/complex_types as r4ct
-import fhir/r4/resources as r4
+import fhir/r4_gen/complex_types as r4ct
+import fhir/r4_gen/resources as r4
 import filepath
 import gleam/dict.{type Dict}
 import gleam/dynamic/decode

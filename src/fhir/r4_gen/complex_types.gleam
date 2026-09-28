@@ -1,9 +1,9 @@
 ////[https://hl7.org/fhir/r4](https://hl7.org/fhir/r4) complex types
 
-import fhir/r4/primitive_types.{
+import fhir/r4_gen/primitive_types.{
   type Date, type DateTime, type Instant, type Time,
 } as pt
-import fhir/r4/valuesets
+import fhir/r4_gen/valuesets
 import gleam/dynamic/decode.{type Decoder}
 import gleam/int
 import gleam/json.{type Json}
