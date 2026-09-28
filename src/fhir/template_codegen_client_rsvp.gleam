@@ -1,4 +1,4 @@
-////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using rsvp
+pub const source = "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using rsvp
 
 import fhir/FHIRVERSION/resources
 import fhir/FHIRVERSION/sansio
@@ -15,17 +15,17 @@ import lustre/effect.{type Effect}
 import rsvp
 
 /// FHIR client for sending http requests to server such as
-/// `let pat = resources.patient_read("123", client)`
+/// `let pat = resources.patient_read(\"123\", client)`
 ///
 /// create client from server base url with fhirclient_new(baseurl)`
 ///
-/// `let assert Ok(client) = client_rsvp.fhirclient_new("r4.smarthealthit.org/")`
+/// `let assert Ok(client) = client_rsvp.fhirclient_new(\"r4.smarthealthit.org/\")`
 ///
-/// `let assert Ok(client) = client_rsvp.fhirclient_new("https://r4.smarthealthit.org/")`
+/// `let assert Ok(client) = client_rsvp.fhirclient_new(\"https://r4.smarthealthit.org/\")`
 ///
-/// `let assert Ok(client) = client_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")`
+/// `let assert Ok(client) = client_rsvp.fhirclient_new(\"https://hapi.fhir.org/baseR4\")`
 ///
-/// `let assert Ok(client) = client_rsvp.fhirclient_new("127.0.0.1:8000")`
+/// `let assert Ok(client) = client_rsvp.fhirclient_new(\"127.0.0.1:8000\")`
 /// 
 /// rsvp client wraps sansio client, along with an optional handle_unauthorized fn,
 /// for the client to call when a request returns 401 unauthorized
@@ -38,13 +38,13 @@ pub type FhirClient(msg) {
 
 /// creates a new client from server base url
 ///
-/// `let assert Ok(client) = client_rsvp.fhirclient_new("r4.smarthealthit.org/")`
+/// `let assert Ok(client) = client_rsvp.fhirclient_new(\"r4.smarthealthit.org/\")`
 ///
-/// `let assert Ok(client) = client_rsvp.fhirclient_new("https://r4.smarthealthit.org/")`
+/// `let assert Ok(client) = client_rsvp.fhirclient_new(\"https://r4.smarthealthit.org/\")`
 ///
-/// `let assert Ok(client) = client_rsvp.fhirclient_new("https://hapi.fhir.org/baseR4")`
+/// `let assert Ok(client) = client_rsvp.fhirclient_new(\"https://hapi.fhir.org/baseR4\")`
 ///
-/// `let assert Ok(client) = client_rsvp.fhirclient_new("127.0.0.1:8000")`
+/// `let assert Ok(client) = client_rsvp.fhirclient_new(\"127.0.0.1:8000\")`
 pub fn fhirclient_new(
   server_base_url in_url: String,
 ) -> Result(FhirClient(msg), sansio.ErrBaseUrl) {
@@ -150,7 +150,7 @@ pub fn any_delete(
   let handler = rsvp.expect_any_response(handle_read)
   req
   |> request.set_body(case req.body {
-    None -> ""
+    None -> \"\"
     Some(body) -> json.to_string(body)
   })
   |> rsvp.send(handler)
@@ -266,7 +266,7 @@ fn sendreq_handleresponse(
   let handler = rsvp.expect_any_response(handle_read)
   req
   |> request.set_body(case req.body {
-    None -> ""
+    None -> \"\"
     Some(body) -> json.to_string(body)
   })
   |> rsvp.send(handler)
@@ -274,31 +274,32 @@ fn sendreq_handleresponse(
 
 fn rsvp_err_to_string(err: rsvp.Error(String)) -> String {
   case err {
-    rsvp.BadBody -> "invalid http response body"
-    rsvp.BadUrl(url) -> "invalid url: " <> url
-    rsvp.HttpError(resp) -> "resp not 2xx: " <> sansio.resp_to_string(resp)
+    rsvp.BadBody -> \"invalid http response body\"
+    rsvp.BadUrl(url) -> \"invalid url: \" <> url
+    rsvp.HttpError(resp) -> \"resp not 2xx: \" <> sansio.resp_to_string(resp)
     rsvp.JsonError(err) ->
-      "err decoding json: "
+      \"err decoding json: \"
       <> case err {
-        json.UnexpectedEndOfInput -> "unexpected end of input"
-        json.UnexpectedByte(err) -> "unexpected byte: " <> err
-        json.UnexpectedSequence(err) -> "unexpected sequence " <> err
+        json.UnexpectedEndOfInput -> \"unexpected end of input\"
+        json.UnexpectedByte(err) -> \"unexpected byte: \" <> err
+        json.UnexpectedSequence(err) -> \"unexpected sequence \" <> err
         json.UnableToDecode(errors) ->
-          "unable to decode: "
+          \"unable to decode: \"
           <> list.map(errors, fn(error) {
-            "expected "
+            \"expected \"
             <> error.expected
-            <> " but found "
+            <> \" but found \"
             <> error.found
-            <> " at "
-            <> string.join(error.path, "/")
+            <> \" at \"
+            <> string.join(error.path, \"/\")
           })
-          |> string.join("\n")
+          |> string.join(\"\\n\")
       }
     rsvp.NetworkError ->
-      "network error, http request could not connect to server"
+      \"network error, http request could not connect to server\"
     rsvp.UnhandledResponse(resp) ->
-      "rsvp handler does not know how to handle response: "
+      \"rsvp handler does not know how to handle response: \"
       <> sansio.resp_to_string(resp)
   }
 }
+"

@@ -1,4 +1,8 @@
 import codegen_helpers
+import fhir/template_codegen_client_httpc
+import fhir/template_codegen_client_rsvp
+import fhir/template_codegen_client_sansio
+import fhir/template_codegen_client_searchparams
 import filepath
 import gleam/dict
 import gleam/dynamic/decode
@@ -345,10 +349,7 @@ pub fn gen(
   //         }
   //         ",
   //   )
-  let assert Ok(file_text) =
-    "dev"
-    |> filepath.join("codegen_client_sansio.txt")
-    |> simplifile.read
+  let file_text = template_codegen_client_sansio.source
 
   //first entry in bundle has all the search param info
   let assert [first_entry, ..] = bundle.entry
@@ -626,10 +627,7 @@ pub fn gen(
             ",
     )
 
-  let assert Ok(file_text) =
-    "dev"
-    |> filepath.join("codegen_client_httpc.txt")
-    |> simplifile.read
+  let file_text = template_codegen_client_httpc.source
   let httpc_layer =
     string.concat([file_text, res_specific_crud, httpc_search_encode])
     |> string.replace("FHIRVERSION", pkg_prefix)
@@ -689,18 +687,12 @@ pub fn gen(
             ",
     )
 
-  let assert Ok(file_text) =
-    "dev"
-    |> filepath.join("codegen_client_rsvp.txt")
-    |> simplifile.read
+  let file_text = template_codegen_client_rsvp.source
   let rsvp_layer =
     string.concat([file_text, rsvp_res_specific_crud, rsvp_search_encode])
     |> string.replace("FHIRVERSION", pkg_prefix)
 
-  let assert Ok(file_text) =
-    "dev"
-    |> filepath.join("codegen_client_searchparams.txt")
-    |> simplifile.read
+  let file_text = template_codegen_client_searchparams.source
   let search_params =
     string.concat([
       file_text,

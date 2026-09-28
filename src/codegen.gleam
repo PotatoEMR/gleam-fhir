@@ -7,6 +7,7 @@ import codegen_profile
 import codegen_to_json
 import download_profile_package
 import fhir/r4_gen/resources as r4
+import fhir/template_primitive_types
 import filepath
 import gleam/dict
 import gleam/http/request
@@ -34,7 +35,15 @@ const fhir_url = "https://www.hl7.org/fhir"
 const gen_into_dir = "src/fhir"
 
 fn const_download_dir() {
-  "dev" |> filepath.join("downloads")
+  case list.find(argv.load().arguments, fn(arg) {
+    string.starts_with(arg, "download_dir=")
+  }) {
+    Ok(arg) -> {
+      let assert [_, directory] = string.split(arg, "=")
+      directory
+    }
+    Error(_) -> "downloads"
+  }
 }
 
 fn simplifier_core_package_version(fhir_version: String) {
@@ -227,10 +236,8 @@ fn gen_fhir(
   let gen_dir = filepath.join(gen_into_dir, pkg_prefix)
   let assert Ok(_) = simplifile.create_directory_all(gen_dir)
   let f_primitive_types = filepath.join(gen_dir, "primitive_types.gleam")
-  let assert Ok(primitive_types) =
-    simplifile.read(filepath.join("dev", "primitive_types.txt"))
   let assert Ok(_) =
-    simplifile.write(to: f_primitive_types, contents: primitive_types)
+    simplifile.write(to: f_primitive_types, contents: template_primitive_types.source)
   io.println("generated " <> f_primitive_types)
   let gen_gleamfile = filepath.join(gen_dir, "resources.gleam")
   let gen_vsfile = filepath.join(gen_dir, "valuesets.gleam")

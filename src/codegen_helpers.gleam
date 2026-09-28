@@ -881,16 +881,8 @@ pub fn load_valuesets(
         required_versions,
       )
     })
-  let manual_directory = "dev/downloaded_manually_valuesets"
-  let all_vs_or_cs =
-    load_valuesets_from_directory(
-      manual_directory,
-      all_vs_or_cs,
-      required_value_set_files,
-      required_versions,
-    )
   load_imported_valuesets(
-    list.append(package_directories, [manual_directory]),
+    package_directories,
     all_vs_or_cs,
     required_value_set_files,
     required_versions,

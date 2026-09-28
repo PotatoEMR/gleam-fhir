@@ -1,4 +1,4 @@
-////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION search params
+pub const source = "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION search params
 
 import gleam/list
 import gleam/string
@@ -11,9 +11,10 @@ pub fn to_string(params) {
     with: fn(acc, param: #(String, Option(String))) {
       case param.1 {
         None -> acc
-        Some(p) -> [param.0 <> "=" <> p, ..acc]
+        Some(p) -> [param.0 <> \"=\" <> p, ..acc]
       }
     },
   )
-  |> string.join("&")
+  |> string.join(\"&\")
 }
+"

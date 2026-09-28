@@ -1,4 +1,4 @@
-////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION sans-io request/response helpers suitable for building clients on top of, such as fhirclient_httpc.gleam and fhirclient_rsvp.gleam
+pub const source = "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION sans-io request/response helpers suitable for building clients on top of, such as fhirclient_httpc.gleam and fhirclient_rsvp.gleam
 
 import fhir/FHIRVERSION/resources
 import gleam/dynamic/decode
@@ -15,17 +15,17 @@ import gleam/uri
 //FHIR_VERSION_IMPORTS
 
 /// FHIR client for sending http requests to server such as
-/// `let pat = resources.patient_read("123", client)`
+/// `let pat = resources.patient_read(\"123\", client)`
 ///
 /// create client from server base url with fhirclient_new(baseurl)`
 ///
-/// `let assert Ok(client) = sansio.fhirclient_new("FHIRVERSION.smarthealthit.org/")`
+/// `let assert Ok(client) = sansio.fhirclient_new(\"FHIRVERSION.smarthealthit.org/\")`
 ///
-/// `let assert Ok(client) = sansio.fhirclient_new("https://FHIRVERSION.smarthealthit.org/")`
+/// `let assert Ok(client) = sansio.fhirclient_new(\"https://FHIRVERSION.smarthealthit.org/\")`
 ///
-/// `let assert Ok(client) = sansio.fhirclient_new("https://hapi.fhir.org/baseFHIRVERSION")`
+/// `let assert Ok(client) = sansio.fhirclient_new(\"https://hapi.fhir.org/baseFHIRVERSION\")`
 ///
-/// `let assert Ok(client) = sansio.fhirclient_new("127.0.0.1:8000")`
+/// `let assert Ok(client) = sansio.fhirclient_new(\"127.0.0.1:8000\")`
 pub type FhirClient {
   FhirClient(
     baseurl: uri.Uri,
@@ -37,26 +37,26 @@ pub type FhirClient {
 
 /// creates a new client from server base url
 ///
-/// `let assert Ok(client) = sansio.fhirclient_new("FHIRVERSION.smarthealthit.org/")`
+/// `let assert Ok(client) = sansio.fhirclient_new(\"FHIRVERSION.smarthealthit.org/\")`
 ///
-/// `let assert Ok(client) = sansio.fhirclient_new("https://FHIRVERSION.smarthealthit.org/")`
+/// `let assert Ok(client) = sansio.fhirclient_new(\"https://FHIRVERSION.smarthealthit.org/\")`
 ///
-/// `let assert Ok(client) = sansio.fhirclient_new("https://hapi.fhir.org/baseFHIRVERSION")`
+/// `let assert Ok(client) = sansio.fhirclient_new(\"https://hapi.fhir.org/baseFHIRVERSION\")`
 ///
-/// `let assert Ok(client) = sansio.fhirclient_new("127.0.0.1:8000")`
+/// `let assert Ok(client) = sansio.fhirclient_new(\"127.0.0.1:8000\")`
 pub fn fhirclient_new(
   server_base_url in_url: String,
 ) -> Result(FhirClient, ErrBaseUrl) {
   let in_url = case
-    string.starts_with(in_url, "localhost")
-    || string.starts_with(in_url, "127.0.0.1")
+    string.starts_with(in_url, \"localhost\")
+    || string.starts_with(in_url, \"127.0.0.1\")
   {
     False -> in_url
-    True -> "http://" <> in_url
+    True -> \"http://\" <> in_url
   }
-  let in_url = case string.starts_with(in_url, "http") {
+  let in_url = case string.starts_with(in_url, \"http\") {
     True -> in_url
-    False -> "https://" <> in_url
+    False -> \"https://\" <> in_url
   }
   case uri.parse(in_url) {
     Error(_) -> Error(UriParseFail)
@@ -65,8 +65,8 @@ pub fn fhirclient_new(
         None -> Error(UriNoHost)
         Some(host) -> {
           case baseurl.scheme {
-            Some("http") -> Ok(create_base_req(http.Http, host, baseurl))
-            Some("https") -> Ok(create_base_req(http.Https, host, baseurl))
+            Some(\"http\") -> Ok(create_base_req(http.Http, host, baseurl))
+            Some(\"https\") -> Ok(create_base_req(http.Https, host, baseurl))
             _ -> Error(UriNoHttpOrHttps)
           }
         }
@@ -79,7 +79,7 @@ pub fn set_access_token(client: FhirClient, token: String) -> FhirClient {
   FhirClient(
     ..client,
     basereq: client.basereq
-      |> request.set_header("authorization", "Bearer " <> token),
+      |> request.set_header(\"authorization\", \"Bearer \" <> token),
   )
 }
 
@@ -104,12 +104,12 @@ fn create_base_req(
   let basereq =
     Request(
       method: http.Get,
-      headers: [#("Accept", "application/fhir+json")],
+      headers: [#(\"Accept\", \"application/fhir+json\")],
       body: None,
       scheme:,
       host:,
       port: baseurl.port,
-      path: case string.ends_with(baseurl.path, "/") {
+      path: case string.ends_with(baseurl.path, \"/\") {
         True -> string.drop_end(baseurl.path, 1)
         False -> baseurl.path
       },
@@ -137,38 +137,38 @@ pub type ErrResp {
 /// or problem parsing server's returned resource
 pub fn err_resp_to_string(err: ErrResp) -> String {
   case err {
-    ErrServer(err) -> "server error: " <> resp_to_string(err)
+    ErrServer(err) -> \"server error: \" <> resp_to_string(err)
     ErrOperationoutcome(err) ->
       case err.issue.rest {
         [] ->
-          "OperationOutcome: "
+          \"OperationOutcome: \"
           <> err.issue.first
           |> resources.operationoutcome_issue_to_json
           |> json.to_string
         _ ->
-          "OperationOutcome issues: "
+          \"OperationOutcome issues: \"
           <> [err.issue.first, ..err.issue.rest]
           |> list.map(resources.operationoutcome_issue_to_json)
           |> json.preprocessed_array
           |> json.to_string
       }
     ErrParseJson(err) ->
-      "Error parsing returned resource: "
+      \"Error parsing returned resource: \"
       <> case err {
-        json.UnexpectedEndOfInput -> "unexpected end of input"
-        json.UnexpectedByte(err) -> "unexpected byte: " <> err
-        json.UnexpectedSequence(err) -> "unexpected sequence: " <> err
+        json.UnexpectedEndOfInput -> \"unexpected end of input\"
+        json.UnexpectedByte(err) -> \"unexpected byte: \" <> err
+        json.UnexpectedSequence(err) -> \"unexpected sequence: \" <> err
         json.UnableToDecode(errors) ->
           list.map(errors, fn(error) {
             let decode.DecodeError(expected:, found:, path:) = error
-            "expected "
+            \"expected \"
             <> expected
-            <> " but found "
+            <> \" but found \"
             <> found
-            <> " at "
-            <> string.join(path, "/")
+            <> \" at \"
+            <> string.join(path, \"/\")
           })
-          |> string.join(";")
+          |> string.join(\";\")
       }
   }
 }
@@ -178,7 +178,7 @@ pub type ErrReq {
   ErrNoId
 }
 
-pub const err_req_to_string = "the resource you're using has no id, but a resource id is needed for this operation"
+pub const err_req_to_string = \"the resource you're using has no id, but a resource id is needed for this operation\"
 
 pub fn any_create_req(
   resource_json: Json,
@@ -189,12 +189,12 @@ pub fn any_create_req(
   |> request.set_path(
     string.concat([
       client.basereq.path,
-      "/",
+      \"/\",
       resources.resource_type_to_string(res_type),
     ]),
   )
-  |> request.set_header("Content-Type", "application/fhir+json")
-  |> request.set_header("Prefer", "return=representation")
+  |> request.set_header(\"Content-Type\", \"application/fhir+json\")
+  |> request.set_header(\"Prefer\", \"return=representation\")
   |> request.set_body(Some(resource_json))
   |> request.set_method(http.Post)
 }
@@ -208,9 +208,9 @@ pub fn any_read_req(
   |> request.set_path(
     string.concat([
       client.basereq.path,
-      "/",
+      \"/\",
       resources.resource_type_to_string(res_type),
-      "/",
+      \"/\",
       id,
     ]),
   )
@@ -230,14 +230,14 @@ pub fn any_update_req(
         |> request.set_path(
           string.concat([
             client.basereq.path,
-            "/",
+            \"/\",
             resources.resource_type_to_string(res_type),
-            "/",
+            \"/\",
             id,
           ]),
         )
-        |> request.set_header("Content-Type", "application/fhir+json")
-        |> request.set_header("Prefer", "return=representation")
+        |> request.set_header(\"Content-Type\", \"application/fhir+json\")
+        |> request.set_header(\"Prefer\", \"return=representation\")
         |> request.set_body(Some(resource_json))
         |> request.set_method(http.Put),
       )
@@ -253,9 +253,9 @@ pub fn any_delete_req(
   |> request.set_path(
     string.concat([
       client.basereq.path,
-      "/",
+      \"/\",
       resources.resource_type_to_string(res_type),
-      "/",
+      \"/\",
       id,
     ]),
   )
@@ -271,9 +271,9 @@ pub fn any_search_req(
   |> request.set_path(
     string.concat([
       client.basereq.path,
-      "/",
+      \"/\",
       resources.resource_type_to_string(res_type),
-      "?",
+      \"?\",
       search_string,
     ]),
   )
@@ -290,27 +290,27 @@ pub fn any_operation_req(
     Some(res_id) ->
       string.concat([
         client.basereq.path,
-        "/",
+        \"/\",
         resources.resource_type_to_string(res_type),
-        "/",
+        \"/\",
         res_id,
-        "/$",
+        \"/$\",
         operation_name,
       ])
     None ->
       string.concat([
         client.basereq.path,
-        "/",
+        \"/\",
         resources.resource_type_to_string(res_type),
-        "/$",
+        \"/$\",
         operation_name,
       ])
   }
   let req =
     client.basereq
     |> request.set_path(path)
-    |> request.set_header("Content-Type", "application/fhir+json")
-    |> request.set_header("Prefer", "return=representation")
+    |> request.set_header(\"Content-Type\", \"application/fhir+json\")
+    |> request.set_header(\"Prefer\", \"return=representation\")
   case params {
     None -> req
     Some(params) ->
@@ -398,40 +398,40 @@ pub fn batch_req(
       let entry_req =
         json.object([
           #(
-            "method",
+            \"method\",
             case req.method {
-              http.Get -> "GET"
-              http.Post -> "POST"
-              http.Put -> "PUT"
-              http.Delete -> "DELETE"
-              http.Patch -> "PATCH"
+              http.Get -> \"GET\"
+              http.Post -> \"POST\"
+              http.Put -> \"PUT\"
+              http.Delete -> \"DELETE\"
+              http.Patch -> \"PATCH\"
               _ ->
-                "invalid http verb which should never happen, you probably called batch_req with reqs created or modified by something other than this module"
+                \"invalid http verb which should never happen, you probably called batch_req with reqs created or modified by something other than this module\"
             }
               |> json.string,
           ),
-          #("url", json.string(string.drop_start(req.path, base_len))),
+          #(\"url\", json.string(string.drop_start(req.path, base_len))),
         ])
-      let obj = [#("request", entry_req)]
+      let obj = [#(\"request\", entry_req)]
       let obj = case req.body {
         None -> obj
-        Some(resource) -> [#("resource", resource), ..obj]
+        Some(resource) -> [#(\"resource\", resource), ..obj]
       }
       json.object(obj)
     })
   let bundle_type = case bundle_type {
-    Transaction -> "transaction"
-    Batch -> "batch"
+    Transaction -> \"transaction\"
+    Batch -> \"batch\"
   }
   let batch_bundle =
     json.object([
-      #("resourceType", json.string("Bundle")),
-      #("type", json.string(bundle_type)),
-      #("entry", json.preprocessed_array(entries)),
+      #(\"resourceType\", json.string(\"Bundle\")),
+      #(\"type\", json.string(bundle_type)),
+      #(\"entry\", json.preprocessed_array(entries)),
     ])
   client.basereq
-  |> request.set_header("Prefer", "return=representation")
-  |> request.set_header("Content-Type", "application/fhir+json")
+  |> request.set_header(\"Prefer\", \"return=representation\")
+  |> request.set_header(\"Content-Type\", \"application/fhir+json\")
   |> request.set_body(Some(batch_bundle))
   |> request.set_method(http.Post)
 }
@@ -463,36 +463,37 @@ pub fn req_to_string(req: Request(Option(Json))) -> String {
   let method = req.method |> http.method_to_string
   let headers =
     req.headers
-    |> list.map(fn(hdr) { hdr.0 <> ": " <> hdr.1 })
-    |> string.join("; ")
+    |> list.map(fn(hdr) { hdr.0 <> \": \" <> hdr.1 })
+    |> string.join(\"; \")
 
   //kind of duplicating but want to put body at end and maybe this performs better? idk maybe doesn't matter
   case req.body {
     Some(body) -> [
-      "to uri:  " <> to_uri,
-      "method:  " <> method,
-      "headers: " <> headers,
-      "body:    " <> json.to_string(body),
+      \"to uri:  \" <> to_uri,
+      \"method:  \" <> method,
+      \"headers: \" <> headers,
+      \"body:    \" <> json.to_string(body),
     ]
     None -> [
-      "to uri:  " <> to_uri,
-      "method:  " <> method,
-      "headers: " <> headers,
+      \"to uri:  \" <> to_uri,
+      \"method:  \" <> method,
+      \"headers: \" <> headers,
     ]
   }
-  |> string.join("\n")
+  |> string.join(\"\\n\")
 }
 
 pub fn resp_to_string(resp: Response(String)) -> String {
   let status = resp.status |> int.to_string
   let headers =
     resp.headers
-    |> list.map(fn(hdr) { hdr.0 <> ": " <> hdr.1 })
-    |> string.join("; ")
+    |> list.map(fn(hdr) { hdr.0 <> \": \" <> hdr.1 })
+    |> string.join(\"; \")
   [
-    "status:  " <> status,
-    "headers: " <> headers,
-    "body:    " <> resp.body,
+    \"status:  \" <> status,
+    \"headers: \" <> headers,
+    \"body:    \" <> resp.body,
   ]
-  |> string.join("\n")
+  |> string.join(\"\\n\")
 }
+"

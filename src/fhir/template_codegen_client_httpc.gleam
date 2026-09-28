@@ -1,4 +1,4 @@
-////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using httpc
+pub const source = "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using httpc
 
 import fhir/FHIRVERSION/resources
 import fhir/FHIRVERSION/sansio.{type FhirClient}
@@ -83,7 +83,7 @@ pub fn any_delete(
   client: FhirClient,
 ) -> Result(sansio.OperationoutcomeOrHTTP, Err) {
   let req = sansio.any_delete_req(id, res_type, client)
-  case httpc.send(req |> request.set_body("")) {
+  case httpc.send(req |> request.set_body(\"\")) {
     Error(err) -> Error(ErrHttpc(err))
     Ok(resp) ->
       case sansio.delete_response(resp) {
@@ -113,7 +113,7 @@ pub fn search_any(
 /// get all resources in paginated bundle,
 /// then stick them all in one bundle and pretend not paginated
 ///
-/// fhirclient_httpc.search_any("name=e&_count=25", "Patient", client) |> fhirclient_httpc.all_pages(client)
+/// fhirclient_httpc.search_any(\"name=e&_count=25\", \"Patient\", client) |> fhirclient_httpc.all_pages(client)
 pub fn all_pages(
   first_bundle: Result(resources.Bundle, Err),
   client: FhirClient,
@@ -243,7 +243,7 @@ fn sendreq_parseresource(
   }
   let req =
     request.set_body(req, case req.body {
-      None -> ""
+      None -> \"\"
       Some(body) -> json.to_string(body)
     })
   let resp = httpc.send(req)
@@ -275,20 +275,21 @@ fn sendreq_parseresource(
 
 fn http_err_to_string(err: httpc.HttpError) {
   case err {
-    httpc.InvalidUtf8Response -> "non-UTF-8 data in response"
+    httpc.InvalidUtf8Response -> \"non-UTF-8 data in response\"
     httpc.FailedToConnect(ip4:, ip6:) ->
-      "could not connect to host: ip4 "
+      \"could not connect to host: ip4 \"
       <> connect_err_to_string(ip4)
-      <> ", ip6 "
+      <> \", ip6 \"
       <> connect_err_to_string(ip6)
-    httpc.ResponseTimeout -> "timed out waiting for response"
+    httpc.ResponseTimeout -> \"timed out waiting for response\"
   }
 }
 
 fn connect_err_to_string(err: httpc.ConnectError) -> String {
   case err {
-    httpc.Posix(code:) -> "posix code " <> code
+    httpc.Posix(code:) -> \"posix code \" <> code
     httpc.TlsAlert(code:, detail:) ->
-      "TLS alert code " <> code <> " and detail " <> detail
+      \"TLS alert code \" <> code <> \" and detail \" <> detail
   }
 }
+"
