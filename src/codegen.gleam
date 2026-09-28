@@ -34,17 +34,7 @@ const fhir_url = "https://www.hl7.org/fhir"
 
 const gen_into_dir = "src/fhir"
 
-fn const_download_dir() {
-  case list.find(argv.load().arguments, fn(arg) {
-    string.starts_with(arg, "download_dir=")
-  }) {
-    Ok(arg) -> {
-      let assert [_, directory] = string.split(arg, "=")
-      directory
-    }
-    Error(_) -> "downloads"
-  }
-}
+const download_dir = "downloads"
 
 fn simplifier_core_package_version(fhir_version: String) {
   case fhir_version {
@@ -104,7 +94,6 @@ pub fn main() {
     }
     Error(_) -> None
   }
-  let download_dir = const_download_dir()
 
   let _ = case download_files {
     True -> {
@@ -129,7 +118,7 @@ pub fn main() {
   // }
   // let assert Ok(_) = simplifile.create_directory_all(gen_into_dir)
 
-  let profiles_dir = const_download_dir() |> filepath.join("profile_package")
+  let profiles_dir = download_dir |> filepath.join("profile_package")
   let custom_profile =
     list.find(args_cased, fn(arg) { string.starts_with(arg, "custom=") })
   let profiles_dir = case custom_profile {
@@ -197,7 +186,7 @@ fn gen_fhir(
   preserve_slice_order: Bool,
   gen_specific_resources: Option(List(String)),
 ) -> Nil {
-  let extract_dir_ver = const_download_dir() |> filepath.join(fhir_version)
+  let extract_dir_ver = download_dir |> filepath.join(fhir_version)
 
   let _ = case download_files {
     True -> {
@@ -205,7 +194,7 @@ fn gen_fhir(
         download_profile_package.download_package_with_dependencies(
           "hl7.fhir." <> fhir_version <> ".core",
           simplifier_core_package_version(fhir_version),
-          const_download_dir() |> filepath.join("profile_package"),
+          download_dir |> filepath.join("profile_package"),
         )
       let assert Ok(_) = simplifile.create_directory_all(extract_dir_ver)
       use filename <- list.map(zip_file_names)
@@ -237,7 +226,10 @@ fn gen_fhir(
   let assert Ok(_) = simplifile.create_directory_all(gen_dir)
   let f_primitive_types = filepath.join(gen_dir, "primitive_types.gleam")
   let assert Ok(_) =
-    simplifile.write(to: f_primitive_types, contents: template_primitive_types.source)
+    simplifile.write(
+      to: f_primitive_types,
+      contents: template_primitive_types.source,
+    )
   io.println("generated " <> f_primitive_types)
   let gen_gleamfile = filepath.join(gen_dir, "resources.gleam")
   let gen_vsfile = filepath.join(gen_dir, "valuesets.gleam")
@@ -2508,7 +2500,7 @@ fn valueset_to_types(
         simplifier_core_package_version(fhir_version)
       let package_dir = case profiles_dir {
         None ->
-          const_download_dir()
+          download_dir
           |> filepath.join("profile_package")
           |> filepath.join("hl7.fhir." <> fhir_version <> ".core")
           |> filepath.join(simplifier_package_version)

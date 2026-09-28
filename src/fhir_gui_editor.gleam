@@ -217,8 +217,7 @@ pub type FhirVersion {
 const store_profile_dir = "current_profile"
 
 fn init(_) {
-  let assert Ok(pwd) = simplifile.current_directory()
-  let codegen_dir = pwd |> filepath.join("dev")
+  let assert Ok(codegen_dir) = simplifile.current_directory()
   let already_downloaded_profile =
     simplifile.read(codegen_dir |> filepath.join(store_profile_dir))
   let profile = case already_downloaded_profile {
@@ -241,7 +240,7 @@ fn init(_) {
     fhir_gui_reslist.r4 |> list.map(fn(res) { ResGen(res, Generate) })
   let model =
     Model(
-      codegen_dir: pwd |> filepath.join("dev"),
+      codegen_dir:,
       fhir_version: R4,
       base_resources:,
       profile:,
