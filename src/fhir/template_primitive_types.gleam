@@ -42,6 +42,10 @@ pub type NanosecWithPrecision {
   NanosecWithPrecision(value: Int, precision: Option(Int))
 }
 
+/// Elliot Silver: The example formats for dateTime shows second resolution, while the example format for instant shows millisecond resolution. However both regexes allow 9 subsecond digits. What is the actual maximum precision of each datatype?
+/// Also, both datatypes' regexes permit -00:00 as a time zone offset. I don't think this offset is permitted by ISO 8601, but is permitted in RFC 3339. (It means \"time expressed in UTC; offset to local unknown\", as opposed to +00:00 which means \"time expressed in UTC; local time is UTC\".) Does FHIR allow an offset of -00:00?
+/// Grahame Grieve: 9 and yes
+/// https://chat.fhir.org/#narrow/channel/179166-implementers/topic/Subsecond.20resolution.20of.20dateTime.20and.20instant/near/469589261
 pub type Timezone {
   // a timezone offset in hours or minutes
   // in form +HH:MM or -HH:MM
@@ -106,7 +110,11 @@ fn parse_digits_loop(
   }
 }
 
-fn validate_day(year: Int, month: calendar.Month, day: Int) -> Result(Nil, Nil) {
+fn validate_day(
+  year: Int,
+  month: calendar.Month,
+  day: Int,
+) -> Result(Nil, Nil) {
   let max_day = case month {
     calendar.January
     | calendar.March
@@ -269,12 +277,21 @@ fn parse_timezone(bytes: BitArray) -> Result(#(Timezone, BitArray), Nil) {
   }
 }
 
-fn parse_timezone_offset(bytes: BitArray) -> Result(#(Timezone, BitArray), Nil) {
+fn parse_timezone_offset(
+  bytes: BitArray,
+) -> Result(#(Timezone, BitArray), Nil) {
   use #(sign, bytes) <- result.try(parse_sign(bytes))
   use #(hours, bytes) <- result.try(parse_digits(from: bytes, count: 2))
   use bytes <- result.try(expect_byte(bytes, byte_colon))
   use #(minutes, bytes) <- result.try(parse_digits(from: bytes, count: 2))
-  Ok(#(Offset(sign, hours, minutes), bytes))
+  case hours, minutes {
+    14, 0 -> Ok(#(Offset(sign, hours, minutes), bytes))
+    _, _ ->
+      case hours < 14 && minutes < 60 {
+        True -> Ok(#(Offset(sign, hours, minutes), bytes))
+        False -> Error(Nil)
+      }
+  }
 }
 
 fn parse_sign(bytes: BitArray) -> Result(#(Sign, BitArray), Nil) {
@@ -457,8 +474,7 @@ pub fn parse_time(input: String) -> Result(Time, Nil) {
 }
 
 pub fn time_to_string(time: Time) -> String {
-  let Time(hour, minute, second, nanosec) = time
-  time_of_day_to_string(hour, minute, second, nanosec)
+  time_of_day_to_string(time.hour, time.minute, time.second, time.nanosec)
 }
 
 pub fn time_decoder() -> decode.Decoder(Time) {
@@ -492,28 +508,27 @@ pub fn time_to_json(time: Time) -> json.Json {
 /// and may be ignored at receiver discretion. Milliseconds are optionally allowed.
 /// Dates SHALL be valid dates. The time \"24:00\" is not allowed. Leap Seconds are allowed
 pub type DateTime {
-  DateTime(date: Date, time: Option(TimeAndZone))
-}
-
-pub type TimeAndZone {
-  TimeAndZone(time: Time, zone: Timezone)
+  DateNoTime(date: Date)
+  // date with time is effectively same as Instant
+  DateWithTime(date: calendar.Date, time: Time, zone: Timezone)
 }
 
 pub fn parse_datetime(input: String) -> Result(DateTime, Nil) {
   use #(year, bytes) <- result.try(parse_digits(from: <<input:utf8>>, count: 4))
   case bytes {
-    <<>> -> Ok(DateTime(Year(year), None))
+    <<>> -> Ok(DateNoTime(Year(year)))
     <<byte, rest:bytes>> if byte == byte_minus -> {
       use #(month_num, bytes) <- result.try(parse_digits(from: rest, count: 2))
       use month <- result.try(calendar.month_from_int(month_num))
       case bytes {
-        <<>> -> Ok(DateTime(YearMonth(year, month), None))
+        <<>> -> Ok(DateNoTime(YearMonth(year, month)))
         <<byte, rest:bytes>> if byte == byte_minus -> {
           use #(day, bytes) <- result.try(parse_digits(from: rest, count: 2))
           use _ <- result.try(validate_day(year, month, day))
           case bytes {
-            <<>> -> Ok(DateTime(YearMonthDay(year, month, day), None))
-            _ -> parse_datetime_time_part(bytes, YearMonthDay(year, month, day))
+            <<>> -> Ok(DateNoTime(YearMonthDay(year, month, day)))
+            _ ->
+              parse_datetime_time_part(bytes, calendar.Date(year, month, day))
           }
         }
         _ -> Error(Nil)
@@ -525,7 +540,7 @@ pub fn parse_datetime(input: String) -> Result(DateTime, Nil) {
 
 fn parse_datetime_time_part(
   bytes: BitArray,
-  date: Date,
+  date: calendar.Date,
 ) -> Result(DateTime, Nil) {
   case bytes {
     <<byte, rest:bytes>> if byte == byte_t_uppercase -> {
@@ -535,10 +550,7 @@ fn parse_datetime_time_part(
       use #(timezone, bytes) <- result.try(parse_timezone(bytes))
       case bytes {
         <<>> ->
-          Ok(DateTime(
-            date,
-            Some(TimeAndZone(Time(hour, minute, second, nanosec), timezone)),
-          ))
+          Ok(DateWithTime(date, Time(hour, minute, second, nanosec), timezone))
         _ -> Error(Nil)
       }
     }
@@ -547,15 +559,14 @@ fn parse_datetime_time_part(
 }
 
 pub fn datetime_to_string(dt: DateTime) -> String {
-  let DateTime(date, time) = dt
-  case time {
-    None -> date_to_string(date)
-    Some(TimeAndZone(t, tz)) ->
+  case dt {
+    DateNoTime(date:) -> date_to_string(date)
+    DateWithTime(date:, time:, zone:) ->
       string.concat([
-        date_to_string(date),
+        date_to_string(YearMonthDay(date.year, date.month, date.day)),
         \"T\",
-        time_to_string(t),
-        timezone_to_string(tz),
+        time_to_string(time),
+        timezone_to_string(zone),
       ])
   }
 }
@@ -564,7 +575,7 @@ pub fn datetime_decoder() -> decode.Decoder(DateTime) {
   use s <- decode.then(decode.string)
   case parse_datetime(s) {
     Ok(dt) -> decode.success(dt)
-    Error(Nil) -> decode.failure(DateTime(Year(123), None), \"DateTime\")
+    Error(Nil) -> decode.failure(DateNoTime(Year(123)), \"DateTime\")
   }
 }
 
@@ -583,7 +594,7 @@ pub fn datetime_to_json(dt: DateTime) -> json.Json {
 /// and not human-reported times - for those, use date or dateTime.
 /// Regex: ([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]{1,9})?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))
 pub type Instant {
-  Instant(date: Date, time: Time, timezone: Timezone)
+  Instant(date: calendar.Date, time: Time, timezone: Timezone)
 }
 
 pub fn parse_instant(input: String) -> Result(Instant, Nil) {
@@ -603,7 +614,7 @@ pub fn parse_instant(input: String) -> Result(Instant, Nil) {
   case bytes {
     <<>> ->
       Ok(Instant(
-        YearMonthDay(year, month, day),
+        calendar.Date(year, month, day),
         Time(hour, minute, second, nanosec),
         timezone,
       ))
@@ -612,12 +623,15 @@ pub fn parse_instant(input: String) -> Result(Instant, Nil) {
 }
 
 pub fn instant_to_string(instant: Instant) -> String {
-  let Instant(date, time, timezone) = instant
   string.concat([
-    date_to_string(date),
+    date_to_string(YearMonthDay(
+      instant.date.year,
+      instant.date.month,
+      instant.date.day,
+    )),
     \"T\",
-    time_to_string(time),
-    timezone_to_string(timezone),
+    time_to_string(instant.time),
+    timezone_to_string(instant.timezone),
   ])
 }
 
@@ -627,7 +641,7 @@ pub fn instant_decoder() -> decode.Decoder(Instant) {
     Ok(i) -> decode.success(i)
     Error(Nil) ->
       decode.failure(
-        Instant(YearMonthDay(1, calendar.January, 1), Time(0, 0, 0, None), Z),
+        Instant(calendar.Date(1, calendar.January, 1), Time(0, 0, 0, None), Z),
         \"Instant\",
       )
   }
