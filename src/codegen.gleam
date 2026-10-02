@@ -1552,9 +1552,7 @@ fn file_to_types(
                               let #(choice_type, valueset_acc) =
                                 codegen_helpers.string_to_type(
                                   typ.code,
-                                  [
-                                    "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
-                                  ],
+                                  allparts,
                                   elt,
                                   current_bucket,
                                   valueset_acc,

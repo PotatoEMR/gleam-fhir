@@ -509,23 +509,11 @@ pub type OpenValuesetVariant {
   OpenValuesetVariant(name: String, system: String)
 }
 
-pub fn bound_valueset_function_name(
-  elt: codegen_helpers.Element,
-) -> Option(String) {
-  case elt.type_, elt.binding {
-    [_], Some(binding) ->
-      case binding.strength, binding.value_set {
-        "required", Some(value_set) -> {
-          let assert [url, ..] = string.split(value_set, "|")
-          Some(
-            url
-            |> codegen_helpers.concept_name_from_url
-            |> codegen_helpers.to_snake_case,
-          )
-        }
-        _, _ -> None
-      }
-    _, _ -> None
+pub fn bound_valueset_function_name(gleam_type: String) -> Option(String) {
+  case string.split(gleam_type, "(valuesets.") {
+    [_, valueset] ->
+      Some(valueset |> string.drop_end(1) |> codegen_helpers.to_snake_case)
+    _ -> None
   }
 }
 

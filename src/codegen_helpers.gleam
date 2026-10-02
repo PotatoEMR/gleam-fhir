@@ -333,6 +333,31 @@ pub type Type {
 
 pub fn type_decoder() -> decode.Decoder(Type) {
   use code <- decode.field("code", decode.string)
+  use extensions <- decode.optional_field(
+    "extension",
+    [],
+    decode.list({
+      use url <- decode.field("url", decode.string)
+      use value_url <- decode.optional_field("valueUrl", "", decode.string)
+      decode.success(#(url, value_url))
+    }),
+  )
+  let code =
+    list.fold(extensions, code, fn(code, extension) {
+      case
+        string.starts_with(code, "http://hl7.org/fhirpath/System."),
+        extension
+      {
+        True,
+          #(
+            "http://hl7.org/fhir/StructureDefinition/structuredefinition-fhir-type",
+            fhir_type,
+          )
+          if fhir_type != ""
+        -> fhir_type
+        _, _ -> code
+      }
+    })
   use target_profile <- decode.optional_field(
     "targetProfile",
     [],
@@ -512,7 +537,6 @@ pub fn string_to_type(
       bound_complex_type(
         "BoundCoding",
         "Coding",
-        allparts,
         elt,
         current,
         required_value_sets_acc,
@@ -521,7 +545,6 @@ pub fn string_to_type(
       bound_complex_type(
         "BoundCodeableconcept",
         "Codeableconcept",
-        allparts,
         elt,
         current,
         required_value_sets_acc,
@@ -530,7 +553,6 @@ pub fn string_to_type(
       bound_complex_type(
         "BoundCodeablereference",
         "Codeablereference",
-        allparts,
         elt,
         current,
         required_value_sets_acc,
@@ -539,59 +561,36 @@ pub fn string_to_type(
       bound_complex_type(
         "BoundQuantity",
         "Quantity",
-        allparts,
         elt,
         current,
         required_value_sets_acc,
       )
     "code" -> {
-      let s = allparts |> string.concat()
-      case s {
-        "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding" -> #(
-          "String",
-          required_value_sets_acc,
-        )
-        //not a code idk should we even generate this?
-        _ -> {
-          case elt.binding {
-            Some(x) ->
-              case x.strength {
-                "required" -> {
-                  case x.value_set {
-                    Some(vs) -> {
-                      let assert [url, ..] = string.split(vs, "|")
-                        as "split vs version"
-                      //get rid of |version in http://some.valueset|4.0.1
-                      case
-                        string.contains(url, "v3-Confidentiality")
-                        || string.contains(url, "mimetypes")
-                        || string.contains(url, "currencies")
-                        || string.contains(url, "all-languages")
-                        || string.contains(url, "ucum-units")
-                        || string.contains(url, "color-codes")
-                      {
-                        True -> #("String", required_value_sets_acc)
-                        //idk whats going on here, probably i dont understand valueset composition
-                        False -> #(
-                          "valuesets." <> concept_name_from_url(url),
-                          insert_valueset(
-                            required_value_sets_acc,
-                            url,
-                            ValuesetCodeOnlyDontNeedSystem,
-                          ),
-                        )
-                      }
-                    }
-                    _ -> panic as "huh idk 2"
-                  }
-                }
-                _ -> #("String", required_value_sets_acc)
-                //mostly just elt.languages doesnt have "required" code binding
-              }
-            None -> #("String", required_value_sets_acc)
-            //these codes dont have required binding?
+      case elt.binding {
+        Some(Binding(strength: "required", value_set: Some(value_set))) -> {
+          let assert [url, ..] = string.split(value_set, "|")
+          case
+            string.contains(url, "v3-Confidentiality")
+            || string.contains(url, "mimetypes")
+            || string.contains(url, "currencies")
+            || string.contains(url, "all-languages")
+            || string.contains(url, "ucum-units")
+            || string.contains(url, "color-codes")
+          {
+            True -> #("String", required_value_sets_acc)
+            False -> #(
+              "valuesets." <> concept_name_from_url(url),
+              insert_valueset(
+                required_value_sets_acc,
+                url,
+                ValuesetCodeOnlyDontNeedSystem,
+              ),
+            )
           }
         }
+        Some(Binding(strength: "required", value_set: None)) ->
+          panic as "required code binding has no ValueSet"
+        _ -> #("String", required_value_sets_acc)
       }
     }
     // keeping track of required valueset codes
@@ -638,19 +637,17 @@ pub fn string_to_type(
 fn bound_complex_type(
   bound_type: String,
   normal_type: String,
-  allparts: List(String),
   elt: Element,
   current: Category,
   required_value_sets_acc: Dict(String, ValuesetItem),
 ) -> #(String, Dict(String, ValuesetItem)) {
   let prefix = bucket_prefix(normal_type, current)
-  case allparts |> string.concat, elt.binding {
-    "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
-      _
-    | _, None
-    | _, Some(Binding(strength: "required", value_set: None))
-    -> #(prefix <> normal_type, required_value_sets_acc)
-    _, Some(Binding(strength: "required", value_set: Some(value_set))) -> {
+  case elt.binding {
+    None | Some(Binding(strength: "required", value_set: None)) -> #(
+      prefix <> normal_type,
+      required_value_sets_acc,
+    )
+    Some(Binding(strength: "required", value_set: Some(value_set))) -> {
       let assert [url, ..] = string.split(value_set, "|")
       #(
         prefix
@@ -665,7 +662,7 @@ fn bound_complex_type(
         ),
       )
     }
-    _, Some(_) -> #(prefix <> normal_type, required_value_sets_acc)
+    Some(_) -> #(prefix <> normal_type, required_value_sets_acc)
   }
 }
 

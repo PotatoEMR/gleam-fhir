@@ -1,7 +1,8 @@
 import codegen_bound_coding
 import codegen_helpers
+import gleam/dict
 import gleam/list
-import gleam/option.{None, Some}
+import gleam/option.{Some}
 import gleam/string
 
 pub const result_or_decode_failure = "fn result_or_decode_failure(
@@ -59,125 +60,50 @@ pub fn string_to_decoder_type(
   elt: codegen_helpers.Element,
   current: codegen_helpers.Category,
 ) -> String {
-  case fhir_type {
-    "BackboneElement" ->
-      allparts
-      |> list.map(string.capitalise)
-      |> string.concat()
-      |> codegen_helpers.to_snake_case()
-      <> "_decoder()"
-    "Element" ->
-      allparts
-      |> list.map(string.capitalise)
-      |> string.concat()
-      |> codegen_helpers.to_snake_case()
-      <> "_decoder()"
-    "base64Binary" -> "decode.string"
-    "boolean" -> "decode.bool"
-    "canonical" -> "decode.string"
-    "Coding" -> {
-      let prefix = codegen_helpers.bucket_prefix("Coding", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_coding_decoder_source(prefix, valueset)
-        None -> prefix <> "coding_decoder()"
+  let #(gleam_type, _) =
+    codegen_helpers.string_to_type(
+      fhir_type,
+      allparts,
+      elt,
+      current,
+      dict.new(),
+    )
+  let prefix = codegen_helpers.bucket_prefix("Coding", current)
+  case
+    fhir_type,
+    codegen_bound_coding.bound_valueset_function_name(gleam_type)
+  {
+    "Coding", Some(valueset) ->
+      codegen_bound_coding.bound_coding_decoder_source(prefix, valueset)
+    "CodeableConcept", Some(valueset) ->
+      codegen_bound_coding.bound_codeableconcept_decoder_source(
+        prefix,
+        valueset,
+      )
+    "CodeableReference", Some(valueset) ->
+      codegen_bound_coding.bound_codeablereference_decoder_source(
+        prefix,
+        valueset,
+      )
+    "Quantity", Some(valueset) ->
+      codegen_bound_coding.bound_quantity_decoder_source(prefix, valueset)
+    _, _ ->
+      case gleam_type {
+        "String" -> "decode.string"
+        "Bool" -> "decode.bool"
+        "Int" -> "decode.int"
+        "Float" -> "decode_number()"
+        "Date" -> "pt.date_decoder()"
+        "DateTime" -> "pt.datetime_decoder()"
+        "Instant" -> "pt.instant_decoder()"
+        "Time" -> "pt.time_decoder()"
+        _ ->
+          gleam_type
+          |> string.split(".")
+          |> list.map(codegen_helpers.to_snake_case)
+          |> string.join(".")
+          <> "_decoder()"
       }
-    }
-    "CodeableConcept" -> {
-      let prefix = codegen_helpers.bucket_prefix("Codeableconcept", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_codeableconcept_decoder_source(
-            prefix,
-            valueset,
-          )
-        None -> prefix <> "codeableconcept_decoder()"
-      }
-    }
-    "CodeableReference" -> {
-      let prefix = codegen_helpers.bucket_prefix("Codeablereference", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_codeablereference_decoder_source(
-            prefix,
-            valueset,
-          )
-        None -> prefix <> "codeablereference_decoder()"
-      }
-    }
-    "Quantity" -> {
-      let prefix = codegen_helpers.bucket_prefix("Quantity", current)
-      case codegen_bound_coding.bound_valueset_function_name(elt) {
-        Some(valueset) ->
-          codegen_bound_coding.bound_quantity_decoder_source(prefix, valueset)
-        None -> prefix <> "quantity_decoder()"
-      }
-    }
-    "code" -> {
-      let s = allparts |> string.concat()
-      case s {
-        "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding" ->
-          "String"
-        _ -> {
-          case elt.binding {
-            Some(x) ->
-              case x.strength {
-                "required" -> {
-                  case x.value_set {
-                    Some(vs) -> {
-                      let assert [url, ..] = string.split(vs, "|")
-                        as "split vs version"
-                      case
-                        string.contains(url, "v3-Confidentiality")
-                        || string.contains(url, "mimetypes")
-                        || string.contains(url, "currencies")
-                        || string.contains(url, "all-languages")
-                        || string.contains(url, "ucum-units")
-                        || string.contains(url, "color-codes")
-                      {
-                        True -> "decode.string"
-                        False ->
-                          "valuesets."
-                          <> url
-                          |> codegen_helpers.concept_name_from_url()
-                          |> codegen_helpers.to_snake_case
-                          <> "_decoder()"
-                      }
-                    }
-                    _ -> panic as "huh idk 2"
-                  }
-                }
-                _ -> "decode.string"
-              }
-            None -> "decode.string"
-          }
-        }
-      }
-    }
-    "date" -> "pt.date_decoder()"
-    "dateTime" -> "pt.datetime_decoder()"
-    "decimal" -> "decode_number()"
-    "id" -> "decode.string"
-    "instant" -> "pt.instant_decoder()"
-    "integer" -> "decode.int"
-    "integer64" -> "decode.string"
-    "markdown" -> "decode.string"
-    "oid" -> "decode.string"
-    "positiveInt" -> "decode.int"
-    "string" -> "decode.string"
-    "time" -> "pt.time_decoder()"
-    "unsignedInt" -> "decode.int"
-    "uri" -> "decode.string"
-    "url" -> "decode.string"
-    "uuid" -> "decode.string"
-    "xhtml" -> "decode.string"
-    "http://hl7.org/fhirpath/System.String" -> "decode.string"
-    _ -> {
-      let camel = codegen_helpers.to_camel_case(fhir_type)
-      codegen_helpers.bucket_prefix(camel, current)
-      <> { fhir_type |> string.lowercase() }
-      <> "_decoder()"
-    }
   }
 }
 

@@ -1595,35 +1595,19 @@ fn base_payload_type(
   element: codegen_helpers.Element,
   fhir_type: String,
 ) -> String {
-  let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
-  case fhir_type {
-    "BackboneElement" | "Element" ->
-      element.base.path
-      |> string.split(".")
-      |> list.map(string.capitalise)
-      |> string.concat
-    "base64Binary"
-    | "canonical"
-    | "code"
-    | "id"
-    | "integer64"
-    | "markdown"
-    | "oid"
-    | "string"
-    | "uri"
-    | "url"
-    | "uuid"
-    | "xhtml"
-    | "http://hl7.org/fhirpath/System.String" -> "String"
-    "boolean" -> "Bool"
-    "decimal" -> "Float"
-    "integer" | "positiveInt" | "unsignedInt" -> "Int"
-    "date" -> "Date"
-    "dateTime" -> "DateTime"
-    "instant" -> "Instant"
-    "time" -> "Time"
-    _ -> complex_prefix <> codegen_helpers.to_camel_case(fhir_type)
+  let bucket = case fhir_type {
+    "BackboneElement" | "Element" -> codegen_helpers.ComplexTypes
+    _ -> current_bucket
   }
+  let #(gleam_type, _) =
+    codegen_helpers.string_to_type(
+      fhir_type,
+      string.split(element.base.path, "."),
+      codegen_helpers.Element(..element, binding: None),
+      bucket,
+      dict.new(),
+    )
+  gleam_type
 }
 
 pub fn discriminator_literals(
@@ -2045,17 +2029,28 @@ fn required_binding_conversion(
   fhir_type: String,
   value: String,
 ) -> Option(ConversionExpression) {
+  let #(gleam_type, _) =
+    codegen_helpers.string_to_type(
+      fhir_type,
+      [],
+      element,
+      current_bucket,
+      dict.new(),
+    )
   let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
-  case element.binding {
-    Some(codegen_helpers.Binding(
-      strength: "required",
-      value_set: Some(value_set),
-    )) -> {
-      let valueset =
-        value_set
-        |> canonical_url
-        |> codegen_helpers.concept_name_from_url
-        |> codegen_helpers.to_snake_case
+  let valueset = case fhir_type {
+    "code" ->
+      case string.starts_with(gleam_type, "valuesets.") {
+        True ->
+          Some(
+            gleam_type |> string.drop_start(10) |> codegen_helpers.to_snake_case,
+          )
+        False -> None
+      }
+    _ -> codegen_bound_coding.bound_valueset_function_name(gleam_type)
+  }
+  case valueset {
+    Some(valueset) -> {
       let #(function, second_argument) = case fhir_type {
         "code" -> #("valuesets." <> valueset <> "_from_code", "")
         "Coding" -> #(
@@ -5903,7 +5898,7 @@ fn extension_value_branch(
   expected_url: String,
   source: String,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
-  available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+  _available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
   on_success: fn(String) -> String,
   on_error: fn(String) -> String,
 ) -> #(String, String) {
@@ -5923,22 +5918,6 @@ fn extension_value_branch(
       let conversion =
         required_binding_conversion(current_bucket, field, type_.code, "value")
         |> option.unwrap(ConversionExpression("value", "", False))
-      let conversion = case field.binding {
-        Some(codegen_helpers.Binding(
-          strength: "required",
-          value_set: Some(value_set),
-        )) ->
-          case
-            codegen_helpers.valueset_can_generate_system(
-              canonical_url(value_set),
-              available_valuesets,
-            )
-          {
-            True -> conversion
-            False -> IdentityConversion("value", "", False)
-          }
-        _ -> conversion
-      }
       let conversion =
         ConversionExpression(
           string.replace(
@@ -5976,18 +5955,35 @@ fn extension_value_branch(
       let cases =
         types
         |> list.map(fn(type_) {
+          let conversion =
+            required_binding_conversion(
+              current_bucket,
+              field,
+              type_.code,
+              "value",
+            )
+            |> option.unwrap(ConversionExpression("value", "", False))
+          let constructor =
+            complex_prefix <> target_type <> string.capitalise(type_.code)
+          let valid = case conversion.fallible {
+            True ->
+              "case "
+              <> conversion.expression
+              <> " { Ok(value) -> "
+              <> on_success(constructor <> "(value)")
+              <> " Error(_) -> "
+              <> on_error("\"invalid extension value\"")
+              <> " }"
+            False ->
+              on_success(constructor <> "(" <> conversion.expression <> ")")
+          }
           complex_prefix
           <> "ExtSimple("
           <> complex_prefix
           <> "ExtensionValue"
           <> codegen_helpers.to_camel_case(type_.code)
           <> "(value)) -> "
-          <> on_success(
-            complex_prefix
-            <> target_type
-            <> string.capitalise(type_.code)
-            <> "(value)",
-          )
+          <> valid
         })
         |> string.join(" ")
       #(complex_prefix <> target_type, cases)

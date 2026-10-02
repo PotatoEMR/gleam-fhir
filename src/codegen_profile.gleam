@@ -473,9 +473,7 @@ fn extension_field_type(
           let #(gleam_type, valueset_acc) =
             codegen_helpers.string_to_type(
               type_.code,
-              [
-                "somehow this is used in [x] for any type (int, bool, code, etc) and ofc that code has no defined binding",
-              ],
+              [extension_name, field_name],
               element,
               codegen_helpers.ComplexTypes,
               valueset_acc,
@@ -2539,7 +2537,8 @@ pub fn profile_files_to_types(
               }
               let type_order = case element.base, element.slice_name {
                 codegen_helpers.ElementBase(path: _, min:, max:), None
-                  if min != element.min || max != element.max
+                  if parent_path != ""
+                  && { min != element.min || max != element.max }
                 -> set.insert(type_order, parent_path)
                 _, _ -> type_order
               }
