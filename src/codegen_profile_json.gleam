@@ -6509,6 +6509,10 @@ fn conversion_types(
         }
       })
     })
+    // Slice converters construct their records directly.
+    |> list.flat_map(fn(current_type) {
+      conversion_dependencies(context, profile_type, current_type)
+    })
   let seeds =
     list.filter(context.type_order, fn(current_type) {
       current_type != context.profile_prefix

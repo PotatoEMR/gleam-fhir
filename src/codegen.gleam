@@ -242,7 +242,13 @@ fn gen_fhir(
   let r_imports = shared_imports <> "import gleam/bool\nimport gleam/int\n"
 
   let complex_types_file = filepath.join(extract_dir_ver, "profiles-types.json")
-  let #(resources_gen, valueset_acc, resource_type_names, core_resource_entries) =
+  let #(
+    resources_gen,
+    valueset_acc,
+    resource_type_names,
+    core_resource_entries,
+    _,
+  ) =
     file_to_types(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
       fv: pkg_prefix,
@@ -267,7 +273,7 @@ fn gen_fhir(
       |> Some
     None -> None
   }
-  let #(complex_types_gen, valueset_acc, _, _) =
+  let #(complex_types_gen, valueset_acc, _, _, core_type_urls) =
     file_to_types(
       spec_file: complex_types_file,
       fv: pkg_prefix,
@@ -298,6 +304,7 @@ fn gen_fhir(
           preserve_slice_order,
           valueset_acc,
           gen_specific_resources,
+          core_type_urls,
         )
       #(
         complex_types,
@@ -1331,6 +1338,7 @@ fn file_to_types(
   dict.Dict(String, codegen_helpers.ValuesetItem),
   Set(String),
   List(#(String, String, String)),
+  Set(String),
 ) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
@@ -2219,6 +2227,7 @@ fn file_to_types(
     valueset_acc,
     referenced_type_names,
     resource_entries,
+    entries |> list.map(fn(resource) { resource.url }) |> set.from_list,
   )
 }
 

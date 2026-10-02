@@ -2276,6 +2276,7 @@ pub fn profile_files_to_types(
   preserve_slice_order: Bool,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   gen_specific_resources: Option(List(String)),
+  core_type_urls: Set(String),
 ) -> #(
   String,
   String,
@@ -2403,6 +2404,10 @@ pub fn profile_files_to_types(
       )
     })
     |> dict.from_list
+  let profile_definitions =
+    list.filter(profile_definitions, fn(profile) {
+      !set.contains(core_type_urls, canonical_url(profile.url))
+    })
   let #(extension_types, valueset_acc) =
     generate_extension_types(
       profile_structures.extensions,
