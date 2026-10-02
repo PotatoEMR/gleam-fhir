@@ -2335,6 +2335,42 @@ pub fn profile_files_to_types(
     |> set.delete("http://hl7.org/fhir/ValueSet/color-codes")
   let available_slice_valuesets =
     codegen_helpers.load_valuesets(profiles_dir, required_valuesets)
+  // Resolve extension bindings before generating their types and conversions.
+  let extensions =
+    dict.map_values(profile_structures.extensions, fn(_, extension) {
+      let fields = case extension.kind {
+        SimpleExtension(field) -> [field]
+        ComplexExtension(fields, _) -> fields
+      }
+      let fields =
+        list.map(fields, fn(field) {
+          case field.binding {
+            Some(codegen_helpers.Binding(
+              strength: "required",
+              value_set: Some(value_set),
+            )) ->
+              case
+                codegen_helpers.valueset_can_generate_system(
+                  canonical_url(value_set),
+                  available_slice_valuesets,
+                )
+              {
+                True -> field
+                False -> codegen_helpers.Element(..field, binding: None)
+              }
+            _ -> field
+          }
+        })
+      let kind = case extension.kind {
+        SimpleExtension(_) -> {
+          let assert [field] = fields
+          SimpleExtension(field)
+        }
+        ComplexExtension(_, rules) -> ComplexExtension(fields, rules)
+      }
+      ExtensionDefinition(..extension, kind:)
+    })
+  let profile_structures = ProfileFiles(..profile_structures, extensions:)
   let profile_resources =
     profile_structures.resources
     |> list.sort(fn(a, b) { string.compare(a.id, b.id) })

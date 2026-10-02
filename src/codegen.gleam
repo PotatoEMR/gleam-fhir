@@ -1197,9 +1197,49 @@ fn replace_unavailable_bindings(
       "Ok(value)",
     )
     |> string.replace(
+      "bound_coding_from_coding(value, valuesets."
+        <> fn_name
+        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
+      "Ok(value)",
+    )
+    |> string.replace(
+      "bound_coding_from_coding(value, valuesets."
+        <> fn_name
+        <> "_from_code_and_system)",
+      "Ok(value)",
+    )
+    |> string.replace(
+      "bound_codeableconcept_from_codeableconcept(value, valuesets."
+        <> fn_name
+        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
+      "Ok(value)",
+    )
+    |> string.replace(
+      "bound_codeableconcept_from_codeableconcept(value, valuesets."
+        <> fn_name
+        <> "_from_code_and_system)",
+      "Ok(value)",
+    )
+    |> string.replace(
+      "bound_quantity_from_quantity(value, valuesets."
+        <> fn_name
+        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
+      "Ok(value)",
+    )
+    |> string.replace(
+      "bound_quantity_from_quantity(value, valuesets."
+        <> fn_name
+        <> "_from_code_and_system)",
+      "Ok(value)",
+    )
+    |> string.replace(
       "valuesets."
         <> fn_name
         <> "_from_code(value) |> result.replace_error(\"required ValueSet\")",
+      "Ok(value)",
+    )
+    |> string.replace(
+      "valuesets." <> fn_name <> "_from_code(value)",
       "Ok(value)",
     )
     |> string.replace(
