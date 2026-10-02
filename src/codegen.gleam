@@ -448,7 +448,8 @@ fn gen_fhir(
           fn(profile_decoder) {
             let #(profile_name, _decoder) = profile_decoder
             list.any(found_profiles, fn(found_profile) {
-              found_profile |> string.starts_with(profile_name)
+              found_profile == profile_name
+              || string.starts_with(found_profile, profile_name <> \"|\")
             })
           },
         ) {
@@ -1214,6 +1215,7 @@ fn replace_unavailable_bindings(
       "BoundQuantity(valuesets." <> type_name <> ")",
       "Quantity",
     )
+    |> string.replace("valuesets." <> fn_name <> "_failure_variant", "\"\"")
     |> string.replace("valuesets." <> type_name, "String")
     |> string.replace("valuesets." <> fn_name <> "_to_json", "json.string")
     |> string.replace("valuesets." <> fn_name <> "_decoder()", "decode.string")
@@ -2440,20 +2442,17 @@ fn valueset_compose_type_source(
       )
     False -> ""
   }
-  let failure_variant_replacements = case needs_system {
-    True -> [
-      #(
-        "valuesets." <> string.lowercase(vsname) <> "_failure_variant",
-        "valuesets."
-          <> codegen_bound_coding.valueset_failure_variant_source(
-          vsname,
-          codes,
-          open_variants,
-        ),
+  let failure_variant_replacements = [
+    #(
+      "valuesets." <> string.lowercase(vsname) <> "_failure_variant",
+      "valuesets."
+        <> codegen_bound_coding.valueset_failure_variant_source(
+        vsname,
+        codes,
+        open_variants,
       ),
-    ]
-    False -> []
-  }
+    ),
+  ]
   #(
     "pub type "
       <> vsname

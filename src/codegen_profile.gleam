@@ -726,6 +726,46 @@ fn generate_extension_types(
             False -> "\n  json.object(" <> json_fields <> ")"
           }
           <> "\n}\n\n"
+        let encoder_body = case fields {
+          [codegen_helpers.Element(path: "Extension.value[x]", ..) as field] -> {
+            let #(field_type, _, _) =
+              extension_field_type(extension.name, field, valueset_acc)
+            let field_name =
+              extension_field_name(field) |> codegen_helpers.to_snake_case
+            let encoded =
+              extension_field_to_json_call(
+                extension.name,
+                field,
+                field_type,
+                case preserve_slice_order {
+                  True -> "value.value"
+                  False -> "value"
+                },
+                case preserve_slice_order {
+                  True -> Some("id")
+                  False -> None
+                },
+              )
+              |> string.replace("json.string(\"value[x]\")", "json.string(url)")
+            let encoded = case field.min {
+              0 ->
+                "case "
+                <> field_name
+                <> " { Some(value) -> "
+                <> encoded
+                <> " None -> json.object([#(\"url\", json.string(url))]) }"
+              _ -> "{ let value = " <> field_name <> " " <> encoded <> " }"
+            }
+            "  let "
+            <> extension.name
+            <> "("
+            <> encoder_args
+            <> ") = value\n  "
+            <> encoded
+            <> "\n}\n\n"
+          }
+          _ -> encoder_body
+        }
         let encoder_source = case preserve_slice_order {
           True ->
             "pub fn "
@@ -1542,38 +1582,52 @@ fn plan_slice(
     [codegen_helpers.Discriminator(type_: "type", path: "$this")],
       [codegen_helpers.Type(code:, ..)]
     ->
-      Ok(TypeSlicePlan(
-        root_id: group.id,
-        fhir_type: code,
-        slice: root,
-        children: elements
-          |> list.filter(fn(element) {
-            let prefix = root.id <> "."
-            string.starts_with(element.id, prefix)
-            && !string.contains(
-              string.drop_start(element.id, string.length(prefix)),
-              ".",
-            )
-          })
-          |> list.map(fn(element) {
-            case element.id == root.id <> ".value", element.type_ {
-              True, [type_] ->
-                case
-                  string.starts_with(
-                    type_.code,
-                    "http://hl7.org/fhirpath/System.",
-                  )
-                {
-                  True ->
-                    codegen_helpers.Element(..element, type_: [
-                      codegen_helpers.Type(..type_, code:),
-                    ])
-                  False -> element
-                }
-              _, _ -> element
-            }
-          }),
-      ))
+      Ok(
+        TypeSlicePlan(
+          root_id: group.id,
+          fhir_type: code,
+          slice: root,
+          children: elements
+            |> list.filter(fn(element) {
+              let prefix = root.id <> "."
+              string.starts_with(element.id, prefix)
+              && !string.contains(
+                string.drop_start(element.id, string.length(prefix)),
+                ".",
+              )
+            })
+            |> list.map(fn(element) {
+              case element.id == root.id <> ".value", element.type_ {
+                True, [type_] ->
+                  case
+                    string.starts_with(
+                      type_.code,
+                      "http://hl7.org/fhirpath/System.",
+                    )
+                  {
+                    True ->
+                      codegen_helpers.Element(..element, type_: [
+                        codegen_helpers.Type(..type_, code:),
+                      ])
+                    False -> element
+                  }
+                _, _ -> element
+              }
+            }),
+          descendants: case profile_field_has_primitive_type(root, "") {
+            True -> []
+            False ->
+              list.filter(elements, fn(element) {
+                let prefix = root.id <> "."
+                string.starts_with(element.id, prefix)
+                && string.contains(
+                  string.drop_start(element.id, string.length(prefix)),
+                  ".",
+                )
+              })
+          },
+        ),
+      )
     _, _ ->
       plan_value_slice(
         slicing,
@@ -2114,12 +2168,23 @@ fn prepare_profile_slices(
             plans
             |> list.filter_map(fn(plan) {
               case plan {
-                TypeSlicePlan(slice:, ..) -> Ok(slice.id)
-                ValueSlicePlan(..) -> Error(Nil)
+                TypeSlicePlan(slice:, descendants: [], ..) -> Ok(slice.id)
+                _ -> Error(Nil)
+              }
+            })
+          let nested_type_slice_ids =
+            plans
+            |> list.filter_map(fn(plan) {
+              case plan {
+                TypeSlicePlan(slice:, descendants: [_, ..], ..) -> Ok(slice.id)
+                _ -> Error(Nil)
               }
             })
           let current_elements =
             remove_element_trees(current_elements, type_slice_ids, True)
+            |> list.filter(fn(element) {
+              !list.contains(nested_type_slice_ids, element.id)
+            })
           let replacement_ids =
             plans
             |> list.flat_map(fn(plan) {
@@ -2455,12 +2520,75 @@ pub fn profile_files_to_types(
           })
           |> dict.from_list
 
+        let nested_type_slices =
+          dict.values(type_slice_overrides)
+          |> list.filter_map(fn(plan) {
+            case plan {
+              TypeSlicePlan(descendants: [_, ..], ..) -> Ok(plan)
+              _ -> Error(Nil)
+            }
+          })
+        let slice_base_type_names =
+          list.fold(nested_type_slices, slice_base_type_names, fn(names, plan) {
+            let assert TypeSlicePlan(
+              root_id:,
+              fhir_type:,
+              slice:,
+              children:,
+              descendants:,
+            ) = plan
+            let assert [_, ..root_parts] =
+              root_id
+              |> string.replace("-", "")
+              |> string.replace(":", ".")
+              |> string.split(".")
+            let sliced_name =
+              string.join([profile_prefix, ..root_parts], "_")
+              |> string.replace("[x]", "")
+              |> codegen_helpers.to_camel_case
+              |> string.append(string.capitalise(fhir_type) <> "Sliced")
+            list.fold(
+              [slice, ..list.append(children, descendants)],
+              names,
+              fn(names, element) {
+                let assert [_, ..parts] =
+                  element.id
+                  |> string.replace("-", "")
+                  |> string.replace(":", ".")
+                  |> string.split(".")
+                let canonical_name =
+                  string.join([profile_prefix, ..parts], "_")
+                  |> string.replace("[x]", "")
+                  |> codegen_helpers.to_camel_case
+                let suffix =
+                  element.id
+                  |> string.drop_start(string.length(slice.id))
+                  |> string.replace("-", "")
+                  |> string.replace(":", ".")
+                  |> string.replace(".", "_")
+                  |> string.replace("[x]", "")
+                  |> codegen_helpers.to_camel_case
+                dict.insert(names, canonical_name, sliced_name <> suffix)
+              },
+            )
+          })
+        let nested_type_paths =
+          list.map(nested_type_slices, fn(plan) {
+            let assert TypeSlicePlan(slice:, ..) = plan
+            let assert [_, ..parts] =
+              slice.id
+              |> string.replace("-", "")
+              |> string.replace(":", ".")
+              |> string.split(".")
+            string.join([profile_prefix, ..parts], "_")
+          })
+
         let #(type_fields, type_order) =
           profile_elements
           |> list.fold(
             #(
               dict.new() |> dict.insert(profile_prefix, []),
-              set.from_list([profile_prefix]),
+              set.from_list([profile_prefix, ..nested_type_paths]),
             ),
             fn(acc, element) {
               let #(type_fields, type_order) = acc
@@ -2920,6 +3048,13 @@ pub fn profile_files_to_types(
                                   type_slice_key(element.id, choice.code),
                                 )
                               {
+                                Ok(TypeSlicePlan(descendants: [_, ..], ..)) -> #(
+                                  choice_type
+                                    <> string.capitalise(choice.code)
+                                    <> "Sliced",
+                                  "",
+                                  valueset_acc,
+                                )
                                 Ok(TypeSlicePlan(slice:, children: [], ..)) -> {
                                   let #(variant_type, valueset_acc) =
                                     codegen_helpers.string_to_type(

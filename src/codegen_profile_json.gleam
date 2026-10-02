@@ -405,6 +405,7 @@ pub type SlicePlan {
     fhir_type: String,
     slice: codegen_helpers.Element,
     children: List(codegen_helpers.Element),
+    descendants: List(codegen_helpers.Element),
   )
 }
 
@@ -1782,6 +1783,7 @@ fn conversion_for_cardinality(
   source: String,
   target_min: Int,
   is_primitive: Bool,
+  failure: fn(String) -> String,
 ) -> ConversionExpression {
   let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
   case is_primitive {
@@ -1913,17 +1915,23 @@ fn conversion_for_cardinality(
             1 ->
               "case values { [first, ..rest] -> Ok("
               <> complex_prefix
-              <> "List1(first:, rest:)) _ -> Error(\"minimum cardinality 1\") }"
+              <> "List1(first:, rest:)) _ -> "
+              <> failure("\"minimum cardinality 1\"")
+              <> " }"
 
             2 ->
               "case values { [first, second, ..rest] -> Ok("
               <> complex_prefix
-              <> "List2(first:, second:, rest:)) _ -> Error(\"minimum cardinality 2\") }"
+              <> "List2(first:, second:, rest:)) _ -> "
+              <> failure("\"minimum cardinality 2\"")
+              <> " }"
 
             3 ->
               "case values { [first, second, third, ..rest] -> Ok("
               <> complex_prefix
-              <> "List3(first:, second:, third:, rest:)) _ -> Error(\"minimum cardinality 3\") }"
+              <> "List3(first:, second:, third:, rest:)) _ -> "
+              <> failure("\"minimum cardinality 3\"")
+              <> " }"
 
             _ -> panic as "list min > 3 not supported"
           }
@@ -1946,7 +1954,9 @@ fn conversion_for_cardinality(
                 False -> "Ok(" <> converted.expression <> ")"
               }
             }
-              <> " _ -> Error(\"maximum cardinality 1\") }",
+              <> " _ -> "
+              <> failure("\"maximum cardinality 1\"")
+              <> " }",
             expression.helpers,
             True,
           )
@@ -1959,7 +1969,9 @@ fn conversion_for_cardinality(
               True -> expression.expression
               False -> "Ok(" <> expression.expression <> ")"
             }
-              <> " _ -> Error(\"cardinality 1..1\") }",
+              <> " _ -> "
+              <> failure("\"cardinality 1..1\"")
+              <> " }",
             expression.helpers,
             True,
           )
@@ -1984,7 +1996,9 @@ fn conversion_for_cardinality(
           ConversionExpression(
             "case "
               <> source
-              <> " { None -> Error(\"required field\") Some(value) -> "
+              <> " { None -> "
+              <> failure("\"required field\"")
+              <> " Some(value) -> "
               <> case expression.fallible {
               True -> expression.expression
               False -> "Ok(" <> expression.expression <> ")"
@@ -2125,6 +2139,8 @@ fn field_inner_conversion(
   field_type: String,
   value: String,
   source_choice_type: Option(String),
+  validation_path: Option(String),
+  failure: fn(String) -> String,
 ) -> ConversionExpression {
   let narrows_choice =
     string.ends_with(element.base.path, "[x]")
@@ -2200,6 +2216,19 @@ fn field_inner_conversion(
           }
       }
   }
+  let conversion = case validation_path, conversion.fallible {
+    Some(_), True ->
+      ConversionExpression(
+        "case "
+          <> conversion.expression
+          <> " { Ok(value) -> Ok(value) Error(reason) -> "
+          <> failure("reason")
+          <> " }",
+        conversion.helpers,
+        True,
+      )
+    _, _ -> conversion
+  }
   case narrows_choice, element.type_ {
     True, [type_] -> {
       let constructor =
@@ -2209,6 +2238,23 @@ fn field_inner_conversion(
         True -> conversion.expression
         False -> "Ok(" <> conversion.expression <> ")"
       }
+      let successful = case
+        validation_path,
+        fields_for_profile_type(context, field_type, "")
+      {
+        Some(path), Ok(_) ->
+          "{ use _ <- result.try("
+          <> restricted_record_validation(
+            context,
+            field_type,
+            "choice_value",
+            path,
+          )
+          <> ") "
+          <> successful
+          <> " }"
+        _, _ -> successful
+      }
       ConversionExpression(
         "case "
           <> value
@@ -2216,9 +2262,9 @@ fn field_inner_conversion(
           <> constructor
           <> "(choice_value) -> "
           <> successful
-          <> " _ -> Error(\"expected "
-          <> type_.code
-          <> "\") }",
+          <> " _ -> "
+          <> failure("\"expected " <> type_.code <> "\"")
+          <> " }",
         conversion.helpers,
         True,
       )
@@ -2265,12 +2311,16 @@ fn record_conversion_from_fields(
   base_type: String,
   fields: List(codegen_helpers.Element),
   source_profile_type: Option(String),
+  slice_json_name: Option(String),
 ) -> String {
   let complex_prefix =
     codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
   let function_name =
     codegen_helpers.to_snake_case(target_type)
-    <> "_try_from_"
+    <> case slice_json_name {
+      None -> "_try_from_"
+      Some(_) -> "_slice_try_from_"
+    }
     <> {
       base_type
       |> string.replace(complex_prefix, "")
@@ -2279,9 +2329,9 @@ fn record_conversion_from_fields(
   let discriminator =
     fields
     |> list.find(fn(field) {
-      case dict.get(context.slice_type_overrides, field.id) {
-        Ok(FixedSliceType(_, _, _, _, _)) -> True
-        _ -> False
+      case slice_json_name, dict.get(context.slice_type_overrides, field.id) {
+        _, Ok(FixedSliceType(_, _, _, _, _)) | Some(_), Ok(_) -> True
+        _, _ -> False
       }
     })
     |> option.from_result
@@ -2298,7 +2348,14 @@ fn record_conversion_from_fields(
             discriminator.max,
           )
       }
-      ", " <> field_name <> " " <> field_name <> ": " <> parameter_type
+      let parameter_name = case
+        discriminator.fixed_code,
+        discriminator.fixed_uri
+      {
+        None, None -> field_name
+        _, _ -> "_" <> field_name
+      }
+      ", " <> field_name <> " " <> parameter_name <> ": " <> parameter_type
     }
     None -> ""
   }
@@ -2312,25 +2369,40 @@ fn record_conversion_from_fields(
       use fixed <- result.try(fixed)
       let #(_, _, json_name, field_name, _) =
         profile_element_names(context, target_type, element)
+      let failure = fn(reason) {
+        case slice_json_name {
+          None -> "Error(" <> reason <> ")"
+          Some(group) ->
+            "Error([decode.DecodeError(expected: \""
+            <> fixed
+            <> "\", found: "
+            <> reason
+            <> ", path: [\""
+            <> group
+            <> "\", int.to_string(index), \""
+            <> json_name
+            <> "\"])])"
+        }
+      }
       let check = case element.base.min, element.base.max {
         0, "1" ->
           "case source."
           <> field_name
           <> " { Some(\""
           <> fixed
-          <> "\") -> Ok(Nil) Some(_) -> Error(\"invalid fixed "
-          <> json_name
-          <> "\") None -> Error(\"required fixed "
-          <> json_name
-          <> "\") }"
+          <> "\") -> Ok(Nil) Some(_) -> "
+          <> failure("\"invalid fixed " <> json_name <> "\"")
+          <> " None -> "
+          <> failure("\"required fixed " <> json_name <> "\"")
+          <> " }"
         _, "1" ->
           "case source."
           <> field_name
           <> " == \""
           <> fixed
-          <> "\" { True -> Ok(Nil) False -> Error(\"invalid fixed "
-          <> json_name
-          <> "\") }"
+          <> "\" { True -> Ok(Nil) False -> "
+          <> failure("\"invalid fixed " <> json_name <> "\"")
+          <> " }"
         _, _ -> panic as "unsupported fixed field cardinality"
       }
       Ok("  use _ <- result.try(" <> check <> ")\n")
@@ -2343,16 +2415,72 @@ fn record_conversion_from_fields(
     })
     |> list.fold(#("", "", ""), fn(acc, element) {
       let #(bindings, arguments, helpers) = acc
-      let #(_, field_path, _json_name, field_name, field_type) =
+      let #(_, field_path, json_name, field_name, field_type) =
         profile_element_names(context, target_type, element)
+      let validation_path =
+        option.map(slice_json_name, fn(group) {
+          "[\"" <> group <> "\", int.to_string(index), \"" <> json_name <> "\"]"
+        })
+      let failure = fn(reason) {
+        case slice_json_name {
+          None -> "Error(" <> reason <> ")"
+          Some(group) -> {
+            let expected = case element.type_ {
+              [type_] -> type_.code
+              _ -> field_type
+            }
+            let name = case string.ends_with(element.base.path, "[x]") {
+              True ->
+                element.path
+                |> string.split(".")
+                |> list.last
+                |> result.unwrap(json_name)
+              False -> json_name
+            }
+            "Error([decode.DecodeError(expected: \""
+            <> expected
+            <> "\", found: "
+            <> reason
+            <> ", path: [\""
+            <> group
+            <> "\", int.to_string(index), \""
+            <> name
+            <> "\"])])"
+          }
+        }
+      }
+      let source_field = case source_profile_type {
+        None -> None
+        Some(source_type) ->
+          fields_for_profile_type(context, source_type, "")
+          |> result.try(fn(source_fields) {
+            list.find(source_fields, fn(source_field) {
+              source_field.slice_name == None
+              && source_field.path == element.path
+            })
+          })
+          |> option.from_result
+      }
+      let element = case source_field {
+        None -> element
+        Some(source_field) ->
+          codegen_helpers.Element(
+            ..element,
+            base: codegen_helpers.ElementBase(
+              ..element.base,
+              min: profile_field_min(source_field, False),
+              max: source_field.max,
+            ),
+          )
+      }
       let is_primitive = False
       let target_min = profile_field_min(element, is_primitive)
       let inner_value = case element.base.min, element.base.max {
-        1, max if max != "*" -> "source." <> field_name
+        1, "1" -> "source." <> field_name
         _, _ -> "value"
       }
-      let source_field_type = case source_profile_type {
-        None ->
+      let source_field_type = case source_profile_type, source_field {
+        None, _ ->
           case dict.get(context.base_elements, element.base.path) {
             Ok(base_element) ->
               case base_element.type_ {
@@ -2371,22 +2499,12 @@ fn record_conversion_from_fields(
               }
             Error(_) -> None
           }
-        Some(source_type) ->
-          case fields_for_profile_type(context, source_type, "") {
-            Error(_) -> None
-            Ok(source_fields) ->
-              source_fields
-              |> list.find(fn(source_element) {
-                source_element.slice_name == None
-                && source_element.path == element.path
-              })
-              |> result.map(fn(source_element) {
-                let #(_, _, _, _, source_field_type) =
-                  profile_element_names(context, source_type, source_element)
-                source_field_type
-              })
-              |> option.from_result
-          }
+        Some(source_type), Some(source_field) -> {
+          let #(_, _, _, _, source_field_type) =
+            profile_element_names(context, source_type, source_field)
+          Some(source_field_type)
+        }
+        _, _ -> None
       }
       let is_discriminator = case discriminator {
         Some(discriminator) -> discriminator.id == element.id
@@ -2404,11 +2522,16 @@ fn record_conversion_from_fields(
             field_type,
             inner_value,
             source_field_type,
+            validation_path,
+            failure,
           )
       }
-      let converted = case is_discriminator, element.max {
-        True, max if max != "1" -> IdentityConversion(field_name, "", False)
-        _, _ ->
+      let converted = case is_discriminator, element.max, slice_json_name {
+        True, "1", Some(_) if target_min == 0 ->
+          ConversionExpression("Some(" <> field_name <> ")", "", False)
+        True, max, _ if max != "1" -> IdentityConversion(field_name, "", False)
+        True, "1", Some(_) -> IdentityConversion(field_name, "", False)
+        _, _, _ ->
           conversion_for_cardinality(
             context.current_bucket,
             inner,
@@ -2416,6 +2539,7 @@ fn record_conversion_from_fields(
             "source." <> field_name,
             target_min,
             is_primitive,
+            failure,
           )
       }
       let binding = case converted.fallible {
@@ -2433,15 +2557,25 @@ fn record_conversion_from_fields(
         helpers <> converted.helpers,
       )
     })
-  helpers
+  case slice_json_name {
+    None -> helpers
+    Some(_) -> ""
+  }
   <> "fn "
   <> function_name
   <> "(source: "
   <> base_type
+  <> case slice_json_name {
+    None -> ""
+    Some(_) -> ", index: Int"
+  }
   <> discriminator_parameter
   <> ") -> Result("
   <> target_type
-  <> ", String) {\n"
+  <> case slice_json_name {
+    None -> ", String) {\n"
+    Some(_) -> ", List(decode.DecodeError)) {\n"
+  }
   <> fixed_bindings
   <> bindings
   <> "  Ok("
@@ -2516,6 +2650,7 @@ fn record_conversion_source(
         base_type,
         fields,
         source_profile_type,
+        None,
       )
   }
 }
@@ -2540,6 +2675,25 @@ fn choice_conversion_source(
           type_slice_key(element.id, choice.code),
         )
       {
+        Ok(TypeSlicePlan(descendants: [_, ..], ..)) -> {
+          let sliced_name = constructor <> "Sliced"
+          let base_encoder =
+            complex_prefix
+            <> codegen_helpers.to_snake_case(choice.code)
+            <> "_to_json"
+          #(
+            ConversionExpression(
+              "json.parse(json.to_string("
+                <> base_encoder
+                <> "(value)), "
+                <> codegen_helpers.to_snake_case(sliced_name)
+                <> "_decoder()) |> result.replace_error(\"invalid choice slice\")",
+              "",
+              True,
+            ),
+            "",
+          )
+        }
         Ok(TypeSlicePlan(children: [_, ..] as children, ..)) -> {
           let sliced_name = constructor <> "Sliced"
           let base_type =
@@ -2570,6 +2724,7 @@ fn choice_conversion_source(
               sliced_name,
               base_type,
               fields,
+              None,
               None,
             ),
           )
@@ -3019,6 +3174,7 @@ fn choice_decoder_source(
           type_slice_key(element.id, choice.code),
         )
       {
+        Ok(TypeSlicePlan(descendants: [_, ..], ..)) -> source
         Ok(TypeSlicePlan(slice:, children: [_, ..] as children, ..)) -> {
           let constructor = choice_type <> string.capitalise(choice.code)
           let sliced_type = constructor <> "Sliced"
@@ -3901,117 +4057,6 @@ fn restricted_record_validation(
   |> validation_results_source
 }
 
-fn slice_record_validation(
-  context: DecodeContext,
-  target_type: String,
-  base_type: String,
-  source: String,
-  json_name: String,
-) -> String {
-  let assert Ok(target_fields) =
-    fields_for_profile_type(context, target_type, "")
-  let source_fields =
-    fields_for_profile_type(context, base_type, "")
-    |> result.unwrap([])
-  target_fields
-  |> profile_fields
-  |> list.index_fold([], fn(results, target, field_index) {
-    let narrowed_choice =
-      string.ends_with(target.base.path, "[x]")
-      && list.length(target.type_) == 1
-    case narrowed_choice {
-      False -> results
-      True -> {
-        let assert [choice] = target.type_
-        let assert Ok(source_field) =
-          list.find(source_fields, fn(candidate) {
-            candidate.slice_name == None && candidate.path == target.path
-          })
-        let #(_, _, _, source_field_name, source_field_type) =
-          profile_element_names(context, base_type, source_field)
-        let #(_, _, choice_json_name, _, target_field_type) =
-          profile_element_names(context, target_type, target)
-        let base_json_name =
-          target.path
-          |> string.split(".")
-          |> list.last
-          |> result.unwrap(choice_json_name)
-        let choice_path =
-          "[\""
-          <> json_name
-          <> "\", int.to_string(index), \""
-          <> choice_json_name
-          <> "\"]"
-        let wrong_path =
-          "[\""
-          <> json_name
-          <> "\", int.to_string(index), \""
-          <> base_json_name
-          <> "\"]"
-        let constructor =
-          source_field_type <> codegen_helpers.to_camel_case(choice.code)
-        let nested = case
-          fields_for_profile_type(context, target_field_type, "")
-        {
-          Ok(_) ->
-            restricted_record_validation(
-              context,
-              target_field_type,
-              "choice_value",
-              choice_path,
-            )
-          Error(_) -> "Ok(Nil)"
-        }
-        let choice_value_pattern = case nested {
-          "Ok(Nil)" -> "_choice_value"
-          _ -> "choice_value"
-        }
-        let expected =
-          choice.code
-          <> case target.min == 0 {
-            True -> " or omitted"
-            False -> ""
-          }
-        let none = case target.min {
-          0 -> "Ok(Nil)"
-          _ ->
-            "Error([decode.DecodeError(expected: \""
-            <> expected
-            <> "\", found: \"omitted\", path: "
-            <> wrong_path
-            <> ")])"
-        }
-        let expression =
-          "case "
-          <> source
-          <> "."
-          <> source_field_name
-          <> " { None -> "
-          <> none
-          <> " Some("
-          <> constructor
-          <> "("
-          <> choice_value_pattern
-          <> ")) -> "
-          <> nested
-          <> " Some(_) -> Error([decode.DecodeError(expected: \""
-          <> expected
-          <> "\", found: \"another "
-          <> base_json_name
-          <> " type\", path: "
-          <> wrong_path
-          <> ")]) }"
-        [
-          #("field_constraint_" <> int.to_string(field_index), expression),
-          ..results
-        ]
-      }
-    }
-  })
-  |> list.reverse
-  |> validation_results_source
-}
-
 fn slice_converter_name(
   current_bucket: codegen_helpers.Category,
   target_type: String,
@@ -4067,28 +4112,31 @@ fn slice_converter_source(
             discriminator.max,
           )
       }
-      let record_converter =
-        codegen_helpers.to_snake_case(target_type)
-        <> "_try_from_"
-        <> {
-          base_type
-          |> string.replace(complex_prefix, "")
-          |> codegen_helpers.to_snake_case
-        }
-      let record_converter_arguments = case
-        dict.get(context.slice_type_overrides, discriminator.id)
-      {
-        Ok(FixedValueDiscriminator(_)) -> "source"
-        _ -> "source, " <> discriminator_field
-      }
       let has_sliced_extensions =
         list.any(target_fields, fn(field) {
           field.slicing != None
           && list.any(field.type_, fn(type_) { type_.code == "Extension" })
         })
-      let converter_body = case base_type, has_sliced_extensions {
+      case base_type, has_sliced_extensions {
         "ct.Identifier", True | "Identifier", True ->
-          "  case json.parse(json.to_string("
+          "fn "
+          <> slice_converter_name(
+            context.current_bucket,
+            target_type,
+            base_type,
+          )
+          <> "(source: "
+          <> base_type
+          <> ", index: Int, "
+          <> discriminator_field
+          <> " _"
+          <> discriminator_field
+          <> ": "
+          <> discriminator_parameter_type
+          <> ") -> Result("
+          <> target_type
+          <> ", List(decode.DecodeError)) {\n"
+          <> "  case json.parse(json.to_string("
           <> complex_prefix
           <> "identifier_to_json(source)), "
           <> codegen_helpers.to_snake_case(target_type)
@@ -4098,55 +4146,17 @@ fn slice_converter_source(
           <> target_type
           <> "\", found: \"invalid JSON\", path: [\""
           <> json_name
-          <> "\", int.to_string(index)])])\n  }\n"
-        _, _ -> {
-          let conversion =
-            "case "
-            <> record_converter
-            <> "("
-            <> record_converter_arguments
-            <> ") {\n  Ok(value) -> Ok(value)\n  Error(reason) -> Error([decode.DecodeError(expected: \""
-            <> target_type
-            <> "\", found: reason, path: [\""
-            <> json_name
-            <> "\", int.to_string(index)])])\n}"
-          case
-            slice_record_validation(
-              context,
-              target_type,
-              base_type,
-              "source",
-              json_name,
-            )
-          {
-            "Ok(Nil)" -> "  " <> conversion <> "\n"
-            validation ->
-              "  case "
-              <> validation
-              <> " {\n    Error(errors) -> Error(errors)\n    Ok(_) -> "
-              <> conversion
-              <> "\n  }\n"
-          }
-        }
+          <> "\", int.to_string(index)])])\n  }\n}\n\n"
+        _, _ ->
+          record_conversion_from_fields(
+            context,
+            target_type,
+            base_type,
+            profile_fields(target_fields),
+            Some(base_type),
+            Some(json_name),
+          )
       }
-      "fn "
-      <> slice_converter_name(context.current_bucket, target_type, base_type)
-      <> "(source: "
-      <> base_type
-      <> ", index: Int, "
-      <> discriminator_field
-      <> " "
-      <> case base_type, has_sliced_extensions {
-        "ct.Identifier", True | "Identifier", True -> "_" <> discriminator_field
-        _, _ -> discriminator_field
-      }
-      <> ": "
-      <> discriminator_parameter_type
-      <> ") -> Result("
-      <> target_type
-      <> ", List(decode.DecodeError)) {\n"
-      <> converter_body
-      <> "}\n\n"
     }
   }
 }
@@ -4608,6 +4618,8 @@ fn base_slice_placeholder(context: DecodeContext, base_type: String) -> String {
     Error(_) -> {
       let parts = string.split(base_type, ".")
       case parts {
+        ["valuesets", type_] ->
+          "valuesets." <> string.lowercase(type_) <> "_failure_variant"
         [module, type_] ->
           module <> "." <> codegen_helpers.to_snake_case(type_) <> "_new()"
         _ -> codegen_helpers.to_snake_case(base_type) <> "_new()"
@@ -4954,13 +4966,45 @@ fn extension_slice_fold_source(
       <> parent_type
       <> " slices\")\n      |> decode.map_errors(fn(_) { errors })\n  }\n"
   }
+  let placeholder_fields =
+    roots
+    |> list.map(fn(root) {
+      let #(_, _, _, root_field, field_type) =
+        profile_element_names(context, parent_type, root)
+      let placeholder =
+        slice_cardinality_placeholder(context.current_bucket, root, fn() {
+          let value = case field_type {
+            "String" -> "\"\""
+            "Bool" -> "False"
+            "Int" -> "0"
+            "Float" -> "0.0"
+            _ -> base_slice_placeholder(context, field_type)
+          }
+          case context.preserve_slice_order {
+            True ->
+              complex_prefix
+              <> "ExtensionSliceElt(value: "
+              <> value
+              <> ", id: None, internal_gleam_fhir_index: None)"
+            False -> value
+          }
+        })
+      #(root_field, placeholder)
+    })
+  let placeholder_fields = case slicing.rules {
+    "open" | "openAtEnd" -> [
+      #(field_name, open_placeholder),
+      ..placeholder_fields
+    ]
+    _ -> placeholder_fields
+  }
   SliceGroupDecode(
     source: fold_source <> result_source <> decoder_source,
     result_name:,
     success_pattern: "Ok(" <> group_type <> "Slices(" <> value_fields <> "))",
     value_pattern: group_type <> "Slices(" <> value_fields <> ")",
     decoder_placeholder:,
-    placeholder_fields: [#(field_name, open_placeholder)],
+    placeholder_fields:,
   )
 }
 
@@ -6013,6 +6057,57 @@ fn extension_classifier_source(
   let _ = url
   case extension.kind {
     SimpleExtension(_) -> ""
+    ComplexExtension(
+      [codegen_helpers.Element(path: "Extension.value[x]", ..) as field],
+      _,
+    ) -> {
+      let field_name =
+        extension_field_name(field) |> codegen_helpers.to_snake_case
+      let store = fn(value) {
+        let stored_value = case preserve_slice_order {
+          True ->
+            complex_prefix
+            <> "ExtensionSliceElt(value: "
+            <> value
+            <> ", id: None, internal_gleam_fhir_index: None)"
+          False -> value
+        }
+        let stored_value = case field.min {
+          0 -> "Some(" <> stored_value <> ")"
+          _ -> stored_value
+        }
+        "Ok("
+        <> complex_prefix
+        <> extension.name
+        <> "("
+        <> field_name
+        <> ": "
+        <> stored_value
+        <> "))"
+      }
+      let #(_, branch) =
+        extension_value_branch(
+          current_bucket,
+          extension.name,
+          field,
+          url,
+          "extension",
+          valueset_acc,
+          available_valuesets,
+          store,
+          fn(reason) { "Error(" <> reason <> ")" },
+        )
+      "fn parse_"
+      <> codegen_helpers.to_snake_case(extension.name)
+      <> "(extension: "
+      <> complex_prefix
+      <> "Extension) -> Result("
+      <> complex_prefix
+      <> extension.name
+      <> ", String) {\n  "
+      <> branch
+      <> "\n}\n\n"
+    }
     ComplexExtension(fields, slicing_rules) -> {
       let open = slicing_rules != "closed"
       let accumulator_name = extension.name <> "ExtensionAccumulator"
@@ -7307,6 +7402,7 @@ pub fn generate_to_json(
                             type_slice_key(element.id, choice.code),
                           )
                         {
+                          Ok(TypeSlicePlan(descendants: [_, ..], ..)) -> source
                           Ok(TypeSlicePlan(
                             slice: _,
                             children: [_, ..] as children,
