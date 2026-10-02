@@ -2445,6 +2445,21 @@ fn valueset_compose_type_source(
       }
       codegen_bound_coding.ValuesetCodeWithSystem(..member, variant:)
     })
+  let valueset_items = case open_variants {
+    [] ->
+      "pub const "
+      <> string.lowercase(vsname)
+      <> ": List("
+      <> vsname
+      <> ") = ["
+      <> {
+        codes
+        |> list.map(fn(member) { vsname <> member.variant })
+        |> string.join(", ")
+      }
+      <> "]\n"
+    _ -> ""
+  }
   let variants =
     codes
     |> list.map(fn(member) {
@@ -2508,6 +2523,7 @@ fn valueset_compose_type_source(
       <> "{"
       <> variants
       <> "}\n"
+      <> valueset_items
       <> code_functions
       <> system_function,
     failure_variant_replacements,
@@ -2537,7 +2553,7 @@ fn valueset_to_types(
       fhir_version,
       "](https://hl7.org/fhir/",
       fhir_version,
-      ") valuesets\n\nimport gleam/dynamic/decode.{type Decoder}\n  import gleam/json.{type Json}\n",
+      ") valuesets\n\nimport gleam/dynamic/decode.{type Decoder}\n  import gleam/json.{type Json}\nimport gleam/list\nimport gleam/string\n",
     ])
   let all_vs_or_cs = case preloaded_valuesets {
     Some(valuesets) -> valuesets
@@ -2657,7 +2673,13 @@ fn gen_valueset_decoder(
     [codegen_bound_coding.OpenValuesetVariant(name:, ..), ..], _ ->
       "decode.success(" <> name <> "(variant))"
     [], [codegen_bound_coding.ValuesetCodeWithSystem(variant:, ..), ..] ->
-      "decode.failure(" <> vsname <> variant <> ", \"CNAMECAPITAL\")"
+      "decode.failure(" <> vsname <> variant <> ",
+        \"code from valueset CNAMECAPITAL [\"
+        <> { CNAMELOWER |> list.map(CNAMELOWER_to_code) |> string.join(\", \") }
+        <> \"]\")
+      |> decode.map_errors(fn(errors) {
+        list.map(errors, fn(error) { decode.DecodeError(..error, found: variant) })
+      })"
     [], [] -> panic as { "ValueSet " <> vsname <> " has no codes" }
   }
   let template = "pub fn CNAMELOWER_decoder() -> Decoder(CNAMECAPITAL) {
