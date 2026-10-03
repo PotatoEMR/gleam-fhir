@@ -439,7 +439,6 @@ fn gen_fhir(
     False -> ""
     True ->
       "fn match_profile(profile_decoders: ct.List1(#(String, Decoder(a)))) -> Decoder(a) {
-        let ct.List1(first_profile_decoder, rest_profile_decoders) = profile_decoders
         use found_profiles <- decode.optional_field(
           \"meta\",
           [],
@@ -451,7 +450,7 @@ fn gen_fhir(
           ),
         )
         case list.find(
-          [first_profile_decoder, ..rest_profile_decoders],
+          [profile_decoders.first, ..profile_decoders.rest],
           fn(profile_decoder) {
             let #(profile_name, _decoder) = profile_decoder
             list.any(found_profiles, fn(found_profile) {
@@ -462,10 +461,10 @@ fn gen_fhir(
         ) {
           Ok(#(_profile_name, decoder)) -> decoder
           Error(Nil) -> {
-            let #(_profile_name, first_decoder) = first_profile_decoder
+            let #(_profile_name, first_decoder) = profile_decoders.first
             decode.one_of(
               first_decoder,
-              list.map(rest_profile_decoders, fn(profile_decoder) {
+              list.map(profile_decoders.rest, fn(profile_decoder) {
                 let #(_profile_name, decoder) = profile_decoder
                 decoder
               }),
@@ -631,8 +630,7 @@ fn gen_fhir(
       True ->
         "
       pub fn list1_to_json(l: List1(a), tj: fn(a) -> Json) {
-        let List1(first:, rest:) = l
-        json.array([first, ..rest], tj)
+        json.array([l.first, ..l.rest], tj)
       }
 
       pub fn list1_decoder(
@@ -656,8 +654,7 @@ fn gen_fhir(
       True ->
         "
       pub fn list2_to_json(l: List2(a), tj: fn(a) -> Json) {
-        let List2(first:, second:, rest:) = l
-        json.array([first, second, ..rest], tj)
+        json.array([l.first, l.second, ..l.rest], tj)
       }
 
       pub fn list2_decoder(
@@ -681,8 +678,7 @@ fn gen_fhir(
       True ->
         "
       pub fn list3_to_json(l: List3(a), tj: fn(a) -> Json) {
-        let List3(first:, second:, third:, rest:) = l
-        json.array([first, second, third, ..rest], tj)
+        json.array([l.first, l.second, l.third, ..l.rest], tj)
       }
 
       pub fn list3_decoder(
@@ -1484,7 +1480,6 @@ fn file_to_types(
                 choicetypes,
                 newfunc_args,
                 newfunc_fields,
-                encoder_args,
                 encoder_json_always,
                 encoder_json_options,
                 decoder_use,
@@ -1503,7 +1498,6 @@ fn file_to_types(
                     "",
                     "",
                     "",
-                    "",
                     valueset_acc,
                   ),
                   over: fields,
@@ -1513,13 +1507,12 @@ fn file_to_types(
                     let choicetypes_acc = acc.1
                     let newfunc_args_acc = acc.2
                     let newfunc_fields_acc = acc.3
-                    let encoder_args_acc = acc.4
-                    let encoder_always_acc = acc.5
-                    let encoder_optional_acc = acc.6
-                    let decoder_use_acc = acc.7
-                    let decoder_success_acc = acc.8
-                    let decoder_always_failure_acc = acc.9
-                    let valueset_acc = acc.10
+                    let encoder_always_acc = acc.4
+                    let encoder_optional_acc = acc.5
+                    let decoder_use_acc = acc.6
+                    let decoder_success_acc = acc.7
+                    let decoder_always_failure_acc = acc.8
+                    let valueset_acc = acc.9
                     //yeah this should be custom type right
                     let allparts =
                       elt.id
@@ -1726,7 +1719,7 @@ fn file_to_types(
                         is_primitive,
                       )
                     //all the fields for encoder to convert to json
-                    let encoder_args_acc = encoder_args_acc <> elt_snake <> ":,"
+                    let field_value = snake_type <> "." <> elt_snake
                     let field_type_encoder = case elt.type_ {
                       [one_type] ->
                         codegen_to_json.string_to_encoder_type(
@@ -1775,13 +1768,13 @@ fn file_to_types(
                         let opts =
                           encoder_optional_acc
                           <> "\nlet fields = case "
-                          <> elt_snake
+                          <> field_value
                           <> " {
                         [] -> fields
                         _ -> [#(\""
                           <> elt_last_part_withgleamtype
                           <> "\", json.array("
-                          <> elt_snake
+                          <> field_value
                           <> ","
                           <> field_type_encoder
                           <> ")), ..fields]
@@ -1795,7 +1788,7 @@ fn file_to_types(
                           <> "#(\""
                           <> elt_last_part_withgleamtype
                           <> "\", list1_to_json("
-                          <> elt_snake
+                          <> field_value
                           <> ","
                           <> field_type_encoder
                           <> ")),"
@@ -1810,7 +1803,7 @@ fn file_to_types(
                           <> "#(\""
                           <> elt_last_part_withgleamtype
                           <> "\", list2_to_json("
-                          <> elt_snake
+                          <> field_value
                           <> ","
                           <> field_type_encoder
                           <> ")),"
@@ -1825,7 +1818,7 @@ fn file_to_types(
                           <> "#(\""
                           <> elt_last_part_withgleamtype
                           <> "\", list3_to_json("
-                          <> elt_snake
+                          <> field_value
                           <> ","
                           <> field_type_encoder
                           <> ")),"
@@ -1844,7 +1837,7 @@ fn file_to_types(
                         let opts =
                           encoder_optional_acc
                           <> "\nlet fields = case "
-                          <> elt_snake
+                          <> field_value
                           <> " {
                         Some(v) -> [#(\""
                           <> elt_last_part_withgleamtype
@@ -1861,7 +1854,7 @@ fn file_to_types(
                         //mandatory case to json, put in first fields list
                         let choicetype_suffixes =
                           codegen_helpers.gen_choicetype_suffixes(
-                            elt_snake,
+                            field_value,
                             elt.type_,
                             field_name_new,
                           )
@@ -1872,7 +1865,7 @@ fn file_to_types(
                           <> "\""
                           <> choicetype_suffixes
                           <> ", "
-                          <> field_type_encoder_call(elt_snake)
+                          <> field_type_encoder_call(field_value)
                           <> "),"
                         let decoder_always_failure =
                           decoder_always_failure_acc <> elt_snake <> ":, "
@@ -1944,7 +1937,6 @@ fn file_to_types(
                       choicetypes_acc,
                       newfunc_args_acc <> newfunc_arg,
                       newfunc_fields_acc <> newfunc_field,
-                      encoder_args_acc,
                       encoder_always_acc,
                       encoder_optional_acc,
                       decoder_use_acc,
@@ -2034,13 +2026,12 @@ fn file_to_types(
                 " <> extension_value_types <> "
               }
               pub fn extension_to_json(extension: Extension) -> Json {
-                let Extension(id:, url:, ext:) = extension
-                let fields = [#(\"url\", json.string(url))]
-                let fields = case id {
+                let fields = [#(\"url\", json.string(extension.url))]
+                let fields = case extension.id {
                   Some(v) -> [#(\"id\", json.string(v)), ..fields]
                   None -> fields
                 }
-                let fields = [ext_simple_or_complex_to_json(ext), ..fields]
+                let fields = [ext_simple_or_complex_to_json(extension.ext), ..fields]
                 json.object(fields)
               }
               fn ext_simple_or_complex_to_json(ext) {
@@ -2164,7 +2155,6 @@ fn file_to_types(
                           fhir_resource_type,
                           camel_type,
                           snake_type,
-                          encoder_args,
                           encoder_json_always,
                           encoder_json_options,
                           is_domainresource,

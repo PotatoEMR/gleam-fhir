@@ -238,24 +238,15 @@ pub fn coding_fixed_system_from_coding(
   coding: Coding,
   system: String,
 ) -> Result(CodingFixedSystem, Nil) {
-  let Coding(
-    id:,
-    extension:,
-    system: coding_system,
-    version:,
-    code:,
-    display:,
-    user_selected:,
-  ) = coding
-  case coding_system == Some(system) {
+  case coding.system == Some(system) {
     True ->
       Ok(CodingFixedSystem(
-        id:,
-        extension:,
-        version:,
-        code:,
-        display:,
-        user_selected:,
+        id: coding.id,
+        extension: coding.extension,
+        version: coding.version,
+        code: coding.code,
+        display: coding.display,
+        user_selected: coding.user_selected,
       ))
     False -> Error(Nil)
   }
@@ -265,22 +256,14 @@ pub fn coding_fixed_system_to_json(
   coding: CodingFixedSystem,
   system: String,
 ) -> Json {
-  let CodingFixedSystem(
-    id:,
-    extension:,
-    version:,
-    code:,
-    display:,
-    user_selected:,
-  ) = coding
   coding_to_json(Coding(
-    id:,
-    extension:,
+    id: coding.id,
+    extension: coding.extension,
     system: Some(system),
-    version:,
-    code:,
-    display:,
-    user_selected:,
+    version: coding.version,
+    code: coding.code,
+    display: coding.display,
+    user_selected: coding.user_selected,
   ))
 }
 
@@ -288,22 +271,14 @@ fn coding_fixed_system_to_coding(
   coding: CodingFixedSystem,
   system: String,
 ) -> Coding {
-  let CodingFixedSystem(
-    id:,
-    extension:,
-    version:,
-    code:,
-    display:,
-    user_selected:,
-  ) = coding
   Coding(
-    id:,
-    extension:,
+    id: coding.id,
+    extension: coding.extension,
     system: Some(system),
-    version:,
-    code:,
-    display:,
-    user_selected:,
+    version: coding.version,
+    code: coding.code,
+    display: coding.display,
+    user_selected: coding.user_selected,
   )
 }
 
@@ -335,24 +310,15 @@ pub fn coding_fixed_system_code_from_coding(
   system: String,
   code: String,
 ) -> Result(CodingFixedSystemCode, Nil) {
-  let Coding(
-    id:,
-    extension:,
-    system: coding_system,
-    version:,
-    code: coding_code,
-    display:,
-    user_selected:,
-  ) = coding
-  case coding_system, coding_code {
+  case coding.system, coding.code {
     Some(coding_system_value), Some(coding_code_value) ->
       case coding_system_value == system && coding_code_value == code {
         True -> Ok(CodingFixedSystemCode(
-          id:,
-          extension:,
-          version:,
-          display:,
-          user_selected:,
+          id: coding.id,
+          extension: coding.extension,
+          version: coding.version,
+          display: coding.display,
+          user_selected: coding.user_selected,
         ))
         False -> Error(Nil)
       }
@@ -365,21 +331,14 @@ pub fn coding_fixed_system_code_to_json(
   system: String,
   code: String,
 ) -> Json {
-  let CodingFixedSystemCode(
-    id:,
-    extension:,
-    version:,
-    display:,
-    user_selected:,
-  ) = coding
   coding_to_json(Coding(
-    id:,
-    extension:,
+    id: coding.id,
+    extension: coding.extension,
     system: Some(system),
-    version:,
+    version: coding.version,
     code: Some(code),
-    display:,
-    user_selected:,
+    display: coding.display,
+    user_selected: coding.user_selected,
   ))
 }
 
@@ -388,21 +347,14 @@ fn coding_fixed_system_code_to_coding(
   system: String,
   code: String,
 ) -> Coding {
-  let CodingFixedSystemCode(
-    id:,
-    extension:,
-    version:,
-    display:,
-    user_selected:,
-  ) = coding
   Coding(
-    id:,
-    extension:,
+    id: coding.id,
+    extension: coding.extension,
     system: Some(system),
-    version:,
+    version: coding.version,
     code: Some(code),
-    display:,
-    user_selected:,
+    display: coding.display,
+    user_selected: coding.user_selected,
   )
 }
 "
@@ -432,16 +384,7 @@ pub fn coding_fixed_system_code_display_from_coding(
   code: String,
   display: String,
 ) -> Result(CodingFixedSystemCodeDisplay, Nil) {
-  let Coding(
-    id:,
-    extension:,
-    system: coding_system,
-    version:,
-    code: coding_code,
-    display: coding_display,
-    user_selected:,
-  ) = coding
-  case coding_system, coding_code, coding_display {
+  case coding.system, coding.code, coding.display {
     Some(coding_system_value), Some(coding_code_value), Some(coding_display_value) ->
       case
         coding_system_value == system
@@ -449,10 +392,10 @@ pub fn coding_fixed_system_code_display_from_coding(
         && coding_display_value == display
       {
         True -> Ok(CodingFixedSystemCodeDisplay(
-          id:,
-          extension:,
-          version:,
-          user_selected:,
+          id: coding.id,
+          extension: coding.extension,
+          version: coding.version,
+          user_selected: coding.user_selected,
         ))
         False -> Error(Nil)
       }
@@ -466,20 +409,14 @@ pub fn coding_fixed_system_code_display_to_json(
   code: String,
   display: String,
 ) -> Json {
-  let CodingFixedSystemCodeDisplay(
-    id:,
-    extension:,
-    version:,
-    user_selected:,
-  ) = coding
   coding_to_json(Coding(
-    id:,
-    extension:,
+    id: coding.id,
+    extension: coding.extension,
     system: Some(system),
-    version:,
+    version: coding.version,
     code: Some(code),
     display: Some(display),
-    user_selected:,
+    user_selected: coding.user_selected,
   ))
 }
 
@@ -489,20 +426,14 @@ fn coding_fixed_system_code_display_to_coding(
   code: String,
   display: String,
 ) -> Coding {
-  let CodingFixedSystemCodeDisplay(
-    id:,
-    extension:,
-    version:,
-    user_selected:,
-  ) = coding
   Coding(
-    id:,
-    extension:,
+    id: coding.id,
+    extension: coding.extension,
     system: Some(system),
-    version:,
+    version: coding.version,
     code: Some(code),
     display: Some(display),
-    user_selected:,
+    user_selected: coding.user_selected,
   )
 }
 "
@@ -537,25 +468,16 @@ pub fn coding_fixed_system_required_code_display_from_coding(
   coding: Coding,
   system: String,
 ) -> Result(CodingFixedSystemRequiredCodeDisplay, Nil) {
-  let Coding(
-    id:,
-    extension:,
-    system: coding_system,
-    version:,
-    code: coding_code,
-    display: coding_display,
-    user_selected:,
-  ) = coding
-  case coding_system, coding_code, coding_display {
+  case coding.system, coding.code, coding.display {
     Some(coding_system_value), Some(coding_code), Some(coding_display) ->
       case coding_system_value == system {
         True -> Ok(CodingFixedSystemRequiredCodeDisplay(
-          id:,
-          extension:,
-          version:,
+          id: coding.id,
+          extension: coding.extension,
+          version: coding.version,
           code: coding_code,
           display: coding_display,
-          user_selected:,
+          user_selected: coding.user_selected,
         ))
         False -> Error(Nil)
       }
@@ -567,22 +489,14 @@ pub fn coding_fixed_system_required_code_display_to_json(
   coding: CodingFixedSystemRequiredCodeDisplay,
   system: String,
 ) -> Json {
-  let CodingFixedSystemRequiredCodeDisplay(
-    id:,
-    extension:,
-    version:,
-    code:,
-    display:,
-    user_selected:,
-  ) = coding
   coding_to_json(Coding(
-    id:,
-    extension:,
+    id: coding.id,
+    extension: coding.extension,
     system: Some(system),
-    version:,
-    code: Some(code),
-    display: Some(display),
-    user_selected:,
+    version: coding.version,
+    code: Some(coding.code),
+    display: Some(coding.display),
+    user_selected: coding.user_selected,
   ))
 }
 "
@@ -629,9 +543,8 @@ pub fn codeableconcept_fixed_system_from_codeableconcept(
   concept: Codeableconcept,
   system: String,
 ) -> Result(CodeableconceptFixedSystem, Nil) {
-  let Codeableconcept(id:, extension:, coding:, text:) = concept
   case find_elt_and_rest_result(
-    in: coding,
+    in: concept.coding,
     one_that: fn(coding) { coding_fixed_system_from_coding(coding, system) },
   ) {
     Error(Nil) -> Error(Nil)
@@ -645,8 +558,8 @@ pub fn codeableconcept_fixed_system_from_codeableconcept(
 "
       },
       "      Ok(CodeableconceptFixedSystem(
-        id:,
-        extension:,
+        id: concept.id,
+        extension: concept.extension,
 ",
       case preserve_slice_order {
         True ->
@@ -656,7 +569,7 @@ pub fn codeableconcept_fixed_system_from_codeableconcept(
       },
       "        disc:,
         others:,
-        text:,
+        text: concept.text,
       ))
   }
 }
@@ -665,44 +578,30 @@ pub fn codeableconcept_fixed_system_to_json(
   concept: CodeableconceptFixedSystem,
   system: String,
 ) -> Json {
-  let CodeableconceptFixedSystem(
-    id:,
-    extension:,
 ",
       case preserve_slice_order {
         True ->
-          "    internal_gleam_fhir_index:,
-"
-        False -> ""
-      },
-      "    disc:,
-    others:,
-    text:,
-  ) = concept
-",
-      case preserve_slice_order {
-        True ->
-          "  let selected_coding = coding_fixed_system_to_coding(disc, system)
-  let coding = case internal_gleam_fhir_index {
-    None -> [selected_coding, ..others]
-    Some(index) -> insert_at(selected_coding, others, index)
+          "  let selected_coding = coding_fixed_system_to_coding(concept.disc, system)
+  let coding = case concept.internal_gleam_fhir_index {
+    None -> [selected_coding, ..concept.others]
+    Some(index) -> insert_at(selected_coding, concept.others, index)
   }
 "
         False -> ""
       },
       "  codeableconcept_to_json(Codeableconcept(
-    id:,
-    extension:,
+    id: concept.id,
+    extension: concept.extension,
 ",
       case preserve_slice_order {
         True ->
           "    coding:,
 "
         False ->
-          "    coding: [coding_fixed_system_to_coding(disc, system), ..others],
+          "    coding: [coding_fixed_system_to_coding(concept.disc, system), ..concept.others],
 "
       },
-      "    text:,
+      "    text: concept.text,
   ))
 }
 
@@ -750,9 +649,8 @@ pub fn codeableconcept_fixed_system_code_from_codeableconcept(
   system: String,
   code: String,
 ) -> Result(CodeableconceptFixedSystemCode, Nil) {
-  let Codeableconcept(id:, extension:, coding:, text:) = concept
   case find_elt_and_rest_result(
-    in: coding,
+    in: concept.coding,
     one_that: fn(coding) {
       coding_fixed_system_code_from_coding(coding, system, code)
     },
@@ -768,8 +666,8 @@ pub fn codeableconcept_fixed_system_code_from_codeableconcept(
 "
       },
       "      Ok(CodeableconceptFixedSystemCode(
-        id:,
-        extension:,
+        id: concept.id,
+        extension: concept.extension,
 ",
       case preserve_slice_order {
         True ->
@@ -779,7 +677,7 @@ pub fn codeableconcept_fixed_system_code_from_codeableconcept(
       },
       "        disc:,
         others:,
-        text:,
+        text: concept.text,
       ))
   }
 }
@@ -789,44 +687,30 @@ pub fn codeableconcept_fixed_system_code_to_json(
   system: String,
   code: String,
 ) -> Json {
-  let CodeableconceptFixedSystemCode(
-    id:,
-    extension:,
 ",
       case preserve_slice_order {
         True ->
-          "    internal_gleam_fhir_index:,
-"
-        False -> ""
-      },
-      "    disc:,
-    others:,
-    text:,
-  ) = concept
-",
-      case preserve_slice_order {
-        True ->
-          "  let selected_coding = coding_fixed_system_code_to_coding(disc, system, code)
-  let coding = case internal_gleam_fhir_index {
-    None -> [selected_coding, ..others]
-    Some(index) -> insert_at(selected_coding, others, index)
+          "  let selected_coding = coding_fixed_system_code_to_coding(concept.disc, system, code)
+  let coding = case concept.internal_gleam_fhir_index {
+    None -> [selected_coding, ..concept.others]
+    Some(index) -> insert_at(selected_coding, concept.others, index)
   }
 "
         False -> ""
       },
       "  codeableconcept_to_json(Codeableconcept(
-    id:,
-    extension:,
+    id: concept.id,
+    extension: concept.extension,
 ",
       case preserve_slice_order {
         True ->
           "    coding:,
 "
         False ->
-          "    coding: [coding_fixed_system_code_to_coding(disc, system, code), ..others],
+          "    coding: [coding_fixed_system_code_to_coding(concept.disc, system, code), ..concept.others],
 "
       },
-      "    text:,
+      "    text: concept.text,
   ))
 }
 
@@ -879,9 +763,8 @@ pub fn codeableconcept_fixed_system_code_display_from_codeableconcept(
   code: String,
   display: String,
 ) -> Result(CodeableconceptFixedSystemCodeDisplay, Nil) {
-  let Codeableconcept(id:, extension:, coding:, text:) = concept
   case find_elt_and_rest_result(
-    in: coding,
+    in: concept.coding,
     one_that: fn(coding) {
       coding_fixed_system_code_display_from_coding(
         coding,
@@ -902,8 +785,8 @@ pub fn codeableconcept_fixed_system_code_display_from_codeableconcept(
 "
     },
     "      Ok(CodeableconceptFixedSystemCodeDisplay(
-        id:,
-        extension:,
+        id: concept.id,
+        extension: concept.extension,
 ",
     case preserve_slice_order {
       True ->
@@ -913,7 +796,7 @@ pub fn codeableconcept_fixed_system_code_display_from_codeableconcept(
     },
     "        disc:,
         others:,
-        text:,
+        text: concept.text,
       ))
   }
 }
@@ -924,34 +807,20 @@ pub fn codeableconcept_fixed_system_code_display_to_json(
   code: String,
   display: String,
 ) -> Json {
-  let CodeableconceptFixedSystemCodeDisplay(
-    id:,
-    extension:,
 ",
     case preserve_slice_order {
       True ->
-        "    internal_gleam_fhir_index:,
-"
-      False -> ""
-    },
-    "    disc:,
-    others:,
-    text:,
-  ) = concept
-",
-    case preserve_slice_order {
-      True ->
-        "  let selected_coding = coding_fixed_system_code_display_to_coding(disc, system, code, display)
-  let coding = case internal_gleam_fhir_index {
-    None -> [selected_coding, ..others]
-    Some(index) -> insert_at(selected_coding, others, index)
+        "  let selected_coding = coding_fixed_system_code_display_to_coding(concept.disc, system, code, display)
+  let coding = case concept.internal_gleam_fhir_index {
+    None -> [selected_coding, ..concept.others]
+    Some(index) -> insert_at(selected_coding, concept.others, index)
   }
 "
       False -> ""
     },
     "  codeableconcept_to_json(Codeableconcept(
-    id:,
-    extension:,
+    id: concept.id,
+    extension: concept.extension,
 ",
     case preserve_slice_order {
       True ->
@@ -959,12 +828,12 @@ pub fn codeableconcept_fixed_system_code_display_to_json(
 "
       False ->
         "    coding: [
-      coding_fixed_system_code_display_to_coding(disc, system, code, display),
-      ..others
+      coding_fixed_system_code_display_to_coding(concept.disc, system, code, display),
+      ..concept.others
     ],
 "
     },
-    "    text:,
+    "    text: concept.text,
   ))
 }
 
@@ -992,15 +861,14 @@ pub fn codeableconcept_list1_fixed_system_from_codeableconcept(
   concept: Codeableconcept,
   system: String,
 ) -> Result(CodeableconceptList1FixedSystem, Nil) {
-  let Codeableconcept(id:, extension:, coding:, text:) = concept
-  case list.try_map(coding, fn(value) {
+  case list.try_map(concept.coding, fn(value) {
     coding_fixed_system_from_coding(value, system)
   }) {
     Ok([first, ..rest]) -> Ok(CodeableconceptList1FixedSystem(
-      id:,
-      extension:,
+      id: concept.id,
+      extension: concept.extension,
       coding: List1(first:, rest:),
-      text:,
+      text: concept.text,
     ))
     Ok([]) | Error(_) -> Error(Nil)
   }
@@ -1010,15 +878,13 @@ pub fn codeableconcept_list1_fixed_system_to_json(
   concept: CodeableconceptList1FixedSystem,
   system: String,
 ) -> Json {
-  let CodeableconceptList1FixedSystem(id:, extension:, coding:, text:) = concept
-  let List1(first:, rest:) = coding
   codeableconcept_to_json(Codeableconcept(
-    id:,
-    extension:,
-    coding: list.map([first, ..rest], fn(value) {
+    id: concept.id,
+    extension: concept.extension,
+    coding: list.map([concept.coding.first, ..concept.coding.rest], fn(value) {
       coding_fixed_system_to_coding(value, system)
     }),
-    text:,
+    text: concept.text,
   ))
 }
 
@@ -1045,15 +911,14 @@ pub fn codeableconcept_list1_fixed_system_code_from_codeableconcept(
   system: String,
   code: String,
 ) -> Result(CodeableconceptList1FixedSystemCode, Nil) {
-  let Codeableconcept(id:, extension:, coding:, text:) = concept
-  case list.try_map(coding, fn(value) {
+  case list.try_map(concept.coding, fn(value) {
     coding_fixed_system_code_from_coding(value, system, code)
   }) {
     Ok([first, ..rest]) -> Ok(CodeableconceptList1FixedSystemCode(
-      id:,
-      extension:,
+      id: concept.id,
+      extension: concept.extension,
       coding: List1(first:, rest:),
-      text:,
+      text: concept.text,
     ))
     Ok([]) | Error(_) -> Error(Nil)
   }
@@ -1064,15 +929,13 @@ pub fn codeableconcept_list1_fixed_system_code_to_json(
   system: String,
   code: String,
 ) -> Json {
-  let CodeableconceptList1FixedSystemCode(id:, extension:, coding:, text:) = concept
-  let List1(first:, rest:) = coding
   codeableconcept_to_json(Codeableconcept(
-    id:,
-    extension:,
-    coding: list.map([first, ..rest], fn(value) {
+    id: concept.id,
+    extension: concept.extension,
+    coding: list.map([concept.coding.first, ..concept.coding.rest], fn(value) {
       coding_fixed_system_code_to_coding(value, system, code)
     }),
-    text:,
+    text: concept.text,
   ))
 }
 
@@ -1100,15 +963,14 @@ pub fn codeableconcept_list1_fixed_system_code_display_from_codeableconcept(
   code: String,
   display: String,
 ) -> Result(CodeableconceptList1FixedSystemCodeDisplay, Nil) {
-  let Codeableconcept(id:, extension:, coding:, text:) = concept
-  case list.try_map(coding, fn(value) {
+  case list.try_map(concept.coding, fn(value) {
     coding_fixed_system_code_display_from_coding(value, system, code, display)
   }) {
     Ok([first, ..rest]) -> Ok(CodeableconceptList1FixedSystemCodeDisplay(
-      id:,
-      extension:,
+      id: concept.id,
+      extension: concept.extension,
       coding: List1(first:, rest:),
-      text:,
+      text: concept.text,
     ))
     Ok([]) | Error(_) -> Error(Nil)
   }
@@ -1120,15 +982,13 @@ pub fn codeableconcept_list1_fixed_system_code_display_to_json(
   code: String,
   display: String,
 ) -> Json {
-  let CodeableconceptList1FixedSystemCodeDisplay(id:, extension:, coding:, text:) = concept
-  let List1(first:, rest:) = coding
   codeableconcept_to_json(Codeableconcept(
-    id:,
-    extension:,
-    coding: list.map([first, ..rest], fn(value) {
+    id: concept.id,
+    extension: concept.extension,
+    coding: list.map([concept.coding.first, ..concept.coding.rest], fn(value) {
       coding_fixed_system_code_display_to_coding(value, system, code, display)
     }),
-    text:,
+    text: concept.text,
   ))
 }
 "

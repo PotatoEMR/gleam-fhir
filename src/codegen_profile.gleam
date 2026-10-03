@@ -850,13 +850,12 @@ fn generate_extension_types(
       ComplexExtension([], _) -> #(source, valueset_acc)
       ComplexExtension(fields, slicing_rules) -> {
         let open = slicing_rules != "closed"
-        let initial_field_acc = #("", "", "", "", "", "", valueset_acc)
+        let initial_field_acc = #("", "", "", "", "", valueset_acc)
         let #(
           field_source,
           choice_source,
           newfunc_args,
           newfunc_fields,
-          encoder_args,
           children_source,
           valueset_acc,
         ) =
@@ -866,7 +865,6 @@ fn generate_extension_types(
               choice_source,
               newfunc_args,
               newfunc_fields,
-              encoder_args,
               children_source,
               valueset_acc,
             ) = acc
@@ -935,54 +933,57 @@ fn generate_extension_types(
                 False -> encoded
               }
             }
+            let field_value = "value." <> field_name
             let new_children_source = case field.min, field.max {
               0, "1" ->
                 "\n  let children = case "
-                <> field_name
+                <> field_value
                 <> " {\n    Some(value) -> ["
                 <> to_json("value")
                 <> ", ..children]\n    None -> children\n  }"
               1, "1" ->
-                "\n  let children = [" <> to_json(field_name) <> ", ..children]"
+                "\n  let children = ["
+                <> to_json(field_value)
+                <> ", ..children]"
               0, "*" ->
                 "\n  let children = list.append(list.map("
-                <> field_name
+                <> field_value
                 <> ", fn(value) { "
                 <> to_json("value")
                 <> " }), children)"
               1, "*" ->
-                "\n  let List1(first, rest) = "
-                <> field_name
-                <> "\n  let children = list.append(["
-                <> to_json("first")
-                <> ", ..list.map(rest, fn(value) { "
+                "\n  let children = list.append(["
+                <> to_json(field_value <> ".first")
+                <> ", ..list.map("
+                <> field_value
+                <> ".rest, fn(value) { "
                 <> to_json("value")
                 <> " })], children)"
               2, "*" ->
-                "\n  let List2(first, second, rest) = "
-                <> field_name
-                <> "\n  let children = list.append(["
-                <> to_json("first")
+                "\n  let children = list.append(["
+                <> to_json(field_value <> ".first")
                 <> ", "
-                <> to_json("second")
-                <> ", ..list.map(rest, fn(value) { "
+                <> to_json(field_value <> ".second")
+                <> ", ..list.map("
+                <> field_value
+                <> ".rest, fn(value) { "
                 <> to_json("value")
                 <> " })], children)"
               3, "*" ->
-                "\n  let List3(first, second, third, rest) = "
-                <> field_name
-                <> "\n  let children = list.append(["
-                <> to_json("first")
+                "\n  let children = list.append(["
+                <> to_json(field_value <> ".first")
                 <> ", "
-                <> to_json("second")
+                <> to_json(field_value <> ".second")
                 <> ", "
-                <> to_json("third")
-                <> ", ..list.map(rest, fn(value) { "
+                <> to_json(field_value <> ".third")
+                <> ", ..list.map("
+                <> field_value
+                <> ".rest, fn(value) { "
                 <> to_json("value")
                 <> " })], children)"
               0, _ ->
                 "\n  let children = list.append(list.map("
-                <> field_name
+                <> field_value
                 <> ", fn(value) { "
                 <> to_json("value")
                 <> " }), children)"
@@ -1002,7 +1003,6 @@ fn generate_extension_types(
               choice_source <> new_choice,
               newfunc_args <> newfunc_arg,
               newfunc_fields <> newfunc_field,
-              encoder_args <> field_name <> ":,",
               children_source <> new_children_source,
               valueset_acc,
             )
@@ -1021,16 +1021,12 @@ fn generate_extension_types(
           True -> "extension: [],"
           False -> ""
         }
-        let open_encoder_arg = case open {
-          True -> "extension:,"
-          False -> ""
-        }
         let initial_children = case open, preserve_slice_order {
           False, _ -> "  let children = []"
           True, False ->
-            "  let children = list.map(extension, extension_to_json)"
+            "  let children = list.map(value.extension, extension_to_json)"
           True, True ->
-            "  let children = list.map(extension, fn(value) { SliceElt(extension_to_json(value.value), value.internal_gleam_fhir_index) })"
+            "  let children = list.map(value.extension, fn(value) { SliceElt(extension_to_json(value.value), value.internal_gleam_fhir_index) })"
         }
         let ordered_children = case preserve_slice_order {
           True -> "\n  let children = slice_elts_to_values(children)"
@@ -1041,13 +1037,7 @@ fn generate_extension_types(
         let encoder_name =
           codegen_helpers.to_snake_case(extension.name) <> "_to_json"
         let encoder_body =
-          "  let "
-          <> extension.name
-          <> "("
-          <> open_encoder_arg
-          <> encoder_args
-          <> ") = value\n"
-          <> initial_children
+          initial_children
           <> children_source
           <> ordered_children
           <> case preserve_slice_order {
@@ -1069,14 +1059,18 @@ fn generate_extension_types(
               )
             let field_name =
               extension_field_name(field) |> codegen_helpers.to_snake_case
+            let field_value = case field.min {
+              0 -> "choice_value"
+              _ -> "value." <> field_name
+            }
             let encoded =
               extension_field_to_json_call(
                 extension.name,
                 field,
                 field_type,
                 case preserve_slice_order {
-                  True -> "value.value"
-                  False -> "value"
+                  True -> field_value <> ".value"
+                  False -> field_value
                 },
                 case preserve_slice_order {
                   True -> Some("id")
@@ -1089,19 +1083,14 @@ fn generate_extension_types(
             let encoded = case field.min {
               0 ->
                 "case "
+                <> "value."
                 <> field_name
-                <> " { Some(value) -> "
+                <> " { Some(choice_value) -> "
                 <> encoded
                 <> " None -> json.object([#(\"url\", json.string(url))]) }"
-              _ -> "{ let value = " <> field_name <> " " <> encoded <> " }"
+              _ -> encoded
             }
-            "  let "
-            <> extension.name
-            <> "("
-            <> encoder_args
-            <> ") = value\n  "
-            <> encoded
-            <> "\n}\n\n"
+            "  " <> encoded <> "\n}\n\n"
           }
           _ -> encoder_body
         }

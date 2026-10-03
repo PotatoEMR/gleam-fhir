@@ -35,25 +35,16 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
         coding: Coding,
         binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
       ) -> Result(BoundCoding(required_binding), Nil) {
-        let Coding(
-          id:,
-          extension:,
-          system:,
-          version:,
-          code:,
-          display:,
-          user_selected:,
-        ) = coding
-        case code, system {
+        case coding.code, coding.system {
           Some(code), Some(system) -> case binding_from_code_and_system(code, system) {
             Error(Nil) -> Error(Nil)
             Ok(code) -> Ok(BoundCoding(
-              id:,
-              extension:,
+              id: coding.id,
+              extension: coding.extension,
               code:,
-              version:,
-              display:,
-              user_selected:,
+              version: coding.version,
+              display: coding.display,
+              user_selected: coding.user_selected,
             ))
           }
           _, _ -> Error(Nil)
@@ -61,35 +52,27 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
       }
 
       pub fn bound_coding_to_json(coding: BoundCoding(required_binding), get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
-        let BoundCoding(
-          user_selected:,
-          display:,
-          code: bound_code,
-          version:,
-          extension:,
-          id:,
-        ) = coding
         let fields = [
-           #(\"code\", json.string(get_code(bound_code))),
-           #(\"system\", json.string(get_system(bound_code))),
+           #(\"code\", json.string(get_code(coding.code))),
+           #(\"system\", json.string(get_system(coding.code))),
         ]
-        let fields = case user_selected {
+        let fields = case coding.user_selected {
           Some(v) -> [#(\"userSelected\", json.bool(v)), ..fields]
           None -> fields
         }
-        let fields = case display {
+        let fields = case coding.display {
           Some(v) -> [#(\"display\", json.string(v)), ..fields]
           None -> fields
         }
-        let fields = case version {
+        let fields = case coding.version {
           Some(v) -> [#(\"version\", json.string(v)), ..fields]
           None -> fields
         }
-        let fields = case extension {
+        let fields = case coding.extension {
           [] -> fields
-          _ -> [#(\"extension\", json.array(extension, extension_to_json)), ..fields]
+          _ -> [#(\"extension\", json.array(coding.extension, extension_to_json)), ..fields]
         }
-        let fields = case id {
+        let fields = case coding.id {
           Some(v) -> [#(\"id\", json.string(v)), ..fields]
           None -> fields
         }
@@ -172,8 +155,7 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
         concept: Codeableconcept,
         binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
       ) -> Result(BoundCodeableconcept(required_binding), Nil) {
-        let Codeableconcept(id:, extension:, coding:, text:) = concept
-        case find_valueset_coding(coding, binding_from_code_and_system) {
+        case find_valueset_coding(concept.coding, binding_from_code_and_system) {
           Error(Nil) -> Error(Nil)
 ",
     case preserve_slice_order {
@@ -185,31 +167,22 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
         "          Ok(#(required, more)) -> Ok(BoundCodeableconcept(
 "
     },
-    "            id:,
-            extension:,
+    "            id: concept.id,
+            extension: concept.extension,
             required:,
             more:,
-            text:,
+            text: concept.text,
           ))
         }
       }
 
       pub fn bound_codeableconcept_to_json(codeableconcept: BoundCodeableconcept(required_binding),  get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
+      let required_coding = bound_coding_to_json(codeableconcept.required, get_code, get_system)
+      let other_codings = list.map(codeableconcept.more, coding_to_json)
 ",
     case preserve_slice_order {
       True ->
-        "      let BoundCodeableconcept(internal_gleam_fhir_index:, text:, required:, more:, extension:, id:) = codeableconcept
-"
-      False ->
-        "      let BoundCodeableconcept(text:, required:, more:, extension:, id:) = codeableconcept
-"
-    },
-    "      let required_coding = bound_coding_to_json(required, get_code, get_system)
-      let other_codings = list.map(more, coding_to_json)
-",
-    case preserve_slice_order {
-      True ->
-        "      let codings = case internal_gleam_fhir_index {
+        "      let codings = case codeableconcept.internal_gleam_fhir_index {
         None -> [required_coding, ..other_codings]
         Some(index) -> insert_at(required_coding, other_codings, index)
       }
@@ -220,15 +193,15 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
 "
     },
     "      let fields = [#(\"coding\", all_codings)]
-        let fields = case text {
+        let fields = case codeableconcept.text {
           Some(v) -> [#(\"text\", json.string(v)), ..fields]
           None -> fields
         }
-        let fields = case extension {
+        let fields = case codeableconcept.extension {
           [] -> fields
-          _ -> [#(\"extension\", json.array(extension, extension_to_json)), ..fields]
+          _ -> [#(\"extension\", json.array(codeableconcept.extension, extension_to_json)), ..fields]
         }
-        let fields = case id {
+        let fields = case codeableconcept.id {
           Some(v) -> [#(\"id\", json.string(v)), ..fields]
           None -> fields
         }
@@ -310,22 +283,20 @@ pub fn bound_codeablereference_new() -> BoundCodeablereference(required_binding)
 }
 
 pub fn bound_codeablereference_to_json(codeablereference: BoundCodeablereference(required_binding),  get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
-  let BoundCodeablereference(reference:, concept:, extension:, id:) =
-    codeablereference
   let fields = []
-  let fields = case reference {
+  let fields = case codeablereference.reference {
     Some(v) -> [#(\"reference\", reference_to_json(v)), ..fields]
     None -> fields
   }
-  let fields = case concept {
+  let fields = case codeablereference.concept {
     Some(v) -> [#(\"concept\", bound_codeableconcept_to_json(v, get_code, get_system)), ..fields]
     None -> fields
   }
-  let fields = case extension {
+  let fields = case codeablereference.extension {
     [] -> fields
-    _ -> [#(\"extension\", json.array(extension, extension_to_json)), ..fields]
+    _ -> [#(\"extension\", json.array(codeablereference.extension, extension_to_json)), ..fields]
   }
-  let fields = case id {
+  let fields = case codeablereference.id {
     Some(v) -> [#(\"id\", json.string(v)), ..fields]
     None -> fields
   }
@@ -383,18 +354,16 @@ pub fn bound_quantity_from_quantity(
   quantity: Quantity,
   binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
 ) -> Result(BoundQuantity(required_binding), Nil) {
-  let Quantity(id:, extension:, value:, comparator:, unit:, system:, code:) =
-    quantity
-  case code, system {
+  case quantity.code, quantity.system {
     None, None ->
       Ok(BoundQuantity(
-        id:, extension:, value:, comparator:, unit:, code: None,
+        id: quantity.id, extension: quantity.extension, value: quantity.value, comparator: quantity.comparator, unit: quantity.unit, code: None,
       ))
     Some(code), Some(system) -> case
       binding_from_code_and_system(code, system)
     {
       Ok(code) -> Ok(BoundQuantity(
-        id:, extension:, value:, comparator:, unit:, code: Some(code),
+        id: quantity.id, extension: quantity.extension, value: quantity.value, comparator: quantity.comparator, unit: quantity.unit, code: Some(code),
       ))
       Error(_) -> Error(Nil)
     }
@@ -403,35 +372,33 @@ pub fn bound_quantity_from_quantity(
 }
 
 pub fn bound_quantity_to_json(quantity: BoundQuantity(required_binding), get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
-  let BoundQuantity(code:, unit:, comparator:, value:, extension:, id:) =
-    quantity
-    let fields = case code {
+    let fields = case quantity.code {
       Some(bound_code) -> [
          #(\"code\", json.string(get_code(bound_code))),
          #(\"system\", json.string(get_system(bound_code))),
       ]
       None -> []
     }
-  let fields = case unit {
+  let fields = case quantity.unit {
     Some(v) -> [#(\"unit\", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = case comparator {
+  let fields = case quantity.comparator {
     Some(v) -> [
       #(\"comparator\", valuesets.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
   }
-  let fields = case value {
+  let fields = case quantity.value {
     Some(v) -> [#(\"value\", json.float(v)), ..fields]
     None -> fields
   }
-  let fields = case extension {
+  let fields = case quantity.extension {
     [] -> fields
-    _ -> [#(\"extension\", json.array(extension, extension_to_json)), ..fields]
+    _ -> [#(\"extension\", json.array(quantity.extension, extension_to_json)), ..fields]
   }
-  let fields = case id {
+  let fields = case quantity.id {
     Some(v) -> [#(\"id\", json.string(v)), ..fields]
     None -> fields
   }

@@ -941,6 +941,7 @@ fn slice_group_to_json_source(
   base_field_type: String,
   all_parts: List(String),
   field_path: String,
+  record_name: String,
   field_name: String,
   json_field_name: String,
   card_min: Int,
@@ -976,6 +977,7 @@ fn slice_group_to_json_source(
         option.unwrap(root.slice_name, root_last)
         |> codegen_helpers.escape_field_name
         |> codegen_helpers.to_snake_case
+      let root_field_value = record_name <> "." <> root_field_name
       let root_field_path = string.join(root_parts, "_")
       let root_type_name = root_field_path |> codegen_helpers.to_camel_case
       let #(root_type, _) =
@@ -1040,58 +1042,52 @@ fn slice_group_to_json_source(
       let #(value, is_single) = case root.min, root.max {
         0, "1" -> #(
           "case "
-            <> root_field_name
+            <> root_field_value
             <> " { Some(value) -> ["
             <> indexed_root_call("value")
             <> "] None -> [] }",
           False,
         )
-        1, "1" -> #(indexed_root_call(root_field_name), True)
+        1, "1" -> #(indexed_root_call(root_field_value), True)
         1, "*" -> #(
-          "fn(values) { let "
-            <> complex_prefix
-            <> "List1(first, rest) = values ["
-            <> indexed_root_call("first")
-            <> ", ..list.map(rest, fn(value) { "
+          "["
+            <> indexed_root_call(root_field_value <> ".first")
+            <> ", ..list.map("
+            <> root_field_value
+            <> ".rest, fn(value) { "
             <> indexed_root_call("value")
-            <> " })] }("
-            <> root_field_name
-            <> ")",
+            <> " })]",
           False,
         )
         2, "*" -> #(
-          "fn(values) { let "
-            <> complex_prefix
-            <> "List2(first, second, rest) = values ["
-            <> indexed_root_call("first")
+          "["
+            <> indexed_root_call(root_field_value <> ".first")
             <> ", "
-            <> indexed_root_call("second")
-            <> ", ..list.map(rest, fn(value) { "
+            <> indexed_root_call(root_field_value <> ".second")
+            <> ", ..list.map("
+            <> root_field_value
+            <> ".rest, fn(value) { "
             <> indexed_root_call("value")
-            <> " })] }("
-            <> root_field_name
-            <> ")",
+            <> " })]",
           False,
         )
         3, "*" -> #(
-          "fn(values) { let "
-            <> complex_prefix
-            <> "List3(first, second, third, rest) = values ["
-            <> indexed_root_call("first")
+          "["
+            <> indexed_root_call(root_field_value <> ".first")
             <> ", "
-            <> indexed_root_call("second")
+            <> indexed_root_call(root_field_value <> ".second")
             <> ", "
-            <> indexed_root_call("third")
-            <> ", ..list.map(rest, fn(value) { "
+            <> indexed_root_call(root_field_value <> ".third")
+            <> ", ..list.map("
+            <> root_field_value
+            <> ".rest, fn(value) { "
             <> indexed_root_call("value")
-            <> " })] }("
-            <> root_field_name
-            <> ")",
+            <> " })]",
           False,
         )
         0, _ -> #(
           "list.map("
-            <> root_field_name
+            <> root_field_value
             <> ", fn(value) { "
             <> indexed_root_call("value")
             <> " })",
@@ -1126,41 +1122,35 @@ fn slice_group_to_json_source(
       <> open_indexed_call("value")
       <> " })"
     "*", 1 ->
-      "fn(values) { let "
-      <> complex_prefix
-      <> "List1(first, rest) = values ["
-      <> open_indexed_call("first")
-      <> ", ..list.map(rest, fn(value) { "
-      <> open_indexed_call("value")
-      <> " })] }("
+      "["
+      <> open_indexed_call(field_name <> ".first")
+      <> ", ..list.map("
       <> field_name
-      <> ")"
+      <> ".rest, fn(value) { "
+      <> open_indexed_call("value")
+      <> " })]"
     "*", 2 ->
-      "fn(values) { let "
-      <> complex_prefix
-      <> "List2(first, second, rest) = values ["
-      <> open_indexed_call("first")
+      "["
+      <> open_indexed_call(field_name <> ".first")
       <> ", "
-      <> open_indexed_call("second")
-      <> ", ..list.map(rest, fn(value) { "
-      <> open_indexed_call("value")
-      <> " })] }("
+      <> open_indexed_call(field_name <> ".second")
+      <> ", ..list.map("
       <> field_name
-      <> ")"
+      <> ".rest, fn(value) { "
+      <> open_indexed_call("value")
+      <> " })]"
     "*", 3 ->
-      "fn(values) { let "
-      <> complex_prefix
-      <> "List3(first, second, third, rest) = values ["
-      <> open_indexed_call("first")
+      "["
+      <> open_indexed_call(field_name <> ".first")
       <> ", "
-      <> open_indexed_call("second")
+      <> open_indexed_call(field_name <> ".second")
       <> ", "
-      <> open_indexed_call("third")
-      <> ", ..list.map(rest, fn(value) { "
-      <> open_indexed_call("value")
-      <> " })] }("
+      <> open_indexed_call(field_name <> ".third")
+      <> ", ..list.map("
       <> field_name
-      <> ")"
+      <> ".rest, fn(value) { "
+      <> open_indexed_call("value")
+      <> " })]"
     "1", 0 ->
       "case "
       <> field_name
@@ -1270,14 +1260,13 @@ pub fn sliced_type_to_json_source(
     |> dict.values
     |> list.flatten
     |> list.map(fn(root) { root.id })
-  let #(encoder_args, always, optional) =
+  let #(always, optional) =
     type_fields
-    |> list.fold(#("", "", ""), fn(acc, child) {
-      let #(encoder_args, always, optional) = acc
+    |> list.fold(#("", ""), fn(acc, child) {
+      let #(always, optional) = acc
       let assert Ok(json_name) = child.path |> string.split(".") |> list.last
       case child.fixed_code, child.fixed_uri {
         Some(value), _ | _, Some(value) -> #(
-          encoder_args,
           always
             <> "#(\""
             <> json_name
@@ -1338,7 +1327,8 @@ pub fn sliced_type_to_json_source(
               value,
             )
           }
-          let encoder_args = encoder_args <> field_name <> ":,"
+          let field_value =
+            codegen_helpers.to_snake_case(sliced_name) <> "." <> field_name
           case
             dict.get(slice_groups, child.id),
             list.contains(slice_root_ids, child.id)
@@ -1349,7 +1339,6 @@ pub fn sliced_type_to_json_source(
                 Error(_) -> profile_field_min(child)
               }
               #(
-                encoder_args,
                 always,
                 optional
                   <> slice_group_to_json_source(
@@ -1369,26 +1358,27 @@ pub fn sliced_type_to_json_source(
                   base_field_type,
                   all_parts,
                   field_path,
-                  field_name,
+                  codegen_helpers.to_snake_case(sliced_name),
+                  field_value,
                   json_name,
                   card_min,
                 ),
               )
             }
-            Error(_), True -> #(encoder_args, always, optional)
+            Error(_), True -> #(always, optional)
             Error(_), False -> {
               let #(new_always, new_optional) =
                 profile_field_to_json_source(
                   current_bucket,
                   child,
-                  field_name,
+                  field_value,
                   json_name,
                   "",
                   encoder,
                   encoder_call,
                   profile_field_min(child),
                 )
-              #(encoder_args, always <> new_always, optional <> new_optional)
+              #(always <> new_always, optional <> new_optional)
             }
           }
         }
@@ -1398,7 +1388,6 @@ pub fn sliced_type_to_json_source(
     "",
     sliced_name,
     codegen_helpers.to_snake_case(sliced_name),
-    encoder_args,
     always,
     optional,
     False,
@@ -1489,7 +1478,7 @@ type SliceGroupDecode {
     support_source: String,
     result_name: String,
     success_pattern: String,
-    value_pattern: String,
+    decoded_fields: List(#(String, String)),
     decoder_placeholder: Option(String),
     placeholder_fields: List(#(String, String)),
   )
@@ -1971,24 +1960,30 @@ fn conversion_for_cardinality(
       let source_is_list = element.base.max != "1"
       let target_is_list = element.max != "1"
       let source = case source_is_list, element.base.min {
-        True, 1 ->
-          "{ let "
-          <> complex_prefix
-          <> "List1(first:, rest:) = "
-          <> source
-          <> " [first, ..rest] }"
+        True, 1 -> "[" <> source <> ".first" <> ", .." <> source <> ".rest]"
         True, 2 ->
-          "{ let "
-          <> complex_prefix
-          <> "List2(first:, second:, rest:) = "
+          "["
           <> source
-          <> " [first, second, ..rest] }"
+          <> ".first"
+          <> ", "
+          <> source
+          <> ".second"
+          <> ", .."
+          <> source
+          <> ".rest]"
         True, 3 ->
-          "{ let "
-          <> complex_prefix
-          <> "List3(first:, second:, third:, rest:) = "
+          "["
           <> source
-          <> " [first, second, third, ..rest] }"
+          <> ".first"
+          <> ", "
+          <> source
+          <> ".second"
+          <> ", "
+          <> source
+          <> ".third"
+          <> ", .."
+          <> source
+          <> ".rest]"
         _, _ -> source
       }
       case source_is_list, target_is_list, element.base.min, target_min {
@@ -3390,8 +3385,6 @@ fn profile_record_base_expression(
   base_type: String,
   value: String,
 ) -> String {
-  let complex_prefix =
-    codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
   let assert Ok(fields) = fields_for_profile_type(context, profile_type, "")
   let arguments =
     fields
@@ -3409,23 +3402,30 @@ fn profile_record_base_expression(
       {
         0, "1", source_min, "1" if source_min > 0 -> "Some(" <> source <> ")"
         0, "*", 1, "*" ->
-          "{ let "
-          <> complex_prefix
-          <> "List1(first:, rest:) = "
-          <> source
-          <> " [first, ..rest] }"
+          "[" <> source <> ".first" <> ", .." <> source <> ".rest]"
         0, "*", 2, "*" ->
-          "{ let "
-          <> complex_prefix
-          <> "List2(first:, second:, rest:) = "
+          "["
           <> source
-          <> " [first, second, ..rest] }"
+          <> ".first"
+          <> ", "
+          <> source
+          <> ".second"
+          <> ", .."
+          <> source
+          <> ".rest]"
         0, "*", 3, "*" ->
-          "{ let "
-          <> complex_prefix
-          <> "List3(first:, second:, third:, rest:) = "
+          "["
           <> source
-          <> " [first, second, third, ..rest] }"
+          <> ".first"
+          <> ", "
+          <> source
+          <> ".second"
+          <> ", "
+          <> source
+          <> ".third"
+          <> ", .."
+          <> source
+          <> ".rest]"
         _, _, _, _ -> source
       }
       field_name <> ": " <> expression
@@ -4959,14 +4959,9 @@ fn extension_slice_fold_source(
         _ -> "[" <> stored_value <> ", ..accumulator." <> root_field <> "]"
       }
       let fold_branch =
-        "          Ok("
-        <> case roots, slicing.rules, root.max {
-          [_], "closed", "1" -> "_accumulator"
-          _, _, _ -> "accumulator"
-        }
-        <> "), Ok("
+        "                  "
         <> variant
-        <> "(value)) -> Ok("
+        <> "(value) -> Ok("
         <> accumulator_type
         <> case roots, slicing.rules {
           [_], "closed" -> "("
@@ -4990,9 +4985,9 @@ fn extension_slice_fold_source(
   }
   let unmatched_fold = case slicing.rules {
     "open" | "openAtEnd" ->
-      "          Ok(accumulator), Ok("
+      "                  "
       <> parsed_type
-      <> "Open(value)) -> Ok("
+      <> "Open(value) -> Ok("
       <> accumulator_type
       <> "(..accumulator, open: ["
       <> stored_open_value
@@ -5042,13 +5037,17 @@ fn extension_slice_fold_source(
     <> "("
     <> string.join(initial_values, ", ")
     <> ")),\n"
-    <> "      fn(accumulator_result, parsed, index) {\n        case accumulator_result, parsed {\n"
+    <> "      fn(accumulator_result, parsed, index) {\n        case accumulator_result {\n          Error(errors) -> Error(errors)\n          Ok("
+    <> case roots, slicing.rules {
+      [codegen_helpers.Element(max: "1", ..)], "closed" -> "_accumulator"
+      _, _ -> "accumulator"
+    }
+    <> ") ->\n            case parsed {\n              Error(reason) -> Error([decode.DecodeError(expected: \"profile extension\", found: reason, path: [\""
+    <> json_name
+    <> "\", int.to_string(index)])])\n              Ok(slice) ->\n                case slice {\n"
     <> string.concat(list.map(branches, fn(branch) { branch.1 }))
     <> unmatched_fold
-    <> "          Error(errors), _ -> Error(errors)\n"
-    <> "          _, Error(reason) -> Error([decode.DecodeError(expected: \"profile extension\", found: reason, path: [\""
-    <> json_name
-    <> "\", int.to_string(index)])])\n        }\n      },\n    )\n"
+    <> "                }\n            }\n        }\n      },\n    )\n"
   let open_group =
     codegen_helpers.Element(..group, min: profile_field_min(group))
   let open_value = case open_group.min, open_group.max {
@@ -5265,7 +5264,17 @@ fn extension_slice_fold_source(
     support_source:,
     result_name:,
     success_pattern: "Ok(" <> group_type <> "Slices(" <> value_fields <> "))",
-    value_pattern: group_type <> "Slices(" <> value_fields <> ")",
+    decoded_fields: list.map(placeholder_fields, fn(field) {
+      #(
+        field.0,
+        result_name
+          <> "."
+          <> case field.0 == field_name {
+          True -> "open"
+          False -> field.0
+        },
+      )
+    }),
     decoder_placeholder:,
     placeholder_fields:,
   )
@@ -5626,7 +5635,7 @@ fn ordinary_slice_fold_source(
         support_source: "",
         result_name:,
         success_pattern: "Ok(" <> field_name <> ")",
-        value_pattern: field_name,
+        decoded_fields: [#(field_name, result_name)],
         decoder_placeholder: Some(placeholder),
         placeholder_fields: [#(field_name, placeholder)],
       )
@@ -5827,7 +5836,17 @@ fn ordinary_slice_fold_source(
           <> "Slices("
           <> success_fields
           <> "))",
-        value_pattern: group_type <> "Slices(" <> success_fields <> ")",
+        decoded_fields: list.map(placeholder_fields, fn(field) {
+          #(
+            field.0,
+            result_name
+              <> "."
+              <> case field.0 == field_name {
+              True -> "open"
+              False -> field.0
+            },
+          )
+        }),
         decoder_placeholder: Some(decoder_placeholder),
         placeholder_fields:,
       )
@@ -6021,6 +6040,15 @@ fn record_decoder_from_fields(
       }
       <> ",\n"
     })
+  let typed_slice_decoders =
+    slice_decodes != []
+    && list.all(slice_decodes, fn(slice_decode) {
+      slice_decode.decoder_placeholder != None
+    })
+  let decoded_fields =
+    slice_decodes
+    |> list.flat_map(fn(slice_decode) { slice_decode.decoded_fields })
+    |> dict.from_list
   let arguments =
     list.fold(constructor_fields, "", fn(arguments, element) {
       let #(_, _, json_name, field_name, _) =
@@ -6031,7 +6059,11 @@ fn record_decoder_from_fields(
       <> case primitive, json_name {
         True, "value" -> ": value"
         True, "id" -> ": primitive.id"
-        _, _ -> ":"
+        _, _ ->
+          case typed_slice_decoders, dict.get(decoded_fields, field_name) {
+            True, Ok(value) -> ": " <> value
+            _, _ -> ":"
+          }
       }
       <> ",\n"
     })
@@ -6041,11 +6073,6 @@ fn record_decoder_from_fields(
     <> "(\n"
     <> placeholder_arguments
     <> "  )\n"
-  let typed_slice_decoders =
-    slice_decodes != []
-    && list.all(slice_decodes, fn(slice_decode) {
-      slice_decode.decoder_placeholder != None
-    })
   let slice_decoder_bindings = case typed_slice_decoders {
     False | True -> ""
   }
@@ -6118,11 +6145,7 @@ fn record_decoder_from_fields(
           <> slice_decode.result_name
           <> " <- decode.then("
           <> slice_decode.result_name
-          <> "_decoder)\n  let "
-          <> slice_decode.value_pattern
-          <> " = "
-          <> slice_decode.result_name
-          <> "\n"
+          <> "_decoder)\n"
         })
         |> string.concat
       decoder_uses
@@ -6457,14 +6480,14 @@ fn extension_classifier_source(
             <> variant
             <> "(id, value) }) })\n"
           let fold_branch =
-            "              Ok(accumulator), Ok("
+            "                      "
             <> variant
             <> "("
             <> case preserve_slice_order {
               True -> "id"
               False -> "_id"
             }
-            <> ", value)) -> "
+            <> ", value) -> "
             <> store("value")
             <> "\n"
           #(field_type, #(decode_branch, fold_branch))
@@ -6516,17 +6539,17 @@ fn extension_classifier_source(
         |> string.join(", ")
       let unmatched = case open, preserve_slice_order {
         True, True ->
-          "              Ok(accumulator), Ok("
+          "                      "
           <> parsed_type
-          <> "Open(child)) -> Ok("
+          <> "Open(child) -> Ok("
           <> accumulator_name
           <> "(..accumulator, open: ["
           <> complex_prefix
           <> "SliceElt(child, Some(index)), ..accumulator.open]))\n"
         True, False ->
-          "              Ok(accumulator), Ok("
+          "                      "
           <> parsed_type
-          <> "Open(child)) -> Ok("
+          <> "Open(child) -> Ok("
           <> accumulator_name
           <> "(..accumulator, open: [child, ..accumulator.open]))\n"
         False, _ -> ""
@@ -6681,9 +6704,9 @@ fn extension_classifier_source(
         <> initial_values
         <> ")),\n          fn(accumulator_result, child"
         <> index_parameter
-        <> ") {\n            case accumulator_result, child {\n              Error(reason), _ -> Error(reason)\n              _, Error(reason) -> Error(reason)\n"
+        <> ") {\n            case accumulator_result {\n              Error(reason) -> Error(reason)\n              Ok(accumulator) ->\n                case child {\n                  Error(reason) -> Error(reason)\n                  Ok(slice) ->\n                    case slice {\n"
         <> child_cases
-        <> "            }\n          },\n        )\n      case accumulator {\n        Error(reason) -> Error(reason)\n        Ok(accumulator) ->\n          "
+        <> "                    }\n                }\n            }\n          },\n        )\n      case accumulator {\n        Error(reason) -> Error(reason)\n        Ok(accumulator) ->\n          "
         <> finish
         <> "\n      }\n    }"
       let support_source =
@@ -7176,24 +7199,13 @@ pub fn generate_to_json(
             || profile_json_field_name(element, "") != "value"
           }
         })
-      let #(
-        encoder_args,
-        json_always,
-        json_optional,
-        choice_encoders,
-        valueset_acc,
-      ) =
+      let #(json_always, json_optional, choice_encoders, valueset_acc) =
         list.fold(
           fields,
-          #("", fixed_json_always, "", "", valueset_acc),
+          #(fixed_json_always, "", "", valueset_acc),
           fn(acc, element) {
-            let #(
-              encoder_args,
-              json_always,
-              json_optional,
-              choice_encoders,
-              valueset_acc,
-            ) = acc
+            let #(json_always, json_optional, choice_encoders, valueset_acc) =
+              acc
             let all_parts =
               element.id
               |> string.replace("-", "")
@@ -7212,6 +7224,11 @@ pub fn generate_to_json(
               option.unwrap(element.slice_name, safe_field_name)
               |> codegen_helpers.escape_field_name
               |> codegen_helpers.to_snake_case
+            let record_name = case primitive_slice_record {
+              True -> "primitive"
+              False -> codegen_helpers.to_snake_case(gleam_type)
+            }
+            let field_value = record_name <> "." <> field_name
             let choice_type = gleam_type <> string.capitalise(safe_field_name)
             let #(open_field_type, valueset_acc) =
               profile_base_field_type(
@@ -7343,15 +7360,6 @@ pub fn generate_to_json(
               }
               False -> profile_field_min(element)
             }
-            let closed_group = case element.slice_name, element.slicing {
-              None, Some(codegen_helpers.Slicing(rules: "closed", ..)) ->
-                !string.ends_with(element.path, "[x]")
-              _, _ -> False
-            }
-            let encoder_args = case closed_group {
-              True -> encoder_args
-              False -> encoder_args <> field_name <> ":,"
-            }
             let slice_roots =
               list.filter(fields, fn(candidate) {
                 candidate.path == element.path && candidate.slice_name != None
@@ -7360,7 +7368,6 @@ pub fn generate_to_json(
 
             case element.slice_name, slice_roots, is_primitive_slice {
               Some(_), _, _ -> #(
-                encoder_args,
                 json_always,
                 json_optional,
                 choice_encoders,
@@ -7373,14 +7380,13 @@ pub fn generate_to_json(
                   _ -> "primitive_slice_list_to_json"
                 }
                 #(
-                  encoder_args,
                   json_always,
                   json_optional
                     <> "\nlet fields = "
                     <> case element.max, card_min {
                     "1", 0 ->
                       "case "
-                      <> field_name
+                      <> field_value
                       <> " { None -> fields Some(value) -> "
                     _, _ -> ""
                   }
@@ -7389,24 +7395,36 @@ pub fn generate_to_json(
                     <> case element.max, card_min {
                     "1", 0 -> "value"
                     "*", 1 ->
-                      "{ let "
-                      <> complex_prefix
-                      <> "List1(first, rest) = "
-                      <> field_name
-                      <> " [first, ..rest] }"
+                      "["
+                      <> field_value
+                      <> ".first"
+                      <> ", .."
+                      <> field_value
+                      <> ".rest]"
                     "*", 2 ->
-                      "{ let "
-                      <> complex_prefix
-                      <> "List2(first, second, rest) = "
-                      <> field_name
-                      <> " [first, second, ..rest] }"
+                      "["
+                      <> field_value
+                      <> ".first"
+                      <> ", "
+                      <> field_value
+                      <> ".second"
+                      <> ", .."
+                      <> field_value
+                      <> ".rest]"
                     "*", 3 ->
-                      "{ let "
-                      <> complex_prefix
-                      <> "List3(first, second, third, rest) = "
-                      <> field_name
-                      <> " [first, second, third, ..rest] }"
-                    _, _ -> field_name
+                      "["
+                      <> field_value
+                      <> ".first"
+                      <> ", "
+                      <> field_value
+                      <> ".second"
+                      <> ", "
+                      <> field_value
+                      <> ".third"
+                      <> ", .."
+                      <> field_value
+                      <> ".rest]"
+                    _, _ -> field_value
                   }
                     <> ", "
                     <> case element.fixed_code, element.fixed_uri {
@@ -7688,12 +7706,12 @@ pub fn generate_to_json(
                     base_field_type,
                     all_parts,
                     field_path,
-                    field_name,
+                    record_name,
+                    field_value,
                     json_field_name,
                     card_min,
                   )
                 #(
-                  encoder_args,
                   json_always,
                   optional,
                   aggregate_encoder <> choice_encoders,
@@ -7743,7 +7761,7 @@ pub fn generate_to_json(
                   codegen_helpers.gen_choicetype_suffixes(
                     case card_min {
                       0 -> "v"
-                      _ -> field_name
+                      _ -> field_value
                     },
                     element.type_,
                     choice_type,
@@ -7752,7 +7770,7 @@ pub fn generate_to_json(
                   profile_field_to_json_source(
                     current_bucket,
                     element,
-                    field_name,
+                    field_value,
                     json_field_name,
                     suffix,
                     encoder,
@@ -7874,7 +7892,6 @@ pub fn generate_to_json(
                   }
                 }
                 #(
-                  encoder_args,
                   json_always <> new_always,
                   json_optional <> new_optional,
                   aggregate_encoder <> new_choice_encoders <> choice_encoders,
@@ -7890,7 +7907,6 @@ pub fn generate_to_json(
             resource_type,
             gleam_type,
             codegen_helpers.to_snake_case(gleam_type),
-            encoder_args,
             json_always,
             json_optional,
             current_type == profile_prefix && is_resource,
@@ -7934,11 +7950,7 @@ pub fn generate_to_json(
           <> encoder_name
           <> "_rest_to_json(primitive: "
           <> gleam_type
-          <> ") -> Option(Json) {\n  let "
-          <> gleam_type
-          <> "(value: _,"
-          <> encoder_args
-          <> ") = primitive\n  let fields = ["
+          <> ") -> Option(Json) {\n  let fields = ["
           <> json_always
           <> "]"
           <> json_optional

@@ -1309,7 +1309,6 @@ pub fn gen_res_encoder(
   respascal: String,
   rescamel: String,
   reslower: String,
-  fields_list: String,
   fields_json_always: String,
   fields_json_options: String,
   is_domainresource: Bool,
@@ -1323,7 +1322,6 @@ pub fn gen_res_encoder(
   }
   let template =
     "pub fn RESNAMELOWER_to_json(RESNAMELOWER: RESNAMECAMEL) -> Json {
-    let RESNAMECAMEL(" <> fields_list <> ") = RESNAMELOWER
     let fields = [" <> fields_json_always <> "]" <> fields_json_options <> resource_type <> "\njson.object(fields)}
   "
   template
