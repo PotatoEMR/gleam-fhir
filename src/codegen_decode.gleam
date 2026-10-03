@@ -138,25 +138,45 @@ pub fn field_decoder(
   is_primitive: Bool,
 ) -> String {
   case max, min, is_primitive {
-    "*", 0, True -> "primitives_decoder(\"" <> name <> "\", " <> decoder <> ")"
+    "*", 0, True ->
+      "primitives_decoder(\""
+      <> name
+      <> "\", "
+      <> decoder
+      <> ", extension_decoder())"
     "*", 0, False ->
       "decode.optional_field(\""
       <> name
       <> "\", [], decode.list("
       <> decoder
       <> "))"
-    "*", 1, True -> "primitives_decoder(\"" <> name <> "\", " <> decoder <> ")"
+    "*", 1, True ->
+      "primitives_decoder(\""
+      <> name
+      <> "\", "
+      <> decoder
+      <> ", extension_decoder())"
     "*", 1, False -> "list1_decoder(\"" <> name <> "\", " <> decoder <> ")"
     "*", 2, _ -> "list2_decoder(\"" <> name <> "\", " <> decoder <> ")"
     "*", 3, _ -> "list3_decoder(\"" <> name <> "\", " <> decoder <> ")"
-    _, 0, True -> "primitive_decoder(\"" <> name <> "\", " <> decoder <> ")"
+    _, 0, True ->
+      "primitive_decoder(\""
+      <> name
+      <> "\", "
+      <> decoder
+      <> ", extension_decoder())"
     _, 0, False ->
       "decode.optional_field(\""
       <> name
       <> "\", None, decode.optional("
       <> decoder
       <> "))"
-    _, 1, True -> "primitive_decoder(\"" <> name <> "\", " <> decoder <> ")"
+    _, 1, True ->
+      "primitive_decoder(\""
+      <> name
+      <> "\", "
+      <> decoder
+      <> ", extension_decoder())"
     _, 1, False -> "decode.field(\"" <> name <> "\", " <> decoder <> ")"
     "*", _, _ -> panic as "list min > 3 not supported"
     _, _, _ -> panic as "unsupported field cardinality"

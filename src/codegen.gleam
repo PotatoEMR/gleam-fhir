@@ -509,6 +509,10 @@ fn gen_fhir(
   let resources_gen = resources_gen <> profile_resources <> resource_enum
   let r_imports =
     r_imports
+    <> case string.contains(resources_gen, "calendar.") {
+      True -> "import gleam/time/calendar\n"
+      False -> ""
+    }
     <> case uses_profile_match {
       True -> "import gleam/string\n"
       False -> ""
@@ -543,7 +547,15 @@ fn gen_fhir(
     || string.contains(complex_types_gen, "SliceElt(")
   let ct_imports =
     shared_imports
+    <> case string.contains(complex_types_gen, "Dynamic") {
+      True -> "import gleam/dynamic.{type Dynamic}\n"
+      False -> ""
+    }
     <> "import gleam/int\n"
+    <> case string.contains(complex_types_gen, "calendar.") {
+      True -> "import gleam/time/calendar\n"
+      False -> ""
+    }
     <> case string.contains(complex_types_gen, "result.") {
       True -> "import gleam/result\n"
       False -> ""
@@ -703,57 +715,29 @@ fn gen_fhir(
         decode.one_of(decode.float, [decode.map(decode.int, int.to_float)])
       }
 
-      pub type Primitive(a) {
-        Primitive(id: Option(String), ext: List(Extension), value: Option(a))
+      // Primitive and PrimitiveExtPart are used for decoding JSON
+      // but generic primitive extensions are NOT supported;
+      // the only supported primitive extensions are when profiles define them
+      // in which case they are generated as actual types
+      // for example 
+      // pub type UsCoreQuestionnaireresponseQuestionnaire {
+      //   UsCoreQuestionnaireresponseQuestionnaire(
+      //     id: Option(String),
+      //     extension: List(ct.Extension),
+      //     questionnaire_display: Option(String),
+      //     url: Option(String),
+      //     value: Option(String),
+      //   )
+      // }
+      // so a user should never do anything with the Primitive type
+      @internal
+      pub type Primitive(a, b) {
+        Primitive(id: Option(String), ext: List(b), value: Option(a))
       }
 
-      pub type PrimitiveExtPart {
-        PrimitiveExtPart(id: Option(String), ext: List(Extension))
-      }
-
-      pub fn primitive_ext_part_to_json(p: Primitive(_)) {
-        let Primitive(id, ext, _) = p
-        let fields = []
-        let fields = case id {
-          Some(v) -> [#(\"id\", json.string(v)), ..fields]
-          None -> fields
-        }
-        let fields = case ext {
-          [] -> fields
-          _ -> [#(\"extension\", json.array(ext, extension_to_json)), ..fields]
-        }
-        json.object(fields)
-      }
-
-      pub fn primitive_to_json(old_fields: List(#(String, Json)), primitive: Primitive(a), field_to_json: fn(a) -> Json, name: String){
-        let old_fields = case primitive.id, primitive.ext {
-            None, [] -> old_fields
-            _, _ -> [#(\"_\" <> name, primitive_ext_part_to_json(primitive)), ..old_fields]
-        }
-        case primitive.value {
-            None -> old_fields
-            Some(v) -> [#(name, field_to_json(v)), ..old_fields]
-        }
-      }
-
-      pub fn primitives_to_json(old_fields: List(#(String, Json)), field: List(Primitive(a)), field_to_json: fn(a) -> Json, name: String){
-          let vals = list.map(field, fn(primitive){
-              json.nullable(primitive.value, field_to_json)
-          })
-          let exts = list.map(field, fn(primitive){
-              case primitive.id, primitive.ext {
-                  None, [] -> json.null()
-                  _, _ -> primitive_ext_part_to_json(primitive)
-              }
-          })
-          let old_fields = case list.any(vals, fn(j){j != json.null()}){
-              False -> old_fields
-              True -> [#(name, json.preprocessed_array(vals)), ..old_fields]
-          }
-          case list.any(exts, fn(j){j != json.null()}){
-              False -> old_fields
-              True -> [#(\"_\" <> name, json.preprocessed_array(exts)), ..old_fields]
-          }
+      @internal
+      pub type PrimitiveExtPart(b) {
+        PrimitiveExtPart(id: Option(String), ext: List(b))
       }
 
       pub fn primitive_slice_to_json(
@@ -796,19 +780,19 @@ fn gen_fhir(
         }
       }
 
-      pub fn primitive_ext_part_decoder() {
+      pub fn primitive_ext_part_decoder(extension_decoder: Decoder(a)) {
         use ext <- decode.optional_field(
           \"extension\",
           [],
-          decode.list(extension_decoder()),
+          decode.list(extension_decoder),
         )
         use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
         decode.success(PrimitiveExtPart(ext:, id:))
       }
 
-      pub fn primitive_decoder(name: String, thing_decoder: Decoder(a), next: fn(Primitive(a)) -> Decoder(b)) -> Decoder(b){
+      pub fn primitive_decoder(name: String, thing_decoder: Decoder(a), extension_decoder: Decoder(b), next: fn(Primitive(a, b)) -> Decoder(c)) -> Decoder(c){
           use value <- decode.optional_field(name, None, decode.optional(thing_decoder))
-          use pwe <- decode.optional_field(\"_\" <> name, None, decode.optional(primitive_ext_part_decoder()))
+          use pwe <- decode.optional_field(\"_\" <> name, None, decode.optional(primitive_ext_part_decoder(extension_decoder)))
           let #(id, ext) = case pwe {
             None -> #(None, [])
             Some(PrimitiveExtPart(id, ext)) -> #(id, ext)
@@ -820,10 +804,11 @@ fn gen_fhir(
       pub fn primitives_decoder(
         name: String,
         thing_decoder: Decoder(a),
-        next: fn(List(Primitive(a))) -> Decoder(b),
-      ) -> Decoder(b) {
+        extension_decoder: Decoder(b),
+        next: fn(List(Primitive(a, b))) -> Decoder(c),
+      ) -> Decoder(c) {
           use values <- decode.optional_field(name, [], decode.list(decode.optional(thing_decoder)))
-          use pwes <- decode.optional_field(\"_\" <> name, [], decode.list(decode.optional(primitive_ext_part_decoder())))
+          use pwes <- decode.optional_field(\"_\" <> name, [], decode.list(decode.optional(primitive_ext_part_decoder(extension_decoder))))
           let together = map2_fillnone(pwes, values, fn(pwe, value){
               let #(id, ext) = case pwe {
                   None -> #(None, [])
@@ -837,35 +822,40 @@ fn gen_fhir(
       pub fn primitive_slice_decoder(
         name: String,
         thing_decoder: Decoder(a),
-        convert: fn(Primitive(a)) -> Decoder(b),
-        next: fn(b) -> Decoder(c),
-      ) -> Decoder(c) {
-        use primitive <- primitive_decoder(name, thing_decoder)
-        use value <- decode.then(convert(primitive))
+        extension_decoder: Decoder(b),
+        convert: fn(Primitive(a, b)) -> Decoder(c),
+        next: fn(c) -> Decoder(d),
+      ) -> Decoder(d) {
+        use primitive <- primitive_decoder(name, thing_decoder, extension_decoder)
+        use value <- decode.then(case primitive.value, primitive.id, primitive.ext {
+          None, None, [] -> decode.field(name, thing_decoder, fn(_) { convert(primitive) })
+          _, _, _ -> convert(primitive)
+        })
         next(value)
       }
 
       pub fn primitive_choice_slice_decoder(
         name: String,
         thing_decoder: Decoder(a),
-        convert: fn(Primitive(a)) -> Decoder(b),
-        next: fn(b) -> Decoder(c),
-      ) -> Decoder(c) {
+        extension_decoder: Decoder(b),
+        convert: fn(Primitive(a, b)) -> Decoder(c),
+        next: fn(c) -> Decoder(d),
+      ) -> Decoder(d) {
         use value_present <- decode.optional_field(
           name,
           False,
-          decode.dynamic |> decode.map(fn(_) { True }),
+          decode.success(True),
         )
         use extension_present <- decode.optional_field(
           \"_\" <> name,
           False,
-          decode.dynamic |> decode.map(fn(_) { True }),
+          decode.success(True),
         )
         case value_present || extension_present {
-          True -> primitive_slice_decoder(name, thing_decoder, convert, next)
+          True -> primitive_slice_decoder(name, thing_decoder, extension_decoder, convert, next)
           False -> {
             use _ <- decode.field(name, thing_decoder)
-            primitive_slice_decoder(name, thing_decoder, convert, next)
+            primitive_slice_decoder(name, thing_decoder, extension_decoder, convert, next)
           }
         }
       }
@@ -873,18 +863,19 @@ fn gen_fhir(
       pub fn primitive_slice_list_decoder(
         name: String,
         thing_decoder: Decoder(a),
-        convert: fn(Primitive(a)) -> Decoder(b),
-        next: fn(List(b)) -> Decoder(c),
-      ) -> Decoder(c) {
-        use primitives <- primitives_decoder(name, thing_decoder)
+        extension_decoder: Decoder(b),
+        convert: fn(Primitive(a, b)) -> Decoder(c),
+        next: fn(List(c)) -> Decoder(d),
+      ) -> Decoder(d) {
+        use primitives <- primitives_decoder(name, thing_decoder, extension_decoder)
         primitive_slice_list_from_primitives(primitives, convert, next)
       }
 
       fn primitive_slice_list_from_primitives(
-        primitives: List(Primitive(a)),
-        convert: fn(Primitive(a)) -> Decoder(b),
-        next: fn(List(b)) -> Decoder(c),
-      ) -> Decoder(c) {
+        primitives: List(Primitive(a, b)),
+        convert: fn(Primitive(a, b)) -> Decoder(c),
+        next: fn(List(c)) -> Decoder(d),
+      ) -> Decoder(d) {
         case primitives {
           [] -> next([])
           [first, ..rest] -> {
@@ -955,12 +946,11 @@ fn gen_fhir(
       #("type Primitive", "Primitive("),
       #("Primitive", "Primitive(id:"),
       #("primitive_decoder", "primitive_decoder("),
+      #("extension_decoder", ", extension_decoder()"),
       #("primitives_decoder", "primitives_decoder("),
       #("primitive_choice_slice_decoder", "primitive_choice_slice_decoder("),
       #("primitive_slice_decoder", "primitive_slice_decoder("),
       #("primitive_slice_list_decoder", "primitive_slice_list_decoder("),
-      #("primitive_to_json", "primitive_to_json("),
-      #("primitives_to_json", "primitives_to_json("),
       #("primitive_slice_to_json", "primitive_slice_to_json("),
       #("primitive_slice_list_to_json", "primitive_slice_list_to_json("),
     ]

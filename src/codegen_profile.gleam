@@ -2,18 +2,18 @@ import codegen_bound_coding
 import codegen_decode
 import codegen_helpers
 import codegen_profile_json.{
-  type ExtensionDefinition, type SliceFieldType, type SlicePlan,
-  BoundCodeableconceptSlice, BoundCodingSlice, ComplexExtension,
-  ExtensionDefinition, FixedSliceType, FixedValueDiscriminator, SimpleExtension,
-  TypeSlicePlan, ValueSlicePlan, aggregate_slice_constructor,
-  aggregate_slice_type_name, aggregate_value_slice_roots,
-  does_profile_restrict_complex_type, extension_field_name,
-  extension_field_to_json_call, find_element, profile_base_field_type,
-  profile_extension_definition, profile_field_has_primitive_type,
-  profile_field_is_primitive_slice, profile_field_min,
+  type ExtensionDefinition, type PrimitiveExtensionValue, type SliceFieldType,
+  type SlicePlan, BoundCodeableconceptSlice, BoundCodingSlice, ComplexExtension,
+  ExtensionDefinition, FixedSliceType, FixedValueDiscriminator,
+  PrimitiveExtensionValue, SimpleExtension, TypeSlicePlan, ValueSlicePlan,
+  aggregate_slice_constructor, aggregate_slice_type_name,
+  aggregate_value_slice_roots, does_profile_restrict_complex_type,
+  extension_field_name, extension_field_to_json_call, find_element,
+  profile_base_field_type, profile_extension_definition, profile_extension_type,
+  profile_field_has_primitive_type, profile_field_is_primitive_slice,
+  profile_field_min,
 }
 import codegen_slice_complex_type
-import codegen_to_json
 import filepath
 import gleam/dict
 import gleam/dynamic/decode
@@ -224,7 +224,50 @@ fn extension_fields(resource: codegen_helpers.Resource) {
               element.id == slice.id <> ".value[x]" && element.max != "0"
             })
           {
-            Error(_) -> Error(Nil)
+            Error(_) -> {
+              // A child can itself be a complex extension with no value[x].
+              case
+                list.any(snapshot.element, fn(child) {
+                  string.starts_with(child.id, slice.id <> ".extension:")
+                })
+              {
+                False ->
+                  case slice.type_ {
+                    [codegen_helpers.Type(profile: [_, ..], ..)] ->
+                      Ok(
+                        codegen_helpers.Element(
+                          ..slice,
+                          id: "Extension." <> slice_name,
+                          path: "Extension." <> slice_name,
+                          slice_name: None,
+                          slicing: None,
+                        ),
+                      )
+                    _ -> Error(Nil)
+                  }
+                True -> {
+                  let assert [extension_type] = slice.type_
+                  Ok(
+                    codegen_helpers.Element(
+                      ..slice,
+                      id: "Extension." <> slice_name,
+                      path: "Extension." <> slice_name,
+                      slice_name: None,
+                      slicing: None,
+                      type_: [
+                        codegen_helpers.Type(..extension_type, profile: [
+                          case string.contains(resource.url, "#") {
+                            True ->
+                              resource.url <> string.drop_start(slice.id, 9)
+                            False -> resource.url <> "#" <> slice.id
+                          },
+                        ]),
+                      ],
+                    ),
+                  )
+                }
+              }
+            }
             Ok(value) ->
               Ok(
                 codegen_helpers.Element(
@@ -257,6 +300,7 @@ fn extension_fields(resource: codegen_helpers.Resource) {
 fn extension_definitions(
   profiles_dir: String,
   referenced_urls: Set(String),
+  inline_profiles: List(codegen_helpers.Resource),
 ) -> dict.Dict(String, ExtensionDefinition) {
   codegen_helpers.package_directories(profiles_dir)
   |> list.flat_map(fn(package_dir) {
@@ -271,27 +315,13 @@ fn extension_definitions(
             Some("Extension"), Some(url) ->
               case set.contains(referenced_urls, url) {
                 False -> Error(Nil)
-                True -> {
-                  let resource =
+                True ->
+                  Ok(
                     read_structure_definition(filepath.join(
                       package_dir,
                       file.filename,
-                    ))
-                  case extension_fields(resource) {
-                    None -> Error(Nil)
-                    Some(kind) ->
-                      Ok(#(
-                        url,
-                        ExtensionDefinition(
-                          name: resource.id
-                            |> string.replace("-", "_")
-                            |> string.replace(".", "_")
-                            |> codegen_helpers.to_camel_case,
-                          kind:,
-                        ),
-                      ))
-                  }
-                }
+                    )),
+                  )
               }
             _, _ -> Error(Nil)
           }
@@ -299,7 +329,217 @@ fn extension_definitions(
       }
     }
   })
+  |> list.append(inline_profiles)
+  |> list.flat_map(fn(resource) {
+    let assert Some(snapshot) = resource.snapshot
+    let nested =
+      snapshot.element
+      |> list.filter(fn(element) {
+        element.slice_name != None
+        && element.max != "0"
+        && list.any(snapshot.element, fn(child) {
+          string.starts_with(child.id, element.id <> ".extension:")
+        })
+      })
+      |> list.map(fn(element) {
+        let elements =
+          snapshot.element
+          |> list.filter(fn(child) {
+            string.starts_with(child.id, element.id <> ".")
+          })
+          |> list.map(fn(child) {
+            codegen_helpers.Element(
+              ..child,
+              id: "Extension"
+                <> string.drop_start(child.id, string.length(element.id)),
+              path: "Extension"
+                <> string.drop_start(child.path, string.length(element.path)),
+            )
+          })
+        codegen_helpers.Resource(
+          ..resource,
+          id: resource.id
+            <> "_"
+            <> string.replace(
+              string.drop_start(element.id, 20),
+              ".extension:",
+              "_",
+            ),
+          url: case string.contains(resource.url, "#") {
+            True -> resource.url <> string.drop_start(element.id, 9)
+            False -> resource.url <> "#" <> element.id
+          },
+          snapshot: Some(codegen_helpers.Snapshot(element: elements)),
+        )
+      })
+    [resource, ..nested]
+  })
+  |> list.filter_map(fn(resource) {
+    let url = resource.url
+    case extension_fields(resource) {
+      None -> Error(Nil)
+      Some(kind) -> {
+        let name =
+          resource.id
+          |> string.replace("-", "_")
+          |> string.replace(".", "_")
+          |> string.replace("[x]", "")
+          |> codegen_helpers.to_camel_case
+        let fields = case kind {
+          SimpleExtension(field) -> [field]
+          ComplexExtension(fields, _) -> fields
+        }
+        let assert Some(snapshot) = resource.snapshot
+        let primitive_values =
+          fields
+          |> list.flat_map(fn(field) {
+            list.map(field.type_, fn(type_) {
+              #(field, codegen_helpers.Element(..field, type_: [type_]))
+            })
+          })
+          |> list.filter(fn(pair) {
+            profile_field_has_primitive_type(pair.1, "")
+          })
+          |> list.filter_map(fn(pair) {
+            let #(original, field) = pair
+            let assert [type_] = field.type_
+            let key = case original.type_ {
+              [_] -> field.id
+              _ -> field.id <> "|" <> type_.code
+            }
+            let source_id = case kind {
+              SimpleExtension(_) -> field.id
+              ComplexExtension([only], _) if only.path == "Extension.value[x]" ->
+                field.id
+              _ ->
+                "Extension.extension:"
+                <> string.drop_start(field.id, string.length("Extension."))
+                <> ".value[x]"
+            }
+            let source =
+              snapshot.element
+              |> list.find(fn(slice) {
+                string.starts_with(slice.id, source_id <> ":")
+                && list.length(slice.type_) == 1
+                && list.any(slice.type_, fn(candidate) {
+                  candidate.code == type_.code
+                })
+              })
+              |> result.unwrap(codegen_helpers.Element(..field, id: source_id))
+            let source_id = source.id
+            let children =
+              list.filter(snapshot.element, fn(child) {
+                string.starts_with(child.id, source_id <> ".")
+              })
+            case
+              list.any(children, fn(child) {
+                child.max != "0"
+                && {
+                  child.slice_name != None
+                  || {
+                    child.id == source_id <> ".extension"
+                    && {
+                      child.slicing != None
+                      || child.min != child.base.min
+                      || child.max != child.base.max
+                    }
+                  }
+                }
+              })
+            {
+              False -> Error(Nil)
+              True -> {
+                let value_name =
+                  name
+                  <> case extension_field_name(field) {
+                    "value" -> "Value"
+                    field_name ->
+                      codegen_helpers.to_camel_case(field_name) <> "Value"
+                  }
+                let value_name = case original.type_ {
+                  [_] -> value_name
+                  _ ->
+                    name
+                    <> case extension_field_name(field) {
+                      "value" -> ""
+                      field_name -> codegen_helpers.to_camel_case(field_name)
+                    }
+                    <> codegen_helpers.to_camel_case(type_.code)
+                    <> "Value"
+                }
+                let elements = [
+                  codegen_helpers.Element(
+                    ..source,
+                    id: value_name,
+                    path: value_name,
+                    slicing: None,
+                    slice_name: None,
+                  ),
+                  ..list.map(children, fn(child) {
+                    codegen_helpers.Element(
+                      ..child,
+                      id: value_name
+                        <> string.drop_start(child.id, string.length(source_id)),
+                      path: value_name
+                        <> string.drop_start(
+                          child.path,
+                          string.length(field.path),
+                        ),
+                    )
+                  })
+                ]
+                Ok(#(key, PrimitiveExtensionValue(name: value_name, elements:)))
+              }
+            }
+          })
+          |> dict.from_list
+        let instance_url =
+          snapshot.element
+          |> list.find(fn(element) { element.id == "Extension.url" })
+          |> result.map(fn(element) { option.unwrap(element.fixed_uri, url) })
+          |> result.unwrap(url)
+        Ok(#(
+          url,
+          ExtensionDefinition(
+            name:,
+            url: instance_url,
+            kind:,
+            primitive_values:,
+          ),
+        ))
+      }
+    }
+  })
   |> dict.from_list
+  |> fn(definitions) {
+    let urls =
+      dict.to_list(definitions)
+      |> list.fold(referenced_urls, fn(urls, item) {
+        case set.contains(urls, item.0) {
+          False -> urls
+          True -> {
+            let fields = case item.1.kind {
+              SimpleExtension(field) -> [field]
+              ComplexExtension(fields, _) -> fields
+            }
+            let primitive_children =
+              item.1.primitive_values
+              |> dict.values
+              |> list.flat_map(fn(value) { value.elements })
+            let referenced =
+              list.append(fields, primitive_children)
+              |> list.flat_map(fn(field) {
+                list.flat_map(field.type_, fn(type_) { type_.profile })
+              })
+            set.union(urls, set.from_list(list.map(referenced, canonical_url)))
+          }
+        }
+      })
+    case set.size(urls) > set.size(referenced_urls) {
+      True -> extension_definitions(profiles_dir, urls, inline_profiles)
+      False -> dict.filter(definitions, fn(url, _) { set.contains(urls, url) })
+    }
+  }
 }
 
 fn load_profile_files(
@@ -408,10 +648,87 @@ fn load_profile_files(
     dict.filter(datatype_profiles, fn(url, _) {
       set.contains(datatype_profile_urls, url)
     })
-  let extensions =
+  // Keep local extension constraints instead of discarding their descendants.
+  let #(profiles, inline_profiles) =
     list.append(resources, dict.values(datatype_profiles))
+    |> list.fold(#([], []), fn(acc, resource) {
+      let #(profiles, inline_profiles) = acc
+      let assert Some(snapshot) = resource.snapshot
+      let roots =
+        snapshot.element
+        |> list.filter(fn(element) {
+          element.slice_name != None
+          && list.any(element.type_, fn(type_) { type_.code == "Extension" })
+          && list.any(snapshot.element, fn(child) {
+            string.starts_with(child.id, element.id <> ".")
+          })
+        })
+      let elements =
+        list.map(snapshot.element, fn(element) {
+          case list.any(roots, fn(root) { root.id == element.id }) {
+            False -> element
+            True -> {
+              let assert [type_] = element.type_
+              codegen_helpers.Element(..element, type_: [
+                codegen_helpers.Type(..type_, profile: [
+                  resource.url <> "#" <> element.id,
+                ]),
+              ])
+            }
+          }
+        })
+      let inline_profiles =
+        list.fold(roots, inline_profiles, fn(profiles, root) {
+          let elements =
+            elements
+            |> list.filter(fn(child) {
+              string.starts_with(child.id, root.id <> ".")
+            })
+            |> list.map(fn(child) {
+              codegen_helpers.Element(
+                ..child,
+                id: "Extension"
+                  <> string.drop_start(child.id, string.length(root.id)),
+                path: "Extension"
+                  <> string.drop_start(child.path, string.length(root.path)),
+              )
+            })
+          [
+            codegen_helpers.Resource(
+              ..resource,
+              id: resource.id
+                <> "_"
+                <> string.replace(string.replace(root.id, ".", "_"), ":", "_"),
+              url: resource.url <> "#" <> root.id,
+              kind: Some("complex-type"),
+              type_: Some("Extension"),
+              snapshot: Some(codegen_helpers.Snapshot(element: elements)),
+            ),
+            ..profiles
+          ]
+        })
+      #(
+        [
+          codegen_helpers.Resource(
+            ..resource,
+            snapshot: Some(codegen_helpers.Snapshot(element: elements)),
+          ),
+          ..profiles
+        ],
+        inline_profiles,
+      )
+    })
+  let resources =
+    profiles |> list.filter(fn(profile) { profile.kind == Some("resource") })
+  let datatype_profiles =
+    profiles
+    |> list.filter(fn(profile) { profile.kind == Some("complex-type") })
+    |> list.map(fn(profile) { #(canonical_url(profile.url), profile) })
+    |> dict.from_list
+  let extensions =
+    profiles
     |> referenced_extension_urls
-    |> extension_definitions(profiles_dir, _)
+    |> extension_definitions(profiles_dir, _, inline_profiles)
   ProfileFiles(resources:, extensions:, datatype_profiles:)
 }
 
@@ -435,10 +752,16 @@ pub fn required_complex_type_names(
     profile_files.extensions
     |> dict.values
     |> list.flat_map(fn(extension) {
-      case extension.kind {
+      let fields = case extension.kind {
         SimpleExtension(element) -> [element]
         ComplexExtension(elements, _) -> elements
       }
+      list.append(
+        fields,
+        extension.primitive_values
+          |> dict.values
+          |> list.flat_map(fn(value) { value.elements }),
+      )
     })
   list.append(resource_elements, extension_elements)
   |> list.flat_map(fn(element) {
@@ -450,6 +773,7 @@ pub fn required_complex_type_names(
 fn extension_field_type(
   extension_name: String,
   element: codegen_helpers.Element,
+  primitive_values: dict.Dict(String, PrimitiveExtensionValue),
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
 ) -> #(String, String, dict.Dict(String, codegen_helpers.ValuesetItem)) {
   let field_name = extension_field_name(element)
@@ -467,9 +791,9 @@ fn extension_field_type(
     }
     types -> {
       let choice_name = extension_name <> string.capitalise(field_name)
-      let #(variants, cases, valueset_acc) =
-        list.fold(types, #("", "", valueset_acc), fn(acc, type_) {
-          let #(variants, cases, valueset_acc) = acc
+      let #(variants, valueset_acc) =
+        list.fold(types, #("", valueset_acc), fn(acc, type_) {
+          let #(variants, valueset_acc) = acc
           let #(gleam_type, valueset_acc) =
             codegen_helpers.string_to_type(
               type_.code,
@@ -478,6 +802,12 @@ fn extension_field_type(
               codegen_helpers.ComplexTypes,
               valueset_acc,
             )
+          let gleam_type = case
+            dict.get(primitive_values, element.id <> "|" <> type_.code)
+          {
+            Ok(PrimitiveExtensionValue(name:, ..)) -> name
+            Error(_) -> gleam_type
+          }
           #(
             variants
               <> "  "
@@ -486,34 +816,12 @@ fn extension_field_type(
               <> "(value: "
               <> gleam_type
               <> ")\n",
-            cases
-              <> "    "
-              <> choice_name
-              <> string.capitalise(type_.code)
-              <> "(value) -> "
-              <> codegen_to_json.string_to_encoder_type(
-              type_.code,
-              [extension_name, field_name],
-              element,
-              codegen_helpers.ComplexTypes,
-            )
-              <> "(value)\n",
             valueset_acc,
           )
         })
       #(
         choice_name,
-        "pub type "
-          <> choice_name
-          <> " {\n"
-          <> variants
-          <> "}\n\npub fn "
-          <> codegen_helpers.to_snake_case(choice_name)
-          <> "_to_json(value: "
-          <> choice_name
-          <> ") -> Json {\n  case value {\n"
-          <> cases
-          <> "  }\n}\n\n",
+        "pub type " <> choice_name <> " {\n" <> variants <> "}\n\n",
         valueset_acc,
       )
     }
@@ -563,7 +871,29 @@ fn generate_extension_types(
               valueset_acc,
             ) = acc
             let #(field_type, new_choice, valueset_acc) =
-              extension_field_type(extension.name, field, valueset_acc)
+              extension_field_type(
+                extension.name,
+                field,
+                extension.primitive_values,
+                valueset_acc,
+              )
+            let #(field_type, valueset_acc) = case
+              profile_extension_type(
+                codegen_helpers.ComplexTypes,
+                field,
+                extensions,
+                valueset_acc,
+              )
+            {
+              Some(resolved) -> resolved
+              None -> #(
+                case dict.get(extension.primitive_values, field.id) {
+                  Ok(PrimitiveExtensionValue(name:, ..)) -> name
+                  Error(_) -> field_type
+                },
+                valueset_acc,
+              )
+            }
             let stored_field_type = case preserve_slice_order {
               True -> "ExtensionSliceElt(" <> field_type <> ")"
               False -> field_type
@@ -592,6 +922,8 @@ fn generate_extension_types(
                     True -> Some(value <> ".id")
                     False -> None
                   },
+                  extension.primitive_values,
+                  profile_extension_definition(field, extensions),
                 )
               case preserve_slice_order {
                 True ->
@@ -729,7 +1061,12 @@ fn generate_extension_types(
         let encoder_body = case fields {
           [codegen_helpers.Element(path: "Extension.value[x]", ..) as field] -> {
             let #(field_type, _, _) =
-              extension_field_type(extension.name, field, valueset_acc)
+              extension_field_type(
+                extension.name,
+                field,
+                extension.primitive_values,
+                valueset_acc,
+              )
             let field_name =
               extension_field_name(field) |> codegen_helpers.to_snake_case
             let encoded =
@@ -745,6 +1082,8 @@ fn generate_extension_types(
                   True -> Some("id")
                   False -> None
                 },
+                extension.primitive_values,
+                profile_extension_definition(field, extensions),
               )
               |> string.replace("json.string(\"value[x]\")", "json.string(url)")
             let encoded = case field.min {
@@ -2320,10 +2659,16 @@ pub fn profile_files_to_types(
     profile_structures.extensions
     |> dict.values
     |> list.flat_map(fn(extension) {
-      case extension.kind {
+      let fields = case extension.kind {
         SimpleExtension(element) -> [element]
         ComplexExtension(elements, _) -> elements
       }
+      list.append(
+        fields,
+        extension.primitive_values
+          |> dict.values
+          |> list.flat_map(fn(value) { value.elements }),
+      )
     })
   let required_valuesets =
     valueset_acc
@@ -2343,6 +2688,14 @@ pub fn profile_files_to_types(
         SimpleExtension(field) -> [field]
         ComplexExtension(fields, _) -> fields
       }
+      let field_count = list.length(fields)
+      let fields =
+        list.append(
+          fields,
+          extension.primitive_values
+            |> dict.values
+            |> list.flat_map(fn(value) { value.elements }),
+        )
       let fields =
         list.map(fields, fn(field) {
           case field.binding {
@@ -2364,12 +2717,23 @@ pub fn profile_files_to_types(
         })
       let kind = case extension.kind {
         SimpleExtension(_) -> {
-          let assert [field] = fields
+          let assert [field] = list.take(fields, field_count)
           SimpleExtension(field)
         }
-        ComplexExtension(_, rules) -> ComplexExtension(fields, rules)
+        ComplexExtension(_, rules) ->
+          ComplexExtension(list.take(fields, field_count), rules)
       }
-      ExtensionDefinition(..extension, kind:)
+      let primitive_values =
+        dict.map_values(extension.primitive_values, fn(_, value) {
+          PrimitiveExtensionValue(
+            ..value,
+            elements: list.filter(fields, fn(field) {
+              field.id == value.name
+              || string.starts_with(field.id, value.name <> ".")
+            }),
+          )
+        })
+      ExtensionDefinition(..extension, kind:, primitive_values:)
     })
   let profile_structures = ProfileFiles(..profile_structures, extensions:)
   let profile_resources =
@@ -2388,9 +2752,29 @@ pub fn profile_files_to_types(
       }
       #(resource_type, profile_type, resource.url)
     })
+  let primitive_profiles =
+    profile_structures.extensions
+    |> dict.values
+    |> list.flat_map(fn(extension) {
+      extension.primitive_values
+      |> dict.values
+      |> list.map(fn(value) {
+        codegen_helpers.Resource(
+          id: codegen_helpers.to_snake_case(value.name),
+          name: value.name,
+          url: "urn:gleam-fhir:" <> value.name,
+          resource_type: "StructureDefinition",
+          kind: Some("complex-type"),
+          type_: Some("Element"),
+          base_definition: None,
+          context: [],
+          snapshot: Some(codegen_helpers.Snapshot(element: value.elements)),
+        )
+      })
+    })
   let profile_definitions =
     list.append(
-      profile_resources,
+      list.append(profile_resources, primitive_profiles),
       dict.values(profile_structures.datatype_profiles),
     )
     |> list.sort(fn(a, b) { string.compare(a.id, b.id) })
@@ -2872,13 +3256,6 @@ pub fn profile_files_to_types(
                     let choice_type =
                       gleam_type <> string.capitalise(safe_field_name)
 
-                    let is_primitive_slice =
-                      profile_field_is_primitive_slice(
-                        element,
-                        json_field_name,
-                        type_order,
-                        field_path,
-                      )
                     let is_primitive = False
 
                     let #(base_field_type, valueset_acc) =
@@ -3013,11 +3390,7 @@ pub fn profile_files_to_types(
                       dict.get(aggregate_slice_groups, element.id)
                     {
                       Ok(#(_, remaining_minimum)) -> remaining_minimum
-                      Error(_) ->
-                        profile_field_min(
-                          element,
-                          is_primitive || is_primitive_slice,
-                        )
+                      Error(_) -> profile_field_min(element)
                     }
                     let cardinality = case card_min, element.max {
                       min, "*" if min > 3 ->
@@ -3260,8 +3633,7 @@ pub fn profile_files_to_types(
                                             }
                                           False -> gleam_type
                                         }
-                                        let child_min =
-                                          profile_field_min(child, False)
+                                        let child_min = profile_field_min(child)
                                         let #(newfunc_arg, newfunc_field) =
                                           codegen_helpers.new_fn_arg_and_field(
                                             field_name,
