@@ -2906,7 +2906,7 @@ fn field_decoder_expression(
         use system <- result.try(option.to_result(system_element.fixed_uri, Nil))
         use definition <- result.try(dict.get(context.available_valuesets, url))
         case definition {
-          codegen_helpers.VocValueset(valueset) -> {
+          codegen_helpers.VocValueset(valueset, package_dir) -> {
             use compose <- result.try(option.to_result(valueset.compose, Nil))
             use _ <- result.try(
               case compose.include.rest, dict.get(context.valueset_acc, url) {
@@ -2923,7 +2923,10 @@ fn field_decoder_expression(
               case
                 codegen_bound_coding.valueset_include_codes(
                   include,
-                  context.available_valuesets,
+                  codegen_helpers.valueset_codesystems(
+                    package_dir,
+                    context.available_valuesets,
+                  ),
                   False,
                 )
               {

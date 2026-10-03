@@ -1095,13 +1095,18 @@ pub fn valueset_include_codes(
     [_, ..], _, None -> panic as "ValueSet include with concepts has no system"
     [], [_, ..], Some(system) -> ValuesetIncludeString(system:)
     [], [_, ..], None -> panic as "ValueSet include with filters has no system"
-    [], [], Some(system) ->
-      case dict.get(all_vs_or_cs, system) {
-        Error(_) -> ValuesetIncludeString(system:)
+    [], [], Some(system) -> {
+      let reference = codegen_helpers.valueset_include_reference(include)
+      case dict.get(all_vs_or_cs, reference) {
+        Error(_) ->
+          case include.version {
+            Some(_) -> panic as { "Could not load CodeSystem " <> reference }
+            None -> ValuesetIncludeString(system:)
+          }
         Ok(_) ->
           case
             codegen_helpers.get_codes_with_system(
-              system,
+              reference,
               all_vs_or_cs,
               exclude_not_selectable,
             )
@@ -1119,6 +1124,7 @@ pub fn valueset_include_codes(
               )
           }
       }
+    }
     [], [], None ->
       ValuesetIncludeExpanded(
         include.value_set

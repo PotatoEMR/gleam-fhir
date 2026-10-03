@@ -736,7 +736,7 @@ pub fn concept_name_from_url(url) {
 }
 
 pub type VsOrCs {
-  VocValueset(v: r4.Valueset)
+  VocValueset(v: r4.Valueset, package_dir: String)
   VocCodesystem(c: r4.Codesystem)
 }
 
@@ -745,7 +745,7 @@ pub fn valueset_can_generate_system(
   all_vs_or_cs: Dict(String, VsOrCs),
 ) -> Bool {
   case dict.get(all_vs_or_cs, vs_url) {
-    Ok(VocValueset(r4.Valueset(compose: Some(compose), ..))) ->
+    Ok(VocValueset(r4.Valueset(compose: Some(compose), ..), _)) ->
       [compose.include.first, ..compose.include.rest]
       |> list.all(fn(include) {
         case include.system, include.value_set {
@@ -766,7 +766,7 @@ pub fn valueset_can_generate_discriminator(
   all_vs_or_cs: Dict(String, VsOrCs),
 ) -> Bool {
   case dict.get(all_vs_or_cs, vs_url) {
-    Ok(VocValueset(r4.Valueset(compose: Some(compose), ..))) ->
+    Ok(VocValueset(r4.Valueset(compose: Some(compose), ..), _)) ->
       compose.exclude == []
       && [compose.include.first, ..compose.include.rest]
       |> list.all(fn(include) {
@@ -920,8 +920,8 @@ fn load_imported_valuesets(
     |> list.flat_map(fn(entry) {
       case entry.1 {
         VocCodesystem(_) -> []
-        VocValueset(r4.Valueset(compose: None, ..)) -> []
-        VocValueset(r4.Valueset(compose: Some(compose), ..)) ->
+        VocValueset(r4.Valueset(compose: None, ..), _) -> []
+        VocValueset(r4.Valueset(compose: Some(compose), ..), _) ->
           list.append(
             [compose.include.first, ..compose.include.rest],
             compose.exclude,
@@ -991,7 +991,17 @@ fn load_valuesets_from_directory(
             case json.parse(contents, r4.codesystem_decoder()) {
               Ok(codesystem) ->
                 case codesystem.url {
-                  Some(url) -> dict.insert(acc, url, VocCodesystem(codesystem))
+                  Some(url) -> {
+                    let definition = VocCodesystem(codesystem)
+                    let acc = case codesystem.version {
+                      Some(version) ->
+                        dict.insert(acc, url <> "|" <> version, definition)
+                      None -> acc
+                    }
+                    acc
+                    |> dict.insert(url, definition)
+                    |> dict.insert(package_dir <> "|" <> url, definition)
+                  }
                   None -> acc
                 }
               Error(_) -> acc
@@ -1042,7 +1052,20 @@ fn load_valueset_file(
                 Ok(required), Some(version) if required != version ->
                   all_vs_or_cs
                 Ok(_), None -> all_vs_or_cs
-                _, _ -> dict.insert(all_vs_or_cs, url, VocValueset(valueset))
+                _, _ -> {
+                  let definition =
+                    VocValueset(valueset, filepath.directory_name(path))
+                  let all_vs_or_cs = case valueset.version {
+                    Some(version) ->
+                      dict.insert(
+                        all_vs_or_cs,
+                        url <> "|" <> version,
+                        definition,
+                      )
+                    None -> all_vs_or_cs
+                  }
+                  dict.insert(all_vs_or_cs, url, definition)
+                }
               }
             None -> all_vs_or_cs
           }
@@ -1053,24 +1076,104 @@ fn load_valueset_file(
   }
 }
 
+pub fn valueset_codesystems(
+  package_dir: String,
+  all_vs_or_cs: Dict(String, VsOrCs),
+) -> Dict(String, VsOrCs) {
+  let directories = package_directories(package_dir)
+  // Resolve unversioned systems within this ValueSet's package dependencies.
+  let scoped =
+    dict.filter(all_vs_or_cs, fn(key, definition) {
+      case definition {
+        VocCodesystem(_) -> string.contains(key, "|")
+        VocValueset(_, _) -> True
+      }
+    })
+  let scoped =
+    list.fold(directories, scoped, fn(scoped, directory) {
+      let prefix = directory <> "|"
+      dict.fold(all_vs_or_cs, scoped, fn(scoped, key, definition) {
+        case string.starts_with(key, prefix) {
+          True ->
+            dict.insert(
+              scoped,
+              string.drop_start(key, string.length(prefix)),
+              definition,
+            )
+          False -> scoped
+        }
+      })
+    })
+  let assert Ok(contents) =
+    simplifile.read(filepath.join(package_dir, "package.json"))
+  let assert Ok(fhir_versions) =
+    json.parse(contents, {
+      use versions <- decode.optional_field(
+        "fhirVersions",
+        [],
+        decode.list(decode.string),
+      )
+      decode.success(versions)
+    })
+  // Dependencies may export another release's core systems under the same URL.
+  list.fold(directories, scoped, fn(scoped, directory) {
+    let version_dir = filepath.directory_name(directory)
+    let name = filepath.base_name(filepath.directory_name(version_dir))
+    let version = filepath.base_name(version_dir)
+    case
+      list.contains(
+        ["hl7.fhir.r4.core", "hl7.fhir.r4b.core", "hl7.fhir.r5.core"],
+        name,
+      )
+      && { fhir_versions == [] || list.contains(fhir_versions, version) }
+    {
+      False -> scoped
+      True -> {
+        let prefix = directory <> "|"
+        dict.fold(all_vs_or_cs, scoped, fn(scoped, key, definition) {
+          let url = string.drop_start(key, string.length(prefix))
+          case
+            string.starts_with(key, prefix <> "http://hl7.org/fhir/")
+            && !dict.has_key(all_vs_or_cs, package_dir <> "|" <> url)
+          {
+            True -> dict.insert(scoped, url, definition)
+            False -> scoped
+          }
+        })
+      }
+    }
+  })
+}
+
+pub fn valueset_include_reference(
+  include: r4.ValuesetComposeInclude,
+) -> String {
+  let assert Some(system) = include.system
+  case include.version {
+    Some(version) -> system <> "|" <> version
+    None -> system
+  }
+}
+
 pub fn get_codes_with_system(
   url: String,
   all_vs_or_cs: Dict(String, VsOrCs),
   exclude_not_selectable: Bool,
 ) {
-  let assert [url, ..] = string.split(url, "|")
+  let reference = url
+  let assert [url, ..] = string.split(reference, "|")
   case url {
     "http://unitsofmeasure.org" -> []
     _ ->
-      case dict.get(all_vs_or_cs, url) {
-        Error(_) -> panic as url
-        Ok(VocValueset(vs)) ->
+      case dict.get(all_vs_or_cs, reference) {
+        Error(_) -> panic as reference
+        Ok(VocValueset(vs, package_dir)) ->
           case vs.compose {
             None -> []
             Some(compose) ->
               valuesetcompose_get_codes_with_system(
                 compose,
-                all_vs_or_cs,
+                valueset_codesystems(package_dir, all_vs_or_cs),
                 exclude_not_selectable,
               )
           }
@@ -1108,8 +1211,12 @@ fn valuesetcompose_get_codes_with_system(
           |> list.map(fn(concept) { #(system, concept.code) })
           |> list.append(members)
         [_, ..], None -> panic as "ValueSet include with concepts has no system"
-        [], Some(system) ->
-          get_codes_with_system(system, all_vs_or_cs, exclude_not_selectable)
+        [], Some(_) ->
+          get_codes_with_system(
+            valueset_include_reference(include),
+            all_vs_or_cs,
+            exclude_not_selectable,
+          )
           |> list.append(members)
         [], None -> members
       }

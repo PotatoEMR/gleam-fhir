@@ -2334,14 +2334,14 @@ fn valueset_type_source(
   needs_system: Bool,
 ) {
   case dict.get(all_vs_or_cs, vs_url) {
-    Ok(codegen_helpers.VocValueset(valueset)) ->
+    Ok(codegen_helpers.VocValueset(valueset, package_dir)) ->
       case valueset.compose {
         Some(compose) ->
           valueset_compose_type_source(
             compose,
             vs_url,
             vsname,
-            all_vs_or_cs,
+            codegen_helpers.valueset_codesystems(package_dir, all_vs_or_cs),
             exclude_not_selectable,
             needs_system,
           )
