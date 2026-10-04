@@ -2026,6 +2026,7 @@ fn prepare_profile_slices(
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
   datatype_profiles: dict.Dict(String, codegen_helpers.Resource),
   base_elements: dict.Dict(String, codegen_helpers.Element),
+  extensions: dict.Dict(String, ExtensionDefinition),
 ) -> #(
   List(codegen_helpers.Element),
   dict.Dict(String, SliceFieldType),
@@ -2033,14 +2034,87 @@ fn prepare_profile_slices(
   Set(String),
   dict.Dict(String, SliceFieldType),
 ) {
-  let profiled_identifier_children =
+  let groups =
     elements
     |> list.filter(fn(element) {
-      element.slice_name != None && element_type_is(element, "Identifier")
+      element.slicing != None && !is_extension_slicing(element)
+    })
+    |> list.sort(fn(a, b) { string.compare(b.id, a.id) })
+
+  // Reuse a referenced datatype for optional slices without inline constraints.
+  // Its decoder checks the profile constraints and keeps primitive extensions.
+  let referenced_slice_ids =
+    groups
+    |> list.flat_map(fn(group) {
+      let assert Some(slicing) = group.slicing
+      direct_slice_roots(group, elements)
+      |> list.filter_map(fn(root) {
+        use _ <- result.try(case root.min {
+          0 -> Ok(Nil)
+          _ -> Error(Nil)
+        })
+        use _ <- result.try(case root.type_ {
+          [codegen_helpers.Type(profile: [url], ..)] -> {
+            use profile <- result.try(dict.get(
+              datatype_profiles,
+              canonical_url(url),
+            ))
+            use snapshot <- result.try(option.to_result(profile.snapshot, Nil))
+            use profile_root <- result.try(list.first(snapshot.element))
+            let supported = case slicing.discriminator {
+              [codegen_helpers.Discriminator(type_: "profile", path: "$this")] ->
+                True
+              [_, ..] ->
+                only_value_or_pattern_discriminators(slicing)
+                && list.all(slicing.discriminator, fn(discriminator) {
+                  case
+                    find_element(
+                      snapshot.element,
+                      profile_root.id <> "." <> discriminator.path,
+                    )
+                  {
+                    Ok(child) ->
+                      child.fixed_code != None || child.fixed_uri != None
+                    Error(_) -> False
+                  }
+                })
+              [] -> False
+            }
+            case supported {
+              True -> Ok(Nil)
+              False -> Error(Nil)
+            }
+          }
+          _ -> Error(Nil)
+        })
+        case
+          list.any(elements, fn(child) {
+            string.starts_with(child.id, root.id <> ".")
+          })
+        {
+          True -> Error(Nil)
+          False -> Ok(root.id)
+        }
+      })
+    })
+    |> set.from_list
+
+  let profiled_datatype_children =
+    elements
+    |> list.filter(fn(element) {
+      !set.contains(referenced_slice_ids, element.id)
+      && list.length(element.type_) == 1
+      && {
+        element.slice_name != None
+        || list.any(elements, fn(child) {
+          string.starts_with(child.id, element.id <> ".")
+        })
+      }
     })
     |> list.flat_map(fn(root) {
       root.type_
       |> list.flat_map(fn(type_) {
+        let prefix = type_.code <> "."
         type_.profile
         |> list.find_map(fn(url) {
           dict.get(datatype_profiles, canonical_url(url))
@@ -2049,13 +2123,15 @@ fn prepare_profile_slices(
           case profile.snapshot {
             None -> []
             Some(snapshot) ->
-              snapshot.element
+              remove_profile_extension_children(snapshot.element, extensions)
               |> list.filter_map(fn(child) {
-                case string.starts_with(child.id, "Identifier.") {
+                case string.starts_with(child.id, prefix) {
                   False -> Error(Nil)
                   True -> {
-                    let suffix = string.drop_start(child.id, 10)
-                    let path_suffix = string.drop_start(child.path, 10)
+                    let suffix =
+                      string.drop_start(child.id, string.length(type_.code))
+                    let path_suffix =
+                      string.drop_start(child.path, string.length(type_.code))
                     let child_id = root.id <> suffix
                     case find_element(elements, child_id) {
                       Ok(existing) -> {
@@ -2065,8 +2141,7 @@ fn prepare_profile_slices(
                         {
                           Some(value), Some(inherited) if value != inherited ->
                             panic as {
-                              "conflicting Identifier system constraints for "
-                              <> child_id
+                              "conflicting URI constraints for " <> child_id
                             }
                           Some(value), _ -> Some(value)
                           None, inherited -> inherited
@@ -2077,8 +2152,7 @@ fn prepare_profile_slices(
                         {
                           Some(value), Some(inherited) if value != inherited ->
                             panic as {
-                              "conflicting Identifier code constraints for "
-                              <> child_id
+                              "conflicting code constraints for " <> child_id
                             }
                           Some(value), _ -> Some(value)
                           None, inherited -> inherited
@@ -2100,6 +2174,33 @@ fn prepare_profile_slices(
                               Some(_) -> existing.binding
                               None -> child.binding
                             },
+                            slicing: case existing.slicing {
+                              Some(_) -> existing.slicing
+                              None -> child.slicing
+                            },
+                            type_: list.map(existing.type_, fn(local_type) {
+                              case
+                                list.find(child.type_, fn(inherited_type) {
+                                  inherited_type.code == local_type.code
+                                })
+                              {
+                                Ok(inherited_type) ->
+                                  codegen_helpers.Type(
+                                    ..local_type,
+                                    profile: case local_type.profile {
+                                      [] -> inherited_type.profile
+                                      profiles -> profiles
+                                    },
+                                    target_profile: case
+                                      local_type.target_profile
+                                    {
+                                      [] -> inherited_type.target_profile
+                                      profiles -> profiles
+                                    },
+                                  )
+                                Error(_) -> local_type
+                              }
+                            }),
                             fixed_code:,
                             fixed_uri:,
                             pattern_coding: case existing.pattern_coding {
@@ -2138,23 +2239,36 @@ fn prepare_profile_slices(
         |> result.unwrap([])
       })
     })
-  let profiled_identifier_child_ids =
-    profiled_identifier_children
+  let profiled_datatype_child_ids =
+    profiled_datatype_children
     |> list.map(fn(element) { element.id })
     |> set.from_list
   let elements =
     elements
     |> list.filter(fn(element) {
-      !set.contains(profiled_identifier_child_ids, element.id)
+      !set.contains(profiled_datatype_child_ids, element.id)
     })
-    |> list.append(profiled_identifier_children)
+    |> list.append(profiled_datatype_children)
   let inherited_datatype_children =
     elements
     |> list.filter(fn(element) {
       {
-        element_type_is(element, "Identifier")
-        || element_type_is(element, "Coding")
-        || element_type_is(element, "CodeableConcept")
+        !set.contains(referenced_slice_ids, element.id)
+        && !profile_field_has_primitive_type(element, "")
+        && case element.type_ {
+          [codegen_helpers.Type(code:, ..)] ->
+            !list.contains(
+              [
+                "Extension",
+                "Element",
+                "BackboneElement",
+                "Resource",
+                "DomainResource",
+              ],
+              code,
+            )
+          _ -> False
+        }
       }
       && {
         element.slice_name != None
@@ -2237,64 +2351,6 @@ fn prepare_profile_slices(
       element.slicing != None && !is_extension_slicing(element)
     })
     |> list.sort(fn(a, b) { string.compare(b.id, a.id) })
-
-  // Reuse a referenced datatype for optional slices without inline constraints.
-  // Its decoder checks the profile constraints and keeps primitive extensions.
-  let referenced_slice_ids =
-    groups
-    |> list.flat_map(fn(group) {
-      let assert Some(slicing) = group.slicing
-      direct_slice_roots(group, elements)
-      |> list.filter_map(fn(root) {
-        use _ <- result.try(case root.min {
-          0 -> Ok(Nil)
-          _ -> Error(Nil)
-        })
-        use _ <- result.try(case root.type_ {
-          [codegen_helpers.Type(profile: [url], ..)] -> {
-            use profile <- result.try(dict.get(
-              datatype_profiles,
-              canonical_url(url),
-            ))
-            use snapshot <- result.try(option.to_result(profile.snapshot, Nil))
-            use profile_root <- result.try(list.first(snapshot.element))
-            let supported = case slicing.discriminator {
-              [codegen_helpers.Discriminator(type_: "profile", path: "$this")] ->
-                True
-              [_, ..] ->
-                only_value_or_pattern_discriminators(slicing)
-                && list.all(slicing.discriminator, fn(discriminator) {
-                  case
-                    find_element(
-                      snapshot.element,
-                      profile_root.id <> "." <> discriminator.path,
-                    )
-                  {
-                    Ok(child) ->
-                      child.fixed_code != None || child.fixed_uri != None
-                    Error(_) -> False
-                  }
-                })
-              [] -> False
-            }
-            case supported {
-              True -> Ok(Nil)
-              False -> Error(Nil)
-            }
-          }
-          _ -> Error(Nil)
-        })
-        case
-          list.any(elements, fn(child) {
-            string.starts_with(child.id, root.id <> ".")
-          })
-        {
-          True -> Error(Nil)
-          False -> Ok(root.id)
-        }
-      })
-    })
-    |> set.from_list
 
   list.fold(
     groups,
@@ -2528,6 +2584,17 @@ fn prepare_profile_slices(
                           _ -> False
                         }
                       })
+                      || {
+                        !list.any(replacements_kept, fn(replacement) {
+                          replacement.0 == root_id
+                        })
+                        && list.any(current_elements, fn(root) {
+                          root.id == root_id
+                          && list.any(root.type_, fn(type_) {
+                            type_.profile != []
+                          })
+                        })
+                      }
                     {
                       True -> set.insert(nested_value_discriminators, root_id)
                       False -> nested_value_discriminators
@@ -3069,6 +3136,7 @@ pub fn profile_files_to_types(
             available_slice_valuesets,
             profile_structures.datatype_profiles,
             base_elements,
+            profile_structures.extensions,
           )
         let slice_helpers =
           list.append(
