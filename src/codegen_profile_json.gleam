@@ -506,7 +506,11 @@ pub fn profile_field_to_json_source(
     <> second
     <> "\n}"
   }
-  case element.max, element.base.max, card_min {
+  let maximum = case element.max {
+    "0" | "1" -> element.max
+    _ -> "*"
+  }
+  case maximum, element.base.max, card_min {
     "*", _, 0 -> #(
       "",
       optional(
@@ -1049,7 +1053,7 @@ fn slice_group_to_json_source(
           False,
         )
         1, "1" -> #(indexed_root_call(root_field_value), True)
-        1, "*" -> #(
+        1, _ -> #(
           "["
             <> indexed_root_call(root_field_value <> ".first")
             <> ", ..list.map("
@@ -1059,7 +1063,7 @@ fn slice_group_to_json_source(
             <> " })]",
           False,
         )
-        2, "*" -> #(
+        2, _ -> #(
           "["
             <> indexed_root_call(root_field_value <> ".first")
             <> ", "
@@ -1071,7 +1075,7 @@ fn slice_group_to_json_source(
             <> " })]",
           False,
         )
-        3, "*" -> #(
+        3, _ -> #(
           "["
             <> indexed_root_call(root_field_value <> ".first")
             <> ", "
@@ -1114,7 +1118,11 @@ fn slice_group_to_json_source(
       False -> open_encoder <> "(" <> value <> ")"
     }
   }
-  let open_values = case element.max, card_min {
+  let maximum = case element.max {
+    "0" | "1" -> element.max
+    _ -> "*"
+  }
+  let open_values = case maximum, card_min {
     "*", 0 ->
       "list.map("
       <> field_name
@@ -3438,9 +3446,9 @@ fn profile_record_base_expression(
         field.max
       {
         0, "1", source_min, "1" if source_min > 0 -> "Some(" <> source <> ")"
-        0, "*", 1, "*" ->
+        0, "*", 1, max if max != "1" ->
           "[" <> source <> ".first" <> ", .." <> source <> ".rest]"
-        0, "*", 2, "*" ->
+        0, "*", 2, max if max != "1" ->
           "["
           <> source
           <> ".first"
@@ -3450,7 +3458,7 @@ fn profile_record_base_expression(
           <> ", .."
           <> source
           <> ".rest]"
-        0, "*", 3, "*" ->
+        0, "*", 3, max if max != "1" ->
           "["
           <> source
           <> ".first"
@@ -3839,16 +3847,16 @@ fn profile_record_placeholder(
             False -> value
           }
           let value = case minimum, field.max {
-            1, "*" ->
+            1, max if max != "1" ->
               complex_prefix <> "List1(first: " <> value <> ", rest: [])"
-            2, "*" ->
+            2, max if max != "1" ->
               complex_prefix
               <> "List2(first: "
               <> value
               <> ", second: "
               <> value
               <> ", rest: [])"
-            3, "*" ->
+            3, max if max != "1" ->
               complex_prefix
               <> "List3(first: "
               <> value
@@ -4814,7 +4822,23 @@ fn slice_cardinality_expression(
       <> slice_name
       <> "\"])])"
   }
-  case root.min, root.max {
+  let maximum = case root.max {
+    "0" | "1" -> root.max
+    _ -> "*"
+  }
+  case root.min, maximum {
+    0, "0" ->
+      "case "
+      <> values
+      <> " { [] -> Ok([]) _ -> Error([decode.DecodeError(expected: \"at most 0 "
+      <> slice_name
+      <> "\", found: int.to_string(list.length("
+      <> values
+      <> ")), path: [\""
+      <> json_name
+      <> "\", \""
+      <> slice_name
+      <> "\"])]) }"
     0, "1" ->
       "case " <> values <> " { [value, ..] -> Ok(Some(value)) [] -> Ok(None) }"
     1, "1" ->
@@ -4848,34 +4872,6 @@ fn slice_cardinality_expression(
       <> "List3(first:, second:, third:, rest:)) _ -> "
       <> missing
       <> " }"
-    0, maximum -> {
-      let assert Ok(maximum) = int.parse(maximum)
-      let expression =
-        slice_cardinality_expression(
-          current_bucket,
-          codegen_helpers.Element(..root, max: "*"),
-          values,
-          json_name,
-          aggregate,
-        )
-      "case list.length("
-      <> values
-      <> ") <= "
-      <> int.to_string(maximum)
-      <> " { True -> "
-      <> expression
-      <> " False -> Error([decode.DecodeError(expected: \"at most "
-      <> int.to_string(maximum)
-      <> " "
-      <> slice_name
-      <> "\", found: int.to_string(list.length("
-      <> values
-      <> ")), path: [\""
-      <> json_name
-      <> "\", \""
-      <> slice_name
-      <> "\"])]) }"
-    }
     _, _ -> panic as "unsupported slice cardinality"
   }
 }
@@ -4886,7 +4882,12 @@ fn slice_cardinality_placeholder(
   placeholder: fn() -> String,
 ) -> String {
   let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
-  case root.min, root.max {
+  let maximum = case root.max {
+    "0" | "1" -> root.max
+    _ -> "*"
+  }
+  case root.min, maximum {
+    0, "0" -> "[]"
     0, "1" -> "None"
     1, "1" -> placeholder()
     0, "*" -> "[]"
@@ -4912,10 +4913,6 @@ fn slice_cardinality_placeholder(
           <> ", rest: [])"
         _ -> panic as "unsupported slice cardinality"
       }
-    }
-    0, maximum -> {
-      let assert Ok(_) = int.parse(maximum)
-      "[]"
     }
     _, _ -> panic as "unsupported slice cardinality"
   }
@@ -7670,7 +7667,7 @@ pub fn generate_to_json(
                         False,
                       )
                       1, "1" -> #(indexed_root_call(root_field_name), True)
-                      1, "*" -> #(
+                      1, _ -> #(
                         "fn(values) { let "
                           <> complex_prefix
                           <> "List1(first, rest) = values ["
@@ -7682,7 +7679,7 @@ pub fn generate_to_json(
                           <> ")",
                         False,
                       )
-                      2, "*" -> #(
+                      2, _ -> #(
                         "fn(values) { let "
                           <> complex_prefix
                           <> "List2(first, second, rest) = values ["
@@ -7696,7 +7693,7 @@ pub fn generate_to_json(
                           <> ")",
                         False,
                       )
-                      3, "*" -> #(
+                      3, _ -> #(
                         "fn(values) { let "
                           <> complex_prefix
                           <> "List3(first, second, third, rest) = values ["
@@ -7741,7 +7738,11 @@ pub fn generate_to_json(
                     False -> open_encoder <> "(" <> value <> ")"
                   }
                 }
-                let open_values = case element.max, card_min {
+                let maximum = case element.max {
+                  "0" | "1" -> element.max
+                  _ -> "*"
+                }
+                let open_values = case maximum, card_min {
                   "*", 0 ->
                     "list.map("
                     <> field_name

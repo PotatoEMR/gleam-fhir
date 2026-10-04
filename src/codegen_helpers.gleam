@@ -409,14 +409,13 @@ pub fn to_camel_case(input: String) -> String {
 
 pub fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
   case fieldmin, fieldmax {
-    0, "*" -> "List(" <> fieldtype <> ")"
-    1, "*" -> "List1(" <> fieldtype <> ")"
-    2, "*" -> "List2(" <> fieldtype <> ")"
-    3, "*" -> "List3(" <> fieldtype <> ")"
     0, "1" -> "Option(" <> fieldtype <> ")"
     1, "1" -> fieldtype
-    // TODO ListMaxN
-    0, _n -> "List(" <> fieldtype <> ")"
+    // TODO enforce max somehow
+    0, _ -> "List(" <> fieldtype <> ")"
+    1, _ -> "List1(" <> fieldtype <> ")"
+    2, _ -> "List2(" <> fieldtype <> ")"
+    3, _ -> "List3(" <> fieldtype <> ")"
     _, _ ->
       panic as {
         "unsupported cardinality "
@@ -436,6 +435,10 @@ pub fn new_fn_arg_and_field(
   max: String,
   is_primitive: Bool,
 ) -> #(String, String) {
+  let max = case max {
+    "0" | "1" -> max
+    _ -> "*"
+  }
   case min, max {
     0, "*" -> #("", field_name <> ": [],")
     1, "*" ->

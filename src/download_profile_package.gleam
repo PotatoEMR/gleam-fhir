@@ -68,7 +68,26 @@ fn dependencies(package: Package, output: String) -> List(Package) {
     True -> True
     False -> {
       let assert Ok(Nil) = simplifile.create_directory_all(directory)
-      let primary_url = registry <> "/" <> name <> "/" <> version
+      // Resolve latest for the URL; keep the directory dependency lookup expects.
+      let download_version = case version {
+        "latest" -> {
+          let assert Ok(metadata_request) = request.to(registry <> "/" <> name)
+          let assert Ok(metadata_response) =
+            httpc.send(request.set_body(metadata_request, ""))
+          let assert True =
+            metadata_response.status >= 200 && metadata_response.status < 300
+            as "could not fetch package metadata to resolve latest"
+          let assert Ok(latest) =
+            json.parse(
+              metadata_response.body,
+              decode.at(["dist-tags", "latest"], decode.string),
+            )
+            as "package metadata has no latest version"
+          latest
+        }
+        _ -> version
+      }
+      let primary_url = registry <> "/" <> name <> "/" <> download_version
       let assert Ok(primary_request) = request.to(primary_url)
       let assert Ok(primary_response) =
         httpc.send_bits(request.set_body(primary_request, <<>>))
@@ -79,7 +98,12 @@ fn dependencies(package: Package, output: String) -> List(Package) {
         True -> #(primary_url, primary_response)
         False -> {
           let fallback_url =
-            fallback_registry <> "/" <> name <> "-" <> version <> ".tgz"
+            fallback_registry
+            <> "/"
+            <> name
+            <> "-"
+            <> download_version
+            <> ".tgz"
           io.println("Retrying from " <> fallback_url)
           let assert Ok(fallback_request) = request.to(fallback_url)
           let assert Ok(fallback_response) =

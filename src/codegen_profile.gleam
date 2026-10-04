@@ -935,7 +935,11 @@ fn generate_extension_types(
               }
             }
             let field_value = "value." <> field_name
-            let new_children_source = case field.min, field.max {
+            let field_max = case field.max {
+              "0" | "1" -> field.max
+              _ -> "*"
+            }
+            let new_children_source = case field.min, field_max {
               0, "1" ->
                 "\n  let children = case "
                 <> field_value
@@ -992,6 +996,10 @@ fn generate_extension_types(
             }
             #(
               field_source
+                <> case field.max {
+                "0" | "1" | "*" -> ""
+                _ -> "    // TODO enforce max somehow\n"
+              }
                 <> "    "
                 <> field_name
                 <> ": "
@@ -3693,15 +3701,6 @@ pub fn profile_files_to_types(
                           <> "..* for "
                           <> element.id
                         }
-                      min, max if min != 0 && min != 1 && max != "*" ->
-                        panic as {
-                          "unsupported cardinality "
-                          <> int.to_string(min)
-                          <> ".."
-                          <> max
-                          <> " for "
-                          <> element.id
-                        }
                       _, _ ->
                         codegen_helpers.cardinality(
                           field_type,
@@ -3937,6 +3936,11 @@ pub fn profile_files_to_types(
                                           )
                                         #(
                                           fields
+                                            <> case child.max {
+                                            "0" | "1" | "*" -> ""
+                                            _ ->
+                                              "    // TODO enforce max somehow\n"
+                                          }
                                             <> "    "
                                             <> field_name
                                             <> ": "
@@ -4026,6 +4030,10 @@ pub fn profile_files_to_types(
                       aggregate_slice_source <> new_choice_source
                     #(
                       fields_acc
+                        <> case element.max {
+                        "0" | "1" | "*" -> ""
+                        _ -> "    // TODO enforce max somehow\n"
+                      }
                         <> "    "
                         <> field_name
                         <> ": "

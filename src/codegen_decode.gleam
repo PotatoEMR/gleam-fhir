@@ -137,6 +137,10 @@ pub fn field_decoder(
   max: String,
   is_primitive: Bool,
 ) -> String {
+  let max = case max {
+    "0" | "1" -> max
+    _ -> "*"
+  }
   case max, min, is_primitive {
     "*", 0, True ->
       "primitives_decoder(\""

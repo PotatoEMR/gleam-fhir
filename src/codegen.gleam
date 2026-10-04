@@ -1421,6 +1421,10 @@ fn file_to_types(
                     let elt_snake = codegen_helpers.to_snake_case(elt_last_part)
                     let this_type_fields =
                       string.concat([
+                        case elt.max {
+                          "0" | "1" | "*" -> ""
+                          _ -> "// TODO enforce max somehow\n"
+                        },
                         elt_snake,
                         ": ",
                         codegen_helpers.cardinality(
@@ -1617,11 +1621,15 @@ fn file_to_types(
                     // because optional ones need case to add to array or not
                     // also putting lists as optional_acc so in empty list cast it omits instead of field: []
                     // hence two separate accs
+                    let field_max = case elt.max {
+                      "0" | "1" -> elt.max
+                      _ -> "*"
+                    }
                     let #(
                       encoder_optional_acc,
                       encoder_always_acc,
                       decoder_always_failure_acc,
-                    ) = case elt.min, elt.max {
+                    ) = case elt.min, field_max {
                       0, "*" -> {
                         //0..* list: omit from json if empty
                         let opts =
