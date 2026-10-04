@@ -2021,6 +2021,7 @@ fn prepare_profile_slices(
   elements: List(codegen_helpers.Element),
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
   datatype_profiles: dict.Dict(String, codegen_helpers.Resource),
+  base_elements: dict.Dict(String, codegen_helpers.Element),
 ) -> #(
   List(codegen_helpers.Element),
   dict.Dict(String, SliceFieldType),
@@ -2143,45 +2144,69 @@ fn prepare_profile_slices(
       !set.contains(profiled_identifier_child_ids, element.id)
     })
     |> list.append(profiled_identifier_children)
-  let identifier_children = [
-    "id",
-    "extension",
-    "use",
-    "type",
-    "system",
-    "value",
-    "period",
-    "assigner",
-  ]
-  let inherited_identifier_children =
+  let inherited_datatype_children =
     elements
     |> list.filter(fn(element) {
-      element.slice_name != None
-      && element.pattern_identifier != None
-      && element_type_is(element, "Identifier")
+      {
+        element_type_is(element, "Identifier")
+        || element_type_is(element, "Coding")
+        || element_type_is(element, "CodeableConcept")
+      }
+      && {
+        element.slice_name != None
+        || list.any(elements, fn(child) {
+          string.starts_with(child.id, element.id <> ".")
+        })
+      }
     })
     |> list.flat_map(fn(root) {
-      identifier_children
-      |> list.filter_map(fn(child_name) {
-        let child_id = root.id <> "." <> child_name
+      let assert [type_] = root.type_
+      let prefix = type_.code <> "."
+      let group_id = case root.slice_name {
+        None -> root.id
+        Some(_) ->
+          root.id
+          |> string.split(":")
+          |> list.reverse
+          |> list.drop(1)
+          |> list.reverse
+          |> string.join(":")
+      }
+      // A snapshot can leave datatype children implicit or expand only some.
+      // Use the core fields, with any explicit group or slice fields preserved.
+      base_elements
+      |> dict.values
+      |> list.filter(fn(child) {
+        string.starts_with(child.path, prefix)
+        && !string.contains(
+          string.drop_start(child.path, string.length(prefix)),
+          ".",
+        )
+      })
+      |> list.sort(fn(a, b) { string.compare(a.path, b.path) })
+      |> list.filter_map(fn(base_child) {
+        let suffix =
+          string.drop_start(base_child.path, string.length(type_.code))
+        let child_id = root.id <> suffix
         case find_element(elements, child_id) {
           Ok(_) -> Error(Nil)
-          Error(_) ->
-            case find_element(elements, root.path <> "." <> child_name) {
-              Ok(child) ->
-                Ok(
-                  codegen_helpers.Element(
-                    ..child,
-                    id: child_id,
-                    slice_name: None,
-                  ),
-                )
-              Error(_) -> Error(Nil)
-            }
+          Error(_) -> {
+            let child =
+              find_element(elements, group_id <> suffix)
+              |> result.unwrap(base_child)
+            Ok(
+              codegen_helpers.Element(
+                ..child,
+                id: child_id,
+                path: root.path <> suffix,
+                slice_name: None,
+              ),
+            )
+          }
         }
       })
     })
-  let elements = list.append(elements, inherited_identifier_children)
+  let elements = list.append(elements, inherited_datatype_children)
   let elements =
     list.map(elements, fn(element) {
       case string.ends_with(element.id, ".system"), element.fixed_uri {
@@ -2781,6 +2806,49 @@ pub fn profile_files_to_types(
     list.filter(profile_definitions, fn(profile) {
       !set.contains(core_type_urls, canonical_url(profile.url))
     })
+  // Check the names we emit, keeping the original URLs for diagnostics.
+  let core_names =
+    core_type_urls
+    |> set.to_list
+    |> list.map(fn(url) {
+      let assert Ok(id) = url |> string.split("/") |> list.last
+      #("complex_types." <> codegen_helpers.to_camel_case(id), url)
+    })
+  let extension_names =
+    profile_structures.extensions
+    |> dict.values
+    |> list.map(fn(extension) {
+      #("complex_types." <> extension.name, extension.url)
+    })
+  let profile_names =
+    list.map(profile_definitions, fn(profile) {
+      let name = case codegen_helpers.to_camel_case(profile.id) {
+        "List" -> "Listfhir"
+        name -> name
+      }
+      let module = case profile.kind {
+        Some("resource") -> "resources."
+        _ -> "complex_types."
+      }
+      #(module <> name, profile.url)
+    })
+  let _ =
+    list.append(core_names, list.append(extension_names, profile_names))
+    |> list.fold(dict.new(), fn(names, entry) {
+      let #(name, url) = entry
+      case dict.get(names, name) {
+        Ok(previous_url) ->
+          panic as {
+            "Gleam name collision for "
+            <> name
+            <> ": "
+            <> previous_url
+            <> " and "
+            <> url
+          }
+        Error(_) -> dict.insert(names, name, url)
+      }
+    })
   let #(extension_types, valueset_acc) =
     generate_extension_types(
       profile_structures.extensions,
@@ -2836,6 +2904,7 @@ pub fn profile_files_to_types(
             profile_elements,
             available_slice_valuesets,
             profile_structures.datatype_profiles,
+            base_elements,
           )
         let slice_helpers =
           list.append(
@@ -2882,7 +2951,10 @@ pub fn profile_files_to_types(
               _ -> helpers
             }
           })
-        let profile_prefix = string.replace(resource.id, "-", "_")
+        let profile_prefix =
+          resource.id
+          |> string.replace("-", "_")
+          |> string.replace(".", "_")
         let profile_type = case
           dict.get(datatype_types, canonical_url(resource.url))
         {

@@ -156,6 +156,8 @@ pub fn main() {
           simplifier_profile
           |> string.replace("/", "_")
           |> string.replace(".", "_")
+          |> string.replace("-", "_")
+          |> string.lowercase
         Some(gen_folder_name)
       }
       Error(_) -> None
@@ -318,6 +320,22 @@ fn gen_fhir(
   let complex_types_gen = complex_types_gen <> profile_complex_types
   let resource_entries =
     list.append(core_resource_entries, profile_resource_entries)
+  let _ =
+    list.fold(resource_entries, dict.new(), fn(names, entry) {
+      let name = entry.1
+      case dict.get(names, name) {
+        Ok(url) ->
+          panic as {
+            "Gleam name collision for resources."
+            <> name
+            <> ": "
+            <> url
+            <> " and "
+            <> entry.2
+          }
+        Error(_) -> dict.insert(names, name, entry.2)
+      }
+    })
   let resource_names =
     resource_entries
     |> list.map(fn(resource_entry) {

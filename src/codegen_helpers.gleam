@@ -400,6 +400,8 @@ pub fn to_camel_case(input: String) -> String {
   // only first letter and then each backbone elt is capital
   // so you can see nested backbone elements
   input
+  |> string.replace("-", "_")
+  |> string.replace(".", "_")
   |> string.split("_")
   |> list.map(fn(s) { string.capitalise(s) })
   |> string.concat
@@ -480,13 +482,28 @@ pub fn new_fn_arg_and_field(
 
 pub fn escape_field_name(name: String) -> String {
   case name {
-    "type" -> "type_"
-    "use" -> "use_"
+    "as" -> "as_"
+    "assert" -> "assert_"
+    "auto" -> "auto_"
     "case" -> "case_"
     "const" -> "const_"
+    "delegate" -> "delegate_"
+    "derive" -> "derive_"
+    "echo" -> "echo_"
+    "else" -> "else_"
+    "fn" -> "fn_"
+    "if" -> "if_"
+    "implement" -> "implement_"
     "import" -> "import_"
+    "let" -> "let_"
+    "macro" -> "macro_"
+    "opaque" -> "opaque_"
+    "panic" -> "panic_"
+    "pub" -> "pub_"
     "test" -> "test_"
-    "assert" -> "assert_"
+    "todo" -> "todo_"
+    "type" -> "type_"
+    "use" -> "use_"
     _ -> name
   }
 }

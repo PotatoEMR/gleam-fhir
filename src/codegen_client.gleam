@@ -818,9 +818,8 @@ fn id_to_name(id: String) -> #(String, String) {
   case string.lowercase(id) {
     "list" -> #("listfhir", "Listfhir")
     _ -> {
-      let lower = id |> string.lowercase |> string.replace("-", "_")
-      let capital =
-        id |> string.split("-") |> list.map(string.capitalise) |> string.concat
+      let capital = codegen_helpers.to_camel_case(id)
+      let lower = codegen_helpers.to_snake_case(capital)
       #(lower, capital)
     }
   }
@@ -831,13 +830,10 @@ fn escape_spname(name: String) -> String {
     True -> string.drop_start(name, 1)
     False -> name
   }
-  string.lowercase(case name {
-    "type" -> "type_"
-    "use" -> "use_"
-    "case" -> "case_"
-    _ -> name
-  })
+  name
+  |> string.lowercase
   |> string.replace("-", "_")
+  |> codegen_helpers.escape_field_name
 }
 
 pub fn is_capital(s: String) -> Bool {
