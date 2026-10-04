@@ -1266,15 +1266,21 @@ pub fn sliced_type_to_json_source(
       let #(always, optional) = acc
       let assert Ok(json_name) = child.path |> string.split(".") |> list.last
       case child.fixed_code, child.fixed_uri {
-        Some(value), _ | _, Some(value) -> #(
-          always
-            <> "#(\""
-            <> json_name
-            <> "\", json.string(\""
-            <> value
-            <> "\")),",
-          optional,
-        )
+        Some(value), _ | _, Some(value) -> {
+          let value_json = "json.string(\"" <> value <> "\")"
+          #(
+            always
+              <> "#(\""
+              <> json_name
+              <> "\", "
+              <> case child.base.max {
+              "1" -> value_json
+              _ -> "json.preprocessed_array([" <> value_json <> "])"
+            }
+              <> "),",
+            optional,
+          )
+        }
         None, None -> {
           let field_name = case child.slice_name {
             Some(slice_name) -> slice_name
@@ -3133,8 +3139,38 @@ fn field_decoder_expression(
         <> "_extension_slice_decoder()"
       let conversion =
         codegen_helpers.to_snake_case(field_type) <> "_from_primitive"
-      case element.max, target_min {
-        "1", 0 ->
+      case element.base.max, element.max, target_min {
+        base_max, "1", minimum if base_max != "1" -> {
+          let list_decoder =
+            "primitive_slice_list_decoder(\""
+            <> json_name
+            <> "\", "
+            <> primitive_decoder
+            <> ", "
+            <> extension_decoder
+            <> ", "
+            <> conversion
+          let #(empty, single, failure) = case minimum {
+            0 -> #("[] -> decode.success(None) ", "Some(value)", "None")
+            _ -> #("", "value", base_slice_placeholder(context, field_type))
+          }
+          "decode.then("
+          <> list_decoder
+          <> ", decode.success) |> decode.then(fn(values) { case values { "
+          <> empty
+          <> "[value] -> decode.success("
+          <> single
+          <> ") _ -> decode.failure("
+          <> failure
+          <> ", \""
+          <> case minimum {
+            0 -> "at most one "
+            _ -> "one "
+          }
+          <> json_name
+          <> "\") } }))"
+        }
+        _, "1", 0 ->
           "decode.then(primitive_decoder(\""
           <> json_name
           <> "\", "
@@ -3145,7 +3181,7 @@ fn field_decoder_expression(
           <> " None, None, [] -> decode.success(None) _, _, _ -> "
           <> conversion
           <> "(primitive) |> decode.map(Some) } }))"
-        "1", _ ->
+        _, "1", _ ->
           "primitive_choice_slice_decoder(\""
           <> json_name
           <> "\", "
@@ -3155,7 +3191,7 @@ fn field_decoder_expression(
           <> ", "
           <> conversion
           <> ")"
-        _, minimum -> {
+        _, _, minimum -> {
           let list_decoder =
             "primitive_slice_list_decoder(\""
             <> json_name
@@ -6037,9 +6073,24 @@ fn record_decoder_from_fields(
                 }
                   <> "  use "
                   <> variable
-                  <> "_fixed <- decode.field(\""
-                  <> json_name
-                  <> "\", decode.string)\n",
+                  <> "_fixed <- "
+                  <> case element.base.max, element.max {
+                  "1", _ ->
+                    "decode.field(\"" <> json_name <> "\", decode.string)"
+                  _, "1" ->
+                    codegen_helpers.bucket_prefix(
+                      "Quantity",
+                      context.current_bucket,
+                    )
+                    <> "one_from_array_decoder(\""
+                    <> json_name
+                    <> "\", decode.string)"
+                  _, _ ->
+                    "decode.field(\""
+                    <> json_name
+                    <> "\", decode.list(decode.string))"
+                }
+                  <> "\n",
                 choices,
                 slice_decodes,
               )
@@ -6139,24 +6190,33 @@ fn record_decoder_from_fields(
               Some(fixed), _ | _, Some(fixed) -> fixed
               _, _ -> ""
             }
+            let matches = case element.base.max, element.max {
+              "1", _ | _, "1" -> variable <> "_fixed == \"" <> fixed <> "\""
+              _, _ ->
+                "list.all("
+                <> variable
+                <> "_fixed, fn(value) { value == \""
+                <> fixed
+                <> "\" })"
+            }
+            let mismatch = case element.base.max, element.max {
+              "1", _ | _, "1" -> variable <> "_fixed != \"" <> fixed <> "\""
+              _, _ -> "!" <> matches
+            }
             source
             <> case typed_slice_decoders {
               False ->
                 "  use <- bool.guard("
-                <> variable
-                <> "_fixed != \""
-                <> fixed
-                <> "\", decode.failure(placeholder, \"fixed "
+                <> mismatch
+                <> ", decode.failure(placeholder, \"fixed "
                 <> json_name
                 <> "\"))\n"
               True ->
                 "  use _ <- decode.then(case "
+                <> matches
+                <> " { True -> decode.success("
                 <> variable
-                <> "_fixed { \""
-                <> fixed
-                <> "\" -> decode.success("
-                <> variable
-                <> "_fixed) _ -> decode.failure("
+                <> "_fixed) False -> decode.failure("
                 <> variable
                 <> "_fixed, \"fixed "
                 <> json_name
@@ -7213,8 +7273,16 @@ pub fn generate_to_json(
           case element.fixed_code, element.fixed_uri {
             _, _ if primitive_slice_record && json_name == "value" -> Error(Nil)
             Some(value), _ | _, Some(value) -> {
+              let value_json = "json.string(\"" <> value <> "\")"
               Ok(
-                "#(\"" <> json_name <> "\", json.string(\"" <> value <> "\")),",
+                "#(\""
+                <> json_name
+                <> "\", "
+                <> case element.base.max {
+                  "1" -> value_json
+                  _ -> "json.preprocessed_array([" <> value_json <> "])"
+                }
+                <> "),",
               )
             }
             _, _ -> Error(Nil)
@@ -7421,7 +7489,7 @@ pub fn generate_to_json(
               )
               None, _, True -> {
                 let encoder = codegen_helpers.to_snake_case(base_field_type)
-                let helper = case element.max {
+                let helper = case element.base.max {
                   "1" -> "primitive_slice_to_json"
                   _ -> "primitive_slice_list_to_json"
                 }
@@ -7439,7 +7507,13 @@ pub fn generate_to_json(
                     <> helper
                     <> "(fields, "
                     <> case element.max, card_min {
-                    "1", 0 -> "value"
+                    "1", 0 ->
+                      case element.base.max {
+                        "1" -> "value"
+                        _ -> "[value]"
+                      }
+                    "1", _ if element.base.max != "1" ->
+                      "[" <> field_value <> "]"
                     "*", 1 ->
                       "["
                       <> field_value
