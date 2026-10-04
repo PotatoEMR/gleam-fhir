@@ -244,6 +244,15 @@ fn gen_fhir(
   let r_imports = shared_imports <> "import gleam/bool\nimport gleam/int\n"
 
   let complex_types_file = filepath.join(extract_dir_ver, "profiles-types.json")
+  let valuesets_package_dir = case profiles_dir {
+    Some(directory) -> directory
+    None ->
+      download_dir
+      |> filepath.join("profile_package")
+      |> filepath.join("hl7.fhir." <> fhir_version <> ".core")
+      |> filepath.join(simplifier_core_package_version(fhir_version))
+      |> filepath.join("package")
+  }
   let #(
     resources_gen,
     valueset_acc,
@@ -258,6 +267,7 @@ fn gen_fhir(
       valueset_acc: dict.new(),
       gen_specific_resources:,
       gen_specific_complex_types: None,
+      valuesets_package_dir:,
     )
   let profile_type_names = case profiles_dir {
     Some(profiles_dir) ->
@@ -283,6 +293,7 @@ fn gen_fhir(
       valueset_acc:,
       gen_specific_resources:,
       gen_specific_complex_types:,
+      valuesets_package_dir:,
     )
   let #(
     profile_complex_types,
@@ -534,7 +545,7 @@ fn gen_fhir(
       True -> "import gleam/string\n"
       False -> ""
     }
-  let #(all_vs, unavailable_valuesets, failure_variant_replacements) =
+  let #(all_vs, failure_variant_replacements) =
     valueset_to_types(
       fhir_version,
       valueset_acc,
@@ -546,12 +557,8 @@ fn gen_fhir(
       string.replace(source, replacement.0, replacement.1)
     })
   }
-  let complex_types_gen =
-    replace_unavailable_bindings(complex_types_gen, unavailable_valuesets)
-    |> replace_failure_variants
-  let resources_gen =
-    replace_unavailable_bindings(resources_gen, unavailable_valuesets)
-    |> replace_failure_variants
+  let complex_types_gen = replace_failure_variants(complex_types_gen)
+  let resources_gen = replace_failure_variants(resources_gen)
   let bound_codeable_reference_source = case
     string.contains(resources_gen, "ct.BoundCodeablereference(valuesets.")
   {
@@ -1034,245 +1041,6 @@ fn gen_fhir(
   )
 }
 
-// what we should probably do ideally is generate these fns with ordinary coding/cc in the first place
-// rather than bound coding/cc, but idk if when we first generate them we know if a bound valueset will be unavailable
-// this string replacement is clearly dumb but if it doesnt work the output wont compile so eh
-fn replace_unavailable_bindings(
-  source: String,
-  unavailable_valuesets: Set(String),
-) -> String {
-  unavailable_valuesets
-  |> set.fold(source, fn(source, url) {
-    let type_name = codegen_helpers.concept_name_from_url(url)
-    let fn_name =
-      url
-      |> codegen_helpers.concept_name_from_url
-      |> codegen_helpers.to_snake_case
-    source
-    |> string.replace(
-      codegen_bound_coding.bound_codeablereference_encoder_call_source(
-        "",
-        fn_name,
-        "v",
-      ),
-      "codeablereference_to_json(v)",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeablereference_encoder_call_source(
-        "ct.",
-        fn_name,
-        "v",
-      ),
-      "ct.codeablereference_to_json(v)",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeableconcept_encoder_call_source(
-        "",
-        fn_name,
-        "v",
-      ),
-      "codeableconcept_to_json(v)",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeableconcept_encoder_call_source(
-        "ct.",
-        fn_name,
-        "v",
-      ),
-      "ct.codeableconcept_to_json(v)",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_coding_encoder_call_source("", fn_name, "v"),
-      "coding_to_json(v)",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_coding_encoder_call_source("ct.", fn_name, "v"),
-      "ct.coding_to_json(v)",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_quantity_encoder_call_source("", fn_name, "v"),
-      "quantity_to_json(v)",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_quantity_encoder_call_source(
-        "ct.",
-        fn_name,
-        "v",
-      ),
-      "ct.quantity_to_json(v)",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeablereference_encoder_source("", fn_name),
-      "codeablereference_to_json",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeablereference_encoder_source(
-        "ct.",
-        fn_name,
-      ),
-      "ct.codeablereference_to_json",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeableconcept_encoder_source("", fn_name),
-      "codeableconcept_to_json",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeableconcept_encoder_source("ct.", fn_name),
-      "ct.codeableconcept_to_json",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_coding_encoder_source("", fn_name),
-      "coding_to_json",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_coding_encoder_source("ct.", fn_name),
-      "ct.coding_to_json",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_quantity_encoder_source("", fn_name),
-      "quantity_to_json",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_quantity_encoder_source("ct.", fn_name),
-      "ct.quantity_to_json",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeablereference_decoder_source("", fn_name),
-      "codeablereference_decoder()",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeablereference_decoder_source(
-        "ct.",
-        fn_name,
-      ),
-      "ct.codeablereference_decoder()",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeableconcept_decoder_source("", fn_name),
-      "codeableconcept_decoder()",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_codeableconcept_decoder_source("ct.", fn_name),
-      "ct.codeableconcept_decoder()",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_coding_decoder_source("", fn_name),
-      "coding_decoder()",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_coding_decoder_source("ct.", fn_name),
-      "ct.coding_decoder()",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_quantity_decoder_source("", fn_name),
-      "quantity_decoder()",
-    )
-    |> string.replace(
-      codegen_bound_coding.bound_quantity_decoder_source("ct.", fn_name),
-      "ct.quantity_decoder()",
-    )
-    |> string.replace(
-      "ct.bound_coding_from_coding(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "ct.bound_coding_from_coding(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system)",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "ct.bound_codeableconcept_from_codeableconcept(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "ct.bound_codeableconcept_from_codeableconcept(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system)",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "ct.bound_quantity_from_quantity(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "ct.bound_quantity_from_quantity(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system)",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "bound_coding_from_coding(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "bound_coding_from_coding(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system)",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "bound_codeableconcept_from_codeableconcept(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "bound_codeableconcept_from_codeableconcept(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system)",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "bound_quantity_from_quantity(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system) |> result.replace_error(\"required ValueSet\")",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "bound_quantity_from_quantity(value, valuesets."
-        <> fn_name
-        <> "_from_code_and_system)",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "valuesets."
-        <> fn_name
-        <> "_from_code(value) |> result.replace_error(\"required ValueSet\")",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "valuesets." <> fn_name <> "_from_code(value)",
-      "Ok(value)",
-    )
-    |> string.replace(
-      "BoundCodeablereference(valuesets." <> type_name <> ")",
-      "Codeablereference",
-    )
-    |> string.replace(
-      "BoundCodeableconcept(valuesets." <> type_name <> ")",
-      "Codeableconcept",
-    )
-    |> string.replace("BoundCoding(valuesets." <> type_name <> ")", "Coding")
-    |> string.replace(
-      "BoundQuantity(valuesets." <> type_name <> ")",
-      "Quantity",
-    )
-    |> string.replace("valuesets." <> fn_name <> "_failure_variant", "\"\"")
-    |> string.replace("valuesets." <> type_name, "String")
-    |> string.replace("valuesets." <> fn_name <> "_to_json", "json.string")
-    |> string.replace("valuesets." <> fn_name <> "_decoder()", "decode.string")
-  })
-}
-
 fn required_complex_types(
   spec_file: String,
   initial: Set(String),
@@ -1337,6 +1105,7 @@ fn file_to_types(
   valueset_acc valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   gen_specific_resources gen_specific_resources: Option(List(String)),
   gen_specific_complex_types gen_specific_complex_types: Option(Set(String)),
+  valuesets_package_dir valuesets_package_dir: String,
 ) -> #(
   String,
   dict.Dict(String, codegen_helpers.ValuesetItem),
@@ -1374,6 +1143,78 @@ fn file_to_types(
     })
 
   let entries = list.map(entries, fn(entry) { entry.resource })
+  let required_valuesets =
+    entries
+    |> list.flat_map(fn(resource) {
+      case resource.snapshot {
+        Some(snapshot) -> snapshot.element
+        None -> []
+      }
+    })
+    |> list.filter_map(fn(element) {
+      case element.max, element.binding {
+        "0", _ -> Error(Nil)
+        _,
+          Some(codegen_helpers.Binding(
+            strength: "required",
+            value_set: Some(url),
+            ..,
+          ))
+        -> Ok(url)
+        _, _ -> Error(Nil)
+      }
+    })
+    |> set.from_list
+  let available_valuesets =
+    codegen_helpers.load_valuesets(valuesets_package_dir, required_valuesets)
+  let unavailable_valuesets =
+    set.fold(required_valuesets, set.new(), fn(unavailable, reference) {
+      let assert [url, ..] = string.split(reference, "|")
+      case
+        codegen_helpers.valueset_can_generate_system(url, available_valuesets)
+      {
+        True -> unavailable
+        False -> {
+          io.println("unable to expand valueset " <> reference)
+          set.insert(unavailable, url)
+        }
+      }
+    })
+  // Resolve bindings on the elements before emitting any types or codecs.
+  let entries =
+    list.map(entries, fn(resource) {
+      codegen_helpers.Resource(
+        ..resource,
+        snapshot: option.map(resource.snapshot, fn(snapshot) {
+          codegen_helpers.Snapshot(
+            element: list.map(snapshot.element, fn(element) {
+              case element.binding {
+                Some(
+                  codegen_helpers.Binding(
+                    strength: "required",
+                    value_set: Some(reference),
+                    ..,
+                  ) as binding,
+                ) -> {
+                  let assert [url, ..] = string.split(reference, "|")
+                  case set.contains(unavailable_valuesets, url) {
+                    True ->
+                      codegen_helpers.Element(
+                        ..element,
+                        binding: Some(
+                          codegen_helpers.Binding(..binding, available: False),
+                        ),
+                      )
+                    False -> element
+                  }
+                }
+                _ -> element
+              }
+            }),
+          )
+        }),
+      )
+    })
   let referenced_type_names =
     entries
     |> list.flat_map(fn(resource) {
@@ -2578,45 +2419,35 @@ fn valueset_to_types(
         string.lowercase(codegen_helpers.concept_name_from_url(b)),
       )
     })
-  list.fold(
-    from: #(vs_imports, set.new(), []),
-    over: vs_url_sorted,
-    with: fn(acc, vs_url) {
-      let #(valuesets_acc, unavailable_valuesets, failure_variant_replacements) =
-        acc
-      let vsname = codegen_helpers.concept_name_from_url(vs_url)
-      let assert Ok(valueset_item) = dict.get(valueset_acc, vs_url)
-      let needs_system = case valueset_item {
-        codegen_helpers.ValuesetBoundCodingOrCcNeedsSystem -> True
-        codegen_helpers.ValuesetCodeOnlyDontNeedSystem -> False
-      }
-      case codegen_helpers.valueset_can_generate_system(vs_url, all_vs_or_cs) {
-        True -> {
-          let #(valueset_source, replacements) =
-            valueset_type_source(
-              vs_url,
-              vsname,
-              all_vs_or_cs,
-              fhir_version == "r4",
-              needs_system,
-            )
-          #(
-            valuesets_acc <> valueset_source,
-            unavailable_valuesets,
-            list.append(replacements, failure_variant_replacements),
+  list.fold(from: #(vs_imports, []), over: vs_url_sorted, with: fn(acc, vs_url) {
+    let #(valuesets_acc, failure_variant_replacements) = acc
+    let vsname = codegen_helpers.concept_name_from_url(vs_url)
+    let assert Ok(valueset_item) = dict.get(valueset_acc, vs_url)
+    let needs_system = case valueset_item {
+      codegen_helpers.ValuesetBoundCodingOrCcNeedsSystem -> True
+      codegen_helpers.ValuesetCodeOnlyDontNeedSystem -> False
+    }
+    case codegen_helpers.valueset_can_generate_system(vs_url, all_vs_or_cs) {
+      True -> {
+        let #(valueset_source, replacements) =
+          valueset_type_source(
+            vs_url,
+            vsname,
+            all_vs_or_cs,
+            fhir_version == "r4",
+            needs_system,
           )
-        }
-        False -> {
-          io.println("unable to expand valueset " <> vs_url)
-          #(
-            valuesets_acc,
-            set.insert(unavailable_valuesets, vs_url),
-            failure_variant_replacements,
-          )
-        }
+        #(
+          valuesets_acc <> valueset_source,
+          list.append(replacements, failure_variant_replacements),
+        )
       }
-    },
-  )
+      False ->
+        panic as {
+          "unresolved required ValueSet reached generation: " <> vs_url
+        }
+    }
+  })
 }
 
 fn gen_valueset_encoder(vsname: String) -> String {

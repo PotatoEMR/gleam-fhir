@@ -3003,6 +3003,7 @@ fn field_decoder_expression(
       Some(codegen_helpers.Binding(
         strength: "required",
         value_set: Some(value_set),
+        available: True,
       ))
     -> {
       let url = canonical_url(value_set)
@@ -4314,8 +4315,6 @@ fn slice_converter_source(
   group: codegen_helpers.Element,
   root: codegen_helpers.Element,
 ) -> String {
-  let complex_prefix =
-    codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
   let #(_, _, json_name, _, base_type) =
     profile_element_names(context, parent_type, group)
   let #(_, _, _, _, target_type) =
@@ -4353,8 +4352,8 @@ fn slice_converter_source(
           field.slicing != None
           && list.any(field.type_, fn(type_) { type_.code == "Extension" })
         })
-      case base_type, has_sliced_extensions {
-        "ct.Identifier", True | "Identifier", True ->
+      case has_sliced_extensions {
+        True ->
           "fn "
           <> slice_converter_name(
             context.current_bucket,
@@ -4373,8 +4372,13 @@ fn slice_converter_source(
           <> target_type
           <> ", List(decode.DecodeError)) {\n"
           <> "  case json.parse(json.to_string("
-          <> complex_prefix
-          <> "identifier_to_json(source)), "
+          <> {
+            base_type
+            |> string.split(".")
+            |> list.map(codegen_helpers.to_snake_case)
+            |> string.join(".")
+          }
+          <> "_to_json(source)), "
           <> codegen_helpers.to_snake_case(target_type)
           <> "_decoder()) {\n    Ok(value) -> Ok(value)\n    Error(json.UnableToDecode(errors)) -> Error(list.map(errors, fn(error) { decode.DecodeError(..error, path: list.append([\""
           <> json_name
@@ -4383,7 +4387,7 @@ fn slice_converter_source(
           <> "\", found: \"invalid JSON\", path: [\""
           <> json_name
           <> "\", int.to_string(index)])])\n  }\n}\n\n"
-        _, _ ->
+        False ->
           record_conversion_from_fields(
             context,
             target_type,
@@ -4436,7 +4440,12 @@ fn resource_slice_match(
               <> "("
               <> source
               <> ")), "
-              <> codegen_helpers.to_snake_case(target_type)
+              <> {
+              target_type
+              |> string.split(".")
+              |> list.map(codegen_helpers.to_snake_case)
+              |> string.join(".")
+            }
               <> "_decoder()) { Ok(matched) -> Ok(matched) Error(_) -> Error(Nil) }",
             success_pattern: "matched",
             selected: "Ok(" <> constructor <> "(matched))",
@@ -4803,6 +4812,34 @@ fn slice_cardinality_expression(
       <> "List3(first:, second:, third:, rest:)) _ -> "
       <> missing
       <> " }"
+    0, maximum -> {
+      let assert Ok(maximum) = int.parse(maximum)
+      let expression =
+        slice_cardinality_expression(
+          current_bucket,
+          codegen_helpers.Element(..root, max: "*"),
+          values,
+          json_name,
+          aggregate,
+        )
+      "case list.length("
+      <> values
+      <> ") <= "
+      <> int.to_string(maximum)
+      <> " { True -> "
+      <> expression
+      <> " False -> Error([decode.DecodeError(expected: \"at most "
+      <> int.to_string(maximum)
+      <> " "
+      <> slice_name
+      <> "\", found: int.to_string(list.length("
+      <> values
+      <> ")), path: [\""
+      <> json_name
+      <> "\", \""
+      <> slice_name
+      <> "\"])]) }"
+    }
     _, _ -> panic as "unsupported slice cardinality"
   }
 }
@@ -4839,6 +4876,10 @@ fn slice_cardinality_placeholder(
           <> ", rest: [])"
         _ -> panic as "unsupported slice cardinality"
       }
+    }
+    0, maximum -> {
+      let assert Ok(_) = int.parse(maximum)
+      "[]"
     }
     _, _ -> panic as "unsupported slice cardinality"
   }
@@ -5428,7 +5469,12 @@ fn ordinary_slice_fold_source(
             "case decode.run("
             <> field_name
             <> "_raw, "
-            <> codegen_helpers.to_snake_case(root_type)
+            <> {
+              root_type
+              |> string.split(".")
+              |> list.map(codegen_helpers.to_snake_case)
+              |> string.join(".")
+            }
             <> "_decoder()) { Ok(matched) -> Ok("
             <> constructor
             <> "(matched)) Error(_) -> "

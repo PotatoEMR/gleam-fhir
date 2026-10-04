@@ -154,7 +154,8 @@ fn base_structure_elements(
   profiles_dir: String,
   profile_elements: List(codegen_helpers.Element),
 ) -> dict.Dict(String, codegen_helpers.Element) {
-  let directories = codegen_helpers.package_directories(profiles_dir)
+  let directories =
+    codegen_helpers.package_directories(profiles_dir) |> list.reverse
   profile_elements
   |> list.flat_map(fn(element) {
     let type_roots = list.map(element.type_, fn(type_) { type_.code })
@@ -1316,6 +1317,7 @@ fn plan_whole_value_slice(
             Some(codegen_helpers.Binding(
               strength: "required",
               value_set: Some(value_set),
+              available: True,
             )) -> {
               let value_set = canonical_url(value_set)
               case
@@ -1373,6 +1375,7 @@ fn plan_whole_value_slice(
             Some(codegen_helpers.Binding(
               strength: "required",
               value_set: Some(value_set),
+              available: True,
             )) -> {
               let value_set = canonical_url(value_set)
               case
@@ -1793,6 +1796,7 @@ fn plan_value_slice(
                 Some(codegen_helpers.Binding(
                   strength: "required",
                   value_set: Some(value_set),
+                  available: True,
                 )) -> {
                   let value_set = canonical_url(value_set)
                   case
@@ -2234,6 +2238,64 @@ fn prepare_profile_slices(
     })
     |> list.sort(fn(a, b) { string.compare(b.id, a.id) })
 
+  // Reuse a referenced datatype for optional slices without inline constraints.
+  // Its decoder checks the profile constraints and keeps primitive extensions.
+  let referenced_slice_ids =
+    groups
+    |> list.flat_map(fn(group) {
+      let assert Some(slicing) = group.slicing
+      direct_slice_roots(group, elements)
+      |> list.filter_map(fn(root) {
+        use _ <- result.try(case root.min {
+          0 -> Ok(Nil)
+          _ -> Error(Nil)
+        })
+        use _ <- result.try(case root.type_ {
+          [codegen_helpers.Type(profile: [url], ..)] -> {
+            use profile <- result.try(dict.get(
+              datatype_profiles,
+              canonical_url(url),
+            ))
+            use snapshot <- result.try(option.to_result(profile.snapshot, Nil))
+            use profile_root <- result.try(list.first(snapshot.element))
+            let supported = case slicing.discriminator {
+              [codegen_helpers.Discriminator(type_: "profile", path: "$this")] ->
+                True
+              [_, ..] ->
+                only_value_or_pattern_discriminators(slicing)
+                && list.all(slicing.discriminator, fn(discriminator) {
+                  case
+                    find_element(
+                      snapshot.element,
+                      profile_root.id <> "." <> discriminator.path,
+                    )
+                  {
+                    Ok(child) ->
+                      child.fixed_code != None || child.fixed_uri != None
+                    Error(_) -> False
+                  }
+                })
+              [] -> False
+            }
+            case supported {
+              True -> Ok(Nil)
+              False -> Error(Nil)
+            }
+          }
+          _ -> Error(Nil)
+        })
+        case
+          list.any(elements, fn(child) {
+            string.starts_with(child.id, root.id <> ".")
+          })
+        {
+          True -> Error(Nil)
+          False -> Ok(root.id)
+        }
+      })
+    })
+    |> set.from_list
+
   list.fold(
     groups,
     #(elements, dict.new(), dict.new(), dict.new(), set.new(), dict.new()),
@@ -2256,14 +2318,19 @@ fn prepare_profile_slices(
         list.fold(roots, #([], []), fn(acc, root) {
           let #(plans, unsupported_ids) = acc
           case
-            plan_slice(
-              slicing,
-              group,
-              root,
-              current_elements,
-              available_valuesets,
-              planned_slices,
-            )
+            case set.contains(referenced_slice_ids, root.id) {
+              True ->
+                Ok(ValueSlicePlan(root_id: root.id, overrides: [], nested: []))
+              False ->
+                plan_slice(
+                  slicing,
+                  group,
+                  root,
+                  current_elements,
+                  available_valuesets,
+                  planned_slices,
+                )
+            }
           {
             Ok(plan) -> #([plan, ..plans], unsupported_ids)
             Error(reason) -> {
@@ -2618,7 +2685,7 @@ fn prepare_profile_slices(
       elements,
       overrides,
       type_slice_overrides,
-      nested_value_discriminators,
+      set.union(nested_value_discriminators, referenced_slice_ids),
       slice_discriminator_checks,
     )
   }
@@ -2650,6 +2717,7 @@ pub fn profile_files_to_types(
           Some(codegen_helpers.Binding(
             strength: "required",
             value_set: Some(value_set),
+            ..,
           ))
         -> Ok(value_set)
         _, _ -> Error(Nil)
@@ -2690,12 +2758,91 @@ pub fn profile_files_to_types(
     |> set.from_list
     |> set.union(required_valuesets_from_elements(resource_elements))
     |> set.union(required_valuesets_from_elements(extension_elements))
+    |> set.union(required_valuesets_from_elements(dict.values(base_elements)))
     |> set.delete("")
-    |> set.delete("http://unitsofmeasure.org")
-    |> set.delete("http://hl7.org/fhir/ValueSet/color-codes")
   let available_slice_valuesets =
     codegen_helpers.load_valuesets(profiles_dir, required_valuesets)
-  // Resolve extension bindings before generating their types and conversions.
+  let unavailable_valuesets =
+    set.fold(required_valuesets, set.new(), fn(unavailable, reference) {
+      let url = canonical_url(reference)
+      case
+        codegen_helpers.valueset_can_generate_system(
+          url,
+          available_slice_valuesets,
+        )
+      {
+        True -> unavailable
+        False -> {
+          io.println("unable to expand valueset " <> reference)
+          set.insert(unavailable, url)
+        }
+      }
+    })
+  // All generators consume the resolved binding on each element.
+  let normalized_profiles =
+    list.append(
+      profile_structures.resources,
+      dict.values(profile_structures.datatype_profiles),
+    )
+    |> list.map(fn(profile) {
+      codegen_helpers.Resource(
+        ..profile,
+        snapshot: option.map(profile.snapshot, fn(snapshot) {
+          codegen_helpers.Snapshot(
+            element: list.map(snapshot.element, fn(element) {
+              case element.binding {
+                Some(
+                  codegen_helpers.Binding(
+                    strength: "required",
+                    value_set: Some(reference),
+                    ..,
+                  ) as binding,
+                ) ->
+                  case
+                    set.contains(
+                      unavailable_valuesets,
+                      canonical_url(reference),
+                    )
+                  {
+                    True ->
+                      codegen_helpers.Element(
+                        ..element,
+                        binding: Some(
+                          codegen_helpers.Binding(..binding, available: False),
+                        ),
+                      )
+                    False -> element
+                  }
+                _ -> element
+              }
+            }),
+          )
+        }),
+      )
+    })
+  let base_elements =
+    dict.map_values(base_elements, fn(_, element) {
+      case element.binding {
+        Some(
+          codegen_helpers.Binding(
+            strength: "required",
+            value_set: Some(reference),
+            ..,
+          ) as binding,
+        ) ->
+          case set.contains(unavailable_valuesets, canonical_url(reference)) {
+            True ->
+              codegen_helpers.Element(
+                ..element,
+                binding: Some(
+                  codegen_helpers.Binding(..binding, available: False),
+                ),
+              )
+            False -> element
+          }
+        _ -> element
+      }
+    })
   let extensions =
     dict.map_values(profile_structures.extensions, fn(_, extension) {
       let fields = case extension.kind {
@@ -2713,18 +2860,24 @@ pub fn profile_files_to_types(
       let fields =
         list.map(fields, fn(field) {
           case field.binding {
-            Some(codegen_helpers.Binding(
-              strength: "required",
-              value_set: Some(value_set),
-            )) ->
+            Some(
+              codegen_helpers.Binding(
+                strength: "required",
+                value_set: Some(value_set),
+                ..,
+              ) as binding,
+            ) ->
               case
-                codegen_helpers.valueset_can_generate_system(
-                  canonical_url(value_set),
-                  available_slice_valuesets,
-                )
+                set.contains(unavailable_valuesets, canonical_url(value_set))
               {
-                True -> field
-                False -> codegen_helpers.Element(..field, binding: None)
+                True ->
+                  codegen_helpers.Element(
+                    ..field,
+                    binding: Some(
+                      codegen_helpers.Binding(..binding, available: False),
+                    ),
+                  )
+                False -> field
               }
             _ -> field
           }
@@ -2749,7 +2902,18 @@ pub fn profile_files_to_types(
         })
       ExtensionDefinition(..extension, kind:, primitive_values:)
     })
-  let profile_structures = ProfileFiles(..profile_structures, extensions:)
+  let resource_count = list.length(profile_structures.resources)
+  let datatype_profiles =
+    normalized_profiles
+    |> list.drop(resource_count)
+    |> list.map(fn(profile) { #(canonical_url(profile.url), profile) })
+    |> dict.from_list
+  let profile_structures =
+    ProfileFiles(
+      resources: list.take(normalized_profiles, resource_count),
+      datatype_profiles:,
+      extensions:,
+    )
   let profile_resources =
     profile_structures.resources
     |> list.sort(fn(a, b) { string.compare(a.id, b.id) })

@@ -372,7 +372,7 @@ pub fn type_decoder() -> decode.Decoder(Type) {
 }
 
 pub type Binding {
-  Binding(strength: String, value_set: Option(String))
+  Binding(strength: String, value_set: Option(String), available: Bool)
 }
 
 pub fn binding_decoder() -> decode.Decoder(Binding) {
@@ -382,7 +382,7 @@ pub fn binding_decoder() -> decode.Decoder(Binding) {
     None,
     decode.optional(decode.string),
   )
-  decode.success(Binding(strength:, value_set:))
+  decode.success(Binding(strength:, value_set:, available: True))
 }
 
 pub type StructuredefinitionContext {
@@ -584,7 +584,11 @@ pub fn string_to_type(
       )
     "code" -> {
       case elt.binding {
-        Some(Binding(strength: "required", value_set: Some(value_set))) -> {
+        Some(Binding(
+          strength: "required",
+          value_set: Some(value_set),
+          available: True,
+        )) -> {
           let assert [url, ..] = string.split(value_set, "|")
           case
             string.contains(url, "v3-Confidentiality")
@@ -605,7 +609,7 @@ pub fn string_to_type(
             )
           }
         }
-        Some(Binding(strength: "required", value_set: None)) ->
+        Some(Binding(strength: "required", value_set: None, available: True)) ->
           panic as "required code binding has no ValueSet"
         _ -> #("String", required_value_sets_acc)
       }
@@ -660,11 +664,15 @@ fn bound_complex_type(
 ) -> #(String, Dict(String, ValuesetItem)) {
   let prefix = bucket_prefix(normal_type, current)
   case elt.binding {
-    None | Some(Binding(strength: "required", value_set: None)) -> #(
+    None | Some(Binding(strength: "required", value_set: None, ..)) -> #(
       prefix <> normal_type,
       required_value_sets_acc,
     )
-    Some(Binding(strength: "required", value_set: Some(value_set))) -> {
+    Some(Binding(
+      strength: "required",
+      value_set: Some(value_set),
+      available: True,
+    )) -> {
       let assert [url, ..] = string.split(value_set, "|")
       #(
         prefix
