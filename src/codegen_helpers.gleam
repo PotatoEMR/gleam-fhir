@@ -135,6 +135,8 @@ pub type Element {
     pattern_coding: Option(DiscriminatorCodingValue),
     pattern_codeableconcept: Option(DiscriminatorCodeableconceptValue),
     pattern_identifier: Option(DiscriminatorIdentifierValue),
+    // Derived coding slices implementing a CodeableConcept pattern.
+    pattern_match: Bool,
   )
 }
 
@@ -229,6 +231,7 @@ pub fn element_decoder() -> decode.Decoder(Element) {
     pattern_coding:,
     pattern_codeableconcept:,
     pattern_identifier:,
+    pattern_match: False,
   ))
 }
 
@@ -533,6 +536,32 @@ pub fn name_record_fields(
       )
     })
   list.reverse(fields)
+}
+
+pub fn record_update_source(
+  constructor: String,
+  record: String,
+  fields: List(String),
+  updates: List(#(String, String)),
+) -> String {
+  let updated_fields = list.map(updates, fn(update) { update.0 })
+  let assert True =
+    list.all(updated_fields, fn(field) { list.contains(fields, field) })
+    as "record update contains an unknown field"
+  let spread = case
+    list.all(fields, fn(field) { list.contains(updated_fields, field) })
+  {
+    True -> ""
+    False -> ".." <> record <> ", "
+  }
+  constructor
+  <> "("
+  <> spread
+  <> string.join(
+    list.map(updates, fn(update) { update.0 <> ": " <> update.1 }),
+    ", ",
+  )
+  <> ")"
 }
 
 pub fn escape_field_name(name: String) -> String {

@@ -2333,6 +2333,120 @@ fn prepare_profile_slices(
       !set.contains(profiled_datatype_child_ids, element.id)
     })
     |> list.append(profiled_datatype_children)
+  // Custom concept records still need one coding matching the parent pattern.
+  // Express it as a required slice so the existing coding representation keeps
+  // its constants, other fields, additional codings, and their positions.
+  let concept_pattern_children =
+    elements
+    |> list.flat_map(fn(root) {
+      case root.pattern_codeableconcept {
+        Some(codegen_helpers.DiscriminatorCodeableconceptValue(coding: [pattern])) -> {
+          let custom_record =
+            list.any(elements, fn(child) {
+              let prefix = root.id <> "."
+              case string.starts_with(child.id, prefix) {
+                False -> False
+                True -> {
+                  let field = string.drop_start(child.id, string.length(prefix))
+                  let fixed_field = case field {
+                    "coding.system" -> pattern.system != None
+                    "coding.code" -> pattern.code != None
+                    "coding.display" -> pattern.display != None
+                    _ -> False
+                  }
+                  child.slice_name != None
+                  || !list.contains(
+                    [
+                      "id", "extension", "coding", "text", "coding.id",
+                      "coding.extension", "coding.version", "coding.system",
+                      "coding.code", "coding.display", "coding.userSelected",
+                    ],
+                    field,
+                  )
+                  || list.any(child.type_, fn(type_) { type_.profile != [] })
+                  || case fixed_field {
+                    True -> child.min > 1 || child.max != "1"
+                    False ->
+                      child.min != child.base.min || child.max != child.base.max
+                  }
+                  || case child.binding {
+                    Some(binding) ->
+                      binding.strength == "required" && !fixed_field
+                    None -> False
+                  }
+                }
+              }
+            })
+          case custom_record {
+            False -> []
+            True -> {
+              let coding_id = root.id <> ".coding"
+              let coding = case find_element(elements, coding_id) {
+                Ok(coding) -> coding
+                Error(_) -> {
+                  let assert Ok(coding) =
+                    base_elements
+                    |> dict.values
+                    |> list.find(fn(child) {
+                      child.path == "CodeableConcept.coding"
+                    })
+                  codegen_helpers.Element(
+                    ..coding,
+                    id: coding_id,
+                    path: root.path <> ".coding",
+                  )
+                }
+              }
+              case coding.slicing {
+                Some(_) -> []
+                None -> {
+                  let assert True = coding.max != "0"
+                  let pattern_id = coding.id <> ":pattern"
+                  let assert Error(_) = find_element(elements, pattern_id)
+                  [
+                    codegen_helpers.Element(
+                      ..coding,
+                      pattern_match: True,
+                      slicing: Some(codegen_helpers.Slicing(
+                        discriminator: [
+                          codegen_helpers.Discriminator(
+                            type_: "pattern",
+                            path: "$this",
+                          ),
+                        ],
+                        ordered: False,
+                        rules: "open",
+                      )),
+                    ),
+                    codegen_helpers.Element(
+                      ..coding,
+                      id: pattern_id,
+                      slice_name: Some("pattern"),
+                      slicing: None,
+                      min: 1,
+                      max: "*",
+                      pattern_coding: Some(pattern),
+                      pattern_match: True,
+                    ),
+                  ]
+                }
+              }
+            }
+          }
+        }
+        _ -> []
+      }
+    })
+  let concept_pattern_child_ids =
+    concept_pattern_children
+    |> list.map(fn(child) { child.id })
+    |> set.from_list
+  let elements =
+    elements
+    |> list.filter(fn(element) {
+      !set.contains(concept_pattern_child_ids, element.id)
+    })
+    |> list.append(concept_pattern_children)
   let inherited_datatype_children =
     elements
     |> list.filter(fn(element) {
@@ -2411,22 +2525,64 @@ fn prepare_profile_slices(
   let elements = list.append(elements, inherited_datatype_children)
   let elements =
     list.map(elements, fn(element) {
-      case string.ends_with(element.id, ".system"), element.fixed_uri {
-        True, None -> {
-          let parent_id = string.drop_end(element.id, 7)
-          case find_element(elements, parent_id) {
-            Ok(codegen_helpers.Element(
-              type_: [codegen_helpers.Type(code: "Identifier", ..)],
-              pattern_identifier: Some(codegen_helpers.DiscriminatorIdentifierValue(
-                system: Some(system),
-                ..,
-              )),
-              ..,
-            )) -> codegen_helpers.Element(..element, fixed_uri: Some(system))
-            _ -> element
+      let assert Ok(field) = element.id |> string.split(".") |> list.last
+      let parent_id = string.drop_end(element.id, string.length(field) + 1)
+      let pattern = case find_element(elements, parent_id) {
+        Ok(codegen_helpers.Element(pattern_identifier: Some(pattern), ..)) ->
+          case field {
+            "system" -> pattern.system
+            _ -> None
+          }
+        Ok(codegen_helpers.Element(pattern_coding: Some(pattern), ..)) ->
+          case field {
+            "system" -> pattern.system
+            "code" -> pattern.code
+            "display" -> pattern.display
+            _ -> None
+          }
+        _ -> None
+      }
+      let element = case pattern {
+        Some(value) -> {
+          let existing = case field {
+            "system" -> element.fixed_uri
+            _ -> element.fixed_code
+          }
+          case existing {
+            Some(existing) if existing != value ->
+              panic as { "conflicting pattern constraints for " <> element.id }
+            _ -> Nil
+          }
+          case element.max {
+            "0" ->
+              panic as { "pattern requires prohibited field " <> element.id }
+            _ -> Nil
+          }
+          case field {
+            "system" ->
+              codegen_helpers.Element(..element, min: 1, fixed_uri: Some(value))
+            _ ->
+              codegen_helpers.Element(
+                ..element,
+                min: 1,
+                fixed_code: Some(value),
+              )
           }
         }
-        _, _ -> element
+        None -> element
+      }
+      // A named slice supplies its scalar constants whenever its value exists.
+      // The cardinality of the slice itself remains unchanged.
+      case
+        element.max == "1"
+        && { element.fixed_uri != None || element.fixed_code != None }
+        && list.any(elements, fn(root) {
+          root.slice_name != None
+          && string.starts_with(element.id, root.id <> ".")
+        })
+      {
+        True -> codegen_helpers.Element(..element, min: int.max(1, element.min))
+        False -> element
       }
     })
   let groups =
@@ -4013,9 +4169,58 @@ pub fn profile_files_to_types(
                         element.max,
                         is_primitive,
                       )
+                    let #(newfunc_arg, newfunc_field, required_argument) = case
+                      element.pattern_match,
+                      element.slice_name,
+                      dict.get(slice_type_overrides, element.id)
+                    {
+                      True, Some(_), Ok(FixedSliceType(type_name, ..)) -> {
+                        let assert Ok(value) =
+                          codegen_slice_complex_type.discriminator_new_call(
+                            current_bucket,
+                            type_name,
+                          )
+                        let value = case is_resource_slice_elt {
+                          True ->
+                            complex_prefix <> "SliceElt(" <> value <> ", None)"
+                          False -> value
+                        }
+                        #(
+                          "",
+                          field_name
+                            <> ": "
+                            <> complex_prefix
+                            <> "List1(first: "
+                            <> value
+                            <> ", rest: []),",
+                          None,
+                        )
+                      }
+                      _, _, _ -> #(
+                        newfunc_arg,
+                        newfunc_field,
+                        required_argument,
+                      )
+                    }
                     let newfunc_field = case meta_profile {
                       None -> newfunc_field
                       Some(#(profile_field, profile_type, _)) -> {
+                        let assert Ok(codegen_profile_json.RecordConstructor(
+                          _,
+                          _,
+                          meta_fields,
+                        )) =
+                          dict.get(
+                            constructors,
+                            codegen_profile_json.constructor_key(
+                              current_bucket,
+                              field_type,
+                            ),
+                          )
+                        let meta_field_names =
+                          list.map(meta_fields, fn(field) {
+                            codegen_helpers.field_name(field.0)
+                          })
                         let meta = case constructor_min {
                           0 ->
                             field_type
@@ -4095,12 +4300,13 @@ pub fn profile_files_to_types(
                         <> "{ let meta = "
                         <> meta
                         <> " "
-                        <> field_type
-                        <> "(..meta, "
-                        <> profile_field
-                        <> ": "
-                        <> tagged
-                        <> ") }"
+                        <> codegen_helpers.record_update_source(
+                          field_type,
+                          "meta",
+                          meta_field_names,
+                          [#(profile_field, tagged)],
+                        )
+                        <> " }"
                         <> case card_min {
                           0 -> "),"
                           _ -> ","

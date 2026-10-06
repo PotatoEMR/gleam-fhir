@@ -487,6 +487,10 @@ pub fn gen(
     )
   let _include_type = "pub type Include {Include(" <> include_type <> ")}"
 
+  let grouped_field_names =
+    list.flat_map(expanded_rest, fn(rest) {
+      list.map(rest.resource, fn(res) { id_to_name(res.type_).0 })
+    })
   let grouped_type =
     string.concat(
       list.map(expanded_rest, fn(rest) {
@@ -527,11 +531,13 @@ pub fn gen(
             let #(name_lower, name_capital) = id_to_name(res.type_)
             "resources.Resource"
             <> name_capital
-            <> "(r) -> GroupedResources(..acc, "
-            <> name_lower
-            <> ": [r, ..acc. "
-            <> name_lower
-            <> "])"
+            <> "(r) -> "
+            <> codegen_helpers.record_update_source(
+              "GroupedResources",
+              "acc",
+              grouped_field_names,
+              [#(name_lower, "[r, ..acc." <> name_lower <> "]")],
+            )
           }),
         )
       }),

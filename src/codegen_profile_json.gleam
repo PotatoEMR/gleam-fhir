@@ -2707,7 +2707,7 @@ pub fn profile_field_is_slice_elt(
   fields: List(codegen_helpers.Element),
   preserve_slice_order: Bool,
 ) -> Bool {
-  preserve_slice_order
+  { preserve_slice_order || element.pattern_match }
   && element.base.max != "1"
   && !string.ends_with(element.path, "[x]")
   && aggregate_value_slice_roots(element, fields) == None
@@ -4253,15 +4253,17 @@ fn slice_group_support_source(
     codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
   let extension_group =
     list.any(group.type_, fn(type_) { type_.code == "Extension" })
+  let indexed_values =
+    profile_field_is_slice_elt(group, roots, context.preserve_slice_order)
   let named_slice_elt_type = fn(type_) {
-    case context.preserve_slice_order, extension_group {
+    case indexed_values, extension_group {
       True, True -> complex_prefix <> "ExtensionSliceElt(" <> type_ <> ")"
       True, False -> complex_prefix <> "SliceElt(" <> type_ <> ")"
       False, _ -> type_
     }
   }
   let open_slice_elt_type = fn(type_) {
-    case context.preserve_slice_order {
+    case indexed_values {
       True -> complex_prefix <> "SliceElt(" <> type_ <> ")"
       False -> type_
     }
@@ -5433,6 +5435,16 @@ fn extension_slice_fold_source(
   let #(_, _, json_name, field_name, base_type) =
     profile_element_names(context, parent_type, group)
   let assert Some(slicing) = group.slicing
+  let accumulator_field_names =
+    list.map(roots, fn(root) {
+      let #(_, _, _, field_name, _) =
+        profile_element_names(context, parent_type, root)
+      field_name
+    })
+  let accumulator_field_names = case slicing.rules {
+    "open" | "openAtEnd" -> ["open", ..accumulator_field_names]
+    _ -> accumulator_field_names
+  }
   let group_type = slice_group_type_name(parent_type, group)
   let accumulator_type = group_type <> "SliceAccumulator"
   let assert Ok(field_part) = group.path |> string.split(".") |> list.last
@@ -5516,15 +5528,13 @@ fn extension_slice_fold_source(
         "                  "
         <> variant
         <> "(value) -> Ok("
-        <> accumulator_type
-        <> case roots, slicing.rules {
-          [_], "closed" -> "("
-          _, _ -> "(..accumulator, "
-        }
-        <> root_field
-        <> ": "
-        <> stored_value
-        <> "))\n"
+        <> codegen_helpers.record_update_source(
+          accumulator_type,
+          "accumulator",
+          accumulator_field_names,
+          [#(root_field, stored_value)],
+        )
+        <> ")\n"
       #(decode_branch, fold_branch)
     })
   let unmatched_decoder = case slicing.rules {
@@ -5541,10 +5551,13 @@ fn extension_slice_fold_source(
       "                  "
       <> parsed_type
       <> "Open(value) -> Ok("
-      <> accumulator_type
-      <> "(..accumulator, open: ["
-      <> stored_open_value
-      <> ", ..accumulator.open]))\n"
+      <> codegen_helpers.record_update_source(
+        accumulator_type,
+        "accumulator",
+        accumulator_field_names,
+        [#("open", "[" <> stored_open_value <> ", ..accumulator.open]")],
+      )
+      <> ")\n"
     "closed" ->
       "                  " <> parsed_type <> "Ignored -> Ok(accumulator)\n"
     _ -> ""
@@ -5868,9 +5881,10 @@ fn ordinary_slice_fold_source(
       }
   }
   let is_aggregate = aggregate != None
+  let indexed_values =
+    profile_field_is_slice_elt(group, roots, context.preserve_slice_order)
   let indexed =
-    context.preserve_slice_order
-    && !is_aggregate
+    indexed_values
     || list.any(roots, fn(root) {
       resource_slice_match(
         context,
@@ -5884,14 +5898,14 @@ fn ordinary_slice_fold_source(
   let extension_group =
     list.any(group.type_, fn(type_) { type_.code == "Extension" })
   let stored_named_value = fn(value) {
-    case context.preserve_slice_order, extension_group {
+    case indexed_values, extension_group {
       True, True -> value
       True, False -> complex_prefix <> "SliceElt(" <> value <> ", Some(index))"
       False, _ -> value
     }
   }
   let stored_open_value = fn(value) {
-    case context.preserve_slice_order {
+    case indexed_values {
       True -> complex_prefix <> "SliceElt(" <> value <> ", Some(index))"
       False -> value
     }
@@ -5917,6 +5931,16 @@ fn ordinary_slice_fold_source(
     }
   }
   let assert Some(slicing) = group.slicing
+  let accumulator_field_names =
+    list.map(roots, fn(root) {
+      let #(_, _, _, field_name, _) =
+        profile_element_names(context, parent_type, root)
+      field_name
+    })
+  let accumulator_field_names = case slicing.rules {
+    "open" | "openAtEnd" -> ["open", ..accumulator_field_names]
+    _ -> accumulator_field_names
+  }
   let unmatched = case slicing.rules {
     "open" | "openAtEnd" -> {
       let constructor = case is_aggregate {
@@ -6062,14 +6086,22 @@ fn ordinary_slice_fold_source(
           "          Ok(accumulator), Ok("
           <> parsed_slice_constructor(parent_type, group, root)
           <> "(value)) ->\n            Ok("
-          <> accumulator_type
-          <> "(..accumulator, "
-          <> root_field
-          <> ": ["
-          <> stored_named_value("value")
-          <> ", ..accumulator."
-          <> root_field
-          <> "]))\n"
+          <> codegen_helpers.record_update_source(
+            accumulator_type,
+            "accumulator",
+            accumulator_field_names,
+            [
+              #(
+                root_field,
+                "["
+                  <> stored_named_value("value")
+                  <> ", ..accumulator."
+                  <> root_field
+                  <> "]",
+              ),
+            ],
+          )
+          <> ")\n"
         })
         |> string.concat
       let open = case slicing.rules {
@@ -6077,10 +6109,18 @@ fn ordinary_slice_fold_source(
           "          Ok(accumulator), Ok("
           <> parsed_type
           <> "Open(value)) ->\n            Ok("
-          <> accumulator_type
-          <> "(..accumulator, open: ["
-          <> stored_open_value("value")
-          <> ", ..accumulator.open]))\n"
+          <> codegen_helpers.record_update_source(
+            accumulator_type,
+            "accumulator",
+            accumulator_field_names,
+            [
+              #(
+                "open",
+                "[" <> stored_open_value("value") <> ", ..accumulator.open]",
+              ),
+            ],
+          )
+          <> ")\n"
         "closed" -> ""
         _ -> ""
       }
@@ -6320,7 +6360,7 @@ fn ordinary_slice_fold_source(
               let #(_, _, _, _, target_type) =
                 profile_element_names(context, parent_type, root)
               let value = slice_placeholder(context, root, target_type)
-              case context.preserve_slice_order, extension_group {
+              case indexed_values, extension_group {
                 True, True ->
                   complex_prefix
                   <> "ExtensionSliceElt(value: "
@@ -7122,6 +7162,11 @@ fn extension_classifier_source(
       let parsed_type = extension.name <> "ParsedExtensionSlice"
       let child_decoder =
         "parse_" <> codegen_helpers.to_snake_case(extension.name) <> "_child"
+      let accumulator_field_names = list.map(fields, codegen_helpers.field_name)
+      let accumulator_field_names = case open {
+        True -> ["open", ..accumulator_field_names]
+        False -> accumulator_field_names
+      }
       let branches =
         list.map(fields, fn(field) {
           let assert Ok(field_url) = field.id |> string.split(".") |> list.last
@@ -7144,12 +7189,13 @@ fn extension_classifier_source(
                 "[" <> stored_value <> ", ..accumulator." <> field_name <> "]"
             }
             "Ok("
-            <> accumulator_name
-            <> "(..accumulator, "
-            <> field_name
-            <> ": "
-            <> stored_value
-            <> "))"
+            <> codegen_helpers.record_update_source(
+              accumulator_name,
+              "accumulator",
+              accumulator_field_names,
+              [#(field_name, stored_value)],
+            )
+            <> ")"
           }
           let #(field_type, decoder) = case
             profile_extension_definition(field, extensions)
@@ -7260,16 +7306,32 @@ fn extension_classifier_source(
           "                      "
           <> parsed_type
           <> "Open(child) -> Ok("
-          <> accumulator_name
-          <> "(..accumulator, open: ["
-          <> complex_prefix
-          <> "SliceElt(child, Some(index)), ..accumulator.open]))\n"
+          <> codegen_helpers.record_update_source(
+            accumulator_name,
+            "accumulator",
+            accumulator_field_names,
+            [
+              #(
+                "open",
+                "["
+                  <> complex_prefix
+                  <> "SliceElt(child, Some(index))"
+                  <> ", ..accumulator.open]",
+              ),
+            ],
+          )
+          <> ")\n"
         True, False ->
           "                      "
           <> parsed_type
           <> "Open(child) -> Ok("
-          <> accumulator_name
-          <> "(..accumulator, open: [child, ..accumulator.open]))\n"
+          <> codegen_helpers.record_update_source(
+            accumulator_name,
+            "accumulator",
+            accumulator_field_names,
+            [#("open", "[child, ..accumulator.open]")],
+          )
+          <> ")\n"
         False, _ -> ""
       }
       let child_cases =
