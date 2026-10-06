@@ -1662,8 +1662,7 @@ fn slice_group_type_name(
   <> {
     name
     |> string.replace("[x]", "")
-    |> codegen_helpers.escape_field_name
-    |> string.capitalise
+    |> codegen_helpers.to_camel_case
   }
 }
 
@@ -4291,8 +4290,7 @@ fn slice_group_support_source(
       let field_part =
         field_part
         |> string.replace("[x]", "")
-        |> codegen_helpers.escape_field_name
-        |> string.capitalise
+        |> codegen_helpers.to_camel_case
       let parsed_type = parent_type <> "Parsed" <> field_part <> "Slice"
       let slices_type = group_type <> "Slices"
       let accumulator_fields =
@@ -5104,8 +5102,7 @@ fn parsed_slice_constructor(
   <> {
     field_part
     |> string.replace("[x]", "")
-    |> codegen_helpers.escape_field_name
-    |> string.capitalise
+    |> codegen_helpers.to_camel_case
   }
   <> "Slice"
   <> slice_name_type_part(root)
@@ -5914,8 +5911,7 @@ fn ordinary_slice_fold_source(
       <> {
         field_part
         |> string.replace("[x]", "")
-        |> codegen_helpers.escape_field_name
-        |> string.capitalise
+        |> codegen_helpers.to_camel_case
       }
       <> "Slice"
     }
@@ -8014,17 +8010,19 @@ pub fn generate_to_json(
             let assert Ok(last_part) = all_parts |> list.last
             let field_path = string.join(all_parts, "_")
             let json_field_name = profile_json_field_name(element, last_part)
-            let safe_field_name =
-              last_part
-              |> string.replace("[x]", "")
-              |> codegen_helpers.escape_field_name
+            let choice_type =
+              gleam_type
+              <> {
+                last_part
+                |> string.replace("[x]", "")
+                |> codegen_helpers.to_camel_case
+              }
             let field_name = codegen_helpers.field_name(element)
             let record_name = case primitive_slice_record {
               True -> "primitive"
               False -> codegen_helpers.to_snake_case(gleam_type)
             }
             let field_value = record_name <> "." <> field_name
-            let choice_type = gleam_type <> string.capitalise(safe_field_name)
             let #(open_field_type, valueset_acc) =
               profile_base_field_type(
                 current_bucket,

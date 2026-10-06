@@ -559,7 +559,17 @@ pub fn escape_field_name(name: String) -> String {
     "todo" -> "todo_"
     "type" -> "type_"
     "use" -> "use_"
-    _ -> name
+    _ -> {
+      case
+        list.contains(
+          ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+          string.slice(name, 0, 1),
+        )
+      {
+        True -> "num_" <> name
+        False -> name
+      }
+    }
   }
 }
 

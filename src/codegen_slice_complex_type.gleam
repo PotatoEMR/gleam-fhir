@@ -211,7 +211,8 @@ pub fn discriminator_from_required_profile_call(
   Error(Nil)
 }
 
-pub const slice_coding_fixed_system = "
+pub const slice_coding_fixed_system =
+  "
 pub type CodingFixedSystem {
   CodingFixedSystem(
     id: Option(String),
@@ -256,15 +257,7 @@ pub fn coding_fixed_system_to_json(
   coding: CodingFixedSystem,
   system: String,
 ) -> Json {
-  coding_to_json(Coding(
-    id: coding.id,
-    extension: coding.extension,
-    system: Some(system),
-    version: coding.version,
-    code: coding.code,
-    display: coding.display,
-    user_selected: coding.user_selected,
-  ))
+  coding_to_json(coding_fixed_system_to_coding(coding, system))
 }
 
 fn coding_fixed_system_to_coding(
@@ -284,7 +277,8 @@ fn coding_fixed_system_to_coding(
 
 "
 
-pub const slice_coding_fixed_system_code = "
+pub const slice_coding_fixed_system_code =
+  "
 pub type CodingFixedSystemCode {
   CodingFixedSystemCode(
     id: Option(String),
@@ -331,15 +325,7 @@ pub fn coding_fixed_system_code_to_json(
   system: String,
   code: String,
 ) -> Json {
-  coding_to_json(Coding(
-    id: coding.id,
-    extension: coding.extension,
-    system: Some(system),
-    version: coding.version,
-    code: Some(code),
-    display: coding.display,
-    user_selected: coding.user_selected,
-  ))
+  coding_to_json(coding_fixed_system_code_to_coding(coding, system, code))
 }
 
 fn coding_fixed_system_code_to_coding(
@@ -359,7 +345,8 @@ fn coding_fixed_system_code_to_coding(
 }
 "
 
-pub const slice_coding_display = "
+pub const slice_coding_display =
+  "
 pub type CodingFixedSystemCodeDisplay {
   CodingFixedSystemCodeDisplay(
     id: Option(String),
@@ -409,15 +396,7 @@ pub fn coding_fixed_system_code_display_to_json(
   code: String,
   display: String,
 ) -> Json {
-  coding_to_json(Coding(
-    id: coding.id,
-    extension: coding.extension,
-    system: Some(system),
-    version: coding.version,
-    code: Some(code),
-    display: Some(display),
-    user_selected: coding.user_selected,
-  ))
+  coding_to_json(coding_fixed_system_code_display_to_coding(coding, system, code, display))
 }
 
 fn coding_fixed_system_code_display_to_coding(
@@ -438,7 +417,8 @@ fn coding_fixed_system_code_display_to_coding(
 }
 "
 
-pub const slice_coding_fixeduri = "
+pub const slice_coding_fixeduri =
+  "
 pub type CodingFixedSystemRequiredCodeDisplay {
   CodingFixedSystemRequiredCodeDisplay(
     id: Option(String),
@@ -841,7 +821,8 @@ pub fn codeableconcept_fixed_system_code_display_to_json(
   ])
 }
 
-pub const slice_codeableconcept_list1_fixed_system = "
+pub const slice_codeableconcept_list1_fixed_system =
+  "
 pub type CodeableconceptList1FixedSystem {
   CodeableconceptList1FixedSystem(
     id: Option(String),
@@ -890,7 +871,8 @@ pub fn codeableconcept_list1_fixed_system_to_json(
 
 "
 
-pub const slice_codeableconcept_list1_fixed_system_code = "
+pub const slice_codeableconcept_list1_fixed_system_code =
+  "
 pub type CodeableconceptList1FixedSystemCode {
   CodeableconceptList1FixedSystemCode(
     id: Option(String),
@@ -941,7 +923,8 @@ pub fn codeableconcept_list1_fixed_system_code_to_json(
 
 "
 
-pub const slice_codeableconcept_list1_fixed_system_code_display = "
+pub const slice_codeableconcept_list1_fixed_system_code_display =
+  "
 pub type CodeableconceptList1FixedSystemCodeDisplay {
   CodeableconceptList1FixedSystemCodeDisplay(
     id: Option(String),

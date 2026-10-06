@@ -3771,11 +3771,10 @@ pub fn profile_files_to_types(
                     let assert Ok(last_part) = all_parts |> list.last
                     let field_path = string.join(all_parts, "_")
                     let json_field_name = string.replace(last_part, "[x]", "")
-                    let safe_field_name =
-                      codegen_helpers.escape_field_name(json_field_name)
                     let field_name = codegen_helpers.field_name(element)
                     let choice_type =
-                      gleam_type <> string.capitalise(safe_field_name)
+                      gleam_type
+                      <> codegen_helpers.to_camel_case(json_field_name)
 
                     let is_primitive = False
 
