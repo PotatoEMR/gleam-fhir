@@ -4,6 +4,7 @@ import codegen_client
 import codegen_decode
 import codegen_helpers
 import codegen_profile
+import codegen_profile_json
 import codegen_to_json
 import download_profile_package
 import fhir/r4_gen/resources as r4
@@ -259,6 +260,7 @@ fn gen_fhir(
     resource_type_names,
     core_resource_entries,
     _,
+    resource_constructors,
   ) =
     file_to_types(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
@@ -285,7 +287,14 @@ fn gen_fhir(
       |> Some
     None -> None
   }
-  let #(complex_types_gen, valueset_acc, _, _, core_type_urls) =
+  let #(
+    complex_types_gen,
+    valueset_acc,
+    _,
+    _,
+    core_type_urls,
+    core_constructors,
+  ) =
     file_to_types(
       spec_file: complex_types_file,
       fv: pkg_prefix,
@@ -318,6 +327,7 @@ fn gen_fhir(
           valueset_acc,
           gen_specific_resources,
           core_type_urls,
+          dict.merge(resource_constructors, core_constructors),
         )
       #(
         complex_types,
@@ -976,7 +986,9 @@ fn gen_fhir(
       #("primitive_slice_list_to_json", "primitive_slice_list_to_json("),
     ]
     |> list.filter_map(fn(item) {
-      case string.contains(resources_gen, item.1) {
+      let unqualified_source =
+        string.replace(resources_gen, "ct." <> item.1, "")
+      case string.contains(unqualified_source, item.1) {
         True -> Ok(item.0)
         False -> Error(Nil)
       }
@@ -991,6 +1003,53 @@ fn gen_fhir(
     <> "/complex_types.{"
     <> string.join(resource_complex_imports, ", ")
     <> "} as ct\n"
+  let resource_tokens =
+    list.fold(
+      ["(", ")", "{", "}", ":", ",", ".", "\n", "<", ">"],
+      resources_gen,
+      fn(source, separator) { string.replace(source, separator, " ") },
+    )
+    |> string.split(" ")
+  let r_imports =
+    list.fold(
+      ["bool", "int", "list", "valuesets"],
+      r_imports,
+      fn(imports, module) {
+        case string.contains(resources_gen, module <> ".") {
+          True -> imports
+          False ->
+            string.replace(
+              imports,
+              case module {
+                "valuesets" -> "import fhir/" <> pkg_prefix <> "/valuesets\n"
+                _ -> "import gleam/" <> module <> "\n"
+              },
+              "",
+            )
+        }
+      },
+    )
+  let primitive_imports =
+    ["Date", "DateTime", "Instant", "Time"]
+    |> list.filter(fn(name) { list.contains(resource_tokens, name) })
+    |> list.map(fn(name) { "type " <> name })
+  let r_imports =
+    string.replace(
+      r_imports,
+      "import fhir/"
+        <> pkg_prefix
+        <> "/primitive_types.{type Date, type DateTime, type Instant, type Time} as pt\n",
+      case primitive_imports, string.contains(resources_gen, "pt.") {
+        [], False -> ""
+        [], True -> "import fhir/" <> pkg_prefix <> "/primitive_types as pt\n"
+        _, _ ->
+          "import fhir/"
+          <> pkg_prefix
+          <> "/primitive_types.{"
+          <> string.join(primitive_imports, ", ")
+          <> "} as pt\n"
+      },
+    )
   let r_content =
     string.concat([
       "////[https://hl7.org/fhir/",
@@ -1112,6 +1171,7 @@ fn file_to_types(
   Set(String),
   List(#(String, String, String)),
   Set(String),
+  dict.Dict(String, codegen_profile_json.ConstructorDefinition),
 ) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
@@ -1228,12 +1288,12 @@ fn file_to_types(
     })
     |> set.from_list
 
-  let #(all_resources_and_types, valueset_acc) =
+  let #(all_resources_and_types, valueset_acc, constructors) =
     list.fold(
       entries,
-      #("", valueset_acc),
+      #("", valueset_acc, dict.new()),
       fn(acc, resource: codegen_helpers.Resource) {
-        let #(elt_str_acc, valueset_acc) = acc
+        let #(elt_str_acc, valueset_acc, constructors) = acc
         //map of type -> fields needed to list out all the BackboneElements
         //because they're subcomponents eg Allergy -> Reaction
         //and rather than nested, we want to write fields one after the other
@@ -1245,7 +1305,7 @@ fn file_to_types(
 
         let f_o = #(starting_res_fields, type_order)
 
-        let #(resource_types, valueset_acc) = {
+        let #(resource_types, valueset_acc, constructors) = {
           let fields_and_order =
             list.fold(over: snapshot.element, from: f_o, with: fn(f_o, elt) {
               let res_fields = f_o.0
@@ -1291,9 +1351,9 @@ fn file_to_types(
 
           list.fold(
             over: type_order,
-            from: #("", valueset_acc),
+            from: #("", valueset_acc, constructors),
             with: fn(acc, new_type) {
-              let #(old_type_acc, valueset_acc) = acc
+              let #(old_type_acc, valueset_acc, constructors) = acc
               let new_doc_link = {
                 let link =
                   string.concat([
@@ -1345,6 +1405,9 @@ fn file_to_types(
                 decoder_success,
                 decoder_always_failure_fordr,
                 valueset_acc,
+                constructor_arguments,
+                constructor_fields,
+                constructors,
               ) =
                 list.fold(
                   from: #(
@@ -1358,6 +1421,9 @@ fn file_to_types(
                     "",
                     "",
                     valueset_acc,
+                    [],
+                    [],
+                    constructors,
                   ),
                   over: fields,
                   with: fn(acc, elt: codegen_helpers.Element) {
@@ -1372,6 +1438,9 @@ fn file_to_types(
                     let decoder_success_acc = acc.7
                     let decoder_always_failure_acc = acc.8
                     let valueset_acc = acc.9
+                    let constructor_arguments = acc.10
+                    let constructor_fields = acc.11
+                    let constructors = acc.12
                     //yeah this should be custom type right
                     let allparts =
                       elt.id
@@ -1435,16 +1504,19 @@ fn file_to_types(
                         ",\n",
                         fields_acc,
                       ])
-                    let #(choicetypes_acc, valueset_acc) = case elt.type_ {
-                      [] -> #(choicetypes_acc, valueset_acc)
-                      [_] -> #(choicetypes_acc, valueset_acc)
+                    let #(choicetypes_acc, valueset_acc, constructors) = case
+                      elt.type_
+                    {
+                      [] -> #(choicetypes_acc, valueset_acc, constructors)
+                      [_] -> #(choicetypes_acc, valueset_acc, constructors)
                       _ -> {
-                        let #(choice_fields, valueset_acc) =
+                        let #(choice_fields, valueset_acc, constructors) =
                           list.fold(
                             over: elt.type_,
-                            from: #("", valueset_acc),
+                            from: #("", valueset_acc, constructors),
                             with: fn(acc, typ) {
-                              let #(fields_acc, valueset_acc) = acc
+                              let #(fields_acc, valueset_acc, constructors) =
+                                acc
                               let #(choice_type, valueset_acc) =
                                 codegen_helpers.string_to_type(
                                   typ.code,
@@ -1467,6 +1539,31 @@ fn file_to_types(
                                   ")",
                                 ]),
                                 valueset_acc,
+                                case
+                                  dict.has_key(
+                                    constructors,
+                                    codegen_profile_json.constructor_key(
+                                      current_bucket,
+                                      field_name_new,
+                                    ),
+                                  )
+                                {
+                                  True -> constructors
+                                  False ->
+                                    dict.insert(
+                                      constructors,
+                                      codegen_profile_json.constructor_key(
+                                        current_bucket,
+                                        field_name_new,
+                                      ),
+                                      codegen_profile_json.ChoiceConstructor(
+                                        current_bucket,
+                                        field_name_new
+                                          <> string.capitalise(typ.code),
+                                        choice_type,
+                                      ),
+                                    )
+                                },
                               )
                             },
                           )
@@ -1570,10 +1667,11 @@ fn file_to_types(
                             //add to all choice types
                           ],
                           valueset_acc,
+                          constructors,
                         )
                       }
                     }
-                    let #(newfunc_arg, newfunc_field) =
+                    let #(newfunc_arg, newfunc_field, required_argument) =
                       codegen_helpers.new_fn_arg_and_field(
                         elt_snake,
                         field_type,
@@ -1810,6 +1908,22 @@ fn file_to_types(
                       decoder_success_acc,
                       decoder_always_failure_acc,
                       valueset_acc,
+                      case required_argument {
+                        Some(argument) -> [argument, ..constructor_arguments]
+                        None -> constructor_arguments
+                      },
+                      [
+                        #(
+                          elt,
+                          codegen_helpers.cardinality(
+                            field_type,
+                            elt.min,
+                            elt.max,
+                          ),
+                        ),
+                        ..constructor_fields
+                      ],
+                      constructors,
                     )
                   },
                 )
@@ -1847,7 +1961,23 @@ fn file_to_types(
               }
               let assert Some(fhir_resource_type) = resource.type_
 
-              case camel_type {
+              let constructors = case camel_type {
+                "Extension" -> constructors
+                _ ->
+                  dict.insert(
+                    constructors,
+                    codegen_profile_json.constructor_key(
+                      current_bucket,
+                      camel_type,
+                    ),
+                    codegen_profile_json.RecordConstructor(
+                      current_bucket,
+                      list.reverse(constructor_arguments),
+                      list.reverse(constructor_fields),
+                    ),
+                  )
+              }
+              let #(source, valueset_acc) = case camel_type {
                 "Extension" -> {
                   let assert [elt, ..] = fields
                   let #(extension_value_types, valueset_acc) =
@@ -2040,11 +2170,12 @@ fn file_to_types(
                   )
                 }
               }
+              #(source, valueset_acc, constructors)
             },
           )
         }
         let gen_str = elt_str_acc <> "\n" <> resource_types
-        #(gen_str, valueset_acc)
+        #(gen_str, valueset_acc, constructors)
       },
     )
   let resource_entries = case
@@ -2075,6 +2206,7 @@ fn file_to_types(
     referenced_type_names,
     resource_entries,
     entries |> list.map(fn(resource) { resource.url }) |> set.from_list,
+    constructors,
   )
 }
 

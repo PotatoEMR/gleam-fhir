@@ -68,6 +68,14 @@ pub fn string_to_decoder_type(
       current,
       dict.new(),
     )
+  decoder_for_type(fhir_type, gleam_type, current)
+}
+
+pub fn decoder_for_type(
+  fhir_type: String,
+  gleam_type: String,
+  current: codegen_helpers.Category,
+) -> String {
   let prefix = codegen_helpers.bucket_prefix("Coding", current)
   case
     fhir_type,

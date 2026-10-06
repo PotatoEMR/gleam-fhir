@@ -8,6 +8,7 @@ import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
+import gleam/result
 import gleam/set.{type Set}
 import gleam/string
 import simplifile
@@ -120,6 +121,7 @@ pub type Element {
   Element(
     id: String,
     path: String,
+    gleam_field_name: Option(String),
     base: ElementBase,
     slice_name: Option(String),
     slicing: Option(Slicing),
@@ -213,6 +215,7 @@ pub fn element_decoder() -> decode.Decoder(Element) {
   decode.success(Element(
     id:,
     path:,
+    gleam_field_name: None,
     base:,
     slice_name:,
     slicing:,
@@ -428,59 +431,108 @@ pub fn cardinality(fieldtype: String, fieldmin: Int, fieldmax: String) {
   }
 }
 
+// The emitted signature and recorded argument use the same field type.
 pub fn new_fn_arg_and_field(
   field_name: String,
   field_type: String,
   min: Int,
   max: String,
   is_primitive: Bool,
-) -> #(String, String) {
+) -> #(String, String, Option(#(String, String))) {
   let max = case max {
     "0" | "1" -> max
     _ -> "*"
   }
-  case min, max {
-    0, "*" -> #("", field_name <> ": [],")
-    1, "*" ->
-      case is_primitive {
-        True -> #("", field_name <> ": [],")
-        False -> #(
-          field_name <> " " <> field_name <> ": List1(" <> field_type <> "),",
-          field_name <> ":,",
-        )
-      }
-    2, "*" -> #(
-      field_name <> " " <> field_name <> ": List2(" <> field_type <> "),",
-      field_name <> ":,",
+  let #(required, field) = case min, max {
+    0, "*" -> #(False, field_name <> ": [],")
+    1, "*" if is_primitive -> #(False, field_name <> ": [],")
+    1, "*" | 2, "*" | 3, "*" -> #(True, field_name <> ":,")
+    0, "1" | 1, _ if is_primitive -> #(
+      False,
+      field_name <> ": Primitive(id: None, ext: [], value: None),",
     )
-    3, "*" -> #(
-      field_name <> " " <> field_name <> ": List3(" <> field_type <> "),",
-      field_name <> ":,",
-    )
-    0, "1" -> #(
-      "",
-      field_name
-        <> ": "
-        <> case is_primitive {
-        True -> "Primitive(id: None, ext: [], value: None)"
-        False -> "None"
-      }
-        <> ",",
-    )
-    0, _ -> #("", field_name <> ": [],")
-    1, _ ->
-      case is_primitive {
-        True -> #(
-          "",
-          field_name <> ": Primitive(id: None, ext: [], value: None),",
-        )
-        False -> #(
-          field_name <> " " <> field_name <> ": " <> field_type <> ",",
-          field_name <> ":,",
-        )
-      }
+    0, "1" -> #(False, field_name <> ": None,")
+    0, _ -> #(False, field_name <> ": [],")
+    1, _ -> #(True, field_name <> ":,")
     _, _ -> panic as "cardinality panic 2"
   }
+  let required = case required {
+    False -> None
+    True -> Some(#(field_name, cardinality(field_type, min, max)))
+  }
+  let argument = case required {
+    None -> ""
+    Some(#(name, type_)) -> name <> " " <> name <> ": " <> type_ <> ","
+  }
+  #(argument, field, required)
+}
+
+pub fn field_name(element: Element) -> String {
+  case element.gleam_field_name {
+    Some(name) -> name
+    None -> {
+      let assert Ok(last) = element.id |> string.split(".") |> list.last
+      element.slice_name
+      |> option.unwrap(last)
+      |> string.replace("[x]", "")
+      |> escape_field_name
+      |> to_snake_case
+    }
+  }
+}
+
+// Assign names once per record, including each occurrence of a repeated element.
+pub fn name_record_fields(
+  fields: List(Element),
+  emitted_fields: List(Element),
+) -> List(Element) {
+  let counts =
+    list.fold(emitted_fields, dict.new(), fn(counts, field) {
+      let name = field_name(Element(..field, gleam_field_name: None))
+      let count = dict.get(counts, name) |> result.unwrap(0)
+      dict.insert(counts, name, count + 1)
+    })
+  // Reserve existing names so a suffix cannot collide with another field.
+  let reserved = counts |> dict.keys |> set.from_list
+  let #(fields, _) =
+    list.fold(fields, #([], reserved), fn(acc, field) {
+      let #(assigned, reserved) = acc
+      let name = field_name(Element(..field, gleam_field_name: None))
+      let count = dict.get(counts, name) |> result.unwrap(0)
+      let name = case count > 1 && list.contains(emitted_fields, field) {
+        False -> name
+        True -> {
+          let stem = case string.ends_with(name, "_") {
+            True -> name
+            False -> name <> "_"
+          }
+          let assert Some(name) =
+            int.range(
+              1,
+              list.length(fields) + set.size(reserved),
+              None,
+              fn(found, number) {
+                case found {
+                  Some(_) -> found
+                  None -> {
+                    let candidate = stem <> int.to_string(number)
+                    case set.contains(reserved, candidate) {
+                      True -> None
+                      False -> Some(candidate)
+                    }
+                  }
+                }
+              },
+            )
+          name
+        }
+      }
+      #(
+        [Element(..field, gleam_field_name: Some(name)), ..assigned],
+        set.insert(reserved, name),
+      )
+    })
+  list.reverse(fields)
 }
 
 pub fn escape_field_name(name: String) -> String {
