@@ -1572,9 +1572,51 @@ pub type DecodeContext {
   )
 }
 
+type ConversionRequest {
+  RecordConversion(
+    function_name: String,
+    base_type: String,
+    target_type: String,
+  )
+  SliceConversion(
+    function_name: String,
+    parent_type: String,
+    group: codegen_helpers.Element,
+    root: codegen_helpers.Element,
+  )
+  ChoiceConversion(
+    function_name: String,
+    choice_type: String,
+    element: codegen_helpers.Element,
+    source_type: String,
+    source_element: Option(codegen_helpers.Element),
+  )
+  ChoiceRecordConversion(
+    function_name: String,
+    target_type: String,
+    base_type: String,
+    fields: List(codegen_helpers.Element),
+  )
+}
+
+type ConversionSupport {
+  ConversionSupport(
+    source: String,
+    conversions: dict.Dict(String, ConversionRequest),
+  )
+}
+
 type ConversionExpression {
-  ConversionExpression(expression: String, helpers: String, fallible: Bool)
-  IdentityConversion(expression: String, helpers: String, fallible: Bool)
+  ConversionExpression(
+    expression: String,
+    conversions: dict.Dict(String, ConversionRequest),
+    fallible: Bool,
+  )
+  IdentityConversion(
+    expression: String,
+    conversions: dict.Dict(String, ConversionRequest),
+    fallible: Bool,
+  )
 }
 
 fn profile_json_field_name(
@@ -1637,6 +1679,7 @@ type SliceGroupDecode {
     decoder_placeholder: Option(String),
     placeholder_fields: List(#(String, String)),
     extension_decoder: Option(#(String, String)),
+    conversions: dict.Dict(String, ConversionRequest),
   )
 }
 
@@ -1646,6 +1689,7 @@ type ResourceSliceMatch {
     success_pattern: String,
     selected: String,
     fallible: Bool,
+    conversions: dict.Dict(String, ConversionRequest),
   )
 }
 
@@ -2025,7 +2069,7 @@ fn discriminator_conversion(
       Ok(#(
         ConversionExpression(
           call <> " |> result.replace_error(\"discriminator\")",
-          "",
+          dict.new(),
           True,
         ),
         False,
@@ -2045,13 +2089,13 @@ fn conversion_map(
           <> ", fn(value) { "
           <> wrap("value")
           <> " })",
-        expression.helpers,
+        expression.conversions,
         True,
       )
     False ->
       ConversionExpression(
         wrap(expression.expression),
-        expression.helpers,
+        expression.conversions,
         False,
       )
   }
@@ -2070,7 +2114,7 @@ fn conversion_for_cardinality(
   case is_primitive {
     True -> {
       case conversion_is_identity(expression) {
-        True -> IdentityConversion(source, expression.helpers, False)
+        True -> IdentityConversion(source, expression.conversions, False)
         False -> {
           let convert_primitive = fn(primitive: String) {
             case expression.fallible {
@@ -2098,7 +2142,7 @@ fn conversion_for_cardinality(
             True, fallible ->
               ConversionExpression(
                 convert_primitive(source),
-                expression.helpers,
+                expression.conversions,
                 fallible,
               )
             False, True ->
@@ -2108,7 +2152,7 @@ fn conversion_for_cardinality(
                   <> ", fn(primitive) { "
                   <> convert_primitive("primitive")
                   <> " })",
-                expression.helpers,
+                expression.conversions,
                 True,
               )
             False, False ->
@@ -2118,7 +2162,7 @@ fn conversion_for_cardinality(
                   <> ", fn(primitive) { "
                   <> convert_primitive("primitive")
                   <> " })",
-                expression.helpers,
+                expression.conversions,
                 False,
               )
           }
@@ -2158,7 +2202,7 @@ fn conversion_for_cardinality(
       }
       case source_is_list, target_is_list, element.base.min, target_min {
         True, True, _, 0 if identity ->
-          IdentityConversion(source, expression.helpers, False)
+          IdentityConversion(source, expression.conversions, False)
         True, True, _, 0 ->
           case expression.fallible {
             True ->
@@ -2168,7 +2212,7 @@ fn conversion_for_cardinality(
                   <> ", fn(value) { "
                   <> expression.expression
                   <> " })",
-                expression.helpers,
+                expression.conversions,
                 True,
               )
             False ->
@@ -2178,7 +2222,7 @@ fn conversion_for_cardinality(
                   <> ", fn(value) { "
                   <> expression.expression
                   <> " })",
-                expression.helpers,
+                expression.conversions,
                 False,
               )
           }
@@ -2224,7 +2268,7 @@ fn conversion_for_cardinality(
           }
           ConversionExpression(
             "{ " <> list_expression <> constructor <> " }",
-            expression.helpers,
+            expression.conversions,
             True,
           )
         }
@@ -2244,7 +2288,7 @@ fn conversion_for_cardinality(
               <> " _ -> "
               <> failure("\"maximum cardinality 1\"")
               <> " }",
-            expression.helpers,
+            expression.conversions,
             True,
           )
         True, False, _, _ ->
@@ -2259,7 +2303,7 @@ fn conversion_for_cardinality(
               <> " _ -> "
               <> failure("\"cardinality 1..1\"")
               <> " }",
-            expression.helpers,
+            expression.conversions,
             True,
           )
         False, False, 0, 0 ->
@@ -2276,7 +2320,7 @@ fn conversion_for_cardinality(
               }
             }
               <> " }",
-            expression.helpers,
+            expression.conversions,
             True,
           )
         False, False, 0, _ ->
@@ -2291,7 +2335,7 @@ fn conversion_for_cardinality(
               False -> "Ok(" <> expression.expression <> ")"
             }
               <> " }",
-            expression.helpers,
+            expression.conversions,
             True,
           )
         False, False, _, _ -> expression
@@ -2377,7 +2421,7 @@ fn required_binding_conversion(
               <> value
               <> second_argument
               <> ") |> result.replace_error(\"required ValueSet\")",
-            "",
+            dict.new(),
             True,
           ))
       }
@@ -2391,7 +2435,7 @@ fn profile_record_conversion_function(
   element: codegen_helpers.Element,
   field_path: String,
   field_type: String,
-) -> Result(String, Nil) {
+) -> Result(ConversionRequest, Nil) {
   let complex_prefix =
     codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
   let restricts_complex_type =
@@ -2408,15 +2452,15 @@ fn profile_record_conversion_function(
     _, _ -> Error(Nil)
   }
   use base_type <- result.try(base_type)
-  Ok(
+  let function_name =
     codegen_helpers.to_snake_case(field_type)
     <> "_try_from_"
     <> {
       base_type
       |> string.replace(complex_prefix, "")
       |> codegen_helpers.to_snake_case
-    },
-  )
+    }
+  Ok(RecordConversion(function_name, base_type, field_type))
 }
 
 fn datatype_profile_conversion(
@@ -2427,7 +2471,7 @@ fn datatype_profile_conversion(
   value: String,
 ) -> ConversionExpression {
   case source_type == target_type {
-    True -> IdentityConversion(value, "", False)
+    True -> IdentityConversion(value, dict.new(), False)
     False -> {
       let encoder = case
         dict.has_key(
@@ -2468,7 +2512,7 @@ fn datatype_profile_conversion(
           <> ")), "
           <> decoder
           <> ") |> result.replace_error(\"invalid datatype profile\")",
-        "",
+        dict.new(),
         True,
       )
     }
@@ -2560,7 +2604,7 @@ fn field_inner_conversion(
               as {
                 "cannot convert field " <> element.id <> " to " <> field_type
               }
-            IdentityConversion(inner_value, "", False)
+            IdentityConversion(inner_value, dict.new(), False)
           }
         }
       }
@@ -2587,8 +2631,12 @@ fn field_inner_conversion(
           field_type,
         )
       {
-        Ok(function) ->
-          ConversionExpression(function <> "(" <> inner_value <> ")", "", True)
+        Ok(conversion) ->
+          ConversionExpression(
+            conversion.function_name <> "(" <> inner_value <> ")",
+            dict.from_list([#(conversion.function_name, conversion)]),
+            True,
+          )
         Error(_) ->
           case element.type_ {
             [] -> {
@@ -2596,7 +2644,7 @@ fn field_inner_conversion(
                 as {
                   "cannot convert field " <> element.id <> " to " <> field_type
                 }
-              IdentityConversion(inner_value, "", False)
+              IdentityConversion(inner_value, dict.new(), False)
             }
             [type_] ->
               required_binding_conversion(
@@ -2616,27 +2664,28 @@ fn field_inner_conversion(
                         <> " to "
                         <> field_type
                       }
-                    IdentityConversion(inner_value, "", False)
+                    IdentityConversion(inner_value, dict.new(), False)
                   }
                 }
               }
             _ -> {
               let source_type =
                 option.unwrap(source_choice_type, base_choice_name(element))
-              ConversionExpression(
+              let function_name =
                 codegen_helpers.to_snake_case(field_type)
-                  <> "_from_"
-                  <> codegen_helpers.to_snake_case(source_type)
-                  <> "("
-                  <> value
-                  <> ")",
-                choice_conversion_source(
-                  context,
+                <> "_from_"
+                <> codegen_helpers.to_snake_case(source_type)
+              let conversion =
+                ChoiceConversion(
+                  function_name,
                   field_type,
                   element,
                   source_type,
                   source_element,
-                ),
+                )
+              ConversionExpression(
+                function_name <> "(" <> value <> ")",
+                dict.from_list([#(function_name, conversion)]),
                 True,
               )
             }
@@ -2651,7 +2700,7 @@ fn field_inner_conversion(
           <> " { Ok(value) -> Ok(value) Error(reason) -> "
           <> failure("reason")
           <> " }",
-        conversion.helpers,
+        conversion.conversions,
         True,
       )
     _, _ -> conversion
@@ -2692,7 +2741,7 @@ fn field_inner_conversion(
           <> " _ -> "
           <> failure("\"expected " <> type_.code <> "\"")
           <> " }",
-        conversion.helpers,
+        conversion.conversions,
         True,
       )
     }
@@ -2786,20 +2835,8 @@ fn record_conversion_from_fields(
   fields: List(codegen_helpers.Element),
   source_profile_type: Option(String),
   slice_json_name: Option(String),
-) -> String {
-  let complex_prefix =
-    codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
-  let function_name =
-    codegen_helpers.to_snake_case(target_type)
-    <> case slice_json_name {
-      None -> "_try_from_"
-      Some(_) -> "_slice_try_from_"
-    }
-    <> {
-      base_type
-      |> string.replace(complex_prefix, "")
-      |> codegen_helpers.to_snake_case
-    }
+  function_name: String,
+) -> ConversionSupport {
   let discriminator =
     fields
     |> list.find(fn(field) {
@@ -2952,6 +2989,7 @@ fn record_conversion_from_fields(
       Ok("  use _ <- result.try(" <> check <> ")\n")
     })
     |> string.concat
+  let empty_support = dict.new()
   let #(bindings, arguments, helpers) =
     fields
     |> list.filter(fn(element) {
@@ -2959,7 +2997,7 @@ fn record_conversion_from_fields(
       || element.min == 0
       || element.max != "1"
     })
-    |> list.fold(#("", "", ""), fn(acc, element) {
+    |> list.fold(#("", "", empty_support), fn(acc, element) {
       let #(bindings, arguments, helpers) = acc
       let #(_, field_path, json_name, field_name, field_type) =
         profile_element_names(context, target_type, element)
@@ -3080,9 +3118,9 @@ fn record_conversion_from_fields(
         None -> False
       }
       let inner = case source_field_type, is_discriminator {
-        _, True -> IdentityConversion(field_name, "", False)
+        _, True -> IdentityConversion(field_name, dict.new(), False)
         Some(source_field_type), False if source_field_type == field_type ->
-          IdentityConversion(inner_value, "", False)
+          IdentityConversion(inner_value, dict.new(), False)
         source_field_type, False ->
           field_inner_conversion(
             context,
@@ -3098,9 +3136,10 @@ fn record_conversion_from_fields(
       }
       let converted = case is_discriminator, element.max, slice_json_name {
         True, "1", Some(_) if target_min == 0 ->
-          ConversionExpression("Some(" <> field_name <> ")", "", False)
-        True, max, _ if max != "1" -> IdentityConversion(field_name, "", False)
-        True, "1", Some(_) -> IdentityConversion(field_name, "", False)
+          ConversionExpression("Some(" <> field_name <> ")", dict.new(), False)
+        True, max, _ if max != "1" ->
+          IdentityConversion(field_name, dict.new(), False)
+        True, "1", Some(_) -> IdentityConversion(field_name, dict.new(), False)
         _, _, _ ->
           conversion_for_cardinality(
             context.current_bucket,
@@ -3124,104 +3163,120 @@ fn record_conversion_from_fields(
       #(
         bindings <> binding,
         arguments <> "    " <> field_name <> ":,\n",
-        helpers <> converted.helpers,
+        dict.merge(helpers, converted.conversions),
       )
     })
-  case slice_json_name {
-    None -> helpers
-    Some(_) -> ""
-  }
-  <> "fn "
-  <> function_name
-  <> "(source: "
-  <> base_type
-  <> case slice_json_name {
-    None -> ""
-    Some(_) -> ", index: Int"
-  }
-  <> discriminator_parameter
-  <> ") -> Result("
-  <> target_type
-  <> case slice_json_name {
-    None -> ", String) {\n"
-    Some(_) -> ", List(decode.DecodeError)) {\n"
-  }
-  <> fixed_bindings
-  <> bindings
-  <> "  Ok("
-  <> target_type
-  <> "(\n"
-  <> arguments
-  <> "  ))\n}\n\n"
+  ConversionSupport(
+    source: "fn "
+      <> function_name
+      <> "(source: "
+      <> base_type
+      <> case slice_json_name {
+      None -> ""
+      Some(_) -> ", index: Int"
+    }
+      <> discriminator_parameter
+      <> ") -> Result("
+      <> target_type
+      <> case slice_json_name {
+      None -> ", String) {\n"
+      Some(_) -> ", List(decode.DecodeError)) {\n"
+    }
+      <> fixed_bindings
+      <> bindings
+      <> "  Ok("
+      <> target_type
+      <> "(\n"
+      <> arguments
+      <> "  ))\n}\n\n",
+    conversions: helpers,
+  )
 }
 
-fn record_conversion_source(
+fn generate_conversions(
   context: DecodeContext,
-  current_type: String,
-  profile_type: String,
-) -> String {
-  let target_type = profile_type_name(context, current_type, profile_type)
-  let assert Ok(raw_fields) = dict.get(context.type_fields, current_type)
-  let fields = profile_fields(raw_fields)
-  let #(base_type, source_profile_type) = case
-    list.find(context.snapshot_elements, fn(element) {
-      case
-        element.slice_name,
-        string.ends_with(element.path, "[x]"),
-        element.type_
-      {
-        Some(_), False, [codegen_helpers.Type(code: "BackboneElement", ..)]
-        | Some(_), False, [codegen_helpers.Type(code: "Element", ..)]
-        | Some(_), False, []
-        -> {
-          let assert [_, ..rest] =
-            element.id
-            |> string.replace("-", "")
-            |> string.replace(":", ".")
-            |> string.split(".")
-          string.join([context.profile_prefix, ..rest], "_") == current_type
-        }
-        _, _, _ -> False
-      }
-    })
-  {
-    Ok(slice_root) -> {
-      let assert [_, ..rest] = slice_root.path |> string.split(".")
-      let slice_base_current_type =
-        string.join([context.profile_prefix, ..rest], "_")
-      case list.contains(context.type_order, slice_base_current_type) {
-        True -> {
-          let source_type =
-            profile_type_name(context, slice_base_current_type, profile_type)
-          #(source_type, Some(source_type))
-        }
+  needed: dict.Dict(String, ConversionRequest),
+  generated: dict.Dict(String, String),
+) -> dict.Dict(String, String) {
+  case dict.to_list(needed) {
+    [] -> generated
+    [#(function_name, conversion), ..] -> {
+      let needed = dict.delete(needed, function_name)
+      case dict.has_key(generated, function_name) {
+        True -> generate_conversions(context, needed, generated)
         False -> {
-          let assert Ok(base_type) = base_record_reference(context, fields)
-          #(base_type, None)
+          let support = case conversion {
+            RecordConversion(function_name, base_type, target_type) -> {
+              let encoder =
+                base_type
+                |> string.split(".")
+                |> list.map(codegen_helpers.to_snake_case)
+                |> string.join(".")
+                |> string.append("_to_json")
+              let source =
+                "fn "
+                <> function_name
+                <> "(source: "
+                <> base_type
+                <> ") -> Result("
+                <> target_type
+                <> ", String) {\n"
+                <> "  json.parse(json.to_string("
+                <> encoder
+                <> "(source)), "
+                <> codegen_helpers.to_snake_case(target_type)
+                <> "_decoder()) |> result.replace_error(\"invalid "
+                <> target_type
+                <> "\")\n}\n\n"
+              ConversionSupport(source, dict.new())
+            }
+            SliceConversion(function_name, parent_type, group, root) ->
+              slice_converter_source(
+                context,
+                parent_type,
+                group,
+                root,
+                function_name,
+              )
+            ChoiceConversion(
+              function_name,
+              choice_type,
+              element,
+              source_type,
+              source_element,
+            ) ->
+              choice_conversion_source(
+                context,
+                choice_type,
+                element,
+                source_type,
+                source_element,
+                function_name,
+              )
+            ChoiceRecordConversion(
+              function_name,
+              target_type,
+              base_type,
+              fields,
+            ) ->
+              record_conversion_from_fields(
+                context,
+                target_type,
+                base_type,
+                fields,
+                None,
+                None,
+                function_name,
+              )
+          }
+          generate_conversions(
+            context,
+            dict.merge(needed, support.conversions),
+            dict.insert(generated, function_name, support.source),
+          )
         }
       }
     }
-    Error(_) -> {
-      let assert Ok(base_type) = base_record_reference(context, fields)
-      #(base_type, None)
-    }
-  }
-  let has_sliced_extensions =
-    list.any(fields, fn(field) {
-      field.slicing != None
-      && list.any(field.type_, fn(type_) { type_.code == "Extension" })
-    })
-  case base_type, has_sliced_extensions {
-    "ct.Identifier", True | "Identifier", True -> ""
-    _, _ ->
-      record_conversion_from_fields(
-        context,
-        target_type,
-        base_type,
-        fields,
-        source_profile_type,
-        None,
-      )
   }
 }
 
@@ -3231,12 +3286,14 @@ fn choice_conversion_source(
   element: codegen_helpers.Element,
   source_choice_type: String,
   source_element: Option(codegen_helpers.Element),
-) -> String {
+  function_name: String,
+) -> ConversionSupport {
   let complex_prefix =
     codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
   let base_choice = source_choice_type
+  let empty_support = dict.new()
   let #(cases, helpers) =
-    list.fold(element.type_, #("", ""), fn(acc, choice) {
+    list.fold(element.type_, #("", empty_support), fn(acc, choice) {
       let #(cases, helpers) = acc
       let constructor = choice_type <> string.capitalise(choice.code)
       let base_constructor = base_choice <> string.capitalise(choice.code)
@@ -3256,7 +3313,7 @@ fn choice_conversion_source(
           context.datatype_types,
           context.valueset_acc,
         )
-      let #(conversion, new_helpers) = case
+      let conversion = case
         dict.get(
           context.type_slice_overrides,
           type_slice_key(element.id, choice.code),
@@ -3268,36 +3325,28 @@ fn choice_conversion_source(
             complex_prefix
             <> codegen_helpers.to_snake_case(choice.code)
             <> "_to_json"
-          #(
-            ConversionExpression(
-              "json.parse(json.to_string("
-                <> base_encoder
-                <> "(value)), "
-                <> codegen_helpers.to_snake_case(sliced_name)
-                <> "_decoder()) |> result.replace_error(\"invalid choice slice\")",
-              "",
-              True,
-            ),
-            "",
+          ConversionExpression(
+            "json.parse(json.to_string("
+              <> base_encoder
+              <> "(value)), "
+              <> codegen_helpers.to_snake_case(sliced_name)
+              <> "_decoder()) |> result.replace_error(\"invalid choice slice\")",
+            dict.new(),
+            True,
           )
         }
         Ok(TypeSlicePlan(children: [_, ..] as children, ..)) -> {
           let sliced_name = constructor <> "Sliced"
           let base_type =
             base_payload_type(context.current_bucket, element, choice.code)
-          let conversion =
-            ConversionExpression(
-              codegen_helpers.to_snake_case(sliced_name)
-                <> "_try_from_"
-                <> {
-                base_type
-                |> string.replace(complex_prefix, "")
-                |> codegen_helpers.to_snake_case
-              }
-                <> "(value)",
-              "",
-              True,
-            )
+          let function_name =
+            codegen_helpers.to_snake_case(sliced_name)
+            <> "_try_from_"
+            <> {
+              base_type
+              |> string.replace(complex_prefix, "")
+              |> codegen_helpers.to_snake_case
+            }
           let fields =
             list.filter(children, fn(child) {
               child.max != "0"
@@ -3308,16 +3357,17 @@ fn choice_conversion_source(
                 || child.max != "1"
               }
             })
-          #(
-            conversion,
-            record_conversion_from_fields(
-              context,
+          let conversion =
+            ChoiceRecordConversion(
+              function_name,
               sliced_name,
               base_type,
               fields,
-              None,
-              None,
-            ),
+            )
+          ConversionExpression(
+            function_name <> "(value)",
+            dict.from_list([#(function_name, conversion)]),
+            True,
           )
         }
         plan -> {
@@ -3366,11 +3416,11 @@ fn choice_conversion_source(
                       <> " to "
                       <> target_type
                     }
-                  IdentityConversion("value", "", False)
+                  IdentityConversion("value", dict.new(), False)
                 }
               }
           }
-          #(conversion, "")
+          conversion
         }
       }
       let body = case conversion.fallible {
@@ -3390,21 +3440,21 @@ fn choice_conversion_source(
           <> "(value) -> {\n"
           <> body
           <> "    }\n",
-        helpers <> new_helpers,
+        dict.merge(helpers, conversion.conversions),
       )
     })
-  helpers
-  <> "fn "
-  <> codegen_helpers.to_snake_case(choice_type)
-  <> "_from_"
-  <> codegen_helpers.to_snake_case(base_choice)
-  <> "(value: "
-  <> base_choice
-  <> ") -> Result("
-  <> choice_type
-  <> ", String) {\n  case value {\n"
-  <> cases
-  <> "  }\n}\n\n"
+  ConversionSupport(
+    source: "fn "
+      <> function_name
+      <> "(value: "
+      <> base_choice
+      <> ") -> Result("
+      <> choice_type
+      <> ", String) {\n  case value {\n"
+      <> cases
+      <> "  }\n}\n\n",
+    conversions: helpers,
+  )
 }
 
 fn field_decoder_expression(
@@ -3783,7 +3833,7 @@ fn choice_decoder_source(
   context: DecodeContext,
   parent_type: String,
   element: codegen_helpers.Element,
-) -> String {
+) -> ConversionSupport {
   let #(all_parts, _, json_name, _, choice_type) =
     profile_element_names(context, parent_type, element)
   let decoders =
@@ -3887,8 +3937,9 @@ fn choice_decoder_source(
       decoder_expression <> " |> decode.map(" <> constructor <> ")"
     })
   let assert [first, ..rest] = decoders
+  let empty_support = ConversionSupport("", dict.new())
   let sliced_decoders =
-    list.fold(element.type_, "", fn(source, choice) {
+    list.fold(element.type_, empty_support, fn(source, choice) {
       case
         dict.get(
           context.type_slice_overrides,
@@ -3905,30 +3956,38 @@ fn choice_decoder_source(
             )
           let constructor = choice_type <> string.capitalise(choice.code)
           let sliced_type = constructor <> "Sliced"
-          source
-          <> slice_support_types_from_fields(context, sliced_type, children)
-          <> record_decoder_from_fields(
-            context,
-            sliced_type,
-            children,
-            None,
-            True,
-            profile_field_has_primitive_type(slice, ""),
+          let support =
+            slice_support_types_from_fields(context, sliced_type, children)
+          let decoder =
+            record_decoder_from_fields(
+              context,
+              sliced_type,
+              children,
+              None,
+              True,
+              profile_field_has_primitive_type(slice, ""),
+            )
+          ConversionSupport(
+            source.source <> support <> decoder.source,
+            dict.merge(source.conversions, decoder.conversions),
           )
         }
         _ -> source
       }
     })
-  sliced_decoders
-  <> "pub fn "
-  <> codegen_helpers.to_snake_case(choice_type)
-  <> "_decoder() -> Decoder("
-  <> choice_type
-  <> ") {\n  decode.one_of(\n    "
-  <> first
-  <> ",\n    ["
-  <> string.join(rest, ",\n      ")
-  <> "],\n  )\n}\n\n"
+  ConversionSupport(
+    source: sliced_decoders.source
+      <> "pub fn "
+      <> codegen_helpers.to_snake_case(choice_type)
+      <> "_decoder() -> Decoder("
+      <> choice_type
+      <> ") {\n  decode.one_of(\n    "
+      <> first
+      <> ",\n    ["
+      <> string.join(rest, ",\n      ")
+      <> "],\n  )\n}\n\n",
+    conversions: sliced_decoders.conversions,
+  )
 }
 
 fn profile_record_base_expression(
@@ -4423,24 +4482,9 @@ fn slice_support_types_from_fields(
       }
     })
   groups
-  |> list.map(fn(group) {
-    let #(group, roots, aggregate) = group
+  |> list.map(fn(item) {
+    let #(group, roots, aggregate) = item
     slice_group_support_source(context, parent_type, group, roots, aggregate)
-    <> {
-      roots
-      |> list.map(fn(root) {
-        case
-          profile_extension_definition(root, context.extensions),
-          dict.has_key(context.slice_type_overrides, root.id)
-          || set.contains(context.nested_value_discriminators, root.id)
-        {
-          Some(_), _ | _, True -> ""
-          None, False ->
-            slice_converter_source(context, parent_type, group, root)
-        }
-      })
-      |> string.concat
-    }
   })
   |> string.concat
 }
@@ -4731,7 +4775,8 @@ fn slice_converter_source(
   parent_type: String,
   group: codegen_helpers.Element,
   root: codegen_helpers.Element,
-) -> String {
+  function_name: String,
+) -> ConversionSupport {
   let #(_, _, json_name, _, base_type) =
     profile_element_names(context, parent_type, group)
   let #(_, _, _, _, target_type) =
@@ -4742,41 +4787,27 @@ fn slice_converter_source(
     list.find(target_fields, fn(field) {
       dict.has_key(context.slice_type_overrides, field.id)
     })
-  case
-    direct_slice_record_expression(
-      context,
-      target_type,
-      base_type,
-      discriminator,
-      "source",
-    )
-  {
-    Ok(_) -> ""
-    Error(_) -> {
-      let #(_, _, _, discriminator_field, discriminator_type) =
-        profile_element_names(context, target_type, discriminator)
-      let discriminator_parameter_type = case discriminator.max {
-        "1" -> discriminator_type
-        _ ->
-          codegen_helpers.cardinality(
-            discriminator_type,
-            profile_field_min(discriminator),
-            discriminator.max,
-          )
-      }
-      let has_sliced_extensions =
-        list.any(target_fields, fn(field) {
-          field.slicing != None
-          && list.any(field.type_, fn(type_) { type_.code == "Extension" })
-        })
-      case has_sliced_extensions {
-        True ->
-          "fn "
-          <> slice_converter_name(
-            context.current_bucket,
-            target_type,
-            base_type,
-          )
+  let #(_, _, _, discriminator_field, discriminator_type) =
+    profile_element_names(context, target_type, discriminator)
+  let discriminator_parameter_type = case discriminator.max {
+    "1" -> discriminator_type
+    _ ->
+      codegen_helpers.cardinality(
+        discriminator_type,
+        profile_field_min(discriminator),
+        discriminator.max,
+      )
+  }
+  let has_sliced_extensions =
+    list.any(target_fields, fn(field) {
+      field.slicing != None
+      && list.any(field.type_, fn(type_) { type_.code == "Extension" })
+    })
+  case has_sliced_extensions {
+    True ->
+      ConversionSupport(
+        source: "fn "
+          <> function_name
           <> "(source: "
           <> base_type
           <> ", index: Int, "
@@ -4790,11 +4821,11 @@ fn slice_converter_source(
           <> ", List(decode.DecodeError)) {\n"
           <> "  case json.parse(json.to_string("
           <> {
-            base_type
-            |> string.split(".")
-            |> list.map(codegen_helpers.to_snake_case)
-            |> string.join(".")
-          }
+          base_type
+          |> string.split(".")
+          |> list.map(codegen_helpers.to_snake_case)
+          |> string.join(".")
+        }
           <> "_to_json(source)), "
           <> codegen_helpers.to_snake_case(target_type)
           <> "_decoder()) {\n    Ok(value) -> Ok(value)\n    Error(json.UnableToDecode(errors)) -> Error(list.map(errors, fn(error) { decode.DecodeError(..error, path: list.append([\""
@@ -4803,18 +4834,19 @@ fn slice_converter_source(
           <> target_type
           <> "\", found: \"invalid JSON\", path: [\""
           <> json_name
-          <> "\", int.to_string(index)])])\n  }\n}\n\n"
-        False ->
-          record_conversion_from_fields(
-            context,
-            target_type,
-            base_type,
-            profile_fields(target_fields),
-            Some(base_type),
-            Some(json_name),
-          )
-      }
-    }
+          <> "\", int.to_string(index)])])\n  }\n}\n\n",
+        conversions: dict.new(),
+      )
+    False ->
+      record_conversion_from_fields(
+        context,
+        target_type,
+        base_type,
+        profile_fields(target_fields),
+        Some(base_type),
+        Some(json_name),
+        function_name,
+      )
   }
 }
 
@@ -4867,6 +4899,7 @@ fn resource_slice_match(
             success_pattern: "matched",
             selected: "Ok(" <> constructor <> "(matched))",
             fallible: False,
+            conversions: dict.new(),
           )
         }
         False, Ok(_) -> {
@@ -4877,6 +4910,7 @@ fn resource_slice_match(
             success_pattern: "matched",
             selected: "Ok(" <> constructor <> "(matched))",
             fallible: False,
+            conversions: dict.new(),
           )
         }
         False, Error(_) -> {
@@ -5065,6 +5099,7 @@ fn resource_slice_match(
                 },
                 selected: "Ok(" <> constructor <> "(" <> record <> "))",
                 fallible: False,
+                conversions: dict.new(),
               )
             Error(_) -> {
               let converter =
@@ -5085,6 +5120,12 @@ fn resource_slice_match(
                 success_pattern: "matched",
                 selected:,
                 fallible: True,
+                conversions: dict.from_list([
+                  #(
+                    converter,
+                    SliceConversion(converter, parent_type, group, root),
+                  ),
+                ]),
               )
             }
           }
@@ -5118,7 +5159,7 @@ fn slice_classifier_case(
   value: String,
   unmatched: String,
   aggregate: Bool,
-) -> String {
+) -> ConversionSupport {
   let constructor = case aggregate {
     True -> {
       let #(_, _, _, _, root_type) =
@@ -5137,15 +5178,18 @@ fn slice_classifier_case(
   }
   let match =
     resource_slice_match(context, parent_type, group, root, value, constructor)
-  "case "
-  <> match.expression
-  <> " {\n          Ok("
-  <> match.success_pattern
-  <> ") -> "
-  <> match.selected
-  <> "\n          Error(_) -> "
-  <> unmatched
-  <> "\n        }"
+  ConversionSupport(
+    source: "case "
+      <> match.expression
+      <> " {\n          Ok("
+      <> match.success_pattern
+      <> ") -> "
+      <> match.selected
+      <> "\n          Error(_) -> "
+      <> unmatched
+      <> "\n        }",
+    conversions: match.conversions,
+  )
 }
 
 fn slice_cardinality_expression(
@@ -5298,7 +5342,10 @@ fn constructor_placeholder(
   visiting: Set(String),
   definition_bucket: codegen_helpers.Category,
 ) -> String {
-  let name = string.replace(target_type, "ct.", "")
+  let name = case string.starts_with(target_type, "ct.") {
+    True -> string.drop_start(target_type, 3)
+    False -> target_type
+  }
   let complex_prefix =
     codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
   let key = constructor_key(definition_bucket, target_type)
@@ -5809,6 +5856,7 @@ fn extension_slice_fold_source(
   }
   SliceGroupDecode(
     source: fold_source <> result_source,
+    conversions: dict.new(),
     support_source:,
     result_name:,
     success_pattern: "Ok(" <> group_type <> "Slices(" <> value_fields <> "))",
@@ -5967,7 +6015,7 @@ fn ordinary_slice_fold_source(
   let classifier =
     roots
     |> list.reverse
-    |> list.fold(unmatched, fn(unmatched, root) {
+    |> list.fold(ConversionSupport(unmatched, dict.new()), fn(unmatched, root) {
       case
         decode_raw && set.contains(context.nested_value_discriminators, root.id)
       {
@@ -5996,9 +6044,11 @@ fn ordinary_slice_fold_source(
             <> "_decoder()) { Ok(matched) -> Ok("
             <> constructor
             <> "(matched)) Error(_) -> "
-            <> unmatched
+            <> unmatched.source
             <> " }"
-          case dict.get(context.slice_discriminator_checks, root.id) {
+          let source = case
+            dict.get(context.slice_discriminator_checks, root.id)
+          {
             Ok(check) -> {
               let checked_context =
                 DecodeContext(
@@ -6020,26 +6070,33 @@ fn ordinary_slice_fold_source(
               <> " { Ok(_) -> "
               <> decoded
               <> " Error(_) -> "
-              <> unmatched
+              <> unmatched.source
               <> " }"
             }
             Error(_) -> decoded
           }
+          ConversionSupport(..unmatched, source:)
         }
-        False ->
-          slice_classifier_case(
-            context,
-            parent_type,
-            group,
-            root,
-            field_name,
-            unmatched,
-            is_aggregate,
+        False -> {
+          let branch =
+            slice_classifier_case(
+              context,
+              parent_type,
+              group,
+              root,
+              field_name,
+              unmatched.source,
+              is_aggregate,
+            )
+          ConversionSupport(
+            branch.source,
+            dict.merge(unmatched.conversions, branch.conversions),
           )
+        }
       }
     })
-  let classifier = case decode_raw {
-    False -> classifier
+  let classifier_source = case decode_raw {
+    False -> classifier.source
     True ->
       "case decode.run("
       <> field_name
@@ -6057,7 +6114,7 @@ fn ordinary_slice_fold_source(
         False -> field_name
       }
       <> ") -> "
-      <> classifier
+      <> classifier.source
       <> " Error(errors) -> Error(errors) }"
   }
   let initial_values = case is_aggregate {
@@ -6168,7 +6225,7 @@ fn ordinary_slice_fold_source(
     <> ") {\n        let parsed: Result("
     <> parsed_type
     <> ", List(decode.DecodeError)) =\n          "
-    <> classifier
+    <> classifier_source
     <> "\n        case accumulator_result, parsed {\n"
     <> accumulate_cases
     <> "          Ok(_), Error(errors) -> Error(errors)\n          Error(errors), Ok(_) -> Error(errors)\n          Error(errors), Error(new_errors) -> Error(list.append(new_errors, errors))\n        }\n      },\n    )\n"
@@ -6208,6 +6265,7 @@ fn ordinary_slice_fold_source(
 
       SliceGroupDecode(
         source: fold_source <> result_source,
+        conversions: classifier.conversions,
         support_source: "",
         result_name:,
         success_pattern: "Ok(" <> field_name <> ")",
@@ -6393,6 +6451,7 @@ fn ordinary_slice_fold_source(
       }
       SliceGroupDecode(
         source: fold_source <> result_source,
+        conversions: classifier.conversions,
         support_source: "",
         result_name:,
         success_pattern: "Ok("
@@ -6456,7 +6515,7 @@ fn record_decoder_from_fields(
   resource_type: Option(String),
   omit_fixed: Bool,
   primitive: Bool,
-) -> String {
+) -> ConversionSupport {
   let constructor_fields =
     profile_fields(fields)
     |> list.filter(fn(element) {
@@ -6500,8 +6559,9 @@ fn record_decoder_from_fields(
     |> dict.values
     |> list.flatten
     |> list.map(fn(root) { root.id })
+  let empty_support = ConversionSupport("", dict.new())
   let #(bindings, choices, slice_decodes) =
-    list.fold(fields, #("", "", []), fn(acc, element) {
+    list.fold(fields, #("", empty_support, []), fn(acc, element) {
       let #(bindings, choices, slice_decodes) = acc
       let #(_, field_path, json_name, field_name, _) =
         profile_element_names(context, target_type, element)
@@ -6519,7 +6579,13 @@ fn record_decoder_from_fields(
             )
           #(
             bindings <> slice_decode.source,
-            choices <> slice_decode.support_source,
+            ConversionSupport(
+              source: choices.source <> slice_decode.support_source,
+              conversions: dict.merge(
+                choices.conversions,
+                slice_decode.conversions,
+              ),
+            ),
             [slice_decode, ..slice_decodes],
           )
         }
@@ -6608,11 +6674,16 @@ fn record_decoder_from_fields(
                   <> " <- "
                   <> field_decoder_expression(context, target_type, element)
                   <> "\n",
-                choices
-                  <> case element.type_ {
-                  [_, _, ..] ->
-                    choice_decoder_source(context, target_type, element)
-                  _ -> ""
+                case element.type_ {
+                  [_, _, ..] -> {
+                    let generated =
+                      choice_decoder_source(context, target_type, element)
+                    ConversionSupport(
+                      choices.source <> generated.source,
+                      dict.merge(choices.conversions, generated.conversions),
+                    )
+                  }
+                  _ -> choices
                 },
                 slice_decodes,
               )
@@ -6952,36 +7023,39 @@ fn record_decoder_from_fields(
       })
     }
   }
-  primitive_extension_source
-  <> choices
-  <> "pub fn "
-  <> codegen_helpers.to_snake_case(target_type)
-  <> case primitive {
-    True ->
-      "_from_primitive(\n  primitive: Primitive("
-      <> primitive_value_type
-      <> ", "
-      <> primitive_extension_type
-      <> "),\n) -> Decoder("
-      <> target_type
-      <> ") {\n"
-    False ->
-      "_decoder() -> Decoder("
-      <> target_type
-      <> ") {\n  use <- decode.recursive\n"
-  }
-  <> primitive_value_binding
-  <> primitive_extension_bindings
-  <> bindings
-  <> slice_decoder_bindings
-  <> case typed_slice_decoders {
-    True -> ""
-    False -> placeholder
-  }
-  <> fixed_guards
-  <> resource_guard
-  <> result
-  <> "}\n\n"
+  ConversionSupport(
+    source: primitive_extension_source
+      <> choices.source
+      <> "pub fn "
+      <> codegen_helpers.to_snake_case(target_type)
+      <> case primitive {
+      True ->
+        "_from_primitive(\n  primitive: Primitive("
+        <> primitive_value_type
+        <> ", "
+        <> primitive_extension_type
+        <> "),\n) -> Decoder("
+        <> target_type
+        <> ") {\n"
+      False ->
+        "_decoder() -> Decoder("
+        <> target_type
+        <> ") {\n  use <- decode.recursive\n"
+    }
+      <> primitive_value_binding
+      <> primitive_extension_bindings
+      <> bindings
+      <> slice_decoder_bindings
+      <> case typed_slice_decoders {
+      True -> ""
+      False -> placeholder
+    }
+      <> fixed_guards
+      <> resource_guard
+      <> result
+      <> "}\n\n",
+    conversions: choices.conversions,
+  )
 }
 
 fn extension_value_branch(
@@ -7513,205 +7587,6 @@ fn extension_classifier_source(
   }
 }
 
-fn normalized_type_name(name: String) -> String {
-  name |> string.replace("_", "") |> string.lowercase
-}
-
-fn current_type_for_profile_type(
-  context: DecodeContext,
-  profile_type: String,
-  target_type: String,
-) -> Result(String, Nil) {
-  let target_type = normalized_type_name(target_type)
-  list.find(context.type_order, fn(current_type) {
-    profile_type_name(context, current_type, profile_type)
-    |> normalized_type_name
-    |> fn(name) { name == target_type }
-  })
-}
-
-fn conversion_dependencies(
-  context: DecodeContext,
-  profile_type: String,
-  current_type: String,
-) -> List(String) {
-  let assert Ok(fields) = dict.get(context.type_fields, current_type)
-  let parent_type = profile_type_name(context, current_type, profile_type)
-  let source_profile_fields = case
-    list.find(context.snapshot_elements, fn(element) {
-      case
-        element.slice_name,
-        string.ends_with(element.path, "[x]"),
-        element.type_
-      {
-        Some(_), False, [codegen_helpers.Type(code: "BackboneElement", ..)]
-        | Some(_), False, [codegen_helpers.Type(code: "Element", ..)]
-        | Some(_), False, []
-        -> {
-          let assert [_, ..rest] =
-            element.id
-            |> string.replace("-", "")
-            |> string.replace(":", ".")
-            |> string.split(".")
-          string.join([context.profile_prefix, ..rest], "_") == current_type
-        }
-        _, _, _ -> False
-      }
-    })
-  {
-    Error(_) -> None
-    Ok(slice_root) -> {
-      let assert [_, ..rest] = slice_root.path |> string.split(".")
-      let slice_base_current_type =
-        string.join([context.profile_prefix, ..rest], "_")
-      case list.contains(context.type_order, slice_base_current_type) {
-        False -> None
-        True -> {
-          let source_type =
-            profile_type_name(context, slice_base_current_type, profile_type)
-          case fields_for_profile_type(context, source_type, "") {
-            Ok(source_fields) -> Some(#(source_type, source_fields))
-            Error(_) -> None
-          }
-        }
-      }
-    }
-  }
-  fields
-  |> profile_fields
-  |> list.filter_map(fn(element) {
-    let #(_, _, _, _, field_type) =
-      profile_element_names(context, parent_type, element)
-    let source_field_type = case source_profile_fields {
-      None -> None
-      Some(#(source_type, source_fields)) ->
-        source_fields
-        |> list.find(fn(source_element) {
-          source_element.slice_name == None
-          && source_element.path == element.path
-        })
-        |> result.map(fn(source_element) {
-          let #(_, _, _, _, source_field_type) =
-            profile_element_names(context, source_type, source_element)
-          source_field_type
-        })
-        |> option.from_result
-    }
-    case element.type_, source_field_type == Some(field_type) {
-      _, True | [_, _, ..], _ -> Error(Nil)
-      _, False ->
-        current_type_for_profile_type(context, profile_type, field_type)
-    }
-  })
-}
-
-fn conversion_types(
-  context: DecodeContext,
-  profile_type: String,
-) -> List(String) {
-  let selected_conversion_types =
-    context.type_order
-    |> list.flat_map(fn(parent_current_type) {
-      let assert Ok(fields) = dict.get(context.type_fields, parent_current_type)
-      let parent_type =
-        profile_type_name(context, parent_current_type, profile_type)
-      fields
-      |> list.filter_map(fn(root) {
-        case
-          root.slice_name,
-          dict.has_key(context.slice_type_overrides, root.id)
-          || set.contains(context.nested_value_discriminators, root.id),
-          profile_extension_definition(root, context.extensions)
-        {
-          Some(_), False, None -> {
-            let #(_, _, _, _, target_type) =
-              profile_element_names(context, parent_type, root)
-            use target_current_type <- result.try(current_type_for_profile_type(
-              context,
-              profile_type,
-              target_type,
-            ))
-            use target_fields <- result.try(fields_for_profile_type(
-              context,
-              target_type,
-              "",
-            ))
-            use discriminator <- result.try(
-              list.find(target_fields, fn(field) {
-                dict.has_key(context.slice_type_overrides, field.id)
-              }),
-            )
-            use group <- result.try(
-              list.find(fields, fn(candidate) {
-                candidate.path == root.path
-                && candidate.slice_name == None
-                && candidate.slicing != None
-              }),
-            )
-            let #(_, _, _, _, base_type) =
-              profile_element_names(context, parent_type, group)
-            case
-              direct_slice_record_expression(
-                context,
-                target_type,
-                base_type,
-                discriminator,
-                "source",
-              )
-            {
-              Ok(_) -> Error(Nil)
-              Error(_) -> Ok(target_current_type)
-            }
-          }
-          _, _, _ -> Error(Nil)
-        }
-      })
-    })
-    // Slice converters construct their records directly.
-    |> list.flat_map(fn(current_type) {
-      conversion_dependencies(context, profile_type, current_type)
-    })
-  let seeds =
-    list.filter(context.type_order, fn(current_type) {
-      current_type != context.profile_prefix
-      && list.contains(selected_conversion_types, current_type)
-    })
-  conversion_types_loop(
-    context,
-    profile_type,
-    seeds,
-    list.length(context.type_order),
-  )
-}
-
-fn conversion_types_loop(
-  context: DecodeContext,
-  profile_type: String,
-  needed: List(String),
-  passes_left: Int,
-) -> List(String) {
-  case passes_left <= 0 {
-    True -> needed
-    False -> {
-      let next =
-        list.fold(needed, needed, fn(acc, current_type) {
-          conversion_dependencies(context, profile_type, current_type)
-          |> list.fold(acc, fn(acc, dependency) {
-            case list.contains(acc, dependency) {
-              True -> acc
-              False -> [dependency, ..acc]
-            }
-          })
-        })
-      case list.length(next) == list.length(needed) {
-        True -> next
-        False ->
-          conversion_types_loop(context, profile_type, next, passes_left - 1)
-      }
-    }
-  }
-}
-
 pub fn generate_decoders(
   context: DecodeContext,
   profile_type: String,
@@ -7803,16 +7678,6 @@ pub fn generate_decoders(
     |> list.map(fn(item) { item.0 })
     |> set.from_list
     |> set.union(generated_extension_classifiers)
-  let conversion_types = conversion_types(context, profile_type)
-  let conversions =
-    list.fold(type_order, "", fn(source, current_type) {
-      case list.contains(conversion_types, current_type) {
-        False -> source
-        True ->
-          source
-          <> record_conversion_source(context, current_type, profile_type)
-      }
-    })
   let union_decoders =
     profile_unions
     |> dict.to_list
@@ -7892,38 +7757,50 @@ pub fn generate_decoders(
       <> "])\n}\n\n"
     })
     |> string.concat
+  let empty_support = ConversionSupport("", dict.new())
   let decoders =
-    list.fold(type_order, "", fn(source, current_type) {
+    list.fold(type_order, empty_support, fn(source, current_type) {
       let assert Ok(fields) = dict.get(type_fields, current_type)
       let target_type = profile_type_name(context, current_type, profile_type)
       let omit_fixed =
         list.any(fields, fn(field) {
           field.fixed_code != None || field.fixed_uri != None
         })
-      source
-      <> record_decoder_from_fields(
-        context,
-        target_type,
-        fields,
-        case current_type == profile_prefix && is_resource {
-          True -> Some(resource_type)
-          False -> None
-        },
-        omit_fixed,
-        is_primitive_slice_record(
-          snapshot_elements,
-          profile_prefix,
-          type_order,
-          current_type,
-        ),
+      let generated =
+        record_decoder_from_fields(
+          context,
+          target_type,
+          fields,
+          case current_type == profile_prefix && is_resource {
+            True -> Some(resource_type)
+            False -> None
+          },
+          omit_fixed,
+          is_primitive_slice_record(
+            snapshot_elements,
+            profile_prefix,
+            type_order,
+            current_type,
+          ),
+        )
+      ConversionSupport(
+        source.source <> generated.source,
+        dict.merge(source.conversions, generated.conversions),
       )
     })
+  let support = slice_support_types(context, profile_type)
+  let conversions =
+    generate_conversions(context, decoders.conversions, dict.new())
+    |> dict.to_list
+    |> list.sort(fn(left, right) { string.compare(left.0, right.0) })
+    |> list.map(fn(item) { item.1 })
+    |> string.concat
   #(
     extension_classifiers
       <> union_decoders
-      <> slice_support_types(context, profile_type)
+      <> support
       <> conversions
-      <> decoders,
+      <> decoders.source,
     generated_extension_classifiers,
   )
 }
