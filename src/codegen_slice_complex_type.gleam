@@ -1,9 +1,147 @@
 import codegen_helpers
-import gleam/option.{type Option, Some}
+import gleam/dict
+import gleam/int
+import gleam/list
+import gleam/option.{type Option, None, Some}
+import gleam/result
 import gleam/string
 
 pub type DiscriminatorCall {
   ResultDiscriminatorCall(String)
+}
+
+// Field lists follow the datatype definition's order. Constant fields are not
+// repeated in Required: they are supplied by the profile instead of the caller.
+pub fn constrained_type_name(
+  datatype: String,
+  fixed: List(String),
+  required: List(String),
+  list1: Bool,
+) -> String {
+  codegen_helpers.to_camel_case(datatype)
+  <> case list1 {
+    True -> "List1"
+    False -> ""
+  }
+  <> case fixed {
+    [] -> ""
+    _ ->
+      "Fixed" <> string.concat(list.map(fixed, codegen_helpers.to_camel_case))
+  }
+  <> case list.filter(required, fn(field) { !list.contains(fixed, field) }) {
+    [] -> ""
+    fields ->
+      "Required"
+      <> string.concat(list.map(fields, codegen_helpers.to_camel_case))
+  }
+}
+
+// The shared types have stable public names. Their names describe which
+// fields are supplied by the profile and which remain constructor arguments.
+pub fn helper_fields(
+  type_name: String,
+) -> Result(#(String, String, List(String), Bool), Nil) {
+  let type_name = string.replace(type_name, "ct.", "")
+  let name = codegen_helpers.to_snake_case(type_name)
+  let assert [base, ..parts] = string.split(name, "_")
+  case list.contains(parts, "fixed") || list.contains(parts, "required") {
+    False -> Error(Nil)
+    True -> {
+      let required = list.contains(parts, "required")
+      let fields =
+        parts
+        |> list.drop_while(fn(part) { part != "fixed" })
+        |> list.drop(1)
+        |> list.take_while(fn(part) { part != "required" })
+      Ok(#(base, name, fields, required))
+    }
+  }
+}
+
+// Resolve complete field names, including names containing several words,
+// against the datatype fields instead of splitting them at underscores.
+pub fn required_fields(
+  type_name: String,
+  fields: List(codegen_helpers.Element),
+) -> List(String) {
+  let suffix = case string.split(type_name, "Required") {
+    [_, suffix] -> suffix
+    _ -> ""
+  }
+  case suffix {
+    "" -> []
+    _ -> {
+      let assert Ok(field) =
+        fields
+        |> list.sort(fn(a, b) {
+          int.compare(
+            string.length(codegen_helpers.field_name(b)),
+            string.length(codegen_helpers.field_name(a)),
+          )
+        })
+        |> list.find(fn(field) {
+          string.starts_with(
+            suffix,
+            codegen_helpers.to_camel_case(codegen_helpers.field_name(field)),
+          )
+        })
+        as { "unknown required field in " <> type_name }
+      let name = codegen_helpers.field_name(field)
+      [
+        name,
+        ..required_fields(
+          "Required"
+            <> string.drop_start(
+            suffix,
+            string.length(codegen_helpers.to_camel_case(name)),
+          ),
+          fields,
+        )
+      ]
+    }
+  }
+}
+
+fn helper_arguments(
+  type_name: String,
+  system: String,
+  code: String,
+  display: Option(String),
+) -> Result(#(String, String, String), Nil) {
+  use #(base, name, fields, _) <- result.try(helper_fields(type_name))
+  let arguments =
+    list.map(fields, fn(field) {
+      let literal = case field {
+        "system" -> system
+        "code" -> code
+        "display" -> {
+          let assert Some(display) = display
+          display
+        }
+        _ -> panic as { "unknown shared constraint field " <> field }
+      }
+      ", \"" <> literal <> "\""
+    })
+    |> string.concat
+  Ok(#(base, name, arguments))
+}
+
+pub fn discriminator_to_json_call(
+  current_bucket: codegen_helpers.Category,
+  type_name: String,
+  system: String,
+  code: String,
+  display: Option(String),
+  value: String,
+) -> String {
+  let assert Ok(#(_, name, arguments)) =
+    helper_arguments(type_name, system, code, display)
+  codegen_helpers.bucket_prefix("Quantity", current_bucket)
+  <> name
+  <> "_to_json("
+  <> value
+  <> arguments
+  <> ")"
 }
 
 pub fn discriminator_from_base_call(
@@ -26,952 +164,545 @@ pub fn discriminator_from_base_call(
         <> value
         <> ") False -> Error(Nil) }",
       ))
-    "ct.CodingFixedSystem" ->
-      Ok(ResultDiscriminatorCall(
-        complex_prefix
-        <> "coding_fixed_system_from_coding("
-        <> value
-        <> ", \""
-        <> system
-        <> "\")",
+    _ -> {
+      use #(base, name, arguments) <- result.try(helper_arguments(
+        discriminator_type,
+        system,
+        code,
+        display,
       ))
-    "ct.CodingFixedSystemCode" ->
       Ok(ResultDiscriminatorCall(
         complex_prefix
-        <> "coding_fixed_system_code_from_coding("
+        <> name
+        <> "_from_"
+        <> base
+        <> "("
         <> value
-        <> ", \""
-        <> system
-        <> "\", \""
-        <> code
-        <> "\")",
-      ))
-    "ct.CodingFixedSystemCodeDisplay" -> {
-      let assert Some(display) = display
-      Ok(ResultDiscriminatorCall(
-        complex_prefix
-        <> "coding_fixed_system_code_display_from_coding("
-        <> value
-        <> ", \""
-        <> system
-        <> "\", \""
-        <> code
-        <> "\", \""
-        <> display
-        <> "\")",
-      ))
-    }
-    "ct.CodingFixedSystemRequiredCodeDisplay" ->
-      Ok(ResultDiscriminatorCall(
-        complex_prefix
-        <> "coding_fixed_system_required_code_display_from_coding("
-        <> value
-        <> ", \""
-        <> system
-        <> "\")",
-      ))
-    "ct.CodeableconceptList1FixedSystemCode" ->
-      Ok(ResultDiscriminatorCall(
-        complex_prefix
-        <> "codeableconcept_list1_fixed_system_code_from_codeableconcept("
-        <> value
-        <> ", \""
-        <> system
-        <> "\""
-        <> ", \""
-        <> code
-        <> "\""
-        <> ")",
-      ))
-    "ct.CodeableconceptFixedSystemCode" ->
-      Ok(ResultDiscriminatorCall(
-        complex_prefix
-        <> "codeableconcept_fixed_system_code_from_codeableconcept("
-        <> value
-        <> ", \""
-        <> system
-        <> "\", \""
-        <> code
-        <> "\")",
-      ))
-    "ct.CodeableconceptList1FixedSystem" ->
-      Ok(ResultDiscriminatorCall(
-        complex_prefix
-        <> "codeableconcept_list1_fixed_system_from_codeableconcept("
-        <> value
-        <> ", \""
-        <> system
-        <> "\""
-        <> ")",
-      ))
-    "ct.CodeableconceptFixedSystem" ->
-      Ok(ResultDiscriminatorCall(
-        complex_prefix
-        <> "codeableconcept_fixed_system_from_codeableconcept("
-        <> value
-        <> ", \""
-        <> system
-        <> "\")",
-      ))
-    "ct.CodeableconceptList1FixedSystemCodeDisplay" -> {
-      let assert Some(display) = display
-      Ok(ResultDiscriminatorCall(
-        complex_prefix
-        <> "codeableconcept_list1_fixed_system_code_display_from_codeableconcept("
-        <> value
-        <> ", \""
-        <> system
-        <> "\""
-        <> ", \""
-        <> code
-        <> "\""
-        <> ", \""
-        <> display
-        <> "\""
+        <> arguments
         <> ")",
       ))
     }
-    "ct.CodeableconceptFixedSystemCodeDisplay" -> {
-      let assert Some(display) = display
-      Ok(ResultDiscriminatorCall(
-        complex_prefix
-        <> "codeableconcept_fixed_system_code_display_from_codeableconcept("
-        <> value
-        <> ", \""
-        <> system
-        <> "\", \""
-        <> code
-        <> "\", \""
-        <> display
-        <> "\")",
-      ))
-    }
-    _ -> Error(Nil)
   }
 }
 
 pub fn discriminator_new_call(
   current_bucket: codegen_helpers.Category,
   discriminator_type: String,
+  elements: dict.Dict(String, codegen_helpers.Element),
 ) -> Result(String, Nil) {
   let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
-  case discriminator_type {
-    "ct.CodingFixedSystem" -> Ok(complex_prefix <> "coding_fixed_system_new()")
-    "ct.CodingFixedSystemCode" ->
-      Ok(complex_prefix <> "coding_fixed_system_code_new()")
-    "ct.CodingFixedSystemCodeDisplay" ->
-      Ok(complex_prefix <> "coding_fixed_system_code_display_new()")
-    "ct.CodingFixedSystemRequiredCodeDisplay" ->
-      Ok(
-        complex_prefix
-        <> "coding_fixed_system_required_code_display_new(\"\", \"\")",
-      )
-    "ct.CodeableconceptList1FixedSystemCode" ->
-      Ok(
-        complex_prefix
-        <> "codeableconcept_list1_fixed_system_code_new("
-        <> complex_prefix
-        <> "List1(first: "
-        <> complex_prefix
-        <> "coding_fixed_system_code_new(), rest: []))",
-      )
-    "ct.CodeableconceptFixedSystemCode" ->
-      Ok(complex_prefix <> "codeableconcept_fixed_system_code_new()")
-    "ct.CodeableconceptList1FixedSystem" ->
-      Ok(
-        complex_prefix
-        <> "codeableconcept_list1_fixed_system_new("
-        <> complex_prefix
-        <> "List1(first: "
-        <> complex_prefix
-        <> "coding_fixed_system_new(), rest: []))",
-      )
-    "ct.CodeableconceptFixedSystem" ->
-      Ok(complex_prefix <> "codeableconcept_fixed_system_new()")
-    "ct.CodeableconceptList1FixedSystemCodeDisplay" ->
-      Ok(
-        complex_prefix
-        <> "codeableconcept_list1_fixed_system_code_display_new("
-        <> complex_prefix
-        <> "List1(first: "
-        <> complex_prefix
-        <> "coding_fixed_system_code_display_new(), rest: []))",
-      )
-    "ct.CodeableconceptFixedSystemCodeDisplay" ->
-      Ok(complex_prefix <> "codeableconcept_fixed_system_code_display_new()")
-    _ -> Error(Nil)
-  }
-}
-
-pub fn discriminator_from_required_profile_call(
-  _discriminator_type: String,
-  _value: String,
-  _system: String,
-) -> Result(DiscriminatorCall, Nil) {
-  Error(Nil)
-}
-
-pub const slice_coding_fixed_system =
-  "
-pub type CodingFixedSystem {
-  CodingFixedSystem(
-    id: Option(String),
-    extension: List(Extension),
-    version: Option(String),
-    code: Option(String),
-    display: Option(String),
-    user_selected: Option(Bool),
-  )
-}
-
-pub fn coding_fixed_system_new() -> CodingFixedSystem {
-  CodingFixedSystem(
-    id: None,
-    extension: [],
-    version: None,
-    code: None,
-    display: None,
-    user_selected: None,
-  )
-}
-
-pub fn coding_fixed_system_from_coding(
-  coding: Coding,
-  system: String,
-) -> Result(CodingFixedSystem, Nil) {
-  case coding.system == Some(system) {
-    True ->
-      Ok(CodingFixedSystem(
-        id: coding.id,
-        extension: coding.extension,
-        version: coding.version,
-        code: coding.code,
-        display: coding.display,
-        user_selected: coding.user_selected,
+  use #(base, name, fixed, required) <- result.try(helper_fields(
+    discriminator_type,
+  ))
+  let assert Ok(root) =
+    dict.values(elements)
+    |> list.find(fn(element) {
+      !string.contains(element.path, ".")
+      && codegen_helpers.to_snake_case(codegen_helpers.to_camel_case(
+        element.path,
       ))
-    False -> Error(Nil)
+      == base
+    })
+  let fields = datatype_fields(root.path, elements)
+  let direct =
+    list.all(fixed, fn(name) {
+      list.any(fields, fn(field) { codegen_helpers.field_name(field) == name })
+    })
+  let arguments = case string.contains(name, "_list1_") {
+    False if required && direct -> {
+      required_fields(discriminator_type, fields)
+      |> list.map(fn(name) {
+        let assert Ok(field) =
+          list.find(fields, fn(field) {
+            codegen_helpers.field_name(field) == name
+          })
+        name
+        <> ": "
+        <> case field_type(field) {
+          "String" -> "\"\""
+          "Bool" -> "False"
+          "Int" -> "0"
+          "Float" -> "0.0"
+          type_ ->
+            case string.starts_with(type_, "valuesets.") {
+              True -> string.lowercase(type_) <> "_failure_variant"
+              False ->
+                complex_prefix
+                <> codegen_helpers.to_snake_case(type_)
+                <> "_new()"
+            }
+        }
+      })
+      |> string.join(", ")
+    }
+    True -> {
+      let assert Ok(member) =
+        fields
+        |> list.find(fn(field) {
+          case field.type_, field.max {
+            [type_], max if max != "1" && max != "0" ->
+              list.all(fixed, fn(name) {
+                list.any(datatype_fields(type_.code, elements), fn(field) {
+                  codegen_helpers.field_name(field) == name
+                })
+              })
+            _, _ -> False
+          }
+        })
+      let child_type =
+        field_type(member)
+        <> string.drop_start(
+          string.replace(discriminator_type, "ct.", ""),
+          string.length(codegen_helpers.to_camel_case(root.path) <> "List1"),
+        )
+      let assert Ok(child) =
+        discriminator_new_call(current_bucket, child_type, elements)
+      complex_prefix <> "List1(first: " <> child <> ", rest: [])"
+    }
+    False -> ""
   }
+  Ok(complex_prefix <> name <> "_new(" <> arguments <> ")")
 }
 
-pub fn coding_fixed_system_to_json(
-  coding: CodingFixedSystem,
-  system: String,
-) -> Json {
-  coding_to_json(coding_fixed_system_to_coding(coding, system))
+// Read fields from the same datatype definitions used by profile generation.
+pub fn datatype_fields(
+  root: String,
+  elements: dict.Dict(String, codegen_helpers.Element),
+) -> List(codegen_helpers.Element) {
+  let prefix = root <> "."
+  elements
+  |> dict.values
+  |> list.filter(fn(field) {
+    string.starts_with(field.path, prefix)
+    && !string.contains(
+      string.drop_start(field.path, string.length(prefix)),
+      ".",
+    )
+  })
+  |> list.sort(fn(a, b) { string.compare(a.path, b.path) })
 }
 
-fn coding_fixed_system_to_coding(
-  coding: CodingFixedSystem,
-  system: String,
-) -> Coding {
-  Coding(
-    id: coding.id,
-    extension: coding.extension,
-    system: Some(system),
-    version: coding.version,
-    code: coding.code,
-    display: coding.display,
-    user_selected: coding.user_selected,
+fn field_type(field: codegen_helpers.Element) -> String {
+  let assert [type_] = field.type_
+  let #(type_name, _) =
+    codegen_helpers.string_to_type(
+      type_.code,
+      string.split(field.path, "."),
+      field,
+      codegen_helpers.ComplexTypes,
+      dict.new(),
+    )
+  type_name
+}
+
+type RecordSource {
+  RecordSource(
+    declarations: List(String),
+    arguments: List(String),
+    defaults: List(String),
+    conditions: List(String),
+    bindings: List(String),
+    decoded: List(String),
+    restored: List(String),
   )
 }
 
-"
-
-pub const slice_coding_fixed_system_code =
-  "
-pub type CodingFixedSystemCode {
-  CodingFixedSystemCode(
-    id: Option(String),
-    extension: List(Extension),
-    version: Option(String),
-    display: Option(String),
-    user_selected: Option(Bool),
-  )
-}
-
-pub fn coding_fixed_system_code_new() -> CodingFixedSystemCode {
-  CodingFixedSystemCode(
-    id: None,
-    extension: [],
-    version: None,
-    display: None,
-    user_selected: None,
-  )
-}
-
-pub fn coding_fixed_system_code_from_coding(
-  coding: Coding,
-  system: String,
-  code: String,
-) -> Result(CodingFixedSystemCode, Nil) {
-  case coding.system, coding.code {
-    Some(coding_system_value), Some(coding_code_value) ->
-      case coding_system_value == system && coding_code_value == code {
-        True -> Ok(CodingFixedSystemCode(
-          id: coding.id,
-          extension: coding.extension,
-          version: coding.version,
-          display: coding.display,
-          user_selected: coding.user_selected,
-        ))
-        False -> Error(Nil)
-      }
-    _, _ -> Error(Nil)
-  }
-}
-
-pub fn coding_fixed_system_code_to_json(
-  coding: CodingFixedSystemCode,
-  system: String,
-  code: String,
-) -> Json {
-  coding_to_json(coding_fixed_system_code_to_coding(coding, system, code))
-}
-
-fn coding_fixed_system_code_to_coding(
-  coding: CodingFixedSystemCode,
-  system: String,
-  code: String,
-) -> Coding {
-  Coding(
-    id: coding.id,
-    extension: coding.extension,
-    system: Some(system),
-    version: coding.version,
-    code: Some(code),
-    display: coding.display,
-    user_selected: coding.user_selected,
-  )
-}
-"
-
-pub const slice_coding_display =
-  "
-pub type CodingFixedSystemCodeDisplay {
-  CodingFixedSystemCodeDisplay(
-    id: Option(String),
-    extension: List(Extension),
-    version: Option(String),
-    user_selected: Option(Bool),
-  )
-}
-
-pub fn coding_fixed_system_code_display_new() -> CodingFixedSystemCodeDisplay {
-  CodingFixedSystemCodeDisplay(
-    id: None,
-    extension: [],
-    version: None,
-    user_selected: None,
-  )
-}
-
-pub fn coding_fixed_system_code_display_from_coding(
-  coding: Coding,
-  system: String,
-  code: String,
-  display: String,
-) -> Result(CodingFixedSystemCodeDisplay, Nil) {
-  case coding.system, coding.code, coding.display {
-    Some(coding_system_value), Some(coding_code_value), Some(coding_display_value) ->
-      case
-        coding_system_value == system
-        && coding_code_value == code
-        && coding_display_value == display
-      {
-        True -> Ok(CodingFixedSystemCodeDisplay(
-          id: coding.id,
-          extension: coding.extension,
-          version: coding.version,
-          user_selected: coding.user_selected,
-        ))
-        False -> Error(Nil)
-      }
-    _, _, _ -> Error(Nil)
-  }
-}
-
-pub fn coding_fixed_system_code_display_to_json(
-  coding: CodingFixedSystemCodeDisplay,
-  system: String,
-  code: String,
-  display: String,
-) -> Json {
-  coding_to_json(coding_fixed_system_code_display_to_coding(coding, system, code, display))
-}
-
-fn coding_fixed_system_code_display_to_coding(
-  coding: CodingFixedSystemCodeDisplay,
-  system: String,
-  code: String,
-  display: String,
-) -> Coding {
-  Coding(
-    id: coding.id,
-    extension: coding.extension,
-    system: Some(system),
-    version: coding.version,
-    code: Some(code),
-    display: Some(display),
-    user_selected: coding.user_selected,
-  )
-}
-"
-
-pub const slice_coding_fixeduri =
-  "
-pub type CodingFixedSystemRequiredCodeDisplay {
-  CodingFixedSystemRequiredCodeDisplay(
-    id: Option(String),
-    extension: List(Extension),
-    code: String,
-    version: Option(String),
-    display: String,
-    user_selected: Option(Bool),
-  )
-}
-
-pub fn coding_fixed_system_required_code_display_new(
-  code code: String,
-  display display: String,
-) -> CodingFixedSystemRequiredCodeDisplay {
-  CodingFixedSystemRequiredCodeDisplay(
-    id: None,
-    extension: [],
-    version: None,
-    code:,
-    display:,
-    user_selected: None,
-  )
-}
-
-pub fn coding_fixed_system_required_code_display_from_coding(
-  coding: Coding,
-  system: String,
-) -> Result(CodingFixedSystemRequiredCodeDisplay, Nil) {
-  case coding.system, coding.code, coding.display {
-    Some(coding_system_value), Some(coding_code), Some(coding_display) ->
-      case coding_system_value == system {
-        True -> Ok(CodingFixedSystemRequiredCodeDisplay(
-          id: coding.id,
-          extension: coding.extension,
-          version: coding.version,
-          code: coding_code,
-          display: coding_display,
-          user_selected: coding.user_selected,
-        ))
-        False -> Error(Nil)
-      }
-    _, _, _ -> Error(Nil)
-  }
-}
-
-pub fn coding_fixed_system_required_code_display_to_json(
-  coding: CodingFixedSystemRequiredCodeDisplay,
-  system: String,
-) -> Json {
-  coding_to_json(Coding(
-    id: coding.id,
-    extension: coding.extension,
-    system: Some(system),
-    version: coding.version,
-    code: Some(coding.code),
-    display: Some(coding.display),
-    user_selected: coding.user_selected,
-  ))
-}
-"
-
-pub fn slice_codeableconcept(preserve_slice_order: Bool) -> #(String, String) {
-  let fixed_system =
-    string.concat([
-      "
-pub type CodeableconceptFixedSystem {
-  CodeableconceptFixedSystem(
-    id: Option(String),
-    extension: List(Extension),
-",
-      case preserve_slice_order {
-        True ->
-          "    internal_gleam_fhir_index: Option(Int),
-"
-        False -> ""
-      },
-      "    disc: CodingFixedSystem,
-    others: List(Coding),
-    text: Option(String),
-  )
-}
-
-pub fn codeableconcept_fixed_system_new() -> CodeableconceptFixedSystem {
-  CodeableconceptFixedSystem(
-    id: None,
-    extension: [],
-",
-      case preserve_slice_order {
-        True ->
-          "    internal_gleam_fhir_index: None,
-"
-        False -> ""
-      },
-      "    disc: coding_fixed_system_new(),
-    others: [],
-    text: None,
-  )
-}
-
-pub fn codeableconcept_fixed_system_from_codeableconcept(
-  concept: Codeableconcept,
-  system: String,
-) -> Result(CodeableconceptFixedSystem, Nil) {
-  case find_elt_and_rest_result(
-    in: concept.coding,
-    one_that: fn(coding) { coding_fixed_system_from_coding(coding, system) },
-  ) {
-    Error(Nil) -> Error(Nil)
-",
-      case preserve_slice_order {
-        True ->
-          "    Ok(#(disc, others, index)) ->
-"
-        False ->
-          "    Ok(#(disc, others)) ->
-"
-      },
-      "      Ok(CodeableconceptFixedSystem(
-        id: concept.id,
-        extension: concept.extension,
-",
-      case preserve_slice_order {
-        True ->
-          "        internal_gleam_fhir_index: Some(index),
-"
-        False -> ""
-      },
-      "        disc:,
-        others:,
-        text: concept.text,
+// A shared name describes its constrained fields. Resolve those fields against
+// the datatype snapshot, including a required matching member of a nested list.
+// There are no datatype field lists or datatype templates here.
+pub fn shared_type(
+  type_name: String,
+  elements: dict.Dict(String, codegen_helpers.Element),
+  preserve_slice_order: Bool,
+) -> List(#(String, String)) {
+  let type_name = string.replace(type_name, "ct.", "")
+  let assert Ok(#(base, function, fixed, _)) = helper_fields(type_name)
+  let assert Ok(root) =
+    elements
+    |> dict.values
+    |> list.find(fn(element) {
+      !string.contains(element.path, ".")
+      && codegen_helpers.to_snake_case(codegen_helpers.to_camel_case(
+        element.path,
       ))
+      == base
+    })
+  let base_type = codegen_helpers.to_camel_case(root.path)
+  let base_function = codegen_helpers.to_snake_case(base_type)
+  let fields = datatype_fields(root.path, elements)
+  let direct =
+    list.all(fixed, fn(name) {
+      list.any(fields, fn(field) { codegen_helpers.field_name(field) == name })
+    })
+  let member = case direct {
+    True -> None
+    False -> {
+      let assert Ok(member) =
+        list.find(fields, fn(field) {
+          case field.type_, field.max {
+            [type_], max if max != "1" && max != "0" ->
+              list.all(fixed, fn(name) {
+                list.any(datatype_fields(type_.code, elements), fn(field) {
+                  codegen_helpers.field_name(field) == name
+                })
+              })
+            _, _ -> False
+          }
+        })
+        as { "no list member for constrained type " <> type_name }
+      Some(member)
+    }
   }
-}
-
-pub fn codeableconcept_fixed_system_to_json(
-  concept: CodeableconceptFixedSystem,
-  system: String,
-) -> Json {
-",
-      case preserve_slice_order {
-        True ->
-          "  let selected_coding = coding_fixed_system_to_coding(concept.disc, system)
-  let coding = case concept.internal_gleam_fhir_index {
-    None -> [selected_coding, ..concept.others]
-    Some(index) -> insert_at(selected_coding, concept.others, index)
+  let parameter_fields = case member {
+    None -> fields
+    Some(member) -> {
+      let assert [type_] = member.type_
+      datatype_fields(type_.code, elements)
+    }
   }
-"
-        False -> ""
-      },
-      "  codeableconcept_to_json(Codeableconcept(
-    id: concept.id,
-    extension: concept.extension,
-",
-      case preserve_slice_order {
-        True ->
-          "    coding:,
-"
-        False ->
-          "    coding: [coding_fixed_system_to_coding(concept.disc, system), ..concept.others],
-"
-      },
-      "    text: concept.text,
-  ))
-}
-
-",
-    ])
-  let fixed_system_code =
-    string.concat([
-      "
-pub type CodeableconceptFixedSystemCode {
-  CodeableconceptFixedSystemCode(
-    id: Option(String),
-    extension: List(Extension),
-",
-      case preserve_slice_order {
-        True ->
-          "    internal_gleam_fhir_index: Option(Int),
-"
-        False -> ""
-      },
-      "    disc: CodingFixedSystemCode,
-    others: List(Coding),
-    text: Option(String),
-  )
-}
-
-pub fn codeableconcept_fixed_system_code_new() -> CodeableconceptFixedSystemCode {
-  CodeableconceptFixedSystemCode(
-    id: None,
-    extension: [],
-",
-      case preserve_slice_order {
-        True ->
-          "    internal_gleam_fhir_index: None,
-"
-        False -> ""
-      },
-      "    disc: coding_fixed_system_code_new(),
-    others: [],
-    text: None,
-  )
-}
-
-pub fn codeableconcept_fixed_system_code_from_codeableconcept(
-  concept: Codeableconcept,
-  system: String,
-  code: String,
-) -> Result(CodeableconceptFixedSystemCode, Nil) {
-  case find_elt_and_rest_result(
-    in: concept.coding,
-    one_that: fn(coding) {
-      coding_fixed_system_code_from_coding(coding, system, code)
-    },
-  ) {
-    Error(Nil) -> Error(Nil)
-",
-      case preserve_slice_order {
-        True ->
-          "    Ok(#(disc, others, index)) ->
-"
-        False ->
-          "    Ok(#(disc, others)) ->
-"
-      },
-      "      Ok(CodeableconceptFixedSystemCode(
-        id: concept.id,
-        extension: concept.extension,
-",
-      case preserve_slice_order {
-        True ->
-          "        internal_gleam_fhir_index: Some(index),
-"
-        False -> ""
-      },
-      "        disc:,
-        others:,
-        text: concept.text,
-      ))
-  }
-}
-
-pub fn codeableconcept_fixed_system_code_to_json(
-  concept: CodeableconceptFixedSystemCode,
-  system: String,
-  code: String,
-) -> Json {
-",
-      case preserve_slice_order {
-        True ->
-          "  let selected_coding = coding_fixed_system_code_to_coding(concept.disc, system, code)
-  let coding = case concept.internal_gleam_fhir_index {
-    None -> [selected_coding, ..concept.others]
-    Some(index) -> insert_at(selected_coding, concept.others, index)
-  }
-"
-        False -> ""
-      },
-      "  codeableconcept_to_json(Codeableconcept(
-    id: concept.id,
-    extension: concept.extension,
-",
-      case preserve_slice_order {
-        True ->
-          "    coding:,
-"
-        False ->
-          "    coding: [coding_fixed_system_code_to_coding(concept.disc, system, code), ..concept.others],
-"
-      },
-      "    text: concept.text,
-  ))
-}
-
-",
-    ])
-  #(fixed_system, fixed_system_code)
-}
-
-pub fn slice_codeableconcept_display(preserve_slice_order: Bool) -> String {
-  string.concat([
-    "
-pub type CodeableconceptFixedSystemCodeDisplay {
-  CodeableconceptFixedSystemCodeDisplay(
-    id: Option(String),
-    extension: List(Extension),
-",
-    case preserve_slice_order {
-      True ->
-        "    internal_gleam_fhir_index: Option(Int),
-"
-      False -> ""
-    },
-    "    disc: CodingFixedSystemCodeDisplay,
-    others: List(Coding),
-    text: Option(String),
-  )
-}
-
-pub fn codeableconcept_fixed_system_code_display_new(
-) -> CodeableconceptFixedSystemCodeDisplay {
-  CodeableconceptFixedSystemCodeDisplay(
-    id: None,
-    extension: [],
-",
-    case preserve_slice_order {
-      True ->
-        "    internal_gleam_fhir_index: None,
-"
-      False -> ""
-    },
-    "    disc: coding_fixed_system_code_display_new(),
-    others: [],
-    text: None,
-  )
-}
-
-pub fn codeableconcept_fixed_system_code_display_from_codeableconcept(
-  concept: Codeableconcept,
-  system: String,
-  code: String,
-  display: String,
-) -> Result(CodeableconceptFixedSystemCodeDisplay, Nil) {
-  case find_elt_and_rest_result(
-    in: concept.coding,
-    one_that: fn(coding) {
-      coding_fixed_system_code_display_from_coding(
-        coding,
-        system,
-        code,
-        display,
+  let required_fields = required_fields(type_name, parameter_fields)
+  let #(member_type, member_function, parameter_fields, children) = case
+    member
+  {
+    None -> #("", "", fields, [])
+    Some(member) -> {
+      let assert [type_] = member.type_
+      let child_type =
+        constrained_type_name(type_.code, fixed, required_fields, False)
+      #(
+        child_type,
+        codegen_helpers.to_snake_case(child_type),
+        datatype_fields(type_.code, elements),
+        shared_type(child_type, elements, preserve_slice_order),
       )
-    },
-  ) {
-    Error(Nil) -> Error(Nil)
-",
-    case preserve_slice_order {
-      True ->
-        "    Ok(#(disc, others, index)) ->
-"
-      False ->
-        "    Ok(#(disc, others)) ->
-"
-    },
-    "      Ok(CodeableconceptFixedSystemCodeDisplay(
-        id: concept.id,
-        extension: concept.extension,
-",
-    case preserve_slice_order {
-      True ->
-        "        internal_gleam_fhir_index: Some(index),
-"
-      False -> ""
-    },
-    "        disc:,
-        others:,
-        text: concept.text,
-      ))
+    }
   }
-}
-
-pub fn codeableconcept_fixed_system_code_display_to_json(
-  concept: CodeableconceptFixedSystemCodeDisplay,
-  system: String,
-  code: String,
-  display: String,
-) -> Json {
-",
-    case preserve_slice_order {
-      True ->
-        "  let selected_coding = coding_fixed_system_code_display_to_coding(concept.disc, system, code, display)
-  let coding = case concept.internal_gleam_fhir_index {
-    None -> [selected_coding, ..concept.others]
-    Some(index) -> insert_at(selected_coding, concept.others, index)
+  let parameters =
+    string.concat(
+      list.map(fixed, fn(name) {
+        let assert Ok(field) =
+          list.find(parameter_fields, fn(field) {
+            codegen_helpers.field_name(field) == name
+          })
+        name <> ": " <> field_type(field) <> ","
+      }),
+    )
+  let arguments = string.concat(list.map(fixed, fn(name) { ", " <> name }))
+  let list1 = string.contains(function, "_list1_")
+  let every_member = list1 || string.contains(function, "_all_")
+  let source =
+    list.fold(
+      fields,
+      RecordSource([], [], [], [], [], [], []),
+      fn(source, field) {
+        let name = codegen_helpers.field_name(field)
+        let repeated = case member {
+          Some(member) -> member.id == field.id
+          None -> False
+        }
+        case repeated {
+          True -> {
+            let member_base = field_type(field)
+            let member_base_fn = codegen_helpers.to_snake_case(member_base)
+            let convert =
+              member_function
+              <> "_from_"
+              <> member_base_fn
+              <> "(value"
+              <> arguments
+              <> ")"
+            let restore = member_function <> "_to_" <> member_base_fn
+            case every_member, list1 {
+              True, False ->
+                RecordSource(
+                  ..source,
+                  declarations: [
+                    name <> ": List(" <> member_type <> "),",
+                    ..source.declarations
+                  ],
+                  defaults: [name <> ": [],", ..source.defaults],
+                  bindings: [
+                    "use "
+                      <> name
+                      <> " <- result.try(list.try_map(source."
+                      <> name
+                      <> ", fn(value) { "
+                      <> convert
+                      <> " }))\n",
+                    ..source.bindings
+                  ],
+                  decoded: [name <> ":,", ..source.decoded],
+                  restored: [
+                    name
+                      <> ": list.map(source."
+                      <> name
+                      <> ", fn(value) { "
+                      <> restore
+                      <> "(value"
+                      <> arguments
+                      <> ") }),",
+                    ..source.restored
+                  ],
+                )
+              True, True ->
+                RecordSource(
+                  ..source,
+                  declarations: [
+                    name <> ": List1(" <> member_type <> "),",
+                    ..source.declarations
+                  ],
+                  arguments: [
+                    name <> " " <> name <> ": List1(" <> member_type <> "),",
+                    ..source.arguments
+                  ],
+                  defaults: [name <> ":,", ..source.defaults],
+                  bindings: [
+                    "use "
+                      <> name
+                      <> " <- result.try(case list.try_map(source."
+                      <> name
+                      <> ", fn(value) { "
+                      <> convert
+                      <> " }) { Ok([first, ..rest]) -> Ok(List1(first:, rest:)) Ok([]) | Error(_) -> Error(Nil) })\n",
+                    ..source.bindings
+                  ],
+                  decoded: [name <> ":,", ..source.decoded],
+                  restored: [
+                    name
+                      <> ": list.map([source."
+                      <> name
+                      <> ".first, ..source."
+                      <> name
+                      <> ".rest], fn(value) { "
+                      <> restore
+                      <> "(value"
+                      <> arguments
+                      <> ") }),",
+                    ..source.restored
+                  ],
+                )
+              False, _ -> {
+                let #(
+                  index_field,
+                  index_default,
+                  index_value,
+                  index_pattern,
+                  restored,
+                ) = case preserve_slice_order {
+                  False -> #(
+                    "",
+                    "",
+                    "",
+                    "#(disc, others)",
+                    "["
+                      <> restore
+                      <> "(source.disc"
+                      <> arguments
+                      <> "), ..source.others]",
+                  )
+                  True -> #(
+                    "internal_gleam_fhir_index: Option(Int),",
+                    "internal_gleam_fhir_index: None,",
+                    "internal_gleam_fhir_index: Some(index),",
+                    "#(disc, others, index)",
+                    "case source.internal_gleam_fhir_index { None -> ["
+                      <> restore
+                      <> "(source.disc"
+                      <> arguments
+                      <> "), ..source.others] Some(index) -> insert_at("
+                      <> restore
+                      <> "(source.disc"
+                      <> arguments
+                      <> "), source.others, index) }",
+                  )
+                }
+                RecordSource(
+                  ..source,
+                  declarations: [
+                    index_field
+                      <> "disc: "
+                      <> member_type
+                      <> ",others: List("
+                      <> member_base
+                      <> "),",
+                    ..source.declarations
+                  ],
+                  defaults: [
+                    index_default
+                      <> "disc: "
+                      <> {
+                      let assert Ok(child) =
+                        discriminator_new_call(
+                          codegen_helpers.ComplexTypes,
+                          member_type,
+                          elements,
+                        )
+                      child
+                    }
+                      <> ",others: [],",
+                    ..source.defaults
+                  ],
+                  bindings: [
+                    "use "
+                      <> index_pattern
+                      <> " <- result.try(find_elt_and_rest_result(in: source."
+                      <> name
+                      <> ", one_that: fn(value) { "
+                      <> convert
+                      <> " }))\n",
+                    ..source.bindings
+                  ],
+                  decoded: [index_value <> "disc:,others:,", ..source.decoded],
+                  restored: [name <> ": " <> restored <> ",", ..source.restored],
+                )
+              }
+            }
+          }
+          False -> {
+            let constant = direct && list.contains(fixed, name)
+            let min = case list.contains(required_fields, name) {
+              True -> 1
+              False -> field.min
+            }
+            let type_ = field_type(field)
+            let restored = case min, field.min {
+              1, 0 -> "Some(source." <> name <> ")"
+              _, _ -> "source." <> name
+            }
+            let scalar = case field.min {
+              0 -> "Some(" <> name <> ")"
+              _ -> name
+            }
+            case constant {
+              True ->
+                RecordSource(
+                  ..source,
+                  conditions: [
+                    "source." <> name <> " == " <> scalar,
+                    ..source.conditions
+                  ],
+                  restored: [name <> ": " <> scalar <> ",", ..source.restored],
+                )
+              False -> {
+                let #(argument, default, _) =
+                  codegen_helpers.new_fn_arg_and_field(
+                    name,
+                    type_,
+                    min,
+                    field.max,
+                    False,
+                  )
+                let unwrap = min == 1 && field.min == 0 && field.max == "1"
+                let binding = case unwrap {
+                  True ->
+                    "use "
+                    <> name
+                    <> " <- result.try(case source."
+                    <> name
+                    <> " { Some(value) -> Ok(value) None -> Error(Nil) })\n"
+                  False -> ""
+                }
+                RecordSource(
+                  ..source,
+                  declarations: [
+                    name
+                      <> ": "
+                      <> codegen_helpers.cardinality(type_, min, field.max)
+                      <> ",",
+                    ..source.declarations
+                  ],
+                  arguments: [argument, ..source.arguments],
+                  defaults: [default, ..source.defaults],
+                  bindings: [binding, ..source.bindings],
+                  decoded: [
+                    name
+                      <> ": "
+                      <> case unwrap {
+                      True -> name
+                      False -> "source." <> name
+                    }
+                      <> ",",
+                    ..source.decoded
+                  ],
+                  restored: [name <> ": " <> restored <> ",", ..source.restored],
+                )
+              }
+            }
+          }
+        }
+      },
+    )
+  let conditions = case list.reverse(source.conditions) {
+    [] -> "True"
+    conditions -> string.join(conditions, " && ")
   }
-"
-      False -> ""
-    },
-    "  codeableconcept_to_json(Codeableconcept(
-    id: concept.id,
-    extension: concept.extension,
-",
-    case preserve_slice_order {
-      True ->
-        "    coding:,
-"
-      False ->
-        "    coding: [
-      coding_fixed_system_code_display_to_coding(concept.disc, system, code, display),
-      ..concept.others
-    ],
-"
-    },
-    "    text: concept.text,
-  ))
+  let generated =
+    "pub type "
+    <> type_name
+    <> " { "
+    <> type_name
+    <> "("
+    <> string.concat(list.reverse(source.declarations))
+    <> ") }\n"
+    <> "pub fn "
+    <> function
+    <> "_new("
+    <> string.concat(list.reverse(source.arguments))
+    <> ") -> "
+    <> type_name
+    <> " { "
+    <> type_name
+    <> "("
+    <> string.concat(list.reverse(source.defaults))
+    <> ") }\n"
+    <> "pub fn "
+    <> function
+    <> "_from_"
+    <> base_function
+    <> "(source: "
+    <> base_type
+    <> ","
+    <> parameters
+    <> ") -> Result("
+    <> type_name
+    <> ", Nil) { case "
+    <> conditions
+    <> " { False -> Error(Nil) True -> {\n"
+    <> string.concat(list.reverse(source.bindings))
+    <> "Ok("
+    <> type_name
+    <> "("
+    <> string.concat(list.reverse(source.decoded))
+    <> ")) } } }\n"
+    <> "fn "
+    <> function
+    <> "_to_"
+    <> base_function
+    <> "(source: "
+    <> type_name
+    <> ","
+    <> parameters
+    <> ") -> "
+    <> base_type
+    <> " { "
+    <> base_type
+    <> "("
+    <> string.concat(list.reverse(source.restored))
+    <> ") }\n"
+    <> "pub fn "
+    <> function
+    <> "_to_json(source: "
+    <> type_name
+    <> ","
+    <> parameters
+    <> ") -> Json { "
+    <> base_function
+    <> "_to_json("
+    <> function
+    <> "_to_"
+    <> base_function
+    <> "(source"
+    <> arguments
+    <> ")) }\n\n"
+  list.append(children, [#(type_name, generated)])
 }
-
-",
-  ])
-}
-
-pub const slice_codeableconcept_list1_fixed_system =
-  "
-pub type CodeableconceptList1FixedSystem {
-  CodeableconceptList1FixedSystem(
-    id: Option(String),
-    extension: List(Extension),
-    coding: List1(CodingFixedSystem),
-    text: Option(String),
-  )
-}
-
-pub fn codeableconcept_list1_fixed_system_new(
-  coding coding: List1(CodingFixedSystem),
-) -> CodeableconceptList1FixedSystem {
-  CodeableconceptList1FixedSystem(id: None, extension: [], coding:, text: None)
-}
-
-pub fn codeableconcept_list1_fixed_system_from_codeableconcept(
-  concept: Codeableconcept,
-  system: String,
-) -> Result(CodeableconceptList1FixedSystem, Nil) {
-  case list.try_map(concept.coding, fn(value) {
-    coding_fixed_system_from_coding(value, system)
-  }) {
-    Ok([first, ..rest]) -> Ok(CodeableconceptList1FixedSystem(
-      id: concept.id,
-      extension: concept.extension,
-      coding: List1(first:, rest:),
-      text: concept.text,
-    ))
-    Ok([]) | Error(_) -> Error(Nil)
-  }
-}
-
-pub fn codeableconcept_list1_fixed_system_to_json(
-  concept: CodeableconceptList1FixedSystem,
-  system: String,
-) -> Json {
-  codeableconcept_to_json(Codeableconcept(
-    id: concept.id,
-    extension: concept.extension,
-    coding: list.map([concept.coding.first, ..concept.coding.rest], fn(value) {
-      coding_fixed_system_to_coding(value, system)
-    }),
-    text: concept.text,
-  ))
-}
-
-"
-
-pub const slice_codeableconcept_list1_fixed_system_code =
-  "
-pub type CodeableconceptList1FixedSystemCode {
-  CodeableconceptList1FixedSystemCode(
-    id: Option(String),
-    extension: List(Extension),
-    coding: List1(CodingFixedSystemCode),
-    text: Option(String),
-  )
-}
-
-pub fn codeableconcept_list1_fixed_system_code_new(
-  coding coding: List1(CodingFixedSystemCode),
-) -> CodeableconceptList1FixedSystemCode {
-  CodeableconceptList1FixedSystemCode(id: None, extension: [], coding:, text: None)
-}
-
-pub fn codeableconcept_list1_fixed_system_code_from_codeableconcept(
-  concept: Codeableconcept,
-  system: String,
-  code: String,
-) -> Result(CodeableconceptList1FixedSystemCode, Nil) {
-  case list.try_map(concept.coding, fn(value) {
-    coding_fixed_system_code_from_coding(value, system, code)
-  }) {
-    Ok([first, ..rest]) -> Ok(CodeableconceptList1FixedSystemCode(
-      id: concept.id,
-      extension: concept.extension,
-      coding: List1(first:, rest:),
-      text: concept.text,
-    ))
-    Ok([]) | Error(_) -> Error(Nil)
-  }
-}
-
-pub fn codeableconcept_list1_fixed_system_code_to_json(
-  concept: CodeableconceptList1FixedSystemCode,
-  system: String,
-  code: String,
-) -> Json {
-  codeableconcept_to_json(Codeableconcept(
-    id: concept.id,
-    extension: concept.extension,
-    coding: list.map([concept.coding.first, ..concept.coding.rest], fn(value) {
-      coding_fixed_system_code_to_coding(value, system, code)
-    }),
-    text: concept.text,
-  ))
-}
-
-"
-
-pub const slice_codeableconcept_list1_fixed_system_code_display =
-  "
-pub type CodeableconceptList1FixedSystemCodeDisplay {
-  CodeableconceptList1FixedSystemCodeDisplay(
-    id: Option(String),
-    extension: List(Extension),
-    coding: List1(CodingFixedSystemCodeDisplay),
-    text: Option(String),
-  )
-}
-
-pub fn codeableconcept_list1_fixed_system_code_display_new(
-  coding coding: List1(CodingFixedSystemCodeDisplay),
-) -> CodeableconceptList1FixedSystemCodeDisplay {
-  CodeableconceptList1FixedSystemCodeDisplay(id: None, extension: [], coding:, text: None)
-}
-
-pub fn codeableconcept_list1_fixed_system_code_display_from_codeableconcept(
-  concept: Codeableconcept,
-  system: String,
-  code: String,
-  display: String,
-) -> Result(CodeableconceptList1FixedSystemCodeDisplay, Nil) {
-  case list.try_map(concept.coding, fn(value) {
-    coding_fixed_system_code_display_from_coding(value, system, code, display)
-  }) {
-    Ok([first, ..rest]) -> Ok(CodeableconceptList1FixedSystemCodeDisplay(
-      id: concept.id,
-      extension: concept.extension,
-      coding: List1(first:, rest:),
-      text: concept.text,
-    ))
-    Ok([]) | Error(_) -> Error(Nil)
-  }
-}
-
-pub fn codeableconcept_list1_fixed_system_code_display_to_json(
-  concept: CodeableconceptList1FixedSystemCodeDisplay,
-  system: String,
-  code: String,
-  display: String,
-) -> Json {
-  codeableconcept_to_json(Codeableconcept(
-    id: concept.id,
-    extension: concept.extension,
-    coding: list.map([concept.coding.first, ..concept.coding.rest], fn(value) {
-      coding_fixed_system_code_display_to_coding(value, system, code, display)
-    }),
-    text: concept.text,
-  ))
-}
-"

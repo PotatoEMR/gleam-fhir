@@ -1,3 +1,4 @@
+import codegen_constraint
 import fhir/r4_gen/complex_types as r4ct
 import fhir/r4_gen/resources as r4
 import filepath
@@ -114,13 +115,20 @@ pub fn snapshot_decoder() -> decode.Decoder(Snapshot) {
     [],
     decode.list(element_decoder()),
   )
-  decode.success(Snapshot(element:))
+  decode.success(
+    Snapshot(
+      element: list.index_map(element, fn(element, index) {
+        Element(..element, definition_order: index)
+      }),
+    ),
+  )
 }
 
 pub type Element {
   Element(
     id: String,
     path: String,
+    definition_order: Int,
     gleam_field_name: Option(String),
     base: ElementBase,
     slice_name: Option(String),
@@ -130,6 +138,9 @@ pub type Element {
     type_: List(Type),
     binding: Option(Binding),
     content_reference: Option(String),
+    constraint: Option(codegen_constraint.Constraint),
+    // Scalar entries required by an array inside an object pattern.
+    pattern_literals: List(codegen_constraint.Value),
     fixed_code: Option(String),
     fixed_uri: Option(String),
     pattern_coding: Option(DiscriminatorCodingValue),
@@ -167,56 +178,64 @@ pub fn element_decoder() -> decode.Decoder(Element) {
     None,
     decode.optional(decode.string),
   )
-  use fixed_code <- decode.optional_field(
-    "fixedCode",
-    None,
-    decode.optional(decode.string),
-  )
-  use pattern_code <- decode.optional_field(
-    "patternCode",
-    None,
-    decode.optional(decode.string),
-  )
-  let fixed_code = case fixed_code, pattern_code {
-    Some(fixed), Some(pattern) if fixed != pattern ->
-      panic as { "conflicting fixedCode and patternCode for " <> id }
-    Some(fixed), _ -> Some(fixed)
-    None, pattern -> pattern
+  use constraint <- decode.then(codegen_constraint.decoder())
+  let value = option.map(constraint, fn(constraint) { constraint.value })
+  let fixed_code = case constraint {
+    Some(codegen_constraint.Constraint(
+      type_name: "Code",
+      value: codegen_constraint.Text(value),
+      ..,
+    )) -> codegen_constraint.text(Some(codegen_constraint.Text(value)))
+    _ -> None
   }
-  use fixed_uri <- decode.optional_field(
-    "fixedUri",
-    None,
-    decode.optional(decode.string),
-  )
-  use pattern_uri <- decode.optional_field(
-    "patternUri",
-    None,
-    decode.optional(decode.string),
-  )
-  let fixed_uri = case fixed_uri, pattern_uri {
-    Some(fixed), Some(pattern) if fixed != pattern ->
-      panic as { "conflicting fixedUri and patternUri for " <> id }
-    Some(fixed), _ -> Some(fixed)
-    None, pattern -> pattern
+  let fixed_uri = case constraint {
+    Some(codegen_constraint.Constraint(
+      type_name: "Uri",
+      value: codegen_constraint.Text(value),
+      ..,
+    )) -> codegen_constraint.text(Some(codegen_constraint.Text(value)))
+    _ -> None
   }
-  use pattern_coding <- decode.optional_field(
-    "patternCoding",
-    None,
-    decode.optional(discriminator_coding_value_decoder()),
-  )
-  use pattern_codeableconcept <- decode.optional_field(
-    "patternCodeableConcept",
-    None,
-    decode.optional(discriminator_codeableconcept_value_decoder()),
-  )
-  use pattern_identifier <- decode.optional_field(
-    "patternIdentifier",
-    None,
-    decode.optional(discriminator_identifier_value_decoder()),
-  )
+  let pattern_coding = case constraint {
+    Some(codegen_constraint.Constraint(fixed: False, type_name: "Coding", ..)) ->
+      option.map(value, coding_pattern)
+    _ -> None
+  }
+  let pattern_codeableconcept = case constraint {
+    Some(codegen_constraint.Constraint(
+      fixed: False,
+      type_name: "CodeableConcept",
+      value:,
+    )) -> {
+      let coding = case codegen_constraint.field(value, "coding") {
+        Some(codegen_constraint.Array(values)) ->
+          list.map(values, coding_pattern)
+        None -> []
+        _ -> panic as "CodeableConcept coding pattern must be an array"
+      }
+      Some(DiscriminatorCodeableconceptValue(coding:))
+    }
+    _ -> None
+  }
+  let pattern_identifier = case constraint {
+    Some(codegen_constraint.Constraint(
+      fixed: False,
+      type_name: "Identifier",
+      value:,
+    )) ->
+      Some(DiscriminatorIdentifierValue(
+        system: codegen_constraint.text(codegen_constraint.field(
+          value,
+          "system",
+        )),
+        value: codegen_constraint.text(codegen_constraint.field(value, "value")),
+      ))
+    _ -> None
+  }
   decode.success(Element(
     id:,
     path:,
+    definition_order: 0,
     gleam_field_name: None,
     base:,
     slice_name:,
@@ -226,6 +245,8 @@ pub fn element_decoder() -> decode.Decoder(Element) {
     type_:,
     binding:,
     content_reference:,
+    constraint:,
+    pattern_literals: [],
     fixed_code:,
     fixed_uri:,
     pattern_coding:,
@@ -233,6 +254,72 @@ pub fn element_decoder() -> decode.Decoder(Element) {
     pattern_identifier:,
     pattern_match: False,
   ))
+}
+
+// Constant scalar values use the same field omission rules for every datatype.
+pub fn constant(element: Element) -> Option(codegen_constraint.Value) {
+  case element.fixed_code, element.fixed_uri, element.constraint {
+    Some(value), _, _ | _, Some(value), _ ->
+      Some(codegen_constraint.Text(value))
+    _, _, Some(codegen_constraint.Constraint(value: value, ..)) ->
+      case value {
+        codegen_constraint.Object(_) | codegen_constraint.Array(_) ->
+          case element.constraint {
+            Some(codegen_constraint.Constraint(fixed: True, ..)) ->
+              case element.slice_name {
+                None -> Some(value)
+                Some(_) -> None
+              }
+            _ -> None
+          }
+        _ -> Some(value)
+      }
+    _, _, _ -> None
+  }
+}
+
+// These public shared types predate the recursive constraint representation.
+// Avoid adding duplicate checks to their generated output.
+pub fn constraint_uses_shared_type(element: Element) -> Bool {
+  let shared_coding_fields = fn(
+    fields: List(#(String, codegen_constraint.Value)),
+  ) {
+    list.all(fields, fn(field) {
+      list.contains(["system", "code", "display"], field.0)
+      && case field.1 {
+        codegen_constraint.Text(value) ->
+          codegen_constraint.text_can_use_legacy_template(value)
+        _ -> False
+      }
+    })
+  }
+  case element.constraint {
+    None -> False
+    Some(codegen_constraint.Constraint(value: codegen_constraint.Text(_), ..)) ->
+      element.fixed_code != None || element.fixed_uri != None
+    Some(codegen_constraint.Constraint(fixed: False, value: value, type_name:)) ->
+      case value {
+        codegen_constraint.Object(fields) if type_name == "Coding" ->
+          shared_coding_fields(fields)
+        codegen_constraint.Object([
+          #(
+            "coding",
+            codegen_constraint.Array([codegen_constraint.Object(fields)]),
+          ),
+        ])
+          if type_name == "CodeableConcept"
+        -> shared_coding_fields(fields)
+        codegen_constraint.Object([#("system", codegen_constraint.Text(value))])
+          if type_name == "Identifier"
+        -> codegen_constraint.text_can_use_legacy_template(value)
+        _ -> False
+      }
+    _ -> False
+  }
+}
+
+pub fn constraint_needs_check(element: Element) -> Bool {
+  element.constraint != None && !constraint_uses_shared_type(element)
 }
 
 pub type DiscriminatorCodingValue {
@@ -243,54 +330,22 @@ pub type DiscriminatorCodingValue {
   )
 }
 
-fn discriminator_coding_value_decoder() {
-  use system <- decode.optional_field(
-    "system",
-    None,
-    decode.optional(decode.string),
+pub fn coding_pattern(
+  value: codegen_constraint.Value,
+) -> DiscriminatorCodingValue {
+  DiscriminatorCodingValue(
+    system: codegen_constraint.text(codegen_constraint.field(value, "system")),
+    code: codegen_constraint.text(codegen_constraint.field(value, "code")),
+    display: codegen_constraint.text(codegen_constraint.field(value, "display")),
   )
-  use code <- decode.optional_field(
-    "code",
-    None,
-    decode.optional(decode.string),
-  )
-  use display <- decode.optional_field(
-    "display",
-    None,
-    decode.optional(decode.string),
-  )
-  decode.success(DiscriminatorCodingValue(system:, code:, display:))
 }
 
 pub type DiscriminatorCodeableconceptValue {
   DiscriminatorCodeableconceptValue(coding: List(DiscriminatorCodingValue))
 }
 
-fn discriminator_codeableconcept_value_decoder() {
-  use coding <- decode.optional_field(
-    "coding",
-    [],
-    decode.list(discriminator_coding_value_decoder()),
-  )
-  decode.success(DiscriminatorCodeableconceptValue(coding:))
-}
-
 pub type DiscriminatorIdentifierValue {
   DiscriminatorIdentifierValue(system: Option(String), value: Option(String))
-}
-
-fn discriminator_identifier_value_decoder() {
-  use system <- decode.optional_field(
-    "system",
-    None,
-    decode.optional(decode.string),
-  )
-  use value <- decode.optional_field(
-    "value",
-    None,
-    decode.optional(decode.string),
-  )
-  decode.success(DiscriminatorIdentifierValue(system:, value:))
 }
 
 pub type ElementBase {
@@ -480,6 +535,10 @@ pub fn field_name(element: Element) -> String {
       |> string.replace("[x]", "")
       |> escape_field_name
       |> to_snake_case
+      |> string.append(case element.pattern_literals {
+        [] -> ""
+        _ -> "_others"
+      })
     }
   }
 }

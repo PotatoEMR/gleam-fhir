@@ -551,7 +551,7 @@ fn gen_fhir(
       True -> "import gleam/time/calendar\n"
       False -> ""
     }
-    <> case uses_profile_match {
+    <> case uses_profile_match || string.contains(resources_gen, "string.") {
       True -> "import gleam/string\n"
       False -> ""
     }
@@ -583,6 +583,18 @@ fn gen_fhir(
     shared_imports
     <> case string.contains(complex_types_gen, "Dynamic") {
       True -> "import gleam/dynamic.{type Dynamic}\n"
+      False -> ""
+    }
+    <> case string.contains(complex_types_gen, "float.") {
+      True -> "import gleam/float\n"
+      False -> ""
+    }
+    <> case string.contains(complex_types_gen, "string.") {
+      True -> "import gleam/string\n"
+      False -> ""
+    }
+    <> case string.contains(complex_types_gen, "dict.") {
+      True -> "import gleam/dict\n"
       False -> ""
     }
     <> "import gleam/int\n"
@@ -899,19 +911,29 @@ fn gen_fhir(
         next: fn(List(c)) -> Decoder(d),
       ) -> Decoder(d) {
         use primitives <- primitives_decoder(name, thing_decoder, extension_decoder)
-        primitive_slice_list_from_primitives(primitives, convert, next)
+        primitive_slice_list_from_primitives(primitives, convert, name, 0, next)
       }
 
       fn primitive_slice_list_from_primitives(
         primitives: List(Primitive(a, b)),
         convert: fn(Primitive(a, b)) -> Decoder(c),
+        name: String,
+        index: Int,
         next: fn(List(c)) -> Decoder(d),
       ) -> Decoder(d) {
         case primitives {
           [] -> next([])
           [first, ..rest] -> {
-            use first <- decode.then(convert(first))
-            use rest <- primitive_slice_list_from_primitives(rest, convert)
+            use first <- decode.then(convert(first) |> decode.map_errors(fn(errors) {
+              list.map(errors, fn(error) {
+                case error.path {
+                  [field, ..path] if field == name ->
+                    decode.DecodeError(..error, path: [field, int.to_string(index), ..path])
+                  _ -> error
+                }
+              })
+            }))
+            use rest <- primitive_slice_list_from_primitives(rest, convert, name, index + 1)
             next([first, ..rest])
           }
         }
@@ -993,10 +1015,19 @@ fn gen_fhir(
         False -> Error(Nil)
       }
     })
-  let result_import = case string.contains(resources_gen, "result.") {
-    True -> "import gleam/result\n"
-    False -> ""
-  }
+  let result_import =
+    case string.contains(resources_gen, "float.") {
+      True -> "import gleam/float\n"
+      False -> ""
+    }
+    <> case string.contains(resources_gen, "dict.") {
+      True -> "import gleam/dict\n"
+      False -> ""
+    }
+    <> case string.contains(resources_gen, "result.") {
+      True -> "import gleam/result\n"
+      False -> ""
+    }
   let r_ct_import =
     "import fhir/"
     <> pkg_prefix
