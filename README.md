@@ -6,6 +6,8 @@
 [![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/fhir/)
 ![GitHub License](https://img.shields.io/github/license/PotatoEMR/gleam-fhir?color=%23750014)
 
+Gleam and Lucy starfish mascot © 2026 Louis Pilfold. HL7, FHIR and the FHIR flame design are the registered trademarks of Health Level Seven International and their use does not constitute endorsement by HL7.
+
 <div style="display: flex">
 <img src="https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/lucy.svg" title="Gleam Lucy" alt="Gleam Lucy" width="35%">
 <img src="https://github.com/PotatoEMR/gleam-fhir/raw/refs/heads/main/docs/static/fhir.svg" title="HL7® FHIR® Flame" alt="HL7® FHIR Flame" width="35%">
@@ -13,24 +15,13 @@
 
 [FHIR®](https://hl7.org/fhir/) (Fast Healthcare Interoperability Resources) is a standard for health care data exchange, published by HL7®. [Gleam](https://gleam.run/) is simple and type-safe, making FHIR resource features like cardinality and choice types easy to work with.
 
-## Features
-- Supports R4, R4B, R5
-- Gleam types for FHIR data types and resources
-- Primitive types to represent valid FHIR date, dateTime, instant, time
-- JSON encoder and to_json functions
-- Enums for valuesets with required binding
-- Sans-io request/response for Create, Read, Update, Delete, Search
-- Client layers over sans-io for easy use on Erlang target and Lustre apps
-- Primitive extensions, optionally generated for each type
-- Standard extension on all complex type, and optionally type safe extension generation for specific extension
-
 ## Quick Start
 
 ```sh
 gleam new hello_fhir
 ```
 ```sh
-cd hello_fhir && gleam add fhir && gleam add fhir_client_httpc
+cd hello_fhir && gleam add fhir && gleam add TODO
 ```
 ```gleam
 
@@ -102,21 +93,22 @@ pub fn main() {
 gleam run
 ```
 
-## FHIR Versions and HTTP client layers 
+## Slow Start TODO
 
-The base fhir package provides R4 resources and sansio only. `gleam add` works for r4 packages, as they are published on hex.pm. Other versions are only available as source on github, so they need to be added as github link in gleam.toml (ideally [with the commit sha ref](https://gleam.run/writing-gleam/gleam-toml/#Git-dependencies)). 
-
-|                               | resources and sansio | httpc client | rsvp client |
-| ----------------------------- | ---------------- | ------------ | ----------- |
-| r4                            | gleam add fhir | gleam add fhir_client_httpc | gleam add fhir_client_rsvp |
-| r4b                           | https://github.com/PotatoEMR/fhir_r4b | https://github.com/PotatoEMR/fhir_r4b_client_httpc | https://github.com/PotatoEMR/fhir_r4b_client_rsvp |
-| r5                            | https://github.com/PotatoEMR/fhir_r5 | https://github.com/PotatoEMR/fhir_r5_client_httpc | https://github.com/PotatoEMR/fhir_r5_client_rsvp |
-| r4 with US Core types         | https://github.com/PotatoEMR/fhir_r4us | https://github.com/PotatoEMR/fhir_r4us_client_httpc | https://github.com/PotatoEMR/fhir_r4us_client_rsvp |
-| r4 with primitive extensions  | https://github.com/PotatoEMR/fhir_r4p | https://github.com/PotatoEMR/fhir_r4p_client_httpc | https://github.com/PotatoEMR/fhir_r4p_client_rsvp |
+## Features
+- Supports R4, R4B, R5
+- Gleam types for FHIR data types and resources
+- Primitive types to represent valid FHIR date, dateTime, instant, time
+- JSON encoder and to_json functions
+- Enums for valuesets with required binding
+- Sans-io request/response for Create, Read, Update, Delete, Search
+- Client layers over sans-io for easy use on Erlang target and Lustre apps
+- Primitive extensions, optionally generated for each type
+- Standard extension on all complex type, and optionally type safe extension generation for specific extension
 
 ## AI use
 
-AI in parts of codegen (which creates Gleam code from FHIR data) and some tests. No AI in API design or documentation. 
+Code generator made with AI to the extent that no human can or should read the generator itself, it is probably garbage in places. No AI in output API design or documentation.
 
 ## Other FHIR Docs
 
