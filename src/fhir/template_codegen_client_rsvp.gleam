@@ -27,12 +27,10 @@ import rsvp
 ///
 /// `let assert Ok(client) = client_rsvp.fhirclient_new(\"127.0.0.1:8000\")`
 /// 
-/// rsvp client wraps sansio client, along with an optional handle_unauthorized fn,
-/// for the client to call when a request returns 401 unauthorized
-pub type FhirClient(msg) {
+/// rsvp client wraps sansio client
+pub type FhirClient {
   FhirClient(
     client: sansio.FhirClient,
-    handle_unauthorized: Option(fn(sansio.ErrResp) -> msg),
   )
 }
 
@@ -47,9 +45,9 @@ pub type FhirClient(msg) {
 /// `let assert Ok(client) = client_rsvp.fhirclient_new(\"127.0.0.1:8000\")`
 pub fn fhirclient_new(
   server_base_url in_url: String,
-) -> Result(FhirClient(msg), sansio.ErrBaseUrl) {
+) -> Result(FhirClient, sansio.ErrBaseUrl) {
   case sansio.fhirclient_new(in_url) {
-    Ok(client) -> Ok(FhirClient(client:, handle_unauthorized: None))
+    Ok(client) -> Ok(FhirClient(client:))
     Error(err) -> Error(err)
   }
 }
@@ -77,7 +75,7 @@ fn any_create(
   resource: Json,
   res_type: resources.ResourceType,
   resource_dec: Decoder(r),
-  client: FhirClient(msg),
+  client: FhirClient,
   handle_response: fn(Result(r, Err)) -> msg,
 ) -> Effect(msg) {
   let req = sansio.any_create_req(resource, res_type, client.client)
@@ -88,7 +86,7 @@ fn any_read(
   id: String,
   res_type: resources.ResourceType,
   resource_dec: Decoder(r),
-  client: FhirClient(msg),
+  client: FhirClient,
   handle_response: fn(Result(r, Err)) -> msg,
 ) -> Effect(msg) {
   let req = sansio.any_read_req(id, res_type, client.client)
@@ -100,7 +98,7 @@ fn any_update(
   resource: Json,
   res_type: resources.ResourceType,
   resource_dec: Decoder(r),
-  client: FhirClient(msg),
+  client: FhirClient,
   handle_response: fn(Result(r, Err)) -> msg,
 ) -> Result(Effect(msg), ErrNoId) {
   let req = sansio.any_update_req(id, resource, res_type, client.client)
@@ -114,7 +112,7 @@ fn any_update(
 pub fn any_delete(
   id: String,
   res_type: resources.ResourceType,
-  client: FhirClient(msg),
+  client: FhirClient,
   handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> msg,
 ) -> Effect(msg) {
   let req = sansio.any_delete_req(id, res_type, client.client)
@@ -139,11 +137,7 @@ pub fn any_delete(
       Ok(response) ->
         case sansio.delete_response(response) {
           Ok(oo_or_http) -> Ok(oo_or_http) |> handle_response
-          Error(err) ->
-            case response.status, client.handle_unauthorized {
-              401, Some(handle_unauthorized) -> handle_unauthorized(err)
-              _, _ -> Error(ErrSansio(err)) |> handle_response
-            }
+          Error(err) -> Error(ErrSansio(err)) |> handle_response
         }
     }
   }
@@ -160,7 +154,7 @@ pub fn any_delete(
 pub fn search_any(
   search_string: String,
   res_type: resources.ResourceType,
-  client: FhirClient(msg),
+  client: FhirClient,
   handle_response: fn(Result(resources.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
   let req = sansio.any_search_req(search_string, res_type, client.client)
@@ -177,7 +171,7 @@ pub fn search_any(
 pub fn search_any_forgiving(
   search_string: String,
   res_type: resources.ResourceType,
-  client: FhirClient(msg),
+  client: FhirClient,
   handle_response: fn(Result(resources.BundleForgiving, Err)) -> msg,
 ) -> Effect(msg) {
   let req = sansio.any_search_req(search_string, res_type, client.client)
@@ -196,7 +190,7 @@ pub fn operation_any(
   res_type res_type: resources.ResourceType,
   res_id res_id: Option(String),
   res_decoder res_decoder: Decoder(res),
-  client client: FhirClient(msg),
+  client client: FhirClient,
   handle_response handle_response: fn(Result(res, Err)) -> msg,
 ) -> Effect(msg) {
   let req =
@@ -213,7 +207,7 @@ pub fn operation_any(
 pub fn batch(
   reqs: List(Request(Option(Json))),
   bundle_type: sansio.PostBundleType,
-  client: FhirClient(msg),
+  client: FhirClient,
   handle_response: fn(Result(resources.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
   let req = sansio.batch_req(reqs, bundle_type, client.client)
@@ -229,7 +223,7 @@ fn sendreq_handleresponse(
   req: Request(Option(Json)),
   res_dec: Decoder(resource),
   handle_response: fn(Result(resource, Err)) -> msg,
-  client: FhirClient(msg),
+  client: FhirClient,
 ) -> Effect(msg) {
   case client.client.print_sent_requests {
     sansio.LoggingOn -> req |> sansio.req_to_string |> io.println
@@ -248,17 +242,11 @@ fn sendreq_handleresponse(
       sansio.LoggingOff -> Nil
     }
     case response_result {
-      // could maybe handle_unauthorized here as well for rsvp.Error variant HttpError
-      // but expect_any_response will not error on status 401
       Error(err) -> Error(ErrRsvp(err)) |> handle_response
       Ok(response) -> {
         case sansio.any_response(response, res_dec) {
           Ok(res) -> Ok(res) |> handle_response
-          Error(err) ->
-            case response.status, client.handle_unauthorized {
-              401, Some(handle_unauthorized) -> handle_unauthorized(err)
-              _, _ -> Error(ErrSansio(err)) |> handle_response
-            }
+          Error(err) -> Error(ErrSansio(err)) |> handle_response
         }
       }
     }

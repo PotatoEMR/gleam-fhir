@@ -644,7 +644,7 @@ pub fn gen(
       "
             pub fn NAMELOWER_create(
               resource: resources.NAMECAPITAL,
-              client: FhirClient(msg),
+              client: FhirClient,
               handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> msg,
             ) -> Effect(msg) {
               any_create(
@@ -658,7 +658,7 @@ pub fn gen(
 
             pub fn NAMELOWER_read(
               id: String,
-              client: FhirClient(msg),
+              client: FhirClient,
               handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> msg,
             ) -> Effect(msg) {
               any_read(id, resources.RtNAMERT, resources.NAMELOWER_decoder(), client, handle_response)
@@ -666,7 +666,7 @@ pub fn gen(
 
             pub fn NAMELOWER_update(
               resource: resources.NAMECAPITAL,
-              client: FhirClient(msg),
+              client: FhirClient,
               handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> msg,
             ) -> Result(Effect(msg), ErrNoId) {
               any_update(
@@ -681,7 +681,7 @@ pub fn gen(
 
             pub fn NAMELOWER_delete(
               resource: resources.NAMECAPITAL,
-              client: FhirClient(msg),
+              client: FhirClient,
               handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> msg,
             ) -> Result(Effect(msg), ErrNoId) {
               case resource.id {
@@ -752,7 +752,7 @@ fn gen_search_encode(
         case client {
           Httpc -> ") {"
           Rsvp ->
-            "(msg),
+            ",
             handle_response: fn(Result(resources.Bundle, Err)) -> msg,
             ) -> Effect(msg) {"
         },
@@ -784,7 +784,7 @@ fn gen_search_encode(
                 Error(error) -> Error(error)
               }
             }"
-          Rsvp -> "(msg),
+          Rsvp -> ",
             handle_response: fn(Result(List(resources." <> name_capital <> "), Err)) -> msg,
             ) -> Effect(msg) {
               " <> name_lower <> "_search_bundled(sp, client, fn(resp) {
