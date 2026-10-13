@@ -1,4 +1,5 @@
 import codegen_helpers
+import codegen_profile_json
 import fhir/template_codegen_client_httpc
 import fhir/template_codegen_client_rsvp
 import fhir/template_codegen_client_sansio
@@ -193,6 +194,10 @@ pub fn gen(
   gen_specific_resources gen_specific_resources: Option(List(String)),
   profile_resource_entries profile_resource_entries: List(
     #(String, String, String),
+  ),
+  constructors constructors: dict.Dict(
+    String,
+    codegen_profile_json.ConstructorDefinition,
   ),
 ) -> #(String, String, String, String) {
   let assert Ok(spec) = simplifile.read(spec_file)
@@ -607,12 +612,14 @@ pub fn gen(
               any_read(id, client, resources.RtNAMERT, resources.NAMELOWER_decoder())
             }
 
+            //ID_METHODS
             pub fn NAMELOWER_update(
               resource: resources.NAMECAPITAL,
               client: FhirClient,
             ) -> Result(resources.NAMECAPITAL, Err) {
+              let id = RESOURCE_ID
               any_update(
-                resource.id,
+                id,
                 resources.NAMELOWER_to_json(resource),
                 resources.RtNAMERT,
                 resources.NAMELOWER_decoder(),
@@ -624,13 +631,15 @@ pub fn gen(
               resource: resources.NAMECAPITAL,
               client: FhirClient,
             ) -> Result(sansio.OperationoutcomeOrHTTP, Err) {
-              case resource.id {
+              let id = RESOURCE_ID
+              case id {
                 Some(id) -> any_delete(id, resources.RtNAMERT, client)
                 None -> Error(ErrSansio(ErrNoId))
               }
             }
 
             ",
+      constructors,
     )
 
   let file_text = template_codegen_client_httpc.source
@@ -664,13 +673,15 @@ pub fn gen(
               any_read(id, resources.RtNAMERT, resources.NAMELOWER_decoder(), client, handle_response)
             }
 
+            //ID_METHODS
             pub fn NAMELOWER_update(
               resource: resources.NAMECAPITAL,
               client: FhirClient,
               handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> msg,
             ) -> Result(Effect(msg), ErrNoId) {
+              let id = RESOURCE_ID
               any_update(
-                resource.id,
+                id,
                 resources.NAMELOWER_to_json(resource),
                 resources.RtNAMERT,
                 resources.NAMELOWER_decoder(),
@@ -684,13 +695,15 @@ pub fn gen(
               client: FhirClient,
               handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> msg,
             ) -> Result(Effect(msg), ErrNoId) {
-              case resource.id {
+              let id = RESOURCE_ID
+              case id {
                 Some(id) -> Ok(any_delete(id, resources.RtNAMERT, client, handle_response))
                 None -> Error(ErrNoId)
               }
             }
 
             ",
+      constructors,
     )
 
   let file_text = template_codegen_client_rsvp.source
@@ -807,10 +820,37 @@ fn gen_search_encode(
 fn gen_specific_crud(
   entries: List(#(String, String, String)),
   template: String,
+  constructors: dict.Dict(String, codegen_profile_json.ConstructorDefinition),
 ) -> String {
   list.map(entries, fn(entry) {
     let #(name_lower, name_capital, resource_type) = entry
     let #(_, route_type) = id_to_name(resource_type)
+    let assert Ok(codegen_profile_json.RecordConstructor(_, _, fields)) =
+      dict.get(
+        constructors,
+        codegen_profile_json.constructor_key(
+          codegen_helpers.Resources,
+          name_capital,
+        ),
+      )
+    let template = case
+      list.find(fields, fn(field) {
+        codegen_helpers.field_name(field.0) == "id"
+      })
+    {
+      Error(_) -> {
+        let assert [template, _] = string.split(template, "//ID_METHODS")
+        template
+      }
+      Ok(#(_, cardinality)) ->
+        template
+        |> string.replace("//ID_METHODS", "")
+        |> string.replace("RESOURCE_ID", case cardinality {
+          "String" -> "Some(resource.id)"
+          "Option(String)" -> "resource.id"
+          _ -> panic as { "unsupported resource id type " <> cardinality }
+        })
+    }
     template
     |> string.replace("NAMELOWER", name_lower)
     |> string.replace("NAMEUPPER", resource_type)

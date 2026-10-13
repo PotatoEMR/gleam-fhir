@@ -704,10 +704,13 @@ pub fn profile_element_encoder_type(
       ))
       <> "_to_json"
     False -> {
-      let has_profile_union = case element.type_ {
-        [type_] ->
+      let has_profile_union = case
+        element.type_,
+        dict.has_key(slice_type_overrides, element.id)
+      {
+        [type_], False ->
           list.length(resolve_datatype_profiles(type_, datatype_types)) > 1
-        _ -> False
+        _, _ -> False
       }
       case has_profile_union {
         True -> codegen_helpers.to_snake_case(base_field_type) <> "_to_json"
@@ -784,10 +787,13 @@ pub fn profile_element_encoder_call(
       <> value
       <> ")"
     False -> {
-      let has_profile_union = case element.type_ {
-        [type_] ->
+      let has_profile_union = case
+        element.type_,
+        dict.has_key(slice_type_overrides, element.id)
+      {
+        [type_], False ->
           list.length(resolve_datatype_profiles(type_, datatype_types)) > 1
-        _ -> False
+        _, _ -> False
       }
       case has_profile_union {
         True ->
@@ -1218,218 +1224,6 @@ fn slice_group_to_json_source(
   <> "\nlet fields = case slice_values {\n  [] -> fields\n  values -> [#(\""
   <> json_field_name
   <> "\", json.preprocessed_array(values)), ..fields]\n}"
-}
-
-pub fn sliced_type_to_json_source(
-  current_bucket: codegen_helpers.Category,
-  sliced_name: String,
-  children: List(codegen_helpers.Element),
-  profile_prefix: String,
-  extensions: dict.Dict(String, ExtensionDefinition),
-  type_order: List(String),
-  slice_base_type_names: dict.Dict(String, String),
-  slice_type_overrides: dict.Dict(String, SliceFieldType),
-  datatype_types: dict.Dict(String, String),
-  valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
-  snapshot_elements: List(codegen_helpers.Element),
-  preserve_slice_order: Bool,
-) -> String {
-  let children =
-    name_profile_record_fields(children, profile_prefix, type_order)
-  let aggregate_slice_groups =
-    children
-    |> list.filter_map(fn(group) {
-      case aggregate_value_slice_roots(group, children) {
-        Some(aggregate) -> Ok(#(group.id, aggregate))
-        None -> Error(Nil)
-      }
-    })
-    |> dict.from_list
-  let omitted_slice_roots =
-    aggregate_slice_groups
-    |> dict.values
-    |> list.flat_map(fn(aggregate) {
-      let #(roots, _) = aggregate
-      list.filter(roots, fn(root) { root.min == 0 })
-    })
-  let type_fields =
-    list.filter(children, fn(child) {
-      child.max != "0"
-      && !list.any(omitted_slice_roots, fn(root) { root.id == child.id })
-      && case child.slicing {
-        Some(slicing) ->
-          slicing.rules != "closed"
-          || string.ends_with(child.path, "[x]")
-          || dict.has_key(aggregate_slice_groups, child.id)
-        None -> True
-      }
-    })
-  let slice_groups =
-    children
-    |> list.filter_map(fn(group) {
-      let roots =
-        list.filter(children, fn(candidate) {
-          let prefix = group.id <> ":"
-          candidate.path == group.path
-          && candidate.slice_name != None
-          && string.starts_with(candidate.id, prefix)
-          && !string.contains(
-            string.drop_start(candidate.id, string.length(prefix)),
-            ".",
-          )
-        })
-      case group.slicing, group.base.max, list.length(group.type_), roots {
-        Some(_), base_max, type_count, [_, ..]
-          if base_max != "1" && type_count <= 1
-        -> Ok(#(group.id, roots))
-        _, _, _, _ -> Error(Nil)
-      }
-    })
-    |> dict.from_list
-  let slice_root_ids =
-    slice_groups
-    |> dict.values
-    |> list.flatten
-    |> list.map(fn(root) { root.id })
-  let #(always, optional) =
-    type_fields
-    |> list.fold(#("", ""), fn(acc, child) {
-      let #(always, optional) = acc
-      let assert Ok(json_name) = child.path |> string.split(".") |> list.last
-      case codegen_helpers.constant(child), child.min, child.max {
-        Some(value), minimum, "1" if minimum > 0 -> {
-          let value_json = codegen_constraint.json_source(value)
-          #(
-            always
-              <> "#(\""
-              <> json_name
-              <> "\", "
-              <> case child.base.max, value {
-              "1", _ | _, codegen_constraint.Array(_) -> value_json
-              _, _ -> "json.preprocessed_array([" <> value_json <> "])"
-            }
-              <> "),",
-            optional,
-          )
-        }
-        _, _, _ -> {
-          let field_name = case child.slice_name {
-            Some(slice_name) -> slice_name
-            None -> json_name
-          }
-          let field_name =
-            field_name
-            |> codegen_helpers.escape_field_name
-            |> codegen_helpers.to_snake_case
-          let all_parts = [sliced_name, field_name]
-          let field_path = string.join(all_parts, "_")
-          let child_type_name = field_path |> codegen_helpers.to_camel_case
-          let field_name = codegen_helpers.field_name(child)
-          let #(base_field_type, _) =
-            profile_base_field_type(
-              current_bucket,
-              child,
-              all_parts,
-              field_path,
-              child_type_name,
-              extensions,
-              type_order,
-              slice_base_type_names,
-              slice_type_overrides,
-              datatype_types,
-              valueset_acc,
-            )
-          let encoder =
-            profile_element_encoder_type(
-              current_bucket,
-              child,
-              base_field_type,
-              all_parts,
-              field_path,
-              type_order,
-              slice_type_overrides,
-              datatype_types,
-              snapshot_elements,
-            )
-          let encoder_call = fn(value) {
-            profile_element_encoder_call(
-              current_bucket,
-              child,
-              base_field_type,
-              all_parts,
-              field_path,
-              type_order,
-              slice_type_overrides,
-              datatype_types,
-              snapshot_elements,
-              value,
-            )
-          }
-          let field_value =
-            codegen_helpers.to_snake_case(sliced_name) <> "." <> field_name
-          case
-            dict.get(slice_groups, child.id),
-            list.contains(slice_root_ids, child.id)
-          {
-            Ok(slice_roots), _ -> {
-              let card_min = case dict.get(aggregate_slice_groups, child.id) {
-                Ok(#(_, remaining_minimum)) -> remaining_minimum
-                Error(_) -> profile_field_min(child)
-              }
-              #(
-                always,
-                optional
-                  <> slice_group_to_json_source(
-                  current_bucket,
-                  child,
-                  slice_roots,
-                  preserve_slice_order,
-                  "",
-                  profile_prefix,
-                  extensions,
-                  type_order,
-                  slice_base_type_names,
-                  slice_type_overrides,
-                  datatype_types,
-                  valueset_acc,
-                  snapshot_elements,
-                  base_field_type,
-                  all_parts,
-                  field_path,
-                  codegen_helpers.to_snake_case(sliced_name),
-                  field_value,
-                  json_name,
-                  card_min,
-                ),
-              )
-            }
-            Error(_), True -> #(always, optional)
-            Error(_), False -> {
-              let #(new_always, new_optional) =
-                profile_field_to_json_source(
-                  current_bucket,
-                  child,
-                  field_value,
-                  json_name,
-                  "",
-                  encoder,
-                  encoder_call,
-                  profile_field_min(child),
-                )
-              #(always <> new_always, optional <> new_optional)
-            }
-          }
-        }
-      }
-    })
-  codegen_helpers.gen_res_encoder(
-    "",
-    sliced_name,
-    codegen_helpers.to_snake_case(sliced_name),
-    always,
-    optional,
-    False,
-  )
 }
 
 pub type DecodeContext {
@@ -3394,6 +3188,14 @@ fn field_decoder_expression(
           context.current_bucket,
           discriminator_type,
           context.base_elements,
+          constructor_placeholder(
+            context.constructors,
+            context.base_elements,
+            context.current_bucket,
+            _,
+            set.new(),
+            codegen_helpers.ComplexTypes,
+          ),
         )
       let conversion = case call {
         codegen_slice_complex_type.ResultDiscriminatorCall(call) ->
@@ -3724,6 +3526,14 @@ fn field_decoder_expression(
               context.current_bucket,
               discriminator_type,
               context.base_elements,
+              constructor_placeholder(
+                context.constructors,
+                context.base_elements,
+                context.current_bucket,
+                _,
+                set.new(),
+                codegen_helpers.ComplexTypes,
+              ),
             )
           fallback
         }
@@ -3741,13 +3551,16 @@ fn field_decoder_expression(
     }
     _ -> decoder
   }
-  let decoder = case element.type_ {
-    [type_] ->
+  let decoder = case
+    element.type_,
+    dict.has_key(context.slice_type_overrides, element.id)
+  {
+    [type_], False ->
       case resolve_datatype_profiles(type_, context.datatype_types) {
         [_, _, ..] -> codegen_helpers.to_snake_case(field_type) <> "_decoder()"
         _ -> decoder
       }
-    _ -> decoder
+    _, _ -> decoder
   }
   use <- bool.guard(!whole_field, decoder)
   case is_primitive_slice {
@@ -4005,47 +3818,8 @@ fn choice_decoder_source(
       decoder_expression <> " |> decode.map(" <> constructor <> ")"
     })
   let assert [first, ..rest] = decoders
-  let empty_support = ConversionSupport("", dict.new())
-  let sliced_decoders =
-    list.fold(element.type_, empty_support, fn(source, choice) {
-      case
-        dict.get(
-          context.type_slice_overrides,
-          type_slice_key(element.id, choice.code),
-        )
-      {
-        Ok(TypeSlicePlan(descendants: [_, ..], ..)) -> source
-        Ok(TypeSlicePlan(slice:, children: [_, ..] as children, ..)) -> {
-          let children =
-            name_profile_record_fields(
-              children,
-              context.profile_prefix,
-              context.type_order,
-            )
-          let constructor = choice_type <> string.capitalise(choice.code)
-          let sliced_type = constructor <> "Sliced"
-          let support =
-            slice_support_types_from_fields(context, sliced_type, children)
-          let decoder =
-            record_decoder_from_fields(
-              context,
-              sliced_type,
-              children,
-              None,
-              True,
-              profile_field_has_primitive_type(slice, ""),
-            )
-          ConversionSupport(
-            source.source <> support <> decoder.source,
-            dict.merge(source.conversions, decoder.conversions),
-          )
-        }
-        _ -> source
-      }
-    })
   ConversionSupport(
-    source: sliced_decoders.source
-      <> "pub fn "
+    source: "pub fn "
       <> codegen_helpers.to_snake_case(choice_type)
       <> "_decoder() -> Decoder("
       <> choice_type
@@ -4054,7 +3828,7 @@ fn choice_decoder_source(
       <> ",\n    ["
       <> string.join(rest, ",\n      ")
       <> "],\n  )\n}\n\n",
-    conversions: sliced_decoders.conversions,
+    conversions: dict.new(),
   )
 }
 
@@ -4072,6 +3846,14 @@ fn slice_placeholder(
           context.current_bucket,
           discriminator_type,
           context.base_elements,
+          constructor_placeholder(
+            context.constructors,
+            context.base_elements,
+            context.current_bucket,
+            _,
+            set.new(),
+            codegen_helpers.ComplexTypes,
+          ),
         )
       placeholder
     }
@@ -4103,7 +3885,9 @@ fn slice_placeholder(
     }
     Error(_) | Ok(FixedValueDiscriminator(_)) ->
       constructor_placeholder(
-        context,
+        context.constructors,
+        context.base_elements,
+        context.current_bucket,
         target_type,
         set.new(),
         context.current_bucket,
@@ -4599,7 +4383,14 @@ fn discriminator_path_source(
           }
         _, _ -> child
       }
+      let roots =
+        direct_slice_roots(child, context.snapshot_elements)
+        |> list.filter(fn(root) { root.min > 0 })
       let check = discriminator_path_source(context, child, rest, "value")
+      use <- bool.guard(
+        check == "True" && roots == [] && child.constraint == None,
+        "True",
+      )
       let check = case child.base.max, child.constraint, rest {
         _,
           Some(
@@ -4660,11 +4451,23 @@ fn discriminator_path_source(
           )),
           []
         -> check
+        _, _, _ if roots != [] -> {
+          let checks =
+            list.map(roots, fn(root) {
+              let check =
+                discriminator_path_source(context, root, rest, "value")
+              "list.any(values, fn(value) { " <> check <> " })"
+            })
+          "case decode.run(value, decode.list(decode.dynamic)) { Ok(values) -> { "
+          <> string.join(checks, " && ")
+          <> " } Error(_) -> False }"
+        }
         _, _, _ ->
           "case decode.run(value, decode.list(decode.dynamic)) { Ok([]) -> False Ok(values) -> list.all(values, fn(value) { "
           <> check
           <> " }) Error(_) -> False }"
       }
+      use <- bool.guard(check == "True", "True")
       "case decode.run("
       <> input
       <> ", decode.dict(decode.string, decode.dynamic)) { Ok(fields) -> case dict.get(fields, "
@@ -4726,7 +4529,7 @@ fn discriminator_path_source(
                   <> decoder
                   <> ") { Ok(_) -> True Error(_) -> False }"
                 }
-                _ -> "False"
+                _ -> "True"
               }
             _ ->
               children
@@ -4757,32 +4560,44 @@ fn slice_discriminator_match_source(
   let assert Some(slicing) = group.slicing
   let prefix = codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
   let checks =
-    slicing.discriminator
-    |> list.map(fn(discriminator) {
-      case discriminator.type_, discriminator.path {
-        "value", path | "pattern", path ->
-          discriminator_path_source(
-            context,
-            root,
-            case path {
-              "$this" -> []
-              path -> string.split(path, ".")
-            },
-            "value",
-          )
-        "profile", "$this" -> {
-          let assert [codegen_helpers.Type(profile: [url], ..)] = root.type_
-          let assert Ok(type_) =
-            dict.get(context.datatype_types, canonical_url(url))
-          "case decode.run(value, "
-          <> prefix
-          <> codegen_helpers.to_snake_case(type_)
-          <> "_decoder()) { Ok(_) -> True Error(_) -> False }"
-        }
-        _, _ -> panic as { "unsupported discriminator " <> discriminator.type_ }
-      }
-    })
-    |> string.join(" && ")
+    case dict.get(context.slice_type_overrides, root.id) {
+      Ok(BoundCodingSlice) | Ok(BoundCodeableconceptSlice) -> [
+        "case decode.run(value, "
+        <> field_decoder_expression(context, "", root, False)
+        <> ") { Ok(_) -> True Error(_) -> False }",
+      ]
+      _ ->
+        slicing.discriminator
+        |> list.map(fn(discriminator) {
+          case discriminator.type_, discriminator.path {
+            "value", path | "pattern", path ->
+              discriminator_path_source(
+                context,
+                root,
+                case path {
+                  "$this" -> []
+                  path -> string.split(path, ".")
+                },
+                "value",
+              )
+            "profile", "$this" -> {
+              let assert [codegen_helpers.Type(profile: [url], ..)] = root.type_
+              let assert Ok(type_) =
+                dict.get(context.datatype_types, canonical_url(url))
+              "case decode.run(value, "
+              <> prefix
+              <> codegen_helpers.to_snake_case(type_)
+              <> "_decoder()) { Ok(_) -> True Error(_) -> False }"
+            }
+            _, _ ->
+              panic as { "unsupported discriminator " <> discriminator.type_ }
+          }
+        })
+    }
+    |> list.filter(fn(check) { check != "True" })
+  let assert [_, ..] = checks
+    as { "no constraints for discriminator " <> root.id }
+  let checks = string.join(checks, " && ")
   "case decode.run("
   <> input
   <> ", decode.then(decode.dynamic, fn(value) { use <- bool.guard(!{ "
@@ -4960,8 +4775,10 @@ fn slice_cardinality_placeholder(
 
 // Constructor arguments are recorded when their declarations are emitted.
 // Decode failures use those arguments instead of inferring a signature.
-fn constructor_placeholder(
-  context: DecodeContext,
+pub fn constructor_placeholder(
+  constructors: dict.Dict(String, ConstructorDefinition),
+  base_elements: dict.Dict(String, codegen_helpers.Element),
+  current_bucket: codegen_helpers.Category,
   target_type: String,
   visiting: Set(String),
   definition_bucket: codegen_helpers.Category,
@@ -4970,10 +4787,9 @@ fn constructor_placeholder(
     True -> string.drop_start(target_type, 3)
     False -> target_type
   }
-  let complex_prefix =
-    codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
+  let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
   let key = constructor_key(definition_bucket, target_type)
-  case dict.get(context.constructors, key) {
+  case dict.get(constructors, key) {
     Ok(definition) -> {
       let assert False = set.contains(visiting, key)
         as { "recursive required constructor arguments for " <> target_type }
@@ -4989,7 +4805,14 @@ fn constructor_placeholder(
             |> list.map(fn(argument) {
               argument.0
               <> ": "
-              <> constructor_placeholder(context, argument.1, visiting, bucket)
+              <> constructor_placeholder(
+                constructors,
+                base_elements,
+                current_bucket,
+                argument.1,
+                visiting,
+                bucket,
+              )
             })
             |> string.join(", ")
           prefix
@@ -5006,7 +4829,14 @@ fn constructor_placeholder(
           prefix
           <> variant
           <> "("
-          <> constructor_placeholder(context, payload_type, visiting, bucket)
+          <> constructor_placeholder(
+            constructors,
+            base_elements,
+            current_bucket,
+            payload_type,
+            visiting,
+            bucket,
+          )
           <> ")"
         }
       }
@@ -5017,7 +4847,9 @@ fn constructor_placeholder(
           let payload = string.drop_end(payload, 1)
           let value = fn() {
             constructor_placeholder(
-              context,
+              constructors,
+              base_elements,
+              current_bucket,
               payload,
               visiting,
               definition_bucket,
@@ -5061,9 +4893,17 @@ fn constructor_placeholder(
         Error(_) -> {
           case
             codegen_slice_complex_type.discriminator_new_call(
-              context.current_bucket,
+              current_bucket,
               "ct." <> name,
-              context.base_elements,
+              base_elements,
+              constructor_placeholder(
+                constructors,
+                base_elements,
+                current_bucket,
+                _,
+                visiting,
+                codegen_helpers.ComplexTypes,
+              ),
             )
           {
             Ok(default) -> default
@@ -5092,7 +4932,14 @@ fn constructor_placeholder(
 }
 
 fn base_slice_placeholder(context: DecodeContext, base_type: String) -> String {
-  constructor_placeholder(context, base_type, set.new(), context.current_bucket)
+  constructor_placeholder(
+    context.constructors,
+    context.base_elements,
+    context.current_bucket,
+    base_type,
+    set.new(),
+    context.current_bucket,
+  )
 }
 
 fn extension_slice_fold_source(
@@ -5682,7 +5529,10 @@ fn ordinary_slice_fold_source(
     <> "_raw, "
     <> base_decoder
     <> ") { Ok("
-    <> field_name
+    <> case slicing.rules {
+      "closed" -> "_"
+      _ -> field_name
+    }
     <> ") -> "
     <> classifier.source
     <> " Error(errors) -> Error(errors) }"
@@ -5927,7 +5777,7 @@ fn ordinary_slice_fold_source(
       }
       let result_source = case
         list.all(cardinalities, fn(item) {
-          item.0.min == 0 && item.0.max == "*"
+          item.0.min == 0 && item.0.max != "0" && item.0.max != "1"
         })
       {
         True ->
@@ -6516,13 +6366,17 @@ fn record_decoder_from_fields(
                   field_type,
                   context.current_bucket,
                 ),
-                "  use "
-                  <> field_name
-                  <> " <- decode.then(case "
-                  <> cardinality
-                  <> " { Ok(value) -> decode.success(value) Error(errors) -> decode.failure("
-                  <> placeholder
-                  <> ", \"primitive extension cardinality\") |> decode.map_errors(fn(_) { errors }) })\n",
+                case field.min, field.max {
+                  0, "*" -> "  let " <> field_name <> " = primitive.ext\n"
+                  _, _ ->
+                    "  use "
+                    <> field_name
+                    <> " <- decode.then(case "
+                    <> cardinality
+                    <> " { Ok(value) -> decode.success(value) Error(errors) -> decode.failure("
+                    <> placeholder
+                    <> ", \"primitive extension cardinality\") |> decode.map_errors(fn(_) { errors }) })\n"
+                },
               )
             }
           }
@@ -7419,7 +7273,11 @@ pub fn generate_decoders(
     constructors: _,
   ) = context
   let referenced_urls =
-    snapshot_elements
+    type_order
+    |> list.flat_map(fn(path) {
+      dict.get(type_fields, path) |> result.unwrap([])
+    })
+    |> list.filter(fn(element) { element.max != "0" })
     |> list.flat_map(fn(element) {
       element.type_
       |> list.flat_map(fn(type_) {
@@ -8100,249 +7958,6 @@ pub fn generate_to_json(
                     fields,
                     preserve_slice_order,
                   )
-                let open_encoder = case aggregate_encoder {
-                  "" ->
-                    profile_element_encoder_type(
-                      current_bucket,
-                      element,
-                      base_field_type,
-                      all_parts,
-                      field_path,
-                      type_order,
-                      slice_type_overrides,
-                      datatype_types,
-                      snapshot_elements,
-                    )
-                  _ ->
-                    codegen_helpers.to_snake_case(base_field_type) <> "_to_json"
-                }
-                let #(single_values, list_values) =
-                  list.fold(slice_roots, #([], []), fn(values, root) {
-                    let #(single_values, list_values) = values
-                    let root_parts =
-                      root.id
-                      |> string.replace("-", "")
-                      |> string.replace(":", ".")
-                      |> string.split(".")
-                    let assert [_, ..root_rest] = root_parts
-                    let root_parts = [profile_prefix, ..root_rest]
-
-                    let root_field_name = codegen_helpers.field_name(root)
-                    let root_field_path = string.join(root_parts, "_")
-                    let root_type_name =
-                      root_field_path |> codegen_helpers.to_camel_case
-                    let #(root_type, _) =
-                      profile_base_field_type(
-                        current_bucket,
-                        root,
-                        root_parts,
-                        root_field_path,
-                        root_type_name,
-                        extensions,
-                        type_order,
-                        slice_base_type_names,
-                        slice_type_overrides,
-                        datatype_types,
-                        valueset_acc,
-                      )
-                    let extension =
-                      profile_extension_definition(root, extensions)
-                    let root_call = fn(value, id) {
-                      case extension {
-                        Some(extension) ->
-                          profile_extension_encoder_call(
-                            current_bucket,
-                            extension,
-                            value,
-                            id,
-                            preserve_slice_order,
-                            datatype_types,
-                          )
-                        None ->
-                          profile_element_encoder_call(
-                            current_bucket,
-                            root,
-                            root_type,
-                            root_parts,
-                            root_field_path,
-                            type_order,
-                            slice_type_overrides,
-                            datatype_types,
-                            snapshot_elements,
-                            value,
-                          )
-                      }
-                    }
-                    let indexed_root_call = fn(value) {
-                      case indexed_slice_group, extension {
-                        True, Some(_) ->
-                          complex_prefix
-                          <> "SliceElt("
-                          <> root_call(value <> ".value", Some(value <> ".id"))
-                          <> ", "
-                          <> value
-                          <> ".internal_gleam_fhir_index)"
-                        True, None ->
-                          complex_prefix
-                          <> "SliceElt("
-                          <> root_call(value <> ".value", None)
-                          <> ", "
-                          <> value
-                          <> ".internal_gleam_fhir_index)"
-                        False, _ -> root_call(value, None)
-                      }
-                    }
-                    let #(value, is_single) = case root.min, root.max {
-                      0, "1" -> #(
-                        "case "
-                          <> root_field_name
-                          <> " { Some(value) -> ["
-                          <> indexed_root_call("value")
-                          <> "] None -> [] }",
-                        False,
-                      )
-                      1, "1" -> #(indexed_root_call(root_field_name), True)
-                      1, _ -> #(
-                        "fn(values) { let "
-                          <> complex_prefix
-                          <> "List1(first, rest) = values ["
-                          <> indexed_root_call("first")
-                          <> ", ..list.map(rest, fn(value) { "
-                          <> indexed_root_call("value")
-                          <> " })] }("
-                          <> root_field_name
-                          <> ")",
-                        False,
-                      )
-                      2, _ -> #(
-                        "fn(values) { let "
-                          <> complex_prefix
-                          <> "List2(first, second, rest) = values ["
-                          <> indexed_root_call("first")
-                          <> ", "
-                          <> indexed_root_call("second")
-                          <> ", ..list.map(rest, fn(value) { "
-                          <> indexed_root_call("value")
-                          <> " })] }("
-                          <> root_field_name
-                          <> ")",
-                        False,
-                      )
-                      3, _ -> #(
-                        "fn(values) { let "
-                          <> complex_prefix
-                          <> "List3(first, second, third, rest) = values ["
-                          <> indexed_root_call("first")
-                          <> ", "
-                          <> indexed_root_call("second")
-                          <> ", "
-                          <> indexed_root_call("third")
-                          <> ", ..list.map(rest, fn(value) { "
-                          <> indexed_root_call("value")
-                          <> " })] }("
-                          <> root_field_name
-                          <> ")",
-                        False,
-                      )
-                      0, _ -> #(
-                        "list.map("
-                          <> root_field_name
-                          <> ", fn(value) { "
-                          <> indexed_root_call("value")
-                          <> " })",
-                        False,
-                      )
-                      _, _ -> panic as "unsupported named slice cardinality"
-                    }
-                    case is_single {
-                      True -> #([value, ..single_values], list_values)
-                      False -> #(single_values, [value, ..list_values])
-                    }
-                  })
-                let open_indexed_call = fn(value) {
-                  case indexed_slice_group {
-                    True ->
-                      complex_prefix
-                      <> "SliceElt("
-                      <> open_encoder
-                      <> "("
-                      <> value
-                      <> ".value), "
-                      <> value
-                      <> ".internal_gleam_fhir_index)"
-                    False -> open_encoder <> "(" <> value <> ")"
-                  }
-                }
-                let maximum = case element.max {
-                  "0" | "1" -> element.max
-                  _ -> "*"
-                }
-                let open_values = case maximum, card_min {
-                  "*", 0 ->
-                    "list.map("
-                    <> field_name
-                    <> ", fn(value) { "
-                    <> open_indexed_call("value")
-                    <> " })"
-                  "*", 1 ->
-                    "fn(values) { let "
-                    <> complex_prefix
-                    <> "List1(first, rest) = values ["
-                    <> open_indexed_call("first")
-                    <> ", ..list.map(rest, fn(value) { "
-                    <> open_indexed_call("value")
-                    <> " })] }("
-                    <> field_name
-                    <> ")"
-                  "*", 2 ->
-                    "fn(values) { let "
-                    <> complex_prefix
-                    <> "List2(first, second, rest) = values ["
-                    <> open_indexed_call("first")
-                    <> ", "
-                    <> open_indexed_call("second")
-                    <> ", ..list.map(rest, fn(value) { "
-                    <> open_indexed_call("value")
-                    <> " })] }("
-                    <> field_name
-                    <> ")"
-                  "*", 3 ->
-                    "fn(values) { let "
-                    <> complex_prefix
-                    <> "List3(first, second, third, rest) = values ["
-                    <> open_indexed_call("first")
-                    <> ", "
-                    <> open_indexed_call("second")
-                    <> ", "
-                    <> open_indexed_call("third")
-                    <> ", ..list.map(rest, fn(value) { "
-                    <> open_indexed_call("value")
-                    <> " })] }("
-                    <> field_name
-                    <> ")"
-                  "1", 0 ->
-                    "case "
-                    <> field_name
-                    <> " { Some(value) -> ["
-                    <> open_indexed_call("value")
-                    <> "] None -> [] }"
-                  _, _ -> panic as "unsupported open slice cardinality"
-                }
-                let single_values = list.reverse(single_values)
-                let list_values = list.reverse([open_values, ..list_values])
-                let _slice_values = case single_values, list_values {
-                  [], [only] -> only
-                  [], lists ->
-                    "list.flatten([" <> string.join(lists, ",") <> "])"
-                  singles, [only] ->
-                    "[" <> string.join(singles, ",") <> ", .." <> only <> "]"
-                  singles, lists ->
-                    "["
-                    <> string.join(singles, ",")
-                    <> ", ..list.flatten(["
-                    <> string.join(lists, ",")
-                    <> "])]"
-                }
                 let optional =
                   json_optional
                   <> slice_group_to_json_source(
@@ -8375,6 +7990,20 @@ pub fn generate_to_json(
                 )
               }
               [], None, _, False -> {
+                let primitive_choices =
+                  list.any(element.type_, fn(choice) {
+                    case
+                      dict.get(
+                        type_slice_overrides,
+                        type_slice_key(element.id, choice.code),
+                      )
+                    {
+                      Ok(TypeSlicePlan(slice:, children: [_, ..], ..)) ->
+                        profile_field_has_primitive_type(slice, "")
+                      _ -> False
+                    }
+                  })
+                  && list.length(element.type_) > 1
                 let encoder = case aggregate_encoder {
                   "" ->
                     profile_element_encoder_type(
@@ -8422,17 +8051,41 @@ pub fn generate_to_json(
                     element.type_,
                     choice_type,
                   )
-                let #(new_always, new_optional) =
-                  profile_field_to_json_source(
-                    current_bucket,
-                    element,
-                    field_value,
-                    json_field_name,
-                    suffix,
-                    encoder,
-                    encoder_call,
-                    card_min,
-                  )
+                let #(new_always, new_optional) = case primitive_choices {
+                  True -> {
+                    let assert "1" = element.max
+                      as {
+                        "unsupported repeated primitive choice " <> element.id
+                      }
+                    let call =
+                      codegen_helpers.to_snake_case(choice_type)
+                      <> "_to_json_fields(fields, "
+                    #(
+                      "",
+                      "\nlet fields = "
+                        <> case card_min {
+                        0 ->
+                          "case "
+                          <> field_value
+                          <> " { None -> fields Some(value) -> "
+                          <> call
+                          <> "value) }"
+                        _ -> call <> field_value <> ")"
+                      },
+                    )
+                  }
+                  False ->
+                    profile_field_to_json_source(
+                      current_bucket,
+                      element,
+                      field_value,
+                      json_field_name,
+                      suffix,
+                      encoder,
+                      encoder_call,
+                      card_min,
+                    )
+                }
                 let new_choice_encoders = case element.type_ {
                   [] | [_] -> ""
                   choice_types -> {
@@ -8493,6 +8146,55 @@ pub fn generate_to_json(
                             )
                           }
                         }
+                        let call = case primitive_choices {
+                          False -> call
+                          True -> {
+                            let json_name =
+                              profile_json_field_name(
+                                codegen_helpers.Element(..element, type_: [
+                                  choice,
+                                ]),
+                                "",
+                              )
+                            case
+                              dict.get(
+                                type_slice_overrides,
+                                type_slice_key(element.id, choice.code),
+                              )
+                            {
+                              Ok(TypeSlicePlan(slice:, children: [_, ..], ..)) ->
+                                case
+                                  profile_field_has_primitive_type(slice, "")
+                                {
+                                  True -> {
+                                    let encoder =
+                                      codegen_helpers.to_snake_case(
+                                        constructor <> "Sliced",
+                                      )
+                                    "primitive_slice_to_json(fields, value, "
+                                    <> encoder
+                                    <> "_value_to_json, "
+                                    <> encoder
+                                    <> "_rest_to_json, \""
+                                    <> json_name
+                                    <> "\")"
+                                  }
+                                  False ->
+                                    "[#(\""
+                                    <> json_name
+                                    <> "\", "
+                                    <> call
+                                    <> "), ..fields]"
+                                }
+                              _ ->
+                                "[#(\""
+                                <> json_name
+                                <> "\", "
+                                <> call
+                                <> "), ..fields]"
+                            }
+                          }
+                        }
                         cases
                         <> "    "
                         <> constructor
@@ -8500,51 +8202,20 @@ pub fn generate_to_json(
                         <> call
                         <> "\n"
                       })
-                    let sliced_encoders =
-                      list.fold(choice_types, "", fn(source, choice) {
-                        case
-                          dict.get(
-                            type_slice_overrides,
-                            type_slice_key(element.id, choice.code),
-                          )
-                        {
-                          Ok(TypeSlicePlan(descendants: [_, ..], ..)) -> source
-                          Ok(TypeSlicePlan(
-                            slice: _,
-                            children: [_, ..] as children,
-                            ..,
-                          )) -> {
-                            let sliced_name =
-                              choice_type
-                              <> string.capitalise(choice.code)
-                              <> "Sliced"
-                            source
-                            <> sliced_type_to_json_source(
-                              current_bucket,
-                              sliced_name,
-                              children,
-                              profile_prefix,
-                              extensions,
-                              type_order,
-                              slice_base_type_names,
-                              slice_type_overrides,
-                              datatype_types,
-                              valueset_acc,
-                              snapshot_elements,
-                              preserve_slice_order,
-                            )
-                          }
-                          _ -> source
-                        }
-                      })
                     "pub fn "
                     <> codegen_helpers.to_snake_case(choice_type)
-                    <> "_to_json(value: "
+                    <> case primitive_choices {
+                      True ->
+                        "_to_json_fields(fields: List(#(String, Json)), value: "
+                      False -> "_to_json(value: "
+                    }
                     <> choice_type
-                    <> ") -> Json {\n  case value {\n"
+                    <> case primitive_choices {
+                      True -> ") -> List(#(String, Json)) {\n  case value {\n"
+                      False -> ") -> Json {\n  case value {\n"
+                    }
                     <> cases
                     <> "  }\n}\n\n"
-                    <> sliced_encoders
                   }
                 }
                 #(
@@ -8566,6 +8237,7 @@ pub fn generate_to_json(
             json_always,
             json_optional,
             current_type == profile_prefix && is_resource,
+            fields != [],
           )
         True -> {
           let assert Ok(value_fields) = dict.get(type_fields, current_type)

@@ -310,8 +310,16 @@ fn gen_fhir(
     valueset_acc,
     preloaded_valuesets,
     profile_resource_entries,
+    constructors,
   ) = case custom_profile_name {
-    None -> #("", "", valueset_acc, None, [])
+    None -> #(
+      "",
+      "",
+      valueset_acc,
+      None,
+      [],
+      dict.merge(resource_constructors, core_constructors),
+    )
     Some(_) -> {
       let assert Some(profiles_dir) = profiles_dir
       let #(
@@ -320,6 +328,7 @@ fn gen_fhir(
         valuesets,
         loaded_valuesets,
         resource_entries,
+        constructors,
       ) =
         codegen_profile.profile_files_to_types(
           profiles_dir,
@@ -335,6 +344,7 @@ fn gen_fhir(
         valuesets,
         Some(loaded_valuesets),
         resource_entries,
+        constructors,
       )
     }
   }
@@ -545,13 +555,62 @@ fn gen_fhir(
       }
       "
   let resources_gen = resources_gen <> profile_resources <> resource_enum
+  // Select imports from code, excluding profile text and fixed/pattern strings.
+  let assert [complex_types_code, resources_code] =
+    [complex_types_gen, resources_gen]
+    |> list.map(fn(source) {
+      let #(parts, _, _, _, _) =
+        list.fold(
+          string.to_graphemes(source),
+          #([], False, False, False, False),
+          fn(state, char) {
+            let #(parts, quoted, escaped, comment, slash) = state
+            case char, quoted, escaped, comment, slash {
+              "\n", _, _, True, _ -> #(
+                ["\n", ..parts],
+                False,
+                False,
+                False,
+                False,
+              )
+              _, _, _, True, _ -> state
+              _, True, True, _, _ -> #(parts, True, False, False, False)
+              "\\", True, False, _, _ -> #(parts, True, True, False, False)
+              "\"", True, False, _, _ -> #(
+                [" ", ..parts],
+                False,
+                False,
+                False,
+                False,
+              )
+              _, True, False, _, _ -> state
+              "\"", False, _, _, _ -> #(
+                [" ", ..parts],
+                True,
+                False,
+                False,
+                False,
+              )
+              "/", False, _, _, True -> #(parts, False, False, True, False)
+              _, False, _, _, _ -> #(
+                [char, ..parts],
+                False,
+                False,
+                False,
+                char == "/",
+              )
+            }
+          },
+        )
+      parts |> list.reverse |> string.concat
+    })
   let r_imports =
     r_imports
-    <> case string.contains(resources_gen, "calendar.") {
+    <> case string.contains(resources_code, "calendar.") {
       True -> "import gleam/time/calendar\n"
       False -> ""
     }
-    <> case uses_profile_match || string.contains(resources_gen, "string.") {
+    <> case uses_profile_match || string.contains(resources_code, "string.") {
       True -> "import gleam/string\n"
       False -> ""
     }
@@ -570,43 +629,43 @@ fn gen_fhir(
   let complex_types_gen = replace_failure_variants(complex_types_gen)
   let resources_gen = replace_failure_variants(resources_gen)
   let bound_codeable_reference_source = case
-    string.contains(resources_gen, "ct.BoundCodeablereference(valuesets.")
+    string.contains(resources_code, "ct.BoundCodeablereference(valuesets.")
   {
     True -> codegen_bound_coding.bound_codeable_reference
     False -> ""
   }
-  let generated_types_and_resources = complex_types_gen <> resources_gen
+  let generated_types_and_resources = complex_types_code <> resources_code
   let uses_slice_elt =
-    string.contains(resources_gen, "ct.SliceElt(")
-    || string.contains(complex_types_gen, "SliceElt(")
+    string.contains(resources_code, "ct.SliceElt(")
+    || string.contains(complex_types_code, "SliceElt(")
   let ct_imports =
     shared_imports
-    <> case string.contains(complex_types_gen, "Dynamic") {
+    <> case string.contains(complex_types_code, "Dynamic") {
       True -> "import gleam/dynamic.{type Dynamic}\n"
       False -> ""
     }
-    <> case string.contains(complex_types_gen, "float.") {
+    <> case string.contains(complex_types_code, "float.") {
       True -> "import gleam/float\n"
       False -> ""
     }
-    <> case string.contains(complex_types_gen, "string.") {
+    <> case string.contains(complex_types_code, "string.") {
       True -> "import gleam/string\n"
       False -> ""
     }
-    <> case string.contains(complex_types_gen, "dict.") {
+    <> case string.contains(complex_types_code, "dict.") {
       True -> "import gleam/dict\n"
       False -> ""
     }
     <> "import gleam/int\n"
-    <> case string.contains(complex_types_gen, "calendar.") {
+    <> case string.contains(complex_types_code, "calendar.") {
       True -> "import gleam/time/calendar\n"
       False -> ""
     }
-    <> case string.contains(complex_types_gen, "result.") {
+    <> case string.contains(complex_types_code, "result.") {
       True -> "import gleam/result\n"
       False -> ""
     }
-    <> case string.contains(complex_types_gen, "bool.") {
+    <> case string.contains(complex_types_code, "bool.") {
       True -> "import gleam/bool\n"
       False -> ""
     }
@@ -1009,25 +1068,12 @@ fn gen_fhir(
     ]
     |> list.filter_map(fn(item) {
       let unqualified_source =
-        string.replace(resources_gen, "ct." <> item.1, "")
+        string.replace(resources_code, "ct." <> item.1, "")
       case string.contains(unqualified_source, item.1) {
         True -> Ok(item.0)
         False -> Error(Nil)
       }
     })
-  let result_import =
-    case string.contains(resources_gen, "float.") {
-      True -> "import gleam/float\n"
-      False -> ""
-    }
-    <> case string.contains(resources_gen, "dict.") {
-      True -> "import gleam/dict\n"
-      False -> ""
-    }
-    <> case string.contains(resources_gen, "result.") {
-      True -> "import gleam/result\n"
-      False -> ""
-    }
   let r_ct_import =
     "import fhir/"
     <> pkg_prefix
@@ -1036,17 +1082,18 @@ fn gen_fhir(
     <> "} as ct\n"
   let resource_tokens =
     list.fold(
-      ["(", ")", "{", "}", ":", ",", ".", "\n", "<", ">"],
-      resources_gen,
+      ["(", ")", "{", "}", ":", ",", "\n", "<", ">"],
+      resources_code,
       fn(source, separator) { string.replace(source, separator, " ") },
     )
     |> string.split(" ")
   let r_imports =
     list.fold(
-      ["bool", "int", "list", "valuesets"],
-      r_imports,
+      ["bool", "int", "list", "valuesets", "float", "dict", "result"],
+      r_imports
+        <> "import gleam/float\nimport gleam/dict\nimport gleam/result\n",
       fn(imports, module) {
-        case string.contains(resources_gen, module <> ".") {
+        case list.any(resource_tokens, string.starts_with(_, module <> ".")) {
           True -> imports
           False ->
             string.replace(
@@ -1070,7 +1117,7 @@ fn gen_fhir(
       "import fhir/"
         <> pkg_prefix
         <> "/primitive_types.{type Date, type DateTime, type Instant, type Time} as pt\n",
-      case primitive_imports, string.contains(resources_gen, "pt.") {
+      case primitive_imports, string.contains(resources_code, "pt.") {
         [], False -> ""
         [], True -> "import fhir/" <> pkg_prefix <> "/primitive_types as pt\n"
         _, _ ->
@@ -1089,7 +1136,6 @@ fn gen_fhir(
       fhir_version,
       ") resources\n",
       r_imports,
-      result_import,
       r_ct_import,
       resources_gen,
     ])
@@ -1115,6 +1161,7 @@ fn gen_fhir(
       capability_statement_file,
       gen_specific_resources,
       profile_resource_entries,
+      constructors,
     )
   list.each(
     [
@@ -1945,7 +1992,10 @@ fn file_to_types(
                       },
                       [
                         #(
-                          elt,
+                          codegen_helpers.Element(
+                            ..elt,
+                            gleam_type: Some(field_type),
+                          ),
                           codegen_helpers.cardinality(
                             field_type,
                             elt.min,
@@ -2186,6 +2236,7 @@ fn file_to_types(
                           encoder_json_always,
                           encoder_json_options,
                           is_domainresource,
+                          constructor_fields != [],
                         ),
                         decoder,
                         add_forgiving_type_and_decoder_if_bundle_or_bundleentry(

@@ -130,6 +130,7 @@ pub type Element {
     path: String,
     definition_order: Int,
     gleam_field_name: Option(String),
+    gleam_type: Option(String),
     base: ElementBase,
     slice_name: Option(String),
     slicing: Option(Slicing),
@@ -237,6 +238,7 @@ pub fn element_decoder() -> decode.Decoder(Element) {
     path:,
     definition_order: 0,
     gleam_field_name: None,
+    gleam_type: None,
     base:,
     slice_name:,
     slicing:,
@@ -1490,6 +1492,7 @@ pub fn gen_res_encoder(
   fields_json_always: String,
   fields_json_options: String,
   is_domainresource: Bool,
+  argument_used: Bool,
 ) -> String {
   let resource_type = case is_domainresource {
     True ->
@@ -1498,8 +1501,12 @@ pub fn gen_res_encoder(
       <> "\")), ..fields]"
     False -> ""
   }
+  let argument = case argument_used {
+    True -> reslower
+    False -> "_" <> reslower
+  }
   let template =
-    "pub fn RESNAMELOWER_to_json(RESNAMELOWER: RESNAMECAMEL) -> Json {
+    "pub fn RESNAMELOWER_to_json(" <> argument <> ": RESNAMECAMEL) -> Json {
     let fields = [" <> fields_json_always <> "]" <> fields_json_options <> resource_type <> "\njson.object(fields)}
   "
   template

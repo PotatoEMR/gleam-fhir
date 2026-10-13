@@ -16,6 +16,7 @@ import codegen_profile_json.{
 }
 import codegen_slice_complex_type
 import filepath
+import gleam/bool
 import gleam/dict
 import gleam/dynamic/decode
 import gleam/int
@@ -1454,6 +1455,7 @@ fn plan_constraint_fields(
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
   base_elements: dict.Dict(String, codegen_helpers.Element),
 ) -> Result(List(#(String, SliceFieldType)), String) {
+  use <- bool.guard(root.max == "0", Error("prohibited field " <> root.id))
   let shared_type = case root.type_ {
     [type_] ->
       case dict.get(base_elements, type_.code) {
@@ -1771,13 +1773,19 @@ fn plan_value_slice(
     True, ["system"] ->
       case group.type_ {
         [codegen_helpers.Type(code: "Identifier", ..)] ->
-          plan_whole_value_slice(
-            group,
-            root,
-            elements,
-            available_valuesets,
-            base_elements,
-          )
+          case find_element(elements, root.id <> ".system") {
+            Ok(system)
+              if system.constraint != None || system.fixed_uri != None
+            ->
+              plan_whole_value_slice(
+                group,
+                root,
+                elements,
+                available_valuesets,
+                base_elements,
+              )
+            _ -> Error("Identifier slice has no system literal")
+          }
         [codegen_helpers.Type(code: "Coding", ..)] -> {
           case find_element(elements, root.id <> ".system") {
             Error(_) | Ok(codegen_helpers.Element(fixed_uri: None, ..)) ->
@@ -1884,24 +1892,6 @@ fn plan_slice(
                 string.drop_start(element.id, string.length(prefix)),
                 ".",
               )
-            })
-            |> list.map(fn(element) {
-              case element.id == root.id <> ".value", element.type_ {
-                True, [type_] ->
-                  case
-                    string.starts_with(
-                      type_.code,
-                      "http://hl7.org/fhirpath/System.",
-                    )
-                  {
-                    True ->
-                      codegen_helpers.Element(..element, type_: [
-                        codegen_helpers.Type(..type_, code:),
-                      ])
-                    False -> element
-                  }
-                _, _ -> element
-              }
             }),
           descendants: case profile_field_has_primitive_type(root, "") {
             True -> []
@@ -2308,8 +2298,100 @@ fn prepare_profile_slices(
   dict.Dict(String, SliceFieldType),
   List(codegen_helpers.Element),
 ) {
+  // Choice children use the same per datatype records as explicit type slices.
+  let elements =
+    list.flat_map(elements, fn(element) {
+      use <- bool.guard(
+        list.any(elements, fn(parent) {
+          list.length(parent.type_) > 1
+          && parent.slicing == None
+          && string.starts_with(element.id, parent.id <> ".")
+        }),
+        [],
+      )
+      let children =
+        list.filter(elements, fn(child) {
+          string.starts_with(child.id, element.id <> ".")
+        })
+      case element.type_, element.slicing, children {
+        [_, _, ..], None, [_, ..] -> {
+          let slicing =
+            codegen_helpers.Slicing(
+              rules: "closed",
+              ordered: False,
+              discriminator: [
+                codegen_helpers.Discriminator("type", "$this"),
+              ],
+            )
+          let slices =
+            list.flat_map(element.type_, fn(datatype) {
+              let root =
+                codegen_helpers.Element(
+                  ..element,
+                  id: element.id <> ":" <> datatype.code,
+                  slice_name: Some(datatype.code),
+                  type_: [datatype],
+                )
+              let fields =
+                codegen_slice_complex_type.datatype_fields(
+                  datatype.code,
+                  base_elements,
+                )
+                |> list.map(fn(field) {
+                  codegen_helpers.Element(
+                    ..field,
+                    id: element.id
+                      <> string.drop_start(
+                        field.path,
+                        string.length(datatype.code),
+                      ),
+                    path: element.path
+                      <> string.drop_start(
+                        field.path,
+                        string.length(datatype.code),
+                      ),
+                  )
+                })
+                |> list.append(children)
+                |> list.map(fn(field) { #(field.id, field) })
+                |> dict.from_list
+                |> dict.values
+                |> list.map(fn(field) {
+                  codegen_helpers.Element(
+                    ..field,
+                    id: root.id
+                      <> string.drop_start(field.id, string.length(element.id)),
+                  )
+                })
+              [root, ..fields]
+            })
+          [codegen_helpers.Element(..element, slicing: Some(slicing)), ..slices]
+        }
+        _, _, _ -> [element]
+      }
+    })
   let elements =
     list.map(elements, fn(element) {
+      let element = case string.ends_with(element.id, ".value") {
+        True -> {
+          let primitive_id = string.drop_end(element.id, 6)
+          case
+            list.find(elements, fn(candidate) {
+              candidate.id == primitive_id
+              && profile_field_has_primitive_type(candidate, "")
+            })
+          {
+            Ok(primitive) ->
+              codegen_helpers.Element(
+                ..element,
+                type_: primitive.type_,
+                binding: primitive.binding,
+              )
+            Error(_) -> element
+          }
+        }
+        False -> element
+      }
       case element.type_ {
         [datatype] ->
           case
@@ -2790,14 +2872,22 @@ fn prepare_profile_slices(
       }
       // A snapshot can leave datatype children implicit or expand only some.
       // Use the core fields, with any explicit group or slice fields preserved.
+      let fields =
+        codegen_slice_complex_type.datatype_fields(type_.code, base_elements)
       base_elements
       |> dict.values
       |> list.filter(fn(child) {
         string.starts_with(child.path, prefix)
-        && !string.contains(
-          string.drop_start(child.path, string.length(prefix)),
-          ".",
-        )
+        && {
+          !string.contains(
+            string.drop_start(child.path, string.length(prefix)),
+            ".",
+          )
+          || list.any(fields, fn(field) {
+            element_type_is(field, "BackboneElement")
+            && string.starts_with(child.path, field.path <> ".")
+          })
+        }
       })
       |> list.sort(fn(a, b) { string.compare(a.path, b.path) })
       |> list.filter_map(fn(base_child) {
@@ -2916,6 +3006,11 @@ fn prepare_profile_slices(
     })
     |> list.sort(fn(a, b) { string.compare(b.id, a.id) })
 
+  let discriminator_elements =
+    list.append(discriminator_elements, elements)
+    |> list.map(fn(element) { #(element.id, element) })
+    |> dict.from_list
+    |> dict.values
   list.fold(
     groups,
     #(elements, dict.new(), dict.new(), dict.new(), set.new(), dict.new()),
@@ -3276,22 +3371,13 @@ fn prepare_profile_slices(
             plans
             |> list.filter_map(fn(plan) {
               case plan {
-                TypeSlicePlan(slice:, descendants: [], ..) -> Ok(slice.id)
-                _ -> Error(Nil)
-              }
-            })
-          let nested_type_slice_ids =
-            plans
-            |> list.filter_map(fn(plan) {
-              case plan {
-                TypeSlicePlan(slice:, descendants: [_, ..], ..) -> Ok(slice.id)
+                TypeSlicePlan(slice:, ..) -> Ok(slice.id)
                 _ -> Error(Nil)
               }
             })
           let current_elements =
-            remove_element_trees(current_elements, type_slice_ids, True)
-            |> list.filter(fn(element) {
-              !list.contains(nested_type_slice_ids, element.id)
+            list.filter(current_elements, fn(element) {
+              !list.contains(type_slice_ids, element.id)
             })
           let replacement_ids =
             plans
@@ -3518,7 +3604,8 @@ fn prepare_profile_slices(
     let shared_roots =
       dict.keys(overrides)
       |> list.filter(fn(id) {
-        case dict.get(overrides, id) {
+        string.contains(id, ".")
+        && case dict.get(overrides, id) {
           Ok(FixedSliceType(..)) -> True
           _ -> False
         }
@@ -3551,6 +3638,7 @@ pub fn profile_files_to_types(
   dict.Dict(String, codegen_helpers.ValuesetItem),
   dict.Dict(String, codegen_helpers.VsOrCs),
   List(#(String, String, String)),
+  dict.Dict(String, codegen_profile_json.ConstructorDefinition),
 ) {
   let profile_structures =
     load_profile_files(profiles_dir, gen_specific_resources)
@@ -3585,6 +3673,24 @@ pub fn profile_files_to_types(
       }
     })
   let base_elements = base_structure_elements(profiles_dir, resource_elements)
+  let core_fields =
+    core_constructors
+    |> dict.values
+    |> list.flat_map(fn(constructor) {
+      case constructor {
+        codegen_profile_json.RecordConstructor(_, _, fields) ->
+          list.map(fields, fn(field) { #(field.0.path, field.0.gleam_type) })
+        _ -> []
+      }
+    })
+    |> dict.from_list
+  let base_elements =
+    dict.map_values(base_elements, fn(path, element) {
+      codegen_helpers.Element(
+        ..element,
+        gleam_type: dict.get(core_fields, path) |> result.unwrap(None),
+      )
+    })
   let extension_elements =
     profile_structures.extensions
     |> dict.values
@@ -4213,10 +4319,11 @@ pub fn profile_files_to_types(
           dict.values(type_slice_overrides)
           |> list.filter_map(fn(plan) {
             case plan {
-              TypeSlicePlan(descendants: [_, ..], ..) -> Ok(plan)
+              TypeSlicePlan(children: [_, ..], ..) -> Ok(plan)
               _ -> Error(Nil)
             }
           })
+          |> list.sort(fn(a, b) { string.compare(a.root_id, b.root_id) })
         let slice_base_type_names =
           list.fold(nested_type_slices, slice_base_type_names, fn(names, plan) {
             let assert TypeSlicePlan(
@@ -4235,6 +4342,9 @@ pub fn profile_files_to_types(
               string.join([profile_prefix, ..root_parts], "_")
               |> string.replace("[x]", "")
               |> codegen_helpers.to_camel_case
+            let sliced_name =
+              dict.get(names, sliced_name)
+              |> result.unwrap(sliced_name)
               |> string.append(string.capitalise(fhir_type) <> "Sliced")
             list.fold(
               [slice, ..list.append(children, descendants)],
@@ -4271,6 +4381,17 @@ pub fn profile_files_to_types(
               |> string.split(".")
             string.join([profile_prefix, ..parts], "_")
           })
+        let profile_elements =
+          nested_type_slices
+          |> list.flat_map(fn(plan) {
+            let assert TypeSlicePlan(children:, descendants:, ..) = plan
+            list.append(children, descendants)
+          })
+          |> list.append(profile_elements)
+          |> list.map(fn(element) { #(element.id, element) })
+          |> dict.from_list
+          |> dict.values
+          |> list.sort(fn(a, b) { string.compare(a.id, b.id) })
 
         let #(type_fields, type_order) =
           profile_elements
@@ -4308,29 +4429,6 @@ pub fn profile_files_to_types(
                   |> list.reverse
                   |> string.join("_")
                 _, _ -> parent_path
-              }
-              let element = case
-                string.ends_with(element.id, ".value"),
-                set.contains(type_order, parent_path)
-              {
-                True, True -> {
-                  let primitive_id = string.drop_end(element.id, 6)
-                  case
-                    list.find(profile_elements, fn(candidate) {
-                      candidate.id == primitive_id
-                      && profile_field_has_primitive_type(candidate, "")
-                    })
-                  {
-                    Ok(primitive) ->
-                      codegen_helpers.Element(
-                        ..element,
-                        type_: primitive.type_,
-                        binding: primitive.binding,
-                      )
-                    Error(_) -> element
-                  }
-                }
-                _, _ -> element
               }
               let fields = case dict.get(type_fields, field_parent) {
                 Ok(fields) -> [element, ..fields]
@@ -4871,6 +4969,14 @@ pub fn profile_files_to_types(
                             current_bucket,
                             type_name,
                             base_elements,
+                            codegen_profile_json.constructor_placeholder(
+                              constructors,
+                              base_elements,
+                              current_bucket,
+                              _,
+                              set.new(),
+                              codegen_helpers.ComplexTypes,
+                            ),
                           )
                         let value = case is_resource_slice_elt {
                           True ->
@@ -5041,7 +5147,7 @@ pub fn profile_files_to_types(
                                   type_slice_key(element.id, choice.code),
                                 )
                               {
-                                Ok(TypeSlicePlan(descendants: [_, ..], ..)) -> #(
+                                Ok(TypeSlicePlan(children: [_, ..], ..)) -> #(
                                   choice_type
                                     <> string.capitalise(choice.code)
                                     <> "Sliced",
@@ -5063,227 +5169,6 @@ pub fn profile_files_to_types(
                                     "",
                                     valueset_acc,
                                     constructors,
-                                  )
-                                }
-                                Ok(TypeSlicePlan(slice: _, children:, ..)) -> {
-                                  let sliced_name =
-                                    choice_type
-                                    <> string.capitalise(choice.code)
-                                    <> "Sliced"
-                                  let aggregate_slice_groups =
-                                    children
-                                    |> list.filter_map(fn(group) {
-                                      case
-                                        aggregate_value_slice_roots(
-                                          group,
-                                          children,
-                                        )
-                                      {
-                                        Some(aggregate) ->
-                                          Ok(#(group.id, aggregate))
-                                        None -> Error(Nil)
-                                      }
-                                    })
-                                    |> dict.from_list
-                                  let omitted_slice_roots =
-                                    aggregate_slice_groups
-                                    |> dict.values
-                                    |> list.flat_map(fn(aggregate) {
-                                      let #(roots, _) = aggregate
-                                      list.filter(roots, fn(root) {
-                                        root.min == 0
-                                      })
-                                    })
-                                  let type_fields =
-                                    list.filter(children, fn(child) {
-                                      child.max != "0"
-                                      && !list.any(
-                                        omitted_slice_roots,
-                                        fn(root) { root.id == child.id },
-                                      )
-                                      && case child.slicing {
-                                        Some(slicing) ->
-                                          slicing.rules != "closed"
-                                          || string.ends_with(child.path, "[x]")
-                                          || dict.has_key(
-                                            aggregate_slice_groups,
-                                            child.id,
-                                          )
-                                        None -> True
-                                      }
-                                    })
-                                  let type_fields =
-                                    codegen_profile_json.name_profile_record_fields(
-                                      type_fields,
-                                      profile_prefix,
-                                      type_order,
-                                    )
-                                  let #(
-                                    fields,
-                                    newfunc_args,
-                                    newfunc_fields,
-                                    valueset_acc,
-                                    nested_arguments,
-                                  ) =
-                                    type_fields
-                                    |> list.filter(fn(child) {
-                                      {
-                                        child.fixed_code == None
-                                        && child.fixed_uri == None
-                                      }
-                                      || child.min == 0
-                                      || child.max != "1"
-                                    })
-                                    |> list.fold(
-                                      #("", "", "", valueset_acc, []),
-                                      fn(acc, child) {
-                                        let #(
-                                          fields,
-                                          newfunc_args,
-                                          newfunc_fields,
-                                          valueset_acc,
-                                          nested_arguments,
-                                        ) = acc
-                                        let assert Ok(json_field_name) =
-                                          child.path
-                                          |> string.split(".")
-                                          |> list.last
-                                        let field_name = case child.slice_name {
-                                          Some(slice_name) -> slice_name
-                                          None -> json_field_name
-                                        }
-                                        let field_name =
-                                          field_name
-                                          |> codegen_helpers.escape_field_name
-                                          |> codegen_helpers.to_snake_case
-                                        let all_parts = [
-                                          sliced_name,
-                                          field_name,
-                                        ]
-                                        let field_path =
-                                          string.join(all_parts, "_")
-                                        let #(gleam_type, valueset_acc) =
-                                          profile_base_field_type(
-                                            current_bucket,
-                                            child,
-                                            all_parts,
-                                            field_path,
-                                            "",
-                                            profile_structures.extensions,
-                                            type_order,
-                                            slice_base_type_names,
-                                            slice_type_overrides,
-                                            datatype_types,
-                                            valueset_acc,
-                                          )
-                                        let is_slice_elt =
-                                          codegen_profile_json.profile_field_is_slice_elt(
-                                            child,
-                                            type_fields,
-                                            preserve_slice_order,
-                                          )
-                                        let gleam_type = case is_slice_elt {
-                                          True ->
-                                            case
-                                              profile_extension_definition(
-                                                child,
-                                                profile_structures.extensions,
-                                              )
-                                            {
-                                              Some(_) ->
-                                                complex_prefix
-                                                <> "ExtensionSliceElt("
-                                                <> gleam_type
-                                                <> ")"
-                                              None ->
-                                                complex_prefix
-                                                <> "SliceElt("
-                                                <> gleam_type
-                                                <> ")"
-                                            }
-                                          False -> gleam_type
-                                        }
-                                        let field_name =
-                                          codegen_helpers.field_name(child)
-                                        let child_min = profile_field_min(child)
-                                        let #(
-                                          newfunc_arg,
-                                          newfunc_field,
-                                          required_argument,
-                                        ) =
-                                          codegen_helpers.new_fn_arg_and_field(
-                                            field_name,
-                                            gleam_type,
-                                            child_min,
-                                            child.max,
-                                            False,
-                                          )
-                                        #(
-                                          fields
-                                            <> case child.max {
-                                            "0" | "1" | "*" -> ""
-                                            _ ->
-                                              "    // TODO enforce max somehow\n"
-                                          }
-                                            <> "    "
-                                            <> field_name
-                                            <> ": "
-                                            <> codegen_helpers.cardinality(
-                                            gleam_type,
-                                            child_min,
-                                            child.max,
-                                          )
-                                            <> ",\n",
-                                          newfunc_args <> newfunc_arg,
-                                          newfunc_fields <> newfunc_field,
-                                          valueset_acc,
-                                          case required_argument {
-                                            Some(argument) -> [
-                                              argument,
-                                              ..nested_arguments
-                                            ]
-                                            None -> nested_arguments
-                                          },
-                                        )
-                                      },
-                                    )
-                                  #(
-                                    sliced_name,
-                                    "pub type "
-                                      <> sliced_name
-                                      <> " {\n  "
-                                      <> sliced_name
-                                      <> "(\n"
-                                      <> fields
-                                      <> "  )\n}\n\n"
-                                      <> "pub fn "
-                                      <> codegen_helpers.to_snake_case(
-                                      sliced_name,
-                                    )
-                                      <> "_new("
-                                      <> newfunc_args
-                                      <> ") -> "
-                                      <> sliced_name
-                                      <> " {\n  "
-                                      <> sliced_name
-                                      <> case newfunc_fields {
-                                      "" -> ""
-                                      _ -> "(" <> newfunc_fields <> ")"
-                                    }
-                                      <> "\n}\n\n",
-                                    valueset_acc,
-                                    dict.insert(
-                                      constructors,
-                                      codegen_profile_json.constructor_key(
-                                        current_bucket,
-                                        sliced_name,
-                                      ),
-                                      codegen_profile_json.RecordConstructor(
-                                        current_bucket,
-                                        list.reverse(nested_arguments),
-                                        [],
-                                      ),
-                                    ),
                                   )
                                 }
                                 Error(_) | Ok(ValueSlicePlan(..)) -> {
@@ -5457,7 +5342,7 @@ pub fn profile_files_to_types(
             current_bucket,
             resource_type,
             resource.kind == Some("resource"),
-            snapshot.element,
+            discriminator_elements,
             profile_prefix,
             profile_type,
             type_order,
@@ -5475,7 +5360,7 @@ pub fn profile_files_to_types(
             current_bucket:,
             resource_type:,
             is_resource: resource.kind == Some("resource"),
-            snapshot_elements: snapshot.element,
+            snapshot_elements: discriminator_elements,
             discriminator_elements:,
             profile_prefix:,
             type_order:,
@@ -5568,6 +5453,14 @@ pub fn profile_files_to_types(
         type_name,
         base_elements,
         preserve_slice_order,
+        codegen_profile_json.constructor_placeholder(
+          constructors,
+          base_elements,
+          codegen_helpers.ComplexTypes,
+          _,
+          set.new(),
+          codegen_helpers.ComplexTypes,
+        ),
       )
     })
     |> dict.from_list
@@ -5635,5 +5528,6 @@ pub fn profile_files_to_types(
     valueset_acc,
     available_slice_valuesets,
     profile_resource_entries,
+    constructors,
   )
 }

@@ -1,4 +1,5 @@
-pub const source = "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION sans-io request/response helpers suitable for building clients on top of, such as fhirclient_httpc.gleam and fhirclient_rsvp.gleam
+pub const source =
+  "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION sans-io request/response helpers suitable for building clients on top of, such as fhirclient_httpc.gleam and fhirclient_rsvp.gleam
 
 import fhir/FHIRVERSION/resources
 import gleam/dynamic/decode
@@ -104,7 +105,7 @@ fn create_base_req(
   let basereq =
     Request(
       method: http.Get,
-      headers: [#(\"Accept\", \"application/fhir+json\")],
+      headers: [#(\"accept\", \"application/fhir+json\")],
       body: None,
       scheme:,
       host:,
@@ -267,15 +268,14 @@ pub fn any_search_req(
   res_type: resources.ResourceType,
   client: FhirClient,
 ) -> Request(Option(Json)) {
-  client.basereq
-  |> request.set_path(
-    string.concat([
+  Request(
+    ..client.basereq,
+    path: string.concat([
       client.basereq.path,
       \"/\",
       resources.resource_type_to_string(res_type),
-      \"?\",
-      search_string,
     ]),
+    query: Some(search_string),
   )
 }
 
@@ -410,7 +410,12 @@ pub fn batch_req(
             }
               |> json.string,
           ),
-          #(\"url\", json.string(string.drop_start(req.path, base_len))),
+          #(\"url\", json.string(
+            string.drop_start(req.path, base_len) <> case req.query {
+              None -> \"\"
+              Some(query) -> \"?\" <> query
+            },
+          )),
         ])
       let obj = [#(\"request\", entry_req)]
       let obj = case req.body {

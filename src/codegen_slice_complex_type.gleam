@@ -189,6 +189,7 @@ pub fn discriminator_new_call(
   current_bucket: codegen_helpers.Category,
   discriminator_type: String,
   elements: dict.Dict(String, codegen_helpers.Element),
+  default: fn(String) -> String,
 ) -> Result(String, Nil) {
   let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
   use #(base, name, fixed, required) <- result.try(helper_fields(
@@ -216,22 +217,7 @@ pub fn discriminator_new_call(
           list.find(fields, fn(field) {
             codegen_helpers.field_name(field) == name
           })
-        name
-        <> ": "
-        <> case field_type(field) {
-          "String" -> "\"\""
-          "Bool" -> "False"
-          "Int" -> "0"
-          "Float" -> "0.0"
-          type_ ->
-            case string.starts_with(type_, "valuesets.") {
-              True -> string.lowercase(type_) <> "_failure_variant"
-              False ->
-                complex_prefix
-                <> codegen_helpers.to_snake_case(type_)
-                <> "_new()"
-            }
-        }
+        name <> ": " <> default(field_type(field))
       })
       |> string.join(", ")
     }
@@ -256,7 +242,7 @@ pub fn discriminator_new_call(
           string.length(codegen_helpers.to_camel_case(root.path) <> "List1"),
         )
       let assert Ok(child) =
-        discriminator_new_call(current_bucket, child_type, elements)
+        discriminator_new_call(current_bucket, child_type, elements, default)
       complex_prefix <> "List1(first: " <> child <> ", rest: [])"
     }
     False -> ""
@@ -283,15 +269,8 @@ pub fn datatype_fields(
 }
 
 fn field_type(field: codegen_helpers.Element) -> String {
-  let assert [type_] = field.type_
-  let #(type_name, _) =
-    codegen_helpers.string_to_type(
-      type_.code,
-      string.split(field.path, "."),
-      field,
-      codegen_helpers.ComplexTypes,
-      dict.new(),
-    )
+  let assert Some(type_name) = field.gleam_type
+    as { "missing generated datatype field type " <> field.path }
   type_name
 }
 
@@ -314,6 +293,7 @@ pub fn shared_type(
   type_name: String,
   elements: dict.Dict(String, codegen_helpers.Element),
   preserve_slice_order: Bool,
+  default: fn(String) -> String,
 ) -> List(#(String, String)) {
   let type_name = string.replace(type_name, "ct.", "")
   let assert Ok(#(base, function, fixed, _)) = helper_fields(type_name)
@@ -373,7 +353,7 @@ pub fn shared_type(
         child_type,
         codegen_helpers.to_snake_case(child_type),
         datatype_fields(type_.code, elements),
-        shared_type(child_type, elements, preserve_slice_order),
+        shared_type(child_type, elements, preserve_slice_order, default),
       )
     }
   }
@@ -536,6 +516,7 @@ pub fn shared_type(
                           codegen_helpers.ComplexTypes,
                           member_type,
                           elements,
+                          default,
                         )
                       child
                     }
@@ -578,7 +559,7 @@ pub fn shared_type(
                 RecordSource(
                   ..source,
                   conditions: [
-                    "source." <> name <> " == " <> scalar,
+                    "source." <> name <> " != " <> scalar,
                     ..source.conditions
                   ],
                   restored: [name <> ": " <> scalar <> ",", ..source.restored],
@@ -632,10 +613,13 @@ pub fn shared_type(
         }
       },
     )
-  let conditions = case list.reverse(source.conditions) {
-    [] -> "True"
-    conditions -> string.join(conditions, " && ")
-  }
+  let guard =
+    source.conditions
+    |> list.reverse
+    |> list.map(fn(condition) {
+      "use <- bool.guard(" <> condition <> ", Error(Nil))\n"
+    })
+    |> string.concat
   let generated =
     "pub type "
     <> type_name
@@ -665,15 +649,14 @@ pub fn shared_type(
     <> parameters
     <> ") -> Result("
     <> type_name
-    <> ", Nil) { case "
-    <> conditions
-    <> " { False -> Error(Nil) True -> {\n"
+    <> ", Nil) {\n"
+    <> guard
     <> string.concat(list.reverse(source.bindings))
     <> "Ok("
     <> type_name
     <> "("
     <> string.concat(list.reverse(source.decoded))
-    <> ")) } } }\n"
+    <> ")) }\n"
     <> "fn "
     <> function
     <> "_to_"
