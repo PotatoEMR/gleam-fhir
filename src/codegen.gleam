@@ -2542,16 +2542,16 @@ fn valueset_type_source(
   //         acc <> name <> "(value: String)\n"
   //       }),
   //     )
+  let has_decoder = !needs_system || needs_code || set.is_empty(duplicate_codes)
   let code_functions = case needs_system {
     True ->
       string.concat([
         gen_valueset_encoder(vsname),
         gen_valueset_to_code(vsname, codes),
         codegen_bound_coding.gen_valueset_from_code_and_system(vsname, codes),
-        case needs_code, set.is_empty(duplicate_codes) {
-          False, True -> gen_valueset_decoder(vsname, codes)
-          False, _ -> ""
-          True, _ -> {
+        case has_decoder {
+          False -> ""
+          True -> {
             let codes =
               list.filter(codes, fn(member) {
                 dict.get(code_systems, member.code) == Ok(member.system)
@@ -2590,6 +2590,7 @@ fn valueset_type_source(
       <> code_functions
       <> system_function,
     failure_variant_replacements,
+    has_decoder,
   )
 }
 
@@ -2642,25 +2643,51 @@ fn valueset_to_types(
         string.lowercase(codegen_helpers.concept_name_from_url(b)),
       )
     })
-  let #(source, replacements) =
-    list.fold(from: #("", []), over: vs_url_sorted, with: fn(acc, vs_url) {
-      let #(valuesets_acc, failure_variant_replacements) = acc
-      let vsname = codegen_helpers.concept_name_from_url(vs_url)
-      let assert Ok(valueset_item) = dict.get(valueset_acc, vs_url)
-      let #(valueset_source, replacements) =
-        valueset_type_source(
-          vs_url,
-          vsname,
-          all_vs_or_cs,
-          valueset_item.needs_system,
-          valueset_item.needs_code,
+  let #(source, replacements, has_decoder) =
+    list.fold(
+      from: #("", [], False),
+      over: vs_url_sorted,
+      with: fn(acc, vs_url) {
+        let #(valuesets_acc, failure_variant_replacements, has_decoder) = acc
+        let vsname = codegen_helpers.concept_name_from_url(vs_url)
+        let assert Ok(valueset_item) = dict.get(valueset_acc, vs_url)
+        let #(valueset_source, replacements, valueset_has_decoder) =
+          valueset_type_source(
+            vs_url,
+            vsname,
+            all_vs_or_cs,
+            valueset_item.needs_system,
+            valueset_item.needs_code,
+          )
+        #(
+          valuesets_acc <> valueset_source,
+          list.append(replacements, failure_variant_replacements),
+          has_decoder || valueset_has_decoder,
         )
-      #(
-        valuesets_acc <> valueset_source,
-        list.append(replacements, failure_variant_replacements),
-      )
-    })
-  #(vs_imports <> source, replacements)
+      },
+    )
+  let not_included_failure = case has_decoder {
+    False -> ""
+    True ->
+      "fn not_included_failure(
+        variant: String,
+        placeholder: a,
+        name: String,
+        values: List(a),
+        to_code: fn(a) -> String,
+      ) -> Decoder(a) {
+        let expected =
+          \"code from valueset \" <> name <> \" [\"
+            <> { values |> list.map(to_code) |> string.join(\", \") }
+            <> \"]\"
+
+        decode.failure(placeholder, expected)
+        |> decode.map_errors(fn(_) {
+          [decode.DecodeError(expected:, found: variant, path: [])]
+        })
+      }\n"
+  }
+  #(vs_imports <> not_included_failure <> source, replacements)
 }
 
 fn gen_valueset_encoder(vsname: String) -> String {
@@ -2719,51 +2746,27 @@ fn gen_valueset_decoder(
   vs_codes: List(codegen_bound_coding.ValuesetCodeWithSystem),
 ) -> String {
   let vsname_lower = vsname |> string.lowercase()
-  //   let fallback = case open_variants, vs_codes {
-  //     [codegen_bound_coding.OpenValuesetVariant(name:, ..), ..], _ ->
-  //       "decode.success(" <> name <> "(variant))"
-  //     [], [codegen_bound_coding.ValuesetCodeWithSystem(variant:, ..), ..] ->
-  //       "decode.failure(" <> vsname <> variant <> ",
-  //         \"code from valueset CNAMECAPITAL [\"
-  //         <> { CNAMELOWER |> list.map(CNAMELOWER_to_code) |> string.join(\", \") }
-  //         <> \"]\")
-  //       |> decode.map_errors(fn(errors) {
-  //         list.map(errors, fn(error) { decode.DecodeError(..error, found: variant) })
-  //       })"
-  //     [], [] -> panic as { "ValueSet " <> vsname <> " has no codes" }
-  //   }
   let fallback = case vs_codes {
     [codegen_bound_coding.ValuesetCodeWithSystem(variant:, ..), ..] ->
-      "decode.failure(" <> vsname <> variant <> ",
-        \"code from valueset CNAMECAPITAL [\"
-        <> { CNAMELOWER |> list.map(CNAMELOWER_to_code) |> string.join(\", \") }
-        <> \"]\")
-      |> decode.map_errors(fn(errors) {
-        list.map(errors, fn(error) { decode.DecodeError(..error, found: variant) })
-      })"
+      "not_included_failure(variant, "
+      <> vsname
+      <> variant
+      <> ", "
+      <> json.to_string(json.string(vsname))
+      <> ", "
+      <> vsname_lower
+      <> ", "
+      <> vsname_lower
+      <> "_to_code)"
     [] -> panic as { "ValueSet " <> vsname <> " has no codes" }
   }
-  let fallback =
-    fallback
-    |> string.replace("CNAMELOWER", vsname_lower)
-    |> string.replace("CNAMECAPITAL", vsname)
   let template =
     "pub fn " <> vsname_lower <> "_decoder() -> Decoder(" <> vsname <> ") {
     use variant <- decode.then(decode.string)
-    case variant {" <> list.fold(
-      from: "",
-      over: vs_codes,
-      with: fn(acc: String, member: codegen_bound_coding.ValuesetCodeWithSystem) {
-        let codegen_bound_coding.ValuesetCodeWithSystem(code:, variant:, ..) =
-          member
-        acc
-        <> json.to_string(json.string(code))
-        <> " -> decode.success("
-        <> vsname
-        <> variant
-        <> ")\n"
-      },
-    ) <> "_ -> " <> fallback <> "}
+    case " <> vsname_lower <> "_from_code(variant) {
+      Ok(code) -> decode.success(code)
+      Error(_) -> " <> fallback <> "
+    }
   }
   "
   template
