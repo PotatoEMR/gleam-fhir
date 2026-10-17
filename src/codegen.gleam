@@ -7,7 +7,6 @@ import codegen_profile
 import codegen_profile_json
 import codegen_to_json
 import download_profile_package
-import fhir/r4_gen/resources as r4
 import fhir/template_primitive_types
 import filepath
 import gleam/dict
@@ -261,15 +260,17 @@ fn gen_fhir(
     core_resource_entries,
     _,
     resource_constructors,
+    available_valuesets,
   ) =
     file_to_types(
       spec_file: filepath.join(extract_dir_ver, "profiles-resources.json"),
-      fv: pkg_prefix,
+      fv: fhir_version,
       current_bucket: codegen_helpers.Resources,
       valueset_acc: dict.new(),
       gen_specific_resources:,
       gen_specific_complex_types: None,
       valuesets_package_dir:,
+      available_valuesets: dict.new(),
     )
   let profile_type_names = case profiles_dir {
     Some(profiles_dir) ->
@@ -294,15 +295,17 @@ fn gen_fhir(
     _,
     core_type_urls,
     core_constructors,
+    available_valuesets,
   ) =
     file_to_types(
       spec_file: complex_types_file,
-      fv: pkg_prefix,
+      fv: fhir_version,
       current_bucket: codegen_helpers.ComplexTypes,
       valueset_acc:,
       gen_specific_resources:,
       gen_specific_complex_types:,
       valuesets_package_dir:,
+      available_valuesets:,
     )
   let #(
     profile_complex_types,
@@ -316,7 +319,7 @@ fn gen_fhir(
       "",
       "",
       valueset_acc,
-      None,
+      available_valuesets,
       [],
       dict.merge(resource_constructors, core_constructors),
     )
@@ -337,12 +340,14 @@ fn gen_fhir(
           gen_specific_resources,
           core_type_urls,
           dict.merge(resource_constructors, core_constructors),
+          available_valuesets,
+          fhir_version,
         )
       #(
         complex_types,
         resources,
         valuesets,
-        Some(loaded_valuesets),
+        loaded_valuesets,
         resource_entries,
         constructors,
       )
@@ -615,12 +620,7 @@ fn gen_fhir(
       False -> ""
     }
   let #(all_vs, failure_variant_replacements) =
-    valueset_to_types(
-      fhir_version,
-      valueset_acc,
-      profiles_dir,
-      preloaded_valuesets,
-    )
+    valueset_to_types(fhir_version, valueset_acc, preloaded_valuesets)
   let replace_failure_variants = fn(source) {
     list.fold(failure_variant_replacements, source, fn(source, replacement) {
       string.replace(source, replacement.0, replacement.1)
@@ -821,7 +821,7 @@ fn gen_fhir(
       // but generic primitive extensions are NOT supported;
       // the only supported primitive extensions are when profiles define them
       // in which case they are generated as actual types
-      // for example 
+      // for example
       // pub type UsCoreQuestionnaireresponseQuestionnaire {
       //   UsCoreQuestionnaireresponseQuestionnaire(
       //     id: Option(String),
@@ -1058,7 +1058,7 @@ fn gen_fhir(
       #("type Primitive", "Primitive("),
       #("Primitive", "Primitive(id:"),
       #("primitive_decoder", "primitive_decoder("),
-      #("extension_decoder", ", extension_decoder()"),
+      #("extension_decoder", "extension_decoder()"),
       #("primitives_decoder", "primitives_decoder("),
       #("primitive_choice_slice_decoder", "primitive_choice_slice_decoder("),
       #("primitive_slice_decoder", "primitive_slice_decoder("),
@@ -1069,7 +1069,22 @@ fn gen_fhir(
     |> list.filter_map(fn(item) {
       let unqualified_source =
         string.replace(resources_code, "ct." <> item.1, "")
-      case string.contains(unqualified_source, item.1) {
+      let used =
+        unqualified_source
+        |> string.split(item.1)
+        |> list.reverse
+        |> list.drop(1)
+        |> list.any(fn(prefix) {
+          case list.last(string.to_graphemes(prefix)) {
+            Error(_) -> True
+            Ok(previous) ->
+              !string.contains(
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.",
+                previous,
+              )
+          }
+        })
+      case used {
         True -> Ok(item.0)
         False -> Error(Nil)
       }
@@ -1243,6 +1258,10 @@ fn file_to_types(
   gen_specific_resources gen_specific_resources: Option(List(String)),
   gen_specific_complex_types gen_specific_complex_types: Option(Set(String)),
   valuesets_package_dir valuesets_package_dir: String,
+  available_valuesets available_valuesets: dict.Dict(
+    String,
+    codegen_helpers.VsOrCs,
+  ),
 ) -> #(
   String,
   dict.Dict(String, codegen_helpers.ValuesetItem),
@@ -1250,6 +1269,7 @@ fn file_to_types(
   List(#(String, String, String)),
   Set(String),
   dict.Dict(String, codegen_profile_json.ConstructorDefinition),
+  dict.Dict(String, codegen_helpers.VsOrCs),
 ) {
   let assert Ok(spec) = simplifile.read(spec_file)
     as "spec files should all be downloaded in dev/downloads/{r4 r4b r5}, run with download arg if not"
@@ -1304,7 +1324,12 @@ fn file_to_types(
     })
     |> set.from_list
   let available_valuesets =
-    codegen_helpers.load_valuesets(valuesets_package_dir, required_valuesets)
+    codegen_helpers.load_valuesets(
+      valuesets_package_dir,
+      required_valuesets,
+      available_valuesets,
+      fhir_version,
+    )
   let unavailable_valuesets =
     set.fold(required_valuesets, set.new(), fn(unavailable, reference) {
       let assert [url, ..] = string.split(reference, "|")
@@ -2289,6 +2314,7 @@ fn file_to_types(
     resource_entries,
     entries |> list.map(fn(resource) { resource.url }) |> set.from_list,
     constructors,
+    available_valuesets,
   )
 }
 
@@ -2391,96 +2417,81 @@ fn valueset_type_source(
   vs_url: String,
   vsname: String,
   all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
-  exclude_not_selectable: Bool,
   needs_system: Bool,
+  needs_code: Bool,
 ) {
-  case dict.get(all_vs_or_cs, vs_url) {
-    Ok(codegen_helpers.VocValueset(valueset, package_dir)) ->
-      case valueset.compose {
-        Some(compose) ->
-          valueset_compose_type_source(
-            compose,
-            vs_url,
-            vsname,
-            codegen_helpers.valueset_codesystems(package_dir, all_vs_or_cs),
-            exclude_not_selectable,
-            needs_system,
-          )
-        None -> panic as { "ValueSet " <> vs_url <> " has no compose" }
-      }
-    Ok(codegen_helpers.VocCodesystem(_)) ->
-      panic as { vs_url <> " resolved to a CodeSystem instead of a ValueSet" }
-    Error(_) -> panic as { "Could not load ValueSet " <> vs_url }
-  }
-}
-
-fn valueset_compose_type_source(
-  compose: r4.ValuesetCompose,
-  vs_url: String,
-  vsname: String,
-  all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
-  exclude_not_selectable: Bool,
-  needs_system: Bool,
-) {
-  let includes = [compose.include.first, ..compose.include.rest]
-  let #(codes, open_variants, systems, _) =
-    list.fold(includes, #([], [], set.new(), 1), fn(acc, include) {
-      let #(codes, open_variants, systems, index) = acc
-      case
-        codegen_bound_coding.valueset_include_codes(
-          include,
-          all_vs_or_cs,
-          exclude_not_selectable,
-        )
-      {
-        codegen_bound_coding.ValuesetIncludeExpanded(include_codes) -> #(
-          list.fold(include_codes, codes, fn(codes, code) { [code, ..codes] }),
-          open_variants,
-          include_codes
-            |> list.fold(systems, fn(systems, member) {
-              let codegen_bound_coding.ValuesetCodeWithSystem(system:, ..) =
-                member
-              set.insert(systems, system)
-            }),
-          index + 1,
-        )
-        codegen_bound_coding.ValuesetIncludeString(system) -> {
-          let variant_name =
-            vsname <> codegen_bound_coding.valueset_include_name(include, index)
-          #(
-            codes,
-            [
-              codegen_bound_coding.OpenValuesetVariant(
-                name: variant_name,
-                system:,
-              ),
-              ..open_variants
-            ],
-            set.insert(systems, system),
-            index + 1,
-          )
-        }
-      }
+  let assert Ok(codegen_helpers.VocValueset(codes: members, ..)) =
+    dict.get(all_vs_or_cs, vs_url)
+    as { "Could not load ValueSet " <> vs_url }
+  let assert True = members != []
+    as { "ValueSet has no selectable codes: " <> vs_url }
+  let systems = members |> list.map(fn(member) { member.0 }) |> set.from_list
+  let codes =
+    list.map(members, fn(member) {
+      codegen_bound_coding.ValuesetCodeWithSystem(
+        code: member.1,
+        system: member.0,
+        variant: "",
+      )
     })
-  let codes = list.reverse(codes)
-  let open_variants = case needs_system, open_variants {
-    False, [_, _, ..] -> [
-      codegen_bound_coding.OpenValuesetVariant(
-        name: vsname <> "Other",
-        system: "",
-      ),
-    ]
-    _, _ -> open_variants
-  }
-  let #(_, duplicate_codes) =
-    list.fold(codes, #(set.new(), set.new()), fn(acc, member) {
+  //   let #(codes, open_variants, systems) =
+  //     list.fold(members, #([], [], set.new()), fn(acc, member) {
+  //       let #(codes, open_variants, systems) = acc
+  //       let #(system, code) = member
+  //       let systems = set.insert(systems, system)
+  //       case code {
+  //         Some(code) -> #(
+  //           [
+  //             codegen_bound_coding.ValuesetCodeWithSystem(
+  //               code:,
+  //               system:,
+  //               variant: "",
+  //             ),
+  //             ..codes
+  //           ],
+  //           open_variants,
+  //           systems,
+  //         )
+  //         None -> #(
+  //           codes,
+  //           [
+  //             codegen_bound_coding.OpenValuesetVariant(
+  //               name: vsname <> codegen_helpers.concept_name_from_url(system),
+  //               system:,
+  //             ),
+  //             ..open_variants
+  //           ],
+  //           systems,
+  //         )
+  //       }
+  //     })
+  //   let codes = list.reverse(codes)
+  //   let open_variants = case needs_system, open_variants {
+  //     False, [_, _, ..] -> [
+  //       codegen_bound_coding.OpenValuesetVariant(
+  //         name: vsname <> "Other",
+  //         system: "",
+  //       ),
+  //     ]
+  //     _, _ -> open_variants
+  //   }
+  let #(code_systems, duplicate_codes) =
+    list.fold(codes, #(dict.new(), set.new()), fn(acc, member) {
       let #(seen_codes, duplicate_codes) = acc
-      let codegen_bound_coding.ValuesetCodeWithSystem(code:, ..) = member
-      case set.contains(seen_codes, code) {
+      let codegen_bound_coding.ValuesetCodeWithSystem(code:, system:, ..) =
+        member
+      case dict.has_key(seen_codes, code) {
         True -> #(seen_codes, set.insert(duplicate_codes, code))
-        False -> #(set.insert(seen_codes, code), duplicate_codes)
+        False -> #(dict.insert(seen_codes, code, system), duplicate_codes)
       }
     })
+  let codes = case needs_system {
+    True -> codes
+    False ->
+      list.filter(codes, fn(member) {
+        dict.get(code_systems, member.code) == Ok(member.system)
+      })
+  }
   let assert Ok(vs_url_name) = vs_url |> string.split("/") |> list.last
   let assert Ok(vs_namespace) = vs_url_name |> string.split("-") |> list.first
   let vs_namespace =
@@ -2490,7 +2501,7 @@ fn valueset_compose_type_source(
       let codegen_bound_coding.ValuesetCodeWithSystem(code:, system:, ..) =
         member
       let code_name = code |> codegen_helpers.codetovarname |> string.capitalise
-      let variant = case set.contains(duplicate_codes, code) {
+      let variant = case needs_system && set.contains(duplicate_codes, code) {
         False -> code_name
         True -> {
           let system_name = codegen_helpers.concept_name_from_url(system)
@@ -2506,21 +2517,18 @@ fn valueset_compose_type_source(
       }
       codegen_bound_coding.ValuesetCodeWithSystem(..member, variant:)
     })
-  let valueset_items = case open_variants {
-    [] ->
-      "pub const "
-      <> string.lowercase(vsname)
-      <> ": List("
-      <> vsname
-      <> ") = ["
-      <> {
-        codes
-        |> list.map(fn(member) { vsname <> member.variant })
-        |> string.join(", ")
-      }
-      <> "]\n"
-    _ -> ""
-  }
+  let valueset_items =
+    "pub const "
+    <> string.lowercase(vsname)
+    <> ": List("
+    <> vsname
+    <> ") = ["
+    <> {
+      codes
+      |> list.map(fn(member) { vsname <> member.variant })
+      |> string.join(", ")
+    }
+    <> "]\n"
   let variants =
     codes
     |> list.map(fn(member) {
@@ -2528,54 +2536,48 @@ fn valueset_compose_type_source(
       vsname <> variant <> "\n"
     })
     |> string.concat
-    |> string.append(
-      list.fold(open_variants, "", fn(acc, open_variant) {
-        let codegen_bound_coding.OpenValuesetVariant(name:, ..) = open_variant
-        acc <> name <> "(value: String)\n"
-      }),
-    )
-  let code_functions = case needs_system, open_variants, codes {
-    True, _, _ ->
+  //     |> string.append(
+  //       list.fold(open_variants, "", fn(acc, open_variant) {
+  //         let codegen_bound_coding.OpenValuesetVariant(name:, ..) = open_variant
+  //         acc <> name <> "(value: String)\n"
+  //       }),
+  //     )
+  let code_functions = case needs_system {
+    True ->
       string.concat([
         gen_valueset_encoder(vsname),
-        gen_valueset_to_code(vsname, codes, open_variants),
-        codegen_bound_coding.gen_valueset_from_code_and_system(
-          vsname,
-          codes,
-          open_variants,
-        ),
-        case open_variants, codes, set.is_empty(duplicate_codes) {
-          [], [_, ..], True -> gen_valueset_decoder(vsname, codes, [])
-          _, _, _ -> ""
+        gen_valueset_to_code(vsname, codes),
+        codegen_bound_coding.gen_valueset_from_code_and_system(vsname, codes),
+        case needs_code, set.is_empty(duplicate_codes) {
+          False, True -> gen_valueset_decoder(vsname, codes)
+          False, _ -> ""
+          True, _ -> {
+            let codes =
+              list.filter(codes, fn(member) {
+                dict.get(code_systems, member.code) == Ok(member.system)
+              })
+            gen_valueset_from_code(vsname, codes)
+            <> gen_valueset_decoder(vsname, codes)
+          }
         },
       ])
-    False, _, _ ->
+    False ->
       string.concat([
         gen_valueset_encoder(vsname),
-        gen_valueset_to_code(vsname, codes, open_variants),
-        gen_valueset_from_code(vsname, codes, open_variants),
-        gen_valueset_decoder(vsname, codes, open_variants),
+        gen_valueset_to_code(vsname, codes),
+        gen_valueset_from_code(vsname, codes),
+        gen_valueset_decoder(vsname, codes),
       ])
   }
   let system_function = case needs_system {
-    True ->
-      codegen_bound_coding.gen_valueset_system(
-        vsname,
-        codes,
-        open_variants,
-        systems,
-      )
+    True -> codegen_bound_coding.gen_valueset_system(vsname, codes, systems)
     False -> ""
   }
   let failure_variant_replacements = [
     #(
       "valuesets." <> string.lowercase(vsname) <> "_failure_variant",
       "valuesets."
-        <> codegen_bound_coding.valueset_failure_variant_source(
-        vsname,
-        codes,
-        open_variants,
-      ),
+        <> codegen_bound_coding.valueset_failure_variant_source(vsname, codes),
     ),
   ]
   #(
@@ -2594,8 +2596,7 @@ fn valueset_compose_type_source(
 fn valueset_to_types(
   fhir_version: String,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
-  profiles_dir: Option(String),
-  preloaded_valuesets: Option(dict.Dict(String, codegen_helpers.VsOrCs)),
+  all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
 ) {
   // the valueset urls needed by elements by required bindings
   // and if they are for a code or for coding/cc
@@ -2605,8 +2606,8 @@ fn valueset_to_types(
     |> dict.keys
     |> set.from_list
     |> set.delete("")
-    |> set.delete("http://unitsofmeasure.org")
-    |> set.delete("http://hl7.org/fhir/ValueSet/color-codes")
+  // |> set.delete("http://unitsofmeasure.org")
+  // |> set.delete("http://hl7.org/fhir/ValueSet/color-codes")
 
   let vs_imports =
     string.concat([
@@ -2614,25 +2615,25 @@ fn valueset_to_types(
       fhir_version,
       "](https://hl7.org/fhir/",
       fhir_version,
-      ") valuesets\n\nimport gleam/dynamic/decode.{type Decoder}\n  import gleam/json.{type Json}\nimport gleam/list\nimport gleam/string\n",
+      ") valuesets\n\nimport gleam/dynamic/decode.{type Decoder}\nimport gleam/json.{type Json}\nimport gleam/list\nimport gleam/string\n",
     ])
-  let all_vs_or_cs = case preloaded_valuesets {
-    Some(valuesets) -> valuesets
-    None -> {
-      let simplifier_package_version =
-        simplifier_core_package_version(fhir_version)
-      let package_dir = case profiles_dir {
-        None ->
-          download_dir
-          |> filepath.join("profile_package")
-          |> filepath.join("hl7.fhir." <> fhir_version <> ".core")
-          |> filepath.join(simplifier_package_version)
-          |> filepath.join("package")
-        Some(profile_package_dir) -> profile_package_dir
-      }
-      codegen_helpers.load_valuesets(package_dir, vs_url_set)
-    }
-  }
+  //   let all_vs_or_cs = case preloaded_valuesets {
+  //     Some(valuesets) -> valuesets
+  //     None -> {
+  //       let simplifier_package_version =
+  //         simplifier_core_package_version(fhir_version)
+  //       let package_dir = case profiles_dir {
+  //         None ->
+  //           download_dir
+  //           |> filepath.join("profile_package")
+  //           |> filepath.join("hl7.fhir." <> fhir_version <> ".core")
+  //           |> filepath.join(simplifier_package_version)
+  //           |> filepath.join("package")
+  //         Some(profile_package_dir) -> profile_package_dir
+  //       }
+  //       codegen_helpers.load_valuesets(package_dir, vs_url_set)
+  //     }
+  //   }
   let vs_url_sorted =
     set.to_list(vs_url_set)
     |> list.sort(fn(a, b) {
@@ -2641,35 +2642,25 @@ fn valueset_to_types(
         string.lowercase(codegen_helpers.concept_name_from_url(b)),
       )
     })
-  list.fold(from: #(vs_imports, []), over: vs_url_sorted, with: fn(acc, vs_url) {
-    let #(valuesets_acc, failure_variant_replacements) = acc
-    let vsname = codegen_helpers.concept_name_from_url(vs_url)
-    let assert Ok(valueset_item) = dict.get(valueset_acc, vs_url)
-    let needs_system = case valueset_item {
-      codegen_helpers.ValuesetBoundCodingOrCcNeedsSystem -> True
-      codegen_helpers.ValuesetCodeOnlyDontNeedSystem -> False
-    }
-    case codegen_helpers.valueset_can_generate_system(vs_url, all_vs_or_cs) {
-      True -> {
-        let #(valueset_source, replacements) =
-          valueset_type_source(
-            vs_url,
-            vsname,
-            all_vs_or_cs,
-            fhir_version == "r4",
-            needs_system,
-          )
-        #(
-          valuesets_acc <> valueset_source,
-          list.append(replacements, failure_variant_replacements),
+  let #(source, replacements) =
+    list.fold(from: #("", []), over: vs_url_sorted, with: fn(acc, vs_url) {
+      let #(valuesets_acc, failure_variant_replacements) = acc
+      let vsname = codegen_helpers.concept_name_from_url(vs_url)
+      let assert Ok(valueset_item) = dict.get(valueset_acc, vs_url)
+      let #(valueset_source, replacements) =
+        valueset_type_source(
+          vs_url,
+          vsname,
+          all_vs_or_cs,
+          valueset_item.needs_system,
+          valueset_item.needs_code,
         )
-      }
-      False ->
-        panic as {
-          "unresolved required ValueSet reached generation: " <> vs_url
-        }
-    }
-  })
+      #(
+        valuesets_acc <> valueset_source,
+        list.append(replacements, failure_variant_replacements),
+      )
+    })
+  #(vs_imports <> source, replacements)
 }
 
 fn gen_valueset_encoder(vsname: String) -> String {
@@ -2684,46 +2675,65 @@ fn gen_valueset_encoder(vsname: String) -> String {
   |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
 }
 
+//  <> list.fold(open_variants, "", fn(acc, open_variant) {
+//       let codegen_bound_coding.OpenValuesetVariant(name:, ..) = open_variant
+//       acc <> name <> "(value) -> value\n"
+//     })
 fn gen_valueset_to_code(
   vsname: String,
   vs_codes: List(codegen_bound_coding.ValuesetCodeWithSystem),
-  open_variants: List(codegen_bound_coding.OpenValuesetVariant),
 ) -> String {
   let vsname_lower = vsname |> string.lowercase()
   let template =
-    "pub fn CNAMELOWER_to_code(CNAMELOWER: CNAMECAPITAL) -> String {
-    case CNAMELOWER {" <> list.fold(
+    "pub fn "
+    <> vsname_lower
+    <> "_to_code("
+    <> vsname_lower
+    <> ": "
+    <> vsname
+    <> ") -> String {\n    case "
+    <> vsname_lower
+    <> " {"
+    <> list.fold(
       from: "",
       over: vs_codes,
       with: fn(acc: String, member: codegen_bound_coding.ValuesetCodeWithSystem) {
         let codegen_bound_coding.ValuesetCodeWithSystem(code:, variant:, ..) =
           member
         acc
-        <> "CODETYPE -> \"ACTUALCODE\"\n"
-        |> string.replace("CODETYPE", vsname <> variant)
-        |> string.replace("ACTUALCODE", code)
+        <> vsname
+        <> variant
+        <> " -> "
+        <> json.to_string(json.string(code))
+        <> "\n"
       },
-    ) <> list.fold(open_variants, "", fn(acc, open_variant) {
-      let codegen_bound_coding.OpenValuesetVariant(name:, ..) = open_variant
-      acc <> name <> "(value) -> value\n"
-    }) <> "}
+    )
+    <> "}
   }
   "
   template
-  |> string.replace("CNAMELOWER", vsname_lower)
-  |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
 }
 
 fn gen_valueset_decoder(
   vsname: String,
   vs_codes: List(codegen_bound_coding.ValuesetCodeWithSystem),
-  open_variants: List(codegen_bound_coding.OpenValuesetVariant),
 ) -> String {
   let vsname_lower = vsname |> string.lowercase()
-  let fallback = case open_variants, vs_codes {
-    [codegen_bound_coding.OpenValuesetVariant(name:, ..), ..], _ ->
-      "decode.success(" <> name <> "(variant))"
-    [], [codegen_bound_coding.ValuesetCodeWithSystem(variant:, ..), ..] ->
+  //   let fallback = case open_variants, vs_codes {
+  //     [codegen_bound_coding.OpenValuesetVariant(name:, ..), ..], _ ->
+  //       "decode.success(" <> name <> "(variant))"
+  //     [], [codegen_bound_coding.ValuesetCodeWithSystem(variant:, ..), ..] ->
+  //       "decode.failure(" <> vsname <> variant <> ",
+  //         \"code from valueset CNAMECAPITAL [\"
+  //         <> { CNAMELOWER |> list.map(CNAMELOWER_to_code) |> string.join(\", \") }
+  //         <> \"]\")
+  //       |> decode.map_errors(fn(errors) {
+  //         list.map(errors, fn(error) { decode.DecodeError(..error, found: variant) })
+  //       })"
+  //     [], [] -> panic as { "ValueSet " <> vsname <> " has no codes" }
+  //   }
+  let fallback = case vs_codes {
+    [codegen_bound_coding.ValuesetCodeWithSystem(variant:, ..), ..] ->
       "decode.failure(" <> vsname <> variant <> ",
         \"code from valueset CNAMECAPITAL [\"
         <> { CNAMELOWER |> list.map(CNAMELOWER_to_code) |> string.join(\", \") }
@@ -2731,9 +2741,14 @@ fn gen_valueset_decoder(
       |> decode.map_errors(fn(errors) {
         list.map(errors, fn(error) { decode.DecodeError(..error, found: variant) })
       })"
-    [], [] -> panic as { "ValueSet " <> vsname <> " has no codes" }
+    [] -> panic as { "ValueSet " <> vsname <> " has no codes" }
   }
-  let template = "pub fn CNAMELOWER_decoder() -> Decoder(CNAMECAPITAL) {
+  let fallback =
+    fallback
+    |> string.replace("CNAMELOWER", vsname_lower)
+    |> string.replace("CNAMECAPITAL", vsname)
+  let template =
+    "pub fn " <> vsname_lower <> "_decoder() -> Decoder(" <> vsname <> ") {
     use variant <- decode.then(decode.string)
     case variant {" <> list.fold(
       from: "",
@@ -2742,46 +2757,51 @@ fn gen_valueset_decoder(
         let codegen_bound_coding.ValuesetCodeWithSystem(code:, variant:, ..) =
           member
         acc
-        <> "\"ACTUALCODE\" -> decode.success(CODETYPE)\n"
-        |> string.replace("CODETYPE", vsname <> variant)
-        |> string.replace("ACTUALCODE", code)
+        <> json.to_string(json.string(code))
+        <> " -> decode.success("
+        <> vsname
+        <> variant
+        <> ")\n"
       },
     ) <> "_ -> " <> fallback <> "}
   }
   "
   template
-  |> string.replace("CNAMELOWER", vsname_lower)
-  |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
 }
 
 fn gen_valueset_from_code(
   vsname: String,
   vs_codes: List(codegen_bound_coding.ValuesetCodeWithSystem),
-  open_variants: List(codegen_bound_coding.OpenValuesetVariant),
 ) -> String {
   let vsname_lower = vsname |> string.lowercase()
-  let fallback = case open_variants {
-    [codegen_bound_coding.OpenValuesetVariant(name:, ..), ..] ->
-      "Ok(" <> name <> "(code))"
-    [] -> "Error(Nil)"
-  }
+  //   let fallback = case open_variants {
+  //     [codegen_bound_coding.OpenValuesetVariant(name:, ..), ..] ->
+  //       "Ok(" <> name <> "(code))"
+  //     [] -> "Error(Nil)"
+  //   }
   let template =
-    "pub fn CNAMELOWER_from_code(code: String) -> Result(CNAMECAPITAL, Nil) {
-    case code {" <> list.fold(
+    "pub fn "
+    <> vsname_lower
+    <> "_from_code(code: String) -> Result("
+    <> vsname
+    <> ", Nil) {
+    case code {"
+    <> list.fold(
       from: "",
       over: vs_codes,
       with: fn(acc: String, member: codegen_bound_coding.ValuesetCodeWithSystem) {
         let codegen_bound_coding.ValuesetCodeWithSystem(code:, variant:, ..) =
           member
         acc
-        <> "\"ACTUALCODE\" -> Ok(CODETYPE)\n"
-        |> string.replace("CODETYPE", vsname <> variant)
-        |> string.replace("ACTUALCODE", code)
+        <> json.to_string(json.string(code))
+        <> " -> Ok("
+        <> vsname
+        <> variant
+        <> ")\n"
       },
-    ) <> "_ -> " <> fallback <> "}
+    )
+    <> "_ -> Error(Nil)}
   }
   "
   template
-  |> string.replace("CNAMELOWER", vsname_lower)
-  |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
 }

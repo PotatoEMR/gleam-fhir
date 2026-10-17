@@ -1,7 +1,5 @@
 import codegen_helpers
-import fhir/r4_gen/resources as r4
-import gleam/dict
-import gleam/int
+import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/set.{type Set}
@@ -269,7 +267,8 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
   ])
 }
 
-pub const bound_codeable_reference = "      pub type BoundCodeablereference(required_binding) {
+pub const bound_codeable_reference =
+  "      pub type BoundCodeablereference(required_binding) {
   BoundCodeablereference(
     id: Option(String),
     extension: List(Extension),
@@ -328,7 +327,8 @@ pub fn bound_codeablereference_decoder(binding_from_code_and_system: fn(String, 
 // Cardinality is orthogonal to binding. The binding applies if the element is present. If there's no element, then there's no "concept in this element" for the SHALL to apply to :slight_smile:
 // In the special case of Quantity, the binding is actually to the implicit 'Coding' that is built into the Quantity. That implicit Coding is only considered to be 'present' if either the 'code' or 'system' are there. So it's totally legal to have a Quantity with just a value or a value + unit. (Not best practice, but legal.)
 
-pub const bound_quantity = "pub type BoundQuantity(required_binding) {
+pub const bound_quantity =
+  "pub type BoundQuantity(required_binding) {
   BoundQuantity(
     id: Option(String),
     extension: List(Extension),
@@ -460,11 +460,6 @@ fn bound_quantity_decode_rest(with_binding: Option(required_binding)) -> Decoder
 }
 "
 
-pub type ValuesetIncludeCodes {
-  ValuesetIncludeExpanded(List(ValuesetCodeWithSystem))
-  ValuesetIncludeString(system: String)
-}
-
 // need to keep track of system because some valuesets contain multiple systems
 // but we flatten valuesets to flat list of codes
 // so need to get system from code or create valueset item from system and code
@@ -472,10 +467,10 @@ pub type ValuesetCodeWithSystem {
   ValuesetCodeWithSystem(code: String, system: String, variant: String)
 }
 
-pub type OpenValuesetVariant {
-  OpenValuesetVariant(name: String, system: String)
-}
-
+// pub type OpenValuesetVariant {
+//   OpenValuesetVariant(name: String, system: String)
+// }
+//
 pub fn bound_valueset_function_name(gleam_type: String) -> Option(String) {
   case string.split(gleam_type, "(valuesets.") {
     [_, valueset] ->
@@ -628,14 +623,27 @@ pub fn bound_quantity_decoder_source(
   <> "_from_code_and_system)"
 }
 
+//
+//   <> list.fold(open_variants, "", fn(acc, open_variant) {
+//     let OpenValuesetVariant(name:, system:) = open_variant
+//     acc <> name <> "(value: _) -> \"" <> system <> "\"\n"
+//   })
+//
+//     <> list.fold(open_variants, "", fn(acc, open_variant) {
+//       let OpenValuesetVariant(name:, system:) = open_variant
+//       acc <> "code, \"" <> system <> "\" -> Ok(" <> name <> "(code))\n"
+//     })
 pub fn gen_valueset_from_code_and_system(
   vsname: String,
   vs_codes: List(ValuesetCodeWithSystem),
-  open_variants: List(OpenValuesetVariant),
 ) -> String {
   let vsname_lower = string.lowercase(vsname)
   let template =
-    "pub fn CNAMELOWER_from_code_and_system(code code: String, system system: String) -> Result(CNAMECAPITAL, Nil) {
+    "pub fn "
+    <> vsname_lower
+    <> "_from_code_and_system(code code: String, system system: String) -> Result("
+    <> vsname
+    <> ", Nil) {
     case code, system {"
     <> list.fold(
       from: "",
@@ -643,28 +651,24 @@ pub fn gen_valueset_from_code_and_system(
       with: fn(acc: String, member: ValuesetCodeWithSystem) {
         let ValuesetCodeWithSystem(code:, system:, variant:) = member
         acc
-        <> "\"ACTUALCODE\", \"ACTUALSYSTEM\" -> Ok(CODETYPE)\n"
-        |> string.replace("CODETYPE", vsname <> variant)
-        |> string.replace("ACTUALCODE", code)
-        |> string.replace("ACTUALSYSTEM", system)
+        <> json.to_string(json.string(code))
+        <> ", "
+        <> json.to_string(json.string(system))
+        <> " -> Ok("
+        <> vsname
+        <> variant
+        <> ")\n"
       },
     )
-    <> list.fold(open_variants, "", fn(acc, open_variant) {
-      let OpenValuesetVariant(name:, system:) = open_variant
-      acc <> "code, \"" <> system <> "\" -> Ok(" <> name <> "(code))\n"
-    })
     <> "_, _ -> Error(Nil)}
   }
   "
   template
-  |> string.replace("CNAMELOWER", vsname_lower)
-  |> string.replace("CNAMECAPITAL", string.capitalise(vsname))
 }
 
 pub fn gen_valueset_system(
   vsname: String,
   vs_codes: List(ValuesetCodeWithSystem),
-  open_variants: List(OpenValuesetVariant),
   systems: Set(String),
 ) -> String {
   let vsname_lower = string.lowercase(vsname)
@@ -676,16 +680,10 @@ pub fn gen_valueset_system(
       <> vsname_lower
       <> ": "
       <> vsname
-      <> ") -> String {\n  \""
-      <> system
-      <> "\"\n}\n"
-    _ ->
-      gen_multisystem_valueset_system(
-        vsname,
-        vsname_lower,
-        vs_codes,
-        open_variants,
-      )
+      <> ") -> String {\n  "
+      <> json.to_string(json.string(system))
+      <> "\n}\n"
+    _ -> gen_multisystem_valueset_system(vsname, vsname_lower, vs_codes)
   }
 }
 
@@ -693,12 +691,16 @@ pub fn gen_multisystem_valueset_system(
   vsname: String,
   vsname_lower: String,
   vs_codes: List(ValuesetCodeWithSystem),
-  open_variants: List(OpenValuesetVariant),
 ) -> String {
   let expanded_system_arms =
     list.fold(vs_codes, "", fn(acc, member) {
       let ValuesetCodeWithSystem(system:, variant:, ..) = member
-      acc <> vsname <> variant <> " -> \"" <> system <> "\"\n"
+      acc
+      <> vsname
+      <> variant
+      <> " -> "
+      <> json.to_string(json.string(system))
+      <> "\n"
     })
   "pub fn "
   <> vsname_lower
@@ -710,22 +712,17 @@ pub fn gen_multisystem_valueset_system(
   <> vsname_lower
   <> " {"
   <> expanded_system_arms
-  <> list.fold(open_variants, "", fn(acc, open_variant) {
-    let OpenValuesetVariant(name:, system:) = open_variant
-    acc <> name <> "(value: _) -> \"" <> system <> "\"\n"
-  })
   <> "}\n}\n"
 }
 
 pub fn valueset_failure_variant_source(
   vsname: String,
   vs_codes: List(ValuesetCodeWithSystem),
-  open_variants: List(OpenValuesetVariant),
 ) -> String {
-  case vs_codes, open_variants {
-    [ValuesetCodeWithSystem(variant:, ..), ..], _ -> vsname <> variant
-    [], [OpenValuesetVariant(name:, ..), ..] -> name <> "(\"\")"
-    [], [] -> panic as { "ValueSet " <> vsname <> " has no variants" }
+  case vs_codes {
+    [ValuesetCodeWithSystem(variant:, ..), ..] -> vsname <> variant
+    // [], [OpenValuesetVariant(name:, ..), ..] -> name <> "(\"\")"
+    [] -> panic as { "ValueSet " <> vsname <> " has no variants" }
   }
 }
 
@@ -809,7 +806,8 @@ fn find_elt_and_rest_result_loop(
   ])
 }
 
-pub const find_required_elt_and_rest_result = "fn find_required_elt_and_rest_result(
+pub const find_required_elt_and_rest_result =
+  "fn find_required_elt_and_rest_result(
   in items: List(a),
   one_that is_desired: fn(a) -> Result(b, Nil),
   placeholder placeholder: b,
@@ -835,7 +833,8 @@ pub const find_required_elt_and_rest_result = "fn find_required_elt_and_rest_res
 }
 "
 
-pub const find_optional_elt_and_rest_result = "fn find_optional_elt_and_rest_result(
+pub const find_optional_elt_and_rest_result =
+  "fn find_optional_elt_and_rest_result(
   in items: List(a),
   one_that is_desired: fn(a) -> Result(b, Nil),
   then next: fn(#(Option(b), List(a))) -> Decoder(c),
@@ -856,68 +855,10 @@ pub const find_optional_elt_and_rest_result = "fn find_optional_elt_and_rest_res
 }
 "
 
-pub const find_n_elts_and_rest_result = "fn find_n_elts_and_rest_result(
-  in items: List(a),
-  items_that are_desired: fn(a) -> Result(b, Nil),
-  num to_find: Int,
-) -> Result(#(List(b), List(a)), Nil) {
-  find_n_elts_and_rest_result_loop(
-    in: items,
-    items_that: are_desired,
-    num: to_find,
-    already: [],
-    have: [],
-  )
-}
-
-fn find_n_elts_and_rest_result_loop(
-  in items: List(a),
-  items_that are_desired: fn(a) -> Result(b, Nil),
-  num to_find: Int,
-  already past_list: List(a),
-  have found_acc: List(b),
-) -> Result(#(List(b), List(a)), Nil) {
-  case items {
-    [] -> Error(Nil)
-    [first, ..rest] ->
-      case are_desired(first) {
-        Ok(found_elt) -> {
-          let found_acc = [found_elt, ..found_acc]
-          let to_find = to_find - 1
-          case to_find <= 0 {
-            True -> {
-              let more = past_list |> list.reverse |> list.append(rest)
-              let found_acc = list.reverse(found_acc)
-              Ok(#(found_acc, more))
-            }
-            False ->
-              find_n_elts_and_rest_result_loop(
-                in: rest,
-                items_that: are_desired,
-                num: to_find,
-                already: past_list,
-                have: found_acc,
-              )
-          }
-        }
-        Error(_) -> {
-          let others = [first, ..past_list]
-          find_n_elts_and_rest_result_loop(
-            in: rest,
-            items_that: are_desired,
-            num: to_find,
-            already: others,
-            have: found_acc,
-          )
-        }
-      }
-  }
-}
-"
-
 // These are like list.partition, except they also apply the matching function
 // and return an error if there are not enough matching elements.
-pub const find_at_least_n_elts_and_rest_result = "fn find_at_least_n_elts_and_rest_result(
+pub const find_at_least_n_elts_and_rest_result =
+  "fn find_at_least_n_elts_and_rest_result(
   in items: List(a),
   items_that are_desired: fn(a) -> Result(b, Nil),
   at_least to_find: Int,
@@ -976,7 +917,8 @@ fn find_at_least_n_elts_and_rest_result_loop(
 }
 "
 
-pub const find_at_least_n_elts_and_rest_result_or_failure = "fn find_at_least_n_elts_and_rest_result_or_failure(
+pub const find_at_least_n_elts_and_rest_result_or_failure =
+  "fn find_at_least_n_elts_and_rest_result_or_failure(
   in items: List(a),
   items_that are_desired: fn(a) -> Result(b, Nil),
   at_least to_find: Int,
@@ -998,121 +940,9 @@ pub const find_at_least_n_elts_and_rest_result_or_failure = "fn find_at_least_n_
 }
 "
 
-pub const find_elts_and_rest = "
-fn find_elts_and_rest(
-  in items: List(a),
-  items_that are_desired: fn(a) -> Result(b, Nil),
-) -> #(List(b), List(a)) {
-  find_elts_and_rest_loop(
-    in: items,
-    items_that: are_desired,
-    found: [],
-    rest: [],
-  )
-}
-
-fn find_elts_and_rest_loop(
-  in items: List(a),
-  items_that are_desired: fn(a) -> Result(b, Nil),
-  found found_acc: List(b),
-  rest rest_acc: List(a),
-) -> #(List(b), List(a)) {
-  case items {
-    [] -> #(list.reverse(found_acc), list.reverse(rest_acc))
-
-    [first, ..items] ->
-      case are_desired(first) {
-        Ok(found_elt) ->
-          find_elts_and_rest_loop(
-            in: items,
-            items_that: are_desired,
-            found: [found_elt, ..found_acc],
-            rest: rest_acc,
-          )
-        Error(_) ->
-          find_elts_and_rest_loop(
-            in: items,
-            items_that: are_desired,
-            found: found_acc,
-            rest: [first, ..rest_acc],
-          )
-      }
-  }
-}
-"
-
-pub const insert_at = "fn insert_at(elt: a, in: List(a), at: Int) {
+pub const insert_at =
+  "fn insert_at(elt: a, in: List(a), at: Int) {
   let #(before, after) = list.split(in, at)
   before |> list.append([elt, ..after])
 }
 "
-
-pub fn valueset_include_codes(
-  include: r4.ValuesetComposeInclude,
-  all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
-  exclude_not_selectable: Bool,
-) {
-  case include.concept, include.filter, include.system {
-    [_, ..] as concepts, _, Some(system) ->
-      ValuesetIncludeExpanded(
-        list.map(concepts, fn(concept) {
-          ValuesetCodeWithSystem(code: concept.code, system:, variant: "")
-        }),
-      )
-    [_, ..], _, None -> panic as "ValueSet include with concepts has no system"
-    [], [_, ..], Some(system) -> ValuesetIncludeString(system:)
-    [], [_, ..], None -> panic as "ValueSet include with filters has no system"
-    [], [], Some(system) -> {
-      let reference = codegen_helpers.valueset_include_reference(include)
-      case dict.get(all_vs_or_cs, reference) {
-        Error(_) ->
-          case include.version {
-            Some(_) -> panic as { "Could not load CodeSystem " <> reference }
-            None -> ValuesetIncludeString(system:)
-          }
-        Ok(_) ->
-          case
-            codegen_helpers.get_codes_with_system(
-              reference,
-              all_vs_or_cs,
-              exclude_not_selectable,
-            )
-          {
-            [] -> ValuesetIncludeString(system:)
-            members ->
-              ValuesetIncludeExpanded(
-                list.map(members, fn(member) {
-                  ValuesetCodeWithSystem(
-                    code: member.1,
-                    system: member.0,
-                    variant: "",
-                  )
-                }),
-              )
-          }
-      }
-    }
-    [], [], None ->
-      ValuesetIncludeExpanded(
-        include.value_set
-        |> list.flat_map(fn(value_set) {
-          codegen_helpers.get_codes_with_system(
-            value_set,
-            all_vs_or_cs,
-            exclude_not_selectable,
-          )
-        })
-        |> list.map(fn(member) {
-          ValuesetCodeWithSystem(code: member.1, system: member.0, variant: "")
-        }),
-      )
-  }
-}
-
-pub fn valueset_include_name(include: r4.ValuesetComposeInclude, index: Int) {
-  case include.system, include.value_set {
-    Some(system), _ -> codegen_helpers.concept_name_from_url(system)
-    None, [value_set, ..] -> codegen_helpers.concept_name_from_url(value_set)
-    None, [] -> "Include" <> int.to_string(index)
-  }
-}

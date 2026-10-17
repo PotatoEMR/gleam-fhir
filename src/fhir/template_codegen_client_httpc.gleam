@@ -1,4 +1,5 @@
-pub const source = "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using httpc
+pub const source =
+  "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using httpc
 
 import fhir/FHIRVERSION/resources
 import fhir/FHIRVERSION/sansio.{type FhirClient}
@@ -290,6 +291,80 @@ fn connect_err_to_string(err: httpc.ConnectError) -> String {
     httpc.Posix(code:) -> \"posix code \" <> code
     httpc.TlsAlert(code:, detail:) ->
       \"TLS alert code \" <> code <> \" and detail \" <> detail
+  }
+}
+"
+
+pub const valueset_expand =
+  "
+pub type ErrValueset {
+  ErrValuesetHttpc(err: httpc.HttpError)
+  ErrValuesetSansio(err: sansio.SansioValuesetErr)
+}
+
+pub fn err_valueset_to_string(err: ErrValueset) -> String {
+  case err {
+    ErrValuesetHttpc(err) -> http_err_to_string(err)
+    ErrValuesetSansio(err) -> case err {
+      sansio.ValuesetResponseError(err) -> sansio.err_resp_to_string(err)
+      sansio.ValuesetMissingExpansion -> \"ValueSet response has no expansion\"
+      sansio.ValuesetUnexpectedOffset -> \"ValueSet expansion returned an unexpected offset\"
+      sansio.ValuesetNestedEntries -> \"ValueSet expansion returned nested entries despite excludeNested\"
+      sansio.ValuesetIncompleteExpansion -> \"ValueSet expansion is marked incomplete\"
+      sansio.ValuesetTerminologyChanged -> \"ValueSet expansion terminology versions changed between pages\"
+      sansio.ValuesetRepeatedCode -> \"ValueSet expansion repeated a system/code pair\"
+      sansio.ValuesetMissingSystem -> \"ValueSet expansion code has no system\"
+      sansio.ValuesetTotalChanged -> \"ValueSet expansion total changed between pages\"
+      sansio.ValuesetTotalMismatch -> \"ValueSet expansion does not agree with its total\"
+    }
+  }
+}
+
+/// Expand a supplied ValueSet definition and collect every page.
+pub fn valueset_expand(
+  value_set: resources.Valueset,
+  client: FhirClient,
+) -> Result(resources.Valueset, ErrValueset) {
+  valueset_expand_loop(sansio.valueset_expand_req(value_set, client), client)
+}
+
+fn valueset_expand_loop(
+  step: sansio.ValuesetExpandStep,
+  client: FhirClient,
+) -> Result(resources.Valueset, ErrValueset) {
+  case step {
+    sansio.ValuesetExpandDone(value_set) -> Ok(value_set)
+    sansio.ValuesetExpandNext(req, state) -> {
+      case client.print_sent_requests {
+        sansio.LoggingOn -> req |> sansio.req_to_string |> io.println
+        sansio.LoggingOff -> Nil
+      }
+      let req = request.set_body(req, case req.body {
+        None -> \"\"
+        Some(body) -> json.to_string(body)
+      })
+      let resp = httpc.send(req)
+      case client.print_received_responses {
+        sansio.LoggingOn -> {
+          case resp {
+            Ok(resp) -> sansio.resp_to_string(resp)
+            Error(err) -> http_err_to_string(err)
+          }
+          |> io.println
+        }
+        sansio.LoggingOff -> Nil
+      }
+      case resp {
+        Error(err) -> Error(ErrValuesetHttpc(err))
+        Ok(resp) -> case sansio.any_response(resp, resources.valueset_decoder()) {
+          Error(err) -> Error(ErrValuesetSansio(sansio.ValuesetResponseError(err)))
+          Ok(page) -> case sansio.valueset_expand_response(page, state, client) {
+            Error(err) -> Error(ErrValuesetSansio(err))
+            Ok(next) -> valueset_expand_loop(next, client)
+          }
+        }
+      }
+    }
   }
 }
 "

@@ -1246,7 +1246,7 @@ pub type DecodeContext {
     type_slice_overrides: dict.Dict(String, SlicePlan),
     preserve_slice_order: Bool,
     valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
-    available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+    // available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
     base_elements: dict.Dict(String, codegen_helpers.Element),
     constructors: dict.Dict(String, ConstructorDefinition),
   )
@@ -3247,86 +3247,73 @@ fn field_decoder_expression(
         _ -> codegen_helpers.to_snake_case(field_type) <> "_decoder()"
       }
   }
-  let decoder = case
-    element.type_,
-    element.binding,
-    string.starts_with(field_type, "valuesets.")
-  {
-    [codegen_helpers.Type(code: "code", ..)],
-      Some(codegen_helpers.Binding(
-        strength: "required",
-        value_set: Some(value_set),
-        available: True,
-      )),
-      True
-    -> {
-      let url = canonical_url(value_set)
-      let system_id =
-        element.id
-        |> string.split(".")
-        |> list.reverse
-        |> list.drop(1)
-        |> list.reverse
-        |> string.join(".")
-        |> string.append(".system")
-      let wrapper = {
-        use system_element <- result.try(
-          list.find(context.snapshot_elements, fn(field) {
-            field.id == system_id
-          }),
-        )
-        use system <- result.try(option.to_result(system_element.fixed_uri, Nil))
-        use definition <- result.try(dict.get(context.available_valuesets, url))
-        case definition {
-          codegen_helpers.VocValueset(valueset, package_dir) -> {
-            use compose <- result.try(option.to_result(valueset.compose, Nil))
-            use _ <- result.try(
-              case compose.include.rest, dict.get(context.valueset_acc, url) {
-                [], _ -> Ok(Nil)
-                _, Ok(codegen_helpers.ValuesetBoundCodingOrCcNeedsSystem) ->
-                  Ok(Nil)
-                _, _ -> Error(Nil)
-              },
-            )
-            [compose.include.first, ..compose.include.rest]
-            |> list.index_map(fn(include, index) { #(include, index + 1) })
-            |> list.find_map(fn(entry) {
-              let #(include, index) = entry
-              case
-                codegen_bound_coding.valueset_include_codes(
-                  include,
-                  codegen_helpers.valueset_codesystems(
-                    package_dir,
-                    context.available_valuesets,
-                  ),
-                  False,
-                )
-              {
-                codegen_bound_coding.ValuesetIncludeString(include_system)
-                  if include_system == system
-                ->
-                  Ok(
-                    string.drop_start(field_type, string.length("valuesets."))
-                    <> codegen_bound_coding.valueset_include_name(
-                      include,
-                      index,
-                    ),
-                  )
-                _ -> Error(Nil)
-              }
-            })
-          }
-          _ -> Error(Nil)
-        }
-      }
-      case wrapper {
-        Ok(constructor) ->
-          "decode.string |> decode.map(valuesets." <> constructor <> ")"
-        Error(_) -> decoder
-      }
-    }
-    _, _, _ -> decoder
-  }
+  // Complete expansions have no string constructors to wrap.
+  // let decoder = case
+  // element.type_,
+  // element.binding,
+  // string.starts_with(field_type, "valuesets.")
+  // {
+  // [codegen_helpers.Type(code: "code", ..)],
+  // Some(codegen_helpers.Binding(
+  // strength: "required",
+  // value_set: Some(value_set),
+  // available: True,
+  // )),
+  // True
+  // -> {
+  // let url = canonical_url(value_set)
+  // let system_id =
+  // element.id
+  // |> string.split(".")
+  // |> list.reverse
+  // |> list.drop(1)
+  // |> list.reverse
+  // |> string.join(".")
+  // |> string.append(".system")
+  // let wrapper = {
+  // use system_element <- result.try(
+  // list.find(context.snapshot_elements, fn(field) {
+  // field.id == system_id
+  // }),
+  // )
+  // use system <- result.try(option.to_result(system_element.fixed_uri, Nil))
+  // use definition <- result.try(dict.get(context.available_valuesets, url))
+  // case definition {
+  // codegen_helpers.VocValueset(_, _) -> {
+  // let members =
+  // codegen_helpers.get_codes_with_system(
+  // url,
+  // context.available_valuesets,
+  // False,
+  // )
+  // use _ <- result.try(
+  // list.find(members, fn(member) { member == #(system, None) }),
+  // )
+  // let suffix = case dict.get(context.valueset_acc, url) {
+  // Ok(codegen_helpers.ValuesetItem(needs_system: True, ..)) ->
+  // codegen_helpers.concept_name_from_url(system)
+  // _ ->
+  // case list.count(members, fn(member) { member.1 == None }) > 1 {
+  // True -> "Other"
+  // False -> codegen_helpers.concept_name_from_url(system)
+  // }
+  // }
+  // Ok(
+  // string.drop_start(field_type, string.length("valuesets."))
+  // <> suffix,
+  // )
+  // }
+  // // _ -> Error(Nil)
+  // }
+  // }
+  // case wrapper {
+  // Ok(constructor) ->
+  // "decode.string |> decode.map(valuesets." <> constructor <> ")"
+  // Error(_) -> decoder
+  // }
+  // }
+  // _, _, _ -> decoder
+  // }
   let decoder = case dict.get(context.slice_discriminator_checks, element.id) {
     Ok(FixedSliceType(discriminator_type, _, system, code, display)) -> {
       let assert [type_] = element.type_
@@ -5013,7 +5000,7 @@ fn extension_slice_fold_source(
               extension.name,
               value,
               context.valueset_acc,
-              context.available_valuesets,
+              // context.available_valuesets,
               extension.primitive_values,
               context.datatype_types,
             )
@@ -6720,7 +6707,7 @@ fn extension_value_branch(
   extension_name: String,
   field: codegen_helpers.Element,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
-  _available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+  // _available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
   primitive_values: dict.Dict(String, PrimitiveExtensionValue),
   datatype_types: dict.Dict(String, String),
 ) -> #(String, String) {
@@ -6831,7 +6818,7 @@ fn extension_classifier_source(
   current_bucket: codegen_helpers.Category,
   extension: ExtensionDefinition,
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
-  available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+  // available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
   extensions: dict.Dict(String, ExtensionDefinition),
   preserve_slice_order: Bool,
   datatype_types: dict.Dict(String, String),
@@ -6872,7 +6859,7 @@ fn extension_classifier_source(
           extension.name,
           field,
           valueset_acc,
-          available_valuesets,
+          // available_valuesets,
           extension.primitive_values,
           datatype_types,
         )
@@ -6940,7 +6927,7 @@ fn extension_classifier_source(
                   nested.name,
                   value,
                   valueset_acc,
-                  available_valuesets,
+                  // available_valuesets,
                   nested.primitive_values,
                   datatype_types,
                 )
@@ -6957,7 +6944,7 @@ fn extension_classifier_source(
                   extension.name,
                   field,
                   valueset_acc,
-                  available_valuesets,
+                  // available_valuesets,
                   extension.primitive_values,
                   datatype_types,
                 )
@@ -7268,7 +7255,7 @@ pub fn generate_decoders(
     type_slice_overrides: _,
     preserve_slice_order:,
     valueset_acc:,
-    available_valuesets:,
+    // available_valuesets:,
     base_elements: _,
     constructors: _,
   ) = context
@@ -7329,7 +7316,7 @@ pub fn generate_decoders(
         current_bucket,
         item.1,
         valueset_acc,
-        available_valuesets,
+        // available_valuesets,
         extensions,
         preserve_slice_order,
         datatype_types,

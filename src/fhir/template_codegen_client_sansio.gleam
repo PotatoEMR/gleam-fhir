@@ -445,7 +445,7 @@ pub fn bundle_next_page_req(
   bundle: resources.Bundle,
   client: FhirClient,
 ) -> Result(Request(Option(Json)), Nil) {
-  result.try(list.find(bundle.link, fn(l) { l.relation == NEXTRELATION }), fn(link) {
+  result.try(list.find(bundle.link, fn(l) { NEXTRELATION == \"next\" }), fn(link) {
     result.try(uri.parse(link.url), fn(uri) {
       Ok(Request(..client.basereq, path: uri.path, query: uri.query))
     })
@@ -456,7 +456,7 @@ pub fn bundle_next_page_req_forgiving(
   bundle: resources.BundleForgiving,
   client: FhirClient,
 ) -> Result(Request(Option(Json)), Nil) {
-  result.try(list.find(bundle.link, fn(l) { l.relation == NEXTRELATION }), fn(link) {
+  result.try(list.find(bundle.link, fn(l) { NEXTRELATION == \"next\" }), fn(link) {
     result.try(uri.parse(link.url), fn(uri) {
       Ok(Request(..client.basereq, path: uri.path, query: uri.query))
     })
@@ -500,5 +500,204 @@ pub fn resp_to_string(resp: Response(String)) -> String {
     \"body:    \" <> resp.body,
   ]
   |> string.join(\"\\n\")
+}
+"
+
+pub const valueset_expand =
+  "
+pub type SansioValuesetErr {
+  ValuesetResponseError(ErrResp)
+  ValuesetMissingExpansion
+  ValuesetUnexpectedOffset
+  ValuesetNestedEntries
+  ValuesetIncompleteExpansion
+  ValuesetTerminologyChanged
+  ValuesetRepeatedCode
+  ValuesetMissingSystem
+  ValuesetTotalChanged
+  ValuesetTotalMismatch
+}
+
+/// Progress while collecting a flat ValueSet expansion.
+pub opaque type ValuesetExpandState {
+  ValuesetExpandState(
+    params: resources.Parameters,
+    offset: Int,
+    total: Option(Int),
+    pages: List(List(resources.ValuesetExpansionContains)),
+    codes: set.Set(#(String, String)),
+    versions: set.Set(#(String, Option(resources.ValuesetExpansionParameterValue))),
+  )
+}
+
+pub type ValuesetExpandStep {
+  ValuesetExpandNext(
+    request: Request(Option(Json)),
+    state: ValuesetExpandState,
+  )
+  ValuesetExpandDone(value_set: resources.Valueset)
+}
+
+/// Start expanding a supplied ValueSet definition, requesting flat pages.
+pub fn valueset_expand_req(
+  value_set: resources.Valueset,
+  client: FhirClient,
+) -> ValuesetExpandStep {
+  let target = case value_set.compose, value_set.url {
+    None, Some(url) -> [
+      resources.ParametersParameter(
+        ..resources.parameters_parameter_new(\"url\"),
+        value: Some(resources.ParametersParameterValueUri(url)),
+      ),
+      ..case value_set.version {
+        None -> []
+        Some(version) -> [resources.ParametersParameter(
+          ..resources.parameters_parameter_new(\"valueSetVersion\"),
+          value: Some(resources.ParametersParameterValueString(version)),
+        )]
+      }
+    ]
+    _, _ -> [resources.ParametersParameter(
+      ..resources.parameters_parameter_new(\"valueSet\"),
+      resource: Some(resources.ResourceValueset(value_set)),
+    )]
+  }
+  let params = resources.Parameters(
+    ..resources.parameters_new(),
+    parameter: [
+      resources.ParametersParameter(
+        ..resources.parameters_parameter_new(\"count\"),
+        value: Some(resources.ParametersParameterValueInteger(1000)),
+      ),
+      resources.ParametersParameter(
+        ..resources.parameters_parameter_new(\"excludeNested\"),
+        value: Some(resources.ParametersParameterValueBoolean(True)),
+      ),
+      ..target
+    ],
+  )
+  ValuesetExpandNext(
+    any_operation_req(resources.RtValueset, None, \"expand\", Some(params), client),
+    ValuesetExpandState(
+      params:, offset: 0, total: None, pages: [],
+      codes: set.new(), versions: set.new(),
+    ),
+  )
+}
+
+/// Check a decoded page and return the next request or the combined ValueSet.
+pub fn valueset_expand_response(
+  value_set: resources.Valueset,
+  state: ValuesetExpandState,
+  client: FhirClient,
+) -> Result(ValuesetExpandStep, SansioValuesetErr) {
+  use expansion <- result.try(case value_set.expansion {
+    Some(expansion) -> Ok(expansion)
+    None -> Error(ValuesetMissingExpansion)
+  })
+  use <- bool.guard(
+    option.unwrap(expansion.offset, state.offset) != state.offset,
+    Error(ValuesetUnexpectedOffset),
+  )
+  use <- bool.guard(
+    list.any(expansion.contains, fn(item) { item.contains != [] }),
+    Error(ValuesetNestedEntries),
+  )
+  use <- bool.guard(
+    list.any(expansion.extension, fn(extension) {
+      extension.url == \"http://hl7.org/fhir/StructureDefinition/valueset-unclosed\"
+      && extension.ext == complex_types.ExtSimple(complex_types.ExtensionValueBoolean(True))
+    }),
+    Error(ValuesetIncompleteExpansion),
+  )
+
+  let versions = expansion.parameter
+    |> list.filter(fn(parameter) {
+      parameter.name == \"used-codesystem\" || parameter.name == \"used-valueset\"
+    })
+    |> list.map(fn(parameter) { #(parameter.name, parameter.value) })
+    |> set.from_list
+  use <- bool.guard(
+    state.offset > 0 && versions != state.versions,
+    Error(ValuesetTerminologyChanged),
+  )
+  use codes <- result.try(list.try_fold(expansion.contains, state.codes, fn(codes, concept) {
+    case concept.system, concept.code {
+      Some(system), Some(code) -> {
+        use <- bool.guard(
+          set.contains(codes, #(system, code)),
+          Error(ValuesetRepeatedCode),
+        )
+        Ok(set.insert(codes, #(system, code)))
+      }
+      None, Some(_) -> Error(ValuesetMissingSystem)
+      _, None -> Ok(codes)
+    }
+  }))
+
+  let received = list.length(expansion.contains)
+  let next_offset = state.offset + received
+  use <- bool.guard(
+    state.total != None && expansion.total != None && state.total != expansion.total,
+    Error(ValuesetTotalChanged),
+  )
+  let total = case expansion.total {
+    Some(_) -> expansion.total
+    None -> state.total
+  }
+  use more <- result.try(case total {
+    Some(total) -> {
+      use <- bool.guard(
+        next_offset > total || { received == 0 && next_offset < total },
+        Error(ValuesetTotalMismatch),
+      )
+      Ok(next_offset < total)
+    }
+    None -> Ok(received > 0)
+  })
+
+  let pages = [expansion.contains, ..state.pages]
+  case more {
+    True -> {
+      let params = resources.Parameters(
+        ..state.params,
+        parameter: [
+          resources.ParametersParameter(
+            ..resources.parameters_parameter_new(\"offset\"),
+            value: Some(resources.ParametersParameterValueInteger(next_offset)),
+          ),
+          ..state.params.parameter
+        ],
+      )
+      Ok(ValuesetExpandNext(
+        any_operation_req(resources.RtValueset, None, \"expand\", Some(params), client),
+        ValuesetExpandState(
+          ..state,
+          offset: next_offset,
+          total:,
+          pages:,
+          codes:,
+          versions:,
+        ),
+      ))
+    }
+    False -> {
+      let contains = list.fold(pages, [], fn(acc, items) {
+        list.append(items, acc)
+      })
+      Ok(ValuesetExpandDone(resources.Valueset(
+        ..value_set,
+        expansion: Some(resources.ValuesetExpansion(
+          ..expansion,
+          contains:,
+          total: Some(next_offset),
+          offset: None,
+          parameter: list.filter(expansion.parameter, fn(parameter) {
+            parameter.name != \"offset\" && parameter.name != \"count\"
+          }),
+        )),
+      )))
+    }
+  }
 }
 "

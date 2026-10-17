@@ -1628,7 +1628,7 @@ fn plan_constraint_fields(
                     )) -> {
                       let value_set = canonical_url(value_set)
                       case
-                        codegen_helpers.valueset_can_generate_discriminator(
+                        codegen_helpers.valueset_can_generate_system(
                           value_set,
                           available_valuesets,
                         )
@@ -1682,17 +1682,24 @@ fn plan_child_value_slice(
     find_element(elements, child_id)
     |> result.replace_error("missing discriminator element " <> child_id),
   )
+  // The nominated child must have a constraint even when another field on the
+  // record is fixed. A string fallback cannot decide ValueSet membership.
   let replacements = case
-    plan_constraint_fields(root, elements, available_valuesets, base_elements)
+    plan_constraint_fields(child, elements, available_valuesets, base_elements)
   {
-    Ok([#(id, _)]) as planned if id == root.id -> planned
-    _ ->
-      plan_constraint_fields(
-        child,
-        elements,
-        available_valuesets,
-        base_elements,
-      )
+    Error(reason) -> Error(reason)
+    Ok(child_overrides) ->
+      case
+        plan_constraint_fields(
+          root,
+          elements,
+          available_valuesets,
+          base_elements,
+        )
+      {
+        Ok([#(id, _)]) as planned if id == root.id -> planned
+        _ -> Ok(child_overrides)
+      }
   }
   case replacements {
     Ok(overrides) ->
@@ -1797,7 +1804,7 @@ fn plan_value_slice(
                 )) -> {
                   let value_set = canonical_url(value_set)
                   case
-                    codegen_helpers.valueset_can_generate_discriminator(
+                    codegen_helpers.valueset_can_generate_system(
                       value_set,
                       available_valuesets,
                     )
@@ -3632,6 +3639,8 @@ pub fn profile_files_to_types(
     String,
     codegen_profile_json.ConstructorDefinition,
   ),
+  available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+  fhir_version: String,
 ) -> #(
   String,
   String,
@@ -3715,7 +3724,12 @@ pub fn profile_files_to_types(
     |> set.union(required_valuesets_from_elements(dict.values(base_elements)))
     |> set.delete("")
   let available_slice_valuesets =
-    codegen_helpers.load_valuesets(profiles_dir, required_valuesets)
+    codegen_helpers.load_valuesets(
+      profiles_dir,
+      required_valuesets,
+      available_valuesets,
+      fhir_version,
+    )
   let unavailable_valuesets =
     set.fold(required_valuesets, set.new(), fn(unavailable, reference) {
       let url = canonical_url(reference)
@@ -3871,7 +3885,7 @@ pub fn profile_files_to_types(
       fn(acc, resource) {
         let #(resources, profiles) = acc
         let assert Some(snapshot) = resource.snapshot
-        let #(prepared, overrides, _, _, _, definitions) =
+        let #(prepared, overrides, type_slices, _, _, definitions) =
           prepare_profile_slices(
             resource.id,
             snapshot.element,
@@ -3880,6 +3894,31 @@ pub fn profile_files_to_types(
             base_elements,
             extensions,
           )
+        // Keep the original constraints, but do not restore slices rejected by
+        // the planner when building a datatype record from those constraints.
+        let type_slice_ids =
+          dict.values(type_slices)
+          |> list.filter_map(fn(plan) {
+            case plan {
+              TypeSlicePlan(slice:, ..) -> Ok(slice.id)
+              _ -> Error(Nil)
+            }
+          })
+          |> set.from_list
+        let removed_slices =
+          definitions
+          |> list.filter_map(fn(element) {
+            case element.slice_name, find_element(prepared, element.id) {
+              Some(_), Error(_) ->
+                case set.contains(type_slice_ids, element.id) {
+                  True -> Error(Nil)
+                  False -> Ok(element.id)
+                }
+              _, _ -> Error(Nil)
+            }
+          })
+        let definitions =
+          remove_element_trees(definitions, removed_slices, True)
         let roots =
           prepared
           |> list.filter(fn(root) {
@@ -5375,7 +5414,7 @@ pub fn profile_files_to_types(
             type_slice_overrides:,
             preserve_slice_order:,
             valueset_acc:,
-            available_valuesets: available_slice_valuesets,
+            // available_valuesets: available_slice_valuesets,
             base_elements:,
             constructors: dict.new(),
           )

@@ -332,6 +332,9 @@ pub fn gen(
       }),
     )
 
+  let has_valueset =
+    list.contains(client_entries, #("valueset", "Valueset", "ValueSet"))
+
   //region sansio
   // let res_specific_crud =
   //   gen_specific_crud(
@@ -565,17 +568,38 @@ pub fn gen(
       })
     }"
 
-  let #(next_relation, version_imports) = case fhir_version {
-    "r5" -> #(
-      "valuesets.IanalinkrelationsNext",
-      "import fhir/FHIRVERSION/valuesets",
-    )
-    _ -> #("\"next\"", "")
+  //   let #(next_relation, version_imports) = case fhir_version {
+  //     "r5" -> #(
+  //       "valuesets.IanalinkrelationsNext",
+  //       "import fhir/FHIRVERSION/valuesets",
+  //     )
+  //     _ -> #("\"next\"", "")
+  //   }
+  let assert Ok(codegen_profile_json.RecordConstructor(_, _, fields)) =
+    dict.get(constructors, "resources.BundleLink")
+  let assert Ok(#(relation, _)) =
+    list.find(fields, fn(field) { field.0.path == "Bundle.link.relation" })
+  let assert Some(relation_type) = relation.gleam_type
+  let #(next_relation, version_imports) = case relation_type {
+    "String" -> #("l.relation", "")
+    _ -> {
+      let assert True = string.starts_with(relation_type, "valuesets.")
+      let function =
+        relation_type
+        |> string.split(".")
+        |> list.map(codegen_helpers.to_snake_case)
+        |> string.join(".")
+      #(function <> "_to_code(l.relation)", "import fhir/FHIRVERSION/valuesets")
+    }
   }
 
   let sansio =
     string.concat([
       file_text,
+      case has_valueset {
+        True -> template_codegen_client_sansio.valueset_expand
+        False -> ""
+      },
       //res_specific_crud,
       // search_type,
       // search_type_new,
@@ -584,9 +608,21 @@ pub fn gen(
       //search_encode,
       bundle_to_gt,
     ])
-    |> string.replace("//FHIR_VERSION_IMPORTS", version_imports)
+    |> string.replace(
+      "//FHIR_VERSION_IMPORTS",
+      version_imports
+        <> case has_valueset {
+        True ->
+          "\nimport fhir/FHIRVERSION/complex_types\nimport gleam/bool\nimport gleam/set\n"
+        False -> ""
+      },
+    )
     |> string.replace("NEXTRELATION", next_relation)
-    |> string.replace("FHIRVERSION", pkg_prefix)
+    |> string.replace(
+      "import fhir/FHIRVERSION/",
+      "import fhir/" <> pkg_prefix <> "/",
+    )
+    |> string.replace("FHIRVERSION", fhir_version)
 
   //region httpc
   let res_specific_crud =
@@ -644,8 +680,20 @@ pub fn gen(
 
   let file_text = template_codegen_client_httpc.source
   let httpc_layer =
-    string.concat([file_text, res_specific_crud, httpc_search_encode])
-    |> string.replace("FHIRVERSION", pkg_prefix)
+    string.concat([
+      file_text,
+      case has_valueset {
+        True -> template_codegen_client_httpc.valueset_expand
+        False -> ""
+      },
+      res_specific_crud,
+      httpc_search_encode,
+    ])
+    |> string.replace(
+      "import fhir/FHIRVERSION/",
+      "import fhir/" <> pkg_prefix <> "/",
+    )
+    |> string.replace("FHIRVERSION", fhir_version)
 
   let rsvp_res_specific_crud =
     gen_specific_crud(
@@ -709,7 +757,11 @@ pub fn gen(
   let file_text = template_codegen_client_rsvp.source
   let rsvp_layer =
     string.concat([file_text, rsvp_res_specific_crud, rsvp_search_encode])
-    |> string.replace("FHIRVERSION", pkg_prefix)
+    |> string.replace(
+      "import fhir/FHIRVERSION/",
+      "import fhir/" <> pkg_prefix <> "/",
+    )
+    |> string.replace("FHIRVERSION", fhir_version)
 
   let file_text = template_codegen_client_searchparams.source
   let search_params =
@@ -720,7 +772,11 @@ pub fn gen(
       //include_type,
     // could also put include type in but have not gotten all the typed search params working well yet
     ])
-    |> string.replace("FHIRVERSION", pkg_prefix)
+    |> string.replace(
+      "import fhir/FHIRVERSION/",
+      "import fhir/" <> pkg_prefix <> "/",
+    )
+    |> string.replace("FHIRVERSION", fhir_version)
 
   #(sansio, httpc_layer, rsvp_layer, search_params)
 }
@@ -880,9 +936,4 @@ fn escape_spname(name: String) -> String {
   |> string.lowercase
   |> string.replace("-", "_")
   |> codegen_helpers.escape_field_name
-}
-
-pub fn is_capital(s: String) -> Bool {
-  let assert [first, ..] = string.to_graphemes(s)
-  string.capitalise(first) == first
 }
