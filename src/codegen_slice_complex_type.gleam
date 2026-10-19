@@ -1,9 +1,12 @@
+import codegen_decode
 import codegen_helpers
+import codegen_to_json
 import gleam/dict
 import gleam/int
 import gleam/list
-import gleam/option.{type Option, None, Some}
+import gleam/option.{type Option, Some}
 import gleam/result
+import gleam/set.{type Set}
 import gleam/string
 
 pub type DiscriminatorCall {
@@ -16,13 +19,9 @@ pub fn constrained_type_name(
   datatype: String,
   fixed: List(String),
   required: List(String),
-  list1: Bool,
+  omitted: List(String),
 ) -> String {
   codegen_helpers.to_camel_case(datatype)
-  <> case list1 {
-    True -> "List1"
-    False -> ""
-  }
   <> case fixed {
     [] -> ""
     _ ->
@@ -34,6 +33,11 @@ pub fn constrained_type_name(
       "Required"
       <> string.concat(list.map(fields, codegen_helpers.to_camel_case))
   }
+  <> case omitted {
+    [] -> ""
+    fields ->
+      "Omit" <> string.concat(list.map(fields, codegen_helpers.to_camel_case))
+  }
 }
 
 // The shared types have stable public names. Their names describe which
@@ -44,7 +48,11 @@ pub fn helper_fields(
   let type_name = string.replace(type_name, "ct.", "")
   let name = codegen_helpers.to_snake_case(type_name)
   let assert [base, ..parts] = string.split(name, "_")
-  case list.contains(parts, "fixed") || list.contains(parts, "required") {
+  case
+    list.any(["fixed", "required", "omit"], fn(part) {
+      list.contains(parts, part)
+    })
+  {
     False -> Error(Nil)
     True -> {
       let required = list.contains(parts, "required")
@@ -52,7 +60,7 @@ pub fn helper_fields(
         parts
         |> list.drop_while(fn(part) { part != "fixed" })
         |> list.drop(1)
-        |> list.take_while(fn(part) { part != "required" })
+        |> list.take_while(fn(part) { part != "required" && part != "omit" })
       Ok(#(base, name, fields, required))
     }
   }
@@ -60,12 +68,16 @@ pub fn helper_fields(
 
 // Resolve complete field names, including names containing several words,
 // against the datatype fields instead of splitting them at underscores.
-pub fn required_fields(
+pub fn constraint_fields(
   type_name: String,
+  kind: String,
   fields: List(codegen_helpers.Element),
 ) -> List(String) {
-  let suffix = case string.split(type_name, "Required") {
-    [_, suffix] -> suffix
+  let suffix = case string.split(type_name, kind) {
+    [_, suffix] -> {
+      let assert [suffix, ..] = string.split(suffix, "Omit")
+      suffix
+    }
     _ -> ""
   }
   case suffix {
@@ -89,12 +101,13 @@ pub fn required_fields(
       let name = codegen_helpers.field_name(field)
       [
         name,
-        ..required_fields(
-          "Required"
+        ..constraint_fields(
+          kind
             <> string.drop_start(
             suffix,
             string.length(codegen_helpers.to_camel_case(name)),
           ),
+          kind,
           fields,
         )
       ]
@@ -192,9 +205,7 @@ pub fn discriminator_new_call(
   default: fn(String) -> String,
 ) -> Result(String, Nil) {
   let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
-  use #(base, name, fixed, required) <- result.try(helper_fields(
-    discriminator_type,
-  ))
+  use #(base, name, _, _) <- result.try(helper_fields(discriminator_type))
   let assert Ok(root) =
     dict.values(elements)
     |> list.find(fn(element) {
@@ -205,48 +216,16 @@ pub fn discriminator_new_call(
       == base
     })
   let fields = datatype_fields(root.path, elements)
-  let direct =
-    list.all(fixed, fn(name) {
-      list.any(fields, fn(field) { codegen_helpers.field_name(field) == name })
-    })
-  let arguments = case string.contains(name, "_list1_") {
-    False if required && direct -> {
-      required_fields(discriminator_type, fields)
-      |> list.map(fn(name) {
-        let assert Ok(field) =
-          list.find(fields, fn(field) {
-            codegen_helpers.field_name(field) == name
-          })
-        name <> ": " <> default(field_type(field))
-      })
-      |> string.join(", ")
-    }
-    True -> {
-      let assert Ok(member) =
-        fields
-        |> list.find(fn(field) {
-          case field.type_, field.max {
-            [type_], max if max != "1" && max != "0" ->
-              list.all(fixed, fn(name) {
-                list.any(datatype_fields(type_.code, elements), fn(field) {
-                  codegen_helpers.field_name(field) == name
-                })
-              })
-            _, _ -> False
-          }
+  let arguments =
+    constraint_fields(discriminator_type, "Required", fields)
+    |> list.map(fn(name) {
+      let assert Ok(field) =
+        list.find(fields, fn(field) {
+          codegen_helpers.field_name(field) == name
         })
-      let child_type =
-        field_type(member)
-        <> string.drop_start(
-          string.replace(discriminator_type, "ct.", ""),
-          string.length(codegen_helpers.to_camel_case(root.path) <> "List1"),
-        )
-      let assert Ok(child) =
-        discriminator_new_call(current_bucket, child_type, elements, default)
-      complex_prefix <> "List1(first: " <> child <> ", rest: [])"
-    }
-    False -> ""
-  }
+      name <> ": " <> default(field_type(field))
+    })
+    |> string.join(", ")
   Ok(complex_prefix <> name <> "_new(" <> arguments <> ")")
 }
 
@@ -287,14 +266,16 @@ type RecordSource {
 }
 
 // A shared name describes its constrained fields. Resolve those fields against
-// the datatype snapshot, including a required matching member of a nested list.
+// the datatype snapshot. Other cardinality changes use profile paths.
 // There are no datatype field lists or datatype templates here.
 pub fn shared_type(
   type_name: String,
   elements: dict.Dict(String, codegen_helpers.Element),
-  preserve_slice_order: Bool,
+  _preserve_slice_order: Bool,
   default: fn(String) -> String,
-) -> List(#(String, String)) {
+  encoders: Set(String),
+  decoders: Set(String),
+) -> List(#(String, #(String, codegen_helpers.RequiredCode))) {
   let type_name = string.replace(type_name, "ct.", "")
   let assert Ok(#(base, function, fixed, _)) = helper_fields(type_name)
   let assert Ok(root) =
@@ -310,53 +291,9 @@ pub fn shared_type(
   let base_type = codegen_helpers.to_camel_case(root.path)
   let base_function = codegen_helpers.to_snake_case(base_type)
   let fields = datatype_fields(root.path, elements)
-  let direct =
-    list.all(fixed, fn(name) {
-      list.any(fields, fn(field) { codegen_helpers.field_name(field) == name })
-    })
-  let member = case direct {
-    True -> None
-    False -> {
-      let assert Ok(member) =
-        list.find(fields, fn(field) {
-          case field.type_, field.max {
-            [type_], max if max != "1" && max != "0" ->
-              list.all(fixed, fn(name) {
-                list.any(datatype_fields(type_.code, elements), fn(field) {
-                  codegen_helpers.field_name(field) == name
-                })
-              })
-            _, _ -> False
-          }
-        })
-        as { "no list member for constrained type " <> type_name }
-      Some(member)
-    }
-  }
-  let parameter_fields = case member {
-    None -> fields
-    Some(member) -> {
-      let assert [type_] = member.type_
-      datatype_fields(type_.code, elements)
-    }
-  }
-  let required_fields = required_fields(type_name, parameter_fields)
-  let #(member_type, member_function, parameter_fields, children) = case
-    member
-  {
-    None -> #("", "", fields, [])
-    Some(member) -> {
-      let assert [type_] = member.type_
-      let child_type =
-        constrained_type_name(type_.code, fixed, required_fields, False)
-      #(
-        child_type,
-        codegen_helpers.to_snake_case(child_type),
-        datatype_fields(type_.code, elements),
-        shared_type(child_type, elements, preserve_slice_order, default),
-      )
-    }
-  }
+  let omitted = constraint_fields(type_name, "Omit", fields)
+  let required_fields = constraint_fields(type_name, "Required", fields)
+  let parameter_fields = fields
   let parameters =
     string.concat(
       list.map(fixed, fn(name) {
@@ -368,179 +305,26 @@ pub fn shared_type(
       }),
     )
   let arguments = string.concat(list.map(fixed, fn(name) { ", " <> name }))
-  let list1 = string.contains(function, "_list1_")
-  let every_member = list1 || string.contains(function, "_all_")
   let source =
     list.fold(
       fields,
       RecordSource([], [], [], [], [], [], []),
       fn(source, field) {
         let name = codegen_helpers.field_name(field)
-        let repeated = case member {
-          Some(member) -> member.id == field.id
-          None -> False
-        }
-        case repeated {
-          True -> {
-            let member_base = field_type(field)
-            let member_base_fn = codegen_helpers.to_snake_case(member_base)
-            let convert =
-              member_function
-              <> "_from_"
-              <> member_base_fn
-              <> "(value"
-              <> arguments
-              <> ")"
-            let restore = member_function <> "_to_" <> member_base_fn
-            case every_member, list1 {
-              True, False ->
-                RecordSource(
-                  ..source,
-                  declarations: [
-                    name <> ": List(" <> member_type <> "),",
-                    ..source.declarations
-                  ],
-                  defaults: [name <> ": [],", ..source.defaults],
-                  bindings: [
-                    "use "
-                      <> name
-                      <> " <- result.try(list.try_map(source."
-                      <> name
-                      <> ", fn(value) { "
-                      <> convert
-                      <> " }))\n",
-                    ..source.bindings
-                  ],
-                  decoded: [name <> ":,", ..source.decoded],
-                  restored: [
-                    name
-                      <> ": list.map(source."
-                      <> name
-                      <> ", fn(value) { "
-                      <> restore
-                      <> "(value"
-                      <> arguments
-                      <> ") }),",
-                    ..source.restored
-                  ],
-                )
-              True, True ->
-                RecordSource(
-                  ..source,
-                  declarations: [
-                    name <> ": List1(" <> member_type <> "),",
-                    ..source.declarations
-                  ],
-                  arguments: [
-                    name <> " " <> name <> ": List1(" <> member_type <> "),",
-                    ..source.arguments
-                  ],
-                  defaults: [name <> ":,", ..source.defaults],
-                  bindings: [
-                    "use "
-                      <> name
-                      <> " <- result.try(case list.try_map(source."
-                      <> name
-                      <> ", fn(value) { "
-                      <> convert
-                      <> " }) { Ok([first, ..rest]) -> Ok(List1(first:, rest:)) Ok([]) | Error(_) -> Error(Nil) })\n",
-                    ..source.bindings
-                  ],
-                  decoded: [name <> ":,", ..source.decoded],
-                  restored: [
-                    name
-                      <> ": list.map([source."
-                      <> name
-                      <> ".first, ..source."
-                      <> name
-                      <> ".rest], fn(value) { "
-                      <> restore
-                      <> "(value"
-                      <> arguments
-                      <> ") }),",
-                    ..source.restored
-                  ],
-                )
-              False, _ -> {
-                let #(
-                  index_field,
-                  index_default,
-                  index_value,
-                  index_pattern,
-                  restored,
-                ) = case preserve_slice_order {
-                  False -> #(
-                    "",
-                    "",
-                    "",
-                    "#(disc, others)",
-                    "["
-                      <> restore
-                      <> "(source.disc"
-                      <> arguments
-                      <> "), ..source.others]",
-                  )
-                  True -> #(
-                    "internal_gleam_fhir_index: Option(Int),",
-                    "internal_gleam_fhir_index: None,",
-                    "internal_gleam_fhir_index: Some(index),",
-                    "#(disc, others, index)",
-                    "case source.internal_gleam_fhir_index { None -> ["
-                      <> restore
-                      <> "(source.disc"
-                      <> arguments
-                      <> "), ..source.others] Some(index) -> insert_at("
-                      <> restore
-                      <> "(source.disc"
-                      <> arguments
-                      <> "), source.others, index) }",
-                  )
-                }
-                RecordSource(
-                  ..source,
-                  declarations: [
-                    index_field
-                      <> "disc: "
-                      <> member_type
-                      <> ",others: List("
-                      <> member_base
-                      <> "),",
-                    ..source.declarations
-                  ],
-                  defaults: [
-                    index_default
-                      <> "disc: "
-                      <> {
-                      let assert Ok(child) =
-                        discriminator_new_call(
-                          codegen_helpers.ComplexTypes,
-                          member_type,
-                          elements,
-                          default,
-                        )
-                      child
-                    }
-                      <> ",others: [],",
-                    ..source.defaults
-                  ],
-                  bindings: [
-                    "use "
-                      <> index_pattern
-                      <> " <- result.try(find_elt_and_rest_result(in: source."
-                      <> name
-                      <> ", one_that: fn(value) { "
-                      <> convert
-                      <> " }))\n",
-                    ..source.bindings
-                  ],
-                  decoded: [index_value <> "disc:,others:,", ..source.decoded],
-                  restored: [name <> ": " <> restored <> ",", ..source.restored],
-                )
+        case list.contains(omitted, name) {
+          True ->
+            RecordSource(..source, restored: [
+              name
+                <> ": "
+                <> case field.max {
+                "1" -> "None"
+                _ -> "[]"
               }
-            }
-          }
+                <> ",",
+              ..source.restored
+            ])
           False -> {
-            let constant = direct && list.contains(fixed, name)
+            let constant = list.contains(fixed, name)
             let min = case list.contains(required_fields, name) {
               True -> 1
               False -> field.min
@@ -620,6 +404,149 @@ pub fn shared_type(
       "use <- bool.guard(" <> condition <> ", Error(Nil))\n"
     })
     |> string.concat
+  let decoder = case omitted != [] || set.contains(decoders, type_name) {
+    False -> ""
+    True -> {
+      let #(bindings, values) =
+        list.fold(fields, #("", ""), fn(acc, field) {
+          let #(bindings, values) = acc
+          let name = codegen_helpers.field_name(field)
+          case list.contains(omitted, name) {
+            True -> #(
+              bindings,
+              values
+                <> name
+                <> ": "
+                <> case field.max {
+                "1" -> "None"
+                _ -> "[]"
+              }
+                <> ",",
+            )
+            False -> {
+              let assert [type_] = field.type_
+              let inner =
+                codegen_decode.decoder_for_type(
+                  type_.code,
+                  field_type(field),
+                  codegen_helpers.ComplexTypes,
+                )
+              #(
+                bindings
+                  <> "use "
+                  <> "decoded_"
+                  <> name
+                  <> " <- "
+                  <> codegen_decode.field_decoder(
+                  string.drop_start(field.path, string.length(root.path) + 1),
+                  inner,
+                  field.min,
+                  field.max,
+                  False,
+                )
+                  <> "\n",
+                values <> name <> ": decoded_" <> name <> ",",
+              )
+            }
+          }
+        })
+      let fallback =
+        discriminator_new_call(
+          codegen_helpers.ComplexTypes,
+          type_name,
+          elements,
+          default,
+        )
+      let assert Ok(fallback) = fallback
+      "pub fn "
+      <> function
+      <> "_decoder("
+      <> parameters
+      <> ") -> Decoder("
+      <> type_name
+      <> ") {\n"
+      <> "use <- decode.recursive\n"
+      <> bindings
+      <> "case "
+      <> function
+      <> "_from_"
+      <> base_function
+      <> "("
+      <> base_type
+      <> "("
+      <> values
+      <> ")"
+      <> arguments
+      <> ") { Ok(value) -> decode.success(value) Error(_) -> decode.failure("
+      <> fallback
+      <> ", \""
+      <> type_name
+      <> "\") }\n}\n"
+    }
+  }
+  let direct_json = case omitted {
+    [] -> ""
+    _ -> {
+      let bindings =
+        list.fold(fields, "let fields = []\n", fn(source, field) {
+          let name = codegen_helpers.field_name(field)
+          case list.contains(omitted, name) {
+            True -> source
+            False -> {
+              let assert [type_] = field.type_
+              let fixed_field = list.contains(fixed, name)
+              let value = case fixed_field {
+                True -> name
+                False -> "source." <> name
+              }
+              let json_name =
+                string.drop_start(field.path, string.length(root.path) + 1)
+              let encode =
+                codegen_to_json.string_to_encoder_call(
+                  type_.code,
+                  string.split(field.path, "."),
+                  field,
+                  codegen_helpers.ComplexTypes,
+                  "value",
+                )
+              source
+              <> case
+                field.max,
+                field.min > 0
+                || list.contains(required_fields, name)
+                || fixed_field
+              {
+                "1", True ->
+                  "let value = "
+                  <> value
+                  <> "\nlet fields = [#(\""
+                  <> json_name
+                  <> "\", "
+                  <> encode
+                  <> "), ..fields]\n"
+                "1", False ->
+                  "let fields = case "
+                  <> value
+                  <> " { Some(value) -> [#(\""
+                  <> json_name
+                  <> "\", "
+                  <> encode
+                  <> "), ..fields] None -> fields }\n"
+                _, _ ->
+                  "let fields = case "
+                  <> value
+                  <> " { [] -> fields values -> [#(\""
+                  <> json_name
+                  <> "\", json.array(values, fn(value) { "
+                  <> encode
+                  <> " })), ..fields] }\n"
+              }
+            }
+          }
+        })
+      bindings <> "json.object(fields)"
+    }
+  }
   let generated =
     "pub type "
     <> type_name
@@ -657,35 +584,60 @@ pub fn shared_type(
     <> "("
     <> string.concat(list.reverse(source.decoded))
     <> ")) }\n"
-    <> "fn "
-    <> function
-    <> "_to_"
-    <> base_function
-    <> "(source: "
-    <> type_name
-    <> ","
-    <> parameters
-    <> ") -> "
-    <> base_type
-    <> " { "
-    <> base_type
-    <> "("
-    <> string.concat(list.reverse(source.restored))
-    <> ") }\n"
-    <> "pub fn "
-    <> function
-    <> "_to_json(source: "
-    <> type_name
-    <> ","
-    <> parameters
-    <> ") -> Json { "
-    <> base_function
-    <> "_to_json("
-    <> function
-    <> "_to_"
-    <> base_function
-    <> "(source"
-    <> arguments
-    <> ")) }\n\n"
-  list.append(children, [#(type_name, generated)])
+    <> decoder
+    <> case omitted == [] && set.contains(encoders, type_name) {
+      False -> ""
+      True ->
+        "fn "
+        <> function
+        <> "_to_"
+        <> base_function
+        <> "(source: "
+        <> type_name
+        <> ","
+        <> parameters
+        <> ") -> "
+        <> base_type
+        <> " { "
+        <> base_type
+        <> "("
+        <> string.concat(list.reverse(source.restored))
+        <> ") }\n"
+    }
+    <> case set.contains(encoders, type_name) {
+      False -> ""
+      True ->
+        "pub fn "
+        <> function
+        <> "_to_json(source: "
+        <> type_name
+        <> ","
+        <> parameters
+        <> ") -> Json { "
+        <> case omitted {
+          [] ->
+            base_function
+            <> "_to_json("
+            <> function
+            <> "_to_"
+            <> base_function
+            <> "(source"
+            <> arguments
+            <> "))"
+          _ -> direct_json
+        }
+        <> " }\n\n"
+    }
+  let required =
+    codegen_helpers.RequiredCode(
+      types: set.new(),
+      functions: set.new(),
+      modules: case source.conditions, source.bindings {
+        [], [] -> set.new()
+        [], _ -> set.from_list(["result"])
+        _, [] -> set.from_list(["bool"])
+        _, _ -> set.from_list(["bool", "result"])
+      },
+    )
+  [#(type_name, #(generated, required))]
 }

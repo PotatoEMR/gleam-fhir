@@ -6,6 +6,7 @@ import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/result
+import gleam/set.{type Set}
 import gleam/string
 
 pub type Value {
@@ -332,4 +333,33 @@ pub fn sources(value: Value, fixed: Bool, input: String) -> #(String, String) {
     }
   }
   #(matches, decoder)
+}
+
+pub fn required_modules(value: Value, fixed: Bool) -> Set(String) {
+  case value {
+    Decimal(_) -> set.from_list(["float", "int"])
+    Object(fields) ->
+      list.fold(
+        fields,
+        case fixed {
+          True -> set.from_list(["dict", "list", "string"])
+          False -> set.from_list(["dict"])
+        },
+        fn(modules, field) {
+          set.union(modules, required_modules(field.1, fixed))
+        },
+      )
+    Array(values) ->
+      list.fold(
+        values,
+        case fixed {
+          True -> set.from_list(["list", "int"])
+          False -> set.from_list(["list", "int", "result"])
+        },
+        fn(modules, value) {
+          set.union(modules, required_modules(value, fixed))
+        },
+      )
+    _ -> set.new()
+  }
 }

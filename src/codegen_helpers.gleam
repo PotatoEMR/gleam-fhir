@@ -19,6 +19,93 @@ import gleam/set.{type Set}
 import gleam/string
 import simplifile
 
+// These names come from resolved field types and decoder decisions, never
+// from searching generated source.
+pub type RequiredCode {
+  RequiredCode(types: Set(String), functions: Set(String), modules: Set(String))
+}
+
+pub fn required_code() -> RequiredCode {
+  RequiredCode(set.new(), set.new(), set.new())
+}
+
+pub fn merge_required_code(
+  left: RequiredCode,
+  right: RequiredCode,
+) -> RequiredCode {
+  RequiredCode(
+    set.union(left.types, right.types),
+    set.union(left.functions, right.functions),
+    set.union(left.modules, right.modules),
+  )
+}
+
+pub fn require_function(required: RequiredCode, name: String) -> RequiredCode {
+  RequiredCode(..required, functions: set.insert(required.functions, name))
+}
+
+// The generator represents resolved types as names with optional type arguments.
+// Read that representation here, before it is placed in any generated source.
+pub fn require_type(
+  required: RequiredCode,
+  field_type: String,
+) -> RequiredCode {
+  let names =
+    field_type
+    |> string.replace("(", ",")
+    |> string.replace(")", ",")
+    |> string.split(",")
+    |> list.map(string.trim)
+    |> list.filter(fn(name) { name != "" })
+  list.fold(names, required, fn(required, name) {
+    let required =
+      RequiredCode(..required, types: set.insert(required.types, name))
+    case name {
+      "Float" -> require_function(required, "decode_number")
+      "BoundCoding" -> require_function(required, "bound_coding_decoder")
+      "ct.BoundCoding" -> require_function(required, "ct.bound_coding_decoder")
+      "List1" | "List2" | "List3" -> {
+        let name = string.lowercase(name)
+        required
+        |> require_function(name <> "_decoder")
+        |> require_function(name <> "_to_json")
+      }
+      "Date" | "DateTime" | "Instant" | "Time" ->
+        RequiredCode(..required, modules: set.insert(required.modules, "pt"))
+      _ ->
+        RequiredCode(..required, modules: case string.split(name, ".") {
+          [module, _] -> set.insert(required.modules, module)
+          _ -> required.modules
+        })
+    }
+  })
+}
+
+pub fn required_names(
+  dependencies: Dict(String, List(String)),
+  pending: Set(String),
+  required: Set(String),
+) -> Set(String) {
+  case set.to_list(pending) {
+    [] -> required
+    [name, ..] -> {
+      let pending = set.delete(pending, name)
+      case set.contains(required, name) {
+        True -> required_names(dependencies, pending, required)
+        False ->
+          required_names(
+            dependencies,
+            set.union(
+              pending,
+              dict.get(dependencies, name) |> result.unwrap([]) |> set.from_list,
+            ),
+            set.insert(required, name),
+          )
+      }
+    }
+  }
+}
+
 pub type Bundle {
   Bundle(entry: List(Entry))
 }
@@ -136,6 +223,7 @@ pub type Element {
     definition_order: Int,
     gleam_field_name: Option(String),
     gleam_type: Option(String),
+    gleam_arguments: Option(List(String)),
     base: ElementBase,
     slice_name: Option(String),
     slicing: Option(Slicing),
@@ -244,6 +332,7 @@ pub fn element_decoder() -> decode.Decoder(Element) {
     definition_order: 0,
     gleam_field_name: None,
     gleam_type: None,
+    gleam_arguments: None,
     base:,
     slice_name:,
     slicing:,
@@ -773,7 +862,11 @@ pub fn string_to_type(
             insert_valueset(
               required_value_sets_acc,
               url,
-              ValuesetItem(needs_system: False, needs_code: True),
+              ValuesetItem(
+                needs_system: False,
+                needs_code: True,
+                needs_membership: False,
+              ),
             ),
           )
         }
@@ -844,14 +937,25 @@ fn bound_complex_type(
       let assert [url, ..] = string.split(value_set, "|")
       #(
         prefix
-          <> bound_type
+          <> case elt.gleam_type {
+          Some(name) ->
+            case string.starts_with(name, "BoundCoding") {
+              True -> name
+              False -> bound_type
+            }
+          _ -> bound_type
+        }
           <> "(valuesets."
           <> concept_name_from_url(url)
           <> ")",
         insert_valueset(
           required_value_sets_acc,
           url,
-          ValuesetItem(needs_system: True, needs_code: False),
+          ValuesetItem(
+            needs_system: True,
+            needs_code: False,
+            needs_membership: False,
+          ),
         ),
       )
     }
@@ -860,10 +964,10 @@ fn bound_complex_type(
 }
 
 pub type ValuesetItem {
-  ValuesetItem(needs_system: Bool, needs_code: Bool)
+  ValuesetItem(needs_system: Bool, needs_code: Bool, needs_membership: Bool)
 }
 
-fn insert_valueset(
+pub fn insert_valueset(
   valuesets: Dict(String, ValuesetItem),
   url: String,
   item: ValuesetItem,
@@ -875,6 +979,7 @@ fn insert_valueset(
     ValuesetItem(
       needs_system: previous.needs_system || item.needs_system,
       needs_code: previous.needs_code || item.needs_code,
+      needs_membership: previous.needs_membership || item.needs_membership,
     ),
   )
 }

@@ -9,6 +9,7 @@ import codegen_to_json
 import download_profile_package
 import fhir/template_primitive_types
 import filepath
+import gleam/bool
 import gleam/dict
 import gleam/http/request
 import gleam/httpc
@@ -226,23 +227,8 @@ fn gen_fhir(
   }
   let gen_dir = filepath.join(gen_into_dir, pkg_prefix)
   let assert Ok(_) = simplifile.create_directory_all(gen_dir)
-  let f_primitive_types = filepath.join(gen_dir, "primitive_types.gleam")
-  let assert Ok(_) =
-    simplifile.write(
-      to: f_primitive_types,
-      contents: template_primitive_types.source,
-    )
-  io.println("generated " <> f_primitive_types)
   let gen_gleamfile = filepath.join(gen_dir, "resources.gleam")
   let gen_vsfile = filepath.join(gen_dir, "valuesets.gleam")
-  let shared_imports = "import gleam/json.{type Json}
-      import gleam/dynamic/decode.{type Decoder}
-      import gleam/option.{type Option, None, Some}
-      import gleam/list
-      import fhir/" <> pkg_prefix <> "/primitive_types.{type Date, type DateTime, type Instant, type Time} as pt
-      import fhir/" <> pkg_prefix <> "/valuesets\n"
-  let r_imports = shared_imports <> "import gleam/bool\nimport gleam/int\n"
-
   let complex_types_file = filepath.join(extract_dir_ver, "profiles-types.json")
   let valuesets_package_dir = case profiles_dir {
     Some(directory) -> directory
@@ -280,14 +266,11 @@ fn gen_fhir(
       )
     None -> set.new()
   }
-  let gen_specific_complex_types = case gen_specific_resources {
-    Some(_) ->
-      resource_type_names
-      |> set.union(profile_type_names)
-      |> required_complex_types(complex_types_file, _)
-      |> Some
-    None -> None
-  }
+  let gen_specific_complex_types =
+    resource_type_names
+    |> set.union(profile_type_names)
+    |> required_complex_types(complex_types_file, _)
+    |> Some
   let #(
     complex_types_gen,
     valueset_acc,
@@ -314,6 +297,7 @@ fn gen_fhir(
     preloaded_valuesets,
     profile_resource_entries,
     constructors,
+    profile_required,
   ) = case custom_profile_name {
     None -> #(
       "",
@@ -322,6 +306,7 @@ fn gen_fhir(
       available_valuesets,
       [],
       dict.merge(resource_constructors, core_constructors),
+      #(codegen_helpers.required_code(), codegen_helpers.required_code()),
     )
     Some(_) -> {
       let assert Some(profiles_dir) = profiles_dir
@@ -332,6 +317,7 @@ fn gen_fhir(
         loaded_valuesets,
         resource_entries,
         constructors,
+        required,
       ) =
         codegen_profile.profile_files_to_types(
           profiles_dir,
@@ -350,6 +336,7 @@ fn gen_fhir(
         loaded_valuesets,
         resource_entries,
         constructors,
+        required,
       )
     }
   }
@@ -560,65 +547,6 @@ fn gen_fhir(
       }
       "
   let resources_gen = resources_gen <> profile_resources <> resource_enum
-  // Select imports from code, excluding profile text and fixed/pattern strings.
-  let assert [complex_types_code, resources_code] =
-    [complex_types_gen, resources_gen]
-    |> list.map(fn(source) {
-      let #(parts, _, _, _, _) =
-        list.fold(
-          string.to_graphemes(source),
-          #([], False, False, False, False),
-          fn(state, char) {
-            let #(parts, quoted, escaped, comment, slash) = state
-            case char, quoted, escaped, comment, slash {
-              "\n", _, _, True, _ -> #(
-                ["\n", ..parts],
-                False,
-                False,
-                False,
-                False,
-              )
-              _, _, _, True, _ -> state
-              _, True, True, _, _ -> #(parts, True, False, False, False)
-              "\\", True, False, _, _ -> #(parts, True, True, False, False)
-              "\"", True, False, _, _ -> #(
-                [" ", ..parts],
-                False,
-                False,
-                False,
-                False,
-              )
-              _, True, False, _, _ -> state
-              "\"", False, _, _, _ -> #(
-                [" ", ..parts],
-                True,
-                False,
-                False,
-                False,
-              )
-              "/", False, _, _, True -> #(parts, False, False, True, False)
-              _, False, _, _, _ -> #(
-                [char, ..parts],
-                False,
-                False,
-                False,
-                char == "/",
-              )
-            }
-          },
-        )
-      parts |> list.reverse |> string.concat
-    })
-  let r_imports =
-    r_imports
-    <> case string.contains(resources_code, "calendar.") {
-      True -> "import gleam/time/calendar\n"
-      False -> ""
-    }
-    <> case uses_profile_match || string.contains(resources_code, "string.") {
-      True -> "import gleam/string\n"
-      False -> ""
-    }
   let #(all_vs, failure_variant_replacements) =
     valueset_to_types(fhir_version, valueset_acc, preloaded_valuesets)
   let replace_failure_variants = fn(source) {
@@ -628,63 +556,192 @@ fn gen_fhir(
   }
   let complex_types_gen = replace_failure_variants(complex_types_gen)
   let resources_gen = replace_failure_variants(resources_gen)
-  let bound_codeable_reference_source = case
-    string.contains(resources_code, "ct.BoundCodeablereference(valuesets.")
-  {
-    True -> codegen_bound_coding.bound_codeable_reference
-    False -> ""
-  }
-  let generated_types_and_resources = complex_types_code <> resources_code
-  let uses_slice_elt =
-    string.contains(resources_code, "ct.SliceElt(")
-    || string.contains(complex_types_code, "SliceElt(")
-  let ct_imports =
-    shared_imports
-    <> case string.contains(complex_types_code, "Dynamic") {
-      True -> "import gleam/dynamic.{type Dynamic}\n"
-      False -> ""
-    }
-    <> case string.contains(complex_types_code, "float.") {
-      True -> "import gleam/float\n"
-      False -> ""
-    }
-    <> case string.contains(complex_types_code, "string.") {
-      True -> "import gleam/string\n"
-      False -> ""
-    }
-    <> case string.contains(complex_types_code, "dict.") {
-      True -> "import gleam/dict\n"
-      False -> ""
-    }
-    <> "import gleam/int\n"
-    <> case string.contains(complex_types_code, "calendar.") {
-      True -> "import gleam/time/calendar\n"
-      False -> ""
-    }
-    <> case string.contains(complex_types_code, "result.") {
-      True -> "import gleam/result\n"
-      False -> ""
-    }
-    <> case string.contains(complex_types_code, "bool.") {
-      True -> "import gleam/bool\n"
-      False -> ""
-    }
-    <> case uses_slice_elt {
-      True -> "import gleam/order\n"
-      False -> ""
-    }
-  let slice_elt_type = case uses_slice_elt {
+  let helper_dependencies =
+    [
+      #("SliceElt", []),
+      #("slice_elt_new", ["SliceElt"]),
+      #("slice_elts_to_values", [
+        "SliceElt",
+        "import:int",
+        "import:list",
+        "import:order",
+      ]),
+      #("List1", []),
+      #("List2", []),
+      #("List3", []),
+      #("list1_to_json", ["List1"]),
+      #("list1_decoder", ["List1"]),
+      #("list2_to_json", ["List2"]),
+      #("list2_decoder", ["List2"]),
+      #("list3_to_json", ["List3"]),
+      #("list3_decoder", ["List3"]),
+      #("none_if_omitted", []),
+      #("decode_number", ["import:int"]),
+      #("Primitive", []),
+      #("PrimitiveExtPart", []),
+      #("primitive_slice_to_json", []),
+      #("primitive_slice_list_to_json", ["import:list"]),
+      #("primitive_ext_part_decoder", ["PrimitiveExtPart"]),
+      #("primitive_decoder", [
+        "Primitive",
+        "PrimitiveExtPart",
+        "primitive_ext_part_decoder",
+      ]),
+      #("primitives_decoder", [
+        "Primitive",
+        "PrimitiveExtPart",
+        "map2_fillnone",
+        "primitive_ext_part_decoder",
+      ]),
+      #("primitive_slice_decoder", ["Primitive", "primitive_decoder"]),
+      #("primitive_choice_slice_decoder", [
+        "Primitive",
+        "primitive_slice_decoder",
+      ]),
+      #("primitive_slice_list_decoder", [
+        "Primitive",
+        "primitive_slice_list_from_primitives",
+        "primitives_decoder",
+      ]),
+      #("primitive_slice_list_from_primitives", [
+        "Primitive",
+        "import:int",
+        "import:list",
+      ]),
+      #("map2_fillnone", ["map2_fillnone_loop"]),
+      #("map2_fillnone_loop", ["import:list"]),
+      #("one_from_array_decoder", []),
+      #("optional_one_from_array_decoder", []),
+      #("BoundCoding", ["Extension"]),
+      #("bound_coding_decoder", ["BoundCoding"]),
+      #("bound_coding_from_coding", ["BoundCoding", "Coding"]),
+      #("BoundCodeableconcept", [
+        "BoundCoding",
+        "Coding",
+        "bound_coding_from_coding",
+        "find_elt_and_rest_result",
+        "import:list",
+      ]),
+      #("bound_codeableconcept_from_codeableconcept", [
+        "BoundCodeableconcept",
+        "Codeableconcept",
+      ]),
+      #("BoundCodeablereference", ["BoundCodeableconcept", "Reference"]),
+      #("BoundQuantity", ["Extension", "decode_number"]),
+      #("bound_quantity_from_quantity", ["BoundQuantity", "Quantity"]),
+      #("find_elt_and_rest_result", ["import:list"]),
+      #("insert_at", ["import:list"]),
+    ]
+    |> dict.from_list
+  let helper_dependencies = case preserve_slice_order {
     True ->
-      "
-      pub type SliceElt(a) {
+      dict.insert(helper_dependencies, "BoundCodeableconcept", [
+        "BoundCoding",
+        "Coding",
+        "bound_coding_from_coding",
+        "find_elt_and_rest_result",
+        "insert_at",
+        "import:list",
+      ])
+    False -> helper_dependencies
+  }
+  let core_required = fn(bucket) {
+    let core_constructors = dict.merge(resource_constructors, core_constructors)
+    let required =
+      codegen_profile_json.constructor_requirements(core_constructors, bucket)
+    core_constructors
+    |> dict.values
+    |> list.fold(required, fn(required, constructor) {
+      case constructor {
+        codegen_profile_json.RecordConstructor(current, _, fields)
+          if current == bucket
+        ->
+          list.fold(fields, required, fn(required, field) {
+            let required = case field.0.min, field.0.type_ {
+              0, [_, _, ..] ->
+                codegen_helpers.require_function(required, "none_if_omitted")
+              _, _ -> required
+            }
+            case field.0.max, field.0.min {
+              max, minimum if max != "1" && minimum > 0 && minimum <= 3 ->
+                required
+                |> codegen_helpers.require_function(
+                  "list" <> int.to_string(minimum) <> "_decoder",
+                )
+                |> codegen_helpers.require_function(
+                  "list" <> int.to_string(minimum) <> "_to_json",
+                )
+              _, _ -> required
+            }
+          })
+        _ -> required
+      }
+    })
+  }
+  let complex_required =
+    core_required(codegen_helpers.ComplexTypes)
+    |> codegen_helpers.merge_required_code(
+      codegen_profile_json.constructor_requirements(
+        constructors,
+        codegen_helpers.ComplexTypes,
+      ),
+    )
+    |> codegen_helpers.merge_required_code(profile_required.0)
+  let resource_required =
+    core_required(codegen_helpers.Resources)
+    |> codegen_helpers.merge_required_code(
+      codegen_profile_json.constructor_requirements(
+        constructors,
+        codegen_helpers.Resources,
+      ),
+    )
+    |> codegen_helpers.merge_required_code(profile_required.1)
+  let resource_required =
+    codegen_helpers.RequiredCode(
+      ..resource_required,
+      modules: resource_required.modules
+        |> set.insert("bool")
+        |> set.insert("list"),
+    )
+  let resource_required = case uses_profile_match {
+    True ->
+      codegen_helpers.RequiredCode(
+        ..resource_required,
+        types: set.insert(resource_required.types, "ct.List1"),
+        modules: set.insert(resource_required.modules, "string"),
+      )
+    False -> resource_required
+  }
+  let required =
+    codegen_helpers.merge_required_code(complex_required, resource_required)
+  let initial_names =
+    set.union(required.types, required.functions)
+    |> set.to_list
+    |> list.map(fn(name) { string.replace(name, "ct.", "") })
+    |> set.from_list
+  let required_names =
+    codegen_helpers.required_names(
+      helper_dependencies,
+      initial_names,
+      set.new(),
+    )
+  let helper_definitions = [
+    #("SliceElt", fn() {
+      "      pub type SliceElt(a) {
         SliceElt(value: a, internal_gleam_fhir_index: Option(Int))
       }
 
-      pub fn slice_elt_new(value: a) -> SliceElt(a) {
+"
+    }),
+    #("slice_elt_new", fn() {
+      "      pub fn slice_elt_new(value: a) -> SliceElt(a) {
         SliceElt(value:, internal_gleam_fhir_index: None)
       }
 
-      pub fn slice_elts_to_values(slice_elts: List(SliceElt(a))) -> List(a) {
+"
+    }),
+    #("slice_elts_to_values", fn() {
+      "      pub fn slice_elts_to_values(slice_elts: List(SliceElt(a))) -> List(a) {
         slice_elts
         |> list.sort(fn(first, second) {
           case
@@ -700,46 +757,28 @@ fn gen_fhir(
         |> list.map(fn(slice_elt) { slice_elt.value })
       }
       "
-    False -> ""
-  }
-  let uses_list1 = string.contains(generated_types_and_resources, "List1(")
-  let uses_list2 = string.contains(generated_types_and_resources, "List2(")
-  let uses_list3 = string.contains(generated_types_and_resources, "List3(")
-  let list_type_defs =
-    case uses_list1 {
-      True ->
-        "
-      /// 1..*
-      pub type List1(a){ List1(first: a, rest: List(a)) }
+    }),
+    #("List1", fn() {
+      "      pub type List1(a){ List1(first: a, rest: List(a)) }
       "
-      False -> ""
-    }
-    <> case uses_list2 {
-      True ->
-        "
-      /// 2..*
-      pub type List2(a){ List2(first: a, second: a, rest: List(a)) }
+    }),
+    #("List2", fn() {
+      "      pub type List2(a){ List2(first: a, second: a, rest: List(a)) }
       "
-      False -> ""
-    }
-    <> case uses_list3 {
-      True ->
-        "
-      /// 3..*
-      pub type List3(a){ List3(first: a, second: a, third: a, rest: List(a)) }
+    }),
+    #("List3", fn() {
+      "      pub type List3(a){ List3(first: a, second: a, third: a, rest: List(a)) }
       "
-      False -> ""
-    }
-
-  let list_helpers =
-    case uses_list1 {
-      True ->
-        "
-      pub fn list1_to_json(l: List1(a), tj: fn(a) -> Json) {
+    }),
+    #("list1_to_json", fn() {
+      "      pub fn list1_to_json(l: List1(a), tj: fn(a) -> Json) {
         json.array([l.first, ..l.rest], tj)
       }
 
-      pub fn list1_decoder(
+"
+    }),
+    #("list1_decoder", fn() {
+      "      pub fn list1_decoder(
         name: String,
         inner: decode.Decoder(a),
         next: fn(List1(a)) -> decode.Decoder(b),
@@ -754,16 +793,16 @@ fn gen_fhir(
         }
       }
       "
-      False -> ""
-    }
-    <> case uses_list2 {
-      True ->
-        "
-      pub fn list2_to_json(l: List2(a), tj: fn(a) -> Json) {
+    }),
+    #("list2_to_json", fn() {
+      "      pub fn list2_to_json(l: List2(a), tj: fn(a) -> Json) {
         json.array([l.first, l.second, ..l.rest], tj)
       }
 
-      pub fn list2_decoder(
+"
+    }),
+    #("list2_decoder", fn() {
+      "      pub fn list2_decoder(
         name: String,
         inner: decode.Decoder(a),
         next: fn(List2(a)) -> decode.Decoder(b),
@@ -778,16 +817,16 @@ fn gen_fhir(
         }
       }
       "
-      False -> ""
-    }
-    <> case uses_list3 {
-      True ->
-        "
-      pub fn list3_to_json(l: List3(a), tj: fn(a) -> Json) {
+    }),
+    #("list3_to_json", fn() {
+      "      pub fn list3_to_json(l: List3(a), tj: fn(a) -> Json) {
         json.array([l.first, l.second, l.third, ..l.rest], tj)
       }
 
-      pub fn list3_decoder(
+"
+    }),
+    #("list3_decoder", fn() {
+      "      pub fn list3_decoder(
         name: String,
         inner: decode.Decoder(a),
         next: fn(List3(a)) -> decode.Decoder(b),
@@ -802,18 +841,17 @@ fn gen_fhir(
         }
       }
       "
-      False -> ""
-    }
-
-  let helpers_block =
-    "
-      //std lib decode.optional supports myfield: null but what if myfield is omitted from json entirely?
-      pub fn none_if_omitted(d: decode.Decoder(a)) -> decode.Decoder(Option(a)) {
+    }),
+    #("none_if_omitted", fn() {
+      "      pub fn none_if_omitted(d: decode.Decoder(a)) -> decode.Decoder(Option(a)) {
         decode.one_of(d |> decode.map(Some), [decode.success(None)])
       }
 
       //std lib decode.float will NOT decode numbers without decimal point eg 4, only 4.0
-      pub fn decode_number() {
+"
+    }),
+    #("decode_number", fn() {
+      "      pub fn decode_number() {
         decode.one_of(decode.float, [decode.map(decode.int, int.to_float)])
       }
 
@@ -832,17 +870,26 @@ fn gen_fhir(
       //   )
       // }
       // so a user should never do anything with the Primitive type
-      @internal
+"
+    }),
+    #("Primitive", fn() {
+      "      @internal
       pub type Primitive(a, b) {
         Primitive(id: Option(String), ext: List(b), value: Option(a))
       }
 
-      @internal
+"
+    }),
+    #("PrimitiveExtPart", fn() {
+      "      @internal
       pub type PrimitiveExtPart(b) {
         PrimitiveExtPart(id: Option(String), ext: List(b))
       }
 
-      pub fn primitive_slice_to_json(
+"
+    }),
+    #("primitive_slice_to_json", fn() {
+      "      pub fn primitive_slice_to_json(
         old_fields: List(#(String, Json)),
         primitive: a,
         field_value_to_json: fn(a) -> Option(Json),
@@ -859,7 +906,10 @@ fn gen_fhir(
         }
       }
 
-      pub fn primitive_slice_list_to_json(
+"
+    }),
+    #("primitive_slice_list_to_json", fn() {
+      "      pub fn primitive_slice_list_to_json(
         old_fields: List(#(String, Json)),
         field: List(a),
         field_value_to_json: fn(a) -> Option(Json),
@@ -882,7 +932,10 @@ fn gen_fhir(
         }
       }
 
-      pub fn primitive_ext_part_decoder(extension_decoder: Decoder(a)) {
+"
+    }),
+    #("primitive_ext_part_decoder", fn() {
+      "      pub fn primitive_ext_part_decoder(extension_decoder: Decoder(a)) {
         use ext <- decode.optional_field(
           \"extension\",
           [],
@@ -892,7 +945,10 @@ fn gen_fhir(
         decode.success(PrimitiveExtPart(ext:, id:))
       }
 
-      pub fn primitive_decoder(name: String, thing_decoder: Decoder(a), extension_decoder: Decoder(b), next: fn(Primitive(a, b)) -> Decoder(c)) -> Decoder(c){
+"
+    }),
+    #("primitive_decoder", fn() {
+      "      pub fn primitive_decoder(name: String, thing_decoder: Decoder(a), extension_decoder: Decoder(b), next: fn(Primitive(a, b)) -> Decoder(c)) -> Decoder(c){
           use value <- decode.optional_field(name, None, decode.optional(thing_decoder))
           use pwe <- decode.optional_field(\"_\" <> name, None, decode.optional(primitive_ext_part_decoder(extension_decoder)))
           let #(id, ext) = case pwe {
@@ -903,7 +959,10 @@ fn gen_fhir(
           next(together)
       }
 
-      pub fn primitives_decoder(
+"
+    }),
+    #("primitives_decoder", fn() {
+      "      pub fn primitives_decoder(
         name: String,
         thing_decoder: Decoder(a),
         extension_decoder: Decoder(b),
@@ -921,7 +980,10 @@ fn gen_fhir(
           next(together)
       }
 
-      pub fn primitive_slice_decoder(
+"
+    }),
+    #("primitive_slice_decoder", fn() {
+      "      pub fn primitive_slice_decoder(
         name: String,
         thing_decoder: Decoder(a),
         extension_decoder: Decoder(b),
@@ -936,7 +998,10 @@ fn gen_fhir(
         next(value)
       }
 
-      pub fn primitive_choice_slice_decoder(
+"
+    }),
+    #("primitive_choice_slice_decoder", fn() {
+      "      pub fn primitive_choice_slice_decoder(
         name: String,
         thing_decoder: Decoder(a),
         extension_decoder: Decoder(b),
@@ -962,7 +1027,10 @@ fn gen_fhir(
         }
       }
 
-      pub fn primitive_slice_list_decoder(
+"
+    }),
+    #("primitive_slice_list_decoder", fn() {
+      "      pub fn primitive_slice_list_decoder(
         name: String,
         thing_decoder: Decoder(a),
         extension_decoder: Decoder(b),
@@ -973,7 +1041,10 @@ fn gen_fhir(
         primitive_slice_list_from_primitives(primitives, convert, name, 0, next)
       }
 
-      fn primitive_slice_list_from_primitives(
+"
+    }),
+    #("primitive_slice_list_from_primitives", fn() {
+      "      fn primitive_slice_list_from_primitives(
         primitives: List(Primitive(a, b)),
         convert: fn(Primitive(a, b)) -> Decoder(c),
         name: String,
@@ -998,11 +1069,17 @@ fn gen_fhir(
         }
       }
 
-      pub fn map2_fillnone(list1: List(Option(a)), list2: List(Option(b)), with fun: fn(Option(a), Option(b)) -> c) -> List(c) {
+"
+    }),
+    #("map2_fillnone", fn() {
+      "      pub fn map2_fillnone(list1: List(Option(a)), list2: List(Option(b)), with fun: fn(Option(a), Option(b)) -> c) -> List(c) {
         map2_fillnone_loop(list1, list2, fun, [])
       }
 
-      fn map2_fillnone_loop(
+"
+    }),
+    #("map2_fillnone_loop", fn() {
+      "      fn map2_fillnone_loop(
         list1: List(Option(a)),
         list2: List(Option(b)),
         fun: fn(Option(a), Option(b)) -> c,
@@ -1018,7 +1095,163 @@ fn gen_fhir(
 
 
       "
+    }),
+    #("one_from_array_decoder", fn() {
+      "pub fn one_from_array_decoder(
+  name: String,
+  inner: decode.Decoder(a),
+  next: fn(a) -> decode.Decoder(b),
+) -> decode.Decoder(b) {
+  use values <- decode.field(name, decode.list(inner))
+  case values {
+    [value] -> next(value)
+    _ -> {
+      use impossible_value <- decode.field(name, inner)
+      next(impossible_value)
+    }
+  }
+}
 
+"
+    }),
+    #("optional_one_from_array_decoder", fn() {
+      "pub fn optional_one_from_array_decoder(
+  name: String,
+  inner: decode.Decoder(a),
+  next: fn(Option(a)) -> decode.Decoder(b),
+) -> decode.Decoder(b) {
+  use values <- decode.optional_field(name, [], decode.list(inner))
+  case values {
+    [] -> next(None)
+    [value] -> next(Some(value))
+    _ -> {
+      use impossible_value <- decode.field(name, inner)
+      next(Some(impossible_value))
+    }
+  }
+}"
+    }),
+    #("BoundCoding", fn() {
+      codegen_bound_coding.bound_coding_and_cc(
+        preserve_slice_order,
+        set.insert(
+          set.delete(required_names, "BoundCodeableconcept"),
+          "BoundCoding",
+        ),
+        None,
+      )
+    }),
+    #("bound_coding_from_coding", fn() { "" }),
+    #("bound_coding_decoder", fn() { "" }),
+    #("BoundCodeableconcept", fn() {
+      codegen_bound_coding.bound_coding_and_cc(
+        preserve_slice_order,
+        set.delete(required_names, "BoundCoding"),
+        None,
+      )
+    }),
+    #("bound_codeableconcept_from_codeableconcept", fn() { "" }),
+    #("BoundCodeablereference", fn() {
+      codegen_bound_coding.bound_codeable_reference
+    }),
+    #("BoundQuantity", fn() { codegen_bound_coding.bound_quantity }),
+    #("bound_quantity_from_quantity", fn() {
+      codegen_bound_coding.bound_quantity_from_quantity
+    }),
+    #("find_elt_and_rest_result", fn() {
+      codegen_bound_coding.find_elt_and_rest_result(preserve_slice_order)
+    }),
+    #("insert_at", fn() { codegen_bound_coding.insert_at }),
+  ]
+  let helper_sources =
+    helper_definitions
+    |> list.filter(fn(definition) { set.contains(required_names, definition.0) })
+    |> list.map(fn(definition) { definition.1() })
+    |> string.concat
+  let complex_modules =
+    set.to_list(required_names)
+    |> list.filter_map(fn(name) {
+      case string.starts_with(name, "import:") {
+        True -> Ok(string.drop_start(name, 7))
+        False -> Error(Nil)
+      }
+    })
+    |> set.from_list
+    |> set.union(complex_required.modules)
+  let imports = fn(required: codegen_helpers.RequiredCode, modules) {
+    "import gleam/json.{type Json}\n"
+    <> "import gleam/dynamic/decode.{type Decoder}\n"
+    <> "import gleam/option.{type Option, None, Some}\n"
+    <> {
+      [
+        #("bool", "gleam/bool"),
+        #("int", "gleam/int"),
+        #("list", "gleam/list"),
+        #("string", "gleam/string"),
+        #("dict", "gleam/dict"),
+        #("float", "gleam/float"),
+        #("result", "gleam/result"),
+        #("calendar", "gleam/time/calendar"),
+        #("order", "gleam/order"),
+        #("valuesets", "fhir/" <> pkg_prefix <> "/valuesets"),
+      ]
+      |> list.filter(fn(entry) { set.contains(modules, entry.0) })
+      |> list.map(fn(entry) { "import " <> entry.1 <> "\n" })
+      |> string.concat
+    }
+    <> case set.contains(required.types, "Dynamic") {
+      True -> "import gleam/dynamic.{type Dynamic}\n"
+      False -> ""
+    }
+    <> case
+      ["Date", "DateTime", "Instant", "Time"]
+      |> list.filter(fn(name) { set.contains(required.types, name) })
+    {
+      [] -> ""
+      names ->
+        "import fhir/"
+        <> pkg_prefix
+        <> "/primitive_types.{"
+        <> {
+          names |> list.map(fn(name) { "type " <> name }) |> string.join(", ")
+        }
+        <> "} as pt\n"
+    }
+  }
+  let ct_imports = imports(complex_required, complex_modules)
+  let r_imports = imports(resource_required, resource_required.modules)
+  let resource_complex_imports =
+    ["List1", "List2", "List3", "Primitive"]
+    |> list.filter(fn(name) { set.contains(resource_required.types, name) })
+    |> list.map(fn(name) { "type " <> name })
+  let resource_complex_imports =
+    list.append(
+      resource_complex_imports,
+      resource_required.functions
+        |> set.to_list
+        |> list.filter(fn(name) { dict.has_key(helper_dependencies, name) }),
+    )
+  let r_ct_import =
+    "import fhir/"
+    <> pkg_prefix
+    <> "/complex_types"
+    <> case resource_complex_imports {
+      [] -> ""
+      names -> ".{" <> string.join(names, ", ") <> "}"
+    }
+    <> " as ct\n"
+  let primitive_types =
+    set.intersection(
+      required.types,
+      set.from_list(["Date", "DateTime", "Instant", "Time"]),
+    )
+  let f_primitive_types = filepath.join(gen_dir, "primitive_types.gleam")
+  let assert Ok(_) =
+    simplifile.write(
+      to: f_primitive_types,
+      contents: template_primitive_types.source(primitive_types),
+    )
+  io.println("generated " <> f_primitive_types)
   let ct_content =
     string.concat([
       "////[https://hl7.org/fhir/",
@@ -1027,122 +1260,9 @@ fn gen_fhir(
       fhir_version,
       ") complex types\n",
       ct_imports,
-      list_type_defs,
-      slice_elt_type,
-      codegen_bound_coding.bound_coding_and_cc(preserve_slice_order),
-      codegen_bound_coding.find_elt_and_rest_result(preserve_slice_order),
-      case preserve_slice_order {
-        True -> codegen_bound_coding.insert_at
-        False -> ""
-      },
-      bound_codeable_reference_source,
-      codegen_bound_coding.bound_quantity,
+      helper_sources,
       complex_types_gen,
-      list_helpers,
-      helpers_block,
-      codegen_decode.array_cardinality_decoders,
     ])
-  let resource_complex_imports =
-    [
-      #("type List1", "List1("),
-      #("list1_to_json", "list1_to_json("),
-      #("list1_decoder", "list1_decoder("),
-      #("type List2", "List2("),
-      #("list2_to_json", "list2_to_json("),
-      #("list2_decoder", "list2_decoder("),
-      #("type List3", "List3("),
-      #("list3_to_json", "list3_to_json("),
-      #("list3_decoder", "list3_decoder("),
-      #("none_if_omitted", "none_if_omitted("),
-      #("decode_number", "decode_number("),
-      #("type Primitive", "Primitive("),
-      #("Primitive", "Primitive(id:"),
-      #("primitive_decoder", "primitive_decoder("),
-      #("extension_decoder", "extension_decoder()"),
-      #("primitives_decoder", "primitives_decoder("),
-      #("primitive_choice_slice_decoder", "primitive_choice_slice_decoder("),
-      #("primitive_slice_decoder", "primitive_slice_decoder("),
-      #("primitive_slice_list_decoder", "primitive_slice_list_decoder("),
-      #("primitive_slice_to_json", "primitive_slice_to_json("),
-      #("primitive_slice_list_to_json", "primitive_slice_list_to_json("),
-    ]
-    |> list.filter_map(fn(item) {
-      let unqualified_source =
-        string.replace(resources_code, "ct." <> item.1, "")
-      let used =
-        unqualified_source
-        |> string.split(item.1)
-        |> list.reverse
-        |> list.drop(1)
-        |> list.any(fn(prefix) {
-          case list.last(string.to_graphemes(prefix)) {
-            Error(_) -> True
-            Ok(previous) ->
-              !string.contains(
-                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.",
-                previous,
-              )
-          }
-        })
-      case used {
-        True -> Ok(item.0)
-        False -> Error(Nil)
-      }
-    })
-  let r_ct_import =
-    "import fhir/"
-    <> pkg_prefix
-    <> "/complex_types.{"
-    <> string.join(resource_complex_imports, ", ")
-    <> "} as ct\n"
-  let resource_tokens =
-    list.fold(
-      ["(", ")", "{", "}", ":", ",", "\n", "<", ">"],
-      resources_code,
-      fn(source, separator) { string.replace(source, separator, " ") },
-    )
-    |> string.split(" ")
-  let r_imports =
-    list.fold(
-      ["bool", "int", "list", "valuesets", "float", "dict", "result"],
-      r_imports
-        <> "import gleam/float\nimport gleam/dict\nimport gleam/result\n",
-      fn(imports, module) {
-        case list.any(resource_tokens, string.starts_with(_, module <> ".")) {
-          True -> imports
-          False ->
-            string.replace(
-              imports,
-              case module {
-                "valuesets" -> "import fhir/" <> pkg_prefix <> "/valuesets\n"
-                _ -> "import gleam/" <> module <> "\n"
-              },
-              "",
-            )
-        }
-      },
-    )
-  let primitive_imports =
-    ["Date", "DateTime", "Instant", "Time"]
-    |> list.filter(fn(name) { list.contains(resource_tokens, name) })
-    |> list.map(fn(name) { "type " <> name })
-  let r_imports =
-    string.replace(
-      r_imports,
-      "import fhir/"
-        <> pkg_prefix
-        <> "/primitive_types.{type Date, type DateTime, type Instant, type Time} as pt\n",
-      case primitive_imports, string.contains(resources_code, "pt.") {
-        [], False -> ""
-        [], True -> "import fhir/" <> pkg_prefix <> "/primitive_types as pt\n"
-        _, _ ->
-          "import fhir/"
-          <> pkg_prefix
-          <> "/primitive_types.{"
-          <> string.join(primitive_imports, ", ")
-          <> "} as pt\n"
-      },
-    )
   let r_content =
     string.concat([
       "////[https://hl7.org/fhir/",
@@ -1231,6 +1351,7 @@ fn required_complex_types_loop(
             None -> []
             Some(snapshot) ->
               snapshot.element
+              |> list.filter(fn(element) { element.max != "0" })
               |> list.flat_map(fn(element) {
                 element.type_ |> list.map(fn(type_) { type_.code })
               })
@@ -1386,6 +1507,7 @@ fn file_to_types(
         None -> []
       }
     })
+    |> list.filter(fn(element) { element.max != "0" })
     |> list.flat_map(fn(element) {
       element.type_ |> list.map(fn(type_) { type_.code })
     })
@@ -1642,31 +1764,13 @@ fn file_to_types(
                                   ")",
                                 ]),
                                 valueset_acc,
-                                case
-                                  dict.has_key(
-                                    constructors,
-                                    codegen_profile_json.constructor_key(
-                                      current_bucket,
-                                      field_name_new,
-                                    ),
-                                  )
-                                {
-                                  True -> constructors
-                                  False ->
-                                    dict.insert(
-                                      constructors,
-                                      codegen_profile_json.constructor_key(
-                                        current_bucket,
-                                        field_name_new,
-                                      ),
-                                      codegen_profile_json.ChoiceConstructor(
-                                        current_bucket,
-                                        field_name_new
-                                          <> string.capitalise(typ.code),
-                                        choice_type,
-                                      ),
-                                    )
-                                },
+                                codegen_profile_json.record_choice(
+                                  constructors,
+                                  current_bucket,
+                                  field_name_new,
+                                  field_name_new <> string.capitalise(typ.code),
+                                  choice_type,
+                                ),
                               )
                             },
                           )
@@ -2419,6 +2523,7 @@ fn valueset_type_source(
   all_vs_or_cs: dict.Dict(String, codegen_helpers.VsOrCs),
   needs_system: Bool,
   needs_code: Bool,
+  needs_membership: Bool,
 ) {
   let assert Ok(codegen_helpers.VocValueset(codes: members, ..)) =
     dict.get(all_vs_or_cs, vs_url)
@@ -2434,6 +2539,20 @@ fn valueset_type_source(
         variant: "",
       )
     })
+  let membership_source = case needs_membership && !needs_system {
+    True ->
+      codegen_bound_coding.gen_valueset_from_code_and_system(
+        vsname,
+        codes,
+        False,
+      )
+    False -> ""
+  }
+  use <- bool.guard(!needs_system && !needs_code, #(
+    membership_source,
+    [],
+    False,
+  ))
   //   let #(codes, open_variants, systems) =
   //     list.fold(members, #([], [], set.new()), fn(acc, member) {
   //       let #(codes, open_variants, systems) = acc
@@ -2542,13 +2661,20 @@ fn valueset_type_source(
   //         acc <> name <> "(value: String)\n"
   //       }),
   //     )
-  let has_decoder = !needs_system || needs_code || set.is_empty(duplicate_codes)
+  let has_decoder = needs_code
   let code_functions = case needs_system {
     True ->
       string.concat([
-        gen_valueset_encoder(vsname),
+        case needs_code {
+          True -> gen_valueset_encoder(vsname)
+          False -> ""
+        },
         gen_valueset_to_code(vsname, codes),
-        codegen_bound_coding.gen_valueset_from_code_and_system(vsname, codes),
+        codegen_bound_coding.gen_valueset_from_code_and_system(
+          vsname,
+          codes,
+          True,
+        ),
         case has_decoder {
           False -> ""
           True -> {
@@ -2586,8 +2712,12 @@ fn valueset_type_source(
       <> "{"
       <> variants
       <> "}\n"
-      <> valueset_items
+      <> case has_decoder {
+      True -> valueset_items
+      False -> ""
+    }
       <> code_functions
+      <> membership_source
       <> system_function,
     failure_variant_replacements,
     has_decoder,
@@ -2658,6 +2788,7 @@ fn valueset_to_types(
             all_vs_or_cs,
             valueset_item.needs_system,
             valueset_item.needs_code,
+            valueset_item.needs_membership,
           )
         #(
           valuesets_acc <> valueset_source,

@@ -5,31 +5,212 @@ import gleam/option.{type Option, None, Some}
 import gleam/set.{type Set}
 import gleam/string
 
-pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
-  string.concat([
-    "pub type BoundCoding(required_binding) {
-        BoundCoding(
-          id: Option(String),
-          extension: List(Extension),
-          code: required_binding,
-          version: Option(String),
-          display: Option(String),
-          user_selected: Option(Bool),
-        )
-      }
+pub fn bound_coding_and_cc(
+  preserve_slice_order: Bool,
+  required: Set(String),
+  variant: Option(#(String, List(String), List(String))),
+) -> String {
+  let coding = case set.contains(required, "BoundCoding") || variant != None {
+    False -> ""
+    True -> {
+      let #(name, required_fields, omitted) =
+        option.unwrap(variant, #("BoundCoding", [], []))
 
-      pub fn bound_coding_new(code: required_binding) -> BoundCoding(required_binding) {
-        BoundCoding(
-          user_selected: None,
-          display: None,
-          code:,
-          version: None,
-          extension: [],
-          id: None,
-        )
+      let function = codegen_helpers.to_snake_case(name)
+      let fields =
+        [
+          #("id", "id", "String", "decode.string", "json.string", "\"\""),
+          #(
+            "extension",
+            "extension",
+            "List(Extension)",
+            "decode.list(extension_decoder())",
+            "fn(values) { json.array(values, extension_to_json) }",
+            "[]",
+          ),
+          #(
+            "version",
+            "version",
+            "String",
+            "decode.string",
+            "json.string",
+            "\"\"",
+          ),
+          #(
+            "display",
+            "display",
+            "String",
+            "decode.string",
+            "json.string",
+            "\"\"",
+          ),
+          #(
+            "user_selected",
+            "userSelected",
+            "Bool",
+            "decode.bool",
+            "json.bool",
+            "False",
+          ),
+        ]
+        |> list.filter(fn(field) { !list.contains(omitted, field.0) })
+      let #(
+        declarations,
+        arguments,
+        defaults,
+        bindings,
+        values,
+        json_fields,
+        fallback,
+      ) =
+        list.fold(fields, #("", "", "", "", "", "", ""), fn(acc, field) {
+          let #(
+            declarations,
+            arguments,
+            defaults,
+            bindings,
+            values,
+            json_fields,
+            fallback,
+          ) = acc
+          let #(field, json_name, type_, decoder, encoder, default) = field
+          let required = list.contains(required_fields, field)
+          let repeated = field == "extension"
+          let optional = !required && !repeated
+          #(
+            declarations
+              <> field
+              <> ": "
+              <> case optional {
+              True -> "Option(" <> type_ <> ")"
+              False -> type_
+            }
+              <> ",",
+            arguments
+              <> case required {
+              True -> field <> " " <> field <> ": " <> type_ <> ","
+              False -> ""
+            },
+            defaults
+              <> field
+              <> ": "
+              <> case required {
+              True -> field
+              False if repeated -> "[]"
+              False -> "None"
+            }
+              <> ",",
+            bindings
+              <> "use "
+              <> field
+              <> " <- "
+              <> case required {
+              True -> "decode.field(\"" <> json_name <> "\", " <> decoder <> ")"
+              False ->
+                "decode.optional_field(\""
+                <> json_name
+                <> "\", "
+                <> case repeated {
+                  True -> "[]"
+                  False -> "None"
+                }
+                <> ", "
+                <> case optional {
+                  True -> "decode.optional(" <> decoder <> ")"
+                  False -> decoder
+                }
+                <> ")"
+            }
+              <> "\n",
+            values <> field <> ":,",
+            json_fields
+              <> "let fields = "
+              <> case required {
+              True ->
+                "[#(\""
+                <> json_name
+                <> "\", "
+                <> encoder
+                <> "(coding."
+                <> field
+                <> ")), ..fields]"
+              False if repeated ->
+                "case coding."
+                <> field
+                <> " { [] -> fields values -> [#(\""
+                <> json_name
+                <> "\", "
+                <> "json.array(values, extension_to_json)), ..fields] }"
+              False ->
+                "case coding."
+                <> field
+                <> " { None -> fields Some(value) -> [#(\""
+                <> json_name
+                <> "\", "
+                <> encoder
+                <> "(value)), ..fields] }"
+            }
+              <> "\n",
+            fallback
+              <> case required {
+              True -> ", " <> field <> ": " <> default
+              False -> ""
+            },
+          )
+        })
+      "pub type "
+      <> name
+      <> "(required_binding) { "
+      <> name
+      <> "(code: required_binding,"
+      <> declarations
+      <> ") }\n"
+      <> "pub fn "
+      <> function
+      <> "_new(code code: required_binding,"
+      <> arguments
+      <> ") -> "
+      <> name
+      <> "(required_binding) { "
+      <> name
+      <> "(code:,"
+      <> defaults
+      <> ") }\n"
+      <> case
+        variant != None || set.contains(required, "bound_coding_decoder")
+      {
+        False -> ""
+        True ->
+          "pub fn "
+          <> function
+          <> "_decoder(from_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder("
+          <> name
+          <> "(required_binding)) {\n"
+          <> "use <- decode.recursive\nuse code <- decode.field(\"code\", decode.string)\nuse system <- decode.field(\"system\", decode.string)\n"
+          <> "case from_code_and_system(code, system) { Error(_) -> decode.failure("
+          <> function
+          <> "_new(code: failure_placeholder"
+          <> fallback
+          <> "), \"need code + system from required ValueSet\") Ok(code) -> {\n"
+          <> bindings
+          <> "decode.success("
+          <> name
+          <> "(code:,"
+          <> values
+          <> ")) } }\n}\n"
       }
-
-      pub fn bound_coding_from_coding(
+      <> "pub fn "
+      <> function
+      <> "_to_json(coding: "
+      <> name
+      <> "(required_binding), get_code: fn(required_binding) -> String, get_system: fn(required_binding) -> String) -> Json {\n"
+      <> "let fields = [#(\"code\", json.string(get_code(coding.code))), #(\"system\", json.string(get_system(coding.code)))]\n"
+      <> json_fields
+      <> "json.object(fields)\n}\n"
+      <> case set.contains(required, "bound_coding_from_coding") {
+        True ->
+          string.concat([
+            "      pub fn bound_coding_from_coding(
         coding: Coding,
         binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
       ) -> Result(BoundCoding(required_binding), Nil) {
@@ -49,88 +230,28 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
         }
       }
 
-      pub fn bound_coding_to_json(coding: BoundCoding(required_binding), get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
-        let fields = [
-           #(\"code\", json.string(get_code(coding.code))),
-           #(\"system\", json.string(get_system(coding.code))),
-        ]
-        let fields = case coding.user_selected {
-          Some(v) -> [#(\"userSelected\", json.bool(v)), ..fields]
-          None -> fields
-        }
-        let fields = case coding.display {
-          Some(v) -> [#(\"display\", json.string(v)), ..fields]
-          None -> fields
-        }
-        let fields = case coding.version {
-          Some(v) -> [#(\"version\", json.string(v)), ..fields]
-          None -> fields
-        }
-        let fields = case coding.extension {
-          [] -> fields
-          _ -> [#(\"extension\", json.array(coding.extension, extension_to_json)), ..fields]
-        }
-        let fields = case coding.id {
-          Some(v) -> [#(\"id\", json.string(v)), ..fields]
-          None -> fields
-        }
-        json.object(fields)
+",
+          ])
+        False -> ""
       }
-
-      pub fn bound_coding_decoder(binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder(BoundCoding(required_binding)) {
-        use <- decode.recursive
-        use code <- decode.field(\"code\", decode.string)
-        use system <- decode.field(\"system\", decode.string)
-        case binding_from_code_and_system(code, system) {
-        Error(_) ->         decode.failure(bound_coding_new(failure_placeholder),
-          \"need code + system from required ValueSet\"
-        )
-        Ok(binding) -> {
-        use user_selected <- decode.optional_field(
-          \"userSelected\",
-          None,
-          decode.optional(decode.bool),
-        )
-        use display <- decode.optional_field(
-          \"display\",
-          None,
-          decode.optional(decode.string),
-        )
-        use version <- decode.optional_field(
-          \"version\",
-          None,
-          decode.optional(decode.string),
-        )
-        use extension <- decode.optional_field(
-          \"extension\",
-          [],
-          decode.list(extension_decoder()),
-        )
-        use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
-        decode.success(BoundCoding(
-          user_selected:,
-          display:,
-          code: binding,
-          version:,
-          extension:,
-          id:,
-        ))
-        }
-         }
-      }
-
+    }
+  }
+  let concept = case set.contains(required, "BoundCodeableconcept") {
+    True ->
+      string.concat([
+        "
       pub type BoundCodeableconcept(required_binding) {
         BoundCodeableconcept(
           id: Option(String),
           extension: List(Extension),
 ",
-    case preserve_slice_order {
-      True ->
-        "          internal_gleam_fhir_index: Option(Int),
+        case preserve_slice_order {
+          True ->
+            "          internal_gleam_fhir_index: Option(Int),
 "
-      False -> ""
-    },
-    "          required: BoundCoding(required_binding),
+          False -> ""
+        },
+        "          required: BoundCoding(required_binding),
           more: List(Coding),
           text: Option(String),
         )
@@ -139,33 +260,39 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
       pub fn bound_codeableconcept_new(code: required_binding) -> BoundCodeableconcept(required_binding) {
         let required = bound_coding_new(code)
 ",
-    case preserve_slice_order {
-      True ->
-        "        BoundCodeableconcept(internal_gleam_fhir_index: None, text: None, required:, more: [], extension: [], id: None)
+        case preserve_slice_order {
+          True ->
+            "        BoundCodeableconcept(internal_gleam_fhir_index: None, text: None, required:, more: [], extension: [], id: None)
 "
-      False ->
-        "        BoundCodeableconcept(text: None, required:, more: [], extension: [], id: None)
+          False ->
+            "        BoundCodeableconcept(text: None, required:, more: [], extension: [], id: None)
 "
-    },
-    "      }
+        },
+        "      }
 
-      pub fn bound_codeableconcept_from_codeableconcept(
+",
+        case
+          set.contains(required, "bound_codeableconcept_from_codeableconcept")
+        {
+          True ->
+            string.concat([
+              "      pub fn bound_codeableconcept_from_codeableconcept(
         concept: Codeableconcept,
         binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
       ) -> Result(BoundCodeableconcept(required_binding), Nil) {
         case find_valueset_coding(concept.coding, binding_from_code_and_system) {
           Error(Nil) -> Error(Nil)
 ",
-    case preserve_slice_order {
-      True ->
-        "          Ok(#(required, more, index)) -> Ok(BoundCodeableconcept(
+              case preserve_slice_order {
+                True ->
+                  "          Ok(#(required, more, index)) -> Ok(BoundCodeableconcept(
             internal_gleam_fhir_index: Some(index),
 "
-      False ->
-        "          Ok(#(required, more)) -> Ok(BoundCodeableconcept(
+                False ->
+                  "          Ok(#(required, more)) -> Ok(BoundCodeableconcept(
 "
-    },
-    "            id: concept.id,
+              },
+              "            id: concept.id,
             extension: concept.extension,
             required:,
             more:,
@@ -174,23 +301,27 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
         }
       }
 
-      pub fn bound_codeableconcept_to_json(codeableconcept: BoundCodeableconcept(required_binding),  get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
+",
+            ])
+          False -> ""
+        },
+        "      pub fn bound_codeableconcept_to_json(codeableconcept: BoundCodeableconcept(required_binding),  get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
       let required_coding = bound_coding_to_json(codeableconcept.required, get_code, get_system)
       let other_codings = list.map(codeableconcept.more, coding_to_json)
 ",
-    case preserve_slice_order {
-      True ->
-        "      let codings = case codeableconcept.internal_gleam_fhir_index {
+        case preserve_slice_order {
+          True ->
+            "      let codings = case codeableconcept.internal_gleam_fhir_index {
         None -> [required_coding, ..other_codings]
         Some(index) -> insert_at(required_coding, other_codings, index)
       }
       let all_codings = json.preprocessed_array(codings)
 "
-      False ->
-        "      let all_codings = json.preprocessed_array([required_coding, ..other_codings])
+          False ->
+            "      let all_codings = json.preprocessed_array([required_coding, ..other_codings])
 "
-    },
-    "      let fields = [#(\"coding\", all_codings)]
+        },
+        "      let fields = [#(\"coding\", all_codings)]
         let fields = case codeableconcept.text {
           Some(v) -> [#(\"text\", json.string(v)), ..fields]
           None -> fields
@@ -218,15 +349,15 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
           Error(_) -> decode.failure(bound_codeableconcept_new(failure_placeholder),
           \"need a coding with code + system from required ValueSet\")
 ",
-    case preserve_slice_order {
-      True ->
-        "          Ok(#(required, more, index)) -> {
+        case preserve_slice_order {
+          True ->
+            "          Ok(#(required, more, index)) -> {
 "
-      False ->
-        "          Ok(#(required, more)) -> {
+          False ->
+            "          Ok(#(required, more)) -> {
 "
-    },
-    "          use text <- decode.optional_field(
+        },
+        "          use text <- decode.optional_field(
             \"text\",
             None,
             decode.optional(decode.string),
@@ -238,33 +369,36 @@ pub fn bound_coding_and_cc(preserve_slice_order: Bool) -> String {
           )
           use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
 ",
-    case preserve_slice_order {
-      True ->
-        "          decode.success(BoundCodeableconcept(internal_gleam_fhir_index: Some(index), text:, required:, more:, extension:, id:))
+        case preserve_slice_order {
+          True ->
+            "          decode.success(BoundCodeableconcept(internal_gleam_fhir_index: Some(index), text:, required:, more:, extension:, id:))
 "
-      False ->
-        "          decode.success(BoundCodeableconcept(text:, required:, more:, extension:, id:))
+          False ->
+            "          decode.success(BoundCodeableconcept(text:, required:, more:, extension:, id:))
 "
-    },
-    "          }
+        },
+        "          }
         }
       }
 
 ",
-    case preserve_slice_order {
-      True ->
-        "      fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding), Int), Nil) {
+        case preserve_slice_order {
+          True ->
+            "      fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding), Int), Nil) {
 "
-      False ->
-        "      fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding)), Nil) {
+          False ->
+            "      fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding)), Nil) {
 "
-    },
-    "        let is_bound_valueset = fn(coding: Coding) {
+        },
+        "        let is_bound_valueset = fn(coding: Coding) {
           bound_coding_from_coding(coding, binding_from_code_and_system)
         }
         find_elt_and_rest_result(in: items, one_that: is_bound_valueset)
       }",
-  ])
+      ])
+    False -> ""
+  }
+  coding <> concept
 }
 
 pub const bound_codeable_reference =
@@ -348,27 +482,6 @@ pub fn bound_quantity_new() -> BoundQuantity(required_binding) {
     extension: [],
     id: None,
   )
-}
-
-pub fn bound_quantity_from_quantity(
-  quantity: Quantity,
-  binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
-) -> Result(BoundQuantity(required_binding), Nil) {
-  case quantity.code, quantity.system {
-    None, None ->
-      Ok(BoundQuantity(
-        id: quantity.id, extension: quantity.extension, value: quantity.value, comparator: quantity.comparator, unit: quantity.unit, code: None,
-      ))
-    Some(code), Some(system) -> case
-      binding_from_code_and_system(code, system)
-    {
-      Ok(code) -> Ok(BoundQuantity(
-        id: quantity.id, extension: quantity.extension, value: quantity.value, comparator: quantity.comparator, unit: quantity.unit, code: Some(code),
-      ))
-      Error(_) -> Error(Nil)
-    }
-    _, _ -> Error(Nil)
-  }
 }
 
 pub fn bound_quantity_to_json(quantity: BoundQuantity(required_binding), get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
@@ -458,6 +571,30 @@ fn bound_quantity_decode_rest(with_binding: Option(required_binding)) -> Decoder
     id:,
   ))
 }
+"
+
+pub const bound_quantity_from_quantity =
+  "pub fn bound_quantity_from_quantity(
+  quantity: Quantity,
+  binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
+) -> Result(BoundQuantity(required_binding), Nil) {
+  case quantity.code, quantity.system {
+    None, None ->
+      Ok(BoundQuantity(
+        id: quantity.id, extension: quantity.extension, value: quantity.value, comparator: quantity.comparator, unit: quantity.unit, code: None,
+      ))
+    Some(code), Some(system) -> case
+      binding_from_code_and_system(code, system)
+    {
+      Ok(code) -> Ok(BoundQuantity(
+        id: quantity.id, extension: quantity.extension, value: quantity.value, comparator: quantity.comparator, unit: quantity.unit, code: Some(code),
+      ))
+      Error(_) -> Error(Nil)
+    }
+    _, _ -> Error(Nil)
+  }
+}
+
 "
 
 // need to keep track of system because some valuesets contain multiple systems
@@ -636,13 +773,17 @@ pub fn bound_quantity_decoder_source(
 pub fn gen_valueset_from_code_and_system(
   vsname: String,
   vs_codes: List(ValuesetCodeWithSystem),
+  with_type: Bool,
 ) -> String {
   let vsname_lower = string.lowercase(vsname)
   let template =
     "pub fn "
     <> vsname_lower
     <> "_from_code_and_system(code code: String, system system: String) -> Result("
-    <> vsname
+    <> case with_type {
+      True -> vsname
+      False -> "Nil"
+    }
     <> ", Nil) {
     case code, system {"
     <> list.fold(
@@ -655,8 +796,10 @@ pub fn gen_valueset_from_code_and_system(
         <> ", "
         <> json.to_string(json.string(system))
         <> " -> Ok("
-        <> vsname
-        <> variant
+        <> case with_type {
+          True -> vsname <> variant
+          False -> "Nil"
+        }
         <> ")\n"
       },
     )

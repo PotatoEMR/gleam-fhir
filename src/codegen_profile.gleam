@@ -1,6 +1,5 @@
 import codegen_bound_coding
 import codegen_constraint
-import codegen_decode
 import codegen_helpers
 import codegen_profile_json.{
   type ExtensionDefinition, type PrimitiveExtensionValue, type SliceFieldType,
@@ -793,6 +792,7 @@ pub fn required_complex_type_names(
       )
     })
   list.append(resource_elements, extension_elements)
+  |> list.filter(fn(element) { element.max != "0" })
   |> list.flat_map(fn(element) {
     element.type_ |> list.map(fn(type_) { type_.code })
   })
@@ -855,22 +855,13 @@ fn extension_field_type(
               <> gleam_type
               <> ")\n",
             valueset_acc,
-            case variants {
-              "" ->
-                dict.insert(
-                  constructors,
-                  codegen_profile_json.constructor_key(
-                    codegen_helpers.ComplexTypes,
-                    choice_name,
-                  ),
-                  codegen_profile_json.ChoiceConstructor(
-                    codegen_helpers.ComplexTypes,
-                    choice_name <> string.capitalise(type_.code),
-                    gleam_type,
-                  ),
-                )
-              _ -> constructors
-            },
+            codegen_profile_json.record_choice(
+              constructors,
+              codegen_helpers.ComplexTypes,
+              choice_name,
+              choice_name <> string.capitalise(type_.code),
+              gleam_type,
+            ),
           )
         })
       #(
@@ -920,6 +911,7 @@ fn generate_extension_types(
             "",
             valueset_acc,
             [],
+            [],
             constructors,
           )
           let #(
@@ -930,6 +922,7 @@ fn generate_extension_types(
             children_source,
             valueset_acc,
             constructor_arguments,
+            constructor_fields,
             constructors,
           ) =
             list.fold(fields, initial_field_acc, fn(acc, field) {
@@ -941,6 +934,7 @@ fn generate_extension_types(
                 children_source,
                 valueset_acc,
                 constructor_arguments,
+                constructor_fields,
                 constructors,
               ) = acc
               let #(field_type, new_choice, valueset_acc, constructors) =
@@ -1095,6 +1089,20 @@ fn generate_extension_types(
                   Some(argument) -> [argument, ..constructor_arguments]
                   None -> constructor_arguments
                 },
+                [
+                  #(
+                    codegen_helpers.Element(
+                      ..field,
+                      gleam_type: Some(field_type),
+                    ),
+                    codegen_helpers.cardinality(
+                      stored_field_type,
+                      field.min,
+                      field.max,
+                    ),
+                  ),
+                  ..constructor_fields
+                ],
                 constructors,
               )
             })
@@ -1239,7 +1247,7 @@ fn generate_extension_types(
               codegen_profile_json.RecordConstructor(
                 codegen_helpers.ComplexTypes,
                 list.reverse(constructor_arguments),
-                [],
+                list.reverse(constructor_fields),
               ),
             ),
           )
@@ -1279,6 +1287,8 @@ fn constrained_type_from_elements(
   base_elements: dict.Dict(String, codegen_helpers.Element),
 ) -> Result(String, String) {
   use datatype <- result.try(case root.type_ {
+    [codegen_helpers.Type(profile: [_, _, ..], ..)] ->
+      Error("profile alternatives need a union")
     [datatype] -> Ok(datatype.code)
     _ -> Error("constraint needs one datatype")
   })
@@ -1299,7 +1309,6 @@ fn constrained_type_from_elements(
         ".",
       )
       && field.slice_name == None
-      && field.max != "0"
     })
     |> list.sort(fn(a, b) {
       let a_order =
@@ -1321,7 +1330,8 @@ fn constrained_type_from_elements(
   let fixed =
     fields
     |> list.filter(fn(field) {
-      field.max == "1"
+      field.min > 0
+      && field.max == "1"
       && case codegen_helpers.constant(field) {
         Some(codegen_constraint.Object(_))
         | Some(codegen_constraint.Array(_))
@@ -1338,94 +1348,66 @@ fn constrained_type_from_elements(
       && !list.contains(fixed, codegen_helpers.field_name(field))
     })
     |> list.map(codegen_helpers.field_name)
-  case fixed {
-    [_, ..] ->
+  let omitted =
+    fields
+    |> list.filter(fn(field) { field.max == "0" })
+    |> list.map(codegen_helpers.field_name)
+  let complete =
+    !list.any(elements, fn(child) {
+      case string.starts_with(child.id, prefix) {
+        False -> False
+        True -> {
+          let suffix = string.drop_start(child.id, string.length(prefix))
+          let ignored =
+            list.any(fields, fn(parent) {
+              parent.max == "0"
+              && {
+                child.id == parent.id
+                || string.starts_with(child.id, parent.id <> ".")
+              }
+            })
+          let name = codegen_helpers.field_name(child)
+          let base = dict.get(base_elements, datatype <> "." <> suffix)
+          !ignored
+          && case base {
+            Error(_) -> True
+            Ok(base) -> {
+              let scalar = !string.contains(suffix, ".") && base.max == "1"
+              child.slice_name != None
+              || child.pattern_literals != []
+              || child.type_ != base.type_
+              || child.max != base.max
+              || { child.min != base.min && !{ scalar && child.min == 1 } }
+              || case codegen_helpers.constant(child) {
+                None -> False
+                Some(_) -> !{ scalar && list.contains(fixed, name) }
+              }
+              || {
+                child.binding != base.binding
+                && case child.binding {
+                  Some(binding) ->
+                    binding.strength == "required"
+                    && !list.contains(fixed, name)
+                  None -> False
+                }
+              }
+            }
+          }
+        }
+      }
+    })
+  case complete && { fixed != [] || required != [] || omitted != [] } {
+    True ->
       Ok(
         "ct."
         <> codegen_slice_complex_type.constrained_type_name(
           datatype,
           fixed,
           required,
-          False,
+          omitted,
         ),
       )
-    [] -> {
-      let members =
-        fields
-        |> list.filter(fn(field) {
-          field.base.max != "1"
-          && !profile_field_has_primitive_type(field, "")
-          && list.any(elements, fn(child) {
-            {
-              string.starts_with(child.id, field.id <> ".")
-              || string.starts_with(child.id, field.id <> ":")
-            }
-            && {
-              child.constraint != None
-              || codegen_helpers.constant(child) != None
-            }
-          })
-        })
-      case members, required {
-        [member], _ -> {
-          // This shared record describes the matching member. Additional
-          // constraints on the parent fields keep the profile record below.
-          let all_members = member.slicing == None
-          let list1 = all_members && member.min == 1 && member.max == "*"
-          let member = case member.slicing {
-            None -> Ok(member)
-            Some(_) ->
-              case direct_slice_roots(member, elements) {
-                [pattern] if pattern.pattern_match -> Ok(pattern)
-                _ -> Error("shared name needs one matching list member")
-              }
-          }
-          use member <- result.try(member)
-          use child_name <- result.try(constrained_type_from_elements(
-            member,
-            elements,
-            base_elements,
-          ))
-          let assert [child_type] = member.type_
-          let suffix =
-            string.drop_start(
-              child_name,
-              string.length(
-                "ct." <> codegen_helpers.to_camel_case(child_type.code),
-              ),
-            )
-          Ok(
-            "ct."
-            <> codegen_slice_complex_type.constrained_type_name(
-              datatype,
-              [],
-              [],
-              list1,
-            )
-            <> case all_members && !list1 {
-              True ->
-                "All"
-                <> codegen_helpers.to_camel_case(codegen_helpers.field_name(
-                  member,
-                ))
-              False -> ""
-            }
-            <> suffix,
-          )
-        }
-        [], [_, ..] ->
-          Ok(
-            "ct."
-            <> codegen_slice_complex_type.constrained_type_name(
-              datatype,
-              [],
-              required,
-              False,
-            ),
-          )
-        _, _ -> Error("no shared constrained fields")
-      }
-    }
+    False -> Error("constraint needs a profile path")
   }
 }
 
@@ -1495,7 +1477,12 @@ fn plan_constraint_fields(
           })
         })
       let required = case direct {
-        True -> codegen_slice_complex_type.required_fields(type_, fields)
+        True ->
+          codegen_slice_complex_type.constraint_fields(
+            type_,
+            "Required",
+            fields,
+          )
         False -> []
       }
       use _ <- result.try(
@@ -2388,12 +2375,50 @@ fn prepare_profile_slices(
               && profile_field_has_primitive_type(candidate, "")
             })
           {
-            Ok(primitive) ->
+            Ok(primitive) -> {
+              let assert [primitive_type] = primitive.type_
+              let assert True =
+                primitive.max == "1"
+                || primitive.min == 0
+                || codegen_helpers.constant(primitive) == None
+                as {
+                  "Required constant on a repeating primitive with id or extensions is unsupported: "
+                  <> primitive.id
+                }
+              let element = case codegen_helpers.constant(primitive) {
+                Some(value)
+                  if primitive.min > 0
+                  && primitive.max == "1"
+                  && primitive.base.max == "1"
+                -> {
+                  let assert True =
+                    element.max != "0"
+                    && case codegen_helpers.constant(element) {
+                      Some(existing) -> existing == value
+                      None -> True
+                    }
+                    as {
+                      "conflicting primitive value constraint for "
+                      <> primitive.id
+                    }
+                  codegen_helpers.Element(
+                    ..element,
+                    min: 1,
+                    constraint: Some(codegen_constraint.Constraint(
+                      fixed: True,
+                      type_name: primitive_type.code,
+                      value:,
+                    )),
+                  )
+                }
+                _ -> element
+              }
               codegen_helpers.Element(
                 ..element,
                 type_: primitive.type_,
                 binding: primitive.binding,
               )
+            }
             Error(_) -> element
           }
         }
@@ -2407,7 +2432,7 @@ fn prepare_profile_slices(
               datatype_profiles,
             )
           {
-            [profile] ->
+            [Some(profile)] ->
               case profile.snapshot {
                 Some(snapshot) ->
                   case list.first(snapshot.element) {
@@ -2452,7 +2477,7 @@ fn prepare_profile_slices(
             datatype_profiles,
           )
         {
-          [profile] ->
+          [Some(profile)] ->
             case profile.snapshot {
               Some(snapshot) ->
                 snapshot.element
@@ -2569,7 +2594,7 @@ fn prepare_profile_slices(
         codegen_profile_json.resolve_datatype_profiles(type_, datatype_profiles)
         |> fn(profiles) {
           case profiles {
-            [profile] -> Ok(profile)
+            [Some(profile)] -> Ok(profile)
             _ -> Error(Nil)
           }
         }
@@ -3147,109 +3172,14 @@ fn prepare_profile_slices(
                 let replacements_kept =
                   list.filter(replacements, fn(replacement) {
                     case replacement.1 {
-                      FixedSliceType(type_name, _, system, code, display) -> {
+                      FixedSliceType(..) -> {
                         let assert Ok(definition) =
                           find_element(current_elements, replacement.0)
-                        let assert [datatype] = definition.type_
-                        let fields =
-                          codegen_slice_complex_type.datatype_fields(
-                            datatype.code,
-                            base_elements,
-                          )
-                          |> list.map(fn(field) {
-                            string.drop_start(
-                              field.path,
-                              string.length(datatype.code) + 1,
-                            )
-                          })
-                        let fields = case
-                          string.starts_with(type_name, "ct.Codeableconcept")
-                        {
-                          True ->
-                            list.append(
-                              fields,
-                              codegen_slice_complex_type.datatype_fields(
-                                "Coding",
-                                base_elements,
-                              )
-                                |> list.map(fn(field) {
-                                  "coding."
-                                  <> string.drop_start(
-                                    field.path,
-                                    string.length("Coding."),
-                                  )
-                                }),
-                            )
-                          False -> fields
-                        }
-                        let prefix = replacement.0 <> "."
-                        !list.any(current_elements, fn(child) {
-                          case string.starts_with(child.id, prefix) {
-                            False -> False
-                            True -> {
-                              let field =
-                                string.drop_start(
-                                  child.id,
-                                  string.length(prefix),
-                                )
-                              let fixed_field = case field {
-                                "system" | "coding.system" -> system != ""
-                                "code" | "coding.code" -> code != ""
-                                "display" | "coding.display" -> display != None
-                                _ -> False
-                              }
-                              let required_field =
-                                list.contains(
-                                  codegen_slice_complex_type.required_fields(
-                                    type_name,
-                                    list.filter(current_elements, fn(candidate) {
-                                      string.starts_with(candidate.id, prefix)
-                                    }),
-                                  ),
-                                  codegen_helpers.field_name(child),
-                                )
-                              let required_coding_list =
-                                string.starts_with(
-                                  type_name,
-                                  "ct.CodeableconceptList1",
-                                )
-                                && field == "coding"
-                              let cardinality_preserved = case
-                                required_coding_list,
-                                fixed_field,
-                                required_field
-                              {
-                                True, _, _ -> child.min == 1 && child.max == "*"
-                                False, True, _ ->
-                                  child.min <= 1 && child.max == "1"
-                                False, False, True ->
-                                  child.min == 1 && child.max == "1"
-                                False, False, False ->
-                                  child.min == child.base.min
-                                  && child.max == child.base.max
-                              }
-                              child.pattern_literals != []
-                              || child.slice_name != None
-                              || !list.contains(fields, field)
-                              || list.any(child.type_, fn(type_) {
-                                type_.profile != []
-                              })
-                              || !cardinality_preserved
-                              || case child.binding {
-                                Some(binding) ->
-                                  binding.strength == "required"
-                                  && !fixed_field
-                                  && child.binding
-                                  != {
-                                    dict.get(base_elements, child.base.path)
-                                    |> result.map(fn(base) { base.binding })
-                                    |> result.unwrap(None)
-                                  }
-                                None -> False
-                              }
-                            }
-                          }
-                        })
+                        result.is_ok(constrained_type_from_elements(
+                          definition,
+                          current_elements,
+                          base_elements,
+                        ))
                       }
                       _ -> True
                     }
@@ -3391,7 +3321,13 @@ fn prepare_profile_slices(
             |> list.flat_map(fn(plan) {
               case plan {
                 ValueSlicePlan(overrides:, ..) ->
-                  list.map(overrides, fn(pair) { pair.0 })
+                  list.filter_map(overrides, fn(pair) {
+                    case pair.1 {
+                      // A scalar constraint does not replace primitive children.
+                      FixedValueDiscriminator(_) -> Error(Nil)
+                      _ -> Ok(pair.0)
+                    }
+                  })
                 TypeSlicePlan(..) -> []
               }
             })
@@ -3491,112 +3427,13 @@ fn prepare_profile_slices(
                 base_elements,
               )
             case planned {
-              Ok([
-                #(
-                  id,
-                  FixedSliceType(type_name, _, system, code, display) as shared,
-                ),
-              ])
-                if id == root.id
-              -> {
-                let complete = {
-                  let assert [datatype] = root.type_
-                  let fields =
-                    codegen_slice_complex_type.datatype_fields(
-                      datatype.code,
-                      base_elements,
-                    )
-                    |> list.map(fn(field) {
-                      string.drop_start(
-                        field.path,
-                        string.length(datatype.code) + 1,
-                      )
-                    })
-                  let fields = case
-                    string.starts_with(type_name, "ct.Codeableconcept")
-                  {
-                    True ->
-                      list.append(
-                        fields,
-                        codegen_slice_complex_type.datatype_fields(
-                          "Coding",
-                          base_elements,
-                        )
-                          |> list.map(fn(field) {
-                            "coding."
-                            <> string.drop_start(
-                              field.path,
-                              string.length("Coding."),
-                            )
-                          }),
-                      )
-                    False -> fields
-                  }
-                  let prefix = root.id <> "."
-                  !list.any(elements, fn(child) {
-                    case string.starts_with(child.id, prefix) {
-                      False -> False
-                      True -> {
-                        let field =
-                          string.drop_start(child.id, string.length(prefix))
-                        let fixed_field = case field {
-                          "system" | "coding.system" -> system != ""
-                          "code" | "coding.code" -> code != ""
-                          "display" | "coding.display" -> display != None
-                          _ -> False
-                        }
-                        let required_field =
-                          list.contains(
-                            codegen_slice_complex_type.required_fields(
-                              type_name,
-                              list.filter(elements, fn(candidate) {
-                                string.starts_with(candidate.id, prefix)
-                              }),
-                            ),
-                            codegen_helpers.field_name(child),
-                          )
-                        let required_coding_list =
-                          string.starts_with(
-                            type_name,
-                            "ct.CodeableconceptList1",
-                          )
-                          && field == "coding"
-                        let cardinality_preserved = case
-                          required_coding_list,
-                          fixed_field,
-                          required_field
-                        {
-                          True, _, _ -> child.min == 1 && child.max == "*"
-                          False, True, _ -> child.min <= 1 && child.max == "1"
-                          False, False, True ->
-                            child.min == 1 && child.max == "1"
-                          False, False, False ->
-                            child.min == child.base.min
-                            && child.max == child.base.max
-                        }
-                        child.pattern_literals != []
-                        || child.slice_name != None
-                        || !list.contains(fields, field)
-                        || list.any(child.type_, fn(type_) {
-                          type_.profile != []
-                        })
-                        || !cardinality_preserved
-                        || case child.binding {
-                          Some(binding) ->
-                            binding.strength == "required"
-                            && !fixed_field
-                            && child.binding
-                            != {
-                              dict.get(base_elements, child.base.path)
-                              |> result.map(fn(base) { base.binding })
-                              |> result.unwrap(None)
-                            }
-                          None -> False
-                        }
-                      }
-                    }
-                  })
-                }
+              Ok([#(id, FixedSliceType(..) as shared)]) if id == root.id -> {
+                let complete =
+                  result.is_ok(constrained_type_from_elements(
+                    root,
+                    elements,
+                    base_elements,
+                  ))
                 case complete {
                   True -> dict.insert(overrides, root.id, shared)
                   False -> overrides
@@ -3615,6 +3452,18 @@ fn prepare_profile_slices(
         && case dict.get(overrides, id) {
           Ok(FixedSliceType(..)) -> True
           _ -> False
+        }
+      })
+    let shared_roots =
+      elements
+      |> list.fold(shared_roots, fn(roots, element) {
+        case element.gleam_type {
+          Some(name) ->
+            case string.starts_with(name, "BoundCoding") {
+              True -> [element.id, ..roots]
+              False -> roots
+            }
+          None -> roots
         }
       })
     let elements = remove_element_trees(elements, shared_roots, False)
@@ -3648,6 +3497,7 @@ pub fn profile_files_to_types(
   dict.Dict(String, codegen_helpers.VsOrCs),
   List(#(String, String, String)),
   dict.Dict(String, codegen_profile_json.ConstructorDefinition),
+  #(codegen_helpers.RequiredCode, codegen_helpers.RequiredCode),
 ) {
   let profile_structures =
     load_profile_files(profiles_dir, gen_specific_resources)
@@ -3811,6 +3661,144 @@ pub fn profile_files_to_types(
         _ -> element
       }
     })
+  let normalized_profiles =
+    list.map(normalized_profiles, fn(profile) {
+      let assert Some(snapshot) = profile.snapshot
+      let elements =
+        list.map(snapshot.element, fn(element) {
+          case element.type_ {
+            [codegen_helpers.Type(code: "Coding", ..)] -> {
+              let parent_id =
+                string.drop_end(element.id, string.length(".coding"))
+              case
+                string.ends_with(element.id, ".coding"),
+                find_element(snapshot.element, parent_id)
+              {
+                True, Ok(parent) ->
+                  case
+                    parent.path == "CodeableConcept"
+                    || element_type_is(parent, "CodeableConcept"),
+                    parent.binding,
+                    element.binding
+                  {
+                    True,
+                      Some(codegen_helpers.Binding(
+                        strength: "required",
+                        value_set: parent_set,
+                        ..,
+                      )),
+                      Some(codegen_helpers.Binding(
+                        strength: "required",
+                        value_set: coding_set,
+                        ..,
+                      ))
+                      if parent.max != "0"
+                      && element.max != "0"
+                      && parent_set != coding_set
+                    ->
+                      panic as {
+                        "Different required bindings on CodeableConcept and its coding are unsupported: "
+                        <> profile.url
+                        <> " "
+                        <> parent.id
+                      }
+                    True,
+                      Some(codegen_helpers.Binding(
+                        strength: "required",
+                        available: True,
+                        ..,
+                      )),
+                      _
+                      if element.max == "1"
+                    ->
+                      codegen_helpers.Element(
+                        ..element,
+                        min: 1,
+                        binding: parent.binding,
+                      )
+                    True,
+                      Some(codegen_helpers.Binding(
+                        strength: "required",
+                        available: True,
+                        ..,
+                      )),
+                      _
+                      if element.max == "*" && element.min == 1
+                    ->
+                      // The parent binding already requires at least one coding.
+                      codegen_helpers.Element(..element, min: element.base.min)
+                    _, _, _ -> element
+                  }
+                _, _ -> element
+              }
+            }
+            _ -> element
+          }
+        })
+      let elements =
+        list.map(elements, fn(element) {
+          case element.type_, element.binding {
+            [codegen_helpers.Type(code: "Coding", ..)],
+              Some(codegen_helpers.Binding(
+                strength: "required",
+                available: True,
+                ..,
+              ))
+            -> {
+              case
+                constrained_type_from_elements(element, elements, base_elements)
+              {
+                Error(_) -> element
+                Ok(name) -> {
+                  let fields =
+                    codegen_slice_complex_type.datatype_fields(
+                      "Coding",
+                      base_elements,
+                    )
+                  let required =
+                    codegen_slice_complex_type.constraint_fields(
+                      name,
+                      "Required",
+                      fields,
+                    )
+                    |> list.filter(fn(name) {
+                      name != "system" && name != "code"
+                    })
+                  let omitted =
+                    codegen_slice_complex_type.constraint_fields(
+                      name,
+                      "Omit",
+                      fields,
+                    )
+                  let assert Ok(#(_, _, fixed, _)) =
+                    codegen_slice_complex_type.helper_fields(name)
+                  case fixed == [] && { required != [] || omitted != [] } {
+                    True ->
+                      codegen_helpers.Element(
+                        ..element,
+                        gleam_type: Some(
+                          "Bound"
+                          <> codegen_slice_complex_type.constrained_type_name(
+                            "Coding",
+                            [],
+                            required,
+                            omitted,
+                          ),
+                        ),
+                      )
+                    False -> element
+                  }
+                }
+              }
+            }
+            _, _ -> element
+          }
+        })
+      codegen_helpers.Resource(
+        ..profile,
+        snapshot: Some(codegen_helpers.Snapshot(element: elements)),
+      )
+    })
   let extensions =
     dict.map_values(profile_structures.extensions, fn(_, extension) {
       let fields = case extension.kind {
@@ -3878,12 +3866,12 @@ pub fn profile_files_to_types(
     |> dict.from_list
   // Datatype records that need more than a shared field constraint remain
   // datatype profiles. Generate them in complex_types, including their children.
-  let #(resources, datatype_profiles) =
+  let #(resources, datatype_profiles, extensions) =
     list.fold(
       list.take(normalized_profiles, resource_count),
-      #([], datatype_profiles),
+      #([], datatype_profiles, extensions),
       fn(acc, resource) {
-        let #(resources, profiles) = acc
+        let #(resources, profiles, extensions) = acc
         let assert Some(snapshot) = resource.snapshot
         let #(prepared, overrides, type_slices, _, _, definitions) =
           prepare_profile_slices(
@@ -3923,16 +3911,30 @@ pub fn profile_files_to_types(
           prepared
           |> list.filter(fn(root) {
             root.max != "0"
+            && !list.any(dict.values(type_slices), fn(plan) {
+              case plan {
+                TypeSlicePlan(slice:, ..) ->
+                  string.starts_with(root.id, slice.id <> ".")
+                _ -> False
+              }
+            })
             && !dict.has_key(overrides, root.id)
-            && case root.binding {
-              // Required bindings already use a complex type that carries the
-              // ValueSet. A plain datatype profile would lose that type.
+            && case root.binding, root.type_ {
               Some(codegen_helpers.Binding(
                 strength: "required",
                 available: True,
                 ..,
-              )) -> False
-              _ -> True
+              )),
+                [codegen_helpers.Type(code: "CodeableConcept", ..)]
+              -> True
+              Some(codegen_helpers.Binding(
+                strength: "required",
+                available: True,
+                ..,
+              )),
+                _
+              -> False
+              _, _ -> True
             }
             && case root.type_ {
               [type_] ->
@@ -3951,6 +3953,21 @@ pub fn profile_files_to_types(
                 child.min != child.base.min
                 || child.max != child.base.max
                 || codegen_helpers.constant(child) != None
+                || case child.binding {
+                  Some(codegen_helpers.Binding(
+                    strength: "required",
+                    available: True,
+                    ..,
+                  )) ->
+                    element_type_is(child, "Coding")
+                    && child.binding
+                    != {
+                      dict.get(base_elements, child.base.path)
+                      |> result.map(fn(base) { base.binding })
+                      |> result.unwrap(None)
+                    }
+                  _ -> False
+                }
                 || case child.slicing {
                   Some(_) -> !element_type_is(child, "Extension")
                   None -> False
@@ -4048,6 +4065,81 @@ pub fn profile_files_to_types(
               _, _ -> element
             }
           })
+        let extensions =
+          dict.map_values(extensions, fn(url, extension) {
+            let prefix = resource.url <> "#"
+            case string.starts_with(url, prefix) {
+              False -> extension
+              True -> {
+                let extension_id = string.drop_start(url, string.length(prefix))
+                let fields = case extension.kind {
+                  SimpleExtension(field) -> [field]
+                  ComplexExtension(fields, _) -> fields
+                }
+                let fields =
+                  list.map(fields, fn(field) {
+                    let source_id = case field.path {
+                      "Extension.value[x]" -> extension_id <> ".value[x]"
+                      _ ->
+                        extension_id
+                        <> ".extension:"
+                        <> string.drop_start(
+                          field.id,
+                          string.length("Extension."),
+                        )
+                        <> ".value[x]"
+                    }
+                    case list.find(roots, fn(root) { root.id == source_id }) {
+                      Ok(root) -> {
+                        let assert [datatype] = root.type_
+                        codegen_helpers.Element(..field, type_: [
+                          codegen_helpers.Type(..datatype, profile: [
+                            "urn:gleam-fhir:inline:"
+                            <> resource.id
+                            <> ":"
+                            <> root.id,
+                          ]),
+                        ])
+                      }
+                      Error(_) ->
+                        case dict.get(overrides, source_id) {
+                          Ok(FixedSliceType(name, _, system, code, display)) -> {
+                            let assert Ok(#(_, _, fixed, _)) =
+                              codegen_slice_complex_type.helper_fields(name)
+                            let arguments =
+                              list.map(fixed, fn(field) {
+                                case field {
+                                  "system" -> system
+                                  "code" -> code
+                                  "display" -> {
+                                    let assert Some(value) = display
+                                    value
+                                  }
+                                  _ ->
+                                    panic as { "unknown fixed field " <> field }
+                                }
+                              })
+                            codegen_helpers.Element(
+                              ..field,
+                              gleam_type: Some(string.replace(name, "ct.", "")),
+                              gleam_arguments: Some(arguments),
+                            )
+                          }
+                          _ -> field
+                        }
+                    }
+                  })
+                let kind = case extension.kind {
+                  SimpleExtension(_) -> {
+                    let assert [field] = fields
+                    SimpleExtension(field)
+                  }
+                  ComplexExtension(_, rules) -> ComplexExtension(fields, rules)
+                }
+                ExtensionDefinition(..extension, kind:)
+              }
+            }
+          })
         #(
           [
             codegen_helpers.Resource(
@@ -4057,6 +4149,7 @@ pub fn profile_files_to_types(
             ..resources
           ],
           profiles,
+          extensions,
         )
       },
     )
@@ -4128,6 +4221,206 @@ pub fn profile_files_to_types(
       )
     })
     |> dict.from_list
+  // Extension payloads use the same profile unions as resource fields.
+  // Identical alternatives share a definition independently of extension URL.
+  let #(extensions, extension_unions) =
+    dict.fold(
+      profile_structures.extensions,
+      #(dict.new(), dict.new()),
+      fn(acc, url, extension) {
+        let #(extensions, unions) = acc
+        let fields = case extension.kind {
+          SimpleExtension(value) -> [value]
+          ComplexExtension(fields, _) -> fields
+        }
+        let #(fields, unions) =
+          list.fold(fields, #([], unions), fn(acc, field) {
+            let #(fields, unions) = acc
+            let #(types, unions) =
+              list.fold(field.type_, #([], unions), fn(acc, type_) {
+                let #(types, unions) = acc
+                case
+                  codegen_profile_json.resolve_datatype_profiles(
+                    type_,
+                    datatype_types,
+                  )
+                {
+                  [_, _, ..] as alternatives -> {
+                    let id =
+                      "profile_choice_"
+                      <> {
+                        alternatives
+                        |> list.map(fn(profile) {
+                          profile
+                          |> option.unwrap(codegen_helpers.to_camel_case(
+                            type_.code,
+                          ))
+                          |> codegen_helpers.to_snake_case
+                        })
+                        |> string.join("_or_")
+                      }
+                    let id = case
+                      field.constraint,
+                      field.binding,
+                      field.pattern_literals
+                    {
+                      None, None, [] -> id
+                      _, _, _ ->
+                        id
+                        <> "_"
+                        <> codegen_helpers.to_snake_case(extension.name)
+                        <> "_"
+                        <> extension_field_name(field)
+                    }
+                    let union_url = "urn:gleam-fhir:" <> id
+                    let root =
+                      codegen_helpers.Element(
+                        ..field,
+                        id:,
+                        path: id,
+                        min: 1,
+                        max: "1",
+                        type_: [type_],
+                        base: codegen_helpers.ElementBase(
+                          path: type_.code,
+                          min: 1,
+                          max: "1",
+                        ),
+                        slice_name: None,
+                        slicing: None,
+                        gleam_field_name: None,
+                        gleam_type: None,
+                      )
+                    let union =
+                      codegen_helpers.Resource(
+                        id:,
+                        name: codegen_helpers.to_camel_case(id),
+                        url: union_url,
+                        resource_type: "StructureDefinition",
+                        kind: Some("complex-type"),
+                        type_: Some(type_.code),
+                        base_definition: None,
+                        context: [],
+                        snapshot: Some(
+                          codegen_helpers.Snapshot(element: [root]),
+                        ),
+                      )
+                    #(
+                      [
+                        codegen_helpers.Type(..type_, profile: [union_url]),
+                        ..types
+                      ],
+                      dict.insert(unions, union_url, union),
+                    )
+                  }
+                  _ -> #([type_, ..types], unions)
+                }
+              })
+            #(
+              [
+                codegen_helpers.Element(..field, type_: list.reverse(types)),
+                ..fields
+              ],
+              unions,
+            )
+          })
+        let fields = list.reverse(fields)
+        let kind = case extension.kind {
+          SimpleExtension(_) -> {
+            let assert [value] = fields
+            SimpleExtension(value)
+          }
+          ComplexExtension(_, rules) -> ComplexExtension(fields, rules)
+        }
+        #(
+          dict.insert(extensions, url, ExtensionDefinition(..extension, kind:)),
+          unions,
+        )
+      },
+    )
+  let profile_structures = ProfileFiles(..profile_structures, extensions:)
+  let profile_definitions =
+    list.append(profile_definitions, dict.values(extension_unions))
+  let datatype_types =
+    dict.fold(extension_unions, datatype_types, fn(types, url, profile) {
+      dict.insert(types, url, codegen_helpers.to_camel_case(profile.id))
+    })
+  let profile_references = fn(elements: List(codegen_helpers.Element)) {
+    let #(elements, overrides, _, _, _, _) =
+      prepare_profile_slices(
+        "",
+        elements,
+        available_slice_valuesets,
+        profile_structures.datatype_profiles,
+        base_elements,
+        profile_structures.extensions,
+      )
+    let excluded =
+      elements
+      |> list.filter(fn(element) {
+        element.max == "0"
+        && !list.any(elements, fn(candidate) {
+          candidate.max != "0"
+          && case candidate.content_reference {
+            Some(reference) -> string.ends_with(reference, "#" <> element.id)
+            None -> False
+          }
+        })
+      })
+      |> list.map(fn(element) { element.id })
+    remove_element_trees(elements, excluded, True)
+    |> list.filter(fn(element) {
+      !dict.has_key(overrides, element.id)
+      && !{
+        list.any(elements, fn(child) {
+          string.starts_with(child.id, element.id <> ".")
+          && { child.min != child.base.min || child.max != child.base.max }
+        })
+        && !list.any(element.type_, fn(type_) {
+          list.length(type_.profile) > 1
+          || list.any(type_.profile, fn(url) {
+            string.starts_with(url, "urn:gleam-fhir:inline:")
+          })
+        })
+      }
+    })
+    |> list.flat_map(fn(element) {
+      element.type_
+      |> list.flat_map(fn(type_) { list.map(type_.profile, canonical_url) })
+    })
+  }
+  let profile_dependencies =
+    profile_definitions
+    |> list.map(fn(profile) {
+      #(canonical_url(profile.url), case profile.snapshot {
+        Some(snapshot) -> profile_references(snapshot.element)
+        None -> []
+      })
+    })
+    |> dict.from_list
+  let roots =
+    profile_resources
+    |> list.append(primitive_profiles)
+    |> list.map(fn(profile) { canonical_url(profile.url) })
+  let extension_references =
+    profile_structures.extensions
+    |> dict.values
+    |> list.flat_map(fn(extension) {
+      case extension.kind {
+        SimpleExtension(value) -> profile_references([value])
+        ComplexExtension(fields, _) -> profile_references(fields)
+      }
+    })
+  let required_profiles =
+    codegen_helpers.required_names(
+      profile_dependencies,
+      list.append(roots, extension_references) |> set.from_list,
+      set.new(),
+    )
+  let profile_definitions =
+    list.filter(profile_definitions, fn(profile) {
+      set.contains(required_profiles, canonical_url(profile.url))
+    })
   // Check the names we emit, keeping the original URLs for diagnostics.
   let core_names =
     core_type_urls
@@ -4291,6 +4584,7 @@ pub fn profile_files_to_types(
                   && {
                     string.contains(type_name, "Fixed")
                     || string.contains(type_name, "Required")
+                    || string.contains(type_name, "Omit")
                   }
                 {
                   True -> set.insert(helpers, type_name)
@@ -4431,6 +4725,27 @@ pub fn profile_files_to_types(
           |> dict.from_list
           |> dict.values
           |> list.sort(fn(a, b) { string.compare(a.id, b.id) })
+        let excluded =
+          profile_elements
+          |> list.filter(fn(element) {
+            element.max == "0"
+            && !list.any(profile_elements, fn(candidate) {
+              candidate.max != "0"
+              && case candidate.content_reference {
+                Some(reference) ->
+                  string.ends_with(reference, "#" <> element.id)
+                None -> False
+              }
+            })
+          })
+          |> list.map(fn(element) { element.id })
+        let profile_elements =
+          list.filter(profile_elements, fn(element) {
+            !list.any(excluded, fn(root) {
+              string.starts_with(element.id, root <> ".")
+              || string.starts_with(element.id, root <> ":")
+            })
+          })
 
         let #(type_fields, type_order) =
           profile_elements
@@ -4566,7 +4881,15 @@ pub fn profile_files_to_types(
                       |> string.replace("-", "")
                       |> string.replace(":", ".")
                       |> string.split(".")
-                    Ok(#(string.join([profile_prefix, ..rest], "_"), profiles))
+                    Ok(#(
+                      string.join([profile_prefix, ..rest], "_"),
+                      list.map(profiles, fn(profile) {
+                        option.unwrap(
+                          profile,
+                          codegen_helpers.to_camel_case(type_.code),
+                        )
+                      }),
+                    ))
                   }
                   _ -> Error(Nil)
                 }
@@ -4609,7 +4932,6 @@ pub fn profile_files_to_types(
                 <> "_to_json(value)\n"
               })
               |> string.concat
-            let assert [first, ..] = profiles
             #(
               source
                 <> "pub type "
@@ -4624,15 +4946,15 @@ pub fn profile_files_to_types(
                 <> ") -> Json {\n  case value {\n"
                 <> encoders
                 <> "  }\n}\n\n",
-              dict.insert(
-                constructors,
-                codegen_profile_json.constructor_key(current_bucket, name),
-                codegen_profile_json.ChoiceConstructor(
+              list.fold(profiles, constructors, fn(constructors, profile) {
+                codegen_profile_json.record_choice(
+                  constructors,
                   current_bucket,
-                  name <> first,
-                  complex_prefix <> first,
-                ),
-              ),
+                  name,
+                  name <> profile,
+                  complex_prefix <> profile,
+                )
+              }),
             )
           })
         let type_fields =
@@ -4643,6 +4965,142 @@ pub fn profile_files_to_types(
               type_order,
             )
             |> list.reverse
+          })
+        let type_dependencies =
+          type_order
+          |> list.map(fn(current_type) {
+            let type_name = case current_type == profile_prefix {
+              True -> profile_type
+              False ->
+                codegen_helpers.to_camel_case(string.replace(
+                  current_type,
+                  "[x]",
+                  "",
+                ))
+            }
+            let type_name =
+              dict.get(slice_base_type_names, type_name)
+              |> result.unwrap(type_name)
+            let fields =
+              dict.get(type_fields, current_type) |> result.unwrap([])
+            let required =
+              fields
+              |> list.filter(fn(field) { field.max != "0" })
+              |> list.fold(codegen_helpers.required_code(), fn(required, field) {
+                let parts =
+                  field.id
+                  |> string.replace("-", "")
+                  |> string.replace(":", ".")
+                  |> string.split(".")
+                let assert [_, ..rest] = parts
+                let parts = [profile_prefix, ..rest]
+                let path = string.join(parts, "_")
+                let assert Ok(last) = list.last(parts)
+                let choice =
+                  type_name
+                  <> codegen_helpers.to_camel_case(string.replace(
+                    last,
+                    "[x]",
+                    "",
+                  ))
+                let #(field_type, _, _) =
+                  profile_base_field_type(
+                    current_bucket,
+                    field,
+                    parts,
+                    path,
+                    choice,
+                    profile_structures.extensions,
+                    type_order,
+                    slice_base_type_names,
+                    slice_type_overrides,
+                    datatype_types,
+                    type_slice_overrides,
+                    valueset_acc,
+                  )
+                let required =
+                  codegen_helpers.require_type(required, field_type)
+                let alternatives = case field.type_ {
+                  [_, _, ..] -> field.type_
+                  _ -> []
+                }
+                list.fold(alternatives, required, fn(required, alternative) {
+                  let #(payload_type, _, _) =
+                    profile_base_field_type(
+                      current_bucket,
+                      codegen_helpers.Element(..field, type_: [alternative]),
+                      parts,
+                      "",
+                      choice,
+                      profile_structures.extensions,
+                      type_order,
+                      slice_base_type_names,
+                      slice_type_overrides,
+                      datatype_types,
+                      type_slice_overrides,
+                      valueset_acc,
+                    )
+                  codegen_helpers.require_type(required, payload_type)
+                })
+              })
+            #(type_name, set.to_list(required.types))
+          })
+          |> dict.from_list
+        let required_types =
+          codegen_helpers.required_names(
+            type_dependencies,
+            set.from_list([profile_type]),
+            set.new(),
+          )
+        let type_order =
+          list.filter(type_order, fn(path) {
+            let name = case path == profile_prefix {
+              True -> profile_type
+              False ->
+                codegen_helpers.to_camel_case(string.replace(path, "[x]", ""))
+            }
+            let name =
+              dict.get(slice_base_type_names, name) |> result.unwrap(name)
+            set.contains(required_types, name)
+          })
+        let binding_checks =
+          type_order
+          |> list.filter_map(fn(current_type) {
+            use fields <- result.try(dict.get(type_fields, current_type))
+            use field <- result.try(list.first(fields))
+            let assert Ok(last) = field.id |> string.split(".") |> list.last
+            use root <- result.try(find_element(
+              discriminator_elements,
+              string.drop_end(field.id, string.length(last) + 1),
+            ))
+            case root.binding {
+              Some(codegen_helpers.Binding(
+                strength: "required",
+                available: True,
+                value_set: Some(url),
+              )) ->
+                case
+                  root.path == "CodeableConcept"
+                  || element_type_is(root, "CodeableConcept")
+                {
+                  True -> Ok(#(current_type, canonical_url(url)))
+                  False -> Error(Nil)
+                }
+              _ -> Error(Nil)
+            }
+          })
+          |> dict.from_list
+        let valueset_acc =
+          dict.fold(binding_checks, valueset_acc, fn(acc, _, url) {
+            codegen_helpers.insert_valueset(
+              acc,
+              url,
+              codegen_helpers.ValuesetItem(
+                needs_system: False,
+                needs_code: False,
+                needs_membership: True,
+              ),
+            )
           })
         let #(generated_profile, valueset_acc, constructors) =
           list.fold(
@@ -4758,7 +5216,7 @@ pub fn profile_files_to_types(
 
                     let is_primitive = False
 
-                    let #(base_field_type, valueset_acc) =
+                    let #(base_field_type, element, valueset_acc) =
                       profile_base_field_type(
                         current_bucket,
                         element,
@@ -4770,6 +5228,7 @@ pub fn profile_files_to_types(
                         slice_base_type_names,
                         slice_type_overrides,
                         datatype_types,
+                        type_slice_overrides,
                         valueset_acc,
                       )
                     // If named slices do not enforce the group minimum, use a
@@ -4807,7 +5266,7 @@ pub fn profile_files_to_types(
                               let assert [_, ..root_rest] = root_parts
                               let root_parts = [profile_prefix, ..root_rest]
                               let root_field_path = string.join(root_parts, "_")
-                              let #(payload_type, valueset_acc) =
+                              let #(payload_type, _, valueset_acc) =
                                 profile_base_field_type(
                                   current_bucket,
                                   root,
@@ -4819,6 +5278,7 @@ pub fn profile_files_to_types(
                                   slice_base_type_names,
                                   slice_type_overrides,
                                   datatype_types,
+                                  type_slice_overrides,
                                   valueset_acc,
                                 )
                               #(
@@ -4833,26 +5293,17 @@ pub fn profile_files_to_types(
                                   <> payload_type
                                   <> ")\n",
                                 valueset_acc,
-                                case variants {
-                                  "" ->
-                                    dict.insert(
-                                      constructors,
-                                      codegen_profile_json.constructor_key(
-                                        current_bucket,
-                                        aggregate_type,
-                                      ),
-                                      codegen_profile_json.ChoiceConstructor(
-                                        current_bucket,
-                                        aggregate_slice_constructor(
-                                          aggregate_type,
-                                          slice_name,
-                                          payload_type,
-                                        ),
-                                        payload_type,
-                                      ),
-                                    )
-                                  _ -> constructors
-                                },
+                                codegen_profile_json.record_choice(
+                                  constructors,
+                                  current_bucket,
+                                  aggregate_type,
+                                  aggregate_slice_constructor(
+                                    aggregate_type,
+                                    slice_name,
+                                    payload_type,
+                                  ),
+                                  payload_type,
+                                ),
                               )
                             },
                           )
@@ -5159,82 +5610,30 @@ pub fn profile_files_to_types(
                     {
                       [] | [_] -> #("", valueset_acc, constructors)
                       choice_types -> {
-                        let #(
-                          variants,
-                          sliced_types,
-                          valueset_acc,
-                          constructors,
-                        ) =
+                        let #(variants, valueset_acc, constructors) =
                           list.fold(
                             over: choice_types,
-                            from: #("", "", valueset_acc, constructors),
+                            from: #("", valueset_acc, constructors),
                             with: fn(acc, choice) {
-                              let #(
-                                variants_acc,
-                                sliced_types_acc,
-                                valueset_acc,
-                                constructors,
-                              ) = acc
-                              let #(
-                                variant_type,
-                                sliced_type,
-                                valueset_acc,
-                                constructors,
-                              ) = case
-                                dict.get(
-                                  type_slice_overrides,
-                                  type_slice_key(element.id, choice.code),
-                                )
-                              {
-                                Ok(TypeSlicePlan(children: [_, ..], ..)) -> #(
-                                  choice_type
-                                    <> string.capitalise(choice.code)
-                                    <> "Sliced",
+                              let #(variants_acc, valueset_acc, constructors) =
+                                acc
+                              let #(variant_type, _, valueset_acc) =
+                                profile_base_field_type(
+                                  current_bucket,
+                                  codegen_helpers.Element(..element, type_: [
+                                    choice,
+                                  ]),
+                                  all_parts,
                                   "",
+                                  choice_type,
+                                  profile_structures.extensions,
+                                  type_order,
+                                  slice_base_type_names,
+                                  slice_type_overrides,
+                                  datatype_types,
+                                  type_slice_overrides,
                                   valueset_acc,
-                                  constructors,
                                 )
-                                Ok(TypeSlicePlan(slice:, children: [], ..)) -> {
-                                  let #(variant_type, valueset_acc) =
-                                    codegen_helpers.string_to_type(
-                                      choice.code,
-                                      all_parts,
-                                      slice,
-                                      current_bucket,
-                                      valueset_acc,
-                                    )
-                                  #(
-                                    variant_type,
-                                    "",
-                                    valueset_acc,
-                                    constructors,
-                                  )
-                                }
-                                Error(_) | Ok(ValueSlicePlan(..)) -> {
-                                  let #(variant_type, valueset_acc) =
-                                    profile_base_field_type(
-                                      current_bucket,
-                                      codegen_helpers.Element(..element, type_: [
-                                        choice,
-                                      ]),
-                                      all_parts,
-                                      "",
-                                      choice_type,
-                                      profile_structures.extensions,
-                                      type_order,
-                                      slice_base_type_names,
-                                      slice_type_overrides,
-                                      datatype_types,
-                                      valueset_acc,
-                                    )
-                                  #(
-                                    variant_type,
-                                    "",
-                                    valueset_acc,
-                                    constructors,
-                                  )
-                                }
-                              }
                               #(
                                 variants_acc
                                   <> "  "
@@ -5243,25 +5642,14 @@ pub fn profile_files_to_types(
                                   <> "(value: "
                                   <> variant_type
                                   <> ")\n",
-                                sliced_types_acc <> sliced_type,
                                 valueset_acc,
-                                case variants_acc {
-                                  "" ->
-                                    dict.insert(
-                                      constructors,
-                                      codegen_profile_json.constructor_key(
-                                        current_bucket,
-                                        choice_type,
-                                      ),
-                                      codegen_profile_json.ChoiceConstructor(
-                                        current_bucket,
-                                        choice_type
-                                          <> string.capitalise(choice.code),
-                                        variant_type,
-                                      ),
-                                    )
-                                  _ -> constructors
-                                },
+                                codegen_profile_json.record_choice(
+                                  constructors,
+                                  current_bucket,
+                                  choice_type,
+                                  choice_type <> string.capitalise(choice.code),
+                                  variant_type,
+                                ),
                               )
                             },
                           )
@@ -5270,8 +5658,7 @@ pub fn profile_files_to_types(
                             <> choice_type
                             <> " {\n"
                             <> variants
-                            <> "}\n\n"
-                            <> sliced_types,
+                            <> "}\n\n",
                           valueset_acc,
                           constructors,
                         )
@@ -5414,6 +5801,7 @@ pub fn profile_files_to_types(
             type_slice_overrides:,
             preserve_slice_order:,
             valueset_acc:,
+            binding_checks:,
             // available_valuesets: available_slice_valuesets,
             base_elements:,
             constructors: dict.new(),
@@ -5483,9 +5871,56 @@ pub fn profile_files_to_types(
         }
       },
     )
-  let slice_types =
+  let slice_encoders =
+    [codegen_helpers.ComplexTypes, codegen_helpers.Resources]
+    |> list.flat_map(fn(bucket) {
+      let required =
+        codegen_profile_json.constructor_requirements(constructors, bucket)
+      set.to_list(required.types)
+    })
+    |> list.map(fn(name) { string.replace(name, "ct.", "") })
+    |> set.from_list
+  let extension_shared_types =
+    profile_structures.extensions
+    |> dict.values
+    |> list.flat_map(fn(extension) {
+      case extension.kind {
+        SimpleExtension(field) -> [field]
+        ComplexExtension(fields, _) -> fields
+      }
+    })
+    |> list.filter_map(fn(field) {
+      case field.gleam_arguments, field.gleam_type {
+        Some(_), Some(name) -> Ok(name)
+        _, _ -> Error(Nil)
+      }
+    })
+    |> set.from_list
+  let slice_helpers =
+    set.union(
+      slice_helpers,
+      set.map(extension_shared_types, fn(name) { "ct." <> name }),
+    )
+  let slice_encoders = set.union(slice_encoders, extension_shared_types)
+  let slice_checks =
+    decoder_contexts
+    |> list.flat_map(fn(item) {
+      dict.values(item.1.slice_discriminator_checks)
+      |> list.filter_map(fn(check) {
+        case check {
+          FixedSliceType(name, ..) -> Ok(string.replace(name, "ct.", ""))
+          _ -> Error(Nil)
+        }
+      })
+    })
+    |> set.from_list
+  let slice_definitions =
     slice_helpers
     |> set.to_list
+    |> list.filter(fn(name) {
+      let name = string.replace(name, "ct.", "")
+      set.contains(slice_encoders, name) || set.contains(slice_checks, name)
+    })
     |> list.sort(string.compare)
     |> list.flat_map(fn(type_name) {
       codegen_slice_complex_type.shared_type(
@@ -5500,67 +5935,94 @@ pub fn profile_files_to_types(
           set.new(),
           codegen_helpers.ComplexTypes,
         ),
+        slice_encoders,
+        extension_shared_types,
       )
     })
     |> dict.from_list
     |> dict.to_list
     |> list.sort(fn(a, b) { string.compare(a.0, b.0) })
-    |> list.map(fn(entry) { entry.1 })
+  let slice_types =
+    slice_definitions |> list.map(fn(entry) { entry.1.0 }) |> string.concat
+  let bound_variants =
+    decoder_contexts
+    |> list.flat_map(fn(item) {
+      list.flat_map(item.1.type_order, fn(path) {
+        dict.get(item.1.type_fields, path) |> result.unwrap([])
+      })
+    })
+    |> list.filter_map(fn(field) {
+      case field.max, field.gleam_type {
+        "0", _ -> Error(Nil)
+        _, Some(name) ->
+          case string.starts_with(name, "BoundCoding") {
+            True -> Ok(name)
+            False -> Error(Nil)
+          }
+        _, _ -> Error(Nil)
+      }
+    })
+    |> set.from_list
+    |> set.to_list
+    |> list.sort(string.compare)
+  let bound_fields =
+    codegen_slice_complex_type.datatype_fields("Coding", base_elements)
+  let bound_types =
+    bound_variants
+    |> list.map(fn(name) {
+      codegen_bound_coding.bound_coding_and_cc(
+        preserve_slice_order,
+        set.new(),
+        Some(#(
+          name,
+          codegen_slice_complex_type.constraint_fields(
+            name,
+            "Required",
+            bound_fields,
+          ),
+          codegen_slice_complex_type.constraint_fields(
+            name,
+            "Omit",
+            bound_fields,
+          ),
+        )),
+      )
+    })
     |> string.concat
-  let profile_complex_types =
-    codegen_profile_json.discriminator_match_type_source
-    <> slice_types
-    <> profile_complex_types
-  let assert [profile_complex_types, profile_resources] =
-    list.map(
-      [
-        #(codegen_helpers.ComplexTypes, profile_complex_types),
-        #(codegen_helpers.Resources, profile_resources),
-      ],
-      fn(entry) {
-        let #(current_bucket, source) = entry
-        let result_search_source = case
-          string.contains(source, "find_required_elt_and_rest_result("),
-          string.contains(source, "find_optional_elt_and_rest_result("),
-          string.contains(
-            source,
-            "find_at_least_n_elts_and_rest_result_or_failure(",
+  let slice_required =
+    slice_definitions
+    |> list.fold(codegen_helpers.required_code(), fn(required, entry) {
+      codegen_helpers.merge_required_code(required, entry.1.1)
+    })
+  let #(complex_required, resource_required) =
+    list.fold(
+      decoder_contexts,
+      #(slice_required, codegen_helpers.required_code()),
+      fn(required, item) {
+        let usage = codegen_profile_json.decoder_requirements(item.1, item.0)
+        case item.1.current_bucket {
+          codegen_helpers.ComplexTypes -> #(
+            codegen_helpers.merge_required_code(required.0, usage),
+            required.1,
           )
-        {
-          False, False, False -> ""
-          required, optional, repeated ->
-            case current_bucket {
-              codegen_helpers.Resources ->
-                codegen_bound_coding.find_elt_and_rest_result(False)
-              codegen_helpers.ComplexTypes -> ""
-            }
-            <> case required {
-              True -> codegen_bound_coding.find_required_elt_and_rest_result
-              False -> ""
-            }
-            <> case optional {
-              True -> codegen_bound_coding.find_optional_elt_and_rest_result
-              False -> ""
-            }
-            <> case repeated {
-              True ->
-                codegen_bound_coding.find_at_least_n_elts_and_rest_result
-                <> codegen_bound_coding.find_at_least_n_elts_and_rest_result_or_failure
-              False -> ""
-            }
+          codegen_helpers.Resources -> #(
+            required.0,
+            codegen_helpers.merge_required_code(required.1, usage),
+          )
         }
-        case string.contains(source, "result_or_decode_failure(") {
-          True -> codegen_decode.result_or_decode_failure
-          False -> ""
-        }
-        <> result_search_source
-        <> case string.contains(source, "slice_acc_errors(") {
-          True -> codegen_profile_json.slice_acc_errors_source
-          False -> ""
-        }
-        <> source
       },
     )
+  let profile_complex_types =
+    case
+      set.contains(complex_required.types, "DiscriminatorMatch")
+      || set.contains(resource_required.types, "ct.DiscriminatorMatch")
+    {
+      True -> codegen_profile_json.discriminator_match_type_source
+      False -> ""
+    }
+    <> bound_types
+    <> slice_types
+    <> profile_complex_types
   #(
     profile_complex_types,
     profile_resources,
@@ -5568,5 +6030,22 @@ pub fn profile_files_to_types(
     available_slice_valuesets,
     profile_resource_entries,
     constructors,
+    #(
+      case
+        preserve_slice_order
+        && {
+          dict.size(profile_structures.extensions) > 0
+          || !set.is_empty(slice_helpers)
+        }
+      {
+        True ->
+          codegen_helpers.require_function(
+            complex_required,
+            "slice_elts_to_values",
+          )
+        False -> complex_required
+      },
+      resource_required,
+    ),
   )
 }

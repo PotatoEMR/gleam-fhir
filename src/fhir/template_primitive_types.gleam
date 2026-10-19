@@ -1,35 +1,71 @@
-pub const source = "//// parsing logic common to date, datetime, instant, time
-//// FHIR dateTime uses a subset of ISO 8601
-//// so this is based on https://hexdocs.pm/datetime_iso8601/datetime_iso8601.html#DateTime
-////
-//// the goal is to make only valid times representable,
-//// but also roundtrip string exactly, including millisec implicit precision
-
-import gleam/dynamic/decode
-import gleam/int
-import gleam/json
-import gleam/option.{type Option, None, Some}
-import gleam/result
+import codegen_helpers
+import gleam/dict
+import gleam/list
+import gleam/set.{type Set}
 import gleam/string
-import gleam/time/calendar
 
-const nanoseconds_per_second: Int = 1_000_000_000
+pub fn source(types: Set(String)) -> String {
+  let definitions = [
+    #(
+      "nanoseconds_per_second",
+      [],
+      "const nanoseconds_per_second: Int = 1_000_000_000
 
-const byte_colon: Int = 0x3A
+",
+    ),
+    #(
+      "byte_colon",
+      [],
+      "const byte_colon: Int = 0x3A
 
-const byte_minus: Int = 0x2D
+",
+    ),
+    #(
+      "byte_minus",
+      [],
+      "const byte_minus: Int = 0x2D
 
-const byte_plus: Int = 0x2B
+",
+    ),
+    #(
+      "byte_plus",
+      [],
+      "const byte_plus: Int = 0x2B
 
-const byte_dot: Int = 0x2E
+",
+    ),
+    #(
+      "byte_dot",
+      [],
+      "const byte_dot: Int = 0x2E
 
-const byte_zero: Int = 0x30
+",
+    ),
+    #(
+      "byte_zero",
+      [],
+      "const byte_zero: Int = 0x30
 
-const byte_nine: Int = 0x39
+",
+    ),
+    #(
+      "byte_nine",
+      [],
+      "const byte_nine: Int = 0x39
 
-const byte_t_uppercase: Int = 0x54
+",
+    ),
+    #(
+      "byte_t_uppercase",
+      [],
+      "const byte_t_uppercase: Int = 0x54
 
-const byte_z_uppercase: Int = 0x5A
+",
+    ),
+    #(
+      "byte_z_uppercase",
+      ["import:option"],
+      "const byte_z_uppercase: Int = 0x5A
 
 /// part of time after decimal point
 /// where precision is number of digits after decimal point
@@ -38,7 +74,12 @@ const byte_z_uppercase: Int = 0x5A
 /// NanosecWithPrecision(123_000_000, Some(3)) -> .123
 /// NanosecWithPrecision(123_000_000, Some(4)) -> .1230
 /// NanosecWithPrecision(123_000, Some(5)) -> .00012
-pub type NanosecWithPrecision {
+",
+    ),
+    #(
+      "NanosecWithPrecision",
+      ["import:option"],
+      "pub type NanosecWithPrecision {
   NanosecWithPrecision(value: Int, precision: Option(Int))
 }
 
@@ -46,7 +87,12 @@ pub type NanosecWithPrecision {
 /// Also, both datatypes' regexes permit -00:00 as a time zone offset. I don't think this offset is permitted by ISO 8601, but is permitted in RFC 3339. (It means \"time expressed in UTC; offset to local unknown\", as opposed to +00:00 which means \"time expressed in UTC; local time is UTC\".) Does FHIR allow an offset of -00:00?
 /// Grahame Grieve: 9 and yes
 /// https://chat.fhir.org/#narrow/channel/179166-implementers/topic/Subsecond.20resolution.20of.20dateTime.20and.20instant/near/469589261
-pub type Timezone {
+",
+    ),
+    #(
+      "Timezone",
+      ["Sign"],
+      "pub type Timezone {
   // a timezone offset in hours or minutes
   // in form +HH:MM or -HH:MM
   // eg +12:34 or -03:30
@@ -59,12 +105,22 @@ pub type Timezone {
   Z
 }
 
-pub type Sign {
+",
+    ),
+    #(
+      "Sign",
+      [],
+      "pub type Sign {
   Plus
   Minus
 }
 
-fn expect_byte(bytes: BitArray, expected: Int) -> Result(BitArray, Nil) {
+",
+    ),
+    #(
+      "expect_byte",
+      [],
+      "fn expect_byte(bytes: BitArray, expected: Int) -> Result(BitArray, Nil) {
   case bytes {
     <<byte, rest:bytes>> -> {
       case byte == expected {
@@ -76,14 +132,24 @@ fn expect_byte(bytes: BitArray, expected: Int) -> Result(BitArray, Nil) {
   }
 }
 
-fn parse_digits(
+",
+    ),
+    #(
+      "parse_digits",
+      ["parse_digits_loop"],
+      "fn parse_digits(
   from bytes: BitArray,
   count count: Int,
 ) -> Result(#(Int, BitArray), Nil) {
   parse_digits_loop(bytes, count, 0, 0)
 }
 
-fn parse_digits_loop(
+",
+    ),
+    #(
+      "parse_digits_loop",
+      ["byte_nine", "byte_zero"],
+      "fn parse_digits_loop(
   bytes: BitArray,
   count: Int,
   acc: Int,
@@ -110,7 +176,12 @@ fn parse_digits_loop(
   }
 }
 
-fn validate_day(
+",
+    ),
+    #(
+      "validate_day",
+      ["import:calendar"],
+      "fn validate_day(
   year: Int,
   month: calendar.Month,
   day: Int,
@@ -137,21 +208,36 @@ fn validate_day(
   }
 }
 
-fn validate_hour(hour: Int) -> Result(Nil, Nil) {
+",
+    ),
+    #(
+      "validate_hour",
+      [],
+      "fn validate_hour(hour: Int) -> Result(Nil, Nil) {
   case hour >= 0 && hour <= 23 {
     True -> Ok(Nil)
     False -> Error(Nil)
   }
 }
 
-fn validate_minute(minute: Int) -> Result(Nil, Nil) {
+",
+    ),
+    #(
+      "validate_minute",
+      [],
+      "fn validate_minute(minute: Int) -> Result(Nil, Nil) {
   case minute >= 0 && minute <= 59 {
     True -> Ok(Nil)
     False -> Error(Nil)
   }
 }
 
-fn validate_second(second: Int) -> Result(Nil, Nil) {
+",
+    ),
+    #(
+      "validate_second",
+      [],
+      "fn validate_second(second: Int) -> Result(Nil, Nil) {
   // Leap seconds allowed per FHIR spec
   case second >= 0 && second <= 60 {
     True -> Ok(Nil)
@@ -159,7 +245,23 @@ fn validate_second(second: Int) -> Result(Nil, Nil) {
   }
 }
 
-fn parse_time_of_day(
+",
+    ),
+    #(
+      "parse_time_of_day",
+      [
+        "NanosecWithPrecision",
+        "byte_colon",
+        "expect_byte",
+        "import:option",
+        "import:result",
+        "parse_digits",
+        "parse_optional_fraction_as_nanoseconds",
+        "validate_hour",
+        "validate_minute",
+        "validate_second",
+      ],
+      "fn parse_time_of_day(
   bytes: BitArray,
 ) -> Result(#(Int, Int, Int, Option(NanosecWithPrecision), BitArray), Nil) {
   use #(hour, bytes) <- result.try(parse_digits(from: bytes, count: 2))
@@ -176,7 +278,18 @@ fn parse_time_of_day(
   Ok(#(hour, minute, second, nanosec, bytes))
 }
 
-pub fn time_of_day_to_string(
+",
+    ),
+    #(
+      "time_of_day_to_string",
+      [
+        "NanosecWithPrecision",
+        "import:option",
+        "import:string",
+        "n2",
+        "nanosec_to_string",
+      ],
+      "pub fn time_of_day_to_string(
   hour: Int,
   minute: Int,
   second: Int,
@@ -192,7 +305,18 @@ pub fn time_of_day_to_string(
   ])
 }
 
-fn parse_optional_fraction_as_nanoseconds(
+",
+    ),
+    #(
+      "parse_optional_fraction_as_nanoseconds",
+      [
+        "NanosecWithPrecision",
+        "byte_dot",
+        "import:option",
+        "import:result",
+        "parse_fraction_as_nanoseconds",
+      ],
+      "fn parse_optional_fraction_as_nanoseconds(
   bytes: BitArray,
 ) -> Result(#(Option(NanosecWithPrecision), BitArray), Nil) {
   case bytes {
@@ -209,7 +333,18 @@ fn parse_optional_fraction_as_nanoseconds(
   }
 }
 
-fn parse_fraction_as_nanoseconds(
+",
+    ),
+    #(
+      "parse_fraction_as_nanoseconds",
+      [
+        "NanosecWithPrecision",
+        "byte_nine",
+        "byte_zero",
+        "nanoseconds_per_second",
+        "parse_fraction_as_nanoseconds_loop",
+      ],
+      "fn parse_fraction_as_nanoseconds(
   bytes: BitArray,
 ) -> Result(#(NanosecWithPrecision, BitArray), Nil) {
   case bytes {
@@ -229,7 +364,12 @@ fn parse_fraction_as_nanoseconds(
   }
 }
 
-fn parse_fraction_as_nanoseconds_loop(
+",
+    ),
+    #(
+      "parse_fraction_as_nanoseconds_loop",
+      ["NanosecWithPrecision", "byte_nine", "byte_zero", "import:option"],
+      "fn parse_fraction_as_nanoseconds_loop(
   bytes: BitArray,
   acc: Int,
   power: Int,
@@ -260,7 +400,18 @@ fn parse_fraction_as_nanoseconds_loop(
   }
 }
 
-fn parse_timezone(bytes: BitArray) -> Result(#(Timezone, BitArray), Nil) {
+",
+    ),
+    #(
+      "parse_timezone",
+      [
+        "Timezone",
+        "byte_minus",
+        "byte_plus",
+        "byte_z_uppercase",
+        "parse_timezone_offset",
+      ],
+      "fn parse_timezone(bytes: BitArray) -> Result(#(Timezone, BitArray), Nil) {
   case bytes {
     <<byte, rest:bytes>> -> {
       case byte == byte_z_uppercase {
@@ -277,7 +428,19 @@ fn parse_timezone(bytes: BitArray) -> Result(#(Timezone, BitArray), Nil) {
   }
 }
 
-fn parse_timezone_offset(
+",
+    ),
+    #(
+      "parse_timezone_offset",
+      [
+        "Timezone",
+        "byte_colon",
+        "expect_byte",
+        "import:result",
+        "parse_digits",
+        "parse_sign",
+      ],
+      "fn parse_timezone_offset(
   bytes: BitArray,
 ) -> Result(#(Timezone, BitArray), Nil) {
   use #(sign, bytes) <- result.try(parse_sign(bytes))
@@ -294,7 +457,12 @@ fn parse_timezone_offset(
   }
 }
 
-fn parse_sign(bytes: BitArray) -> Result(#(Sign, BitArray), Nil) {
+",
+    ),
+    #(
+      "parse_sign",
+      ["Sign", "byte_minus", "byte_plus"],
+      "fn parse_sign(bytes: BitArray) -> Result(#(Sign, BitArray), Nil) {
   case bytes {
     <<byte, rest:bytes>> -> {
       case byte == byte_plus {
@@ -311,7 +479,12 @@ fn parse_sign(bytes: BitArray) -> Result(#(Sign, BitArray), Nil) {
   }
 }
 
-pub fn nanosec_to_string(nanosec: Option(NanosecWithPrecision)) -> String {
+",
+    ),
+    #(
+      "nanosec_to_string",
+      ["NanosecWithPrecision", "import:int", "import:option", "import:string"],
+      "pub fn nanosec_to_string(nanosec: Option(NanosecWithPrecision)) -> String {
   case nanosec {
     None -> \"\"
     Some(NanosecWithPrecision(value, Some(digits))) -> {
@@ -325,7 +498,12 @@ pub fn nanosec_to_string(nanosec: Option(NanosecWithPrecision)) -> String {
   }
 }
 
-pub fn timezone_to_string(tz: Timezone) -> String {
+",
+    ),
+    #(
+      "timezone_to_string",
+      ["Sign", "Timezone", "import:string", "n2"],
+      "pub fn timezone_to_string(tz: Timezone) -> String {
   case tz {
     Z -> \"Z\"
     Offset(Plus, hours, minutes) ->
@@ -335,15 +513,30 @@ pub fn timezone_to_string(tz: Timezone) -> String {
   }
 }
 
-fn n2(d: Int) -> String {
+",
+    ),
+    #(
+      "n2",
+      ["import:int", "import:string"],
+      "fn n2(d: Int) -> String {
   int.to_string(d) |> string.pad_start(2, \"0\")
 }
 
-fn n4(d: Int) -> String {
+",
+    ),
+    #(
+      "n4",
+      ["import:int", "import:string"],
+      "fn n4(d: Int) -> String {
   int.to_string(d) |> string.pad_start(4, \"0\")
 }
 
-pub fn month_to_string(month: calendar.Month) -> String {
+",
+    ),
+    #(
+      "month_to_string",
+      ["import:calendar"],
+      "pub fn month_to_string(month: calendar.Month) -> String {
   case month {
     calendar.January -> \"01\"
     calendar.February -> \"02\"
@@ -367,13 +560,30 @@ pub fn month_to_string(month: calendar.Month) -> String {
 /// e.g., 2018, 1973-06, or 1905-08-23. There SHALL be no timezone offset.
 /// Dates SHALL be valid dates.
 /// Regex: ([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)(-(0[1-9]|1[0-2])(-(0[1-9]|[1-2][0-9]|3[0-1]))?)?
-pub type Date {
+",
+    ),
+    #(
+      "Date",
+      ["date_decoder", "date_to_json", "import:calendar"],
+      "pub type Date {
   Year(year: Int)
   YearMonth(year: Int, month: calendar.Month)
   YearMonthDay(year: Int, month: calendar.Month, day: Int)
 }
 
-pub fn parse_date(input: String) -> Result(Date, Nil) {
+",
+    ),
+    #(
+      "parse_date",
+      [
+        "Date",
+        "byte_minus",
+        "import:calendar",
+        "import:result",
+        "parse_digits",
+        "validate_day",
+      ],
+      "pub fn parse_date(input: String) -> Result(Date, Nil) {
   use #(year, bytes) <- result.try(parse_digits(from: <<input:utf8>>, count: 4))
   case bytes {
     <<>> -> Ok(Year(year))
@@ -413,7 +623,12 @@ pub fn parse_date(input: String) -> Result(Date, Nil) {
   }
 }
 
-pub fn date_to_string(date: Date) -> String {
+",
+    ),
+    #(
+      "date_to_string",
+      ["Date", "import:string", "month_to_string", "n2", "n4"],
+      "pub fn date_to_string(date: Date) -> String {
   case date {
     Year(year) -> n4(year)
     YearMonth(year, month) ->
@@ -433,7 +648,12 @@ pub fn date_to_string(date: Date) -> String {
   }
 }
 
-pub fn date_decoder() -> decode.Decoder(Date) {
+",
+    ),
+    #(
+      "date_decoder",
+      ["Date", "import:decode", "parse_date"],
+      "pub fn date_decoder() -> decode.Decoder(Date) {
   use s <- decode.then(decode.string)
   case parse_date(s) {
     Ok(d) -> decode.success(d)
@@ -441,7 +661,12 @@ pub fn date_decoder() -> decode.Decoder(Date) {
   }
 }
 
-pub fn date_to_json(date: Date) -> json.Json {
+",
+    ),
+    #(
+      "date_to_json",
+      ["Date", "date_to_string", "import:json"],
+      "pub fn date_to_json(date: Date) -> json.Json {
   json.string(date_to_string(date))
 }
 
@@ -454,7 +679,12 @@ pub fn date_to_json(date: Date) -> json.Json {
 /// The time \"24:00\" SHALL NOT be used. A timezone offset SHALL NOT be present.
 /// Times can be converted to a Duration since midnight.
 /// Regex: ([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]{1,9})?
-pub type Time {
+",
+    ),
+    #(
+      "Time",
+      ["NanosecWithPrecision", "import:option", "time_decoder", "time_to_json"],
+      "pub type Time {
   Time(
     hour: Int,
     minute: Int,
@@ -463,7 +693,12 @@ pub type Time {
   )
 }
 
-pub fn parse_time(input: String) -> Result(Time, Nil) {
+",
+    ),
+    #(
+      "parse_time",
+      ["Time", "import:result", "parse_time_of_day"],
+      "pub fn parse_time(input: String) -> Result(Time, Nil) {
   use #(hour, minute, second, nanosec, bytes) <- result.try(
     parse_time_of_day(<<input:utf8>>),
   )
@@ -473,11 +708,21 @@ pub fn parse_time(input: String) -> Result(Time, Nil) {
   }
 }
 
-pub fn time_to_string(time: Time) -> String {
+",
+    ),
+    #(
+      "time_to_string",
+      ["Time", "time_of_day_to_string"],
+      "pub fn time_to_string(time: Time) -> String {
   time_of_day_to_string(time.hour, time.minute, time.second, time.nanosec)
 }
 
-pub fn time_decoder() -> decode.Decoder(Time) {
+",
+    ),
+    #(
+      "time_decoder",
+      ["Time", "import:decode", "import:option", "parse_time"],
+      "pub fn time_decoder() -> decode.Decoder(Time) {
   use s <- decode.then(decode.string)
   case parse_time(s) {
     Ok(t) -> decode.success(t)
@@ -485,7 +730,12 @@ pub fn time_decoder() -> decode.Decoder(Time) {
   }
 }
 
-pub fn time_to_json(time: Time) -> json.Json {
+",
+    ),
+    #(
+      "time_to_json",
+      ["Time", "import:json", "time_to_string"],
+      "pub fn time_to_json(time: Time) -> json.Json {
   json.string(time_to_string(time))
 }
 
@@ -507,13 +757,39 @@ pub fn time_to_json(time: Time) -> json.Json {
 /// Seconds must be provided due to schema type constraints but may be zero-filled
 /// and may be ignored at receiver discretion. Milliseconds are optionally allowed.
 /// Dates SHALL be valid dates. The time \"24:00\" is not allowed. Leap Seconds are allowed
-pub type DateTime {
+",
+    ),
+    #(
+      "DateTime",
+      [
+        "Date",
+        "Time",
+        "Timezone",
+        "datetime_decoder",
+        "datetime_to_json",
+        "import:calendar",
+      ],
+      "pub type DateTime {
   DateNoTime(date: Date)
   // date with time is effectively same as Instant
   DateWithTime(date: calendar.Date, time: Time, zone: Timezone)
 }
 
-pub fn parse_datetime(input: String) -> Result(DateTime, Nil) {
+",
+    ),
+    #(
+      "parse_datetime",
+      [
+        "Date",
+        "DateTime",
+        "byte_minus",
+        "import:calendar",
+        "import:result",
+        "parse_datetime_time_part",
+        "parse_digits",
+        "validate_day",
+      ],
+      "pub fn parse_datetime(input: String) -> Result(DateTime, Nil) {
   use #(year, bytes) <- result.try(parse_digits(from: <<input:utf8>>, count: 4))
   case bytes {
     <<>> -> Ok(DateNoTime(Year(year)))
@@ -538,7 +814,20 @@ pub fn parse_datetime(input: String) -> Result(DateTime, Nil) {
   }
 }
 
-fn parse_datetime_time_part(
+",
+    ),
+    #(
+      "parse_datetime_time_part",
+      [
+        "DateTime",
+        "Time",
+        "byte_t_uppercase",
+        "import:calendar",
+        "import:result",
+        "parse_time_of_day",
+        "parse_timezone",
+      ],
+      "fn parse_datetime_time_part(
   bytes: BitArray,
   date: calendar.Date,
 ) -> Result(DateTime, Nil) {
@@ -558,7 +847,19 @@ fn parse_datetime_time_part(
   }
 }
 
-pub fn datetime_to_string(dt: DateTime) -> String {
+",
+    ),
+    #(
+      "datetime_to_string",
+      [
+        "Date",
+        "DateTime",
+        "date_to_string",
+        "import:string",
+        "time_to_string",
+        "timezone_to_string",
+      ],
+      "pub fn datetime_to_string(dt: DateTime) -> String {
   case dt {
     DateNoTime(date:) -> date_to_string(date)
     DateWithTime(date:, time:, zone:) ->
@@ -571,7 +872,12 @@ pub fn datetime_to_string(dt: DateTime) -> String {
   }
 }
 
-pub fn datetime_decoder() -> decode.Decoder(DateTime) {
+",
+    ),
+    #(
+      "datetime_decoder",
+      ["Date", "DateTime", "import:decode", "parse_datetime"],
+      "pub fn datetime_decoder() -> decode.Decoder(DateTime) {
   use s <- decode.then(decode.string)
   case parse_datetime(s) {
     Ok(dt) -> decode.success(dt)
@@ -579,7 +885,12 @@ pub fn datetime_decoder() -> decode.Decoder(DateTime) {
   }
 }
 
-pub fn datetime_to_json(dt: DateTime) -> json.Json {
+",
+    ),
+    #(
+      "datetime_to_json",
+      ["DateTime", "datetime_to_string", "import:json"],
+      "pub fn datetime_to_json(dt: DateTime) -> json.Json {
   json.string(datetime_to_string(dt))
 }
 
@@ -593,11 +904,39 @@ pub fn datetime_to_json(dt: DateTime) -> json.Json {
 /// Note: This is intended for when precisely observed times are required (typically system logs etc.),
 /// and not human-reported times - for those, use date or dateTime.
 /// Regex: ([0-9]([0-9]([0-9][1-9]|[1-9]0)|[1-9]00)|[1-9]000)-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])T([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\\.[0-9]{1,9})?(Z|(\\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00))
-pub type Instant {
+",
+    ),
+    #(
+      "Instant",
+      [
+        "Time",
+        "Timezone",
+        "import:calendar",
+        "instant_decoder",
+        "instant_to_json",
+      ],
+      "pub type Instant {
   Instant(date: calendar.Date, time: Time, timezone: Timezone)
 }
 
-pub fn parse_instant(input: String) -> Result(Instant, Nil) {
+",
+    ),
+    #(
+      "parse_instant",
+      [
+        "Instant",
+        "Time",
+        "byte_minus",
+        "byte_t_uppercase",
+        "expect_byte",
+        "import:calendar",
+        "import:result",
+        "parse_digits",
+        "parse_time_of_day",
+        "parse_timezone",
+        "validate_day",
+      ],
+      "pub fn parse_instant(input: String) -> Result(Instant, Nil) {
   let bytes = <<input:utf8>>
   use #(year, bytes) <- result.try(parse_digits(from: bytes, count: 4))
   use bytes <- result.try(expect_byte(bytes, byte_minus))
@@ -622,7 +961,19 @@ pub fn parse_instant(input: String) -> Result(Instant, Nil) {
   }
 }
 
-pub fn instant_to_string(instant: Instant) -> String {
+",
+    ),
+    #(
+      "instant_to_string",
+      [
+        "Date",
+        "Instant",
+        "date_to_string",
+        "import:string",
+        "time_to_string",
+        "timezone_to_string",
+      ],
+      "pub fn instant_to_string(instant: Instant) -> String {
   string.concat([
     date_to_string(YearMonthDay(
       instant.date.year,
@@ -635,19 +986,80 @@ pub fn instant_to_string(instant: Instant) -> String {
   ])
 }
 
-pub fn instant_decoder() -> decode.Decoder(Instant) {
+",
+    ),
+    #(
+      "instant_failure_variant",
+      ["Instant", "Time", "Timezone", "import:calendar", "import:option"],
+      "pub const instant_failure_variant: Instant =
+  Instant(calendar.Date(1, calendar.January, 1), Time(0, 0, 0, None), Z)
+
+",
+    ),
+    #(
+      "instant_decoder",
+      [
+        "Instant",
+        "import:decode",
+        "instant_failure_variant",
+        "parse_instant",
+      ],
+      "pub fn instant_decoder() -> decode.Decoder(Instant) {
   use s <- decode.then(decode.string)
   case parse_instant(s) {
     Ok(i) -> decode.success(i)
     Error(Nil) ->
       decode.failure(
-        Instant(calendar.Date(1, calendar.January, 1), Time(0, 0, 0, None), Z),
+        instant_failure_variant,
         \"Instant\",
       )
   }
 }
 
-pub fn instant_to_json(instant: Instant) -> json.Json {
+",
+    ),
+    #(
+      "instant_to_json",
+      ["Instant", "import:json", "instant_to_string"],
+      "pub fn instant_to_json(instant: Instant) -> json.Json {
   json.string(instant_to_string(instant))
 }
-"
+",
+    ),
+  ]
+  let required =
+    codegen_helpers.required_names(
+      definitions
+        |> list.map(fn(definition) { #(definition.0, definition.1) })
+        |> dict.from_list,
+      types,
+      set.new(),
+    )
+  let imports = [
+    #("import:decode", "import gleam/dynamic/decode\n"),
+    #("import:int", "import gleam/int\n"),
+    #("import:json", "import gleam/json\n"),
+    #("import:result", "import gleam/result\n"),
+    #("import:string", "import gleam/string\n"),
+    #("import:calendar", "import gleam/time/calendar\n"),
+    #("import:option", "import gleam/option.{type Option, None, Some}\n"),
+  ]
+  let imports =
+    imports
+    |> list.filter(fn(entry) { set.contains(required, entry.0) })
+    |> list.map(fn(entry) { entry.1 })
+    |> string.concat
+  let declarations =
+    definitions
+    |> list.filter(fn(definition) { set.contains(required, definition.0) })
+    |> list.map(fn(definition) { definition.2 })
+    |> string.concat
+  "//// parsing logic common to date, datetime, instant, time
+//// FHIR dateTime uses a subset of ISO 8601
+//// so this is based on https://hexdocs.pm/datetime_iso8601/datetime_iso8601.html#DateTime
+////
+//// the goal is to make only valid times representable,
+//// but also roundtrip string exactly, including millisec implicit precision
+
+" <> imports <> declarations
+}

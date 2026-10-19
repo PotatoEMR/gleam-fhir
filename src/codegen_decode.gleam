@@ -1,11 +1,13 @@
 import codegen_bound_coding
 import codegen_helpers
 import gleam/dict
+import gleam/json
 import gleam/list
 import gleam/option.{Some}
 import gleam/string
 
-pub const result_or_decode_failure = "fn result_or_decode_failure(
+pub const result_or_decode_failure =
+  "fn result_or_decode_failure(
   result: Result(a, String),
   placeholder placeholder: a,
   then next: fn(a) -> Decoder(b),
@@ -20,7 +22,8 @@ pub const result_or_decode_failure = "fn result_or_decode_failure(
 }
 "
 
-pub const array_cardinality_decoders = "
+pub const array_cardinality_decoders =
+  "
 pub fn one_from_array_decoder(
   name: String,
   inner: decode.Decoder(a),
@@ -60,15 +63,28 @@ pub fn string_to_decoder_type(
   elt: codegen_helpers.Element,
   current: codegen_helpers.Category,
 ) -> String {
-  let #(gleam_type, _) =
-    codegen_helpers.string_to_type(
-      fhir_type,
-      allparts,
-      elt,
-      current,
-      dict.new(),
-    )
-  decoder_for_type(fhir_type, gleam_type, current)
+  case elt.gleam_arguments, elt.gleam_type {
+    Some(arguments), Some(name) ->
+      codegen_helpers.bucket_prefix("Quantity", current)
+      <> codegen_helpers.to_snake_case(name)
+      <> "_decoder("
+      <> string.join(
+        list.map(arguments, fn(value) { json.to_string(json.string(value)) }),
+        ", ",
+      )
+      <> ")"
+    _, _ -> {
+      let #(gleam_type, _) =
+        codegen_helpers.string_to_type(
+          fhir_type,
+          allparts,
+          elt,
+          current,
+          dict.new(),
+        )
+      decoder_for_type(fhir_type, gleam_type, current)
+    }
+  }
 }
 
 pub fn decoder_for_type(
@@ -81,8 +97,18 @@ pub fn decoder_for_type(
     fhir_type,
     codegen_bound_coding.bound_valueset_function_name(gleam_type)
   {
-    "Coding", Some(valueset) ->
-      codegen_bound_coding.bound_coding_decoder_source(prefix, valueset)
+    "Coding", Some(valueset) -> {
+      let assert [name, ..] = string.split(gleam_type, "(")
+      let name =
+        string.replace(name, prefix, "") |> codegen_helpers.to_snake_case
+      prefix
+      <> name
+      <> "_decoder(valuesets."
+      <> valueset
+      <> "_from_code_and_system, valuesets."
+      <> valueset
+      <> "_failure_variant)"
+    }
     "CodeableConcept", Some(valueset) ->
       codegen_bound_coding.bound_codeableconcept_decoder_source(
         prefix,
