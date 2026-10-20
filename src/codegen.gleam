@@ -20,6 +20,7 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/set.{type Set}
 import gleam/string
+import shellout
 
 //dev dependencies but not required for users
 import simplifile
@@ -118,6 +119,20 @@ pub fn main() {
   //   Error(_) -> panic as "could not remove fhir dir"
   // }
   // let assert Ok(_) = simplifile.create_directory_all(gen_into_dir)
+
+  case simplifile.is_directory("downloads_custom") {
+    Ok(True) -> {
+      let assert Ok(_) =
+        shellout.command(
+          "cp",
+          ["-R", "downloads_custom/.", download_dir],
+          ".",
+          [],
+        )
+      Nil
+    }
+    _ -> Nil
+  }
 
   let profiles_dir = download_dir |> filepath.join("profile_package")
   let custom_profile =
