@@ -593,13 +593,24 @@ pub fn gen(
     }
   }
 
+  let valueset_source = case has_valueset {
+    False -> ""
+    True -> {
+      let assert Ok(codegen_profile_json.RecordConstructor(_, _, fields)) =
+        dict.get(constructors, "resources.Parameters")
+      case list.map(fields, fn(field) { codegen_helpers.field_name(field.0) }) {
+        ["parameter"] ->
+          template_codegen_client_sansio.valueset_expand
+          |> string.replace("..resources.parameters_new(),", "")
+          |> string.replace("..state.params,", "")
+        _ -> template_codegen_client_sansio.valueset_expand
+      }
+    }
+  }
   let sansio =
     string.concat([
       file_text,
-      case has_valueset {
-        True -> template_codegen_client_sansio.valueset_expand
-        False -> ""
-      },
+      valueset_source,
       //res_specific_crud,
       // search_type,
       // search_type_new,

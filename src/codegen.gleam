@@ -66,6 +66,10 @@ pub fn main() {
 
   let download_files = list.contains(args_lower, "download")
   let preserve_slice_order = list.contains(args_lower, "order")
+  let client_resources = case list.contains(args_lower, "noio") {
+    True -> []
+    False -> codegen_helpers.client_resource_fields
+  }
   let capability_statement_file = case
     list.find(args_cased, fn(arg) {
       string.starts_with(arg, "CapabilityStatement=")
@@ -77,7 +81,7 @@ pub fn main() {
     }
     Error(_) -> None
   }
-  let gen_specific_resources = case
+  let requested_resources = case
     list.find(args_lower, fn(arg) {
       string.starts_with(arg, "structuredefinitions=")
     })
@@ -87,14 +91,28 @@ pub fn main() {
       Some(
         resources
         |> string.split(",")
-        |> list.map(string.lowercase)
-        // always need these resources for the client stuff
-        |> list.prepend("bundle")
-        |> list.prepend("parameters")
-        |> list.prepend("operationoutcome"),
+        |> list.map(string.lowercase),
       )
     }
     Error(_) -> None
+  }
+  let gen_specific_resources =
+    option.map(requested_resources, fn(resources) {
+      list.fold(client_resources, resources, fn(resources, resource) {
+        list.prepend(resources, string.lowercase(resource.0))
+      })
+    })
+  let minimal_client_resources = case requested_resources {
+    None -> set.new()
+    Some(resources) ->
+      client_resources
+      |> list.filter_map(fn(resource) {
+        case list.contains(resources, string.lowercase(resource.0)) {
+          True -> Error(Nil)
+          False -> Ok(resource.0)
+        }
+      })
+      |> set.from_list
   }
 
   let _ = case download_files {
@@ -189,6 +207,8 @@ pub fn main() {
           capability_statement_file,
           preserve_slice_order,
           gen_specific_resources,
+          minimal_client_resources,
+          client_resources,
         )
       False -> Nil
     }
@@ -203,6 +223,8 @@ fn gen_fhir(
   capability_statement_file: Option(String),
   preserve_slice_order: Bool,
   gen_specific_resources: Option(List(String)),
+  minimal_client_resources: Set(String),
+  client_resources: List(#(String, List(String))),
 ) -> Nil {
   let extract_dir_ver = download_dir |> filepath.join(fhir_version)
 
@@ -270,6 +292,7 @@ fn gen_fhir(
       valueset_acc: dict.new(),
       gen_specific_resources:,
       gen_specific_complex_types: None,
+      minimal_client_resources:,
       valuesets_package_dir:,
       available_valuesets: dict.new(),
     )
@@ -278,6 +301,7 @@ fn gen_fhir(
       codegen_profile.required_complex_type_names(
         profiles_dir,
         gen_specific_resources,
+        client_resources,
       )
     None -> set.new()
   }
@@ -302,6 +326,7 @@ fn gen_fhir(
       valueset_acc:,
       gen_specific_resources:,
       gen_specific_complex_types:,
+      minimal_client_resources:,
       valuesets_package_dir:,
       available_valuesets:,
     )
@@ -343,6 +368,7 @@ fn gen_fhir(
           dict.merge(resource_constructors, core_constructors),
           available_valuesets,
           fhir_version,
+          client_resources,
         )
       #(
         complex_types,
@@ -381,6 +407,13 @@ fn gen_fhir(
       "Resource" <> gleam_type <> "(" <> gleam_type <> ")\n"
     })
     |> string.concat
+  let assert [fallback_resource, ..] = resource_entries
+    as "no resource StructureDefinitions selected"
+  let resource_failure =
+    codegen_helpers.to_snake_case(fallback_resource.1)
+    <> "_decoder() |> decode.map(Resource"
+    <> fallback_resource.1
+    <> ") |> decode.then(fn(value) { decode.failure(value, expected: \"\") })"
   let resource_encoders =
     resource_entries
     |> list.map(fn(resource_entry) {
@@ -542,10 +575,7 @@ fn gen_fhir(
       " <> match_profile_source <> "pub fn resource_decoder() -> Decoder(Resource) {
         use tag <- decode.field(\"resourceType\", decode.string)
         case tag {" <> resource_decoders <> "_ ->
-            decode.failure(
-              ResourceParameters(parameters_new()),
-              expected: \"\",
-            )
+            " <> resource_failure <> "
             |> decode.map_errors(fn(_errors) {
               [decode.DecodeError(
                 expected: \"one of Account, ActivityDefinition, AdverseEvent, AllergyIntolerance... or any resource name\",
@@ -714,8 +744,10 @@ fn gen_fhir(
   let resource_required =
     codegen_helpers.RequiredCode(
       ..resource_required,
-      modules: resource_required.modules
-        |> set.insert("bool")
+      modules: case core_resource_entries {
+          [] -> resource_required.modules
+          _ -> set.insert(resource_required.modules, "bool")
+        }
         |> set.insert("list"),
     )
   let resource_required = case uses_profile_match {
@@ -1298,32 +1330,52 @@ fn gen_fhir(
   let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
   io.println("generated " <> gen_vsfile)
 
-  let #(sansio, httpc_layer, rsvp_layer, search_params) =
-    codegen_client.gen(
-      filepath.join(extract_dir_ver, "profiles-resources.json"),
-      fhir_version,
-      pkg_prefix,
-      custom_profile_name,
-      case profiles_dir {
-        Some(dir) -> dir
-        None -> ""
-      },
-      capability_statement_file,
-      gen_specific_resources,
-      profile_resource_entries,
-      constructors,
-    )
+  let client_files = case client_resources {
+    [] -> []
+    _ -> {
+      let #(sansio, httpc_layer, rsvp_layer, search_params) =
+        codegen_client.gen(
+          filepath.join(extract_dir_ver, "profiles-resources.json"),
+          fhir_version,
+          pkg_prefix,
+          custom_profile_name,
+          case profiles_dir {
+            Some(dir) -> dir
+            None -> ""
+          },
+          capability_statement_file,
+          gen_specific_resources,
+          profile_resource_entries,
+          constructors,
+        )
+      [
+        #("sansio.gleam", sansio),
+        #("client_httpc.gleam", httpc_layer),
+        #("client_rsvp.gleam", rsvp_layer),
+        #("search_params.gleam", search_params),
+      ]
+    }
+  }
   list.each(
     [
-      #("sansio.gleam", sansio),
-      #("client_httpc.gleam", httpc_layer),
-      #("client_rsvp.gleam", rsvp_layer),
-      #("search_params.gleam", search_params),
+      "sansio.gleam",
+      "client_httpc.gleam",
+      "client_rsvp.gleam",
+      "search_params.gleam",
     ],
     fn(to_file) {
-      let file = filepath.join(gen_dir, to_file.0)
-      let assert Ok(_) = simplifile.write(to: file, contents: to_file.1)
-      io.println("generated " <> to_file.0)
+      let file = filepath.join(gen_dir, to_file)
+      case list.key_find(client_files, to_file) {
+        Ok(contents) -> {
+          let assert Ok(_) = simplifile.write(to: file, contents:)
+          io.println("generated " <> to_file)
+        }
+        Error(_) ->
+          case simplifile.delete(file) {
+            Ok(_) | Error(simplifile.Enoent) -> Nil
+            Error(_) -> panic as { "could not remove " <> file }
+          }
+      }
     },
   )
 }
@@ -1393,6 +1445,7 @@ fn file_to_types(
   valueset_acc valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   gen_specific_resources gen_specific_resources: Option(List(String)),
   gen_specific_complex_types gen_specific_complex_types: Option(Set(String)),
+  minimal_client_resources minimal_client_resources: Set(String),
   valuesets_package_dir valuesets_package_dir: String,
   available_valuesets available_valuesets: dict.Dict(
     String,
@@ -1437,6 +1490,54 @@ fn file_to_types(
     })
 
   let entries = list.map(entries, fn(entry) { entry.resource })
+  let entries =
+    list.map(entries, fn(resource) {
+      case set.contains(minimal_client_resources, resource.name) {
+        False -> resource
+        True -> {
+          let assert Some(resource_type) = resource.type_
+          let assert Ok(fields) =
+            list.key_find(codegen_helpers.client_resource_fields, resource_type)
+          let needs_valueset_parameters = case gen_specific_resources {
+            None -> True
+            Some(resources) -> list.contains(resources, "valueset")
+          }
+          let fields = case
+            resource_type == "Parameters" && needs_valueset_parameters
+          {
+            True -> codegen_helpers.valueset_parameter_fields
+            False -> fields
+          }
+          codegen_helpers.Resource(
+            ..resource,
+            snapshot: option.map(resource.snapshot, fn(snapshot) {
+              codegen_helpers.Snapshot(
+                element: snapshot.element
+                |> list.filter(fn(element) {
+                  element.path == resource_type
+                  || list.contains(fields, element.path)
+                })
+                |> list.map(fn(element) {
+                  case element.path == "Parameters.parameter.value[x]" {
+                    True ->
+                      codegen_helpers.Element(
+                        ..element,
+                        type_: list.filter(element.type_, fn(type_) {
+                          list.contains(
+                            codegen_helpers.valueset_parameter_types,
+                            type_.code,
+                          )
+                        }),
+                      )
+                    False -> element
+                  }
+                }),
+              )
+            }),
+          )
+        }
+      }
+    })
   let required_valuesets =
     entries
     |> list.flat_map(fn(resource) {
@@ -2174,9 +2275,11 @@ fn file_to_types(
                   ") ->" <> camel_type,
                   "{",
                   camel_type,
-                  "(",
-                  newfunc_fields,
-                  ")\n}",
+                  case newfunc_fields {
+                    "" -> ""
+                    _ -> "(" <> newfunc_fields <> ")"
+                  },
+                  "\n}",
                 ])
               let type_choicetypes = string.join(choicetypes, "\n")
               let is_domainresource = case resource.kind {

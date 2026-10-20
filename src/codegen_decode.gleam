@@ -235,8 +235,12 @@ pub fn gen_res_decoder(
       use <- bool.guard(rt != \"" <> respascal <> "\", decode.failure(RESNAMELOWER_new(" <> decoder_always_failure_fordr <> "), \"resourceType\"))"
     False -> ""
   }
+  let success = case success_list {
+    "" -> "RESNAMECAMEL"
+    _ -> "RESNAMECAMEL(" <> success_list <> ")"
+  }
   let template = "pub fn RESNAMELOWER_decoder() -> Decoder(RESNAMECAMEL) {
-     use <- decode.recursive\n" <> use_list <> resource_type <> "decode.success(RESNAMECAMEL(" <> success_list <> "))}"
+     use <- decode.recursive\n" <> use_list <> resource_type <> "decode.success(" <> success <> ")}"
   template
   |> string.replace("RESNAMELOWER", reslower)
   |> string.replace("RESNAMECAMEL", rescamel)

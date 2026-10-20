@@ -573,6 +573,7 @@ fn extension_definitions(
 fn load_profile_files(
   profiles_dir: String,
   gen_specific_resources: Option(List(String)),
+  client_resources: List(#(String, List(String))),
 ) -> ProfileFiles {
   let structures = root_profile_resources(profiles_dir)
   let resources =
@@ -584,6 +585,51 @@ fn load_profile_files(
           list.contains(gen_specific_resources, string.lowercase(resource.name))
       }
     })
+  list.each(resources, fn(resource) {
+    let fields = case resource.type_ {
+      None -> []
+      Some(resource_type) ->
+        case list.key_find(client_resources, resource_type) {
+          Error(_) -> []
+          Ok(fields) -> {
+            let needs_valueset_parameters = case gen_specific_resources {
+              None -> True
+              Some(resources) -> list.contains(resources, "valueset")
+            }
+            case resource_type == "Parameters" && needs_valueset_parameters {
+              True -> codegen_helpers.valueset_parameter_fields
+              False -> fields
+            }
+          }
+        }
+    }
+    let assert Some(snapshot) = resource.snapshot
+    list.each(fields, fn(path) {
+      let assert Ok(element) =
+        list.find(snapshot.element, fn(element) {
+          element.path == path && !string.contains(element.id, ":")
+        })
+        as { resource.id <> ": the client requires " <> path }
+      let assert True = element.max != "0"
+        as {
+          resource.id <> ": the client requires " <> path <> ", but max is 0"
+        }
+      case path == "Parameters.parameter.value[x]" {
+        False -> Nil
+        True ->
+          list.each(codegen_helpers.valueset_parameter_types, fn(code) {
+            let assert True =
+              list.any(element.type_, fn(type_) { type_.code == code })
+              as {
+                resource.id
+                <> ": ValueSet expansion requires Parameters.parameter.value[x] type "
+                <> code
+              }
+            Nil
+          })
+      }
+    })
+  })
   let datatype_profile_urls =
     resources
     |> list.flat_map(fn(resource) {
@@ -763,8 +809,10 @@ fn load_profile_files(
 pub fn required_complex_type_names(
   profiles_dir: String,
   gen_specific_resources: Option(List(String)),
+  client_resources: List(#(String, List(String))),
 ) -> Set(String) {
-  let profile_files = load_profile_files(profiles_dir, gen_specific_resources)
+  let profile_files =
+    load_profile_files(profiles_dir, gen_specific_resources, client_resources)
   let resource_elements =
     list.append(
       profile_files.resources,
@@ -3490,6 +3538,7 @@ pub fn profile_files_to_types(
   ),
   available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
   fhir_version: String,
+  client_resources: List(#(String, List(String))),
 ) -> #(
   String,
   String,
@@ -3500,7 +3549,7 @@ pub fn profile_files_to_types(
   #(codegen_helpers.RequiredCode, codegen_helpers.RequiredCode),
 ) {
   let profile_structures =
-    load_profile_files(profiles_dir, gen_specific_resources)
+    load_profile_files(profiles_dir, gen_specific_resources, client_resources)
   let required_valuesets_from_elements = fn(
     elements: List(codegen_helpers.Element),
   ) -> Set(String) {

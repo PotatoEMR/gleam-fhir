@@ -19,6 +19,32 @@ import gleam/set.{type Set}
 import gleam/string
 import simplifile
 
+pub const client_resource_fields = [
+  #("Bundle", [
+    "Bundle.type",
+    "Bundle.link",
+    "Bundle.link.relation",
+    "Bundle.link.url",
+    "Bundle.entry",
+    "Bundle.entry.resource",
+  ]),
+  #("Parameters", []),
+  #("OperationOutcome", [
+    "OperationOutcome.issue",
+    "OperationOutcome.issue.severity",
+    "OperationOutcome.issue.code",
+  ]),
+]
+
+pub const valueset_parameter_fields = [
+  "Parameters.parameter",
+  "Parameters.parameter.name",
+  "Parameters.parameter.value[x]",
+  "Parameters.parameter.resource",
+]
+
+pub const valueset_parameter_types = ["uri", "string", "integer", "boolean"]
+
 // These names come from resolved field types and decoder decisions, never
 // from searching generated source.
 pub type RequiredCode {
