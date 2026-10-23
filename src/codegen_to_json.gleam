@@ -1,5 +1,7 @@
 import codegen_bound_coding
+import codegen_constraint
 import codegen_helpers
+import gleam/bool
 import gleam/dict
 import gleam/json
 import gleam/list
@@ -13,6 +15,26 @@ pub fn string_to_encoder_call(
   current: codegen_helpers.Category,
   value: String,
 ) -> String {
+  use <- bool.guard(
+    case codegen_helpers.constant(elt) {
+      Some(codegen_constraint.Text(_))
+      | Some(codegen_constraint.Integer(_))
+      | Some(codegen_constraint.Decimal(_))
+      | Some(codegen_constraint.Boolean(_)) -> True
+      _ -> False
+    },
+    {
+      case codegen_helpers.constant(elt) {
+        Some(constant) ->
+          "{ let _ = "
+          <> value
+          <> " "
+          <> codegen_constraint.json_source(constant)
+          <> " }"
+        _ -> ""
+      }
+    },
+  )
   case elt.gleam_arguments, elt.gleam_type {
     Some(arguments), Some(name) -> {
       let call =
@@ -89,6 +111,22 @@ pub fn string_to_encoder_type(
   elt: codegen_helpers.Element,
   current: codegen_helpers.Category,
 ) -> String {
+  use <- bool.guard(
+    case codegen_helpers.constant(elt) {
+      Some(codegen_constraint.Text(_))
+      | Some(codegen_constraint.Integer(_))
+      | Some(codegen_constraint.Decimal(_))
+      | Some(codegen_constraint.Boolean(_)) -> True
+      _ -> False
+    },
+    {
+      case codegen_helpers.constant(elt) {
+        Some(constant) ->
+          "fn(_) { " <> codegen_constraint.json_source(constant) <> " }"
+        _ -> ""
+      }
+    },
+  )
   case elt.gleam_arguments, elt.gleam_type {
     Some(arguments), Some(name) -> {
       let call =

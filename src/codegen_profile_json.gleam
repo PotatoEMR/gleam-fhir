@@ -82,7 +82,21 @@ pub fn constructor_requirements(
       RecordConstructor(bucket, arguments, fields) if bucket == current_bucket -> {
         let required =
           list.fold(fields, required, fn(required, field) {
-            codegen_helpers.require_type(required, field.1)
+            let required = codegen_helpers.require_type(required, field.1)
+            case field.0.type_, field.1 {
+              [_, _, ..], _ -> required
+              _, "Option(String)" ->
+                codegen_helpers.require_function(
+                  required,
+                  "decode_optional_string",
+                )
+              _, "Option(Bool)" ->
+                codegen_helpers.require_function(
+                  required,
+                  "decode_optional_bool",
+                )
+              _, _ -> required
+            }
           })
         list.fold(arguments, required, fn(required, argument) {
           codegen_helpers.require_type(required, argument.1)
@@ -102,6 +116,7 @@ pub type ExtensionDefinition {
     url: String,
     kind: ExtensionKind,
     primitive_values: dict.Dict(String, PrimitiveExtensionValue),
+    elements: List(codegen_helpers.Element),
   )
 }
 
@@ -250,6 +265,13 @@ pub fn profile_extension_definition(
   element: codegen_helpers.Element,
   extensions: dict.Dict(String, ExtensionDefinition),
 ) -> Option(ExtensionDefinition) {
+  use <- bool.guard(
+    case element.constraint {
+      Some(codegen_constraint.Constraint(fixed: True, ..)) -> True
+      _ -> False
+    },
+    None,
+  )
   case element.type_ {
     [codegen_helpers.Type(code: "Extension", profile: [url, ..], ..), ..] ->
       case dict.get(extensions, canonical_url(url)) {
@@ -347,6 +369,29 @@ pub fn profile_value_type(
   datatype_types: dict.Dict(String, String),
   valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
 ) -> #(String, dict.Dict(String, codegen_helpers.ValuesetItem)) {
+  let boolean_type = case codegen_helpers.constant(element) {
+    Some(codegen_constraint.Boolean(False)) -> "ExplicitFalse"
+    Some(codegen_constraint.Boolean(True)) -> "ExplicitTrue"
+    _ -> ""
+  }
+  use <- bool.guard(
+    boolean_type != "" && element.min == 0 && element.max == "1",
+    #(
+      codegen_helpers.bucket_prefix("Quantity", current_bucket) <> boolean_type,
+      valueset_acc,
+    ),
+  )
+  use <- bool.guard(
+    case codegen_helpers.constant(element) {
+      Some(codegen_constraint.Text(_))
+      | Some(codegen_constraint.Integer(_))
+      | Some(codegen_constraint.Decimal(_)) -> True
+      Some(codegen_constraint.Boolean(_)) ->
+        element.min != 0 || element.max != "1"
+      _ -> False
+    },
+    #("Nil", valueset_acc),
+  )
   case element.gleam_arguments, element.gleam_type {
     Some(_), Some(name) -> #(
       codegen_helpers.bucket_prefix("Quantity", current_bucket) <> name,
@@ -396,6 +441,17 @@ pub fn profile_base_field_type(
   codegen_helpers.Element,
   dict.Dict(String, codegen_helpers.ValuesetItem),
 ) {
+  use <- bool.guard(
+    case element.constraint {
+      Some(codegen_constraint.Constraint(
+        fixed: True,
+        value: codegen_constraint.Object(_),
+        ..,
+      )) -> True
+      _ -> False
+    },
+    #("Nil", element, valueset_acc),
+  )
   let #(element, local_type) = case element.type_ {
     [type_] ->
       case
@@ -803,6 +859,15 @@ pub fn profile_element_encoder_type(
   datatype_types: dict.Dict(String, String),
   snapshot_elements: List(codegen_helpers.Element),
 ) -> String {
+  let constant = case base_field_type, element.constraint {
+    "Nil",
+      Some(
+        codegen_constraint.Constraint(value: codegen_constraint.Object(_), ..) as constraint,
+      )
+    -> "fn(_) { " <> codegen_constraint.json_source(constraint.value) <> " }"
+    _, _ -> ""
+  }
+  use <- bool.guard(constant != "", constant)
   case element.gleam_arguments {
     Some(_) ->
       "{ fn(value) { "
@@ -905,6 +970,15 @@ pub fn profile_element_encoder_call(
   snapshot_elements: List(codegen_helpers.Element),
   value: String,
 ) -> String {
+  let constant = case base_field_type, element.constraint {
+    "Nil",
+      Some(
+        codegen_constraint.Constraint(value: codegen_constraint.Object(_), ..) as constraint,
+      )
+    -> codegen_constraint.json_source(constraint.value)
+    _, _ -> ""
+  }
+  use <- bool.guard(constant != "", constant)
   case element.gleam_arguments {
     Some(arguments) -> {
       let function =
@@ -1395,6 +1469,7 @@ pub type DecodeContext {
     discriminator_elements: List(codegen_helpers.Element),
     type_order: List(String),
     type_fields: dict.Dict(String, List(codegen_helpers.Element)),
+    slice_inputs: dict.Dict(String, List(codegen_helpers.Element)),
     extensions: dict.Dict(String, ExtensionDefinition),
     slice_base_type_names: dict.Dict(String, String),
     slice_type_overrides: dict.Dict(String, SliceFieldType),
@@ -1409,53 +1484,6 @@ pub type DecodeContext {
     // available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
     base_elements: dict.Dict(String, codegen_helpers.Element),
     constructors: dict.Dict(String, ConstructorDefinition),
-  )
-}
-
-type ConversionRequest {
-  RecordConversion(
-    function_name: String,
-    base_type: String,
-    target_type: String,
-  )
-  SliceConversion(
-    function_name: String,
-    parent_type: String,
-    group: codegen_helpers.Element,
-    root: codegen_helpers.Element,
-  )
-  ChoiceConversion(
-    function_name: String,
-    choice_type: String,
-    element: codegen_helpers.Element,
-    source_type: String,
-    source_element: Option(codegen_helpers.Element),
-  )
-  ChoiceRecordConversion(
-    function_name: String,
-    target_type: String,
-    base_type: String,
-    fields: List(codegen_helpers.Element),
-  )
-}
-
-type ConversionSupport {
-  ConversionSupport(
-    source: String,
-    conversions: dict.Dict(String, ConversionRequest),
-  )
-}
-
-type ConversionExpression {
-  ConversionExpression(
-    expression: String,
-    conversions: dict.Dict(String, ConversionRequest),
-    fallible: Bool,
-  )
-  IdentityConversion(
-    expression: String,
-    conversions: dict.Dict(String, ConversionRequest),
-    fallible: Bool,
   )
 }
 
@@ -1502,13 +1530,6 @@ fn is_primitive_slice_record(
   })
 }
 
-fn conversion_is_identity(expression: ConversionExpression) -> Bool {
-  case expression {
-    IdentityConversion(..) -> True
-    ConversionExpression(..) -> False
-  }
-}
-
 type SliceGroupDecode {
   SliceGroupDecode(
     source: String,
@@ -1519,7 +1540,6 @@ type SliceGroupDecode {
     decoder_placeholder: Option(String),
     placeholder_fields: List(#(String, String)),
     extension_decoder: Option(#(String, String)),
-    conversions: dict.Dict(String, ConversionRequest),
   )
 }
 
@@ -1728,22 +1748,6 @@ fn fields_for_profile_type(
   }
 }
 
-fn base_record_type(
-  fields: List(codegen_helpers.Element),
-) -> Result(String, Nil) {
-  use first <- result.try(list.first(fields))
-  let parts = first.base.path |> string.split(".")
-  let parent = parts |> list.reverse |> list.drop(1) |> list.reverse
-  case parent {
-    [] -> Error(Nil)
-    _ ->
-      parent
-      |> list.map(string.capitalise)
-      |> string.concat
-      |> Ok
-  }
-}
-
 fn base_payload_type(
   current_bucket: codegen_helpers.Category,
   element: codegen_helpers.Element,
@@ -1874,725 +1878,6 @@ pub fn discriminator_literals(
   }
 }
 
-fn discriminator_conversion(
-  current_bucket: codegen_helpers.Category,
-  discriminator_type: String,
-  system: String,
-  code: String,
-  display: Option(String),
-  value: String,
-) -> Result(#(ConversionExpression, Bool), Nil) {
-  use call <- result.try(
-    codegen_slice_complex_type.discriminator_from_base_call(
-      current_bucket,
-      discriminator_type,
-      value,
-      system,
-      code,
-      display,
-    ),
-  )
-  case call {
-    codegen_slice_complex_type.ResultDiscriminatorCall(call) ->
-      Ok(#(
-        ConversionExpression(
-          call
-            <> " |> result.replace_error("
-            <> json.to_string(json.string("expected " <> discriminator_type))
-            <> ")",
-          dict.new(),
-          True,
-        ),
-        False,
-      ))
-  }
-}
-
-fn conversion_map(
-  expression: ConversionExpression,
-  wrap: fn(String) -> String,
-) {
-  case expression.fallible {
-    True ->
-      ConversionExpression(
-        "result.map("
-          <> expression.expression
-          <> ", fn(value) { "
-          <> wrap("value")
-          <> " })",
-        expression.conversions,
-        True,
-      )
-    False ->
-      ConversionExpression(
-        wrap(expression.expression),
-        expression.conversions,
-        False,
-      )
-  }
-}
-
-fn conversion_for_cardinality(
-  current_bucket: codegen_helpers.Category,
-  expression: ConversionExpression,
-  element: codegen_helpers.Element,
-  source: String,
-  target_min: Int,
-  is_primitive: Bool,
-  failure: fn(String) -> String,
-) -> ConversionExpression {
-  let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
-  case is_primitive {
-    True -> {
-      case conversion_is_identity(expression) {
-        True -> IdentityConversion(source, expression.conversions, False)
-        False -> {
-          let convert_primitive = fn(primitive: String) {
-            case expression.fallible {
-              True ->
-                "case "
-                <> primitive
-                <> ".value { None -> Ok(Primitive(.."
-                <> primitive
-                <> ", value: None)) Some(primitive_value) -> result.map("
-                <> expression.expression
-                <> ", fn(converted) { Primitive(.."
-                <> primitive
-                <> ", value: Some(converted)) }) }"
-              False ->
-                "Primitive(.."
-                <> primitive
-                <> ", value: option.map("
-                <> primitive
-                <> ".value, fn(primitive_value) { "
-                <> expression.expression
-                <> " }))"
-            }
-          }
-          case element.base.max == "1", expression.fallible {
-            True, fallible ->
-              ConversionExpression(
-                convert_primitive(source),
-                expression.conversions,
-                fallible,
-              )
-            False, True ->
-              ConversionExpression(
-                "list.try_map("
-                  <> source
-                  <> ", fn(primitive) { "
-                  <> convert_primitive("primitive")
-                  <> " })",
-                expression.conversions,
-                True,
-              )
-            False, False ->
-              ConversionExpression(
-                "list.map("
-                  <> source
-                  <> ", fn(primitive) { "
-                  <> convert_primitive("primitive")
-                  <> " })",
-                expression.conversions,
-                False,
-              )
-          }
-        }
-      }
-    }
-    False -> {
-      let identity = conversion_is_identity(expression)
-      let source_is_list = element.base.max != "1"
-      let target_is_list = element.max != "1"
-      let source = case source_is_list, element.base.min {
-        True, 1 -> "[" <> source <> ".first" <> ", .." <> source <> ".rest]"
-        True, 2 ->
-          "["
-          <> source
-          <> ".first"
-          <> ", "
-          <> source
-          <> ".second"
-          <> ", .."
-          <> source
-          <> ".rest]"
-        True, 3 ->
-          "["
-          <> source
-          <> ".first"
-          <> ", "
-          <> source
-          <> ".second"
-          <> ", "
-          <> source
-          <> ".third"
-          <> ", .."
-          <> source
-          <> ".rest]"
-        _, _ -> source
-      }
-      case source_is_list, target_is_list, element.base.min, target_min {
-        True, True, _, 0 if identity ->
-          IdentityConversion(source, expression.conversions, False)
-        True, True, _, 0 ->
-          case expression.fallible {
-            True ->
-              ConversionExpression(
-                "list.try_map("
-                  <> source
-                  <> ", fn(value) { "
-                  <> expression.expression
-                  <> " })",
-                expression.conversions,
-                True,
-              )
-            False ->
-              ConversionExpression(
-                "list.map("
-                  <> source
-                  <> ", fn(value) { "
-                  <> expression.expression
-                  <> " })",
-                expression.conversions,
-                False,
-              )
-          }
-        True, True, _, minimum -> {
-          let list_expression = case identity, expression.fallible {
-            True, _ -> "let values = " <> source <> "\n"
-            False, True ->
-              "use values <- result.try(list.try_map("
-              <> source
-              <> ", fn(value) { "
-              <> expression.expression
-              <> " }))\n"
-            False, False ->
-              "let values = list.map("
-              <> source
-              <> ", fn(value) { "
-              <> expression.expression
-              <> " })\n"
-          }
-          let constructor = case minimum {
-            1 ->
-              "case values { [first, ..rest] -> Ok("
-              <> complex_prefix
-              <> "List1(first:, rest:)) _ -> "
-              <> failure("\"minimum cardinality 1\"")
-              <> " }"
-
-            2 ->
-              "case values { [first, second, ..rest] -> Ok("
-              <> complex_prefix
-              <> "List2(first:, second:, rest:)) _ -> "
-              <> failure("\"minimum cardinality 2\"")
-              <> " }"
-
-            3 ->
-              "case values { [first, second, third, ..rest] -> Ok("
-              <> complex_prefix
-              <> "List3(first:, second:, third:, rest:)) _ -> "
-              <> failure("\"minimum cardinality 3\"")
-              <> " }"
-
-            _ -> panic as "list min > 3 not supported"
-          }
-          ConversionExpression(
-            "{ " <> list_expression <> constructor <> " }",
-            expression.conversions,
-            True,
-          )
-        }
-        True, False, _, 0 ->
-          ConversionExpression(
-            "case "
-              <> source
-              <> " { [] -> Ok(None) [value] -> "
-              <> {
-              let converted =
-                conversion_map(expression, fn(value) { "Some(" <> value <> ")" })
-              case converted.fallible {
-                True -> converted.expression
-                False -> "Ok(" <> converted.expression <> ")"
-              }
-            }
-              <> " _ -> "
-              <> failure("\"maximum cardinality 1\"")
-              <> " }",
-            expression.conversions,
-            True,
-          )
-        True, False, _, _ ->
-          ConversionExpression(
-            "case "
-              <> source
-              <> " { [value] -> "
-              <> case expression.fallible {
-              True -> expression.expression
-              False -> "Ok(" <> expression.expression <> ")"
-            }
-              <> " _ -> "
-              <> failure("\"cardinality 1..1\"")
-              <> " }",
-            expression.conversions,
-            True,
-          )
-        False, False, 0, 0 ->
-          ConversionExpression(
-            "case "
-              <> source
-              <> " { None -> Ok(None) Some(value) -> "
-              <> {
-              let converted =
-                conversion_map(expression, fn(value) { "Some(" <> value <> ")" })
-              case converted.fallible {
-                True -> converted.expression
-                False -> "Ok(" <> converted.expression <> ")"
-              }
-            }
-              <> " }",
-            expression.conversions,
-            True,
-          )
-        False, False, 0, _ ->
-          ConversionExpression(
-            "case "
-              <> source
-              <> " { None -> "
-              <> failure("\"required field\"")
-              <> " Some(value) -> "
-              <> case expression.fallible {
-              True -> expression.expression
-              False -> "Ok(" <> expression.expression <> ")"
-            }
-              <> " }",
-            expression.conversions,
-            True,
-          )
-        False, False, _, _ -> expression
-        False, True, _, _ -> panic as "profile cannot widen base cardinality"
-      }
-    }
-  }
-}
-
-fn base_choice_name(element: codegen_helpers.Element) -> String {
-  element.base.path
-  |> string.replace("[x]", "")
-  |> string.split(".")
-  |> list.map(string.capitalise)
-  |> string.concat
-}
-
-fn base_record_reference(
-  context: DecodeContext,
-  fields,
-) -> Result(String, Nil) {
-  let complex_prefix =
-    codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
-  use base_type <- result.try(base_record_type(fields))
-  let assert Ok(first) = list.first(fields)
-  let assert [base_root, ..] = string.split(first.base.path, ".")
-  Ok(case base_root == context.resource_type && context.is_resource {
-    True -> base_type
-    False -> complex_prefix <> base_type
-  })
-}
-
-fn required_binding_conversion(
-  current_bucket: codegen_helpers.Category,
-  element: codegen_helpers.Element,
-  fhir_type: String,
-  value: String,
-) -> Option(ConversionExpression) {
-  let #(gleam_type, _) =
-    codegen_helpers.string_to_type(
-      fhir_type,
-      [],
-      element,
-      current_bucket,
-      dict.new(),
-    )
-  let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
-  let valueset = case fhir_type {
-    "code" ->
-      case string.starts_with(gleam_type, "valuesets.") {
-        True ->
-          Some(
-            gleam_type |> string.drop_start(10) |> codegen_helpers.to_snake_case,
-          )
-        False -> None
-      }
-    _ -> codegen_bound_coding.bound_valueset_function_name(gleam_type)
-  }
-  case valueset {
-    Some(valueset) -> {
-      let #(function, second_argument) = case fhir_type {
-        "code" -> #("valuesets." <> valueset <> "_from_code", "")
-        "Coding" -> #(
-          complex_prefix <> "bound_coding_from_coding",
-          ", valuesets." <> valueset <> "_from_code_and_system",
-        )
-        "CodeableConcept" -> #(
-          complex_prefix <> "bound_codeableconcept_from_codeableconcept",
-          ", valuesets." <> valueset <> "_from_code_and_system",
-        )
-        "Quantity" -> #(
-          complex_prefix <> "bound_quantity_from_quantity",
-          ", valuesets." <> valueset <> "_from_code_and_system",
-        )
-        _ -> #("", "")
-      }
-      case function {
-        "" -> None
-        _ -> {
-          let expression = function <> "(" <> value <> second_argument <> ")"
-          let expression = case fhir_type, element.gleam_type {
-            "Coding", Some(name) if name != "BoundCoding" ->
-              "json.parse(json.to_string("
-              <> complex_prefix
-              <> "coding_to_json("
-              <> value
-              <> ")), "
-              <> codegen_decode.decoder_for_type(
-                "Coding",
-                gleam_type,
-                current_bucket,
-              )
-              <> ")"
-            _, _ -> expression
-          }
-          Some(ConversionExpression(
-            expression <> " |> result.replace_error(\"required ValueSet\")",
-            dict.new(),
-            True,
-          ))
-        }
-      }
-    }
-    _ -> None
-  }
-}
-
-fn profile_record_conversion_function(
-  context: DecodeContext,
-  element: codegen_helpers.Element,
-  field_path: String,
-  field_type: String,
-) -> Result(ConversionRequest, Nil) {
-  let complex_prefix =
-    codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
-  let restricts_complex_type =
-    does_profile_restrict_complex_type(context.type_order, field_path)
-  let base_type = case
-    fields_for_profile_type(context, field_type, ""),
-    element.type_
-  {
-    Ok(fields), [_] | Ok(fields), [] -> base_record_reference(context, fields)
-    Error(_), [_] if restricts_complex_type -> {
-      let assert [type_] = element.type_
-      Ok(base_payload_type(context.current_bucket, element, type_.code))
-    }
-    _, _ -> Error(Nil)
-  }
-  use base_type <- result.try(base_type)
-  let function_name =
-    codegen_helpers.to_snake_case(field_type)
-    <> "_try_from_"
-    <> {
-      base_type
-      |> string.replace(complex_prefix, "")
-      |> codegen_helpers.to_snake_case
-    }
-  Ok(RecordConversion(function_name, base_type, field_type))
-}
-
-fn datatype_profile_conversion(
-  context: DecodeContext,
-  source_element: codegen_helpers.Element,
-  source_type: String,
-  target_type: String,
-  value: String,
-) -> ConversionExpression {
-  case source_type == target_type {
-    True -> IdentityConversion(value, dict.new(), False)
-    False -> {
-      let encoder = case
-        dict.has_key(
-          context.constructors,
-          constructor_key(context.current_bucket, source_type),
-        )
-      {
-        True ->
-          source_type
-          |> string.split(".")
-          |> list.map(codegen_helpers.to_snake_case)
-          |> string.join(".")
-          |> string.append("_to_json")
-        False ->
-          profile_element_encoder_type(
-            context.current_bucket,
-            source_element,
-            source_type,
-            string.split(source_element.base.path, "."),
-            "",
-            [],
-            dict.new(),
-            context.datatype_types,
-            context.snapshot_elements,
-          )
-      }
-      let decoder =
-        target_type
-        |> string.split(".")
-        |> list.map(codegen_helpers.to_snake_case)
-        |> string.join(".")
-        |> string.append("_decoder()")
-      ConversionExpression(
-        "json.parse(json.to_string("
-          <> encoder
-          <> "("
-          <> value
-          <> ")), "
-          <> decoder
-          <> ") |> result.replace_error(\"invalid datatype profile\")",
-        dict.new(),
-        True,
-      )
-    }
-  }
-}
-
-fn field_inner_conversion(
-  context: DecodeContext,
-  element: codegen_helpers.Element,
-  field_path: String,
-  field_type: String,
-  value: String,
-  source_choice_type: Option(String),
-  source_element: Option(codegen_helpers.Element),
-  validation_path: Option(String),
-  failure: fn(String) -> String,
-) -> ConversionExpression {
-  let narrows_choice =
-    string.ends_with(element.base.path, "[x]")
-    && list.length(element.type_) == 1
-  let inner_value = case narrows_choice {
-    True -> "choice_value"
-    False -> value
-  }
-  let #(source_value_type, source_value_element) = case
-    narrows_choice,
-    element.type_
-  {
-    True, [type_] -> {
-      let assert Some(source) = source_element
-        as { "missing source definition for " <> element.id }
-      let assert Ok(source_type) =
-        list.find(source.type_, fn(candidate) { candidate.code == type_.code })
-        as { "missing source choice " <> type_.code <> " for " <> element.id }
-      let narrowed = codegen_helpers.Element(..source, type_: [source_type])
-      let #(type_name, _) =
-        profile_value_type(
-          source_type,
-          narrowed,
-          string.split(source.base.path, "."),
-          context.current_bucket,
-          context.datatype_types,
-          context.valueset_acc,
-        )
-      #(Some(type_name), Some(narrowed))
-    }
-    _, _ -> #(source_choice_type, source_element)
-  }
-  let target_is_datatype_profile =
-    list.contains(
-      dict.values(context.datatype_types),
-      string.replace(field_type, "ct.", ""),
-    )
-  let target_is_datatype_profile =
-    target_is_datatype_profile
-    || list.any(dict.keys(context.profile_unions), fn(path) {
-      path |> string.replace("[x]", "") |> codegen_helpers.to_camel_case
-      == field_type
-    })
-  let conversion = case
-    dict.get(context.slice_type_overrides, element.id),
-    target_is_datatype_profile
-  {
-    Ok(FixedSliceType(discriminator_type, _, system, code, display)), _ -> {
-      let assert Ok(#(conversion, _)) =
-        discriminator_conversion(
-          context.current_bucket,
-          discriminator_type,
-          system,
-          code,
-          display,
-          inner_value,
-        )
-      conversion
-    }
-    Ok(BoundCodeableconceptSlice), _ | Ok(BoundCodingSlice), _ -> {
-      let assert [type_] = element.type_
-      required_binding_conversion(
-        context.current_bucket,
-        element,
-        type_.code,
-        inner_value,
-      )
-      |> fn(conversion) {
-        case conversion {
-          Some(conversion) -> conversion
-          None -> {
-            let assert True = source_value_type == Some(field_type)
-              as {
-                "cannot convert field " <> element.id <> " to " <> field_type
-              }
-            IdentityConversion(inner_value, dict.new(), False)
-          }
-        }
-      }
-    }
-    Error(_), True | Ok(FixedValueDiscriminator(_)), True -> {
-      let assert Some(source_type) = source_value_type
-        as { "missing source type for " <> element.id }
-      let assert Some(source_element) = source_value_element
-        as { "missing source definition for " <> element.id }
-      datatype_profile_conversion(
-        context,
-        source_element,
-        source_type,
-        field_type,
-        inner_value,
-      )
-    }
-    Error(_), False | Ok(FixedValueDiscriminator(_)), False ->
-      case
-        profile_record_conversion_function(
-          context,
-          element,
-          field_path,
-          field_type,
-        )
-      {
-        Ok(conversion) ->
-          ConversionExpression(
-            conversion.function_name <> "(" <> inner_value <> ")",
-            dict.from_list([#(conversion.function_name, conversion)]),
-            True,
-          )
-        Error(_) ->
-          case element.type_ {
-            [] -> {
-              let assert True = source_value_type == Some(field_type)
-                as {
-                  "cannot convert field " <> element.id <> " to " <> field_type
-                }
-              IdentityConversion(inner_value, dict.new(), False)
-            }
-            [type_] ->
-              required_binding_conversion(
-                context.current_bucket,
-                element,
-                type_.code,
-                inner_value,
-              )
-              |> fn(conversion) {
-                case conversion {
-                  Some(conversion) -> conversion
-                  None -> {
-                    let assert True = source_value_type == Some(field_type)
-                      as {
-                        "cannot convert field "
-                        <> element.id
-                        <> " to "
-                        <> field_type
-                      }
-                    IdentityConversion(inner_value, dict.new(), False)
-                  }
-                }
-              }
-            _ -> {
-              let source_type =
-                option.unwrap(source_choice_type, base_choice_name(element))
-              let function_name =
-                codegen_helpers.to_snake_case(field_type)
-                <> "_from_"
-                <> codegen_helpers.to_snake_case(source_type)
-              let conversion =
-                ChoiceConversion(
-                  function_name,
-                  field_type,
-                  element,
-                  source_type,
-                  source_element,
-                )
-              ConversionExpression(
-                function_name <> "(" <> value <> ")",
-                dict.from_list([#(function_name, conversion)]),
-                True,
-              )
-            }
-          }
-      }
-  }
-  let conversion = case validation_path, conversion.fallible {
-    Some(_), True ->
-      ConversionExpression(
-        "case "
-          <> conversion.expression
-          <> " { Ok(value) -> Ok(value) Error(reason) -> "
-          <> failure("reason")
-          <> " }",
-        conversion.conversions,
-        True,
-      )
-    _, _ -> conversion
-  }
-  case narrows_choice, element.type_ {
-    True, [type_] -> {
-      let constructor =
-        option.unwrap(source_choice_type, base_choice_name(element))
-        <> codegen_helpers.to_camel_case(type_.code)
-      let successful = case conversion.fallible {
-        True -> conversion.expression
-        False -> "Ok(" <> conversion.expression <> ")"
-      }
-      let successful = case
-        validation_path,
-        fields_for_profile_type(context, field_type, "")
-      {
-        Some(path), Ok(_) ->
-          "{ use _ <- result.try("
-          <> restricted_record_validation(
-            context,
-            field_type,
-            "choice_value",
-            path,
-          )
-          <> ") "
-          <> successful
-          <> " }"
-        _, _ -> successful
-      }
-      ConversionExpression(
-        "case "
-          <> value
-          <> " { "
-          <> constructor
-          <> "(choice_value) -> "
-          <> successful
-          <> " _ -> "
-          <> failure("\"expected " <> type_.code <> "\"")
-          <> " }",
-        conversion.conversions,
-        True,
-      )
-    }
-    _, _ -> conversion
-  }
-}
-
 // Only fields with named slices need an index to preserve their ordering.
 // Declarations and codecs share this decision, including groups with no slices.
 pub fn profile_field_is_slice_elt(
@@ -2676,654 +1961,6 @@ pub fn name_profile_record_fields(
   codegen_helpers.name_record_fields(fields, emitted_fields)
 }
 
-fn record_conversion_from_fields(
-  context: DecodeContext,
-  target_type: String,
-  base_type: String,
-  fields: List(codegen_helpers.Element),
-  source_profile_type: Option(String),
-  slice_json_name: Option(String),
-  function_name: String,
-) -> ConversionSupport {
-  let discriminator =
-    fields
-    |> list.find(fn(field) {
-      case slice_json_name, dict.get(context.slice_type_overrides, field.id) {
-        _, Ok(FixedSliceType(_, _, _, _, _)) | Some(_), Ok(_) -> True
-        _, _ -> False
-      }
-    })
-    |> option.from_result
-  let discriminator_parameter = case discriminator {
-    Some(discriminator) -> {
-      let #(_, _, _, field_name, field_type, _) =
-        profile_element_names(context, target_type, discriminator)
-      let parameter_type = case discriminator.max {
-        "1" -> field_type
-        _ ->
-          codegen_helpers.cardinality(
-            field_type,
-            profile_field_min(discriminator),
-            discriminator.max,
-          )
-      }
-      let parameter_name = case
-        discriminator.fixed_code,
-        discriminator.fixed_uri
-      {
-        _, _ if discriminator.min == 0 || discriminator.max != "1" -> field_name
-        None, None -> field_name
-        _, _ -> "_" <> field_name
-      }
-      ", " <> field_name <> " " <> parameter_name <> ": " <> parameter_type
-    }
-    None -> ""
-  }
-  let fixed_bindings =
-    fields
-    |> list.filter(fn(element) { element.max != "0" })
-    |> list.filter_map(fn(element) {
-      let fixed = case element.fixed_code, element.fixed_uri {
-        Some(value), _ | _, Some(value) -> Ok(value)
-        _, _ -> Error(Nil)
-      }
-      use fixed <- result.try(fixed)
-      let #(_, _, json_name, _, _, _) =
-        profile_element_names(context, target_type, element)
-      let #(source_field_name, source_min, source_max) = case
-        source_profile_type
-      {
-        Some(source_type) -> {
-          let assert Ok(source_field) =
-            fields_for_profile_type(context, source_type, "")
-            |> result.try(fn(fields) {
-              list.find(fields, fn(field) {
-                field.slice_name == None && field.path == element.path
-              })
-            })
-            as {
-              "missing source field " <> element.path <> " in " <> source_type
-            }
-          #(
-            codegen_helpers.field_name(source_field),
-            profile_field_min(source_field),
-            source_field.max,
-          )
-        }
-        None -> #(
-          codegen_helpers.field_name(
-            codegen_helpers.Element(
-              ..element,
-              id: element.base.path,
-              slice_name: None,
-              gleam_field_name: None,
-            ),
-          ),
-          element.base.min,
-          element.base.max,
-        )
-      }
-      let failure = fn(expected, found, extra_path) {
-        case slice_json_name {
-          None ->
-            "Error(\"expected \" <> "
-            <> expected
-            <> " <> \", found \" <> "
-            <> found
-            <> ")"
-          Some(group) ->
-            "Error([decode.DecodeError(expected: "
-            <> expected
-            <> ", found: "
-            <> found
-            <> ", path: ["
-            <> json.to_string(json.string(group))
-            <> ", int.to_string(index), "
-            <> json.to_string(json.string(json_name))
-            <> extra_path
-            <> "])])"
-        }
-      }
-      let expected = json.to_string(json.string(fixed))
-      let check = case source_min, source_max {
-        0, "1" ->
-          "case source."
-          <> source_field_name
-          <> " { Some(\""
-          <> fixed
-          <> "\") -> Ok(Nil) Some(found) -> "
-          <> failure(expected, "found", "")
-          <> " None -> "
-          <> case element.min {
-            0 -> "Ok(Nil)"
-            _ -> failure("\"Field\"", "\"Nothing\"", "")
-          }
-          <> " }"
-        _, "1" ->
-          "case source."
-          <> source_field_name
-          <> " { "
-          <> expected
-          <> " -> Ok(Nil) found -> "
-          <> failure(expected, "found", "")
-          <> " }"
-        minimum, _ -> {
-          let source = "source." <> source_field_name
-          let values = case minimum {
-            0 -> source
-            1 -> "[" <> source <> ".first, .." <> source <> ".rest]"
-            2 ->
-              "["
-              <> source
-              <> ".first, "
-              <> source
-              <> ".second, .."
-              <> source
-              <> ".rest]"
-            3 ->
-              "["
-              <> source
-              <> ".first, "
-              <> source
-              <> ".second, "
-              <> source
-              <> ".third, .."
-              <> source
-              <> ".rest]"
-            _ -> panic as "list min > 3 not supported"
-          }
-          "list.try_map(list.index_map("
-          <> values
-          <> ", fn(value, item_index) { #(value, item_index) }), fn(item) { let #(found, "
-          <> case slice_json_name {
-            None -> "_item_index"
-            Some(_) -> "item_index"
-          }
-          <> ") = item case found == "
-          <> expected
-          <> " { True -> Ok(Nil) False -> "
-          <> failure(expected, "found", ", int.to_string(item_index)")
-          <> " } }) |> result.map(fn(_) { Nil })"
-        }
-      }
-      Ok("  use _ <- result.try(" <> check <> ")\n")
-    })
-    |> string.concat
-  let empty_support = dict.new()
-  let #(bindings, arguments, helpers) =
-    fields
-    |> list.filter(fn(element) {
-      { codegen_helpers.constant(element) == None }
-      || element.min == 0
-      || element.max != "1"
-    })
-    |> list.fold(#("", "", empty_support), fn(acc, element) {
-      let #(bindings, arguments, helpers) = acc
-      let #(_, field_path, json_name, field_name, field_type, _) =
-        profile_element_names(context, target_type, element)
-      let validation_path =
-        option.map(slice_json_name, fn(group) {
-          "[\"" <> group <> "\", int.to_string(index), \"" <> json_name <> "\"]"
-        })
-      let failure = fn(reason) {
-        case slice_json_name {
-          None -> "Error(" <> reason <> ")"
-          Some(group) -> {
-            let expected = case element.type_ {
-              [type_] -> type_.code
-              _ -> field_type
-            }
-            let name = case string.ends_with(element.base.path, "[x]") {
-              True ->
-                element.path
-                |> string.split(".")
-                |> list.last
-                |> result.unwrap(json_name)
-              False -> json_name
-            }
-            "Error([decode.DecodeError(expected: \""
-            <> expected
-            <> "\", found: "
-            <> reason
-            <> ", path: [\""
-            <> group
-            <> "\", int.to_string(index), \""
-            <> name
-            <> "\"])])"
-          }
-        }
-      }
-      let source_field = case source_profile_type {
-        None -> None
-        Some(source_type) -> {
-          let assert Ok(source_field) =
-            fields_for_profile_type(context, source_type, "")
-            |> result.try(fn(source_fields) {
-              list.find(source_fields, fn(source_field) {
-                source_field.slice_name == None
-                && source_field.path == element.path
-              })
-            })
-            as {
-              "missing source field " <> element.path <> " in " <> source_type
-            }
-          Some(source_field)
-        }
-      }
-      let source_definition = case source_field {
-        Some(_) -> source_field
-        None ->
-          dict.get(context.base_elements, element.base.path)
-          |> option.from_result
-      }
-      let source_field_name = case source_field {
-        Some(source_field) -> codegen_helpers.field_name(source_field)
-        None ->
-          codegen_helpers.field_name(
-            codegen_helpers.Element(
-              ..element,
-              id: element.base.path,
-              slice_name: None,
-              gleam_field_name: None,
-            ),
-          )
-      }
-      let element = case source_field {
-        None -> element
-        Some(source_field) ->
-          codegen_helpers.Element(
-            ..element,
-            base: codegen_helpers.ElementBase(
-              ..element.base,
-              min: profile_field_min(source_field),
-              max: source_field.max,
-            ),
-          )
-      }
-      let is_primitive = False
-      let target_min = profile_field_min(element)
-      let inner_value = case element.base.min, element.base.max {
-        1, "1" -> "source." <> source_field_name
-        _, _ -> "value"
-      }
-      let source_field_type = case source_profile_type, source_field {
-        None, _ ->
-          case dict.get(context.base_elements, element.base.path) {
-            Ok(base_element) ->
-              case base_element.type_ {
-                [base_field_type] -> {
-                  let #(source_field_type, _) =
-                    codegen_helpers.string_to_type(
-                      base_field_type.code,
-                      base_element.base.path |> string.split("."),
-                      base_element,
-                      context.current_bucket,
-                      context.valueset_acc,
-                    )
-                  Some(source_field_type)
-                }
-                _ -> None
-              }
-            Error(_) -> None
-          }
-        Some(source_type), Some(source_field) -> {
-          let #(_, _, _, _, source_field_type, _) =
-            profile_element_names(context, source_type, source_field)
-          Some(source_field_type)
-        }
-        _, _ -> None
-      }
-      let is_discriminator = case discriminator {
-        Some(discriminator) -> discriminator.id == element.id
-        None -> False
-      }
-      let inner = case source_field_type, is_discriminator {
-        _, True -> IdentityConversion(field_name, dict.new(), False)
-        Some(source_field_type), False if source_field_type == field_type ->
-          IdentityConversion(inner_value, dict.new(), False)
-        source_field_type, False ->
-          field_inner_conversion(
-            context,
-            element,
-            field_path,
-            field_type,
-            inner_value,
-            source_field_type,
-            source_definition,
-            validation_path,
-            failure,
-          )
-      }
-      let converted = case is_discriminator, element.max, slice_json_name {
-        True, "1", Some(_) if target_min == 0 ->
-          ConversionExpression("Some(" <> field_name <> ")", dict.new(), False)
-        True, max, _ if max != "1" ->
-          IdentityConversion(field_name, dict.new(), False)
-        True, "1", Some(_) -> IdentityConversion(field_name, dict.new(), False)
-        _, _, _ ->
-          conversion_for_cardinality(
-            context.current_bucket,
-            inner,
-            element,
-            "source." <> source_field_name,
-            target_min,
-            is_primitive,
-            failure,
-          )
-      }
-      let binding = case converted.fallible {
-        True ->
-          "  use "
-          <> field_name
-          <> " <- result.try("
-          <> converted.expression
-          <> ")\n"
-        False -> "  let " <> field_name <> " = " <> converted.expression <> "\n"
-      }
-      #(
-        bindings <> binding,
-        arguments <> "    " <> field_name <> ":,\n",
-        dict.merge(helpers, converted.conversions),
-      )
-    })
-  ConversionSupport(
-    source: "fn "
-      <> function_name
-      <> "(source: "
-      <> base_type
-      <> case slice_json_name {
-      None -> ""
-      Some(_) -> ", index: Int"
-    }
-      <> discriminator_parameter
-      <> ") -> Result("
-      <> target_type
-      <> case slice_json_name {
-      None -> ", String) {\n"
-      Some(_) -> ", List(decode.DecodeError)) {\n"
-    }
-      <> fixed_bindings
-      <> bindings
-      <> "  Ok("
-      <> target_type
-      <> "(\n"
-      <> arguments
-      <> "  ))\n}\n\n",
-    conversions: helpers,
-  )
-}
-
-fn generate_conversions(
-  context: DecodeContext,
-  needed: dict.Dict(String, ConversionRequest),
-  generated: dict.Dict(String, String),
-) -> dict.Dict(String, String) {
-  case dict.to_list(needed) {
-    [] -> generated
-    [#(function_name, conversion), ..] -> {
-      let needed = dict.delete(needed, function_name)
-      case dict.has_key(generated, function_name) {
-        True -> generate_conversions(context, needed, generated)
-        False -> {
-          let support = case conversion {
-            RecordConversion(function_name, base_type, target_type) -> {
-              let encoder =
-                base_type
-                |> string.split(".")
-                |> list.map(codegen_helpers.to_snake_case)
-                |> string.join(".")
-                |> string.append("_to_json")
-              let source =
-                "fn "
-                <> function_name
-                <> "(source: "
-                <> base_type
-                <> ") -> Result("
-                <> target_type
-                <> ", String) {\n"
-                <> "  json.parse(json.to_string("
-                <> encoder
-                <> "(source)), "
-                <> codegen_helpers.to_snake_case(target_type)
-                <> "_decoder()) |> result.replace_error(\"invalid "
-                <> target_type
-                <> "\")\n}\n\n"
-              ConversionSupport(source, dict.new())
-            }
-            SliceConversion(function_name, parent_type, group, root) ->
-              slice_converter_source(
-                context,
-                parent_type,
-                group,
-                root,
-                function_name,
-              )
-            ChoiceConversion(
-              function_name,
-              choice_type,
-              element,
-              source_type,
-              source_element,
-            ) ->
-              choice_conversion_source(
-                context,
-                choice_type,
-                element,
-                source_type,
-                source_element,
-                function_name,
-              )
-            ChoiceRecordConversion(
-              function_name,
-              target_type,
-              base_type,
-              fields,
-            ) ->
-              record_conversion_from_fields(
-                context,
-                target_type,
-                base_type,
-                fields,
-                None,
-                None,
-                function_name,
-              )
-          }
-          generate_conversions(
-            context,
-            dict.merge(needed, support.conversions),
-            dict.insert(generated, function_name, support.source),
-          )
-        }
-      }
-    }
-  }
-}
-
-fn choice_conversion_source(
-  context: DecodeContext,
-  choice_type: String,
-  element: codegen_helpers.Element,
-  source_choice_type: String,
-  source_element: Option(codegen_helpers.Element),
-  function_name: String,
-) -> ConversionSupport {
-  let complex_prefix =
-    codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
-  let base_choice = source_choice_type
-  let empty_support = dict.new()
-  let #(cases, helpers) =
-    list.fold(element.type_, #("", empty_support), fn(acc, choice) {
-      let #(cases, helpers) = acc
-      let constructor = choice_type <> string.capitalise(choice.code)
-      let base_constructor = base_choice <> string.capitalise(choice.code)
-      let assert Some(source) = source_element
-        as { "missing source definition for " <> element.id }
-      let assert Ok(source_choice) =
-        list.find(source.type_, fn(candidate) { candidate.code == choice.code })
-        as { "missing source choice " <> choice.code <> " for " <> element.id }
-      let source_payload =
-        codegen_helpers.Element(..source, type_: [source_choice])
-      let #(source_type, _) =
-        profile_value_type(
-          source_choice,
-          source_payload,
-          string.split(source.base.path, "."),
-          context.current_bucket,
-          context.datatype_types,
-          context.valueset_acc,
-        )
-      let assert [_, ..parts] =
-        element.id
-        |> string.replace("-", "")
-        |> string.replace(":", ".")
-        |> string.split(".")
-      let #(target_type, target, _) =
-        profile_base_field_type(
-          context.current_bucket,
-          codegen_helpers.Element(..element, type_: [choice]),
-          [context.profile_prefix, ..parts],
-          "",
-          choice_type,
-          context.extensions,
-          context.type_order,
-          context.slice_base_type_names,
-          context.slice_type_overrides,
-          context.datatype_types,
-          context.type_slice_overrides,
-          context.valueset_acc,
-        )
-      let conversion = case
-        dict.get(
-          context.type_slice_overrides,
-          type_slice_key(element.id, choice.code),
-        )
-      {
-        Ok(TypeSlicePlan(descendants: [_, ..], ..)) -> {
-          let sliced_name = target_type
-          let base_encoder =
-            complex_prefix
-            <> codegen_helpers.to_snake_case(choice.code)
-            <> "_to_json"
-          ConversionExpression(
-            "json.parse(json.to_string("
-              <> base_encoder
-              <> "(value)), "
-              <> codegen_helpers.to_snake_case(sliced_name)
-              <> "_decoder()) |> result.replace_error(\"invalid choice slice\")",
-            dict.new(),
-            True,
-          )
-        }
-        Ok(TypeSlicePlan(children: [_, ..] as children, ..)) -> {
-          let sliced_name = target_type
-          let base_type =
-            base_payload_type(context.current_bucket, element, choice.code)
-          let function_name =
-            codegen_helpers.to_snake_case(sliced_name)
-            <> "_try_from_"
-            <> {
-              base_type
-              |> string.replace(complex_prefix, "")
-              |> codegen_helpers.to_snake_case
-            }
-          let fields =
-            list.filter(children, fn(child) {
-              child.max != "0"
-              && {
-                child.fixed_code == None
-                && child.fixed_uri == None
-                || child.min == 0
-                || child.max != "1"
-              }
-            })
-          let conversion =
-            ChoiceRecordConversion(
-              function_name,
-              sliced_name,
-              base_type,
-              fields,
-            )
-          ConversionExpression(
-            function_name <> "(value)",
-            dict.from_list([#(function_name, conversion)]),
-            True,
-          )
-        }
-        _ -> {
-          let conversion = case
-            list.contains(
-              dict.values(context.datatype_types),
-              string.replace(target_type, "ct.", ""),
-            )
-          {
-            True ->
-              datatype_profile_conversion(
-                context,
-                source_payload,
-                source_type,
-                target_type,
-                "value",
-              )
-            False ->
-              case
-                required_binding_conversion(
-                  context.current_bucket,
-                  target,
-                  choice.code,
-                  "value",
-                )
-              {
-                Some(conversion) -> conversion
-                None -> {
-                  let assert True = source_type == target_type
-                    as {
-                      "cannot convert choice "
-                      <> element.id
-                      <> " to "
-                      <> target_type
-                    }
-                  IdentityConversion("value", dict.new(), False)
-                }
-              }
-          }
-          conversion
-        }
-      }
-      let body = case conversion.fallible {
-        True ->
-          "      use value <- result.try("
-          <> conversion.expression
-          <> ")\n      Ok("
-          <> constructor
-          <> "(value))\n"
-        False ->
-          "      Ok(" <> constructor <> "(" <> conversion.expression <> "))\n"
-      }
-      #(
-        cases
-          <> "    "
-          <> base_constructor
-          <> "(value) -> {\n"
-          <> body
-          <> "    }\n",
-        dict.merge(helpers, conversion.conversions),
-      )
-    })
-  ConversionSupport(
-    source: "fn "
-      <> function_name
-      <> "(value: "
-      <> base_choice
-      <> ") -> Result("
-      <> choice_type
-      <> ", String) {\n  case value {\n"
-      <> cases
-      <> "  }\n}\n\n",
-    conversions: helpers,
-  )
-}
-
 fn field_decoder_expression(
   context: DecodeContext,
   parent_type: String,
@@ -3345,75 +1982,48 @@ fn field_decoder_expression(
   let target_min = profile_field_min(element)
   let restricts_complex_type =
     does_profile_restrict_complex_type(context.type_order, field_path)
-  let decoder = case dict.get(context.slice_type_overrides, element.id) {
-    Ok(FixedSliceType(discriminator_type, _, system, code, display)) -> {
+  let decoder = case
+    string.replace(field_type, "ct.", ""),
+    dict.get(context.slice_type_overrides, element.id)
+  {
+    "ExplicitFalse", _ | "ExplicitTrue", _ -> {
       let assert [type_] = element.type_
-      let base_decoder =
-        codegen_decode.string_to_decoder_type(
-          type_.code,
-          all_parts,
-          "r4",
-          codegen_helpers.Element(..element, binding: None),
-          context.current_bucket,
-        )
-      let assert Ok(call) =
-        codegen_slice_complex_type.discriminator_from_base_call(
-          context.current_bucket,
-          discriminator_type,
-          "value",
-          system,
-          code,
-          display,
-        )
-      let assert Ok(fallback) =
-        codegen_slice_complex_type.discriminator_new_call(
-          context.current_bucket,
-          discriminator_type,
-          context.base_elements,
-          constructor_placeholder(
-            context.constructors,
-            context.base_elements,
-            context.current_bucket,
-            _,
-            set.new(),
-            codegen_helpers.ComplexTypes,
-          ),
-        )
-      let conversion = case call {
-        codegen_slice_complex_type.ResultDiscriminatorCall(call) ->
-          "case "
-          <> call
-          <> " { Ok(value) -> decode.success(value) Error(_) -> decode.failure("
-          <> fallback
-          <> ", \""
-          <> discriminator_type
-          <> "\") }"
-      }
-      case string.contains(discriminator_type, "Omit") {
-        True -> {
-          let assert Ok(#(_, function, fixed, _)) =
-            codegen_slice_complex_type.helper_fields(discriminator_type)
-          let arguments =
-            list.map(fixed, fn(name) {
-              let literal = case name {
-                "system" -> system
-                "code" -> code
-                "display" -> {
-                  let assert Some(value) = display
-                  value
-                }
-                _ -> panic as { "unknown fixed field " <> name }
-              }
-              json.to_string(json.string(literal))
-            })
-            |> string.join(", ")
-          complex_prefix <> function <> "_decoder(" <> arguments <> ")"
-        }
-        False ->
-          base_decoder <> " |> decode.then(fn(value) { " <> conversion <> " })"
-      }
+      codegen_decode.string_to_decoder_type(
+        type_.code,
+        all_parts,
+        "r4",
+        element,
+        context.current_bucket,
+      )
     }
-    _ ->
+    "Nil", _ -> {
+      let assert Some(value) =
+        option.or(
+          codegen_helpers.constant(element),
+          option.map(element.constraint, fn(constraint) { constraint.value }),
+        )
+      codegen_constraint.sources(value, True, "value").1
+    }
+    _, Ok(FixedSliceType(discriminator_type, _, system, code, display)) -> {
+      let assert Ok(#(_, function, fixed, _)) =
+        codegen_slice_complex_type.helper_fields(discriminator_type)
+      let arguments =
+        list.map(fixed, fn(name) {
+          let literal = case name {
+            "system" -> system
+            "code" -> code
+            "display" -> {
+              let assert Some(value) = display
+              value
+            }
+            _ -> panic as { "unknown fixed field " <> name }
+          }
+          json.to_string(json.string(literal))
+        })
+        |> string.join(", ")
+      complex_prefix <> function <> "_decoder(" <> arguments <> ")"
+    }
+    _, _ ->
       case element.type_ {
         [type_] ->
           case
@@ -3519,57 +2129,6 @@ fn field_decoder_expression(
   // _, _, _ -> decoder
   // }
   let decoder = case dict.get(context.slice_discriminator_checks, element.id) {
-    Ok(FixedSliceType(discriminator_type, _, system, code, display)) -> {
-      let assert [type_] = element.type_
-      let encoder_call =
-        profile_element_encoder_call(
-          context.current_bucket,
-          element,
-          field_type,
-          all_parts,
-          field_path,
-          context.type_order,
-          context.slice_type_overrides,
-          context.datatype_types,
-          context.snapshot_elements,
-          "value",
-        )
-      let base_decoder =
-        codegen_decode.string_to_decoder_type(
-          type_.code,
-          all_parts,
-          "r4",
-          codegen_helpers.Element(..element, binding: None),
-          context.current_bucket,
-        )
-      let assert Ok(codegen_slice_complex_type.ResultDiscriminatorCall(check)) =
-        codegen_slice_complex_type.discriminator_from_base_call(
-          context.current_bucket,
-          discriminator_type,
-          "base_value",
-          system,
-          code,
-          display,
-        )
-      decoder
-      <> " |> decode.then(fn(value) { case json.parse(json.to_string("
-      <> encoder_call
-      <> "), "
-      <> base_decoder
-      <> ") { Ok(base_value) -> case "
-      <> check
-      <> " { Ok(_) -> decode.success(value) Error(_) -> decode.failure(value, \""
-      <> discriminator_type
-      <> "\") } Error(_) -> decode.failure(value, \""
-      <> type_.code
-      <> "\") } })"
-    }
-    _ -> decoder
-  }
-  let decoder = case
-    dict.get(context.slice_type_overrides, element.id)
-    |> result.or(dict.get(context.slice_discriminator_checks, element.id))
-  {
     Ok(FixedSliceType(discriminator_type, _, system, code, display)) -> {
       let assert [type_] = element.type_
       let fields =
@@ -3767,6 +2326,9 @@ fn field_decoder_expression(
             ..element,
             gleam_type: None,
             gleam_arguments: None,
+            constraint: None,
+            fixed_code: None,
+            fixed_uri: None,
           ),
           context.current_bucket,
         )
@@ -3910,7 +2472,7 @@ fn choice_decoder_source(
   context: DecodeContext,
   parent_type: String,
   element: codegen_helpers.Element,
-) -> ConversionSupport {
+) -> String {
   let #(_, _, _, _, choice_type, _) =
     profile_element_names(context, parent_type, element)
   let decoders =
@@ -3928,18 +2490,15 @@ fn choice_decoder_source(
       <> "(value)) }"
     })
   let assert [first, ..rest] = decoders
-  ConversionSupport(
-    source: "pub fn "
-      <> codegen_helpers.to_snake_case(choice_type)
-      <> "_decoder() -> Decoder("
-      <> choice_type
-      <> ") {\n  decode.one_of(\n    "
-      <> first
-      <> ",\n    ["
-      <> string.join(rest, ",\n      ")
-      <> "],\n  )\n}\n\n",
-    conversions: dict.new(),
-  )
+  "pub fn "
+  <> codegen_helpers.to_snake_case(choice_type)
+  <> "_decoder() -> Decoder("
+  <> choice_type
+  <> ") {\n  decode.one_of(\n    "
+  <> first
+  <> ",\n    ["
+  <> string.join(rest, ",\n      ")
+  <> "],\n  )\n}\n\n"
 }
 
 fn slice_placeholder(
@@ -4018,8 +2577,11 @@ fn slice_group_support_source(
     list.any(group.type_, fn(type_) { type_.code == "Extension" })
   let indexed_values =
     profile_field_is_slice_elt(group, roots, context.preserve_slice_order)
-  let named_slice_elt_type = fn(type_) {
-    case indexed_values, extension_group {
+  let named_slice_elt_type = fn(root, type_) {
+    case
+      indexed_values,
+      profile_extension_definition(root, context.extensions) != None
+    {
       True, True -> complex_prefix <> "ExtensionSliceElt(" <> type_ <> ")"
       True, False -> complex_prefix <> "SliceElt(" <> type_ <> ")"
       False, _ -> type_
@@ -4067,8 +2629,9 @@ fn slice_group_support_source(
           <> field_name
           <> ": "
           <> case extension_group, root.max {
-            True, "1" -> "Option(" <> named_slice_elt_type(field_type) <> ")"
-            _, _ -> "List(" <> named_slice_elt_type(field_type) <> ")"
+            True, "1" ->
+              "Option(" <> named_slice_elt_type(root, field_type) <> ")"
+            _, _ -> "List(" <> named_slice_elt_type(root, field_type) <> ")"
           }
           <> ",\n"
         })
@@ -4090,7 +2653,10 @@ fn slice_group_support_source(
           <> parsed_type
           <> slice_name_type_part(root)
           <> "("
-          <> case context.preserve_slice_order, extension_group {
+          <> case
+            context.preserve_slice_order,
+            profile_extension_definition(root, context.extensions) != None
+          {
             True, True ->
               complex_prefix <> "ExtensionSliceElt(" <> field_type <> ")"
             _, _ -> field_type
@@ -4119,7 +2685,7 @@ fn slice_group_support_source(
           <> field_name
           <> ": "
           <> codegen_helpers.cardinality(
-            named_slice_elt_type(field_type),
+            named_slice_elt_type(root, field_type),
             root.min,
             root.max,
           )
@@ -4220,235 +2786,6 @@ fn slice_decode_error(
   <> "\", path: "
   <> path
   <> ")"
-}
-
-fn validation_results_source(results: List(#(String, String))) -> String {
-  case results {
-    [] -> "Ok(Nil)"
-    results -> {
-      let bindings =
-        results
-        |> list.map(fn(result) {
-          "let " <> result.0 <> " = " <> result.1 <> "\n"
-        })
-        |> string.concat
-      let names = list.map(results, fn(result) { result.0 })
-      let ok_patterns = list.map(names, fn(_) { "Ok(_)" })
-      let errors =
-        names
-        |> list.map(fn(name) { "result.unwrap_error(" <> name <> ", [])" })
-        |> string.join(", ")
-      "{ "
-      <> bindings
-      <> "case "
-      <> string.join(names, ", ")
-      <> " { "
-      <> string.join(ok_patterns, ", ")
-      <> " -> Ok(Nil) "
-      <> { names |> list.map(fn(_) { "_" }) |> string.join(", ") }
-      <> " -> Error(list.flatten(["
-      <> errors
-      <> "])) } }"
-    }
-  }
-}
-
-fn restricted_record_validation(
-  context: DecodeContext,
-  target_type: String,
-  source: String,
-  path: String,
-) -> String {
-  let assert Ok(fields) = fields_for_profile_type(context, target_type, "")
-  fields
-  |> list.index_fold([], fn(results, field, field_index) {
-    let #(_, _, json_name, field_name, _, _) =
-      profile_element_names(context, target_type, field)
-    let field_path = "list.append(" <> path <> ", [\"" <> json_name <> "\"])"
-    let result_name = "constraint_" <> int.to_string(field_index)
-    case field.fixed_code, field.fixed_uri, field.base.min, field.base.max {
-      Some(fixed), _, 0, "1" | _, Some(fixed), 0, "1" -> [
-        #(
-          result_name,
-          "case "
-            <> source
-            <> "."
-            <> field_name
-            <> " { Some(\""
-            <> fixed
-            <> "\") -> Ok(Nil) Some(found) -> Error([decode.DecodeError(expected: \""
-            <> fixed
-            <> "\", found:, path: "
-            <> field_path
-            <> ")]) None -> "
-            <> case field.min {
-            0 -> "Ok(Nil)"
-            _ ->
-              "Error([decode.DecodeError(expected: \"Field\", found: \"Nothing\", path: "
-              <> field_path
-              <> ")])"
-          }
-            <> " }",
-        ),
-        ..results
-      ]
-      Some(fixed), _, _, "1" | _, Some(fixed), _, "1" -> [
-        #(
-          result_name,
-          "case "
-            <> source
-            <> "."
-            <> field_name
-            <> " { \""
-            <> fixed
-            <> "\" -> Ok(Nil) found -> Error([decode.DecodeError(expected: \""
-            <> fixed
-            <> "\", found:, path: "
-            <> field_path
-            <> ")]) }",
-        ),
-        ..results
-      ]
-      Some(fixed), _, minimum, _ | _, Some(fixed), minimum, _ -> {
-        let source = source <> "." <> field_name
-        let values = case minimum {
-          0 -> source
-          1 -> "[" <> source <> ".first, .." <> source <> ".rest]"
-          2 ->
-            "["
-            <> source
-            <> ".first, "
-            <> source
-            <> ".second, .."
-            <> source
-            <> ".rest]"
-          3 ->
-            "["
-            <> source
-            <> ".first, "
-            <> source
-            <> ".second, "
-            <> source
-            <> ".third, .."
-            <> source
-            <> ".rest]"
-          _ -> panic as "list min > 3 not supported"
-        }
-        [
-          #(
-            result_name,
-            "{ let errors = list.index_map("
-              <> values
-              <> ", fn(found, index) { case found == "
-              <> json.to_string(json.string(fixed))
-              <> " { True -> [] False -> [decode.DecodeError(expected: "
-              <> json.to_string(json.string(fixed))
-              <> ", found:, path: list.append("
-              <> field_path
-              <> ", [int.to_string(index)]))] } }) |> list.flatten\n"
-              <> "case errors { [] -> Ok(Nil) _ -> Error(errors) } }",
-          ),
-          ..results
-        ]
-      }
-      None, None, 0, "1" if field.min > 0 -> [
-        #(
-          result_name,
-          "case "
-            <> source
-            <> "."
-            <> field_name
-            <> " { Some(_) -> Ok(Nil) None -> Error([decode.DecodeError(expected: \"Field\", found: \"Nothing\", path: "
-            <> field_path
-            <> ")]) }",
-        ),
-        ..results
-      ]
-      _, _, _, _ -> results
-    }
-  })
-  |> list.reverse
-  |> validation_results_source
-}
-
-fn slice_converter_source(
-  context: DecodeContext,
-  parent_type: String,
-  group: codegen_helpers.Element,
-  root: codegen_helpers.Element,
-  function_name: String,
-) -> ConversionSupport {
-  let #(_, _, json_name, _, base_type, _) =
-    profile_element_names(context, parent_type, group)
-  let #(_, _, _, _, target_type, _) =
-    profile_element_names(context, parent_type, root)
-  let assert Ok(target_fields) =
-    fields_for_profile_type(context, target_type, "")
-  let assert Ok(discriminator) =
-    list.find(target_fields, fn(field) {
-      dict.has_key(context.slice_type_overrides, field.id)
-    })
-  let #(_, _, _, discriminator_field, discriminator_type, _) =
-    profile_element_names(context, target_type, discriminator)
-  let discriminator_parameter_type = case discriminator.max {
-    "1" -> discriminator_type
-    _ ->
-      codegen_helpers.cardinality(
-        discriminator_type,
-        profile_field_min(discriminator),
-        discriminator.max,
-      )
-  }
-  let has_sliced_extensions =
-    list.any(target_fields, fn(field) {
-      field.slicing != None
-      && list.any(field.type_, fn(type_) { type_.code == "Extension" })
-    })
-  case has_sliced_extensions {
-    True ->
-      ConversionSupport(
-        source: "fn "
-          <> function_name
-          <> "(source: "
-          <> base_type
-          <> ", index: Int, "
-          <> discriminator_field
-          <> " _"
-          <> discriminator_field
-          <> ": "
-          <> discriminator_parameter_type
-          <> ") -> Result("
-          <> target_type
-          <> ", List(decode.DecodeError)) {\n"
-          <> "  case json.parse(json.to_string("
-          <> {
-          base_type
-          |> string.split(".")
-          |> list.map(codegen_helpers.to_snake_case)
-          |> string.join(".")
-        }
-          <> "_to_json(source)), "
-          <> codegen_helpers.to_snake_case(target_type)
-          <> "_decoder()) {\n    Ok(value) -> Ok(value)\n    Error(json.UnableToDecode(errors)) -> Error(list.map(errors, fn(error) { decode.DecodeError(..error, path: list.append([\""
-          <> json_name
-          <> "\", int.to_string(index)], error.path)) }))\n    Error(_) -> Error([decode.DecodeError(expected: \""
-          <> target_type
-          <> "\", found: \"invalid JSON\", path: [\""
-          <> json_name
-          <> "\", int.to_string(index)])])\n  }\n}\n\n",
-        conversions: dict.new(),
-      )
-    False ->
-      record_conversion_from_fields(
-        context,
-        target_type,
-        base_type,
-        profile_fields(target_fields),
-        Some(base_type),
-        Some(json_name),
-        function_name,
-      )
-  }
 }
 
 // Follow only the nominated discriminator path; required fields elsewhere are
@@ -4661,61 +2998,101 @@ fn slice_discriminator_match_source(
   group: codegen_helpers.Element,
   root: codegen_helpers.Element,
   input: String,
+  profile_result: Option(String),
 ) -> String {
   let context =
     DecodeContext(..context, snapshot_elements: context.discriminator_elements)
   let assert Some(slicing) = group.slicing
   let prefix = codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
-  let checks =
-    case dict.get(context.slice_type_overrides, root.id) {
-      Ok(BoundCodingSlice) | Ok(BoundCodeableconceptSlice) -> [
-        "case decode.run(value, "
-        <> field_decoder_expression(context, "", root, False)
-        <> ") { Ok(_) -> True Error(_) -> False }",
-      ]
-      _ ->
-        slicing.discriminator
-        |> list.map(fn(discriminator) {
-          case discriminator.type_, discriminator.path {
-            "value", path | "pattern", path ->
-              discriminator_path_source(
-                context,
-                root,
-                case path {
-                  "$this" -> []
-                  path -> string.split(path, ".")
-                },
-                "value",
-              )
-            "profile", "$this" -> {
-              let assert [codegen_helpers.Type(profile: [url], ..)] = root.type_
-              let assert Ok(type_) =
-                dict.get(context.datatype_types, canonical_url(url))
-              "case decode.run(value, "
-              <> prefix
-              <> codegen_helpers.to_snake_case(type_)
-              <> "_decoder()) { Ok(_) -> True Error(_) -> False }"
-            }
-            _, _ ->
-              panic as { "unsupported discriminator " <> discriminator.type_ }
-          }
-        })
+  case slicing.discriminator {
+    [codegen_helpers.Discriminator(type_: "exists", path:)] -> {
+      let assert Ok(child) =
+        find_element(context.snapshot_elements, root.id <> "." <> path)
+      let assert True = child.min > 0 || child.max == "0"
+      let #(absent, present) = case child.max {
+        "0" -> #("DiscriminatorMatches", "DiscriminatorDifferent")
+        _ -> #("DiscriminatorDifferent", "DiscriminatorMatches")
+      }
+      "case decode.run("
+      <> input
+      <> ", decode.optional_field("
+      <> json.to_string(json.string(path))
+      <> ", "
+      <> prefix
+      <> absent
+      <> ", decode.success("
+      <> prefix
+      <> present
+      <> "), decode.success)) { Ok(matched) -> matched Error(_) -> "
+      <> prefix
+      <> "DiscriminatorDifferent }"
     }
-    |> list.filter(fn(check) { check != "True" })
-  let assert [_, ..] = checks
-    as { "no constraints for discriminator " <> root.id }
-  let checks = string.join(checks, " && ")
-  "case decode.run("
-  <> input
-  <> ", decode.then(decode.dynamic, fn(value) { use <- bool.guard(!{ "
-  <> checks
-  <> " }, decode.success("
-  <> prefix
-  <> "DiscriminatorDifferent)) decode.success("
-  <> prefix
-  <> "DiscriminatorMatches) })) { Ok(matched) -> matched Error(_) -> "
-  <> prefix
-  <> "DiscriminatorDifferent }"
+    _ -> {
+      let checks =
+        case dict.get(context.slice_type_overrides, root.id) {
+          Ok(BoundCodingSlice) | Ok(BoundCodeableconceptSlice) -> [
+            "case decode.run(value, "
+            <> field_decoder_expression(context, "", root, False)
+            <> ") { Ok(_) -> True Error(_) -> False }",
+          ]
+          _ ->
+            slicing.discriminator
+            |> list.map(fn(discriminator) {
+              case discriminator.type_, discriminator.path {
+                "value", path | "pattern", path ->
+                  discriminator_path_source(
+                    context,
+                    root,
+                    case path {
+                      "$this" -> []
+                      path -> string.split(path, ".")
+                    },
+                    "value",
+                  )
+                "profile", "$this" -> {
+                  let assert [codegen_helpers.Type(profile: [url], ..)] =
+                    root.type_
+                  let assert Ok(type_) =
+                    dict.get(context.datatype_types, canonical_url(url))
+                  "case "
+                  <> option.unwrap(
+                    profile_result,
+                    "decode.run(value, "
+                      <> prefix
+                      <> codegen_helpers.to_snake_case(type_)
+                      <> "_decoder())",
+                  )
+                  <> " { Ok(_) -> True Error(_) -> False }"
+                }
+                _, _ ->
+                  panic as {
+                    "unsupported discriminator " <> discriminator.type_
+                  }
+              }
+            })
+        }
+        |> list.filter(fn(check) { check != "True" })
+      let assert [_, ..] = checks
+        as { "no constraints for discriminator " <> root.id }
+      let checks = string.join(checks, " && ")
+      "case decode.run("
+      <> input
+      <> ", decode.then(decode.dynamic, fn("
+      <> case profile_result {
+        Some(_) -> "_value"
+        None -> "value"
+      }
+      <> ") { use <- bool.guard(!{ "
+      <> checks
+      <> " }, decode.success("
+      <> prefix
+      <> "DiscriminatorDifferent)) decode.success("
+      <> prefix
+      <> "DiscriminatorMatches) })) { Ok(matched) -> matched Error(_) -> "
+      <> prefix
+      <> "DiscriminatorDifferent }"
+    }
+  }
 }
 
 pub const discriminator_match_type_source =
@@ -5017,6 +3394,9 @@ pub fn constructor_placeholder(
             Error(_) -> {
               let parts = string.split(target_type, ".")
               case target_type, parts {
+                _, _ if name == "ExplicitFalse" || name == "ExplicitTrue" ->
+                  complex_prefix <> name
+                "Nil", _ -> "Nil"
                 "String", _ -> "\"\""
                 "Bool", _ -> "False"
                 "Int", _ -> "0"
@@ -5101,34 +3481,60 @@ fn extension_slice_fold_source(
   let branches =
     roots
     |> list.map(fn(root) {
-      let assert Some(extension) =
-        profile_extension_definition(root, context.extensions)
-        as {
-          "Extension slice "
-          <> root.id
-          <> " requires a referenced Extension profile"
-        }
       let #(_, _, _, root_field, _, _) =
         profile_element_names(context, parent_type, root)
       let variant = parsed_type <> slice_name_type_part(root)
-      let decoder = case extension.kind {
-        SimpleExtension(value) -> {
-          let #(_, decoder) =
-            extension_value_branch(
-              context.current_bucket,
-              extension.name,
-              value,
-              context.valueset_acc,
-              // context.available_valuesets,
-              extension.primitive_values,
-              context.datatype_types,
-            )
-          decoder <> " |> decode.map(Ok)"
+      let extension = profile_extension_definition(root, context.extensions)
+      let #(url, decoder) = case extension {
+        None -> {
+          let assert Some(codegen_constraint.Constraint(
+            fixed: True,
+            value: codegen_constraint.Object(fields) as value,
+            ..,
+          )) = root.constraint
+          let assert Some(codegen_constraint.Text(url)) =
+            codegen_constraint.field(value, "url")
+          let bindings =
+            fields
+            |> list.filter(fn(field) { field.0 != "url" })
+            |> list.map(fn(field) {
+              let assert False = case field.1 {
+                codegen_constraint.Object(_) | codegen_constraint.Array(_) ->
+                  True
+                _ -> False
+              }
+                as { "unsupported nested fixed Extension: " <> root.id }
+              "use _ <- decode.field("
+              <> json.to_string(json.string(field.0))
+              <> ", "
+              <> codegen_constraint.sources(field.1, True, "value").1
+              <> ")\n"
+            })
+            |> string.concat
+          #(url, "{ " <> bindings <> "decode.success(Ok(Nil)) }")
         }
-        ComplexExtension(..) ->
-          "parse_" <> codegen_helpers.to_snake_case(extension.name) <> "()"
+        Some(extension) -> {
+          let decoder = case extension.kind {
+            SimpleExtension(value) -> {
+              let #(_, decoder) =
+                extension_value_branch(
+                  context.current_bucket,
+                  extension.name,
+                  value,
+                  context.valueset_acc,
+                  // context.available_valuesets,
+                  extension.primitive_values,
+                  context.datatype_types,
+                )
+              decoder <> " |> decode.map(Ok)"
+            }
+            ComplexExtension(..) ->
+              "parse_" <> codegen_helpers.to_snake_case(extension.name) <> "()"
+          }
+          #(extension.url, decoder)
+        }
       }
-      let named_value = case context.preserve_slice_order {
+      let named_value = case context.preserve_slice_order && extension != None {
         True ->
           complex_prefix
           <> "ExtensionSliceElt(value:, id:, internal_gleam_fhir_index: None)"
@@ -5136,7 +3542,7 @@ fn extension_slice_fold_source(
       }
       let decode_branch =
         "      \""
-        <> canonical_url(extension.url)
+        <> canonical_url(url)
         <> "\" -> "
         <> decoder
         <> " |> decode.map(fn(parsed) { result.map(parsed, fn(value) { "
@@ -5144,11 +3550,12 @@ fn extension_slice_fold_source(
         <> "("
         <> named_value
         <> ") }) })\n"
-      let stored_value = case context.preserve_slice_order {
-        True ->
+      let stored_value = case context.preserve_slice_order, extension {
+        True, None -> complex_prefix <> "SliceElt(value, Some(index))"
+        True, _ ->
           complex_prefix
           <> "ExtensionSliceElt(..value, internal_gleam_fhir_index: Some(index))"
-        False -> "value"
+        False, _ -> "value"
       }
       let stored_value = case root.max {
         "1" -> "Some(" <> stored_value <> ")"
@@ -5201,7 +3608,15 @@ fn extension_slice_fold_source(
     <> "  use url <- decode.field(\"url\", decode.string)\n"
     <> "  use "
     <> case context.preserve_slice_order {
-      True -> "id"
+      True ->
+        case
+          list.any(roots, fn(root) {
+            profile_extension_definition(root, context.extensions) != None
+          })
+        {
+          True -> "id"
+          False -> "_id"
+        }
       False -> "_id"
     }
     <> " <- decode.optional_field(\"id\", None, decode.optional(decode.string))\n"
@@ -5419,13 +3834,17 @@ fn extension_slice_fold_source(
             "Float" -> "0.0"
             _ -> base_slice_placeholder(context, field_type)
           }
-          case context.preserve_slice_order {
-            True ->
+          case
+            context.preserve_slice_order,
+            profile_extension_definition(root, context.extensions)
+          {
+            True, None -> complex_prefix <> "SliceElt(" <> value <> ", None)"
+            True, _ ->
               complex_prefix
               <> "ExtensionSliceElt(value: "
               <> value
               <> ", id: None, internal_gleam_fhir_index: None)"
-            False -> value
+            False, _ -> value
           }
         })
       #(root_field, placeholder)
@@ -5439,7 +3858,6 @@ fn extension_slice_fold_source(
   }
   SliceGroupDecode(
     source: fold_source <> result_source,
-    conversions: dict.new(),
     support_source:,
     result_name:,
     success_pattern: "Ok(" <> group_type <> "Slices(" <> value_fields <> "))",
@@ -5573,7 +3991,15 @@ fn ordinary_slice_fold_source(
         True -> aggregate_slice_constructor(group_type, "Open", base_type)
         False -> parsed_type <> "Open"
       }
-      "Ok(" <> constructor <> "(" <> field_name <> "))"
+      "case decode.run("
+      <> field_name
+      <> "_raw, "
+      <> base_decoder
+      <> ") { Ok(value) -> Ok("
+      <> constructor
+      <> "(value)) Error(errors) -> Error(list.map(errors, fn(error) { decode.DecodeError(..error, path: [\""
+      <> json_name
+      <> "\", int.to_string(index), ..error.path]) })) }"
     }
     "closed" ->
       "Error(["
@@ -5590,7 +4016,7 @@ fn ordinary_slice_fold_source(
   let classifier =
     roots
     |> list.reverse
-    |> list.fold(ConversionSupport(unmatched, dict.new()), fn(unmatched, root) {
+    |> list.fold(unmatched, fn(unmatched, root) {
       let #(_, _, _, _, root_type, _) =
         profile_element_names(context, parent_type, root)
       let constructor = case is_aggregate {
@@ -5602,47 +4028,190 @@ fn ordinary_slice_fold_source(
           )
         False -> parsed_slice_constructor(parent_type, group, root)
       }
+      let decoder = case
+        dict.get(context.slice_type_overrides, root.id),
+        dict.get(context.slice_inputs, root_type)
+      {
+        Ok(FixedSliceType(name, _, system, code, display)), _ -> {
+          let assert Ok(#(_, function, fixed, _)) =
+            codegen_slice_complex_type.helper_fields(name)
+          let remaining =
+            list.filter(fixed, fn(name) {
+              !list.any(slicing.discriminator, fn(discriminator) {
+                discriminator.path == name || discriminator.path == "$this"
+              })
+            })
+          let checks =
+            remaining
+            |> list.map(fn(name) {
+              let value = case name {
+                "system" -> system
+                "code" -> code
+                "display" -> {
+                  let assert Some(value) = display
+                  value
+                }
+                _ -> panic as { "unknown fixed field " <> name }
+              }
+              "use _ <- decode.field("
+              <> json.to_string(json.string(name))
+              <> ", "
+              <> codegen_constraint.sources(
+                codegen_constraint.Text(value),
+                True,
+                "value",
+              ).1
+              <> ")\n"
+            })
+            |> string.concat
+          "{ "
+          <> checks
+          <> complex_prefix
+          <> function
+          <> case fixed {
+            [] -> "_decoder()"
+            _ -> "_slice_decoder()"
+          }
+          <> " }"
+        }
+        _, Error(_) ->
+          field_decoder_expression(context, parent_type, root, False)
+        _, Ok(inputs) -> {
+          let inputs =
+            list.filter(inputs, fn(field) {
+              codegen_helpers.constant(field) == None
+              || field.min == 0
+              || field.max != "1"
+            })
+          let bindings =
+            inputs
+            |> list.map(fn(field) {
+              let #(_, _, _, name, _, _) =
+                profile_element_names(context, root_type, field)
+              "use "
+              <> name
+              <> " <- "
+              <> field_decoder_expression(context, root_type, field, True)
+              <> "\n"
+            })
+            |> string.concat
+          let arguments =
+            inputs
+            |> list.map(fn(field) {
+              let #(_, _, _, name, _, _) =
+                profile_element_names(context, root_type, field)
+              name <> ": " <> name
+            })
+            |> string.join(", ")
+          "{ "
+          <> bindings
+          <> codegen_helpers.to_snake_case(root_type)
+          <> "_slice_decoder("
+          <> arguments
+          <> ") }"
+        }
+      }
       let prefix =
         codegen_helpers.bucket_prefix("Quantity", context.current_bucket)
-      ConversionSupport(
-        source: "case "
-          <> slice_discriminator_match_source(
+      let profile_result = case slicing.discriminator, root.type_ {
+        [codegen_helpers.Discriminator(type_: "profile", path: "$this")],
+          [codegen_helpers.Type(profile: [url], ..)]
+        -> {
+          case dict.get(context.datatype_types, canonical_url(url)) {
+            Ok(name) if root_type == prefix <> name -> Some("profile_result")
+            _ -> None
+          }
+        }
+        _, _ -> None
+      }
+      let ordinary =
+        "{ "
+        <> case profile_result {
+          Some(name) ->
+            "let "
+            <> name
+            <> " = decode.run("
+            <> field_name
+            <> "_raw, "
+            <> decoder
+            <> ")\n"
+          None -> ""
+        }
+        <> "case "
+        <> slice_discriminator_match_source(
           context,
           group,
           root,
           field_name <> "_raw",
+          profile_result,
         )
-          <> " { "
-          <> prefix
-          <> "DiscriminatorMatches -> case decode.run("
+        <> " { "
+        <> prefix
+        <> "DiscriminatorMatches -> case "
+        <> option.unwrap(
+          profile_result,
+          "decode.run(" <> field_name <> "_raw, " <> decoder <> ")",
+        )
+        <> " { Ok(value) -> Ok("
+        <> constructor
+        <> "(value)) Error(errors) -> Error(list.map(errors, fn(error) { decode.DecodeError(..error, path: list.append([\""
+        <> json_name
+        <> "\", int.to_string(index)], error.path)) })) } "
+        <> prefix
+        <> "DiscriminatorDifferent -> "
+        <> unmatched
+        <> " } }"
+      case dict.get(context.slice_type_overrides, root.id) {
+        Ok(BoundCodingSlice) as kind | Ok(BoundCodeableconceptSlice) as kind -> {
+          let assert Some(valueset) =
+            codegen_bound_coding.bound_valueset_function_name(root_type)
+          let from_code = "valuesets." <> valueset <> "_from_code_and_system"
+          let #(discriminator, matched, selected) = case kind {
+            Ok(BoundCodingSlice) -> {
+              let assert [name, ..] = string.split(root_type, "(")
+              let name =
+                name
+                |> string.replace(complex_prefix, "")
+                |> codegen_helpers.to_snake_case
+              #(
+                "{ use code <- decode.field(\"code\", decode.string) use system <- decode.field(\"system\", decode.string) decode.success("
+                  <> from_code
+                  <> "(code, system)) }",
+                "Ok(Ok(code))",
+                complex_prefix <> name <> "_slice_decoder(code)",
+              )
+            }
+            _ -> #(
+              complex_prefix
+                <> "bound_codeableconcept_discriminator("
+                <> from_code
+                <> ")",
+              "Ok(Some(#(code, coding_index, coding_raw, codings)))",
+              complex_prefix
+                <> "bound_codeableconcept_slice_decoder(code, coding_index, coding_raw, codings)",
+            )
+          }
+          "case decode.run("
           <> field_name
           <> "_raw, "
-          <> field_decoder_expression(context, parent_type, root, False)
+          <> discriminator
+          <> ") { "
+          <> matched
+          <> " -> case decode.run("
+          <> field_name
+          <> "_raw, "
+          <> selected
           <> ") { Ok(value) -> Ok("
           <> constructor
-          <> "(value)) Error(errors) -> Error(list.map(errors, fn(error) { decode.DecodeError(..error, path: list.append([\""
+          <> "(value)) Error(errors) -> Error(list.map(errors, fn(error) { decode.DecodeError(..error, path: [\""
           <> json_name
-          <> "\", int.to_string(index)], error.path)) })) } "
-          <> prefix
-          <> "DiscriminatorDifferent -> "
-          <> unmatched.source
-          <> " }",
-        conversions: unmatched.conversions,
-      )
+          <> "\", int.to_string(index), ..error.path]) })) } _ -> "
+          <> unmatched
+          <> " }"
+        }
+        _ -> ordinary
+      }
     })
-  let classifier_source =
-    "case decode.run("
-    <> field_name
-    <> "_raw, "
-    <> base_decoder
-    <> ") { Ok("
-    <> case slicing.rules {
-      "closed" -> "_"
-      _ -> field_name
-    }
-    <> ") -> "
-    <> classifier.source
-    <> " Error(errors) -> Error(errors) }"
   let initial_values = case is_aggregate {
     True -> "[]"
     False -> {
@@ -5739,7 +4308,7 @@ fn ordinary_slice_fold_source(
     <> ") {\n        let parsed: Result("
     <> parsed_type
     <> ", List(decode.DecodeError)) =\n          "
-    <> classifier_source
+    <> classifier
     <> "\n        case accumulator_result, parsed {\n"
     <> accumulate_cases
     <> "          Ok(_), Error(errors) -> Error(errors)\n          Error(errors), Ok(_) -> Error(errors)\n          Error(errors), Error(new_errors) -> Error(list.append(new_errors, errors))\n        }\n      },\n    )\n"
@@ -5779,7 +4348,6 @@ fn ordinary_slice_fold_source(
 
       SliceGroupDecode(
         source: fold_source <> result_source,
-        conversions: classifier.conversions,
         support_source: "",
         result_name:,
         success_pattern: "Ok(" <> field_name <> ")",
@@ -5965,7 +4533,6 @@ fn ordinary_slice_fold_source(
       }
       SliceGroupDecode(
         source: fold_source <> result_source,
-        conversions: classifier.conversions,
         support_source: "",
         result_name:,
         success_pattern: "Ok("
@@ -6030,7 +4597,36 @@ fn record_decoder_from_fields(
   omit_fixed: Bool,
   primitive: Bool,
   binding: Option(String),
-) -> ConversionSupport {
+) -> String {
+  let inputs = dict.get(context.slice_inputs, target_type) |> result.unwrap([])
+  let retained_inputs =
+    list.filter(inputs, fn(field) {
+      codegen_helpers.constant(field) == None
+      || field.min == 0
+      || field.max != "1"
+    })
+  let input_bindings =
+    retained_inputs
+    |> list.map(fn(field) {
+      let #(_, _, _, name, _, _) =
+        profile_element_names(context, target_type, field)
+      "  use "
+      <> name
+      <> " <- "
+      <> field_decoder_expression(context, target_type, field, True)
+      <> "\n"
+    })
+    |> string.concat
+  let input_arguments =
+    retained_inputs
+    |> list.map(fn(field) {
+      let #(_, _, _, name, type_, _) =
+        profile_element_names(context, target_type, field)
+      #(
+        name,
+        codegen_helpers.cardinality(type_, profile_field_min(field), field.max),
+      )
+    })
   let primitive_name = case primitive {
     False -> ""
     True -> {
@@ -6102,12 +4698,19 @@ fn record_decoder_from_fields(
   let constraint_guards =
     list.append(parent, raw_constraints)
     |> list.filter(fn(element) {
-      !primitive
-      || !list.any(parent, fn(root) {
-        root.id <> ".value" == element.id
-        && codegen_helpers.constant(root) != None
-        && codegen_helpers.constant(root) == codegen_helpers.constant(element)
-      })
+      case codegen_helpers.constant(element) {
+        Some(codegen_constraint.Boolean(_))
+          if !primitive && element.min == 0 && element.max == "1"
+        -> False
+        _ ->
+          !primitive
+          || !list.any(parent, fn(root) {
+            root.id <> ".value" == element.id
+            && codegen_helpers.constant(root) != None
+            && codegen_helpers.constant(root)
+            == codegen_helpers.constant(element)
+          })
+      }
     })
     |> list.map(fn(element) {
       let assert Some(constraint) = element.constraint
@@ -6126,7 +4729,12 @@ fn record_decoder_from_fields(
             codegen_to_json.string_to_encoder_call(
               scalar_type.code,
               string.split(element.path, "."),
-              element,
+              codegen_helpers.Element(
+                ..element,
+                constraint: None,
+                fixed_code: None,
+                fixed_uri: None,
+              ),
               context.current_bucket,
               "value",
             )
@@ -6199,10 +4807,13 @@ fn record_decoder_from_fields(
     |> dict.values
     |> list.flatten
     |> list.map(fn(root) { root.id })
-  let empty_support = ConversionSupport("", dict.new())
   let #(bindings, choices, slice_decodes) =
-    list.fold(fields, #("", empty_support, []), fn(acc, element) {
+    list.fold(fields, #("", "", []), fn(acc, element) {
       let #(bindings, choices, slice_decodes) = acc
+      use <- bool.guard(
+        list.any(inputs, fn(field) { field.id == element.id }),
+        acc,
+      )
       let #(_, field_path, json_name, field_name, _, _) =
         profile_element_names(context, target_type, element)
       case element.pattern_literals, dict.get(slice_groups, element.id) {
@@ -6215,9 +4826,9 @@ fn record_decoder_from_fields(
             <> entries
             <> " <- decode.field(\""
             <> json_name
-            <> "\", decode.list(decode.then(decode.dynamic, fn(raw) { "
+            <> "\", decode.list("
             <> scalar_decoder
-            <> " |> decode.map(fn(value) { #(value, raw) }) })))\n"
+            <> "))\n"
             <> "  let "
             <> entries
             <> " = list.index_map("
@@ -6242,10 +4853,38 @@ fn record_decoder_from_fields(
                   }
                   <> "_index"
                 let remaining = entries <> "_" <> int.to_string(index)
-                let matches =
-                  codegen_constraint.sources(literal, False, "entry.0.1").0
-                let literal_decoder =
-                  codegen_constraint.sources(literal, False, "value").1
+                let #(parts, _, _, _, field_type, _) =
+                  profile_element_names(context, target_type, element)
+                let matches = case literal, field_type {
+                  codegen_constraint.Text(value), "String" ->
+                    "entry.0 == " <> json.to_string(json.string(value))
+                  codegen_constraint.Integer(value), "Int" ->
+                    "entry.0 == " <> int.to_string(value)
+                  codegen_constraint.Integer(value), "Float" ->
+                    "entry.0 == " <> int.to_string(value) <> ".0"
+                  codegen_constraint.Decimal(value), "Float" ->
+                    "entry.0 == " <> json.to_string(json.float(value))
+                  codegen_constraint.Boolean(value), "Bool" ->
+                    "entry.0 == " <> case value {
+                      True -> "True"
+                      False -> "False"
+                    }
+                  _, _ ->
+                    profile_element_encoder_call(
+                      context.current_bucket,
+                      element,
+                      field_type,
+                      parts,
+                      field_path,
+                      context.type_order,
+                      context.slice_type_overrides,
+                      context.datatype_types,
+                      context.snapshot_elements,
+                      "entry.0",
+                    )
+                    <> " == "
+                    <> codegen_constraint.json_source(literal)
+                }
                 let expected = case literal {
                   codegen_constraint.Text(value) ->
                     json.to_string(json.string(value))
@@ -6267,21 +4906,11 @@ fn record_decoder_from_fields(
                     <> " } { True -> #(Some(entry.1), acc.1) False -> #(None, [entry, ..acc.1]) } Some(_) -> #(acc.0, [entry, ..acc.1]) } })\n"
                     <> "  use _ <- decode.then(case "
                     <> index_name
-                    <> " { Some(_) -> decode.success(Nil) None -> { let errors = case "
-                    <> previous
-                    <> " { [entry, ..] -> case decode.run(entry.0.1, "
-                    <> literal_decoder
-                    <> ") { Error(errors) -> list.map(errors, fn(error) { decode.DecodeError(..error, path: ["
-                    <> json.to_string(json.string(json_name))
-                    <> ", int.to_string(entry.1), ..error.path]) }) Ok(_) -> [decode.DecodeError(expected: "
+                    <> " { Some(_) -> decode.success(Nil) None -> { let errors = [decode.DecodeError(expected: "
                     <> expected
                     <> ", found: \"no matching element\", path: ["
                     <> json.to_string(json.string(json_name))
-                    <> "])] } [] -> [decode.DecodeError(expected: "
-                    <> expected
-                    <> ", found: \"no matching element\", path: ["
-                    <> json.to_string(json.string(json_name))
-                    <> "])] }\n"
+                    <> "])]\n"
                     <> "decode.failure(Nil, "
                     <> expected
                     <> ") |> decode.map_errors(fn(_) { errors }) } })\n"
@@ -6301,8 +4930,8 @@ fn record_decoder_from_fields(
             <> remaining
             <> ", fn(entry) { "
             <> case context.preserve_slice_order {
-              True -> complex_prefix <> "SliceElt(entry.0.0, Some(entry.1))"
-              False -> "entry.0.0"
+              True -> complex_prefix <> "SliceElt(entry.0, Some(entry.1))"
+              False -> "entry.0"
             }
             <> " })"
           let remainder =
@@ -6360,13 +4989,7 @@ fn record_decoder_from_fields(
             )
           #(
             bindings <> slice_decode.source,
-            ConversionSupport(
-              source: choices.source <> slice_decode.support_source,
-              conversions: dict.merge(
-                choices.conversions,
-                slice_decode.conversions,
-              ),
-            ),
+            choices <> slice_decode.support_source,
             [slice_decode, ..slice_decodes],
           )
         }
@@ -6437,10 +5060,7 @@ fn record_decoder_from_fields(
                   [_, _, ..] -> {
                     let generated =
                       choice_decoder_source(context, target_type, element)
-                    ConversionSupport(
-                      choices.source <> generated.source,
-                      dict.merge(choices.conversions, generated.conversions),
-                    )
+                    choices <> generated
                   }
                   _ -> choices
                 },
@@ -6658,7 +5278,7 @@ fn record_decoder_from_fields(
       |> string.concat
   }
   let fixed_guards = case omit_fixed {
-    False -> ""
+    False -> []
     True ->
       fields
       |> list.filter(fn(field) {
@@ -6711,10 +5331,22 @@ fn record_decoder_from_fields(
             <> scalar
             <> "))"
         }
-        Ok("  use _ <- " <> check <> "\n")
+        Ok(#(
+          list.any(inputs, fn(input) { input.id == element.id }),
+          "  use _ <- " <> check <> "\n",
+        ))
       })
-      |> string.concat
   }
+  let input_fixed_guards =
+    fixed_guards
+    |> list.filter(fn(guard) { guard.0 })
+    |> list.map(fn(guard) { guard.1 })
+    |> string.concat
+  let fixed_guards =
+    fixed_guards
+    |> list.filter(fn(guard) { !guard.0 })
+    |> list.map(fn(guard) { guard.1 })
+    |> string.concat
   let resource_guard = case resource_type {
     None -> ""
     Some(resource_type) ->
@@ -6785,16 +5417,30 @@ fn record_decoder_from_fields(
       let #(_, _, _, _, field_type, _) =
         profile_element_names(context, target_type, value_field)
       let assert [scalar_type] = value_field.type_
+      let #(scalar_field_type, _) =
+        codegen_helpers.string_to_type(
+          scalar_type.code,
+          [],
+          value_field,
+          context.current_bucket,
+          dict.new(),
+        )
       let scalar_decoder =
         codegen_decode.decoder_for_type(
           scalar_type.code,
-          field_type,
+          scalar_field_type,
           context.current_bucket,
         )
       #(
-        field_type,
+        scalar_field_type,
         case codegen_helpers.constant(value_field), value_field.min {
           Some(_), minimum if omit_fixed && minimum > 0 -> ""
+          Some(codegen_constraint.Boolean(_)), 0 ->
+            "  let value = option.map(primitive.value, fn(_) { "
+            <> field_type
+            <> " })\n"
+          Some(_), 0 if field_type == "Nil" ->
+            "  let value = option.map(primitive.value, fn(_) { Nil })\n"
           _, 0 -> "  let value = primitive.value\n"
           _, _ ->
             "  use value <- decode.then(case primitive.value { Some(value) -> decode.success(value) None -> decode.field("
@@ -6806,41 +5452,69 @@ fn record_decoder_from_fields(
       )
     }
   }
-  ConversionSupport(
-    source: primitive_extension_source
-      <> choices.source
-      <> "pub fn "
+  primitive_extension_source
+  <> choices
+  <> case inputs {
+    [] -> ""
+    _ ->
+      "pub fn "
       <> codegen_helpers.to_snake_case(target_type)
-      <> case primitive {
-      True ->
-        "_from_primitive(\n  primitive: Primitive("
-        <> primitive_value_type
-        <> ", "
-        <> primitive_extension_type
-        <> "),\n) -> Decoder("
-        <> target_type
-        <> ") {\n"
-      False ->
-        "_decoder() -> Decoder("
-        <> target_type
-        <> ") {\n  use <- decode.recursive\n"
-    }
-      <> binding_guard
-      <> constraint_guards
-      <> primitive_value_binding
-      <> primitive_extension_bindings
-      <> bindings
-      <> slice_decoder_bindings
-      <> case typed_slice_decoders {
-      True -> ""
-      False -> placeholder
-    }
-      <> fixed_guards
-      <> resource_guard
-      <> result
-      <> "}\n\n",
-    conversions: choices.conversions,
-  )
+      <> "_decoder() -> Decoder("
+      <> target_type
+      <> ") {\n"
+      <> input_bindings
+      <> input_fixed_guards
+      <> "  "
+      <> codegen_helpers.to_snake_case(target_type)
+      <> "_slice_decoder("
+      <> string.join(
+        list.map(input_arguments, fn(argument) {
+          argument.0 <> ": " <> argument.0
+        }),
+        ", ",
+      )
+      <> ")\n}\n\n"
+  }
+  <> "pub fn "
+  <> codegen_helpers.to_snake_case(target_type)
+  <> case primitive {
+    True ->
+      "_from_primitive(\n  primitive: Primitive("
+      <> primitive_value_type
+      <> ", "
+      <> primitive_extension_type
+      <> "),\n) -> Decoder("
+      <> target_type
+      <> ") {\n"
+    False ->
+      case inputs {
+        [] -> "_decoder("
+        _ -> "_slice_decoder("
+      }
+      <> string.join(
+        list.map(input_arguments, fn(argument) {
+          argument.0 <> " " <> argument.0 <> ": " <> argument.1
+        }),
+        ", ",
+      )
+      <> ") -> Decoder("
+      <> target_type
+      <> ") {\n  use <- decode.recursive\n"
+  }
+  <> binding_guard
+  <> constraint_guards
+  <> primitive_value_binding
+  <> primitive_extension_bindings
+  <> bindings
+  <> slice_decoder_bindings
+  <> case typed_slice_decoders {
+    True -> ""
+    False -> placeholder
+  }
+  <> fixed_guards
+  <> resource_guard
+  <> result
+  <> "}\n\n"
 }
 
 fn extension_value_branch(
@@ -7542,13 +6216,19 @@ pub fn decoder_requirements(
           element.slicing,
           direct_slice_roots(element, fields)
         {
-          Some(_), [_, ..] ->
+          Some(_), [_, ..] as roots ->
             case
               element.base.max != "1"
               && type_count <= 1
               && !string.ends_with(element.path, "[x]")
               && !list.any(element.type_, fn(type_) {
                 type_.code == "Extension"
+              })
+              && list.any(roots, fn(root) {
+                case dict.get(context.slice_type_overrides, root.id) {
+                  Ok(BoundCodingSlice) | Ok(BoundCodeableconceptSlice) -> False
+                  _ -> True
+                }
               })
             {
               True -> {
@@ -7597,8 +6277,26 @@ pub fn decoder_requirements(
           }
           _, _ -> modules
         }
-        let modules = case element.constraint {
-          Some(constraint) ->
+        let modules = case
+          element.constraint,
+          element.type_,
+          element.slice_name
+        {
+          Some(codegen_constraint.Constraint(
+            fixed: True,
+            value: codegen_constraint.Object(fields),
+            ..,
+          )),
+            [codegen_helpers.Type(code: "Extension", ..)],
+            Some(_)
+          ->
+            list.fold(fields, modules, fn(modules, field) {
+              set.union(
+                modules,
+                codegen_constraint.required_modules(field.1, True),
+              )
+            })
+          Some(constraint), _, _ ->
             set.union(
               modules,
               codegen_constraint.required_modules(
@@ -7606,7 +6304,7 @@ pub fn decoder_requirements(
                 constraint.fixed,
               ),
             )
-          None -> modules
+          None, _, _ -> modules
         }
         codegen_helpers.RequiredCode(..required, modules: modules)
       })
@@ -7628,6 +6326,7 @@ pub fn generate_decoders(
     profile_prefix:,
     type_order:,
     type_fields:,
+    slice_inputs: _,
     extensions:,
     slice_base_type_names: _,
     slice_type_overrides: _,
@@ -7790,9 +6489,51 @@ pub fn generate_decoders(
       <> "])\n}\n\n"
     })
     |> string.concat
-  let empty_support = ConversionSupport("", dict.new())
+  let slice_inputs =
+    dict.values(context.type_fields)
+    |> list.fold(dict.new(), fn(inputs, fields) {
+      list.fold(fields, inputs, fn(inputs, group) {
+        case group.slicing {
+          Some(slicing) if group.base.max != "1" -> {
+            direct_slice_roots(group, fields)
+            |> list.fold(inputs, fn(inputs, root) {
+              let #(_, _, _, _, target_type, _) =
+                profile_element_names(context, "", root)
+              case fields_for_profile_type(context, target_type, "") {
+                Error(_) -> inputs
+                Ok(fields) -> {
+                  let fields =
+                    list.filter(fields, fn(field) {
+                      field.max != "0"
+                      && list.any(slicing.discriminator, fn(discriminator) {
+                        let assert [first, ..] =
+                          string.split(discriminator.path, ".")
+                        first == profile_json_field_name(field, "")
+                      })
+                    })
+                  case fields {
+                    [] -> inputs
+                    _ -> {
+                      let previous =
+                        dict.get(inputs, target_type) |> result.unwrap([])
+                      dict.insert(
+                        inputs,
+                        target_type,
+                        list.append(previous, fields) |> list.unique,
+                      )
+                    }
+                  }
+                }
+              }
+            })
+          }
+          _ -> inputs
+        }
+      })
+    })
+  let context = DecodeContext(..context, slice_inputs:)
   let decoders =
-    list.fold(type_order, empty_support, fn(source, current_type) {
+    list.fold(type_order, "", fn(source, current_type) {
       let assert Ok(fields) = dict.get(type_fields, current_type)
       let target_type = profile_type_name(context, current_type, profile_type)
       let omit_fixed =
@@ -7815,24 +6556,11 @@ pub fn generate_decoders(
           ),
           dict.get(context.binding_checks, current_type) |> option.from_result,
         )
-      ConversionSupport(
-        source.source <> generated.source,
-        dict.merge(source.conversions, generated.conversions),
-      )
+      source <> generated
     })
   let support = slice_support_types(context, profile_type)
-  let conversions =
-    generate_conversions(context, decoders.conversions, dict.new())
-    |> dict.to_list
-    |> list.sort(fn(left, right) { string.compare(left.0, right.0) })
-    |> list.map(fn(item) { item.1 })
-    |> string.concat
   #(
-    extension_classifiers
-      <> union_decoders
-      <> support
-      <> conversions
-      <> decoders.source,
+    extension_classifiers <> union_decoders <> support <> decoders,
     generated_extension_classifiers,
   )
 }
@@ -8609,6 +7337,7 @@ pub fn generate_to_json(
             list.find(value_fields, fn(element) {
               profile_json_field_name(element, "") == "value"
             })
+            as { "primitive record has no value field: " <> current_type }
           let assert [value_type] = value_field.type_
           let value_parts =
             value_field.id
@@ -8629,7 +7358,16 @@ pub fn generate_to_json(
           let fixed_primitive =
             value_field.min > 0 && codegen_helpers.constant(value_field) != None
           case fixed_primitive {
-            True -> ""
+            True -> {
+              let assert Some(value) = codegen_helpers.constant(value_field)
+              "pub fn "
+              <> encoder_name
+              <> "_value_to_json(_primitive: "
+              <> gleam_type
+              <> ") -> Option(Json) { Some("
+              <> codegen_constraint.json_source(value)
+              <> ") }\n\n"
+            }
             False ->
               "pub fn "
               <> encoder_name

@@ -1,5 +1,7 @@
 import codegen_bound_coding
+import codegen_constraint
 import codegen_helpers
+import gleam/bool
 import gleam/dict
 import gleam/json
 import gleam/list
@@ -63,6 +65,47 @@ pub fn string_to_decoder_type(
   elt: codegen_helpers.Element,
   current: codegen_helpers.Category,
 ) -> String {
+  let explicit_boolean = case codegen_helpers.constant(elt) {
+    Some(codegen_constraint.Boolean(value)) -> {
+      let literal = case value {
+        True -> "True"
+        False -> "False"
+      }
+      let constructor =
+        codegen_helpers.bucket_prefix("Quantity", current)
+        <> "Explicit"
+        <> literal
+      "{ use value <- decode.then(decode.bool) case value { "
+      <> literal
+      <> " -> decode.success("
+      <> constructor
+      <> ") _ -> decode.failure("
+      <> constructor
+      <> ", \""
+      <> string.lowercase(literal)
+      <> "\") } }"
+    }
+    _ -> ""
+  }
+  use <- bool.guard(
+    explicit_boolean != "" && elt.min == 0 && elt.max == "1",
+    explicit_boolean,
+  )
+  use <- bool.guard(
+    case codegen_helpers.constant(elt) {
+      Some(codegen_constraint.Text(_))
+      | Some(codegen_constraint.Integer(_))
+      | Some(codegen_constraint.Decimal(_)) -> True
+      Some(codegen_constraint.Boolean(_)) -> elt.min != 0 || elt.max != "1"
+      _ -> False
+    },
+    {
+      case codegen_helpers.constant(elt) {
+        Some(value) -> codegen_constraint.sources(value, True, "value").1
+        _ -> ""
+      }
+    },
+  )
   case elt.gleam_arguments, elt.gleam_type {
     Some(arguments), Some(name) ->
       codegen_helpers.bucket_prefix("Quantity", current)
@@ -204,11 +247,16 @@ pub fn field_decoder(
       <> decoder
       <> ", extension_decoder())"
     _, 0, False ->
-      "decode.optional_field(\""
-      <> name
-      <> "\", None, decode.optional("
-      <> decoder
-      <> "))"
+      case decoder {
+        "decode.string" -> "decode_optional_string(\"" <> name <> "\")"
+        "decode.bool" -> "decode_optional_bool(\"" <> name <> "\")"
+        _ ->
+          "decode.optional_field(\""
+          <> name
+          <> "\", None, decode.optional("
+          <> decoder
+          <> "))"
+      }
     _, 1, True ->
       "primitive_decoder(\""
       <> name

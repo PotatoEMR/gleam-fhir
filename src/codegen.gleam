@@ -301,7 +301,6 @@ fn gen_fhir(
       codegen_profile.required_complex_type_names(
         profiles_dir,
         gen_specific_resources,
-        client_resources,
       )
     None -> set.new()
   }
@@ -368,7 +367,6 @@ fn gen_fhir(
           dict.merge(resource_constructors, core_constructors),
           available_valuesets,
           fhir_version,
-          client_resources,
         )
       #(
         complex_types,
@@ -614,6 +612,8 @@ fn gen_fhir(
       #("List1", []),
       #("List2", []),
       #("List3", []),
+      #("ExplicitFalse", []),
+      #("ExplicitTrue", []),
       #("list1_to_json", ["List1"]),
       #("list1_decoder", ["List1"]),
       #("list2_to_json", ["List2"]),
@@ -621,6 +621,8 @@ fn gen_fhir(
       #("list3_to_json", ["List3"]),
       #("list3_decoder", ["List3"]),
       #("none_if_omitted", []),
+      #("decode_optional_string", []),
+      #("decode_optional_bool", []),
       #("decode_number", ["import:int"]),
       #("Primitive", []),
       #("PrimitiveExtPart", []),
@@ -659,22 +661,16 @@ fn gen_fhir(
       #("optional_one_from_array_decoder", []),
       #("BoundCoding", ["Extension"]),
       #("bound_coding_decoder", ["BoundCoding"]),
-      #("bound_coding_from_coding", ["BoundCoding", "Coding"]),
       #("BoundCodeableconcept", [
         "BoundCoding",
         "Coding",
-        "bound_coding_from_coding",
-        "find_elt_and_rest_result",
+        "bound_coding_decoder",
         "import:list",
-      ]),
-      #("bound_codeableconcept_from_codeableconcept", [
-        "BoundCodeableconcept",
-        "Codeableconcept",
+        "import:int",
+        "import:dynamic",
       ]),
       #("BoundCodeablereference", ["BoundCodeableconcept", "Reference"]),
       #("BoundQuantity", ["Extension", "decode_number"]),
-      #("bound_quantity_from_quantity", ["BoundQuantity", "Quantity"]),
-      #("find_elt_and_rest_result", ["import:list"]),
       #("insert_at", ["import:list"]),
     ]
     |> dict.from_list
@@ -683,10 +679,11 @@ fn gen_fhir(
       dict.insert(helper_dependencies, "BoundCodeableconcept", [
         "BoundCoding",
         "Coding",
-        "bound_coding_from_coding",
-        "find_elt_and_rest_result",
         "insert_at",
+        "bound_coding_decoder",
         "import:list",
+        "import:int",
+        "import:dynamic",
       ])
     False -> helper_dependencies
   }
@@ -773,6 +770,24 @@ fn gen_fhir(
       set.new(),
     )
   let helper_definitions = [
+    #("ExplicitFalse", fn() { "pub type ExplicitFalse { ExplicitFalse }\n\n" }),
+    #("ExplicitTrue", fn() { "pub type ExplicitTrue { ExplicitTrue }\n\n" }),
+    #("decode_optional_string", fn() {
+      "pub fn decode_optional_string(
+  name: String,
+  next: fn(Option(String)) -> Decoder(a),
+) -> Decoder(a) {
+  decode.optional_field(name, None, decode.optional(decode.string), next)
+}\n\n"
+    }),
+    #("decode_optional_bool", fn() {
+      "pub fn decode_optional_bool(
+  name: String,
+  next: fn(Option(Bool)) -> Decoder(a),
+) -> Decoder(a) {
+  decode.optional_field(name, None, decode.optional(decode.bool), next)
+}\n\n"
+    }),
     #("SliceElt", fn() {
       "      pub type SliceElt(a) {
         SliceElt(value: a, internal_gleam_fhir_index: Option(Int))
@@ -1188,7 +1203,6 @@ fn gen_fhir(
         None,
       )
     }),
-    #("bound_coding_from_coding", fn() { "" }),
     #("bound_coding_decoder", fn() { "" }),
     #("BoundCodeableconcept", fn() {
       codegen_bound_coding.bound_coding_and_cc(
@@ -1197,17 +1211,10 @@ fn gen_fhir(
         None,
       )
     }),
-    #("bound_codeableconcept_from_codeableconcept", fn() { "" }),
     #("BoundCodeablereference", fn() {
       codegen_bound_coding.bound_codeable_reference
     }),
     #("BoundQuantity", fn() { codegen_bound_coding.bound_quantity }),
-    #("bound_quantity_from_quantity", fn() {
-      codegen_bound_coding.bound_quantity_from_quantity
-    }),
-    #("find_elt_and_rest_result", fn() {
-      codegen_bound_coding.find_elt_and_rest_result(preserve_slice_order)
-    }),
     #("insert_at", fn() { codegen_bound_coding.insert_at }),
   ]
   let helper_sources =
@@ -1246,7 +1253,10 @@ fn gen_fhir(
       |> list.map(fn(entry) { "import " <> entry.1 <> "\n" })
       |> string.concat
     }
-    <> case set.contains(required.types, "Dynamic") {
+    <> case
+      set.contains(required.types, "Dynamic")
+      || set.contains(modules, "dynamic")
+    {
       True -> "import gleam/dynamic.{type Dynamic}\n"
       False -> ""
     }

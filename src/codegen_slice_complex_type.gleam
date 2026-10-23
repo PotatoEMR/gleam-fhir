@@ -3,15 +3,12 @@ import codegen_helpers
 import codegen_to_json
 import gleam/dict
 import gleam/int
+import gleam/json
 import gleam/list
 import gleam/option.{type Option, Some}
 import gleam/result
 import gleam/set.{type Set}
 import gleam/string
-
-pub type DiscriminatorCall {
-  ResultDiscriminatorCall(String)
-}
 
 // Field lists follow the datatype definition's order. Constant fields are not
 // repeated in Required: they are supplied by the profile instead of the caller.
@@ -157,47 +154,6 @@ pub fn discriminator_to_json_call(
   <> ")"
 }
 
-pub fn discriminator_from_base_call(
-  current_bucket: codegen_helpers.Category,
-  discriminator_type: String,
-  value: String,
-  system: String,
-  code: String,
-  display: Option(String),
-) -> Result(DiscriminatorCall, Nil) {
-  let complex_prefix = codegen_helpers.bucket_prefix("Quantity", current_bucket)
-  case discriminator_type {
-    "FixedValueDiscriminator" ->
-      Ok(ResultDiscriminatorCall(
-        "case "
-        <> value
-        <> " == \""
-        <> system
-        <> "\" { True -> Ok("
-        <> value
-        <> ") False -> Error(Nil) }",
-      ))
-    _ -> {
-      use #(base, name, arguments) <- result.try(helper_arguments(
-        discriminator_type,
-        system,
-        code,
-        display,
-      ))
-      Ok(ResultDiscriminatorCall(
-        complex_prefix
-        <> name
-        <> "_from_"
-        <> base
-        <> "("
-        <> value
-        <> arguments
-        <> ")",
-      ))
-    }
-  }
-}
-
 pub fn discriminator_new_call(
   current_bucket: codegen_helpers.Category,
   discriminator_type: String,
@@ -258,9 +214,6 @@ type RecordSource {
     declarations: List(String),
     arguments: List(String),
     defaults: List(String),
-    conditions: List(String),
-    bindings: List(String),
-    decoded: List(String),
     restored: List(String),
   )
 }
@@ -271,8 +224,6 @@ type RecordSource {
 pub fn shared_type(
   type_name: String,
   elements: dict.Dict(String, codegen_helpers.Element),
-  _preserve_slice_order: Bool,
-  default: fn(String) -> String,
   encoders: Set(String),
   decoders: Set(String),
 ) -> List(#(String, #(String, codegen_helpers.RequiredCode))) {
@@ -306,182 +257,180 @@ pub fn shared_type(
     )
   let arguments = string.concat(list.map(fixed, fn(name) { ", " <> name }))
   let source =
-    list.fold(
-      fields,
-      RecordSource([], [], [], [], [], [], []),
-      fn(source, field) {
-        let name = codegen_helpers.field_name(field)
-        case list.contains(omitted, name) {
-          True ->
-            RecordSource(..source, restored: [
-              name
-                <> ": "
-                <> case field.max {
-                "1" -> "None"
-                _ -> "[]"
-              }
-                <> ",",
-              ..source.restored
-            ])
-          False -> {
-            let constant = list.contains(fixed, name)
-            let min = case list.contains(required_fields, name) {
-              True -> 1
-              False -> field.min
+    list.fold(fields, RecordSource([], [], [], []), fn(source, field) {
+      let name = codegen_helpers.field_name(field)
+      case list.contains(omitted, name) {
+        True ->
+          RecordSource(..source, restored: [
+            name
+              <> ": "
+              <> case field.max {
+              "1" -> "None"
+              _ -> "[]"
             }
-            let type_ = field_type(field)
-            let restored = case min, field.min {
-              1, 0 -> "Some(source." <> name <> ")"
-              _, _ -> "source." <> name
-            }
-            let scalar = case field.min {
-              0 -> "Some(" <> name <> ")"
-              _ -> name
-            }
-            case constant {
-              True ->
-                RecordSource(
-                  ..source,
-                  conditions: [
-                    "source." <> name <> " != " <> scalar,
-                    ..source.conditions
-                  ],
-                  restored: [name <> ": " <> scalar <> ",", ..source.restored],
-                )
-              False -> {
-                let #(argument, default, _) =
-                  codegen_helpers.new_fn_arg_and_field(
-                    name,
-                    type_,
-                    min,
-                    field.max,
-                    False,
-                  )
-                let unwrap = min == 1 && field.min == 0 && field.max == "1"
-                let binding = case unwrap {
-                  True ->
-                    "use "
-                    <> name
-                    <> " <- result.try(case source."
-                    <> name
-                    <> " { Some(value) -> Ok(value) None -> Error(Nil) })\n"
-                  False -> ""
-                }
-                RecordSource(
-                  ..source,
-                  declarations: [
-                    name
-                      <> ": "
-                      <> codegen_helpers.cardinality(type_, min, field.max)
-                      <> ",",
-                    ..source.declarations
-                  ],
-                  arguments: [argument, ..source.arguments],
-                  defaults: [default, ..source.defaults],
-                  bindings: [binding, ..source.bindings],
-                  decoded: [
-                    name
-                      <> ": "
-                      <> case unwrap {
-                      True -> name
-                      False -> "source." <> name
-                    }
-                      <> ",",
-                    ..source.decoded
-                  ],
-                  restored: [name <> ": " <> restored <> ",", ..source.restored],
-                )
-              }
-            }
+              <> ",",
+            ..source.restored
+          ])
+        False -> {
+          let constant = list.contains(fixed, name)
+          let min = case list.contains(required_fields, name) {
+            True -> 1
+            False -> field.min
           }
-        }
-      },
-    )
-  let guard =
-    source.conditions
-    |> list.reverse
-    |> list.map(fn(condition) {
-      "use <- bool.guard(" <> condition <> ", Error(Nil))\n"
-    })
-    |> string.concat
-  let decoder = case omitted != [] || set.contains(decoders, type_name) {
-    False -> ""
-    True -> {
-      let #(bindings, values) =
-        list.fold(fields, #("", ""), fn(acc, field) {
-          let #(bindings, values) = acc
-          let name = codegen_helpers.field_name(field)
-          case list.contains(omitted, name) {
-            True -> #(
-              bindings,
-              values
-                <> name
-                <> ": "
-                <> case field.max {
-                "1" -> "None"
-                _ -> "[]"
-              }
-                <> ",",
-            )
+          let type_ = field_type(field)
+          let restored = case min, field.min {
+            1, 0 -> "Some(source." <> name <> ")"
+            _, _ -> "source." <> name
+          }
+          let scalar = case field.min {
+            0 -> "Some(" <> name <> ")"
+            _ -> name
+          }
+          case constant {
+            True ->
+              RecordSource(..source, restored: [
+                name <> ": " <> scalar <> ",",
+                ..source.restored
+              ])
             False -> {
-              let assert [type_] = field.type_
-              let inner =
-                codegen_decode.decoder_for_type(
-                  type_.code,
-                  field_type(field),
-                  codegen_helpers.ComplexTypes,
-                )
-              #(
-                bindings
-                  <> "use "
-                  <> "decoded_"
-                  <> name
-                  <> " <- "
-                  <> codegen_decode.field_decoder(
-                  string.drop_start(field.path, string.length(root.path) + 1),
-                  inner,
-                  field.min,
+              let #(argument, default, _) =
+                codegen_helpers.new_fn_arg_and_field(
+                  name,
+                  type_,
+                  min,
                   field.max,
                   False,
                 )
-                  <> "\n",
-                values <> name <> ": decoded_" <> name <> ",",
+              RecordSource(
+                declarations: [
+                  name
+                    <> ": "
+                    <> codegen_helpers.cardinality(type_, min, field.max)
+                    <> ",",
+                  ..source.declarations
+                ],
+                arguments: [argument, ..source.arguments],
+                defaults: [default, ..source.defaults],
+                restored: [name <> ": " <> restored <> ",", ..source.restored],
               )
             }
           }
+        }
+      }
+    })
+  let decoder = case
+    omitted != []
+    || set.contains(decoders, type_name)
+    || set.contains(encoders, type_name)
+  {
+    False -> ""
+    True -> {
+      let #(bindings, values, checks) =
+        list.fold(fields, #("", [], ""), fn(acc, field) {
+          let #(bindings, values, checks) = acc
+          let name = codegen_helpers.field_name(field)
+          case list.contains(omitted, name) {
+            True -> acc
+            False -> {
+              let inner = case field.type_ {
+                [type_] ->
+                  codegen_decode.decoder_for_type(
+                    type_.code,
+                    field_type(field),
+                    codegen_helpers.ComplexTypes,
+                  )
+                _ ->
+                  codegen_helpers.to_snake_case(field_type(field))
+                  <> "_decoder()"
+              }
+              let constant = list.contains(fixed, name)
+              let inner = case constant {
+                True ->
+                  inner
+                  <> " |> decode.then(fn(value) { case value == "
+                  <> name
+                  <> " { True -> decode.success(value) False -> decode.failure("
+                  <> name
+                  <> ", "
+                  <> name
+                  <> ") } })"
+                False -> inner
+              }
+              let min = case constant || list.contains(required_fields, name) {
+                True -> 1
+                False -> field.min
+              }
+              let binding =
+                "use "
+                <> case constant {
+                  True -> "_"
+                  False -> "decoded_" <> name
+                }
+                <> " <- "
+                <> case field.type_ {
+                  [_, _, ..] ->
+                    case min {
+                      0 -> "decode.then(none_if_omitted(" <> inner <> "))"
+                      _ -> "decode.then(" <> inner <> ")"
+                    }
+                  _ ->
+                    codegen_decode.field_decoder(
+                      string.drop_start(
+                        field.path,
+                        string.length(root.path) + 1,
+                      ),
+                      inner,
+                      min,
+                      field.max,
+                      False,
+                    )
+                }
+                <> "\n"
+              case constant {
+                True -> #(bindings, values, checks <> binding)
+                False -> #(
+                  bindings <> binding,
+                  [name <> ": decoded_" <> name, ..values],
+                  checks,
+                )
+              }
+            }
+          }
         })
-      let fallback =
-        discriminator_new_call(
-          codegen_helpers.ComplexTypes,
-          type_name,
-          elements,
-          default,
-        )
-      let assert Ok(fallback) = fallback
-      "pub fn "
+      let wrapper = case fixed {
+        [] -> ""
+        _ ->
+          "pub fn "
+          <> function
+          <> "_decoder("
+          <> parameters
+          <> ") -> Decoder("
+          <> type_name
+          <> ") {\n"
+          <> "use <- decode.recursive\n"
+          <> checks
+          <> function
+          <> "_slice_decoder()\n}\n"
+      }
+      wrapper
+      <> "pub fn "
       <> function
-      <> "_decoder("
-      <> parameters
+      <> case fixed {
+        [] -> "_decoder("
+        _ -> "_slice_decoder("
+      }
       <> ") -> Decoder("
       <> type_name
       <> ") {\n"
       <> "use <- decode.recursive\n"
       <> bindings
-      <> "case "
-      <> function
-      <> "_from_"
-      <> base_function
-      <> "("
-      <> base_type
-      <> "("
-      <> values
-      <> ")"
-      <> arguments
-      <> ") { Ok(value) -> decode.success(value) Error(_) -> decode.failure("
-      <> fallback
-      <> ", \""
+      <> "decode.success("
       <> type_name
-      <> "\") }\n}\n"
+      <> case values {
+        [] -> ""
+        _ -> "(" <> string.join(list.reverse(values), ", ") <> ")"
+      }
+      <> ")\n}\n"
     }
   }
   let direct_json = case omitted {
@@ -493,7 +442,6 @@ pub fn shared_type(
           case list.contains(omitted, name) {
             True -> source
             False -> {
-              let assert [type_] = field.type_
               let fixed_field = list.contains(fixed, name)
               let value = case fixed_field {
                 True -> name
@@ -501,14 +449,29 @@ pub fn shared_type(
               }
               let json_name =
                 string.drop_start(field.path, string.length(root.path) + 1)
-              let encode =
-                codegen_to_json.string_to_encoder_call(
-                  type_.code,
-                  string.split(field.path, "."),
-                  field,
-                  codegen_helpers.ComplexTypes,
+                |> string.replace("[x]", "")
+                |> json.string
+                |> json.to_string
+              let json_name =
+                json_name
+                <> codegen_helpers.gen_choicetype_suffixes(
                   "value",
+                  field.type_,
+                  field_type(field),
                 )
+              let encode = case field.type_ {
+                [type_] ->
+                  codegen_to_json.string_to_encoder_call(
+                    type_.code,
+                    string.split(field.path, "."),
+                    field,
+                    codegen_helpers.ComplexTypes,
+                    "value",
+                  )
+                _ ->
+                  codegen_helpers.to_snake_case(field_type(field))
+                  <> "_to_json(value)"
+              }
               source
               <> case
                 field.max,
@@ -519,25 +482,25 @@ pub fn shared_type(
                 "1", True ->
                   "let value = "
                   <> value
-                  <> "\nlet fields = [#(\""
+                  <> "\nlet fields = [#("
                   <> json_name
-                  <> "\", "
+                  <> ", "
                   <> encode
                   <> "), ..fields]\n"
                 "1", False ->
                   "let fields = case "
                   <> value
-                  <> " { Some(value) -> [#(\""
+                  <> " { Some(value) -> [#("
                   <> json_name
-                  <> "\", "
+                  <> ", "
                   <> encode
                   <> "), ..fields] None -> fields }\n"
                 _, _ ->
                   "let fields = case "
                   <> value
-                  <> " { [] -> fields values -> [#(\""
+                  <> " { [] -> fields values -> [#("
                   <> json_name
-                  <> "\", json.array(values, fn(value) { "
+                  <> ", json.array(values, fn(value) { "
                   <> encode
                   <> " })), ..fields] }\n"
               }
@@ -566,24 +529,6 @@ pub fn shared_type(
     <> "("
     <> string.concat(list.reverse(source.defaults))
     <> ") }\n"
-    <> "pub fn "
-    <> function
-    <> "_from_"
-    <> base_function
-    <> "(source: "
-    <> base_type
-    <> ","
-    <> parameters
-    <> ") -> Result("
-    <> type_name
-    <> ", Nil) {\n"
-    <> guard
-    <> string.concat(list.reverse(source.bindings))
-    <> "Ok("
-    <> type_name
-    <> "("
-    <> string.concat(list.reverse(source.decoded))
-    <> ")) }\n"
     <> decoder
     <> case omitted == [] && set.contains(encoders, type_name) {
       False -> ""
@@ -629,15 +574,35 @@ pub fn shared_type(
         <> " }\n\n"
     }
   let required =
-    codegen_helpers.RequiredCode(
-      types: set.new(),
-      functions: set.new(),
-      modules: case source.conditions, source.bindings {
-        [], [] -> set.new()
-        [], _ -> set.from_list(["result"])
-        _, [] -> set.from_list(["bool"])
-        _, _ -> set.from_list(["bool", "result"])
-      },
-    )
+    list.fold(fields, codegen_helpers.required_code(), fn(required, field) {
+      let name = codegen_helpers.field_name(field)
+      let required = case
+        field.min,
+        field.max,
+        list.contains(omitted, name)
+        || list.contains(required_fields, name)
+        || list.contains(fixed, name),
+        field_type(field)
+      {
+        0, "1", False, "String" ->
+          codegen_helpers.require_function(required, "decode_optional_string")
+        0, "1", False, "Bool" ->
+          codegen_helpers.require_function(required, "decode_optional_bool")
+        _, _, _, _ -> required
+      }
+      case field.type_ {
+        [_, _, ..] if field.min == 0 -> {
+          case
+            list.contains(omitted, codegen_helpers.field_name(field))
+            || list.contains(required_fields, codegen_helpers.field_name(field))
+          {
+            True -> required
+            False ->
+              codegen_helpers.require_function(required, "none_if_omitted")
+          }
+        }
+        _ -> required
+      }
+    })
   [#(type_name, #(generated, required))]
 }

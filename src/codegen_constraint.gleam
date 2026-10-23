@@ -2,6 +2,7 @@ import gleam/dict
 import gleam/dynamic/decode
 import gleam/float
 import gleam/int
+import gleam/io
 import gleam/json
 import gleam/list
 import gleam/option.{type Option, None, Some}
@@ -22,14 +23,39 @@ pub type Constraint {
   Constraint(fixed: Bool, type_name: String, value: Value)
 }
 
-pub fn value_decoder() -> decode.Decoder(Value) {
+fn value_decoder(fixed: Bool) -> decode.Decoder(Value) {
   use <- decode.recursive
   decode.one_of(decode.map(decode.string, Text), [
     decode.map(decode.int, Integer),
     decode.map(decode.float, Decimal),
     decode.map(decode.bool, Boolean),
-    decode.map(decode.list(value_decoder()), Array),
-    decode.map(decode.dict(decode.string, value_decoder()), fn(fields) {
+    decode.map(decode.list(value_decoder(fixed)), Array),
+    decode.map(decode.dict(decode.string, value_decoder(fixed)), fn(fields) {
+      let fields = case fixed, dict.get(fields, "coding") {
+        False,
+          Ok(Array([
+            Object([#("system", Text(system))]),
+            Object([#("code", Text(code))]),
+          ]))
+        | False,
+          Ok(Array([
+            Object([#("code", Text(code))]),
+            Object([#("system", Text(system))]),
+          ]))
+        -> {
+          io.println(
+            "assuming they made a mistake in profile by separating system/code pattern, so we will put both  on same coding",
+          )
+          dict.insert(
+            fields,
+            "coding",
+            Array([
+              Object([#("system", Text(system)), #("code", Text(code))]),
+            ]),
+          )
+        }
+        _, _ -> fields
+      }
       Object(dict.to_list(fields))
     }),
   ])
@@ -49,7 +75,8 @@ pub fn decoder() -> decode.Decoder(Option(Constraint)) {
       case string.starts_with(key, prefix) {
         False -> Error(Nil)
         True -> {
-          let assert Ok(value) = decode.run(value, value_decoder())
+          let assert Ok(value) =
+            decode.run(value, value_decoder(prefix == "fixed"))
             as { "invalid constraint " <> key }
           Ok(Constraint(
             fixed: prefix == "fixed",
@@ -319,17 +346,15 @@ pub fn sources(value: Value, fixed: Bool, input: String) -> #(String, String) {
         )
         _ -> panic as "expected scalar constraint"
       }
-      "decode.then(decode.dynamic, fn(raw) { case decode.run(raw, "
+      "decode.then("
       <> decoder
-      <> ") { Error(errors) -> decode.failure(Nil, "
-      <> expected
-      <> ") |> decode.map_errors(fn(_) { errors }) Ok(value) -> case value == "
+      <> ", fn(value) { case value == "
       <> literal
       <> " { True -> decode.success(Nil) False -> decode.failure(Nil, "
       <> expected
       <> ") |> decode.map_errors(fn(errors) { list.map(errors, fn(error) { decode.DecodeError(..error, found: "
       <> found
-      <> ") }) }) } } })"
+      <> ") }) }) } })"
     }
   }
   #(matches, decoder)
@@ -337,7 +362,7 @@ pub fn sources(value: Value, fixed: Bool, input: String) -> #(String, String) {
 
 pub fn required_modules(value: Value, fixed: Bool) -> Set(String) {
   case value {
-    Decimal(_) -> set.from_list(["float", "int"])
+    Integer(_) | Decimal(_) -> set.from_list(["float", "int"])
     Object(fields) ->
       list.fold(
         fields,

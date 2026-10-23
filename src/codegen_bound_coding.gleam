@@ -191,13 +191,20 @@ pub fn bound_coding_and_cc(
           <> function
           <> "_new(code: failure_placeholder"
           <> fallback
-          <> "), \"need code + system from required ValueSet\") Ok(code) -> {\n"
+          <> "), \"need code + system from required ValueSet\") Ok(code) -> "
+          <> function
+          <> "_slice_decoder(code) }\n}\n"
+          <> "pub fn "
+          <> function
+          <> "_slice_decoder(code: required_binding) -> Decoder("
+          <> name
+          <> "(required_binding)) {\nuse <- decode.recursive\n"
           <> bindings
           <> "decode.success("
           <> name
           <> "(code:,"
           <> values
-          <> ")) } }\n}\n"
+          <> "))\n}\n"
       }
       <> "pub fn "
       <> function
@@ -207,35 +214,9 @@ pub fn bound_coding_and_cc(
       <> "let fields = [#(\"code\", json.string(get_code(coding.code))), #(\"system\", json.string(get_system(coding.code)))]\n"
       <> json_fields
       <> "json.object(fields)\n}\n"
-      <> case set.contains(required, "bound_coding_from_coding") {
-        True ->
-          string.concat([
-            "      pub fn bound_coding_from_coding(
-        coding: Coding,
-        binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
-      ) -> Result(BoundCoding(required_binding), Nil) {
-        case coding.code, coding.system {
-          Some(code), Some(system) -> case binding_from_code_and_system(code, system) {
-            Error(Nil) -> Error(Nil)
-            Ok(code) -> Ok(BoundCoding(
-              id: coding.id,
-              extension: coding.extension,
-              code:,
-              version: coding.version,
-              display: coding.display,
-              user_selected: coding.user_selected,
-            ))
-          }
-          _, _ -> Error(Nil)
-        }
-      }
-
-",
-          ])
-        False -> ""
-      }
     }
   }
+
   let concept = case set.contains(required, "BoundCodeableconcept") {
     True ->
       string.concat([
@@ -271,40 +252,6 @@ pub fn bound_coding_and_cc(
         "      }
 
 ",
-        case
-          set.contains(required, "bound_codeableconcept_from_codeableconcept")
-        {
-          True ->
-            string.concat([
-              "      pub fn bound_codeableconcept_from_codeableconcept(
-        concept: Codeableconcept,
-        binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
-      ) -> Result(BoundCodeableconcept(required_binding), Nil) {
-        case find_valueset_coding(concept.coding, binding_from_code_and_system) {
-          Error(Nil) -> Error(Nil)
-",
-              case preserve_slice_order {
-                True ->
-                  "          Ok(#(required, more, index)) -> Ok(BoundCodeableconcept(
-            internal_gleam_fhir_index: Some(index),
-"
-                False ->
-                  "          Ok(#(required, more)) -> Ok(BoundCodeableconcept(
-"
-              },
-              "            id: concept.id,
-            extension: concept.extension,
-            required:,
-            more:,
-            text: concept.text,
-          ))
-        }
-      }
-
-",
-            ])
-          False -> ""
-        },
         "      pub fn bound_codeableconcept_to_json(codeableconcept: BoundCodeableconcept(required_binding),  get_code: fn(required_binding) -> String,  get_system: fn(required_binding) -> String, ) -> Json {
       let required_coding = bound_coding_to_json(codeableconcept.required, get_code, get_system)
       let other_codings = list.map(codeableconcept.more, coding_to_json)
@@ -337,26 +284,55 @@ pub fn bound_coding_and_cc(
         json.object(fields)
       }
 
+      pub fn bound_codeableconcept_discriminator(from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Decoder(Option(#(required_binding, Int, Dynamic, List(Dynamic)))) {
+        use codings <- decode.optional_field(\"coding\", [], decode.list(decode.dynamic))
+        let matched = list.index_fold(codings, None, fn(matched, raw, index) {
+          case matched {
+            Some(_) -> matched
+            None -> case decode.run(raw, {
+              use code <- decode.field(\"code\", decode.string)
+              use system <- decode.field(\"system\", decode.string)
+              decode.success(from_code_and_system(code, system))
+            }) {
+              Ok(Ok(code)) -> Some(#(code, index, raw, codings))
+              _ -> None
+            }
+          }
+        })
+        decode.success(matched)
+      }
+
       pub fn bound_codeableconcept_decoder(binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder(BoundCodeableconcept(required_binding)) {
         use <- decode.recursive
-        use coding <- decode.optional_field(
-          \"coding\",
-          [],
-          decode.list(coding_decoder()),
-        )
-        let valueset_coding = find_valueset_coding(coding, binding_from_code_and_system)
-        case valueset_coding {
-          Error(_) -> decode.failure(bound_codeableconcept_new(failure_placeholder),
-          \"need a coding with code + system from required ValueSet\")
+        use matched <- decode.then(bound_codeableconcept_discriminator(binding_from_code_and_system))
+        case matched {
+          None -> decode.failure(bound_codeableconcept_new(failure_placeholder), \"need a coding with code + system from required ValueSet\")
+          Some(#(code, index, raw, codings)) -> bound_codeableconcept_slice_decoder(code, index, raw, codings)
+        }
+      }
+
+      pub fn bound_codeableconcept_slice_decoder(code: required_binding, index: Int, raw: Dynamic, codings: List(Dynamic)) -> Decoder(BoundCodeableconcept(required_binding)) {
+        use <- decode.recursive
+        use required <- decode.then(case decode.run(raw, bound_coding_slice_decoder(code)) {
+          Ok(value) -> decode.success(value)
+          Error(errors) -> decode.failure(bound_coding_new(code: code), \"coding\")
+            |> decode.map_errors(fn(_) { list.map(errors, fn(error) { decode.DecodeError(..error, path: [\"coding\", int.to_string(index), ..error.path]) }) })
+        })
+        let more = list.index_fold(codings, Ok([]), fn(acc, raw, position) {
+          case position == index {
+            True -> acc
+            False -> case acc, decode.run(raw, coding_decoder()) {
+              Ok(values), Ok(value) -> Ok([value, ..values])
+              Ok(_), Error(errors) -> Error(list.map(errors, fn(error) { decode.DecodeError(..error, path: [\"coding\", int.to_string(position), ..error.path]) }))
+              Error(errors), _ -> Error(errors)
+            }
+          }
+        })
+        use more <- decode.then(case more {
+          Ok(values) -> decode.success(list.reverse(values))
+          Error(errors) -> decode.failure([], \"coding\") |> decode.map_errors(fn(_) { errors })
+        })
 ",
-        case preserve_slice_order {
-          True ->
-            "          Ok(#(required, more, index)) -> {
-"
-          False ->
-            "          Ok(#(required, more)) -> {
-"
-        },
         "          use text <- decode.optional_field(
             \"text\",
             None,
@@ -377,24 +353,7 @@ pub fn bound_coding_and_cc(
             "          decode.success(BoundCodeableconcept(text:, required:, more:, extension:, id:))
 "
         },
-        "          }
-        }
-      }
-
-",
-        case preserve_slice_order {
-          True ->
-            "      fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding), Int), Nil) {
-"
-          False ->
-            "      fn find_valueset_coding(items: List(Coding), binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Result(#(BoundCoding(required_binding), List(Coding)), Nil) {
-"
-        },
-        "        let is_bound_valueset = fn(coding: Coding) {
-          bound_coding_from_coding(coding, binding_from_code_and_system)
-        }
-        find_elt_and_rest_result(in: items, one_that: is_bound_valueset)
-      }",
+        "      }\n\n",
       ])
     False -> ""
   }
@@ -573,30 +532,6 @@ fn bound_quantity_decode_rest(with_binding: Option(required_binding)) -> Decoder
 }
 "
 
-pub const bound_quantity_from_quantity =
-  "pub fn bound_quantity_from_quantity(
-  quantity: Quantity,
-  binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil),
-) -> Result(BoundQuantity(required_binding), Nil) {
-  case quantity.code, quantity.system {
-    None, None ->
-      Ok(BoundQuantity(
-        id: quantity.id, extension: quantity.extension, value: quantity.value, comparator: quantity.comparator, unit: quantity.unit, code: None,
-      ))
-    Some(code), Some(system) -> case
-      binding_from_code_and_system(code, system)
-    {
-      Ok(code) -> Ok(BoundQuantity(
-        id: quantity.id, extension: quantity.extension, value: quantity.value, comparator: quantity.comparator, unit: quantity.unit, code: Some(code),
-      ))
-      Error(_) -> Error(Nil)
-    }
-    _, _ -> Error(Nil)
-  }
-}
-
-"
-
 // need to keep track of system because some valuesets contain multiple systems
 // but we flatten valuesets to flat list of codes
 // so need to get system from code or create valueset item from system and code
@@ -614,27 +549,6 @@ pub fn bound_valueset_function_name(gleam_type: String) -> Option(String) {
       Some(valueset |> string.drop_end(1) |> codegen_helpers.to_snake_case)
     _ -> None
   }
-}
-
-pub fn bound_coding_encoder_source(prefix: String, valueset: String) -> String {
-  "fn(coding) { "
-  <> bound_coding_encoder_call_source(prefix, valueset, "coding")
-  <> " }"
-}
-
-pub fn bound_coding_encoder_call_source(
-  prefix: String,
-  valueset: String,
-  value: String,
-) -> String {
-  prefix
-  <> "bound_coding_to_json("
-  <> value
-  <> ", valuesets."
-  <> valueset
-  <> "_to_code, valuesets."
-  <> valueset
-  <> "_system)"
 }
 
 pub fn bound_codeableconcept_encoder_source(
@@ -715,15 +629,6 @@ pub fn bound_quantity_encoder_call_source(
   <> "_to_code, valuesets."
   <> valueset
   <> "_system)"
-}
-
-pub fn bound_coding_decoder_source(prefix: String, valueset: String) -> String {
-  prefix
-  <> "bound_coding_decoder(valuesets."
-  <> valueset
-  <> "_from_code_and_system, valuesets."
-  <> valueset
-  <> "_failure_variant)"
 }
 
 pub fn bound_codeableconcept_decoder_source(
@@ -868,220 +773,6 @@ pub fn valueset_failure_variant_source(
     [] -> panic as { "ValueSet " <> vsname <> " has no variants" }
   }
 }
-
-pub fn find_elt_and_rest_result(preserve_slice_order: Bool) -> String {
-  string.concat([
-    "fn find_elt_and_rest_result(
-  in items: List(a),
-  one_that is_desired: fn(a) -> Result(b, Nil),
-",
-    case preserve_slice_order {
-      True ->
-        ") -> Result(#(b, List(a), Int), Nil) {
-"
-      False ->
-        ") -> Result(#(b, List(a)), Nil) {
-"
-    },
-    "  find_elt_and_rest_result_loop(
-    in: items,
-    one_that: is_desired,
-    already: [],
-",
-    case preserve_slice_order {
-      True ->
-        "    at: 0,
-"
-      False -> ""
-    },
-    "  )
-}
-
-fn find_elt_and_rest_result_loop(
-  in items: List(a),
-  one_that is_desired: fn(a) -> Result(b, Nil),
-  already past_list: List(a),
-",
-    case preserve_slice_order {
-      True ->
-        "  at index: Int,
-) -> Result(#(b, List(a), Int), Nil) {
-"
-      False ->
-        ") -> Result(#(b, List(a)), Nil) {
-"
-    },
-    "  case items {
-    [] -> Error(Nil)
-    [first, ..rest] ->
-      case is_desired(first) {
-        Ok(found_elt) -> {
-          let more = past_list |> list.reverse |> list.append(rest)
-",
-    case preserve_slice_order {
-      True ->
-        "          Ok(#(found_elt, more, index))
-"
-      False ->
-        "          Ok(#(found_elt, more))
-"
-    },
-    "        }
-        Error(_) -> {
-          let others = [first, ..past_list]
-          find_elt_and_rest_result_loop(
-            in: rest,
-            one_that: is_desired,
-            already: others,
-",
-    case preserve_slice_order {
-      True ->
-        "            at: index + 1,
-"
-      False -> ""
-    },
-    "          )
-        }
-      }
-  }
-}
-",
-  ])
-}
-
-pub const find_required_elt_and_rest_result =
-  "fn find_required_elt_and_rest_result(
-  in items: List(a),
-  one_that is_desired: fn(a) -> Result(b, Nil),
-  placeholder placeholder: b,
-  expected expected: String,
-  then next: fn(#(b, List(a))) -> Decoder(c),
-) -> Decoder(c) {
-  case find_elt_and_rest_result(in: items, one_that: is_desired) {
-    Ok(#(value, rest)) ->
-      case find_elt_and_rest_result(in: rest, one_that: is_desired) {
-        Ok(_) -> {
-          use failed <- decode.then(
-            decode.failure(#(value, rest), \"maximum cardinality 1\"),
-          )
-          next(failed)
-        }
-        Error(_) -> next(#(value, rest))
-      }
-    Error(_) -> {
-      use failed <- decode.then(decode.failure(#(placeholder, items), expected))
-      next(failed)
-    }
-  }
-}
-"
-
-pub const find_optional_elt_and_rest_result =
-  "fn find_optional_elt_and_rest_result(
-  in items: List(a),
-  one_that is_desired: fn(a) -> Result(b, Nil),
-  then next: fn(#(Option(b), List(a))) -> Decoder(c),
-) -> Decoder(c) {
-  case find_elt_and_rest_result(in: items, one_that: is_desired) {
-    Error(_) -> next(#(None, items))
-    Ok(#(value, rest)) ->
-      case find_elt_and_rest_result(in: rest, one_that: is_desired) {
-        Ok(_) -> {
-          use failed <- decode.then(
-            decode.failure(#(Some(value), rest), \"maximum cardinality 1\"),
-          )
-          next(failed)
-        }
-        Error(_) -> next(#(Some(value), rest))
-      }
-  }
-}
-"
-
-// These are like list.partition, except they also apply the matching function
-// and return an error if there are not enough matching elements.
-pub const find_at_least_n_elts_and_rest_result =
-  "fn find_at_least_n_elts_and_rest_result(
-  in items: List(a),
-  items_that are_desired: fn(a) -> Result(b, Nil),
-  at_least to_find: Int,
-) -> Result(#(List(b), List(a)), Nil) {
-  find_at_least_n_elts_and_rest_result_loop(
-    in: items,
-    items_that: are_desired,
-    at_least: to_find,
-    already: [],
-    have: [],
-  )
-}
-
-fn find_at_least_n_elts_and_rest_result_loop(
-  in items: List(a),
-  items_that are_desired: fn(a) -> Result(b, Nil),
-  at_least to_find: Int,
-  already past_list: List(a),
-  have found_acc: List(b),
-) -> Result(#(List(b), List(a)), Nil) {
-  case items {
-    [] ->
-      case to_find <= 0 {
-        False -> Error(Nil)
-        True -> {
-          let more = list.reverse(past_list)
-          let found_acc = list.reverse(found_acc)
-          Ok(#(found_acc, more))
-        }
-      }
-    [first, ..rest] ->
-      case are_desired(first) {
-        Ok(found_elt) -> {
-          let found_acc = [found_elt, ..found_acc]
-          let to_find = to_find - 1
-          find_at_least_n_elts_and_rest_result_loop(
-            in: rest,
-            items_that: are_desired,
-            at_least: to_find,
-            already: past_list,
-            have: found_acc,
-          )
-        }
-        Error(_) -> {
-          let others = [first, ..past_list]
-          find_at_least_n_elts_and_rest_result_loop(
-            in: rest,
-            items_that: are_desired,
-            at_least: to_find,
-            already: others,
-            have: found_acc,
-          )
-        }
-      }
-  }
-}
-"
-
-pub const find_at_least_n_elts_and_rest_result_or_failure =
-  "fn find_at_least_n_elts_and_rest_result_or_failure(
-  in items: List(a),
-  items_that are_desired: fn(a) -> Result(b, Nil),
-  at_least to_find: Int,
-  placeholder placeholder: List(b),
-  expected expected: String,
-  then next: fn(#(List(b), List(a))) -> Decoder(c),
-) -> Decoder(c) {
-  case find_at_least_n_elts_and_rest_result(
-    in: items,
-    items_that: are_desired,
-    at_least: to_find,
-  ) {
-    Ok(found) -> next(found)
-    Error(_) -> {
-      use failed <- decode.then(decode.failure(#(placeholder, items), expected))
-      next(failed)
-    }
-  }
-}
-"
 
 pub const insert_at =
   "fn insert_at(elt: a, in: List(a), at: Int) {
