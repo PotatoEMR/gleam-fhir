@@ -1768,15 +1768,28 @@ fn direct_slice_roots(
   elements: List(codegen_helpers.Element),
 ) -> List(codegen_helpers.Element) {
   let prefix = group.id <> ":"
-  list.filter(elements, fn(element) {
-    element.path == group.path
-    && element.slice_name != None
-    && string.starts_with(element.id, prefix)
-    && !string.contains(
-      string.drop_start(element.id, string.length(prefix)),
-      ".",
-    )
-  })
+  let roots =
+    list.filter(elements, fn(element) {
+      element.path == group.path
+      && element.slice_name != None
+      && string.starts_with(element.id, prefix)
+      && !string.contains(
+        string.drop_start(element.id, string.length(prefix)),
+        ".",
+      )
+    })
+  let permitted = list.filter(roots, fn(root) { root.max != "0" })
+  let assert False =
+    permitted == []
+    && roots != []
+    && case group.slicing {
+      Some(codegen_helpers.Slicing(rules: "closed", ..)) -> True
+      _ -> False
+    }
+    as {
+      "closed slicing with no permitted slices is unsupported: " <> group.id
+    }
+  permitted
 }
 
 fn profile_element_names(
@@ -2165,7 +2178,7 @@ fn constraint_decoder_source(
   context: DecodeContext,
   element: codegen_helpers.Element,
   constraint: codegen_constraint.Constraint,
-) -> String {
+) -> #(String, codegen_helpers.RequiredCode) {
   let expected =
     "json.to_string(" <> codegen_constraint.json_source(constraint.value) <> ")"
   case constraint.value {
@@ -2191,114 +2204,88 @@ fn constraint_decoder_source(
           })
         })
         as { "unknown fixed/pattern field: " <> element.id }
-      let #(bindings, absent) =
-        list.fold(fields, #("", []), fn(acc, field) {
-          let #(bindings, absent) = acc
-          let name = profile_json_field_name(field, "")
-          let quoted = json.to_string(json.string(name))
-          case list.key_find(values, name) {
-            Ok(value) -> {
-              let assert [type_] = field.type_
-              let decoder =
-                constraint_decoder_source(
-                  context,
-                  field,
-                  codegen_constraint.Constraint(
-                    fixed: constraint.fixed,
-                    type_name: type_.code,
-                    value:,
-                  ),
-                )
-              #(
-                bindings
-                  <> "use _ <- decode.field("
-                  <> quoted
-                  <> ", "
-                  <> decoder
-                  <> ")\n",
-                absent,
+      let #(bindings, required) =
+        list.fold(
+          values,
+          #("", codegen_helpers.required_code()),
+          fn(acc, value) {
+            let #(bindings, required) = acc
+            let assert Ok(field) =
+              list.find(fields, fn(field) {
+                profile_json_field_name(field, "") == value.0
+              })
+            let assert [type_] = field.type_
+            let #(decoder, usage) =
+              constraint_decoder_source(
+                context,
+                field,
+                codegen_constraint.Constraint(
+                  fixed: constraint.fixed,
+                  type_name: type_.code,
+                  value: value.1,
+                ),
               )
-            }
-            Error(_) if !constraint.fixed -> acc
-            Error(_) -> {
-              let field =
-                codegen_helpers.Element(
-                  ..field,
-                  constraint: None,
-                  fixed_code: None,
-                  fixed_uri: None,
-                )
-              let decoder = field_decoder_expression(context, "", field, False)
-              let repeated = field.base.max != "1"
-              let variable = "absent_" <> codegen_helpers.to_snake_case(name)
-              #(
-                bindings
-                  <> "use "
-                  <> variable
-                  <> " <- decode.optional_field("
-                  <> quoted
-                  <> ", "
-                  <> case repeated {
-                  True -> "[], decode.list("
-                  False -> "None, decode.optional("
-                }
-                  <> decoder
-                  <> "))\n",
-                [
-                  #(variable, case repeated {
-                    True -> "[]"
-                    False -> "None"
-                  }),
-                  ..absent
-                ],
-              )
-            }
-          }
-        })
-      "{ "
-      <> bindings
-      <> case absent {
-        [] -> "decode.success(Nil)"
-        _ ->
-          "case "
-          <> string.join(list.map(absent, fn(field) { field.0 }), ", ")
-          <> " { "
-          <> string.join(list.map(absent, fn(field) { field.1 }), ", ")
-          <> " -> decode.success(Nil) "
-          <> string.join(list.map(absent, fn(_) { "_" }), ", ")
-          <> " -> decode.failure(Nil, "
-          <> expected
-          <> ") }"
-      }
-      <> " }"
+            #(
+              bindings
+                <> "use _ <- decode.field("
+                <> json.to_string(json.string(value.0))
+                <> ", "
+                <> decoder
+                <> ")\n",
+              codegen_helpers.merge_required_code(required, usage),
+            )
+          },
+        )
+      #("{ " <> bindings <> "decode.success(Nil) }", required)
     }
     codegen_constraint.Array(values) -> {
       let assert True = constraint.fixed
         as { "array pattern must use typed slices: " <> element.id }
-      let bindings =
+      let parts =
         list.index_map(values, fn(value, index) {
-          "use _ <- decode.field("
-          <> int.to_string(index)
-          <> ", "
-          <> constraint_decoder_source(
-            context,
-            element,
-            codegen_constraint.Constraint(..constraint, value:),
+          let #(source, required) =
+            constraint_decoder_source(
+              context,
+              element,
+              codegen_constraint.Constraint(..constraint, value:),
+            )
+          #(
+            "use _ <- decode.field("
+              <> int.to_string(index)
+              <> ", "
+              <> source
+              <> ")\n",
+            required,
           )
-          <> ")\n"
         })
-        |> string.concat
-      "{ use shape <- decode.then(decode.list(decode.success(Nil)))\ncase shape { ["
-      <> string.join(list.map(values, fn(_) { "Nil" }), ", ")
-      <> "] -> { "
-      <> bindings
-      <> "decode.success(Nil) } "
-      <> "_ -> decode.failure(Nil, "
-      <> expected
-      <> ") } }"
+      let bindings = parts |> list.map(fn(part) { part.0 }) |> string.concat
+      let required =
+        list.fold(parts, codegen_helpers.required_code(), fn(required, part) {
+          codegen_helpers.merge_required_code(required, part.1)
+        })
+      #(
+        "{ use shape <- decode.then(decode.list(decode.success(Nil)))\ncase shape { ["
+          <> string.join(list.map(values, fn(_) { "Nil" }), ", ")
+          <> "] -> { "
+          <> bindings
+          <> "decode.success(Nil) } "
+          <> "_ -> decode.failure(Nil, "
+          <> expected
+          <> ") } }",
+        required,
+      )
     }
-    _ ->
-      codegen_constraint.sources(constraint.value, constraint.fixed, "value").1
+    _ -> #(
+      codegen_constraint.sources(constraint.value, constraint.fixed, "value").1,
+      codegen_helpers.RequiredCode(
+        ..codegen_helpers.required_code(),
+        modules: codegen_constraint.required_modules(
+            constraint.value,
+            constraint.fixed,
+          )
+          |> set.insert("list"),
+      ),
+    )
   }
 }
 
@@ -2357,7 +2344,7 @@ fn field_decoder_expression(
           },
           value:,
         ),
-      )
+      ).0
     }
     _, Ok(FixedSliceType(discriminator_type, _, system, code, display)) -> {
       let assert Ok(#(_, function, fixed, _)) =
@@ -5740,7 +5727,7 @@ fn record_decoder_from_fields(
       let assert Some(constraint) = element.constraint
       let is_parent = list.any(parent, fn(parent) { parent.id == element.id })
       let name = profile_json_field_name(element, "")
-      let scalar = constraint_decoder_source(context, element, constraint)
+      let scalar = constraint_decoder_source(context, element, constraint).0
       let scalar = case is_parent, element.base.max, constraint.value {
         True, _, _ | _, "1", _ | _, _, codegen_constraint.Array(_) -> scalar
         _, _, _ -> "decode.list(" <> scalar <> ") |> decode.map(fn(_) { Nil })"
@@ -6341,7 +6328,7 @@ fn record_decoder_from_fields(
               },
               value: fixed,
             ),
-          )
+          ).0
         let check = case element.base.max, element.max, element.min {
           "1", _, 0 ->
             "decode.optional_field("
@@ -7117,6 +7104,39 @@ pub fn decoder_requirements(
           context.type_order,
           current_type,
         )
+      let required = case
+        fields
+        |> list.first
+        |> result.try(fn(field) {
+          let assert Ok(last) = field.id |> string.split(".") |> list.last
+          find_element(
+            context.snapshot_elements,
+            string.drop_end(field.id, string.length(last) + 1),
+          )
+        })
+      {
+        Ok(parent) ->
+          case parent.constraint {
+            Some(constraint) if primitive ->
+              codegen_helpers.merge_required_code(
+                required,
+                constraint_decoder_source(context, parent, constraint).1,
+              )
+            Some(
+              codegen_constraint.Constraint(
+                fixed: True,
+                value: codegen_constraint.Object(_),
+                ..,
+              ) as constraint,
+            ) ->
+              codegen_helpers.merge_required_code(
+                required,
+                constraint_decoder_source(context, parent, constraint).1,
+              )
+            _ -> required
+          }
+        _ -> required
+      }
       let required = case primitive {
         True -> codegen_helpers.require_type(required, "Primitive")
         False -> required
@@ -7134,9 +7154,74 @@ pub fn decoder_requirements(
       }
       list.fold(fields, required, fn(required, element) {
         use <- bool.guard(element.max == "0", required)
-        let #(_, field_path, json_name, _, field_type, element) =
+        let #(_, field_path, json_name, _, _, element) =
           profile_element_names(context, target_type, element)
-        let required = codegen_helpers.require_type(required, field_type)
+        let required = case element.constraint {
+          Some(codegen_constraint.Constraint(fixed: True, ..) as constraint) ->
+            codegen_helpers.merge_required_code(
+              required,
+              constraint_decoder_source(context, element, constraint).1,
+            )
+          Some(codegen_constraint.Constraint(
+            value: codegen_constraint.Object(_),
+            ..,
+          ))
+          | Some(codegen_constraint.Constraint(
+              value: codegen_constraint.Array(_),
+              ..,
+            ))
+          | None -> required
+          Some(constraint) ->
+            codegen_helpers.merge_required_code(
+              required,
+              constraint_decoder_source(context, element, constraint).1,
+            )
+        }
+        let required = case
+          element.slicing,
+          direct_slice_roots(element, fields)
+        {
+          Some(slicing), [_, ..] as roots ->
+            case nested_slice_field(context, target_type, element, roots) {
+              Some(plan) ->
+                codegen_helpers.require_type(required, plan.base_type)
+              None -> {
+                let #(_, _, _, _, base_type, _) =
+                  profile_element_names(context, target_type, element)
+                let base_fields =
+                  fields_for_profile_type(context, base_type, "")
+                  |> result.lazy_or(fn() {
+                    case
+                      dict.get(
+                        context.constructors,
+                        constructor_key(context.current_bucket, base_type),
+                      )
+                    {
+                      Ok(RecordConstructor(_, _, fields)) ->
+                        Ok(list.map(fields, fn(field) { field.0 }))
+                      _ -> Error(Nil)
+                    }
+                  })
+                  |> result.unwrap([])
+                list.fold(base_fields, required, fn(required, field) {
+                  case
+                    list.any(slicing.discriminator, fn(discriminator) {
+                      discriminator.path == profile_json_field_name(field, "")
+                    })
+                  {
+                    True -> {
+                      let #(_, _, _, _, field_type, _) =
+                        profile_element_names(context, base_type, field)
+                      codegen_helpers.require_type(required, field_type)
+                    }
+                    False -> required
+                  }
+                })
+              }
+            }
+          _, _ -> required
+        }
+
         let minimum = profile_field_min(element)
         let type_count = list.length(element.type_)
         let primitive_slice =

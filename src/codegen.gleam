@@ -291,44 +291,20 @@ fn gen_fhir(
       valueset_acc: dict.new(),
       gen_specific_resources:,
       gen_specific_complex_types: None,
+      emitted_types: set.new(),
       minimal_client_resources:,
       valuesets_package_dir:,
       available_valuesets: dict.new(),
     )
-  let profile_type_names = case profiles_dir {
-    Some(profiles_dir) ->
-      codegen_profile.required_complex_type_names(
-        profiles_dir,
-        gen_specific_resources,
-        available_valuesets,
-      )
-    None -> set.new()
-  }
-  let gen_specific_complex_types =
-    resource_type_names
-    |> set.union(profile_type_names)
-    |> required_complex_types(complex_types_file, _)
-    |> Some
-  let #(
-    complex_types_gen,
-    valueset_acc,
-    _,
-    _,
-    core_type_urls,
-    core_constructors,
-    available_valuesets,
-  ) =
-    file_to_types(
-      spec_file: complex_types_file,
-      fv: fhir_version,
-      current_bucket: codegen_helpers.ComplexTypes,
-      valueset_acc:,
-      gen_specific_resources:,
-      gen_specific_complex_types:,
-      minimal_client_resources:,
-      valuesets_package_dir:,
-      available_valuesets:,
-    )
+  let assert Ok(core_spec) = simplifile.read(complex_types_file)
+  let assert Ok(core_bundle) =
+    json.parse(core_spec, codegen_helpers.bundle_decoder())
+  let core_type_urls =
+    core_bundle.entry
+    |> list.filter(fn(entry) { entry.resource.kind == Some("complex-type") })
+    |> list.map(fn(entry) { entry.resource.url })
+    |> set.from_list
+  let core_constructors = dict.new()
   let #(
     profile_complex_types,
     profile_resources,
@@ -379,6 +355,124 @@ fn gen_fhir(
       )
     }
   }
+  let helper_dependencies =
+    [
+      #("SliceElt", []),
+      #("ExtensionSliceElt", []),
+      #("slice_elt_new", ["SliceElt"]),
+      #("slice_elts_to_values", [
+        "SliceElt",
+        "import:int",
+        "import:list",
+        "import:order",
+      ]),
+      #("List1", []),
+      #("List2", []),
+      #("List3", []),
+      #("ExplicitFalse", []),
+      #("ExplicitTrue", []),
+      #("list1_to_json", ["List1"]),
+      #("list1_decoder", ["List1"]),
+      #("list2_to_json", ["List2"]),
+      #("list2_decoder", ["List2"]),
+      #("list3_to_json", ["List3"]),
+      #("list3_decoder", ["List3"]),
+      #("none_if_omitted", []),
+      #("decode_optional_string", []),
+      #("decode_optional_bool", []),
+      #("decode_number", ["import:int"]),
+      #("Primitive", []),
+      #("PrimitiveExtPart", []),
+      #("primitive_slice_to_json", []),
+      #("primitive_slice_list_to_json", ["import:list"]),
+      #("primitive_ext_part_decoder", ["PrimitiveExtPart"]),
+      #("primitive_decoder", [
+        "Primitive",
+        "PrimitiveExtPart",
+        "primitive_ext_part_decoder",
+      ]),
+      #("primitives_decoder", [
+        "Primitive",
+        "PrimitiveExtPart",
+        "map2_fillnone",
+        "primitive_ext_part_decoder",
+      ]),
+      #("primitive_slice_decoder", ["Primitive", "primitive_decoder"]),
+      #("primitive_choice_slice_decoder", [
+        "Primitive",
+        "primitive_slice_decoder",
+      ]),
+      #("primitive_slice_list_decoder", [
+        "Primitive",
+        "primitive_slice_list_from_primitives",
+        "primitives_decoder",
+      ]),
+      #("primitive_slice_list_from_primitives", [
+        "Primitive",
+        "import:int",
+        "import:list",
+      ]),
+      #("map2_fillnone", ["map2_fillnone_loop"]),
+      #("map2_fillnone_loop", ["import:list"]),
+      #("one_from_array_decoder", []),
+      #("optional_one_from_array_decoder", []),
+      #("BoundCoding", ["Extension"]),
+      #("bound_coding_decoder", ["BoundCoding"]),
+      #("BoundCodeableconcept", [
+        "BoundCoding",
+        "Coding",
+        "bound_coding_decoder",
+        "import:list",
+      ]),
+      #("BoundCodeablereference", ["BoundCodeableconcept", "Reference"]),
+      #("BoundQuantity", ["Extension", "decode_number"]),
+      #("insert_at", ["import:list"]),
+    ]
+    |> dict.from_list
+  let helper_dependencies = case preserve_slice_order {
+    True ->
+      dict.insert(helper_dependencies, "BoundCodeableconcept", [
+        "BoundCoding",
+        "Coding",
+        "insert_at",
+        "bound_coding_decoder",
+        "import:list",
+      ])
+    False -> helper_dependencies
+  }
+  let profile_usage =
+    codegen_profile_json.constructor_requirements(
+      constructors,
+      codegen_helpers.ComplexTypes,
+    )
+    |> codegen_helpers.merge_required_code(
+      codegen_profile_json.constructor_requirements(
+        constructors,
+        codegen_helpers.Resources,
+      ),
+    )
+    |> codegen_helpers.merge_required_code(profile_required.0)
+    |> codegen_helpers.merge_required_code(profile_required.1)
+  let requested_types = set.union(resource_type_names, profile_usage.types)
+  let #(complex_types_gen, valueset_acc, core_constructors, available_valuesets) =
+    required_complex_types_loop(
+      complex_types_file,
+      fhir_version,
+      requested_types,
+      set.new(),
+      valueset_acc,
+      preloaded_valuesets,
+      valuesets_package_dir,
+      helper_dependencies,
+      [],
+      dict.new(),
+    )
+  let preloaded_valuesets = dict.merge(preloaded_valuesets, available_valuesets)
+  let constructors =
+    dict.merge(
+      dict.merge(resource_constructors, core_constructors),
+      constructors,
+    )
   let complex_types_gen = complex_types_gen <> profile_complex_types
   let resource_entries =
     list.append(core_resource_entries, profile_resource_entries)
@@ -599,90 +693,6 @@ fn gen_fhir(
   }
   let complex_types_gen = replace_failure_variants(complex_types_gen)
   let resources_gen = replace_failure_variants(resources_gen)
-  let helper_dependencies =
-    [
-      #("SliceElt", []),
-      #("slice_elt_new", ["SliceElt"]),
-      #("slice_elts_to_values", [
-        "SliceElt",
-        "import:int",
-        "import:list",
-        "import:order",
-      ]),
-      #("List1", []),
-      #("List2", []),
-      #("List3", []),
-      #("ExplicitFalse", []),
-      #("ExplicitTrue", []),
-      #("list1_to_json", ["List1"]),
-      #("list1_decoder", ["List1"]),
-      #("list2_to_json", ["List2"]),
-      #("list2_decoder", ["List2"]),
-      #("list3_to_json", ["List3"]),
-      #("list3_decoder", ["List3"]),
-      #("none_if_omitted", []),
-      #("decode_optional_string", []),
-      #("decode_optional_bool", []),
-      #("decode_number", ["import:int"]),
-      #("Primitive", []),
-      #("PrimitiveExtPart", []),
-      #("primitive_slice_to_json", []),
-      #("primitive_slice_list_to_json", ["import:list"]),
-      #("primitive_ext_part_decoder", ["PrimitiveExtPart"]),
-      #("primitive_decoder", [
-        "Primitive",
-        "PrimitiveExtPart",
-        "primitive_ext_part_decoder",
-      ]),
-      #("primitives_decoder", [
-        "Primitive",
-        "PrimitiveExtPart",
-        "map2_fillnone",
-        "primitive_ext_part_decoder",
-      ]),
-      #("primitive_slice_decoder", ["Primitive", "primitive_decoder"]),
-      #("primitive_choice_slice_decoder", [
-        "Primitive",
-        "primitive_slice_decoder",
-      ]),
-      #("primitive_slice_list_decoder", [
-        "Primitive",
-        "primitive_slice_list_from_primitives",
-        "primitives_decoder",
-      ]),
-      #("primitive_slice_list_from_primitives", [
-        "Primitive",
-        "import:int",
-        "import:list",
-      ]),
-      #("map2_fillnone", ["map2_fillnone_loop"]),
-      #("map2_fillnone_loop", ["import:list"]),
-      #("one_from_array_decoder", []),
-      #("optional_one_from_array_decoder", []),
-      #("BoundCoding", ["Extension"]),
-      #("bound_coding_decoder", ["BoundCoding"]),
-      #("BoundCodeableconcept", [
-        "BoundCoding",
-        "Coding",
-        "bound_coding_decoder",
-        "import:list",
-      ]),
-      #("BoundCodeablereference", ["BoundCodeableconcept", "Reference"]),
-      #("BoundQuantity", ["Extension", "decode_number"]),
-      #("insert_at", ["import:list"]),
-    ]
-    |> dict.from_list
-  let helper_dependencies = case preserve_slice_order {
-    True ->
-      dict.insert(helper_dependencies, "BoundCodeableconcept", [
-        "BoundCoding",
-        "Coding",
-        "insert_at",
-        "bound_coding_decoder",
-        "import:list",
-      ])
-    False -> helper_dependencies
-  }
   let core_required = fn(bucket) {
     let core_constructors = dict.merge(resource_constructors, core_constructors)
     let required =
@@ -766,6 +776,9 @@ fn gen_fhir(
       set.new(),
     )
   let helper_definitions = [
+    #("ExtensionSliceElt", fn() {
+      "pub type ExtensionSliceElt(a) {\n  ExtensionSliceElt(\n    value: a,\n    id: Option(String),\n    internal_gleam_fhir_index: Option(Int),\n  )\n}\n\npub fn extension_slice_elt_new(value: a) -> ExtensionSliceElt(a) {\n  ExtensionSliceElt(value:, id: None, internal_gleam_fhir_index: None)\n}\n\n"
+    }),
     #("ExplicitFalse", fn() { "pub type ExplicitFalse { ExplicitFalse }\n\n" }),
     #("ExplicitTrue", fn() { "pub type ExplicitTrue { ExplicitTrue }\n\n" }),
     #("decode_optional_string", fn() {
@@ -1398,60 +1411,79 @@ fn gen_fhir(
   )
 }
 
-fn required_complex_types(
-  spec_file: String,
-  initial: Set(String),
-) -> Set(String) {
-  let assert Ok(spec) = simplifile.read(spec_file)
-  let assert Ok(bundle) =
-    json.parse(from: spec, using: codegen_helpers.bundle_decoder())
-  let complex_types =
-    list.fold(bundle.entry, dict.new(), fn(types, entry) {
-      case entry.resource.kind, entry.resource.name {
-        Some("complex-type"), "Base"
-        | Some("complex-type"), "BackboneElement"
-        | Some("complex-type"), "Element"
-        -> types
-        Some("complex-type"), name -> dict.insert(types, name, entry.resource)
-        _, _ -> types
-      }
-    })
-  required_complex_types_loop(complex_types, initial, set.new())
-}
-
 fn required_complex_types_loop(
-  complex_types: dict.Dict(String, codegen_helpers.Resource),
+  spec_file: String,
+  fhir_version: String,
   pending: Set(String),
-  required: Set(String),
-) -> Set(String) {
-  case set.to_list(pending) {
-    [] -> required
-    [name, ..] -> {
-      let pending = set.delete(pending, name)
-      case set.contains(required, name), dict.get(complex_types, name) {
-        True, _ | _, Error(_) ->
-          required_complex_types_loop(complex_types, pending, required)
-        False, Ok(resource) -> {
-          let dependencies = case resource.snapshot {
-            None -> []
-            Some(snapshot) ->
-              snapshot.element
-              |> list.filter(fn(element) { element.max != "0" })
-              |> list.flat_map(fn(element) {
-                element.type_ |> list.map(fn(type_) { type_.code })
-              })
-          }
-          let pending =
-            list.fold(dependencies, pending, fn(pending, dependency) {
-              set.insert(pending, dependency)
-            })
-          required_complex_types_loop(
-            complex_types,
-            pending,
-            set.insert(required, name),
-          )
-        }
-      }
+  emitted: Set(String),
+  valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
+  available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
+  valuesets_package_dir: String,
+  helper_dependencies: dict.Dict(String, List(String)),
+  sources: List(String),
+  constructors: dict.Dict(String, codegen_profile_json.ConstructorDefinition),
+) -> #(
+  String,
+  dict.Dict(String, codegen_helpers.ValuesetItem),
+  dict.Dict(String, codegen_profile_json.ConstructorDefinition),
+  dict.Dict(String, codegen_helpers.VsOrCs),
+) {
+  let pending =
+    codegen_helpers.required_names(
+      helper_dependencies,
+      pending
+        |> set.to_list
+        |> list.map(fn(name) { string.replace(name, "ct.", "") })
+        |> set.from_list,
+      set.new(),
+    )
+    |> set.difference(emitted)
+  case set.is_empty(pending) {
+    True -> #(
+      sources |> list.reverse |> string.concat,
+      valueset_acc,
+      constructors,
+      available_valuesets,
+    )
+    False -> {
+      let #(
+        source,
+        valueset_acc,
+        dependencies,
+        _,
+        _,
+        generated,
+        available_valuesets,
+      ) =
+        file_to_types(
+          spec_file:,
+          fv: fhir_version,
+          current_bucket: codegen_helpers.ComplexTypes,
+          valueset_acc:,
+          gen_specific_resources: Some([]),
+          gen_specific_complex_types: Some(pending),
+          emitted_types: emitted,
+          minimal_client_resources: set.new(),
+          valuesets_package_dir:,
+          available_valuesets:,
+        )
+      let generated_names =
+        generated
+        |> dict.keys
+        |> list.map(fn(key) { string.replace(key, "complex_types.", "") })
+        |> set.from_list
+      required_complex_types_loop(
+        spec_file,
+        fhir_version,
+        dependencies,
+        emitted |> set.union(pending) |> set.union(generated_names),
+        valueset_acc,
+        available_valuesets,
+        valuesets_package_dir,
+        helper_dependencies,
+        [source, ..sources],
+        dict.merge(constructors, generated),
+      )
     }
   }
 }
@@ -1463,6 +1495,7 @@ fn file_to_types(
   valueset_acc valueset_acc: dict.Dict(String, codegen_helpers.ValuesetItem),
   gen_specific_resources gen_specific_resources: Option(List(String)),
   gen_specific_complex_types gen_specific_complex_types: Option(Set(String)),
+  emitted_types emitted_types: Set(String),
   minimal_client_resources minimal_client_resources: Set(String),
   valuesets_package_dir valuesets_package_dir: String,
   available_valuesets available_valuesets: dict.Dict(
@@ -1494,7 +1527,14 @@ fn file_to_types(
         _, "Element" -> False
         Some("complex-type"), name ->
           case gen_specific_complex_types {
-            Some(names) -> set.contains(names, name)
+            Some(names) ->
+              set.to_list(names)
+              |> list.any(fn(requested) {
+                string.starts_with(
+                  requested,
+                  codegen_helpers.to_camel_case(name),
+                )
+              })
             None -> True
           }
         Some("resource"), resname ->
@@ -1555,6 +1595,52 @@ fn file_to_types(
           )
         }
       }
+    })
+  let entries =
+    list.map(entries, fn(resource) {
+      codegen_helpers.Resource(
+        ..resource,
+        snapshot: option.map(resource.snapshot, fn(snapshot) {
+          codegen_helpers.Snapshot(
+            element: list.filter(snapshot.element, fn(element) {
+              case gen_specific_complex_types {
+                None -> True
+                Some(names) -> {
+                  let parts =
+                    element.id
+                    |> string.replace("-", "")
+                    |> string.replace(":", ".")
+                    |> string.split(".")
+                  let assert [_, ..rest] = parts
+                  let parts = [resource.name, ..rest]
+                  let parent =
+                    parts
+                    |> list.reverse
+                    |> list.drop(1)
+                    |> list.reverse
+                    |> string.join("_")
+                  let parent_type = case parent == resource.name {
+                    True -> codegen_helpers.to_camel_case(resource.id)
+                    False -> codegen_helpers.to_camel_case(parent)
+                  }
+                  let choice =
+                    parent_type
+                    <> string.capitalise(string.replace(
+                      option.unwrap(list.last(parts) |> option.from_result, ""),
+                      "[x]",
+                      "",
+                    ))
+                  set.contains(names, parent_type)
+                  || {
+                    list.length(element.type_) > 1
+                    && set.contains(names, choice)
+                  }
+                }
+              }
+            }),
+          )
+        }),
+      )
     })
   let required_valuesets =
     entries
@@ -1633,20 +1719,6 @@ fn file_to_types(
         }),
       )
     })
-  let referenced_type_names =
-    entries
-    |> list.flat_map(fn(resource) {
-      case resource.snapshot {
-        Some(snapshot) -> snapshot.element
-        None -> []
-      }
-    })
-    |> list.filter(fn(element) { element.max != "0" })
-    |> list.flat_map(fn(element) {
-      element.type_ |> list.map(fn(type_) { type_.code })
-    })
-    |> set.from_list
-
   let #(all_resources_and_types, valueset_acc, constructors) =
     list.fold(
       entries,
@@ -1656,57 +1728,37 @@ fn file_to_types(
         //map of type -> fields needed to list out all the BackboneElements
         //because they're subcomponents eg Allergy -> Reaction
         //and rather than nested, we want to write fields one after the other
-        let starting_res_fields = dict.new() |> dict.insert(resource.name, [])
-        //we want to write types in order of parsing backbone elements, but map order random
-        //put elts into name of current struct, eg AllergyIntolerance, AllergyIntoleranceReaction...
-        let type_order = [resource.name]
         let assert Some(snapshot) = resource.snapshot
-
-        let f_o = #(starting_res_fields, type_order)
-
         let #(resource_types, valueset_acc, constructors) = {
-          let fields_and_order =
-            list.fold(over: snapshot.element, from: f_o, with: fn(f_o, elt) {
-              let res_fields = f_o.0
-              let order = f_o.1
+          let type_fields =
+            list.fold(
+              over: snapshot.element,
+              from: dict.from_list([#(resource.name, [])]),
+              with: fn(res_fields, elt) {
+                let pathparts =
+                  elt.id
+                  |> string.replace("-", "")
+                  |> string.replace(":", ".")
+                  |> string.split(".")
+                let assert [_, ..rest] = pathparts
+                let pathparts = [resource.name, ..rest]
+                //there must be a better way to drop last item?
+                let pp_minus_last =
+                  pathparts |> list.reverse |> list.drop(1) |> list.reverse
+                let field_path_minus_last = string.join(pp_minus_last, "_")
 
-              let pathparts =
-                elt.id
-                |> string.replace("-", "")
-                |> string.replace(":", ".")
-                |> string.split(".")
-              let assert [_, ..rest] = pathparts
-              let pathparts = [resource.name, ..rest]
-              let field_path = string.join(pathparts, "_")
-              //there must be a better way to drop last item?
-              let pp_minus_last =
-                pathparts |> list.reverse |> list.drop(1) |> list.reverse
-              let field_path_minus_last = string.join(pp_minus_last, "_")
-
-              let appended_field = case
-                dict.get(res_fields, field_path_minus_last)
-              {
-                Ok(field_list) -> [elt, ..field_list]
-                Error(_) -> [elt]
-              }
-              let res_fields =
-                dict.insert(res_fields, field_path_minus_last, appended_field)
-
-              let order = case elt.type_ {
-                [first, ..] -> {
-                  case first.code {
-                    "BackboneElement" -> [field_path, ..order]
-                    "Element" -> [field_path, ..order]
-                    _ -> order
-                  }
+                let appended_field = case
+                  dict.get(res_fields, field_path_minus_last)
+                {
+                  Ok(field_list) -> [elt, ..field_list]
+                  Error(_) -> [elt]
                 }
-                [] -> order
-              }
-              #(res_fields, order)
-            })
+                dict.insert(res_fields, field_path_minus_last, appended_field)
+              },
+            )
 
-          let type_fields = fields_and_order.0
-          let type_order = fields_and_order.1
+          let type_order =
+            dict.keys(type_fields) |> list.filter(fn(path) { path != "" })
 
           list.fold(
             over: type_order,
@@ -1746,9 +1798,11 @@ fn file_to_types(
                 //simplequantity has no comparator
                 _ -> fields
               }
-              let fields =
-                fields
-                |> list.filter(fn(elt) { elt.max != "0" })
+              let emit_record = case gen_specific_complex_types {
+                None -> True
+                Some(names) -> set.contains(names, camel_type)
+              }
+              let fields = fields |> list.filter(fn(elt) { elt.max != "0" })
               // this tuple is important - all the stuff you generate for each field
               // should probably be a custom type
               // also choice fields do one more fold within this, on their type possibilities
@@ -1847,28 +1901,11 @@ fn file_to_types(
                       _ -> #(field_name_new, valueset_acc)
                     }
                     let elt_snake = codegen_helpers.to_snake_case(elt_last_part)
-                    let this_type_fields =
-                      string.concat([
-                        case elt.max {
-                          "0" | "1" | "*" -> ""
-                          _ -> "// TODO enforce max somehow\n"
-                        },
-                        elt_snake,
-                        ": ",
-                        codegen_helpers.cardinality(
-                          field_type,
-                          elt.min,
-                          elt.max,
-                        ),
-                        ",\n",
-                        fields_acc,
-                      ])
                     let #(choicetypes_acc, valueset_acc, constructors) = case
-                      elt.type_
+                      elt.type_,
+                      set.contains(emitted_types, field_name_new)
                     {
-                      [] -> #(choicetypes_acc, valueset_acc, constructors)
-                      [_] -> #(choicetypes_acc, valueset_acc, constructors)
-                      _ -> {
+                      [_, _, ..], False -> {
                         let #(choice_fields, valueset_acc, constructors) =
                           list.fold(
                             over: elt.type_,
@@ -2011,7 +2048,39 @@ fn file_to_types(
                           constructors,
                         )
                       }
+                      _, _ -> #(choicetypes_acc, valueset_acc, constructors)
                     }
+                    use <- bool.guard(!emit_record, #(
+                      fields_acc,
+                      choicetypes_acc,
+                      newfunc_args_acc,
+                      newfunc_fields_acc,
+                      encoder_always_acc,
+                      encoder_optional_acc,
+                      decoder_use_acc,
+                      decoder_success_acc,
+                      decoder_always_failure_acc,
+                      valueset_acc,
+                      constructor_arguments,
+                      constructor_fields,
+                      constructors,
+                    ))
+                    let this_type_fields =
+                      string.concat([
+                        case elt.max {
+                          "0" | "1" | "*" -> ""
+                          _ -> "// TODO enforce max somehow\n"
+                        },
+                        elt_snake,
+                        ": ",
+                        codegen_helpers.cardinality(
+                          field_type,
+                          elt.min,
+                          elt.max,
+                        ),
+                        ",\n",
+                        fields_acc,
+                      ])
                     let #(newfunc_arg, newfunc_field, required_argument) =
                       codegen_helpers.new_fn_arg_and_field(
                         elt_snake,
@@ -2274,6 +2343,11 @@ fn file_to_types(
               //now have #(field_list, choicetypes, newfunc_args, newfunc_fields) tuple should prolly be custom type or something
               // first elt in tuple is all the fields for this type
 
+              use <- bool.guard(!emit_record, #(
+                old_type_acc <> string.join(choicetypes, "\n"),
+                valueset_acc,
+                constructors,
+              ))
               let type_newfields =
                 string.concat([
                   "pub type ",
@@ -2525,6 +2599,8 @@ fn file_to_types(
         #(gen_str, valueset_acc, constructors)
       },
     )
+  let referenced_type_names =
+    codegen_profile_json.constructor_requirements(constructors, current_bucket).types
   let resource_entries = case
     spec_file |> string.ends_with("profiles-resources.json")
   {
