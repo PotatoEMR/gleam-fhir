@@ -265,7 +265,6 @@ fn gen_fhir(
   let gen_dir = filepath.join(gen_into_dir, pkg_prefix)
   let assert Ok(_) = simplifile.create_directory_all(gen_dir)
   let gen_gleamfile = filepath.join(gen_dir, "resources.gleam")
-  let gen_vsfile = filepath.join(gen_dir, "valuesets.gleam")
   let complex_types_file = filepath.join(extract_dir_ver, "profiles-types.json")
   let valuesets_package_dir = case profiles_dir {
     Some(directory) -> directory
@@ -301,6 +300,7 @@ fn gen_fhir(
       codegen_profile.required_complex_type_names(
         profiles_dir,
         gen_specific_resources,
+        available_valuesets,
       )
     None -> set.new()
   }
@@ -1298,13 +1298,6 @@ fn gen_fhir(
       required.types,
       set.from_list(["Date", "DateTime", "Instant", "Time"]),
     )
-  let f_primitive_types = filepath.join(gen_dir, "primitive_types.gleam")
-  let assert Ok(_) =
-    simplifile.write(
-      to: f_primitive_types,
-      contents: template_primitive_types.source(primitive_types),
-    )
-  io.println("generated " <> f_primitive_types)
   let ct_content =
     string.concat([
       "////[https://hl7.org/fhir/",
@@ -1333,9 +1326,6 @@ fn gen_fhir(
   let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: r_content)
   io.println("generated " <> gen_gleamfile)
 
-  let assert Ok(_) = simplifile.write(to: gen_vsfile, contents: all_vs)
-  io.println("generated " <> gen_vsfile)
-
   let client_files = case client_resources {
     [] -> []
     _ -> {
@@ -1362,8 +1352,30 @@ fn gen_fhir(
       ]
     }
   }
+  let client_files =
+    list.append(
+      client_files,
+      [
+        #("primitive_types.gleam", case set.is_empty(primitive_types) {
+          True -> None
+          False -> Some(template_primitive_types.source(primitive_types))
+        }),
+        #("valuesets.gleam", case dict.is_empty(valueset_acc) {
+          True -> None
+          False -> Some(all_vs)
+        }),
+      ]
+        |> list.filter_map(fn(file) {
+          case file.1 {
+            Some(source) -> Ok(#(file.0, source))
+            None -> Error(Nil)
+          }
+        }),
+    )
   list.each(
     [
+      "primitive_types.gleam",
+      "valuesets.gleam",
       "sansio.gleam",
       "client_httpc.gleam",
       "client_rsvp.gleam",

@@ -48,11 +48,16 @@ pub const valueset_parameter_types = ["uri", "string", "integer", "boolean"]
 // These names come from resolved field types and decoder decisions, never
 // from searching generated source.
 pub type RequiredCode {
-  RequiredCode(types: Set(String), functions: Set(String), modules: Set(String))
+  RequiredCode(
+    types: Set(String),
+    functions: Set(String),
+    modules: Set(String),
+    valuesets: Dict(String, ValuesetItem),
+  )
 }
 
 pub fn required_code() -> RequiredCode {
-  RequiredCode(set.new(), set.new(), set.new())
+  RequiredCode(set.new(), set.new(), set.new(), dict.new())
 }
 
 pub fn merge_required_code(
@@ -63,6 +68,9 @@ pub fn merge_required_code(
     set.union(left.types, right.types),
     set.union(left.functions, right.functions),
     set.union(left.modules, right.modules),
+    dict.fold(right.valuesets, left.valuesets, fn(valuesets, url, item) {
+      insert_valueset(valuesets, url, item)
+    }),
   )
 }
 

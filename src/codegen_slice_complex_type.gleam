@@ -5,7 +5,7 @@ import gleam/dict
 import gleam/int
 import gleam/json
 import gleam/list
-import gleam/option.{type Option, Some}
+import gleam/option.{type Option, None, Some}
 import gleam/result
 import gleam/set.{type Set}
 import gleam/string
@@ -204,9 +204,28 @@ pub fn datatype_fields(
 }
 
 fn field_type(field: codegen_helpers.Element) -> String {
-  let assert Some(type_name) = field.gleam_type
-    as { "missing generated datatype field type " <> field.path }
-  type_name
+  case field.gleam_type {
+    Some(type_name) -> type_name
+    None -> {
+      let parts = string.split(field.path, ".")
+      case field.type_ {
+        [type_] ->
+          codegen_helpers.string_to_type(
+            type_.code,
+            parts,
+            field,
+            codegen_helpers.ComplexTypes,
+            dict.new(),
+          ).0
+        [] -> {
+          let assert [root, ..] = parts
+          codegen_helpers.link_type_from(field.content_reference, root)
+          |> codegen_helpers.to_camel_case
+        }
+        _ -> codegen_helpers.to_camel_case(string.replace(field.path, ".", "_"))
+      }
+    }
+  }
 }
 
 type RecordSource {
@@ -576,6 +595,27 @@ pub fn shared_type(
   let required =
     list.fold(fields, codegen_helpers.required_code(), fn(required, field) {
       let name = codegen_helpers.field_name(field)
+      let required = case list.contains(omitted, name) {
+        True -> required
+        False -> {
+          let required =
+            codegen_helpers.require_type(required, field_type(field))
+          case field.type_ {
+            [type_] -> {
+              let #(_, valuesets) =
+                codegen_helpers.string_to_type(
+                  type_.code,
+                  string.split(field.path, "."),
+                  field,
+                  codegen_helpers.ComplexTypes,
+                  required.valuesets,
+                )
+              codegen_helpers.RequiredCode(..required, valuesets:)
+            }
+            _ -> required
+          }
+        }
+      }
       let required = case
         field.min,
         field.max,
@@ -604,5 +644,9 @@ pub fn shared_type(
         _ -> required
       }
     })
+  let required = case omitted == [] && set.contains(encoders, type_name) {
+    True -> codegen_helpers.require_type(required, base_type)
+    False -> required
+  }
   [#(type_name, #(generated, required))]
 }

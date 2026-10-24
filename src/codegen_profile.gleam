@@ -855,34 +855,124 @@ fn load_profile_files(
 pub fn required_complex_type_names(
   profiles_dir: String,
   gen_specific_resources: Option(List(String)),
+  available_valuesets: dict.Dict(String, codegen_helpers.VsOrCs),
 ) -> Set(String) {
   let profile_files = load_profile_files(profiles_dir, gen_specific_resources)
-  let resource_elements =
+  let blocks =
     list.append(
       profile_files.resources,
       dict.values(profile_files.datatype_profiles),
     )
-    |> list.flat_map(fn(resource) {
-      case resource.snapshot {
-        Some(snapshot) -> snapshot.element
-        None -> []
-      }
+    |> list.filter_map(fn(resource) {
+      resource.snapshot
+      |> option.to_result(Nil)
+      |> result.map(fn(snapshot) { snapshot.element })
     })
-  let extension_elements =
-    profile_files.extensions
-    |> dict.values
-    |> list.flat_map(fn(extension) {
-      list.append(
-        extension.elements,
-        extension.primitive_values
+    |> list.append(
+      profile_files.extensions
+      |> dict.values
+      |> list.flat_map(fn(extension) {
+        [
+          extension.elements,
+          ..extension.primitive_values
           |> dict.values
-          |> list.flat_map(fn(value) { value.elements }),
-      )
-    })
-  list.append(resource_elements, extension_elements)
-  |> list.filter(fn(element) { element.max != "0" })
-  |> list.flat_map(fn(element) {
-    element.type_ |> list.map(fn(type_) { type_.code })
+          |> list.map(fn(value) { value.elements })
+        ]
+      }),
+    )
+  let base_elements =
+    base_structure_elements(profiles_dir, list.flatten(blocks))
+  blocks
+  |> list.flat_map(fn(elements) {
+    let excluded =
+      elements
+      |> list.filter(fn(element) {
+        element.max == "0"
+        && !list.any(elements, fn(candidate) {
+          candidate.max != "0"
+          && case candidate.content_reference {
+            Some(reference) -> string.ends_with(reference, "#" <> element.id)
+            None -> False
+          }
+        })
+      })
+      |> list.map(fn(element) { element.id })
+    let elements = remove_element_trees(elements, excluded, False)
+    let projected =
+      elements
+      |> list.filter_map(fn(element) {
+        use <- bool.guard(
+          element.max == "0"
+            || element.slice_name != None
+            || element.slicing != None
+            || profile_field_has_primitive_type(element, "")
+            || !list.any(elements, fn(child) {
+            string.starts_with(child.id, element.id <> ".")
+          }),
+          Error(Nil),
+        )
+        use plans <- result.try(
+          plan_constraint_fields(
+            element,
+            elements,
+            available_valuesets,
+            base_elements,
+          )
+          |> result.replace_error(Nil),
+        )
+        use #(_, override) <- result.try(
+          list.find(plans, fn(plan) { plan.0 == element.id }),
+        )
+        case override, element.type_ {
+          FixedSliceType(name, ..), [type_] -> {
+            let fields =
+              codegen_slice_complex_type.datatype_fields(
+                type_.code,
+                base_elements,
+              )
+            let omitted =
+              codegen_slice_complex_type.constraint_fields(name, "Omit", fields)
+            case omitted {
+              [] -> Error(Nil)
+              _ ->
+                Ok(#(
+                  element.id,
+                  type_.code,
+                  list.filter(fields, fn(field) {
+                    !list.contains(omitted, codegen_helpers.field_name(field))
+                  }),
+                ))
+            }
+          }
+          _, _ -> Error(Nil)
+        }
+      })
+    let dependencies =
+      elements
+      |> list.filter(fn(element) {
+        element.max != "0"
+        && !list.any(projected, fn(projection) {
+          element.id == projection.0
+          || string.starts_with(element.id, projection.0 <> ".")
+          || string.starts_with(element.id, projection.0 <> ":")
+        })
+      })
+      |> list.flat_map(fn(element) {
+        list.map(element.type_, fn(type_) { type_.code })
+      })
+    list.append(
+      dependencies,
+      list.flat_map(projected, fn(projection) {
+        list.flat_map(projection.2, fn(field) {
+          case field.type_ {
+            [_, _, ..] -> [projection.1]
+            [codegen_helpers.Type(code: "BackboneElement", ..)]
+            | [codegen_helpers.Type(code: "Element", ..)] -> [projection.1]
+            types -> list.map(types, fn(type_) { type_.code })
+          }
+        })
+      }),
+    )
   })
   |> set.from_list
 }
@@ -6443,6 +6533,14 @@ pub fn profile_files_to_types(
             codegen_helpers.merge_required_code(required.1, usage),
           )
         }
+      },
+    )
+  let valueset_acc =
+    dict.fold(
+      codegen_helpers.merge_required_code(complex_required, resource_required).valuesets,
+      valueset_acc,
+      fn(valuesets, url, item) {
+        codegen_helpers.insert_valueset(valuesets, url, item)
       },
     )
   let profile_complex_types =
