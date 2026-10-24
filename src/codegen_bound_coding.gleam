@@ -284,54 +284,59 @@ pub fn bound_coding_and_cc(
         json.object(fields)
       }
 
-      pub fn bound_codeableconcept_discriminator(from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Decoder(Option(#(required_binding, Int, Dynamic, List(Dynamic)))) {
-        use codings <- decode.optional_field(\"coding\", [], decode.list(decode.dynamic))
-        let matched = list.index_fold(codings, None, fn(matched, raw, index) {
-          case matched {
-            Some(_) -> matched
-            None -> case decode.run(raw, {
-              use code <- decode.field(\"code\", decode.string)
-              use system <- decode.field(\"system\", decode.string)
-              decode.success(from_code_and_system(code, system))
-            }) {
-              Ok(Ok(code)) -> Some(#(code, index, raw, codings))
-              _ -> None
-            }
+      type ParsedBoundCoding(binding) {
+        CodingInBinding(BoundCoding(binding), code: String, system: String)
+        CodingOutsideBinding(Coding)
+      }
+
+      pub fn bound_codeableconcept_discriminator(from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Decoder(#(Option(#(BoundCoding(required_binding), Int)), List(Coding))) {
+        use codings <- decode.optional_field(\"coding\", [], decode.list({
+          use code <- decode.optional_field(\"code\", None, decode.optional(decode.string))
+          use system <- decode.optional_field(\"system\", None, decode.optional(decode.string))
+          use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
+          use extension <- decode.optional_field(\"extension\", [], decode.list(extension_decoder()))
+          use version <- decode.optional_field(\"version\", None, decode.optional(decode.string))
+          use display <- decode.optional_field(\"display\", None, decode.optional(decode.string))
+          use user_selected <- decode.optional_field(\"userSelected\", None, decode.optional(decode.bool))
+          let binding = case code, system {
+            Some(code), Some(system) -> from_code_and_system(code, system)
+            _, _ -> Error(Nil)
+          }
+          case binding, code, system {
+            Ok(binding), Some(code), Some(system) ->
+              decode.success(CodingInBinding(BoundCoding(code: binding, id:, extension:, version:, display:, user_selected:), code:, system:))
+            _, _, _ ->
+              decode.success(CodingOutsideBinding(Coding(code:, system:, id:, extension:, version:, display:, user_selected:)))
+          }
+        }))
+        let #(required, more) = list.index_fold(codings, #(None, []), fn(acc, coding, index) {
+          let #(required, more) = acc
+          case coding, required {
+            CodingInBinding(value, _, _), None -> #(Some(#(value, index)), more)
+            CodingInBinding(value, code, system), Some(_) ->
+              #(required, [Coding(code: Some(code), system: Some(system), id: value.id, extension: value.extension, version: value.version, display: value.display, user_selected: value.user_selected), ..more])
+            CodingOutsideBinding(value), _ -> #(required, [value, ..more])
           }
         })
-        decode.success(matched)
+        decode.success(#(required, list.reverse(more)))
       }
 
       pub fn bound_codeableconcept_decoder(binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder(BoundCodeableconcept(required_binding)) {
         use <- decode.recursive
         use matched <- decode.then(bound_codeableconcept_discriminator(binding_from_code_and_system))
         case matched {
-          None -> decode.failure(bound_codeableconcept_new(failure_placeholder), \"need a coding with code + system from required ValueSet\")
-          Some(#(code, index, raw, codings)) -> bound_codeableconcept_slice_decoder(code, index, raw, codings)
+          #(None, _) -> decode.failure(bound_codeableconcept_new(failure_placeholder), \"need a coding with code + system from required ValueSet\")
+          #(Some(#(required, index)), more) -> bound_codeableconcept_slice_decoder(required, index, more)
         }
       }
 
-      pub fn bound_codeableconcept_slice_decoder(code: required_binding, index: Int, raw: Dynamic, codings: List(Dynamic)) -> Decoder(BoundCodeableconcept(required_binding)) {
+      pub fn bound_codeableconcept_slice_decoder(required: BoundCoding(required_binding), ",
+        case preserve_slice_order {
+          True -> "index"
+          False -> "_index"
+        },
+        ": Int, more: List(Coding)) -> Decoder(BoundCodeableconcept(required_binding)) {
         use <- decode.recursive
-        use required <- decode.then(case decode.run(raw, bound_coding_slice_decoder(code)) {
-          Ok(value) -> decode.success(value)
-          Error(errors) -> decode.failure(bound_coding_new(code: code), \"coding\")
-            |> decode.map_errors(fn(_) { list.map(errors, fn(error) { decode.DecodeError(..error, path: [\"coding\", int.to_string(index), ..error.path]) }) })
-        })
-        let more = list.index_fold(codings, Ok([]), fn(acc, raw, position) {
-          case position == index {
-            True -> acc
-            False -> case acc, decode.run(raw, coding_decoder()) {
-              Ok(values), Ok(value) -> Ok([value, ..values])
-              Ok(_), Error(errors) -> Error(list.map(errors, fn(error) { decode.DecodeError(..error, path: [\"coding\", int.to_string(position), ..error.path]) }))
-              Error(errors), _ -> Error(errors)
-            }
-          }
-        })
-        use more <- decode.then(case more {
-          Ok(values) -> decode.success(list.reverse(values))
-          Error(errors) -> decode.failure([], \"coding\") |> decode.map_errors(fn(_) { errors })
-        })
 ",
         "          use text <- decode.optional_field(
             \"text\",

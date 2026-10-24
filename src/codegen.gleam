@@ -666,8 +666,6 @@ fn gen_fhir(
         "Coding",
         "bound_coding_decoder",
         "import:list",
-        "import:int",
-        "import:dynamic",
       ]),
       #("BoundCodeablereference", ["BoundCodeableconcept", "Reference"]),
       #("BoundQuantity", ["Extension", "decode_number"]),
@@ -682,8 +680,6 @@ fn gen_fhir(
         "insert_at",
         "bound_coding_decoder",
         "import:list",
-        "import:int",
-        "import:dynamic",
       ])
     False -> helper_dependencies
   }

@@ -367,7 +367,7 @@ pub fn required_modules(value: Value, fixed: Bool) -> Set(String) {
       list.fold(
         fields,
         case fixed {
-          True -> set.from_list(["dict", "list", "string"])
+          True -> set.from_list(["dict", "list"])
           False -> set.from_list(["dict"])
         },
         fn(modules, field) {
@@ -378,8 +378,8 @@ pub fn required_modules(value: Value, fixed: Bool) -> Set(String) {
       list.fold(
         values,
         case fixed {
-          True -> set.from_list(["list", "int"])
-          False -> set.from_list(["list", "int", "result"])
+          True -> set.from_list(["list"])
+          False -> set.from_list(["list", "result"])
         },
         fn(modules, value) {
           set.union(modules, required_modules(value, fixed))

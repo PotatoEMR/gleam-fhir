@@ -4537,16 +4537,104 @@ pub fn profile_files_to_types(
     list.filter(profile_definitions, fn(profile) {
       !set.contains(core_type_urls, canonical_url(profile.url))
     })
+  let datatype_aliases =
+    list.fold_until(profile_definitions, dict.new(), fn(aliases, _) {
+      let resolved =
+        list.fold(profile_definitions, aliases, fn(aliases, profile) {
+          case profile.kind, profile.type_, profile.snapshot {
+            Some("complex-type"), Some(datatype), Some(snapshot) -> {
+              let base_count =
+                dict.keys(base_elements)
+                |> list.count(fn(path) {
+                  path == datatype || string.starts_with(path, datatype <> ".")
+                })
+              let identical =
+                base_count > 0
+                && list.length(snapshot.element) == base_count
+                && list.all(snapshot.element, fn(element) {
+                  use <- bool.guard(
+                    element.gleam_type != None
+                      || element.gleam_arguments != None,
+                    False,
+                  )
+                  case dict.get(base_elements, element.path) {
+                    Error(_) -> False
+                    Ok(base) -> {
+                      let assert [profile, base] =
+                        list.map([element, base], fn(element) {
+                          codegen_helpers.Element(
+                            ..element,
+                            definition_order: 0,
+                            gleam_field_name: None,
+                            gleam_type: None,
+                            gleam_arguments: None,
+                            base: codegen_helpers.ElementBase(
+                              path: "",
+                              min: 0,
+                              max: "",
+                            ),
+                            binding: case element.binding {
+                              Some(codegen_helpers.Binding(
+                                strength: "required",
+                                ..,
+                              )) -> element.binding
+                              _ -> None
+                            },
+                            type_: list.map(element.type_, fn(type_) {
+                              case
+                                list.all(type_.profile, fn(url) {
+                                  canonical_url(url)
+                                  == "http://hl7.org/fhir/StructureDefinition/"
+                                  <> type_.code
+                                  || dict.get(aliases, canonical_url(url))
+                                  == Ok(type_.code)
+                                })
+                              {
+                                True ->
+                                  codegen_helpers.Type(..type_, profile: [])
+                                False -> type_
+                              }
+                            }),
+                          )
+                        })
+                      profile == base
+                    }
+                  }
+                })
+              case identical {
+                True ->
+                  dict.insert(aliases, canonical_url(profile.url), datatype)
+                False -> aliases
+              }
+            }
+            _, _, _ -> aliases
+          }
+        })
+      case resolved == aliases {
+        True -> list.Stop(resolved)
+        False -> list.Continue(resolved)
+      }
+    })
   let datatype_types =
     profile_definitions
     |> list.filter(fn(profile) { profile.kind == Some("complex-type") })
     |> list.map(fn(profile) {
       #(
         canonical_url(profile.url),
-        profile.id |> string.replace("-", "_") |> codegen_helpers.to_camel_case,
+        case dict.get(datatype_aliases, canonical_url(profile.url)) {
+          Ok(datatype) -> codegen_helpers.to_camel_case(datatype)
+          Error(_) ->
+            profile.id
+            |> string.replace("-", "_")
+            |> codegen_helpers.to_camel_case
+        },
       )
     })
     |> dict.from_list
+  let profile_definitions =
+    list.filter(profile_definitions, fn(profile) {
+      !dict.has_key(datatype_aliases, canonical_url(profile.url))
+    })
   // Extension payloads use the same profile unions as resource fields.
   // Identical alternatives share a definition independently of extension URL.
   let #(extensions, extension_unions) =
@@ -6340,7 +6428,11 @@ pub fn profile_files_to_types(
       decoder_contexts,
       #(slice_required, codegen_helpers.required_code()),
       fn(required, item) {
-        let usage = codegen_profile_json.decoder_requirements(item.1, item.0)
+        let usage =
+          codegen_profile_json.decoder_requirements(
+            codegen_profile_json.DecodeContext(..item.1, constructors:),
+            item.0,
+          )
         case item.1.current_bucket {
           codegen_helpers.ComplexTypes -> #(
             codegen_helpers.merge_required_code(required.0, usage),
