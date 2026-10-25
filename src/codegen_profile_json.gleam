@@ -3210,17 +3210,10 @@ fn discriminator_path_source(
                     field_decoder_expression(
                       DecodeContext(
                         ..context,
-                        type_order: [],
-                        slice_type_overrides: dict.new(),
                         slice_discriminator_checks: dict.new(),
                       ),
                       "",
-                      codegen_helpers.Element(
-                        ..element,
-                        type_: list.map(element.type_, fn(type_) {
-                          codegen_helpers.Type(..type_, profile: [])
-                        }),
-                      ),
+                      element,
                       False,
                     )
                   "case decode.run("
@@ -5668,9 +5661,33 @@ fn record_decoder_from_fields(
         string.drop_end(field.id, string.length(last) + 1),
       )
     })
-  let binding_guard = case binding {
-    None -> ""
-    Some(url) ->
+  let binding_datatype = case parent {
+    Ok(root) ->
+      case root.type_ {
+        [type_] -> type_.code
+        _ -> root.path
+      }
+    Error(_) -> ""
+  }
+  let binding_guard = case binding, binding_datatype {
+    None, _ -> ""
+    Some(url), "Coding" | Some(url), "Quantity" -> {
+      "  use binding_code <- decode.optional_field(\"code\", None, decode.optional(decode.string))\n"
+      <> "  use binding_system <- decode.optional_field(\"system\", None, decode.optional(decode.string))\n"
+      <> "  use _ <- decode.then(case binding_code, binding_system {\n"
+      <> "    Some(code), Some(system) -> case valuesets."
+      <> codegen_helpers.to_snake_case(
+        codegen_helpers.concept_name_from_url(canonical_url(url)),
+      )
+      <> "_from_code_and_system(code, system) { Ok(_) -> decode.success(Nil) Error(_) -> decode.failure(Nil, \"need code + system from required ValueSet\") }\n"
+      <> case binding_datatype == "Quantity" {
+        True -> "    None, _ -> decode.success(Nil)\n"
+        False -> ""
+      }
+      <> "    _, _ -> decode.failure(Nil, \"need code + system from required ValueSet\")\n"
+      <> "  })\n"
+    }
+    Some(url), _ ->
       "  use binding_matches <- decode.field(\"coding\", decode.list(decode.one_of({\n"
       <> "    use code <- decode.field(\"code\", decode.string)\n"
       <> "    use system <- decode.field(\"system\", decode.string)\n"

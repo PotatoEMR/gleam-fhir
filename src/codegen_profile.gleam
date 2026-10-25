@@ -1506,6 +1506,54 @@ fn only_value_or_pattern_discriminators(
   == list.length(slicing.discriminator)
 }
 
+// A required binding also keeps the fields restricted by its datatype.
+fn bound_record_needed(
+  root: codegen_helpers.Element,
+  elements: List(codegen_helpers.Element),
+  base_elements: dict.Dict(String, codegen_helpers.Element),
+) -> Bool {
+  case root.binding, root.type_ {
+    Some(codegen_helpers.Binding(strength: "required", available: True, ..)),
+      [datatype]
+      if datatype.code == "Coding" || datatype.code == "CodeableConcept"
+    ->
+      list.any(datatype.profile, fn(url) {
+        canonical_url(url)
+        != "http://hl7.org/fhir/StructureDefinition/" <> datatype.code
+      })
+      || list.any(elements, fn(child) {
+        string.starts_with(child.id, root.id <> ".")
+        && case
+          dict.get(
+            base_elements,
+            datatype.code
+              <> string.drop_start(child.path, string.length(root.path)),
+          )
+        {
+          Error(_) -> True
+          Ok(base) ->
+            child.min != base.min
+            || child.max != base.max
+            || child.type_ != base.type_
+            || child.slicing != base.slicing
+            || child.constraint != base.constraint
+            || child.fixed_code != base.fixed_code
+            || child.fixed_uri != base.fixed_uri
+            || {
+              child.binding != None
+              && child.binding != base.binding
+              && !{
+                datatype.code == "Coding"
+                && child.path == root.path <> ".code"
+                && child.binding == root.binding
+              }
+            }
+        }
+      })
+    _, _ -> False
+  }
+}
+
 // Reuse a shared type when it expresses the complete field constraint.
 // Otherwise descend into the datatype fields and keep their profile types.
 fn plan_constraint_fields(
@@ -1515,6 +1563,7 @@ fn plan_constraint_fields(
   base_elements: dict.Dict(String, codegen_helpers.Element),
 ) -> Result(List(#(String, SliceFieldType)), String) {
   use <- bool.guard(root.max == "0", Error("prohibited field " <> root.id))
+  use <- bool.guard(bound_record_needed(root, elements, base_elements), Ok([]))
   let shared_type = case root.type_ {
     [type_] ->
       case dict.get(base_elements, type_.code) {
@@ -1872,7 +1921,16 @@ fn plan_value_slice(
                       Ok(
                         ValueSlicePlan(
                           root_id: root.id,
-                          overrides: [#(root.id, BoundCodingSlice)],
+                          overrides: {
+                            let assert Ok(overrides) =
+                              plan_constraint_fields(
+                                root,
+                                elements,
+                                available_valuesets,
+                                base_elements,
+                              )
+                            overrides
+                          },
                           nested: [],
                         ),
                       )
@@ -2743,6 +2801,75 @@ fn prepare_profile_slices(
         _ -> element
       }
     })
+  // Parse the coding selected by a binding separately from the other codings.
+  // Both retain the same datatype fields, including any profile restrictions.
+  let elements =
+    list.fold(elements, elements, fn(expanded, root) {
+      use <- bool.guard(
+        root.max == "0"
+          || !element_type_is(root, "CodeableConcept")
+          || !bound_record_needed(root, elements, base_elements),
+        expanded,
+      )
+      let assert [datatype] = root.type_
+      let inherited =
+        codegen_profile_json.resolve_datatype_profiles(
+          datatype,
+          datatype_profiles,
+        )
+        |> list.filter_map(fn(profile) {
+          use profile <- result.try(option.to_result(profile, Nil))
+          use snapshot <- result.try(option.to_result(profile.snapshot, Nil))
+          find_element(snapshot.element, "CodeableConcept.coding")
+        })
+      let coding =
+        find_element(elements, root.id <> ".coding")
+        |> result.or(list.first(inherited))
+        |> result.or(dict.get(base_elements, "CodeableConcept.coding"))
+      let assert Ok(coding) = coding
+      let coding_bound = case coding.binding {
+        Some(codegen_helpers.Binding(strength: "required", available: True, ..)) ->
+          True
+        _ -> False
+      }
+      use <- bool.guard(
+        coding.max == "0"
+          || coding.max == "1"
+          || coding.slicing != None
+          || coding_bound,
+        expanded,
+      )
+      let coding =
+        codegen_helpers.Element(
+          ..coding,
+          id: root.id <> ".coding",
+          path: root.path <> ".coding",
+        )
+      let selected =
+        codegen_helpers.Element(
+          ..coding,
+          id: coding.id <> ":required",
+          slice_name: Some("required"),
+          min: 1,
+          binding: root.binding,
+        )
+      let coding =
+        codegen_helpers.Element(
+          ..coding,
+          slicing: Some(codegen_helpers.Slicing(
+            discriminator: [
+              codegen_helpers.Discriminator("pattern", "$this"),
+            ],
+            ordered: False,
+            rules: "open",
+          )),
+        )
+      [
+        coding,
+        selected,
+        ..list.filter(expanded, fn(element) { element.id != coding.id })
+      ]
+    })
   let discriminator_elements =
     elements
     |> list.filter(fn(root) { list.length(root.type_) == 1 })
@@ -2859,6 +2986,14 @@ fn prepare_profile_slices(
             string.starts_with(url, "urn:gleam-fhir:inline:")
           })
         })
+        || case element.binding {
+          Some(codegen_helpers.Binding(
+            strength: "required",
+            available: True,
+            ..,
+          )) -> True
+          _ -> False
+        }
       }
     })
     |> list.flat_map(fn(root) {
@@ -3032,6 +3167,14 @@ fn prepare_profile_slices(
         || list.any(elements, fn(child) {
           string.starts_with(child.id, element.id <> ".")
         })
+        || case element.binding {
+          Some(codegen_helpers.Binding(
+            strength: "required",
+            available: True,
+            ..,
+          )) -> list.any(element.type_, fn(type_) { type_.profile != [] })
+          _ -> False
+        }
       }
     })
     |> list.flat_map(fn(root) {
@@ -3107,7 +3250,70 @@ fn prepare_profile_slices(
     list.map(elements, fn(element) {
       let assert Ok(field) = element.id |> string.split(".") |> list.last
       let parent_id = string.drop_end(element.id, string.length(field) + 1)
-      let pattern = case find_element(elements, parent_id) {
+      let parent = find_element(elements, parent_id)
+      let element = case parent {
+        Ok(parent) -> {
+          let datatype = case parent.type_ {
+            [type_] -> type_.code
+            _ -> parent.path
+          }
+          let inherit = case parent.binding {
+            Some(codegen_helpers.Binding(
+              strength: "required",
+              available: True,
+              ..,
+            )) ->
+              case field, datatype {
+                "code", "Coding"
+                | "code", "Quantity"
+                | "concept", "CodeableReference"
+                -> True
+                "coding", "CodeableConcept" -> element.max == "1"
+                _, _ -> False
+              }
+            _ -> False
+          }
+          case inherit, element.binding {
+            True, Some(codegen_helpers.Binding(strength: "required", ..)) ->
+              element
+            True, _ ->
+              codegen_helpers.Element(
+                ..element,
+                binding: parent.binding,
+                min: case field {
+                  "coding" -> int.max(1, element.min)
+                  _ -> element.min
+                },
+              )
+            False, _ -> element
+          }
+        }
+        Error(_) -> element
+      }
+      // BoundCoding variants only describe a subset of possible constraints.
+      // The record below also handles nested profiles and primitive extensions.
+      let element = case element.binding, element.type_ {
+        Some(codegen_helpers.Binding(strength: "required", available: True, ..)),
+          [codegen_helpers.Type(code: "Coding", ..)]
+        -> {
+          let constrained =
+            list.any(elements, fn(child) {
+              string.starts_with(child.id, element.id <> ".")
+              && {
+                child.min != child.base.min
+                || child.max != child.base.max
+                || codegen_helpers.constant(child) != None
+                || list.any(child.type_, fn(type_) { type_.profile != [] })
+              }
+            })
+          case constrained {
+            True -> codegen_helpers.Element(..element, gleam_type: None)
+            False -> element
+          }
+        }
+        _, _ -> element
+      }
+      let pattern = case parent {
         Ok(codegen_helpers.Element(pattern_identifier: Some(pattern), ..)) ->
           case field {
             "system" -> pattern.system
@@ -4357,23 +4563,6 @@ pub fn profile_files_to_types(
               }
             })
             && !dict.has_key(overrides, root.id)
-            && case root.binding, root.type_ {
-              Some(codegen_helpers.Binding(
-                strength: "required",
-                available: True,
-                ..,
-              )),
-                [codegen_helpers.Type(code: "CodeableConcept", ..)]
-              -> True
-              Some(codegen_helpers.Binding(
-                strength: "required",
-                available: True,
-                ..,
-              )),
-                _
-              -> False
-              _, _ -> True
-            }
             && case root.type_ {
               [type_] ->
                 dict.has_key(base_elements, type_.code)
@@ -4390,6 +4579,12 @@ pub fn profile_files_to_types(
               && {
                 child.min != child.base.min
                 || child.max != child.base.max
+                || {
+                  case dict.get(base_elements, child.base.path) {
+                    Ok(base) -> child.type_ != base.type_
+                    Error(_) -> False
+                  }
+                }
                 || codegen_helpers.constant(child) != None
                 || case child.binding {
                   Some(codegen_helpers.Binding(
@@ -4397,8 +4592,7 @@ pub fn profile_files_to_types(
                     available: True,
                     ..,
                   )) ->
-                    element_type_is(child, "Coding")
-                    && child.binding
+                    child.binding
                     != {
                       dict.get(base_elements, child.base.path)
                       |> result.map(fn(base) { base.binding })
@@ -5644,6 +5838,10 @@ pub fn profile_files_to_types(
                 case
                   root.path == "CodeableConcept"
                   || element_type_is(root, "CodeableConcept")
+                  || root.path == "Coding"
+                  || element_type_is(root, "Coding")
+                  || root.path == "Quantity"
+                  || element_type_is(root, "Quantity")
                 {
                   True -> Ok(#(current_type, canonical_url(url)))
                   False -> Error(Nil)
