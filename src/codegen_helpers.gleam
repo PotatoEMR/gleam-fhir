@@ -1062,10 +1062,21 @@ pub fn concept_name_from_url(url) {
     "9" -> string.concat(["Nine", ..rest])
     _ -> urlname
   }
+  let urlname =
+    list.fold(valueset.all_types, urlname, fn(name, type_) {
+      let type_name = valueset.all_types_to_code(type_)
+      let prefix = type_name |> to_snake_case |> string.replace("_", "-")
+      case string.starts_with(string.lowercase(name), prefix <> "-") {
+        True ->
+          string.lowercase(type_name)
+          <> string.drop_start(name, string.length(prefix))
+        False -> name
+      }
+    })
   urlname
   |> string.replace(" ", "")
+  |> to_camel_case
   |> codetovarname
-  |> string.capitalise
 }
 
 pub type VsOrCs {
@@ -1272,7 +1283,7 @@ pub fn load_valuesets(
           Error(_) -> {
             let definition =
               r4.Valueset(
-                ..r4.valueset_new(valueset.PublicationstatusActive),
+                ..r4.valueset_new(valueset.PublicationStatusActive),
                 url: Some(url),
                 version:,
               )
@@ -2042,34 +2053,6 @@ pub fn codetovarname(c: String) {
     }
   })
   |> string.concat
-}
-
-pub fn gen_choicetype_suffixes(
-  match_var: String,
-  types: List(Type),
-  field_name_new: String,
-) -> String {
-  case types {
-    [_, _, ..] ->
-      string.concat([
-        " <> case ",
-        match_var,
-        " {",
-        list.fold(from: "", over: types, with: fn(suffixes_acc, ct) {
-          let assert [first_letter, ..rest] = ct.code |> string.to_graphemes
-          let capital_ct =
-            string.concat([string.uppercase(first_letter), ..rest])
-          suffixes_acc
-          <> field_name_new
-          <> string.capitalise(ct.code)
-          <> "(_) -> \""
-          <> capital_ct
-          <> "\"\n"
-        }),
-        "}",
-      ])
-    _ -> ""
-  }
 }
 
 pub fn gen_res_encoder(

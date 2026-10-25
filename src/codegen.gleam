@@ -1907,6 +1907,11 @@ fn file_to_types(
                       _ -> #(field_name_new, valueset_acc)
                     }
                     let elt_snake = codegen_helpers.to_snake_case(elt_last_part)
+                    let choice_to_json_field =
+                      snake_type
+                      <> "_"
+                      <> string.lowercase(elt_last_part)
+                      <> "_to_json_field"
                     let #(choicetypes_acc, valueset_acc, constructors) = case
                       elt.type_,
                       set.contains(emitted_types, field_name_new)
@@ -1963,12 +1968,10 @@ fn file_to_types(
                               "}",
                               //each choice type needs its own to_json and decoder
                               "\npub fn ",
-                              snake_type,
-                              "_",
-                              elt_last_part |> string.lowercase(),
-                              "_to_json(element: ",
+                              choice_to_json_field,
+                              "(element: ",
                               field_name_new,
-                              ") -> Json {case element{",
+                              ") -> #(String, Json) {case element{",
                               list.fold(
                                 over: elt.type_,
                                 from: "",
@@ -1978,7 +1981,15 @@ fn file_to_types(
                                     acc,
                                     field_name_new,
                                     string.capitalise(typ.code),
-                                    "(v) -> ",
+                                    "(v) -> #(\"",
+                                    elt_last_part_withgleamtype,
+                                    {
+                                      let assert [first, ..rest] =
+                                        string.to_graphemes(typ.code)
+                                      string.uppercase(first)
+                                      <> string.concat(rest)
+                                    },
+                                    "\", ",
                                     codegen_to_json.string_to_encoder_call(
                                       typ.code,
                                       allparts,
@@ -1986,7 +1997,7 @@ fn file_to_types(
                                       current_bucket,
                                       "v",
                                     ),
-                                    "\n",
+                                    ")\n",
                                   ])
                                 },
                               ),
@@ -2113,10 +2124,7 @@ fn file_to_types(
                         <> "_to_json"
                       }
                       _ ->
-                        snake_type
-                        <> "_"
-                        <> elt_last_part |> string.lowercase()
-                        <> "_to_json"
+                        "fn(value) { " <> choice_to_json_field <> "(value).1 }"
                     }
                     let field_type_encoder_call = fn(value) {
                       case elt.type_ {
@@ -2129,6 +2137,18 @@ fn file_to_types(
                             value,
                           )
                         _ -> field_type_encoder <> "(" <> value <> ")"
+                      }
+                    }
+                    let field_json = fn(value) {
+                      case elt.type_ {
+                        [_, _, ..] ->
+                          choice_to_json_field <> "(" <> value <> ")"
+                        _ ->
+                          "#(\""
+                          <> elt_last_part_withgleamtype
+                          <> "\", "
+                          <> field_type_encoder_call(value)
+                          <> ")"
                       }
                     }
                     // can't just put all encode json args in one big acc in array
@@ -2209,45 +2229,22 @@ fn file_to_types(
                       }
                       0, "1" -> {
                         //optional case to json, in Some case add to fields list
-                        let choicetype_suffixes =
-                          codegen_helpers.gen_choicetype_suffixes(
-                            "v",
-                            elt.type_,
-                            field_name_new,
-                          )
                         let opts =
                           encoder_optional_acc
                           <> "\nlet fields = case "
                           <> field_value
                           <> " {
-                        Some(v) -> [#(\""
-                          <> elt_last_part_withgleamtype
-                          <> "\""
-                          <> choicetype_suffixes
-                          <> ", "
-                          <> field_type_encoder_call("v")
-                          <> "), ..fields]
+                        Some(v) -> ["
+                          <> field_json("v")
+                          <> ", ..fields]
                           None -> fields
                         }"
                         #(opts, encoder_always_acc, decoder_always_failure_acc)
                       }
                       1, "1" -> {
                         //mandatory case to json, put in first fields list
-                        let choicetype_suffixes =
-                          codegen_helpers.gen_choicetype_suffixes(
-                            field_value,
-                            elt.type_,
-                            field_name_new,
-                          )
                         let always =
-                          encoder_always_acc
-                          <> "#(\""
-                          <> elt_last_part_withgleamtype
-                          <> "\""
-                          <> choicetype_suffixes
-                          <> ", "
-                          <> field_type_encoder_call(field_value)
-                          <> "),"
+                          encoder_always_acc <> field_json(field_value) <> ","
                         let decoder_always_failure =
                           decoder_always_failure_acc <> elt_snake <> ":, "
                         #(encoder_optional_acc, always, decoder_always_failure)
@@ -2463,34 +2460,10 @@ fn file_to_types(
                     \"extension\",
                     json.array(children, extension_to_json),
                   )
-                  ExtensionSimple(value) -> extension_simple_to_json(value)
+                  ExtensionSimple(value) -> extension_value_to_json_field(value)
                 }
               }
-              fn extension_simple_to_json(v: ExtensionValue) -> #(String, Json) {
-                #(
-                  \"value\"
-                    <> case v {" <> list.fold(
-                    over: elt.type_,
-                    from: "",
-                    with: fn(acc: String, typ: codegen_helpers.Type) -> String {
-                      string.concat([
-                        acc,
-                        "ExtensionValue",
-                        string.capitalise(typ.code),
-                        "(_) -> \"",
-                        {
-                          let assert [fst, ..rest] =
-                            string.to_graphemes(typ.code)
-                          string.uppercase(fst) <> string.concat(rest)
-                        },
-                        "\"",
-                      ])
-                    },
-                  ) <> "},
-                  extension_value_to_json(v),
-                )
-              }
-              pub fn extension_value_to_json(element: ExtensionValue) -> Json {
+              pub fn extension_value_to_json_field(element: ExtensionValue) -> #(String, Json) {
                 case element {
                   " <> list.fold(
                     over: elt.type_,
@@ -2500,7 +2473,13 @@ fn file_to_types(
                         acc,
                         "ExtensionValue",
                         string.capitalise(typ.code),
-                        "(v) -> ",
+                        "(v) -> #(\"value",
+                        {
+                          let assert [first, ..rest] =
+                            string.to_graphemes(typ.code)
+                          string.uppercase(first) <> string.concat(rest)
+                        },
+                        "\", ",
                         codegen_to_json.string_to_encoder_call(
                           typ.code,
                           [],
@@ -2508,7 +2487,7 @@ fn file_to_types(
                           codegen_helpers.ComplexTypes,
                           "v",
                         ),
-                        "\n",
+                        ")\n",
                       ])
                     },
                   ) <> "
@@ -2703,12 +2682,11 @@ fn add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
 
       let forgiving_resource_decoder =
         "decode.optional(
-      decode.one_of(resource_decoder() |> decode.map(Ok), [
-        decode.dynamic
-        |> decode.map(fn(resource_json) {
-          decode.run(resource_json, resource_decoder())
-        }),
-      ]),
+      decode.dynamic
+      |> decode.map(fn(resource_json) {
+        // decode.run returns Ok(resource) or Error(errs) as forgiving bundle decoder wants to preserve errors instead of failing whole bundle decoder
+        decode.run(resource_json, resource_decoder())
+      }),
     )"
 
       let decoder =
@@ -2856,7 +2834,7 @@ fn valueset_type_source(
     })
   let valueset_items =
     "pub const "
-    <> string.lowercase(vsname)
+    <> codegen_helpers.to_snake_case(vsname)
     <> ": List("
     <> vsname
     <> ") = ["
@@ -2919,7 +2897,7 @@ fn valueset_type_source(
   }
   let failure_variant_replacements = [
     #(
-      "valueset." <> string.lowercase(vsname) <> "_failure_variant",
+      "valueset." <> codegen_helpers.to_snake_case(vsname) <> "_failure_variant",
       "valueset."
         <> codegen_bound_coding.valueset_failure_variant_source(vsname, codes),
     ),
@@ -3040,7 +3018,7 @@ fn valueset_to_types(
 }
 
 fn gen_valueset_encoder(vsname: String) -> String {
-  let vsname_lower = vsname |> string.lowercase()
+  let vsname_lower = codegen_helpers.to_snake_case(vsname)
   let template =
     "pub fn CNAMELOWER_to_json(CNAMELOWER: CNAMECAPITAL) -> Json {
     json.string(CNAMELOWER_to_code(CNAMELOWER))
@@ -3048,7 +3026,7 @@ fn gen_valueset_encoder(vsname: String) -> String {
   "
   template
   |> string.replace("CNAMELOWER", vsname_lower)
-  |> string.replace("CNAMECAPITAL", vsname |> string.capitalise())
+  |> string.replace("CNAMECAPITAL", vsname)
 }
 
 //  <> list.fold(open_variants, "", fn(acc, open_variant) {
@@ -3059,7 +3037,7 @@ fn gen_valueset_to_code(
   vsname: String,
   vs_codes: List(codegen_bound_coding.ValuesetCodeWithSystem),
 ) -> String {
-  let vsname_lower = vsname |> string.lowercase()
+  let vsname_lower = codegen_helpers.to_snake_case(vsname)
   let template =
     "pub fn "
     <> vsname_lower
@@ -3094,7 +3072,7 @@ fn gen_valueset_decoder(
   vsname: String,
   vs_codes: List(codegen_bound_coding.ValuesetCodeWithSystem),
 ) -> String {
-  let vsname_lower = vsname |> string.lowercase()
+  let vsname_lower = codegen_helpers.to_snake_case(vsname)
   let fallback = case vs_codes {
     [codegen_bound_coding.ValuesetCodeWithSystem(variant:, ..), ..] ->
       "not_included_failure(variant, "
@@ -3125,7 +3103,7 @@ fn gen_valueset_from_code(
   vsname: String,
   vs_codes: List(codegen_bound_coding.ValuesetCodeWithSystem),
 ) -> String {
-  let vsname_lower = vsname |> string.lowercase()
+  let vsname_lower = codegen_helpers.to_snake_case(vsname)
   //   let fallback = case open_variants {
   //     [codegen_bound_coding.OpenValuesetVariant(name:, ..), ..] ->
   //       "Ok(" <> name <> "(code))"

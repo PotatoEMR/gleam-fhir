@@ -471,13 +471,6 @@ pub fn shared_type(
                 |> string.replace("[x]", "")
                 |> json.string
                 |> json.to_string
-              let json_name =
-                json_name
-                <> codegen_helpers.gen_choicetype_suffixes(
-                  "value",
-                  field.type_,
-                  field_type(field),
-                )
               let encode = case field.type_ {
                 [type_] ->
                   codegen_to_json.string_to_encoder_call(
@@ -487,9 +480,18 @@ pub fn shared_type(
                     codegen_helpers.ComplexTypes,
                     "value",
                   )
-                _ ->
+                [_, _, ..] ->
+                  codegen_helpers.to_snake_case(field_type(field))
+                  <> "_to_json_field(value).1"
+                [] ->
                   codegen_helpers.to_snake_case(field_type(field))
                   <> "_to_json(value)"
+              }
+              let json_field = case field.type_ {
+                [_, _, ..] ->
+                  codegen_helpers.to_snake_case(field_type(field))
+                  <> "_to_json_field(value)"
+                _ -> "#(" <> json_name <> ", " <> encode <> ")"
               }
               source
               <> case
@@ -501,19 +503,15 @@ pub fn shared_type(
                 "1", True ->
                   "let value = "
                   <> value
-                  <> "\nlet fields = [#("
-                  <> json_name
-                  <> ", "
-                  <> encode
-                  <> "), ..fields]\n"
+                  <> "\nlet fields = ["
+                  <> json_field
+                  <> ", ..fields]\n"
                 "1", False ->
                   "let fields = case "
                   <> value
-                  <> " { Some(value) -> [#("
-                  <> json_name
-                  <> ", "
-                  <> encode
-                  <> "), ..fields] None -> fields }\n"
+                  <> " { Some(value) -> ["
+                  <> json_field
+                  <> ", ..fields] None -> fields }\n"
                 _, _ ->
                   "let fields = case "
                   <> value

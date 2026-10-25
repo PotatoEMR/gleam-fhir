@@ -431,7 +431,7 @@ pub const bound_quantity =
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(valueset.Quantitycomparator),
+    comparator: Option(valueset.QuantityComparator),
     unit: Option(String),
     code: Option(required_binding)
   )
@@ -462,7 +462,7 @@ pub fn bound_quantity_to_json(quantity: BoundQuantity(required_binding), get_cod
   }
   let fields = case quantity.comparator {
     Some(v) -> [
-      #(\"comparator\", valueset.quantitycomparator_to_json(v)),
+      #(\"comparator\", valueset.quantity_comparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -513,7 +513,7 @@ fn bound_quantity_decode_rest(with_binding: Option(required_binding)) -> Decoder
   use comparator <- decode.optional_field(
     \"comparator\",
     None,
-    decode.optional(valueset.quantitycomparator_decoder()),
+    decode.optional(valueset.quantity_comparator_decoder()),
   )
   use value <- decode.optional_field(
     \"value\",
@@ -685,7 +685,7 @@ pub fn gen_valueset_from_code_and_system(
   vs_codes: List(ValuesetCodeWithSystem),
   with_type: Bool,
 ) -> String {
-  let vsname_lower = string.lowercase(vsname)
+  let vsname_lower = codegen_helpers.to_snake_case(vsname)
   let template =
     "pub fn "
     <> vsname_lower
@@ -724,7 +724,7 @@ pub fn gen_valueset_system(
   vs_codes: List(ValuesetCodeWithSystem),
   systems: Set(String),
 ) -> String {
-  let vsname_lower = string.lowercase(vsname)
+  let vsname_lower = codegen_helpers.to_snake_case(vsname)
   case set.to_list(systems) {
     [system] ->
       "pub fn "

@@ -768,12 +768,17 @@ pub fn profile_field_to_json_source(
   element: codegen_helpers.Element,
   field_name: String,
   json_name: String,
-  json_suffix: String,
   encoder: String,
   encoder_call: fn(String) -> String,
   card_min: Int,
 ) -> #(String, String) {
-  let key = "\"" <> json_name <> "\"" <> json_suffix
+  let key = "\"" <> json_name <> "\""
+  let single = fn(value) {
+    case element.type_ {
+      [_, _, ..] -> encoder_call(value)
+      _ -> "#(" <> key <> ", " <> encoder_call(value) <> ")"
+    }
+  }
   let always = fn(value) { "#(" <> key <> ", " <> value <> ")," }
   let present = fn(pattern, value) {
     pattern <> " -> [#(" <> key <> ", " <> value <> "), ..fields]"
@@ -813,9 +818,9 @@ pub fn profile_field_to_json_source(
     )
     "1", "1", 0 -> #(
       "",
-      optional(present("Some(v)", encoder_call("v")), "None -> fields"),
+      optional("Some(v) -> [" <> single("v") <> ", ..fields]", "None -> fields"),
     )
-    "1", "1", 1 -> #(always(encoder_call(field_name)), "")
+    "1", "1", 1 -> #(single(field_name) <> ",", "")
     "1", _, 0 -> #(
       "",
       optional(
@@ -945,6 +950,10 @@ pub fn profile_element_encoder_type(
                         element,
                         current_bucket,
                       )
+                    _, [_, _, ..] ->
+                      "fn(value) { "
+                      <> codegen_helpers.to_snake_case(base_field_type)
+                      <> "_to_json_field(value).1 }"
                     _, _ ->
                       codegen_helpers.to_snake_case(base_field_type)
                       <> "_to_json"
@@ -3656,7 +3665,9 @@ pub fn constructor_placeholder(
                 "Time", _ -> "pt.Time(0, 0, 0, None)"
                 "Instant", _ -> "pt.instant_failure_variant"
                 _, ["valueset", type_] ->
-                  "valueset." <> string.lowercase(type_) <> "_failure_variant"
+                  "valueset."
+                  <> codegen_helpers.to_snake_case(type_)
+                  <> "_failure_variant"
                 _, _ -> panic as { "missing constructor definition for " <> key }
               }
             }
@@ -8456,15 +8467,6 @@ pub fn generate_to_json(
                       <> ")"
                   }
                 }
-                let suffix =
-                  codegen_helpers.gen_choicetype_suffixes(
-                    case card_min {
-                      0 -> "v"
-                      _ -> field_value
-                    },
-                    element.type_,
-                    choice_type,
-                  )
                 let #(new_always, new_optional) = case primitive_choices {
                   True -> {
                     let assert "1" = element.max
@@ -8488,17 +8490,26 @@ pub fn generate_to_json(
                       },
                     )
                   }
-                  False ->
+                  False -> {
+                    let encoder_call = case element.type_ {
+                      [_, _, ..] -> fn(value) {
+                        codegen_helpers.to_snake_case(choice_type)
+                        <> "_to_json_field("
+                        <> value
+                        <> ")"
+                      }
+                      _ -> encoder_call
+                    }
                     profile_field_to_json_source(
                       current_bucket,
                       element,
                       field_value,
                       json_field_name,
-                      suffix,
                       encoder,
                       encoder_call,
                       card_min,
                     )
+                  }
                 }
                 let new_choice_encoders = case element.type_ {
                   [] | [_] -> ""
@@ -8522,7 +8533,17 @@ pub fn generate_to_json(
                             "value",
                           )
                         let call = case primitive_choices {
-                          False -> call
+                          False ->
+                            "#(\""
+                            <> json_field_name
+                            <> {
+                              let assert [first, ..rest] =
+                                string.to_graphemes(choice.code)
+                              string.uppercase(first) <> string.concat(rest)
+                            }
+                            <> "\", "
+                            <> call
+                            <> ")"
                           True -> {
                             let json_name = profile_json_field_name(source, "")
                             case
@@ -8565,12 +8586,12 @@ pub fn generate_to_json(
                     <> case primitive_choices {
                       True ->
                         "_to_json_fields(fields: List(#(String, Json)), value: "
-                      False -> "_to_json(value: "
+                      False -> "_to_json_field(value: "
                     }
                     <> choice_type
                     <> case primitive_choices {
                       True -> ") -> List(#(String, Json)) {\n  case value {\n"
-                      False -> ") -> Json {\n  case value {\n"
+                      False -> ") -> #(String, Json) {\n  case value {\n"
                     }
                     <> cases
                     <> "  }\n}\n\n"

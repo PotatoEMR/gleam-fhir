@@ -545,7 +545,7 @@ pub fn gen(
   //   GroupedResources(..acc, account: [r, ..acc.account])"
   let bundle_to_gt =
     "pub fn bundle_to_groupedresources(from bundle: resource.Bundle) -> GroupedResources {
-      list.fold(from: groupedresources_new(), over: bundle.entry, with: fn(acc, entry) {
+      list.fold(from: groupedresources_new(), over: list.reverse(bundle.entry), with: fn(acc, entry) {
         case entry.resource {
           None -> acc
           Some(resource) ->

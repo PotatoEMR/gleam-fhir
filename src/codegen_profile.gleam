@@ -676,6 +676,21 @@ fn load_profile_files(
           list.contains(gen_specific_resources, string.lowercase(resource.name))
       }
     })
+    |> list.map(fn(resource) {
+      let assert Some(type_) = resource.type_
+      let prefix = string.drop_end(resource.id, string.length(type_))
+      // adding - to get PotatoAllergyintolerance instead of Potatoallergyintolerance and potato_allergyintolerance_new instead of potatoallergyintolerance_new
+      case
+        string.ends_with(string.lowercase(resource.id), string.lowercase(type_))
+        && prefix != ""
+        && !string.ends_with(prefix, "-")
+        && !string.ends_with(prefix, "_")
+        && !string.ends_with(prefix, ".")
+      {
+        True -> codegen_helpers.Resource(..resource, id: prefix <> "-" <> type_)
+        False -> resource
+      }
+    })
   let datatype_profile_urls =
     resources
     |> list.flat_map(fn(resource) {
