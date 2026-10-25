@@ -1,6 +1,6 @@
 ////[https://hl7.org/fhir/r4](https://hl7.org/fhir/r4) r4 sans-io request/response helpers suitable for building clients on top of, such as fhirclient_httpc.gleam and fhirclient_rsvp.gleam
 
-import fhir/r4_gen/resources
+import fhir/r4_gen/resource
 import gleam/dynamic/decode
 import gleam/http
 import gleam/http/request.{type Request, Request}
@@ -13,12 +13,12 @@ import gleam/result
 import gleam/string
 import gleam/uri
 
-import fhir/r4_gen/complex_types
+import fhir/r4_gen/complex_type
 import gleam/bool
 import gleam/set
 
 /// FHIR client for sending http requests to server such as
-/// `let pat = resources.patient_read("123", client)`
+/// `let pat = resource.patient_read("123", client)`
 ///
 /// create client from server base url with fhirclient_new(baseurl)`
 ///
@@ -31,8 +31,8 @@ import gleam/set
 /// `let assert Ok(client) = sansio.fhirclient_new("127.0.0.1:8000")`
 pub type FhirClient {
   FhirClient(
-    baseurl: uri.Uri,
-    basereq: Request(Option(Json)),
+    base_url: uri.Uri,
+    base_request: Request(Option(Json)),
     print_sent_requests: Logging,
     print_received_responses: Logging,
   )
@@ -63,13 +63,13 @@ pub fn fhirclient_new(
   }
   case uri.parse(in_url) {
     Error(_) -> Error(UriParseFail)
-    Ok(baseurl) ->
-      case baseurl.host {
+    Ok(base_url) ->
+      case base_url.host {
         None -> Error(UriNoHost)
         Some(host) -> {
-          case baseurl.scheme {
-            Some("http") -> Ok(create_base_req(http.Http, host, baseurl))
-            Some("https") -> Ok(create_base_req(http.Https, host, baseurl))
+          case base_url.scheme {
+            Some("http") -> Ok(create_base_request(http.Http, host, base_url))
+            Some("https") -> Ok(create_base_request(http.Https, host, base_url))
             _ -> Error(UriNoHttpOrHttps)
           }
         }
@@ -81,7 +81,7 @@ pub fn fhirclient_new(
 pub fn set_access_token(client: FhirClient, token: String) -> FhirClient {
   FhirClient(
     ..client,
-    basereq: client.basereq
+    base_request: client.base_request
       |> request.set_header("authorization", "Bearer " <> token),
   )
 }
@@ -99,59 +99,59 @@ pub type Logging {
   LoggingOff
 }
 
-fn create_base_req(
+fn create_base_request(
   scheme: http.Scheme,
   host: String,
-  baseurl: uri.Uri,
+  base_url: uri.Uri,
 ) -> FhirClient {
-  let basereq =
+  let base_request =
     Request(
       method: http.Get,
       headers: [#("accept", "application/fhir+json")],
       body: None,
       scheme:,
       host:,
-      port: baseurl.port,
-      path: case string.ends_with(baseurl.path, "/") {
-        True -> string.drop_end(baseurl.path, 1)
-        False -> baseurl.path
+      port: base_url.port,
+      path: case string.ends_with(base_url.path, "/") {
+        True -> string.drop_end(base_url.path, 1)
+        False -> base_url.path
       },
       query: None,
     )
   FhirClient(
-    baseurl:,
-    basereq:,
+    base_url:,
+    base_request:,
     print_sent_requests: LoggingOff,
     print_received_responses: LoggingOff,
   )
 }
 
-pub type ErrResp {
+pub type ErrResponse {
   ///got json but could not parse it, probably a missing required field
   ErrParseJson(json.DecodeError)
   ///did not get resource json, often server eg nginx gives basic html response or empty body with http headers/status code
   ErrServer(Response(String))
   ///got operationoutcome error from fhir server
-  ErrOperationoutcome(resources.Operationoutcome)
+  ErrOperationoutcome(resource.Operationoutcome)
 }
 
 /// convert error response to string,
 /// either from a server error response
 /// or problem parsing server's returned resource
-pub fn err_resp_to_string(err: ErrResp) -> String {
+pub fn err_response_to_string(err: ErrResponse) -> String {
   case err {
-    ErrServer(err) -> "server error: " <> resp_to_string(err)
+    ErrServer(err) -> "server error: " <> response_to_string(err)
     ErrOperationoutcome(err) ->
       case err.issue.rest {
         [] ->
           "OperationOutcome: "
           <> err.issue.first
-          |> resources.operationoutcome_issue_to_json
+          |> resource.operationoutcome_issue_to_json
           |> json.to_string
         _ ->
           "OperationOutcome issues: "
           <> [err.issue.first, ..err.issue.rest]
-          |> list.map(resources.operationoutcome_issue_to_json)
+          |> list.map(resource.operationoutcome_issue_to_json)
           |> json.preprocessed_array
           |> json.to_string
       }
@@ -176,25 +176,25 @@ pub fn err_resp_to_string(err: ErrResp) -> String {
   }
 }
 
-pub type ErrReq {
+pub type ErrRequest {
   ///could not make an update request because resource has no id
   ErrNoId
 }
 
-pub const err_req_to_string =
+pub const err_request_to_string =
   "the resource you're using has no id, but a resource id is needed for this operation"
 
-pub fn any_create_req(
+pub fn any_create_request(
   resource_json: Json,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
 ) -> Request(Option(Json)) {
-  client.basereq
+  client.base_request
   |> request.set_path(
     string.concat([
-      client.basereq.path,
+      client.base_request.path,
       "/",
-      resources.resource_type_to_string(res_type),
+      resource.resource_type_to_string(resource_type),
     ]),
   )
   |> request.set_header("Content-Type", "application/fhir+json")
@@ -203,39 +203,39 @@ pub fn any_create_req(
   |> request.set_method(http.Post)
 }
 
-pub fn any_read_req(
+pub fn any_read_request(
   id: String,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
 ) -> Request(Option(Json)) {
-  client.basereq
+  client.base_request
   |> request.set_path(
     string.concat([
-      client.basereq.path,
+      client.base_request.path,
       "/",
-      resources.resource_type_to_string(res_type),
+      resource.resource_type_to_string(resource_type),
       "/",
       id,
     ]),
   )
 }
 
-pub fn any_update_req(
+pub fn any_update_request(
   id: Option(String),
   resource_json: Json,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
-) -> Result(Request(Option(Json)), ErrReq) {
+) -> Result(Request(Option(Json)), ErrRequest) {
   case id {
     None -> Error(ErrNoId)
     Some(id) ->
       Ok(
-        client.basereq
+        client.base_request
         |> request.set_path(
           string.concat([
-            client.basereq.path,
+            client.base_request.path,
             "/",
-            resources.resource_type_to_string(res_type),
+            resource.resource_type_to_string(resource_type),
             "/",
             id,
           ]),
@@ -248,17 +248,17 @@ pub fn any_update_req(
   }
 }
 
-pub fn any_delete_req(
+pub fn any_delete_request(
   id: String,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
 ) -> Request(Option(Json)) {
-  client.basereq
+  client.base_request
   |> request.set_path(
     string.concat([
-      client.basereq.path,
+      client.base_request.path,
       "/",
-      resources.resource_type_to_string(res_type),
+      resource.resource_type_to_string(resource_type),
       "/",
       id,
     ]),
@@ -266,59 +266,59 @@ pub fn any_delete_req(
   |> request.set_method(http.Delete)
 }
 
-pub fn any_search_req(
+pub fn any_search_request(
   search_string: String,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
 ) -> Request(Option(Json)) {
   Request(
-    ..client.basereq,
+    ..client.base_request,
     path: string.concat([
-      client.basereq.path,
+      client.base_request.path,
       "/",
-      resources.resource_type_to_string(res_type),
+      resource.resource_type_to_string(resource_type),
     ]),
     query: Some(search_string),
   )
 }
 
-pub fn any_operation_req(
-  res_type: resources.ResourceType,
-  res_id: Option(String),
+pub fn any_operation_request(
+  resource_type: resource.ResourceType,
+  resource_id: Option(String),
   operation_name: String,
-  params: Option(resources.Parameters),
+  params: Option(resource.Parameters),
   client: FhirClient,
 ) -> Request(Option(Json)) {
-  let path = case res_id {
-    Some(res_id) ->
+  let path = case resource_id {
+    Some(resource_id) ->
       string.concat([
-        client.basereq.path,
+        client.base_request.path,
         "/",
-        resources.resource_type_to_string(res_type),
+        resource.resource_type_to_string(resource_type),
         "/",
-        res_id,
+        resource_id,
         "/$",
         operation_name,
       ])
     None ->
       string.concat([
-        client.basereq.path,
+        client.base_request.path,
         "/",
-        resources.resource_type_to_string(res_type),
+        resource.resource_type_to_string(resource_type),
         "/$",
         operation_name,
       ])
   }
-  let req =
-    client.basereq
+  let http_request =
+    client.base_request
     |> request.set_path(path)
     |> request.set_header("Content-Type", "application/fhir+json")
     |> request.set_header("Prefer", "return=representation")
   case params {
-    None -> req
+    None -> http_request
     Some(params) ->
-      req
-      |> request.set_body(params |> resources.parameters_to_json |> Some)
+      http_request
+      |> request.set_body(params |> resource.parameters_to_json |> Some)
       |> request.set_method(http.Post)
   }
 }
@@ -329,19 +329,24 @@ pub fn any_operation_req(
 /// - Operationoutcome error
 /// - non json http response
 pub fn any_response(
-  resp: Response(String),
+  http_response: Response(String),
   resource_decoder: decode.Decoder(resource_type),
-) -> Result(resource_type, ErrResp) {
-  case resp.status < 300 {
+) -> Result(resource_type, ErrResponse) {
+  case http_response.status < 300 {
     True ->
-      resp.body
+      http_response.body
       |> json.parse(resource_decoder)
       |> result.map_error(ErrParseJson)
     False ->
-      Error(case resp.body |> json.parse(resources.operationoutcome_decoder()) {
-        Ok(decoded_oo) -> ErrOperationoutcome(decoded_oo)
-        Error(_) -> ErrServer(resp)
-      })
+      Error(
+        case
+          http_response.body |> json.parse(resource.operationoutcome_decoder())
+        {
+          Ok(decoded_operation_outcome) ->
+            ErrOperationoutcome(decoded_operation_outcome)
+          Error(_) -> ErrServer(http_response)
+        },
+      )
     // here if operationoutcome fails to decode, we discard the error
     // and instead return response with body as string
     // technically, body might have been a malformed operationoutcome
@@ -355,24 +360,35 @@ pub fn any_response(
 
 //
 pub fn delete_response(
-  resp: Response(String),
-) -> Result(OperationoutcomeOrHTTP, ErrResp) {
-  case resp.status < 300 {
+  http_response: Response(String),
+) -> Result(OperationoutcomeOrHttp, ErrResponse) {
+  case http_response.status < 300 {
     True ->
-      Ok(case resp.body |> json.parse(resources.operationoutcome_decoder()) {
-        Ok(decoded_oo) -> SuccessOperationoutcome(decoded_oo)
-        Error(_) -> SuccessHttpResponse(response.Response(..resp, body: Nil))
-      })
+      Ok(
+        case
+          http_response.body |> json.parse(resource.operationoutcome_decoder())
+        {
+          Ok(decoded_operation_outcome) ->
+            SuccessOperationoutcome(decoded_operation_outcome)
+          Error(_) ->
+            SuccessHttpResponse(response.Response(..http_response, body: Nil))
+        },
+      )
     False ->
-      Error(case resp.body |> json.parse(resources.operationoutcome_decoder()) {
-        Ok(decoded_oo) -> ErrOperationoutcome(decoded_oo)
-        Error(_) -> ErrServer(resp)
-      })
+      Error(
+        case
+          http_response.body |> json.parse(resource.operationoutcome_decoder())
+        {
+          Ok(decoded_operation_outcome) ->
+            ErrOperationoutcome(decoded_operation_outcome)
+          Error(_) -> ErrServer(http_response)
+        },
+      )
   }
 }
 
-pub type OperationoutcomeOrHTTP {
-  SuccessOperationoutcome(resources.Operationoutcome)
+pub type OperationoutcomeOrHttp {
+  SuccessOperationoutcome(resource.Operationoutcome)
   SuccessHttpResponse(Response(Nil))
 }
 
@@ -384,25 +400,25 @@ pub type PostBundleType {
   Batch
 }
 
-pub fn batch_req(
-  reqs: List(Request(Option(Json))),
+pub fn batch_request(
+  http_requests: List(Request(Option(Json))),
   bundle_type: PostBundleType,
   client: FhirClient,
 ) -> Request(Option(Json)) {
   // each request in list already has serialized json body
   // so we have to construct bundle json as json
   // rather than type safe bundle Bundle variable then serialize
-  let base_len = string.length(client.basereq.path) + 1
+  let base_path_length = string.length(client.base_request.path) + 1
   // request path is minus server base part
   // eg http://hapi.fhir.org/baseR4/Immunization/123 -> Immunization/123
   let entries =
-    reqs
-    |> list.map(fn(req) {
-      let entry_req =
+    http_requests
+    |> list.map(fn(http_request) {
+      let entry_request =
         json.object([
           #(
             "method",
-            case req.method {
+            case http_request.method {
               http.Get -> "GET"
               http.Post -> "POST"
               http.Put -> "PUT"
@@ -416,20 +432,20 @@ pub fn batch_req(
           #(
             "url",
             json.string(
-              string.drop_start(req.path, base_len)
-              <> case req.query {
+              string.drop_start(http_request.path, base_path_length)
+              <> case http_request.query {
                 None -> ""
                 Some(query) -> "?" <> query
               },
             ),
           ),
         ])
-      let obj = [#("request", entry_req)]
-      let obj = case req.body {
-        None -> obj
-        Some(resource) -> [#("resource", resource), ..obj]
+      let entry_fields = [#("request", entry_request)]
+      let entry_fields = case http_request.body {
+        None -> entry_fields
+        Some(resource) -> [#("resource", resource), ..entry_fields]
       }
-      json.object(obj)
+      json.object(entry_fields)
     })
   let bundle_type = case bundle_type {
     Transaction -> "transaction"
@@ -441,45 +457,45 @@ pub fn batch_req(
       #("type", json.string(bundle_type)),
       #("entry", json.preprocessed_array(entries)),
     ])
-  client.basereq
+  client.base_request
   |> request.set_header("Prefer", "return=representation")
   |> request.set_header("Content-Type", "application/fhir+json")
   |> request.set_body(Some(batch_bundle))
   |> request.set_method(http.Post)
 }
 
-pub fn bundle_next_page_req(
-  bundle: resources.Bundle,
+pub fn bundle_next_page_request(
+  bundle: resource.Bundle,
   client: FhirClient,
 ) -> Result(Request(Option(Json)), Nil) {
   result.try(list.find(bundle.link, fn(l) { l.relation == "next" }), fn(link) {
     result.try(uri.parse(link.url), fn(uri) {
-      Ok(Request(..client.basereq, path: uri.path, query: uri.query))
+      Ok(Request(..client.base_request, path: uri.path, query: uri.query))
     })
   })
 }
 
-pub fn bundle_next_page_req_forgiving(
-  bundle: resources.BundleForgiving,
+pub fn bundle_next_page_request_forgiving(
+  bundle: resource.BundleForgiving,
   client: FhirClient,
 ) -> Result(Request(Option(Json)), Nil) {
   result.try(list.find(bundle.link, fn(l) { l.relation == "next" }), fn(link) {
     result.try(uri.parse(link.url), fn(uri) {
-      Ok(Request(..client.basereq, path: uri.path, query: uri.query))
+      Ok(Request(..client.base_request, path: uri.path, query: uri.query))
     })
   })
 }
 
-pub fn req_to_string(req: Request(Option(Json))) -> String {
-  let to_uri = req |> request.to_uri |> uri.to_string
-  let method = req.method |> http.method_to_string
+pub fn request_to_string(http_request: Request(Option(Json))) -> String {
+  let to_uri = http_request |> request.to_uri |> uri.to_string
+  let method = http_request.method |> http.method_to_string
   let headers =
-    req.headers
-    |> list.map(fn(hdr) { hdr.0 <> ": " <> hdr.1 })
+    http_request.headers
+    |> list.map(fn(header) { header.0 <> ": " <> header.1 })
     |> string.join("; ")
 
   //kind of duplicating but want to put body at end and maybe this performs better? idk maybe doesn't matter
-  case req.body {
+  case http_request.body {
     Some(body) -> [
       "to uri:  " <> to_uri,
       "method:  " <> method,
@@ -495,22 +511,22 @@ pub fn req_to_string(req: Request(Option(Json))) -> String {
   |> string.join("\n")
 }
 
-pub fn resp_to_string(resp: Response(String)) -> String {
-  let status = resp.status |> int.to_string
+pub fn response_to_string(http_response: Response(String)) -> String {
+  let status = http_response.status |> int.to_string
   let headers =
-    resp.headers
-    |> list.map(fn(hdr) { hdr.0 <> ": " <> hdr.1 })
+    http_response.headers
+    |> list.map(fn(header) { header.0 <> ": " <> header.1 })
     |> string.join("; ")
   [
     "status:  " <> status,
     "headers: " <> headers,
-    "body:    " <> resp.body,
+    "body:    " <> http_response.body,
   ]
   |> string.join("\n")
 }
 
 pub type SansioValuesetErr {
-  ValuesetResponseError(ErrResp)
+  ValuesetResponseError(ErrResponse)
   ValuesetMissingExpansion
   ValuesetUnexpectedOffset
   ValuesetNestedEntries
@@ -525,65 +541,65 @@ pub type SansioValuesetErr {
 /// Progress while collecting a flat ValueSet expansion.
 pub opaque type ValuesetExpandState {
   ValuesetExpandState(
-    params: resources.Parameters,
+    params: resource.Parameters,
     offset: Int,
     total: Option(Int),
-    pages: List(List(resources.ValuesetExpansionContains)),
+    pages: List(List(resource.ValuesetExpansionContains)),
     codes: set.Set(#(String, String)),
     versions: set.Set(
-      #(String, Option(resources.ValuesetExpansionParameterValue)),
+      #(String, Option(resource.ValuesetExpansionParameterValue)),
     ),
   )
 }
 
 pub type ValuesetExpandStep {
   ValuesetExpandNext(request: Request(Option(Json)), state: ValuesetExpandState)
-  ValuesetExpandDone(value_set: resources.Valueset)
+  ValuesetExpandDone(value_set: resource.Valueset)
 }
 
 /// Start expanding a supplied ValueSet definition, requesting flat pages.
-pub fn valueset_expand_req(
-  value_set: resources.Valueset,
+pub fn valueset_expand_request(
+  value_set: resource.Valueset,
   client: FhirClient,
 ) -> ValuesetExpandStep {
   let target = case value_set.compose, value_set.url {
     None, Some(url) -> [
-      resources.ParametersParameter(
-        ..resources.parameters_parameter_new("url"),
-        value: Some(resources.ParametersParameterValueUri(url)),
+      resource.ParametersParameter(
+        ..resource.parameters_parameter_new("url"),
+        value: Some(resource.ParametersParameterValueUri(url)),
       ),
       ..case value_set.version {
         None -> []
         Some(version) -> [
-          resources.ParametersParameter(
-            ..resources.parameters_parameter_new("valueSetVersion"),
-            value: Some(resources.ParametersParameterValueString(version)),
+          resource.ParametersParameter(
+            ..resource.parameters_parameter_new("valueSetVersion"),
+            value: Some(resource.ParametersParameterValueString(version)),
           ),
         ]
       }
     ]
     _, _ -> [
-      resources.ParametersParameter(
-        ..resources.parameters_parameter_new("valueSet"),
-        resource: Some(resources.ResourceValueset(value_set)),
+      resource.ParametersParameter(
+        ..resource.parameters_parameter_new("valueSet"),
+        resource: Some(resource.ResourceValueset(value_set)),
       ),
     ]
   }
   let params =
-    resources.Parameters(..resources.parameters_new(), parameter: [
-      resources.ParametersParameter(
-        ..resources.parameters_parameter_new("count"),
-        value: Some(resources.ParametersParameterValueInteger(1000)),
+    resource.Parameters(..resource.parameters_new(), parameter: [
+      resource.ParametersParameter(
+        ..resource.parameters_parameter_new("count"),
+        value: Some(resource.ParametersParameterValueInteger(1000)),
       ),
-      resources.ParametersParameter(
-        ..resources.parameters_parameter_new("excludeNested"),
-        value: Some(resources.ParametersParameterValueBoolean(True)),
+      resource.ParametersParameter(
+        ..resource.parameters_parameter_new("excludeNested"),
+        value: Some(resource.ParametersParameterValueBoolean(True)),
       ),
       ..target
     ])
   ValuesetExpandNext(
-    any_operation_req(
-      resources.RtValueset,
+    any_operation_request(
+      resource.ResourceTypeValueset,
       None,
       "expand",
       Some(params),
@@ -602,7 +618,7 @@ pub fn valueset_expand_req(
 
 /// Check a decoded page and return the next request or the combined ValueSet.
 pub fn valueset_expand_response(
-  value_set: resources.Valueset,
+  value_set: resource.Valueset,
   state: ValuesetExpandState,
   client: FhirClient,
 ) -> Result(ValuesetExpandStep, SansioValuesetErr) {
@@ -622,8 +638,8 @@ pub fn valueset_expand_response(
     list.any(expansion.extension, fn(extension) {
       extension.url
       == "http://hl7.org/fhir/StructureDefinition/valueset-unclosed"
-      && extension.ext
-      == complex_types.ExtSimple(complex_types.ExtensionValueBoolean(True))
+      && extension.extension
+      == complex_type.ExtensionSimple(complex_type.ExtensionValueBoolean(True))
     }),
     Error(ValuesetIncompleteExpansion),
   )
@@ -682,16 +698,16 @@ pub fn valueset_expand_response(
   case more {
     True -> {
       let params =
-        resources.Parameters(..state.params, parameter: [
-          resources.ParametersParameter(
-            ..resources.parameters_parameter_new("offset"),
-            value: Some(resources.ParametersParameterValueInteger(next_offset)),
+        resource.Parameters(..state.params, parameter: [
+          resource.ParametersParameter(
+            ..resource.parameters_parameter_new("offset"),
+            value: Some(resource.ParametersParameterValueInteger(next_offset)),
           ),
           ..state.params.parameter
         ])
       Ok(ValuesetExpandNext(
-        any_operation_req(
-          resources.RtValueset,
+        any_operation_request(
+          resource.ResourceTypeValueset,
           None,
           "expand",
           Some(params),
@@ -711,10 +727,10 @@ pub fn valueset_expand_response(
       let contains =
         list.fold(pages, [], fn(acc, items) { list.append(items, acc) })
       Ok(ValuesetExpandDone(
-        resources.Valueset(
+        resource.Valueset(
           ..value_set,
           expansion: Some(
-            resources.ValuesetExpansion(
+            resource.ValuesetExpansion(
               ..expansion,
               contains:,
               total: Some(next_offset),
@@ -732,10 +748,11 @@ pub fn valueset_expand_response(
 
 pub type GroupedResources {
   GroupedResources(
-    bundle: List(resources.Bundle),
-    codesystem: List(resources.Codesystem),
-    operationoutcome: List(resources.Operationoutcome),
-    valueset: List(resources.Valueset),
+    bundle: List(resource.Bundle),
+    codesystem: List(resource.Codesystem),
+    operationoutcome: List(resource.Operationoutcome),
+    parameters: List(resource.Parameters),
+    valueset: List(resource.Valueset),
   )
 }
 
@@ -744,12 +761,13 @@ pub fn groupedresources_new() -> GroupedResources {
     bundle: [],
     codesystem: [],
     operationoutcome: [],
+    parameters: [],
     valueset: [],
   )
 }
 
 pub fn bundle_to_groupedresources(
-  from bundle: resources.Bundle,
+  from bundle: resource.Bundle,
 ) -> GroupedResources {
   list.fold(
     from: groupedresources_new(),
@@ -757,20 +775,21 @@ pub fn bundle_to_groupedresources(
     with: fn(acc, entry) {
       case entry.resource {
         None -> acc
-        Some(res) ->
-          case res {
-            resources.ResourceBundle(r) ->
+        Some(resource) ->
+          case resource {
+            resource.ResourceBundle(r) ->
               GroupedResources(..acc, bundle: [r, ..acc.bundle])
-            resources.ResourceCodesystem(r) ->
+            resource.ResourceCodesystem(r) ->
               GroupedResources(..acc, codesystem: [r, ..acc.codesystem])
-            resources.ResourceOperationoutcome(r) ->
+            resource.ResourceOperationoutcome(r) ->
               GroupedResources(..acc, operationoutcome: [
                 r,
                 ..acc.operationoutcome
               ])
-            resources.ResourceValueset(r) ->
+            resource.ResourceParameters(resource) ->
+              GroupedResources(..acc, parameters: [resource, ..acc.parameters])
+            resource.ResourceValueset(r) ->
               GroupedResources(..acc, valueset: [r, ..acc.valueset])
-            _ -> acc
           }
       }
     },

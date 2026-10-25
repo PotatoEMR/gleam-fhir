@@ -1,9 +1,9 @@
 ////[https://hl7.org/fhir/r4](https://hl7.org/fhir/r4) complex types
 
-import fhir/r4_gen/primitive_types.{
+import fhir/r4_gen/primitive_type.{
   type Date, type DateTime, type Instant, type Time,
 } as pt
-import fhir/r4_gen/valuesets
+import fhir/r4_gen/valueset
 import gleam/dynamic/decode.{type Decoder}
 import gleam/int
 import gleam/json.{type Json}
@@ -39,14 +39,14 @@ pub fn bound_coding_new(
   )
 }
 
-pub fn bound_coding_from_coding(
+pub fn bound_coding_parse_coding(
   coding: Coding,
-  binding_from_code_and_system: fn(String, String) ->
+  binding_parse_code_and_system: fn(String, String) ->
     Result(required_binding, Nil),
 ) -> Result(BoundCoding(required_binding), Nil) {
   case coding.code, coding.system {
     Some(code), Some(system) ->
-      case binding_from_code_and_system(code, system) {
+      case binding_parse_code_and_system(code, system) {
         Error(Nil) -> Error(Nil)
         Ok(code) ->
           Ok(BoundCoding(
@@ -98,14 +98,14 @@ pub fn bound_coding_to_json(
 }
 
 pub fn bound_coding_decoder(
-  binding_from_code_and_system: fn(String, String) ->
+  binding_parse_code_and_system: fn(String, String) ->
     Result(required_binding, Nil),
   failure_placeholder: required_binding,
 ) -> Decoder(BoundCoding(required_binding)) {
   use <- decode.recursive
   use code <- decode.field("code", decode.string)
   use system <- decode.field("system", decode.string)
-  case binding_from_code_and_system(code, system) {
+  case binding_parse_code_and_system(code, system) {
     Error(_) ->
       decode.failure(
         bound_coding_new(failure_placeholder),
@@ -166,12 +166,12 @@ pub fn bound_codeableconcept_new(
   BoundCodeableconcept(text: None, required:, more: [], extension: [], id: None)
 }
 
-pub fn bound_codeableconcept_from_codeableconcept(
+pub fn bound_codeableconcept_parse_codeableconcept(
   concept: Codeableconcept,
-  binding_from_code_and_system: fn(String, String) ->
+  binding_parse_code_and_system: fn(String, String) ->
     Result(required_binding, Nil),
 ) -> Result(BoundCodeableconcept(required_binding), Nil) {
-  case find_valueset_coding(concept.coding, binding_from_code_and_system) {
+  case find_valueset_coding(concept.coding, binding_parse_code_and_system) {
     Error(Nil) -> Error(Nil)
     Ok(#(required, more)) ->
       Ok(BoundCodeableconcept(
@@ -213,7 +213,7 @@ pub fn bound_codeableconcept_to_json(
 }
 
 pub fn bound_codeableconcept_decoder(
-  binding_from_code_and_system: fn(String, String) ->
+  binding_parse_code_and_system: fn(String, String) ->
     Result(required_binding, Nil),
   failure_placeholder: required_binding,
 ) -> Decoder(BoundCodeableconcept(required_binding)) {
@@ -224,7 +224,7 @@ pub fn bound_codeableconcept_decoder(
     decode.list(coding_decoder()),
   )
   let valueset_coding =
-    find_valueset_coding(coding, binding_from_code_and_system)
+    find_valueset_coding(coding, binding_parse_code_and_system)
   case valueset_coding {
     Error(_) ->
       decode.failure(
@@ -260,23 +260,27 @@ pub fn bound_codeableconcept_decoder(
 
 fn find_valueset_coding(
   items: List(Coding),
-  binding_from_code_and_system: fn(String, String) ->
+  binding_parse_code_and_system: fn(String, String) ->
     Result(required_binding, Nil),
 ) -> Result(#(BoundCoding(required_binding), List(Coding)), Nil) {
   let is_bound_valueset = fn(coding: Coding) {
-    bound_coding_from_coding(coding, binding_from_code_and_system)
+    bound_coding_parse_coding(coding, binding_parse_code_and_system)
   }
-  find_elt_and_rest_result(in: items, one_that: is_bound_valueset)
+  find_element_and_rest_result(in: items, one_that: is_bound_valueset)
 }
 
-fn find_elt_and_rest_result(
+fn find_element_and_rest_result(
   in items: List(a),
   one_that is_desired: fn(a) -> Result(b, Nil),
 ) -> Result(#(b, List(a)), Nil) {
-  find_elt_and_rest_result_loop(in: items, one_that: is_desired, already: [])
+  find_element_and_rest_result_loop(
+    in: items,
+    one_that: is_desired,
+    already: [],
+  )
 }
 
-fn find_elt_and_rest_result_loop(
+fn find_element_and_rest_result_loop(
   in items: List(a),
   one_that is_desired: fn(a) -> Result(b, Nil),
   already past_list: List(a),
@@ -285,13 +289,13 @@ fn find_elt_and_rest_result_loop(
     [] -> Error(Nil)
     [first, ..rest] ->
       case is_desired(first) {
-        Ok(found_elt) -> {
+        Ok(found_element) -> {
           let more = past_list |> list.reverse |> list.append(rest)
-          Ok(#(found_elt, more))
+          Ok(#(found_element, more))
         }
         Error(_) -> {
           let others = [first, ..past_list]
-          find_elt_and_rest_result_loop(
+          find_element_and_rest_result_loop(
             in: rest,
             one_that: is_desired,
             already: others,
@@ -306,7 +310,7 @@ pub type BoundQuantity(required_binding) {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(valuesets.Quantitycomparator),
+    comparator: Option(valueset.Quantitycomparator),
     unit: Option(String),
     code: Option(required_binding),
   )
@@ -323,9 +327,9 @@ pub fn bound_quantity_new() -> BoundQuantity(required_binding) {
   )
 }
 
-pub fn bound_quantity_from_quantity(
+pub fn bound_quantity_parse_quantity(
   quantity: Quantity,
-  binding_from_code_and_system: fn(String, String) ->
+  binding_parse_code_and_system: fn(String, String) ->
     Result(required_binding, Nil),
 ) -> Result(BoundQuantity(required_binding), Nil) {
   case quantity.code, quantity.system {
@@ -339,7 +343,7 @@ pub fn bound_quantity_from_quantity(
         code: None,
       ))
     Some(code), Some(system) ->
-      case binding_from_code_and_system(code, system) {
+      case binding_parse_code_and_system(code, system) {
         Ok(code) ->
           Ok(BoundQuantity(
             id: quantity.id,
@@ -373,7 +377,7 @@ pub fn bound_quantity_to_json(
   }
   let fields = case quantity.comparator {
     Some(v) -> [
-      #("comparator", valuesets.quantitycomparator_to_json(v)),
+      #("comparator", valueset.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -397,7 +401,7 @@ pub fn bound_quantity_to_json(
 }
 
 pub fn bound_quantity_decoder(
-  binding_from_code_and_system: fn(String, String) ->
+  binding_parse_code_and_system: fn(String, String) ->
     Result(required_binding, Nil),
 ) -> Decoder(BoundQuantity(required_binding)) {
   use <- decode.recursive
@@ -414,7 +418,7 @@ pub fn bound_quantity_decoder(
   case code, system {
     None, None -> bound_quantity_decode_rest(None)
     Some(code), Some(system) ->
-      case binding_from_code_and_system(code, system) {
+      case binding_parse_code_and_system(code, system) {
         Error(_) ->
           decode.failure(
             bound_quantity_new(),
@@ -441,7 +445,7 @@ fn bound_quantity_decode_rest(
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(valuesets.quantitycomparator_decoder()),
+    decode.optional(valueset.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -469,8 +473,8 @@ pub type Address {
   Address(
     id: Option(String),
     extension: List(Extension),
-    use_: Option(valuesets.Addressuse),
-    type_: Option(valuesets.Addresstype),
+    use_: Option(valueset.Addressuse),
+    type_: Option(valueset.Addresstype),
     text: Option(String),
     line: List(String),
     city: Option(String),
@@ -534,11 +538,11 @@ pub fn address_to_json(address: Address) -> Json {
     None -> fields
   }
   let fields = case address.type_ {
-    Some(v) -> [#("type", valuesets.addresstype_to_json(v)), ..fields]
+    Some(v) -> [#("type", valueset.addresstype_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case address.use_ {
-    Some(v) -> [#("use", valuesets.addressuse_to_json(v)), ..fields]
+    Some(v) -> [#("use", valueset.addressuse_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case address.extension {
@@ -596,12 +600,12 @@ pub fn address_decoder() -> Decoder(Address) {
   use type_ <- decode.optional_field(
     "type",
     None,
-    decode.optional(valuesets.addresstype_decoder()),
+    decode.optional(valueset.addresstype_decoder()),
   )
   use use_ <- decode.optional_field(
     "use",
     None,
-    decode.optional(valuesets.addressuse_decoder()),
+    decode.optional(valueset.addressuse_decoder()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -631,7 +635,7 @@ pub type Age {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(valuesets.Quantitycomparator),
+    comparator: Option(valueset.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -666,7 +670,7 @@ pub fn age_to_json(age: Age) -> Json {
   }
   let fields = case age.comparator {
     Some(v) -> [
-      #("comparator", valuesets.quantitycomparator_to_json(v)),
+      #("comparator", valueset.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -709,7 +713,7 @@ pub fn age_decoder() -> Decoder(Age) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(valuesets.quantitycomparator_decoder()),
+    decode.optional(valueset.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -750,8 +754,8 @@ pub type AnnotationAuthor {
   AnnotationAuthorString(author: String)
 }
 
-pub fn annotation_author_to_json(elt: AnnotationAuthor) -> Json {
-  case elt {
+pub fn annotation_author_to_json(element: AnnotationAuthor) -> Json {
+  case element {
     AnnotationAuthorReference(v) -> reference_to_json(v)
     AnnotationAuthorString(v) -> json.string(v)
   }
@@ -1193,9 +1197,9 @@ pub type Contactpoint {
   Contactpoint(
     id: Option(String),
     extension: List(Extension),
-    system: Option(valuesets.Contactpointsystem),
+    system: Option(valueset.Contactpointsystem),
     value: Option(String),
-    use_: Option(valuesets.Contactpointuse),
+    use_: Option(valueset.Contactpointuse),
     rank: Option(Int),
     period: Option(Period),
   )
@@ -1224,7 +1228,7 @@ pub fn contactpoint_to_json(contactpoint: Contactpoint) -> Json {
     None -> fields
   }
   let fields = case contactpoint.use_ {
-    Some(v) -> [#("use", valuesets.contactpointuse_to_json(v)), ..fields]
+    Some(v) -> [#("use", valueset.contactpointuse_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case contactpoint.value {
@@ -1232,7 +1236,7 @@ pub fn contactpoint_to_json(contactpoint: Contactpoint) -> Json {
     None -> fields
   }
   let fields = case contactpoint.system {
-    Some(v) -> [#("system", valuesets.contactpointsystem_to_json(v)), ..fields]
+    Some(v) -> [#("system", valueset.contactpointsystem_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case contactpoint.extension {
@@ -1260,7 +1264,7 @@ pub fn contactpoint_decoder() -> Decoder(Contactpoint) {
   use use_ <- decode.optional_field(
     "use",
     None,
-    decode.optional(valuesets.contactpointuse_decoder()),
+    decode.optional(valueset.contactpointuse_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -1270,7 +1274,7 @@ pub fn contactpoint_decoder() -> Decoder(Contactpoint) {
   use system <- decode.optional_field(
     "system",
     None,
-    decode.optional(valuesets.contactpointsystem_decoder()),
+    decode.optional(valueset.contactpointsystem_decoder()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -1294,7 +1298,7 @@ pub type Contributor {
   Contributor(
     id: Option(String),
     extension: List(Extension),
-    type_: valuesets.Contributortype,
+    type_: valueset.Contributortype,
     name: String,
     contact: List(Contactdetail),
   )
@@ -1302,7 +1306,7 @@ pub type Contributor {
 
 pub fn contributor_new(
   name name: String,
-  type_ type_: valuesets.Contributortype,
+  type_ type_: valueset.Contributortype,
 ) -> Contributor {
   Contributor(contact: [], name:, type_:, extension: [], id: None)
 }
@@ -1310,7 +1314,7 @@ pub fn contributor_new(
 pub fn contributor_to_json(contributor: Contributor) -> Json {
   let fields = [
     #("name", json.string(contributor.name)),
-    #("type", valuesets.contributortype_to_json(contributor.type_)),
+    #("type", valueset.contributortype_to_json(contributor.type_)),
   ]
   let fields = case contributor.contact {
     [] -> fields
@@ -1341,7 +1345,7 @@ pub fn contributor_decoder() -> Decoder(Contributor) {
     decode.list(contactdetail_decoder()),
   )
   use name <- decode.field("name", decode.string)
-  use type_ <- decode.field("type", valuesets.contributortype_decoder())
+  use type_ <- decode.field("type", valueset.contributortype_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -1357,7 +1361,7 @@ pub type Count {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(valuesets.Quantitycomparator),
+    comparator: Option(valueset.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -1392,7 +1396,7 @@ pub fn count_to_json(count: Count) -> Json {
   }
   let fields = case count.comparator {
     Some(v) -> [
-      #("comparator", valuesets.quantitycomparator_to_json(v)),
+      #("comparator", valueset.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -1435,7 +1439,7 @@ pub fn count_decoder() -> Decoder(Count) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(valuesets.quantitycomparator_decoder()),
+    decode.optional(valueset.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -1464,7 +1468,7 @@ pub type Datarequirement {
   Datarequirement(
     id: Option(String),
     extension: List(Extension),
-    type_: valuesets.Alltypes,
+    type_: valueset.Alltypes,
     profile: List(String),
     subject: Option(DatarequirementSubject),
     must_support: List(String),
@@ -1481,8 +1485,10 @@ pub type DatarequirementSubject {
   DatarequirementSubjectReference(subject: Reference)
 }
 
-pub fn datarequirement_subject_to_json(elt: DatarequirementSubject) -> Json {
-  case elt {
+pub fn datarequirement_subject_to_json(
+  element: DatarequirementSubject,
+) -> Json {
+  case element {
     DatarequirementSubjectCodeableconcept(v) -> codeableconcept_to_json(v)
     DatarequirementSubjectReference(v) -> reference_to_json(v)
   }
@@ -1503,7 +1509,7 @@ pub fn datarequirement_subject_decoder() -> Decoder(DatarequirementSubject) {
   )
 }
 
-pub fn datarequirement_new(type_ type_: valuesets.Alltypes) -> Datarequirement {
+pub fn datarequirement_new(type_ type_: valueset.Alltypes) -> Datarequirement {
   Datarequirement(
     sort: [],
     limit: None,
@@ -1560,9 +1566,9 @@ pub type DatarequirementDatefilterValue {
 }
 
 pub fn datarequirement_datefilter_value_to_json(
-  elt: DatarequirementDatefilterValue,
+  element: DatarequirementDatefilterValue,
 ) -> Json {
-  case elt {
+  case element {
     DatarequirementDatefilterValueDatetime(v) -> pt.datetime_to_json(v)
     DatarequirementDatefilterValuePeriod(v) -> period_to_json(v)
     DatarequirementDatefilterValueDuration(v) -> duration_to_json(v)
@@ -1600,12 +1606,12 @@ pub type DatarequirementSort {
     id: Option(String),
     extension: List(Extension),
     path: String,
-    direction: valuesets.Sortdirection,
+    direction: valueset.Sortdirection,
   )
 }
 
 pub fn datarequirement_sort_new(
-  direction direction: valuesets.Sortdirection,
+  direction direction: valueset.Sortdirection,
   path path: String,
 ) -> DatarequirementSort {
   DatarequirementSort(direction:, path:, extension: [], id: None)
@@ -1617,7 +1623,7 @@ pub fn datarequirement_sort_to_json(
   let fields = [
     #(
       "direction",
-      valuesets.sortdirection_to_json(datarequirement_sort.direction),
+      valueset.sortdirection_to_json(datarequirement_sort.direction),
     ),
     #("path", json.string(datarequirement_sort.path)),
   ]
@@ -1640,7 +1646,7 @@ pub fn datarequirement_sort_to_json(
 
 pub fn datarequirement_sort_decoder() -> Decoder(DatarequirementSort) {
   use <- decode.recursive
-  use direction <- decode.field("direction", valuesets.sortdirection_decoder())
+  use direction <- decode.field("direction", valueset.sortdirection_decoder())
   use path <- decode.field("path", decode.string)
   use extension <- decode.optional_field(
     "extension",
@@ -1805,7 +1811,7 @@ pub fn datarequirement_codefilter_decoder() -> Decoder(
 
 pub fn datarequirement_to_json(datarequirement: Datarequirement) -> Json {
   let fields = [
-    #("type", valuesets.alltypes_to_json(datarequirement.type_)),
+    #("type", valueset.alltypes_to_json(datarequirement.type_)),
   ]
   let fields = case datarequirement.sort {
     [] -> fields
@@ -1915,7 +1921,7 @@ pub fn datarequirement_decoder() -> Decoder(Datarequirement) {
     [],
     decode.list(decode.string),
   )
-  use type_ <- decode.field("type", valuesets.alltypes_decoder())
+  use type_ <- decode.field("type", valueset.alltypes_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -1942,7 +1948,7 @@ pub type Distance {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(valuesets.Quantitycomparator),
+    comparator: Option(valueset.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -1977,7 +1983,7 @@ pub fn distance_to_json(distance: Distance) -> Json {
   }
   let fields = case distance.comparator {
     Some(v) -> [
-      #("comparator", valuesets.quantitycomparator_to_json(v)),
+      #("comparator", valueset.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -2020,7 +2026,7 @@ pub fn distance_decoder() -> Decoder(Distance) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(valuesets.quantitycomparator_decoder()),
+    decode.optional(valueset.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -2072,8 +2078,8 @@ pub type DosageAsneeded {
   DosageAsneededCodeableconcept(as_needed: Codeableconcept)
 }
 
-pub fn dosage_asneeded_to_json(elt: DosageAsneeded) -> Json {
-  case elt {
+pub fn dosage_asneeded_to_json(element: DosageAsneeded) -> Json {
+  case element {
     DosageAsneededBoolean(v) -> json.bool(v)
     DosageAsneededCodeableconcept(v) -> codeableconcept_to_json(v)
   }
@@ -2132,8 +2138,8 @@ pub type DosageDoseandrateDose {
   DosageDoseandrateDoseQuantity(dose: Quantity)
 }
 
-pub fn dosage_doseandrate_dose_to_json(elt: DosageDoseandrateDose) -> Json {
-  case elt {
+pub fn dosage_doseandrate_dose_to_json(element: DosageDoseandrateDose) -> Json {
+  case element {
     DosageDoseandrateDoseRange(v) -> range_to_json(v)
     DosageDoseandrateDoseQuantity(v) -> quantity_to_json(v)
   }
@@ -2157,8 +2163,8 @@ pub type DosageDoseandrateRate {
   DosageDoseandrateRateQuantity(rate: Quantity)
 }
 
-pub fn dosage_doseandrate_rate_to_json(elt: DosageDoseandrateRate) -> Json {
-  case elt {
+pub fn dosage_doseandrate_rate_to_json(element: DosageDoseandrateRate) -> Json {
+  case element {
     DosageDoseandrateRateRatio(v) -> ratio_to_json(v)
     DosageDoseandrateRateRange(v) -> range_to_json(v)
     DosageDoseandrateRateQuantity(v) -> quantity_to_json(v)
@@ -2460,7 +2466,7 @@ pub type Duration {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(valuesets.Quantitycomparator),
+    comparator: Option(valueset.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -2495,7 +2501,7 @@ pub fn duration_to_json(duration: Duration) -> Json {
   }
   let fields = case duration.comparator {
     Some(v) -> [
-      #("comparator", valuesets.quantitycomparator_to_json(v)),
+      #("comparator", valueset.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -2538,7 +2544,7 @@ pub fn duration_decoder() -> Decoder(Duration) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(valuesets.quantitycomparator_decoder()),
+    decode.optional(valueset.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -2663,13 +2669,17 @@ pub fn expression_decoder() -> Decoder(Expression) {
 
 ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
 pub type Extension {
-  Extension(id: Option(String), url: String, ext: ExtensionSimpleOrComplex)
+  Extension(
+    id: Option(String),
+    url: String,
+    extension: ExtensionSimpleOrComplex,
+  )
 }
 
 ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
 pub type ExtensionSimpleOrComplex {
-  ExtComplex(children: List(Extension))
-  ExtSimple(value: ExtensionValue)
+  ExtensionComplex(children: List(Extension))
+  ExtensionSimple(value: ExtensionValue)
 }
 
 ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
@@ -2732,21 +2742,26 @@ pub fn extension_to_json(extension: Extension) -> Json {
     Some(v) -> [#("id", json.string(v)), ..fields]
     None -> fields
   }
-  let fields = [ext_simple_or_complex_to_json(extension.ext), ..fields]
+  let fields = [
+    extension_simple_or_complex_to_json(extension.extension),
+    ..fields
+  ]
   json.object(fields)
 }
 
-fn ext_simple_or_complex_to_json(ext) {
-  case ext {
-    ExtComplex(children) -> #(
+fn extension_simple_or_complex_to_json(
+  extension: ExtensionSimpleOrComplex,
+) -> #(String, Json) {
+  case extension {
+    ExtensionComplex(children) -> #(
       "extension",
       json.array(children, extension_to_json),
     )
-    ExtSimple(val) -> extsimple_to_json(val)
+    ExtensionSimple(value) -> extension_simple_to_json(value)
   }
 }
 
-fn extsimple_to_json(v: ExtensionValue) -> #(String, Json) {
+fn extension_simple_to_json(v: ExtensionValue) -> #(String, Json) {
   #(
     "value"
       <> case v {
@@ -2805,8 +2820,8 @@ fn extsimple_to_json(v: ExtensionValue) -> #(String, Json) {
   )
 }
 
-pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
-  case elt {
+pub fn extension_value_to_json(element: ExtensionValue) -> Json {
+  case element {
     ExtensionValueBase64binary(v) -> json.string(v)
     ExtensionValueBoolean(v) -> json.bool(v)
     ExtensionValueCanonical(v) -> json.string(v)
@@ -2863,189 +2878,191 @@ pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
 pub fn extension_decoder() -> Decoder(Extension) {
   use url <- decode.field("url", decode.string)
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
-  use ext <- decode.then(ext_simple_or_complex_decoder())
-  decode.success(Extension(url:, id:, ext:))
+  use extension <- decode.then(extension_simple_or_complex_decoder())
+  decode.success(Extension(url:, id:, extension:))
 }
 
-pub fn ext_simple_or_complex_decoder() {
+pub fn extension_simple_or_complex_decoder() -> Decoder(
+  ExtensionSimpleOrComplex,
+) {
   decode.one_of(
     decode.field("extension", decode.list(extension_decoder()), decode.success)
-      |> decode.map(ExtComplex),
+      |> decode.map(ExtensionComplex),
     [
       decode.field("valueBase64Binary", decode.string, decode.success)
         |> decode.map(ExtensionValueBase64binary)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueBoolean", decode.bool, decode.success)
         |> decode.map(ExtensionValueBoolean)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueCanonical", decode.string, decode.success)
         |> decode.map(ExtensionValueCanonical)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueCode", decode.string, decode.success)
         |> decode.map(ExtensionValueCode)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueDate", pt.date_decoder(), decode.success)
         |> decode.map(ExtensionValueDate)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueDateTime", pt.datetime_decoder(), decode.success)
         |> decode.map(ExtensionValueDatetime)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueDecimal", decode_number(), decode.success)
         |> decode.map(ExtensionValueDecimal)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueId", decode.string, decode.success)
         |> decode.map(ExtensionValueId)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueInstant", pt.instant_decoder(), decode.success)
         |> decode.map(ExtensionValueInstant)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueInteger", decode.int, decode.success)
         |> decode.map(ExtensionValueInteger)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueMarkdown", decode.string, decode.success)
         |> decode.map(ExtensionValueMarkdown)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueOid", decode.string, decode.success)
         |> decode.map(ExtensionValueOid)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valuePositiveInt", decode.int, decode.success)
         |> decode.map(ExtensionValuePositiveint)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueString", decode.string, decode.success)
         |> decode.map(ExtensionValueString)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueTime", pt.time_decoder(), decode.success)
         |> decode.map(ExtensionValueTime)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueUnsignedInt", decode.int, decode.success)
         |> decode.map(ExtensionValueUnsignedint)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueUri", decode.string, decode.success)
         |> decode.map(ExtensionValueUri)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueUrl", decode.string, decode.success)
         |> decode.map(ExtensionValueUrl)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueUuid", decode.string, decode.success)
         |> decode.map(ExtensionValueUuid)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueAddress", address_decoder(), decode.success)
         |> decode.map(ExtensionValueAddress)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueAge", age_decoder(), decode.success)
         |> decode.map(ExtensionValueAge)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueAnnotation", annotation_decoder(), decode.success)
         |> decode.map(ExtensionValueAnnotation)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueAttachment", attachment_decoder(), decode.success)
         |> decode.map(ExtensionValueAttachment)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field(
         "valueCodeableConcept",
         codeableconcept_decoder(),
         decode.success,
       )
         |> decode.map(ExtensionValueCodeableconcept)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueCoding", coding_decoder(), decode.success)
         |> decode.map(ExtensionValueCoding)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueContactPoint", contactpoint_decoder(), decode.success)
         |> decode.map(ExtensionValueContactpoint)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueCount", count_decoder(), decode.success)
         |> decode.map(ExtensionValueCount)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueDistance", distance_decoder(), decode.success)
         |> decode.map(ExtensionValueDistance)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueDuration", duration_decoder(), decode.success)
         |> decode.map(ExtensionValueDuration)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueHumanName", humanname_decoder(), decode.success)
         |> decode.map(ExtensionValueHumanname)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueIdentifier", identifier_decoder(), decode.success)
         |> decode.map(ExtensionValueIdentifier)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueMoney", money_decoder(), decode.success)
         |> decode.map(ExtensionValueMoney)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valuePeriod", period_decoder(), decode.success)
         |> decode.map(ExtensionValuePeriod)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueQuantity", quantity_decoder(), decode.success)
         |> decode.map(ExtensionValueQuantity)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueRange", range_decoder(), decode.success)
         |> decode.map(ExtensionValueRange)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueRatio", ratio_decoder(), decode.success)
         |> decode.map(ExtensionValueRatio)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueReference", reference_decoder(), decode.success)
         |> decode.map(ExtensionValueReference)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueSampledData", sampleddata_decoder(), decode.success)
         |> decode.map(ExtensionValueSampleddata)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueSignature", signature_decoder(), decode.success)
         |> decode.map(ExtensionValueSignature)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueTiming", timing_decoder(), decode.success)
         |> decode.map(ExtensionValueTiming)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field(
         "valueContactDetail",
         contactdetail_decoder(),
         decode.success,
       )
         |> decode.map(ExtensionValueContactdetail)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueContributor", contributor_decoder(), decode.success)
         |> decode.map(ExtensionValueContributor)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field(
         "valueDataRequirement",
         datarequirement_decoder(),
         decode.success,
       )
         |> decode.map(ExtensionValueDatarequirement)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueExpression", expression_decoder(), decode.success)
         |> decode.map(ExtensionValueExpression)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field(
         "valueParameterDefinition",
         parameterdefinition_decoder(),
         decode.success,
       )
         |> decode.map(ExtensionValueParameterdefinition)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field(
         "valueRelatedArtifact",
         relatedartifact_decoder(),
         decode.success,
       )
         |> decode.map(ExtensionValueRelatedartifact)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field(
         "valueTriggerDefinition",
         triggerdefinition_decoder(),
         decode.success,
       )
         |> decode.map(ExtensionValueTriggerdefinition)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueUsageContext", usagecontext_decoder(), decode.success)
         |> decode.map(ExtensionValueUsagecontext)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueDosage", dosage_decoder(), decode.success)
         |> decode.map(ExtensionValueDosage)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
       decode.field("valueMeta", meta_decoder(), decode.success)
         |> decode.map(ExtensionValueMeta)
-        |> decode.map(ExtSimple),
+        |> decode.map(ExtensionSimple),
     ],
   )
 }
@@ -3055,7 +3072,7 @@ pub type Humanname {
   Humanname(
     id: Option(String),
     extension: List(Extension),
-    use_: Option(valuesets.Nameuse),
+    use_: Option(valueset.Nameuse),
     text: Option(String),
     family: Option(String),
     given: List(String),
@@ -3106,7 +3123,7 @@ pub fn humanname_to_json(humanname: Humanname) -> Json {
     None -> fields
   }
   let fields = case humanname.use_ {
-    Some(v) -> [#("use", valuesets.nameuse_to_json(v)), ..fields]
+    Some(v) -> [#("use", valueset.nameuse_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case humanname.extension {
@@ -3146,7 +3163,7 @@ pub fn humanname_decoder() -> Decoder(Humanname) {
   use use_ <- decode.optional_field(
     "use",
     None,
-    decode.optional(valuesets.nameuse_decoder()),
+    decode.optional(valueset.nameuse_decoder()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -3172,7 +3189,7 @@ pub type Identifier {
   Identifier(
     id: Option(String),
     extension: List(Extension),
-    use_: Option(valuesets.Identifieruse),
+    use_: Option(valueset.Identifieruse),
     type_: Option(Codeableconcept),
     system: Option(String),
     value: Option(String),
@@ -3217,7 +3234,7 @@ pub fn identifier_to_json(identifier: Identifier) -> Json {
     None -> fields
   }
   let fields = case identifier.use_ {
-    Some(v) -> [#("use", valuesets.identifieruse_to_json(v)), ..fields]
+    Some(v) -> [#("use", valueset.identifieruse_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case identifier.extension {
@@ -3264,7 +3281,7 @@ pub fn identifier_decoder() -> Decoder(Identifier) {
   use use_ <- decode.optional_field(
     "use",
     None,
-    decode.optional(valuesets.identifieruse_decoder()),
+    decode.optional(valueset.identifieruse_decoder()),
   )
   use extension <- decode.optional_field(
     "extension",
@@ -3403,7 +3420,7 @@ pub type Money {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    currency: Option(valuesets.Currencies),
+    currency: Option(valueset.Currencies),
   )
 }
 
@@ -3414,7 +3431,7 @@ pub fn money_new() -> Money {
 pub fn money_to_json(money: Money) -> Json {
   let fields = []
   let fields = case money.currency {
-    Some(v) -> [#("currency", valuesets.currencies_to_json(v)), ..fields]
+    Some(v) -> [#("currency", valueset.currencies_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case money.value {
@@ -3440,7 +3457,7 @@ pub fn money_decoder() -> Decoder(Money) {
   use currency <- decode.optional_field(
     "currency",
     None,
-    decode.optional(valuesets.currencies_decoder()),
+    decode.optional(valueset.currencies_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -3461,14 +3478,14 @@ pub type Narrative {
   Narrative(
     id: Option(String),
     extension: List(Extension),
-    status: valuesets.Narrativestatus,
+    status: valueset.Narrativestatus,
     div: String,
   )
 }
 
 pub fn narrative_new(
   div div: String,
-  status status: valuesets.Narrativestatus,
+  status status: valueset.Narrativestatus,
 ) -> Narrative {
   Narrative(div:, status:, extension: [], id: None)
 }
@@ -3476,7 +3493,7 @@ pub fn narrative_new(
 pub fn narrative_to_json(narrative: Narrative) -> Json {
   let fields = [
     #("div", json.string(narrative.div)),
-    #("status", valuesets.narrativestatus_to_json(narrative.status)),
+    #("status", valueset.narrativestatus_to_json(narrative.status)),
   ]
   let fields = case narrative.extension {
     [] -> fields
@@ -3495,7 +3512,7 @@ pub fn narrative_to_json(narrative: Narrative) -> Json {
 pub fn narrative_decoder() -> Decoder(Narrative) {
   use <- decode.recursive
   use div <- decode.field("div", decode.string)
-  use status <- decode.field("status", valuesets.narrativestatus_decoder())
+  use status <- decode.field("status", valueset.narrativestatus_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -3511,18 +3528,18 @@ pub type Parameterdefinition {
     id: Option(String),
     extension: List(Extension),
     name: Option(String),
-    use_: valuesets.Operationparameteruse,
+    use_: valueset.Operationparameteruse,
     min: Option(Int),
     max: Option(String),
     documentation: Option(String),
-    type_: valuesets.Alltypes,
+    type_: valueset.Alltypes,
     profile: Option(String),
   )
 }
 
 pub fn parameterdefinition_new(
-  type_ type_: valuesets.Alltypes,
-  use_ use_: valuesets.Operationparameteruse,
+  type_ type_: valueset.Alltypes,
+  use_ use_: valueset.Operationparameteruse,
 ) -> Parameterdefinition {
   Parameterdefinition(
     profile: None,
@@ -3541,8 +3558,8 @@ pub fn parameterdefinition_to_json(
   parameterdefinition: Parameterdefinition,
 ) -> Json {
   let fields = [
-    #("type", valuesets.alltypes_to_json(parameterdefinition.type_)),
-    #("use", valuesets.operationparameteruse_to_json(parameterdefinition.use_)),
+    #("type", valueset.alltypes_to_json(parameterdefinition.type_)),
+    #("use", valueset.operationparameteruse_to_json(parameterdefinition.use_)),
   ]
   let fields = case parameterdefinition.profile {
     Some(v) -> [#("profile", json.string(v)), ..fields]
@@ -3588,7 +3605,7 @@ pub fn parameterdefinition_decoder() -> Decoder(Parameterdefinition) {
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", valuesets.alltypes_decoder())
+  use type_ <- decode.field("type", valueset.alltypes_decoder())
   use documentation <- decode.optional_field(
     "documentation",
     None,
@@ -3596,7 +3613,7 @@ pub fn parameterdefinition_decoder() -> Decoder(Parameterdefinition) {
   )
   use max <- decode.optional_field("max", None, decode.optional(decode.string))
   use min <- decode.optional_field("min", None, decode.optional(decode.int))
-  use use_ <- decode.field("use", valuesets.operationparameteruse_decoder())
+  use use_ <- decode.field("use", valueset.operationparameteruse_decoder())
   use name <- decode.optional_field(
     "name",
     None,
@@ -3686,7 +3703,7 @@ pub type Quantity {
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(valuesets.Quantitycomparator),
+    comparator: Option(valueset.Quantitycomparator),
     unit: Option(String),
     system: Option(String),
     code: Option(String),
@@ -3721,7 +3738,7 @@ pub fn quantity_to_json(quantity: Quantity) -> Json {
   }
   let fields = case quantity.comparator {
     Some(v) -> [
-      #("comparator", valuesets.quantitycomparator_to_json(v)),
+      #("comparator", valueset.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -3764,7 +3781,7 @@ pub fn quantity_decoder() -> Decoder(Quantity) {
   use comparator <- decode.optional_field(
     "comparator",
     None,
-    decode.optional(valuesets.quantitycomparator_decoder()),
+    decode.optional(valueset.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     "value",
@@ -4004,7 +4021,7 @@ pub type Relatedartifact {
   Relatedartifact(
     id: Option(String),
     extension: List(Extension),
-    type_: valuesets.Relatedartifacttype,
+    type_: valueset.Relatedartifacttype,
     label: Option(String),
     display: Option(String),
     citation: Option(String),
@@ -4015,7 +4032,7 @@ pub type Relatedartifact {
 }
 
 pub fn relatedartifact_new(
-  type_ type_: valuesets.Relatedartifacttype,
+  type_ type_: valueset.Relatedartifacttype,
 ) -> Relatedartifact {
   Relatedartifact(
     resource: None,
@@ -4032,7 +4049,7 @@ pub fn relatedartifact_new(
 
 pub fn relatedartifact_to_json(relatedartifact: Relatedartifact) -> Json {
   let fields = [
-    #("type", valuesets.relatedartifacttype_to_json(relatedartifact.type_)),
+    #("type", valueset.relatedartifacttype_to_json(relatedartifact.type_)),
   ]
   let fields = case relatedartifact.resource {
     Some(v) -> [#("resource", json.string(v)), ..fields]
@@ -4100,7 +4117,7 @@ pub fn relatedartifact_decoder() -> Decoder(Relatedartifact) {
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", valuesets.relatedartifacttype_decoder())
+  use type_ <- decode.field("type", valueset.relatedartifacttype_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -4379,15 +4396,15 @@ pub type TimingRepeat {
     count_max: Option(Int),
     duration: Option(Float),
     duration_max: Option(Float),
-    duration_unit: Option(valuesets.Unitsoftime),
+    duration_unit: Option(valueset.Unitsoftime),
     frequency: Option(Int),
     frequency_max: Option(Int),
     period: Option(Float),
     period_max: Option(Float),
-    period_unit: Option(valuesets.Unitsoftime),
-    day_of_week: List(valuesets.Daysofweek),
+    period_unit: Option(valueset.Unitsoftime),
+    day_of_week: List(valueset.Daysofweek),
     time_of_day: List(Time),
-    when: List(valuesets.Eventtiming),
+    when: List(valueset.Eventtiming),
     offset: Option(Int),
   )
 }
@@ -4399,8 +4416,8 @@ pub type TimingRepeatBounds {
   TimingRepeatBoundsPeriod(bounds: Period)
 }
 
-pub fn timing_repeat_bounds_to_json(elt: TimingRepeatBounds) -> Json {
-  case elt {
+pub fn timing_repeat_bounds_to_json(element: TimingRepeatBounds) -> Json {
+  case element {
     TimingRepeatBoundsDuration(v) -> duration_to_json(v)
     TimingRepeatBoundsRange(v) -> range_to_json(v)
     TimingRepeatBoundsPeriod(v) -> period_to_json(v)
@@ -4451,7 +4468,7 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
   let fields = case timing_repeat.when {
     [] -> fields
     _ -> [
-      #("when", json.array(timing_repeat.when, valuesets.eventtiming_to_json)),
+      #("when", json.array(timing_repeat.when, valueset.eventtiming_to_json)),
       ..fields
     ]
   }
@@ -4467,13 +4484,13 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
     _ -> [
       #(
         "dayOfWeek",
-        json.array(timing_repeat.day_of_week, valuesets.daysofweek_to_json),
+        json.array(timing_repeat.day_of_week, valueset.daysofweek_to_json),
       ),
       ..fields
     ]
   }
   let fields = case timing_repeat.period_unit {
-    Some(v) -> [#("periodUnit", valuesets.unitsoftime_to_json(v)), ..fields]
+    Some(v) -> [#("periodUnit", valueset.unitsoftime_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case timing_repeat.period_max {
@@ -4493,7 +4510,7 @@ pub fn timing_repeat_to_json(timing_repeat: TimingRepeat) -> Json {
     None -> fields
   }
   let fields = case timing_repeat.duration_unit {
-    Some(v) -> [#("durationUnit", valuesets.unitsoftime_to_json(v)), ..fields]
+    Some(v) -> [#("durationUnit", valueset.unitsoftime_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case timing_repeat.duration_max {
@@ -4551,7 +4568,7 @@ pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
   use when <- decode.optional_field(
     "when",
     [],
-    decode.list(valuesets.eventtiming_decoder()),
+    decode.list(valueset.eventtiming_decoder()),
   )
   use time_of_day <- decode.optional_field(
     "timeOfDay",
@@ -4561,12 +4578,12 @@ pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
   use day_of_week <- decode.optional_field(
     "dayOfWeek",
     [],
-    decode.list(valuesets.daysofweek_decoder()),
+    decode.list(valueset.daysofweek_decoder()),
   )
   use period_unit <- decode.optional_field(
     "periodUnit",
     None,
-    decode.optional(valuesets.unitsoftime_decoder()),
+    decode.optional(valueset.unitsoftime_decoder()),
   )
   use period_max <- decode.optional_field(
     "periodMax",
@@ -4591,7 +4608,7 @@ pub fn timing_repeat_decoder() -> Decoder(TimingRepeat) {
   use duration_unit <- decode.optional_field(
     "durationUnit",
     None,
-    decode.optional(valuesets.unitsoftime_decoder()),
+    decode.optional(valueset.unitsoftime_decoder()),
   )
   use duration_max <- decode.optional_field(
     "durationMax",
@@ -4718,7 +4735,7 @@ pub type Triggerdefinition {
   Triggerdefinition(
     id: Option(String),
     extension: List(Extension),
-    type_: valuesets.Triggertype,
+    type_: valueset.Triggertype,
     name: Option(String),
     timing: Option(TriggerdefinitionTiming),
     data: List(Datarequirement),
@@ -4734,8 +4751,10 @@ pub type TriggerdefinitionTiming {
   TriggerdefinitionTimingDatetime(timing: DateTime)
 }
 
-pub fn triggerdefinition_timing_to_json(elt: TriggerdefinitionTiming) -> Json {
-  case elt {
+pub fn triggerdefinition_timing_to_json(
+  element: TriggerdefinitionTiming,
+) -> Json {
+  case element {
     TriggerdefinitionTimingTiming(v) -> timing_to_json(v)
     TriggerdefinitionTimingReference(v) -> reference_to_json(v)
     TriggerdefinitionTimingDate(v) -> pt.date_to_json(v)
@@ -4759,7 +4778,7 @@ pub fn triggerdefinition_timing_decoder() -> Decoder(TriggerdefinitionTiming) {
 }
 
 pub fn triggerdefinition_new(
-  type_ type_: valuesets.Triggertype,
+  type_ type_: valueset.Triggertype,
 ) -> Triggerdefinition {
   Triggerdefinition(
     condition: None,
@@ -4774,7 +4793,7 @@ pub fn triggerdefinition_new(
 
 pub fn triggerdefinition_to_json(triggerdefinition: Triggerdefinition) -> Json {
   let fields = [
-    #("type", valuesets.triggertype_to_json(triggerdefinition.type_)),
+    #("type", valueset.triggertype_to_json(triggerdefinition.type_)),
   ]
   let fields = case triggerdefinition.condition {
     Some(v) -> [#("condition", expression_to_json(v)), ..fields]
@@ -4839,7 +4858,7 @@ pub fn triggerdefinition_decoder() -> Decoder(Triggerdefinition) {
     None,
     decode.optional(decode.string),
   )
-  use type_ <- decode.field("type", valuesets.triggertype_decoder())
+  use type_ <- decode.field("type", valueset.triggertype_decoder())
   use extension <- decode.optional_field(
     "extension",
     [],
@@ -4875,8 +4894,8 @@ pub type UsagecontextValue {
   UsagecontextValueReference(value: Reference)
 }
 
-pub fn usagecontext_value_to_json(elt: UsagecontextValue) -> Json {
-  case elt {
+pub fn usagecontext_value_to_json(element: UsagecontextValue) -> Json {
+  case element {
     UsagecontextValueCodeableconcept(v) -> codeableconcept_to_json(v)
     UsagecontextValueQuantity(v) -> quantity_to_json(v)
     UsagecontextValueRange(v) -> range_to_json(v)
@@ -4951,8 +4970,8 @@ pub fn usagecontext_decoder() -> Decoder(Usagecontext) {
   decode.success(Usagecontext(value:, code:, extension:, id:))
 }
 
-pub fn list1_to_json(l: List1(a), tj: fn(a) -> Json) {
-  json.array([l.first, ..l.rest], tj)
+pub fn list1_to_json(l: List1(a), to_json: fn(a) -> Json) -> Json {
+  json.array([l.first, ..l.rest], to_json)
 }
 
 pub fn list1_decoder(
@@ -4960,8 +4979,8 @@ pub fn list1_decoder(
   inner: decode.Decoder(a),
   next: fn(List1(a)) -> decode.Decoder(b),
 ) -> decode.Decoder(b) {
-  use lst <- decode.field(name, decode.list(inner))
-  case lst {
+  use items <- decode.field(name, decode.list(inner))
+  case items {
     [first, ..rest] -> next(List1(first:, rest:))
     _ -> {
       use fail_decode_to_satisfy_gleam_type <- decode.field(name, inner)
@@ -4976,7 +4995,7 @@ pub fn none_if_omitted(d: decode.Decoder(a)) -> decode.Decoder(Option(a)) {
 }
 
 //std lib decode.float will NOT decode numbers without decimal point eg 4, only 4.0
-pub fn decode_number() {
+pub fn decode_number() -> Decoder(Float) {
   decode.one_of(decode.float, [decode.map(decode.int, int.to_float)])
 }
 
@@ -4997,12 +5016,12 @@ pub fn decode_number() {
 // so a user should never do anything with the Primitive type
 @internal
 pub type Primitive(a, b) {
-  Primitive(id: Option(String), ext: List(b), value: Option(a))
+  Primitive(id: Option(String), extension: List(b), value: Option(a))
 }
 
 @internal
-pub type PrimitiveExtPart(b) {
-  PrimitiveExtPart(id: Option(String), ext: List(b))
+pub type PrimitiveExtensionPart(b) {
+  PrimitiveExtensionPart(id: Option(String), extension: List(b))
 }
 
 pub fn primitive_slice_to_json(
@@ -5011,7 +5030,7 @@ pub fn primitive_slice_to_json(
   field_value_to_json: fn(a) -> Option(Json),
   field_rest_to_json: fn(a) -> Option(Json),
   name: String,
-) {
+) -> List(#(String, Json)) {
   let old_fields = case field_rest_to_json(primitive) {
     None -> old_fields
     Some(value) -> [#("_" <> name, value), ..old_fields]
@@ -5028,33 +5047,35 @@ pub fn primitive_slice_list_to_json(
   field_value_to_json: fn(a) -> Option(Json),
   field_rest_to_json: fn(a) -> Option(Json),
   name: String,
-) {
-  let vals =
+) -> List(#(String, Json)) {
+  let values =
     list.map(field, fn(value) {
       json.nullable(field_value_to_json(value), fn(json) { json })
     })
-  let exts =
+  let extensions =
     list.map(field, fn(value) {
       json.nullable(field_rest_to_json(value), fn(json) { json })
     })
-  let old_fields = case list.any(vals, fn(j) { j != json.null() }) {
+  let old_fields = case list.any(values, fn(j) { j != json.null() }) {
     False -> old_fields
-    True -> [#(name, json.preprocessed_array(vals)), ..old_fields]
+    True -> [#(name, json.preprocessed_array(values)), ..old_fields]
   }
-  case list.any(exts, fn(j) { j != json.null() }) {
+  case list.any(extensions, fn(j) { j != json.null() }) {
     False -> old_fields
-    True -> [#("_" <> name, json.preprocessed_array(exts)), ..old_fields]
+    True -> [#("_" <> name, json.preprocessed_array(extensions)), ..old_fields]
   }
 }
 
-pub fn primitive_ext_part_decoder(extension_decoder: Decoder(a)) {
-  use ext <- decode.optional_field(
+pub fn primitive_extension_part_decoder(
+  extension_decoder: Decoder(a),
+) -> Decoder(PrimitiveExtensionPart(a)) {
+  use extension <- decode.optional_field(
     "extension",
     [],
     decode.list(extension_decoder),
   )
   use id <- decode.optional_field("id", None, decode.optional(decode.string))
-  decode.success(PrimitiveExtPart(ext:, id:))
+  decode.success(PrimitiveExtensionPart(extension:, id:))
 }
 
 pub fn primitive_decoder(
@@ -5064,16 +5085,16 @@ pub fn primitive_decoder(
   next: fn(Primitive(a, b)) -> Decoder(c),
 ) -> Decoder(c) {
   use value <- decode.optional_field(name, None, decode.optional(thing_decoder))
-  use pwe <- decode.optional_field(
+  use primitive_extension_part <- decode.optional_field(
     "_" <> name,
     None,
-    decode.optional(primitive_ext_part_decoder(extension_decoder)),
+    decode.optional(primitive_extension_part_decoder(extension_decoder)),
   )
-  let #(id, ext) = case pwe {
+  let #(id, extension) = case primitive_extension_part {
     None -> #(None, [])
-    Some(PrimitiveExtPart(id, ext)) -> #(id, ext)
+    Some(PrimitiveExtensionPart(id, extension)) -> #(id, extension)
   }
-  let together = Primitive(id:, ext:, value:)
+  let together = Primitive(id:, extension:, value:)
   next(together)
 }
 
@@ -5088,19 +5109,25 @@ pub fn primitives_decoder(
     [],
     decode.list(decode.optional(thing_decoder)),
   )
-  use pwes <- decode.optional_field(
+  use primitive_extension_parts <- decode.optional_field(
     "_" <> name,
     [],
-    decode.list(decode.optional(primitive_ext_part_decoder(extension_decoder))),
+    decode.list(
+      decode.optional(primitive_extension_part_decoder(extension_decoder)),
+    ),
   )
   let together =
-    map2_fillnone(pwes, values, fn(pwe, value) {
-      let #(id, ext) = case pwe {
-        None -> #(None, [])
-        Some(PrimitiveExtPart(id, ext)) -> #(id, ext)
-      }
-      Primitive(id:, ext:, value:)
-    })
+    map2_fillnone(
+      primitive_extension_parts,
+      values,
+      fn(primitive_extension_part, value) {
+        let #(id, extension) = case primitive_extension_part {
+          None -> #(None, [])
+          Some(PrimitiveExtensionPart(id, extension)) -> #(id, extension)
+        }
+        Primitive(id:, extension:, value:)
+      },
+    )
   next(together)
 }
 
@@ -5112,11 +5139,13 @@ pub fn primitive_slice_decoder(
   next: fn(c) -> Decoder(d),
 ) -> Decoder(d) {
   use primitive <- primitive_decoder(name, thing_decoder, extension_decoder)
-  use value <- decode.then(case primitive.value, primitive.id, primitive.ext {
-    None, None, [] ->
-      decode.field(name, thing_decoder, fn(_) { convert(primitive) })
-    _, _, _ -> convert(primitive)
-  })
+  use value <- decode.then(
+    case primitive.value, primitive.id, primitive.extension {
+      None, None, [] ->
+        decode.field(name, thing_decoder, fn(_) { convert(primitive) })
+      _, _, _ -> convert(primitive)
+    },
+  )
   next(value)
 }
 
@@ -5163,10 +5192,10 @@ pub fn primitive_slice_list_decoder(
   next: fn(List(c)) -> Decoder(d),
 ) -> Decoder(d) {
   use primitives <- primitives_decoder(name, thing_decoder, extension_decoder)
-  primitive_slice_list_from_primitives(primitives, convert, name, 0, next)
+  primitive_slice_list_parse_primitives(primitives, convert, name, 0, next)
 }
 
-fn primitive_slice_list_from_primitives(
+fn primitive_slice_list_parse_primitives(
   primitives: List(Primitive(a, b)),
   convert: fn(Primitive(a, b)) -> Decoder(c),
   name: String,
@@ -5192,7 +5221,7 @@ fn primitive_slice_list_from_primitives(
           })
         }),
       )
-      use rest <- primitive_slice_list_from_primitives(
+      use rest <- primitive_slice_list_parse_primitives(
         rest,
         convert,
         name,

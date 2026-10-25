@@ -29,7 +29,7 @@ pub fn addresstype_to_code(addresstype: Addresstype) -> String {
   }
 }
 
-pub fn addresstype_from_code(code: String) -> Result(Addresstype, Nil) {
+pub fn addresstype_parse_code(code: String) -> Result(Addresstype, Nil) {
   case code {
     "postal" -> Ok(AddresstypePostal)
     "physical" -> Ok(AddresstypePhysical)
@@ -91,7 +91,7 @@ pub fn addressuse_to_code(addressuse: Addressuse) -> String {
   }
 }
 
-pub fn addressuse_from_code(code: String) -> Result(Addressuse, Nil) {
+pub fn addressuse_parse_code(code: String) -> Result(Addressuse, Nil) {
   case code {
     "home" -> Ok(AddressuseHome)
     "work" -> Ok(AddressuseWork)
@@ -781,7 +781,7 @@ pub fn alltypes_to_code(alltypes: Alltypes) -> String {
   }
 }
 
-pub fn alltypes_from_code(code: String) -> Result(Alltypes, Nil) {
+pub fn alltypes_parse_code(code: String) -> Result(Alltypes, Nil) {
   case code {
     "Address" -> Ok(AlltypesAddress)
     "Age" -> Ok(AlltypesAge)
@@ -1292,7 +1292,7 @@ pub fn bundletype_to_code(bundletype: Bundletype) -> String {
   }
 }
 
-pub fn bundletype_from_code(code: String) -> Result(Bundletype, Nil) {
+pub fn bundletype_parse_code(code: String) -> Result(Bundletype, Nil) {
   case code {
     "document" -> Ok(BundletypeDocument)
     "message" -> Ok(BundletypeMessage)
@@ -1368,7 +1368,7 @@ pub fn codesystemcontentmode_to_code(
   }
 }
 
-pub fn codesystemcontentmode_from_code(
+pub fn codesystemcontentmode_parse_code(
   code: String,
 ) -> Result(Codesystemcontentmode, Nil) {
   case code {
@@ -1439,7 +1439,7 @@ pub fn codesystemhierarchymeaning_to_code(
   }
 }
 
-pub fn codesystemhierarchymeaning_from_code(
+pub fn codesystemhierarchymeaning_parse_code(
   code: String,
 ) -> Result(Codesystemhierarchymeaning, Nil) {
   case code {
@@ -1520,7 +1520,7 @@ pub fn conceptpropertytype_to_code(
   }
 }
 
-pub fn conceptpropertytype_from_code(
+pub fn conceptpropertytype_parse_code(
   code: String,
 ) -> Result(Conceptpropertytype, Nil) {
   case code {
@@ -1604,7 +1604,7 @@ pub fn contactpointsystem_to_code(
   }
 }
 
-pub fn contactpointsystem_from_code(
+pub fn contactpointsystem_parse_code(
   code: String,
 ) -> Result(Contactpointsystem, Nil) {
   case code {
@@ -1678,7 +1678,9 @@ pub fn contactpointuse_to_code(contactpointuse: Contactpointuse) -> String {
   }
 }
 
-pub fn contactpointuse_from_code(code: String) -> Result(Contactpointuse, Nil) {
+pub fn contactpointuse_parse_code(
+  code: String,
+) -> Result(Contactpointuse, Nil) {
   case code {
     "home" -> Ok(ContactpointuseHome)
     "work" -> Ok(ContactpointuseWork)
@@ -1743,7 +1745,9 @@ pub fn contributortype_to_code(contributortype: Contributortype) -> String {
   }
 }
 
-pub fn contributortype_from_code(code: String) -> Result(Contributortype, Nil) {
+pub fn contributortype_parse_code(
+  code: String,
+) -> Result(Contributortype, Nil) {
   case code {
     "author" -> Ok(ContributortypeAuthor)
     "editor" -> Ok(ContributortypeEditor)
@@ -2340,7 +2344,7 @@ pub fn currencies_to_code(currencies: Currencies) -> String {
   }
 }
 
-pub fn currencies_from_code(code: String) -> Result(Currencies, Nil) {
+pub fn currencies_parse_code(code: String) -> Result(Currencies, Nil) {
   case code {
     "AED" -> Ok(CurrenciesAed)
     "AFN" -> Ok(CurrenciesAfn)
@@ -2764,7 +2768,7 @@ pub fn daysofweek_to_code(daysofweek: Daysofweek) -> String {
   }
 }
 
-pub fn daysofweek_from_code(code: String) -> Result(Daysofweek, Nil) {
+pub fn daysofweek_parse_code(code: String) -> Result(Daysofweek, Nil) {
   case code {
     "mon" -> Ok(DaysofweekMon)
     "tue" -> Ok(DaysofweekTue)
@@ -2895,7 +2899,7 @@ pub fn eventtiming_to_code(eventtiming: Eventtiming) -> String {
   }
 }
 
-pub fn eventtiming_from_code(code: String) -> Result(Eventtiming, Nil) {
+pub fn eventtiming_parse_code(code: String) -> Result(Eventtiming, Nil) {
   case code {
     "MORN" -> Ok(EventtimingMorn)
     "MORN.early" -> Ok(EventtimingMornearly)
@@ -3015,7 +3019,7 @@ pub fn filteroperator_to_code(filteroperator: Filteroperator) -> String {
   }
 }
 
-pub fn filteroperator_from_code(code: String) -> Result(Filteroperator, Nil) {
+pub fn filteroperator_parse_code(code: String) -> Result(Filteroperator, Nil) {
   case code {
     "=" -> Ok(FilteroperatorEqual)
     "is-a" -> Ok(FilteroperatorIsa)
@@ -3094,7 +3098,7 @@ pub fn httpverb_to_code(httpverb: Httpverb) -> String {
   }
 }
 
-pub fn httpverb_from_code(code: String) -> Result(Httpverb, Nil) {
+pub fn httpverb_parse_code(code: String) -> Result(Httpverb, Nil) {
   case code {
     "GET" -> Ok(HttpverbGet)
     "HEAD" -> Ok(HttpverbHead)
@@ -3160,7 +3164,7 @@ pub fn identifieruse_to_code(identifieruse: Identifieruse) -> String {
   }
 }
 
-pub fn identifieruse_from_code(code: String) -> Result(Identifieruse, Nil) {
+pub fn identifieruse_parse_code(code: String) -> Result(Identifieruse, Nil) {
   case code {
     "usual" -> Ok(IdentifieruseUsual)
     "official" -> Ok(IdentifieruseOfficial)
@@ -3223,7 +3227,7 @@ pub fn issueseverity_to_code(issueseverity: Issueseverity) -> String {
   }
 }
 
-pub fn issueseverity_from_code(code: String) -> Result(Issueseverity, Nil) {
+pub fn issueseverity_parse_code(code: String) -> Result(Issueseverity, Nil) {
   case code {
     "fatal" -> Ok(IssueseverityFatal)
     "error" -> Ok(IssueseverityError)
@@ -3365,7 +3369,7 @@ pub fn issuetype_to_code(issuetype: Issuetype) -> String {
   }
 }
 
-pub fn issuetype_from_code(code: String) -> Result(Issuetype, Nil) {
+pub fn issuetype_parse_code(code: String) -> Result(Issuetype, Nil) {
   case code {
     "invalid" -> Ok(IssuetypeInvalid)
     "structure" -> Ok(IssuetypeStructure)
@@ -3487,7 +3491,7 @@ pub fn nameuse_to_code(nameuse: Nameuse) -> String {
   }
 }
 
-pub fn nameuse_from_code(code: String) -> Result(Nameuse, Nil) {
+pub fn nameuse_parse_code(code: String) -> Result(Nameuse, Nil) {
   case code {
     "usual" -> Ok(NameuseUsual)
     "official" -> Ok(NameuseOfficial)
@@ -3552,7 +3556,9 @@ pub fn narrativestatus_to_code(narrativestatus: Narrativestatus) -> String {
   }
 }
 
-pub fn narrativestatus_from_code(code: String) -> Result(Narrativestatus, Nil) {
+pub fn narrativestatus_parse_code(
+  code: String,
+) -> Result(Narrativestatus, Nil) {
   case code {
     "generated" -> Ok(NarrativestatusGenerated)
     "extensions" -> Ok(NarrativestatusExtensions)
@@ -3613,7 +3619,7 @@ pub fn operationparameteruse_to_code(
   }
 }
 
-pub fn operationparameteruse_from_code(
+pub fn operationparameteruse_parse_code(
   code: String,
 ) -> Result(Operationparameteruse, Nil) {
   case code {
@@ -3676,7 +3682,7 @@ pub fn publicationstatus_to_code(
   }
 }
 
-pub fn publicationstatus_from_code(
+pub fn publicationstatus_parse_code(
   code: String,
 ) -> Result(Publicationstatus, Nil) {
   case code {
@@ -3745,7 +3751,7 @@ pub fn quantitycomparator_to_code(
   }
 }
 
-pub fn quantitycomparator_from_code(
+pub fn quantitycomparator_parse_code(
   code: String,
 ) -> Result(Quantitycomparator, Nil) {
   case code {
@@ -3826,7 +3832,7 @@ pub fn relatedartifacttype_to_code(
   }
 }
 
-pub fn relatedartifacttype_from_code(
+pub fn relatedartifacttype_parse_code(
   code: String,
 ) -> Result(Relatedartifacttype, Nil) {
   case code {
@@ -3896,7 +3902,9 @@ pub fn searchentrymode_to_code(searchentrymode: Searchentrymode) -> String {
   }
 }
 
-pub fn searchentrymode_from_code(code: String) -> Result(Searchentrymode, Nil) {
+pub fn searchentrymode_parse_code(
+  code: String,
+) -> Result(Searchentrymode, Nil) {
   case code {
     "match" -> Ok(SearchentrymodeMatch)
     "include" -> Ok(SearchentrymodeInclude)
@@ -3951,7 +3959,7 @@ pub fn sortdirection_to_code(sortdirection: Sortdirection) -> String {
   }
 }
 
-pub fn sortdirection_from_code(code: String) -> Result(Sortdirection, Nil) {
+pub fn sortdirection_parse_code(code: String) -> Result(Sortdirection, Nil) {
   case code {
     "ascending" -> Ok(SortdirectionAscending)
     "descending" -> Ok(SortdirectionDescending)
@@ -4020,7 +4028,7 @@ pub fn triggertype_to_code(triggertype: Triggertype) -> String {
   }
 }
 
-pub fn triggertype_from_code(code: String) -> Result(Triggertype, Nil) {
+pub fn triggertype_parse_code(code: String) -> Result(Triggertype, Nil) {
   case code {
     "named-event" -> Ok(TriggertypeNamedevent)
     "periodic" -> Ok(TriggertypePeriodic)
@@ -4098,7 +4106,7 @@ pub fn unitsoftime_to_code(unitsoftime: Unitsoftime) -> String {
   }
 }
 
-pub fn unitsoftime_from_code(code: String) -> Result(Unitsoftime, Nil) {
+pub fn unitsoftime_parse_code(code: String) -> Result(Unitsoftime, Nil) {
   case code {
     "s" -> Ok(UnitsoftimeS)
     "min" -> Ok(UnitsoftimeMin)

@@ -32,8 +32,8 @@ pub fn constructor_key(
     False -> bucket
   }
   let module = case bucket {
-    codegen_helpers.ComplexTypes -> "complex_types."
-    codegen_helpers.Resources -> "resources."
+    codegen_helpers.ComplexTypes -> "complex_type."
+    codegen_helpers.Resources -> "resource."
   }
   module <> string.replace(type_name, "ct.", "")
 }
@@ -1288,14 +1288,14 @@ fn slice_group_to_json_source(
         case indexed_slice_group, extension {
           True, Some(_) ->
             complex_prefix
-            <> "SliceElt("
+            <> "SliceElement("
             <> root_call(value <> ".value", Some(value <> ".id"))
             <> ", "
             <> value
             <> ".internal_gleam_fhir_index)"
           True, None ->
             complex_prefix
-            <> "SliceElt("
+            <> "SliceElement("
             <> root_call(value <> ".value", None)
             <> ", "
             <> value
@@ -1368,7 +1368,7 @@ fn slice_group_to_json_source(
     case indexed_slice_group {
       True ->
         complex_prefix
-        <> "SliceElt("
+        <> "SliceElement("
         <> open_encoder
         <> "("
         <> value
@@ -1450,7 +1450,7 @@ fn slice_group_to_json_source(
     True ->
       "\nlet slice_values = "
       <> complex_prefix
-      <> "slice_elts_to_values(slice_values)"
+      <> "slice_elements_to_values(slice_values)"
 
     False -> ""
   }
@@ -2611,7 +2611,7 @@ fn field_decoder_expression(
         codegen_helpers.to_snake_case(field_type)
         <> "_extension_slice_decoder()"
       let conversion =
-        codegen_helpers.to_snake_case(field_type) <> "_from_primitive"
+        codegen_helpers.to_snake_case(field_type) <> "_parse_primitive"
       case element.base.max, element.max, target_min {
         base_max, "1", minimum if base_max != "1" -> {
           let list_decoder =
@@ -2650,7 +2650,7 @@ fn field_decoder_expression(
           <> primitive_decoder
           <> ", "
           <> extension_decoder
-          <> ", decode.success) |> decode.then(fn(primitive) { case primitive.value, primitive.id, primitive.ext {"
+          <> ", decode.success) |> decode.then(fn(primitive) { case primitive.value, primitive.id, primitive.extension {"
           <> " None, None, [] -> decode.success(None) _, _, _ -> "
           <> conversion
           <> "(primitive) |> decode.map(Some) } }))"
@@ -2810,7 +2810,7 @@ fn slice_placeholder(
         |> codegen_helpers.concept_name_from_url
         |> codegen_helpers.to_snake_case
       complex_prefix
-      <> "bound_codeableconcept_new(valuesets."
+      <> "bound_codeableconcept_new(valueset."
       <> valueset
       <> "_failure_variant)"
     }
@@ -2823,7 +2823,7 @@ fn slice_placeholder(
         |> codegen_helpers.concept_name_from_url
         |> codegen_helpers.to_snake_case
       complex_prefix
-      <> "bound_coding_new(valuesets."
+      <> "bound_coding_new(valueset."
       <> valueset
       <> "_failure_variant)"
     }
@@ -2857,14 +2857,14 @@ fn slice_group_support_source(
       indexed_values,
       profile_extension_definition(root, context.extensions) != None
     {
-      True, True -> complex_prefix <> "ExtensionSliceElt(" <> type_ <> ")"
-      True, False -> complex_prefix <> "SliceElt(" <> type_ <> ")"
+      True, True -> complex_prefix <> "ExtensionSliceElement(" <> type_ <> ")"
+      True, False -> complex_prefix <> "SliceElement(" <> type_ <> ")"
       False, _ -> type_
     }
   }
   let open_slice_elt_type = fn(type_) {
     case indexed_values {
-      True -> complex_prefix <> "SliceElt(" <> type_ <> ")"
+      True -> complex_prefix <> "SliceElement(" <> type_ <> ")"
       False -> type_
     }
   }
@@ -2933,7 +2933,7 @@ fn slice_group_support_source(
             profile_extension_definition(root, context.extensions) != None
           {
             True, True ->
-              complex_prefix <> "ExtensionSliceElt(" <> field_type <> ")"
+              complex_prefix <> "ExtensionSliceElement(" <> field_type <> ")"
             _, _ -> field_type
           }
           <> ")\n"
@@ -3607,12 +3607,13 @@ pub fn constructor_placeholder(
               <> ", third: "
               <> value()
               <> ", rest: [])"
-            "ExtensionSliceElt" ->
+            "ExtensionSliceElement" ->
               complex_prefix
-              <> "ExtensionSliceElt(value: "
+              <> "ExtensionSliceElement(value: "
               <> value()
               <> ", id: None, internal_gleam_fhir_index: None)"
-            "SliceElt" -> complex_prefix <> "SliceElt(" <> value() <> ", None)"
+            "SliceElement" ->
+              complex_prefix <> "SliceElement(" <> value() <> ", None)"
             "BoundCoding" ->
               complex_prefix <> "bound_coding_new(" <> value() <> ")"
             "BoundCodeableconcept" ->
@@ -3654,8 +3655,8 @@ pub fn constructor_placeholder(
                 "DateTime", _ -> "pt.DateNoTime(pt.Year(1))"
                 "Time", _ -> "pt.Time(0, 0, 0, None)"
                 "Instant", _ -> "pt.instant_failure_variant"
-                _, ["valuesets", type_] ->
-                  "valuesets." <> string.lowercase(type_) <> "_failure_variant"
+                _, ["valueset", type_] ->
+                  "valueset." <> string.lowercase(type_) <> "_failure_variant"
                 _, _ -> panic as { "missing constructor definition for " <> key }
               }
             }
@@ -3711,7 +3712,7 @@ fn extension_slice_fold_source(
     <> field_name
     <> "_slice_decoder"
   let stored_open_value = case context.preserve_slice_order {
-    True -> complex_prefix <> "SliceElt(value, Some(index))"
+    True -> complex_prefix <> "SliceElement(value, Some(index))"
     False -> "value"
   }
   let initial_values =
@@ -3786,7 +3787,7 @@ fn extension_slice_fold_source(
       let named_value = case context.preserve_slice_order && extension != None {
         True ->
           complex_prefix
-          <> "ExtensionSliceElt(value:, id:, internal_gleam_fhir_index: None)"
+          <> "ExtensionSliceElement(value:, id:, internal_gleam_fhir_index: None)"
         False -> "value"
       }
       let decode_branch =
@@ -3800,10 +3801,10 @@ fn extension_slice_fold_source(
         <> named_value
         <> ") }) })\n"
       let stored_value = case context.preserve_slice_order, extension {
-        True, None -> complex_prefix <> "SliceElt(value, Some(index))"
+        True, None -> complex_prefix <> "SliceElement(value, Some(index))"
         True, _ ->
           complex_prefix
-          <> "ExtensionSliceElt(..value, internal_gleam_fhir_index: Some(index))"
+          <> "ExtensionSliceElement(..value, internal_gleam_fhir_index: Some(index))"
         False, _ -> "value"
       }
       let stored_value = case root.max {
@@ -3878,7 +3879,7 @@ fn extension_slice_fold_source(
   let accumulator = field_name <> "_accumulator"
   let result_name = field_name <> "_slices"
   let base_values_source = case primitive {
-    True -> "  let " <> base_values <> " = primitive.ext\n"
+    True -> "  let " <> base_values <> " = primitive.extension\n"
     False ->
       "  use "
       <> base_values
@@ -3919,7 +3920,7 @@ fn extension_slice_fold_source(
       slice_cardinality_placeholder(context.current_bucket, open_group, fn() {
         let value = base_slice_placeholder(context, base_type)
         case context.preserve_slice_order {
-          True -> complex_prefix <> "SliceElt(" <> value <> ", None)"
+          True -> complex_prefix <> "SliceElement(" <> value <> ", None)"
           False -> value
         }
       })
@@ -4087,10 +4088,11 @@ fn extension_slice_fold_source(
             context.preserve_slice_order,
             profile_extension_definition(root, context.extensions)
           {
-            True, None -> complex_prefix <> "SliceElt(" <> value <> ", None)"
+            True, None ->
+              complex_prefix <> "SliceElement(" <> value <> ", None)"
             True, _ ->
               complex_prefix
-              <> "ExtensionSliceElt(value: "
+              <> "ExtensionSliceElement(value: "
               <> value
               <> ", id: None, internal_gleam_fhir_index: None)"
             False, _ -> value
@@ -4193,13 +4195,14 @@ fn ordinary_slice_fold_source(
   let stored_named_value = fn(value) {
     case indexed_values, extension_group {
       True, True -> value
-      True, False -> complex_prefix <> "SliceElt(" <> value <> ", Some(index))"
+      True, False ->
+        complex_prefix <> "SliceElement(" <> value <> ", Some(index))"
       False, _ -> value
     }
   }
   let stored_open_value = fn(value) {
     case indexed_values {
-      True -> complex_prefix <> "SliceElt(" <> value <> ", Some(index))"
+      True -> complex_prefix <> "SliceElement(" <> value <> ", Some(index))"
       False -> value
     }
   }
@@ -4392,7 +4395,7 @@ fn ordinary_slice_fold_source(
             list.find(candidate.fields, fn(field) {
               field.0.id == candidate.pattern.id
             })
-          let indexed_pattern = string.contains(pattern_type.1, "SliceElt(")
+          let indexed_pattern = string.contains(pattern_type.1, "SliceElement(")
           let selector_names =
             list.map(candidate.selector, fn(field) { field.0 })
           let checks =
@@ -4433,7 +4436,8 @@ fn ordinary_slice_fold_source(
           }
           let payload = payload_type <> "(" <> arguments <> ")"
           let payload = case indexed_pattern {
-            True -> complex_prefix <> "SliceElt(" <> payload <> ", Some(index))"
+            True ->
+              complex_prefix <> "SliceElement(" <> payload <> ", Some(index))"
             False -> payload
           }
           let conversion =
@@ -4526,9 +4530,9 @@ fn ordinary_slice_fold_source(
               field.0.path == plan.member.path
               && field.0.id != candidate.pattern.id
             })
-          let indexed_member = string.contains(open_member.1, "SliceElt(")
+          let indexed_member = string.contains(open_member.1, "SliceElement(")
           let other_payload = case indexed_member {
-            True -> complex_prefix <> "SliceElt(entry.0, Some(entry.1))"
+            True -> complex_prefix <> "SliceElement(entry.0, Some(entry.1))"
             False -> "entry.0"
           }
           let #(_, _, _, open_member_name, _, _) =
@@ -4565,7 +4569,7 @@ fn ordinary_slice_fold_source(
                       "List1(",
                       "List2(",
                       "List3(",
-                      "SliceElt(",
+                      "SliceElement(",
                     ],
                     string.replace(type_, "ct.", ""),
                     fn(type_, prefix) {
@@ -5127,7 +5131,7 @@ fn ordinary_slice_fold_source(
         Ok(BoundCodingSlice) as kind | Ok(BoundCodeableconceptSlice) as kind -> {
           let assert Some(valueset) =
             codegen_bound_coding.bound_valueset_function_name(root_type)
-          let from_code = "valuesets." <> valueset <> "_from_code_and_system"
+          let from_code = "valueset." <> valueset <> "_parse_code_and_system"
           let #(discriminator, matched, selected) = case kind {
             Ok(BoundCodingSlice) -> {
               let assert [name, ..] = string.split(root_type, "(")
@@ -5500,11 +5504,11 @@ fn ordinary_slice_fold_source(
               case indexed_values, extension_group {
                 True, True ->
                   complex_prefix
-                  <> "ExtensionSliceElt(value: "
+                  <> "ExtensionSliceElement(value: "
                   <> value
                   <> ", id: None, internal_gleam_fhir_index: None)"
                 True, False ->
-                  complex_prefix <> "SliceElt(" <> value <> ", None)"
+                  complex_prefix <> "SliceElement(" <> value <> ", None)"
                 False, _ -> value
               }
             }),
@@ -5675,11 +5679,11 @@ fn record_decoder_from_fields(
       "  use binding_code <- decode.optional_field(\"code\", None, decode.optional(decode.string))\n"
       <> "  use binding_system <- decode.optional_field(\"system\", None, decode.optional(decode.string))\n"
       <> "  use _ <- decode.then(case binding_code, binding_system {\n"
-      <> "    Some(code), Some(system) -> case valuesets."
+      <> "    Some(code), Some(system) -> case valueset."
       <> codegen_helpers.to_snake_case(
         codegen_helpers.concept_name_from_url(canonical_url(url)),
       )
-      <> "_from_code_and_system(code, system) { Ok(_) -> decode.success(Nil) Error(_) -> decode.failure(Nil, \"need code + system from required ValueSet\") }\n"
+      <> "_parse_code_and_system(code, system) { Ok(_) -> decode.success(Nil) Error(_) -> decode.failure(Nil, \"need code + system from required ValueSet\") }\n"
       <> case binding_datatype == "Quantity" {
         True -> "    None, _ -> decode.success(Nil)\n"
         False -> ""
@@ -5691,11 +5695,11 @@ fn record_decoder_from_fields(
       "  use binding_matches <- decode.field(\"coding\", decode.list(decode.one_of({\n"
       <> "    use code <- decode.field(\"code\", decode.string)\n"
       <> "    use system <- decode.field(\"system\", decode.string)\n"
-      <> "    decode.success(result.is_ok(valuesets."
+      <> "    decode.success(result.is_ok(valueset."
       <> codegen_helpers.to_snake_case(
         codegen_helpers.concept_name_from_url(canonical_url(url)),
       )
-      <> "_from_code_and_system(code, system)))\n"
+      <> "_parse_code_and_system(code, system)))\n"
       <> "  }, [decode.success(False)])))\n"
       <> "  use _ <- decode.then(case list.any(binding_matches, fn(matches) { matches }) {\n"
       <> "    True -> decode.success(Nil)\n"
@@ -5958,7 +5962,7 @@ fn record_decoder_from_fields(
             <> remaining
             <> ", fn(entry) { "
             <> case context.preserve_slice_order {
-              True -> complex_prefix <> "SliceElt(entry.0, Some(entry.1))"
+              True -> complex_prefix <> "SliceElement(entry.0, Some(entry.1))"
               False -> "entry.0"
             }
             <> " })"
@@ -5978,7 +5982,8 @@ fn record_decoder_from_fields(
               fn() {
                 let value = base_slice_placeholder(context, field_type)
                 case context.preserve_slice_order {
-                  True -> complex_prefix <> "SliceElt(" <> value <> ", None)"
+                  True ->
+                    complex_prefix <> "SliceElement(" <> value <> ", None)"
                   False -> value
                 }
               },
@@ -6143,7 +6148,7 @@ fn record_decoder_from_fields(
                 slice_cardinality_expression(
                   context.current_bucket,
                   field,
-                  "primitive.ext",
+                  "primitive.extension",
                   json_name,
                   False,
                 )
@@ -6161,7 +6166,7 @@ fn record_decoder_from_fields(
                   context.current_bucket,
                 ),
                 case field.min, field.max {
-                  0, "*" -> "  let " <> field_name <> " = primitive.ext\n"
+                  0, "*" -> "  let " <> field_name <> " = primitive.extension\n"
                   _, _ ->
                     "  use "
                     <> field_name
@@ -6549,7 +6554,7 @@ fn record_decoder_from_fields(
   <> codegen_helpers.to_snake_case(target_type)
   <> case primitive {
     True ->
-      "_from_primitive(\n  primitive: Primitive("
+      "_parse_primitive(\n  primitive: Primitive("
       <> primitive_value_type
       <> ", "
       <> primitive_extension_type
@@ -6650,7 +6655,7 @@ fn extension_value_branch(
             <> "_extension_slice_decoder(), "
             <> complex_prefix
             <> codegen_helpers.to_snake_case(profile.name)
-            <> "_from_primitive, decode.success)",
+            <> "_parse_primitive, decode.success)",
         )
         Error(_) -> #(
           target_type,
@@ -6708,7 +6713,7 @@ fn extension_classifier_source(
         let stored_value = case preserve_slice_order {
           True ->
             complex_prefix
-            <> "ExtensionSliceElt(value: "
+            <> "ExtensionSliceElement(value: "
             <> value
             <> ", id: None, internal_gleam_fhir_index: None)"
           False -> value
@@ -6766,7 +6771,7 @@ fn extension_classifier_source(
             let stored_value = case preserve_slice_order {
               True ->
                 complex_prefix
-                <> "ExtensionSliceElt("
+                <> "ExtensionSliceElement("
                 <> case value {
                   "value" -> "value:"
                   _ -> "value: " <> value
@@ -6855,7 +6860,8 @@ fn extension_classifier_source(
           let #(field, #(field_type, _)) = item
           let field_name = codegen_helpers.field_name(field)
           let stored_type = case preserve_slice_order {
-            True -> complex_prefix <> "ExtensionSliceElt(" <> field_type <> ")"
+            True ->
+              complex_prefix <> "ExtensionSliceElement(" <> field_type <> ")"
             False -> field_type
           }
           let stored_type = case field.max {
@@ -6869,7 +6875,10 @@ fn extension_classifier_source(
         True -> {
           let open_type = case preserve_slice_order {
             True ->
-              complex_prefix <> "SliceElt(" <> complex_prefix <> "Extension)"
+              complex_prefix
+              <> "SliceElement("
+              <> complex_prefix
+              <> "Extension)"
 
             False -> complex_prefix <> "Extension"
           }
@@ -6906,7 +6915,7 @@ fn extension_classifier_source(
                 "open",
                 "["
                   <> complex_prefix
-                  <> "SliceElt(child, Some(index))"
+                  <> "SliceElement(child, Some(index))"
                   <> ", ..accumulator.open]",
               ),
             ],
@@ -7165,7 +7174,7 @@ pub fn decoder_requirements(
             modules: required.modules
               |> set.insert("list")
               |> set.insert("result")
-              |> set.insert("valuesets"),
+              |> set.insert("valueset"),
           )
         False -> required
       }
@@ -7260,7 +7269,7 @@ pub fn decoder_requirements(
           True ->
             codegen_helpers.require_function(
               required,
-              complex_prefix <> "slice_elts_to_values",
+              complex_prefix <> "slice_elements_to_values",
             )
           False -> required
         }
@@ -8182,7 +8191,7 @@ pub fn generate_to_json(
                           }
                           <> "_index"
                         complex_prefix
-                        <> "SliceElt("
+                        <> "SliceElement("
                         <> encoded
                         <> ", "
                         <> record_name
@@ -8201,7 +8210,7 @@ pub fn generate_to_json(
                     False -> "{" <> encoder <> "}(value)"
                     True ->
                       complex_prefix
-                      <> "SliceElt({"
+                      <> "SliceElement({"
                       <> encoder
                       <> "}(value.value), value.internal_gleam_fhir_index)"
                   }
@@ -8210,7 +8219,10 @@ pub fn generate_to_json(
                 let values = case preserve_slice_order {
                   False -> values
                   True ->
-                    complex_prefix <> "slice_elts_to_values(" <> values <> ")"
+                    complex_prefix
+                    <> "slice_elements_to_values("
+                    <> values
+                    <> ")"
                 }
                 #(
                   json_always

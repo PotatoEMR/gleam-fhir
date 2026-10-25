@@ -264,7 +264,7 @@ fn gen_fhir(
   }
   let gen_dir = filepath.join(gen_into_dir, pkg_prefix)
   let assert Ok(_) = simplifile.create_directory_all(gen_dir)
-  let gen_gleamfile = filepath.join(gen_dir, "resources.gleam")
+  let gen_gleamfile = filepath.join(gen_dir, "resource.gleam")
   let complex_types_file = filepath.join(extract_dir_ver, "profiles-types.json")
   let valuesets_package_dir = case profiles_dir {
     Some(directory) -> directory
@@ -357,11 +357,11 @@ fn gen_fhir(
   }
   let helper_dependencies =
     [
-      #("SliceElt", []),
-      #("ExtensionSliceElt", []),
-      #("slice_elt_new", ["SliceElt"]),
-      #("slice_elts_to_values", [
-        "SliceElt",
+      #("SliceElement", []),
+      #("ExtensionSliceElement", []),
+      #("slice_element_new", ["SliceElement"]),
+      #("slice_elements_to_values", [
+        "SliceElement",
         "import:int",
         "import:list",
         "import:order",
@@ -382,20 +382,20 @@ fn gen_fhir(
       #("decode_optional_bool", []),
       #("decode_number", ["import:int"]),
       #("Primitive", []),
-      #("PrimitiveExtPart", []),
+      #("PrimitiveExtensionPart", []),
       #("primitive_slice_to_json", []),
       #("primitive_slice_list_to_json", ["import:list"]),
-      #("primitive_ext_part_decoder", ["PrimitiveExtPart"]),
+      #("primitive_extension_part_decoder", ["PrimitiveExtensionPart"]),
       #("primitive_decoder", [
         "Primitive",
-        "PrimitiveExtPart",
-        "primitive_ext_part_decoder",
+        "PrimitiveExtensionPart",
+        "primitive_extension_part_decoder",
       ]),
       #("primitives_decoder", [
         "Primitive",
-        "PrimitiveExtPart",
+        "PrimitiveExtensionPart",
         "map2_fillnone",
-        "primitive_ext_part_decoder",
+        "primitive_extension_part_decoder",
       ]),
       #("primitive_slice_decoder", ["Primitive", "primitive_decoder"]),
       #("primitive_choice_slice_decoder", [
@@ -404,10 +404,10 @@ fn gen_fhir(
       ]),
       #("primitive_slice_list_decoder", [
         "Primitive",
-        "primitive_slice_list_from_primitives",
+        "primitive_slice_list_parse_primitives",
         "primitives_decoder",
       ]),
-      #("primitive_slice_list_from_primitives", [
+      #("primitive_slice_list_parse_primitives", [
         "Primitive",
         "import:int",
         "import:list",
@@ -482,7 +482,7 @@ fn gen_fhir(
       case dict.get(names, name) {
         Ok(url) ->
           panic as {
-            "Gleam name collision for resources."
+            "Gleam name collision for resource."
             <> name
             <> ": "
             <> url
@@ -590,7 +590,7 @@ fn gen_fhir(
         "List" -> "Listfhir"
         _ -> gleam_type
       }
-      "Rt" <> gleam_type <> "\n"
+      "ResourceType" <> gleam_type <> "\n"
     })
     |> string.concat
   let resource_type_to_string_arms =
@@ -604,7 +604,7 @@ fn gen_fhir(
         "List" -> "Listfhir"
         _ -> gleam_type
       }
-      "Rt" <> gleam_type <> " -> \"" <> resource_type <> "\"\n"
+      "ResourceType" <> gleam_type <> " -> \"" <> resource_type <> "\"\n"
     })
     |> string.concat
   let uses_profile_match =
@@ -660,7 +660,7 @@ fn gen_fhir(
       }
 
       pub type Resource {" <> resource_names <> "}
-      pub fn resource_to_json(resource: Resource) {
+      pub fn to_json(resource: Resource) -> Json {
         case resource {" <> resource_encoders <> "}
       }
 
@@ -776,8 +776,8 @@ fn gen_fhir(
       set.new(),
     )
   let helper_definitions = [
-    #("ExtensionSliceElt", fn() {
-      "pub type ExtensionSliceElt(a) {\n  ExtensionSliceElt(\n    value: a,\n    id: Option(String),\n    internal_gleam_fhir_index: Option(Int),\n  )\n}\n\npub fn extension_slice_elt_new(value: a) -> ExtensionSliceElt(a) {\n  ExtensionSliceElt(value:, id: None, internal_gleam_fhir_index: None)\n}\n\n"
+    #("ExtensionSliceElement", fn() {
+      "pub type ExtensionSliceElement(a) {\n  ExtensionSliceElement(\n    value: a,\n    id: Option(String),\n    internal_gleam_fhir_index: Option(Int),\n  )\n}\n\npub fn extension_slice_element_new(value: a) -> ExtensionSliceElement(a) {\n  ExtensionSliceElement(value:, id: None, internal_gleam_fhir_index: None)\n}\n\n"
     }),
     #("ExplicitFalse", fn() { "pub type ExplicitFalse { ExplicitFalse }\n\n" }),
     #("ExplicitTrue", fn() { "pub type ExplicitTrue { ExplicitTrue }\n\n" }),
@@ -797,23 +797,23 @@ fn gen_fhir(
   decode.optional_field(name, None, decode.optional(decode.bool), next)
 }\n\n"
     }),
-    #("SliceElt", fn() {
-      "      pub type SliceElt(a) {
-        SliceElt(value: a, internal_gleam_fhir_index: Option(Int))
+    #("SliceElement", fn() {
+      "      pub type SliceElement(a) {
+        SliceElement(value: a, internal_gleam_fhir_index: Option(Int))
       }
 
 "
     }),
-    #("slice_elt_new", fn() {
-      "      pub fn slice_elt_new(value: a) -> SliceElt(a) {
-        SliceElt(value:, internal_gleam_fhir_index: None)
+    #("slice_element_new", fn() {
+      "      pub fn slice_element_new(value: a) -> SliceElement(a) {
+        SliceElement(value:, internal_gleam_fhir_index: None)
       }
 
 "
     }),
-    #("slice_elts_to_values", fn() {
-      "      pub fn slice_elts_to_values(slice_elts: List(SliceElt(a))) -> List(a) {
-        slice_elts
+    #("slice_elements_to_values", fn() {
+      "      pub fn slice_elements_to_values(slice_elements: List(SliceElement(a))) -> List(a) {
+        slice_elements
         |> list.sort(fn(first, second) {
           case
             first.internal_gleam_fhir_index,
@@ -825,7 +825,7 @@ fn gen_fhir(
             None, None -> order.Eq
           }
         })
-        |> list.map(fn(slice_elt) { slice_elt.value })
+        |> list.map(fn(slice_element) { slice_element.value })
       }
       "
     }),
@@ -842,8 +842,8 @@ fn gen_fhir(
       "
     }),
     #("list1_to_json", fn() {
-      "      pub fn list1_to_json(l: List1(a), tj: fn(a) -> Json) {
-        json.array([l.first, ..l.rest], tj)
+      "      pub fn list1_to_json(l: List1(a), to_json: fn(a) -> Json) -> Json {
+        json.array([l.first, ..l.rest], to_json)
       }
 
 "
@@ -854,8 +854,8 @@ fn gen_fhir(
         inner: decode.Decoder(a),
         next: fn(List1(a)) -> decode.Decoder(b),
       ) -> decode.Decoder(b) {
-        use lst <- decode.field(name, decode.list(inner))
-        case lst {
+        use items <- decode.field(name, decode.list(inner))
+        case items {
           [first, ..rest] -> next(List1(first:, rest:))
           _ -> {
             use fail_decode_to_satisfy_gleam_type <- decode.field(name, inner)
@@ -866,8 +866,8 @@ fn gen_fhir(
       "
     }),
     #("list2_to_json", fn() {
-      "      pub fn list2_to_json(l: List2(a), tj: fn(a) -> Json) {
-        json.array([l.first, l.second, ..l.rest], tj)
+      "      pub fn list2_to_json(l: List2(a), to_json: fn(a) -> Json) -> Json {
+        json.array([l.first, l.second, ..l.rest], to_json)
       }
 
 "
@@ -878,8 +878,8 @@ fn gen_fhir(
         inner: decode.Decoder(a),
         next: fn(List2(a)) -> decode.Decoder(b),
       ) -> decode.Decoder(b) {
-        use lst <- decode.field(name, decode.list(inner))
-        case lst {
+        use items <- decode.field(name, decode.list(inner))
+        case items {
           [first, second, ..rest] -> next(List2(first:, second:, rest:))
           _ -> {
             use fail_decode_to_satisfy_gleam_type <- decode.field(name, inner)
@@ -890,8 +890,8 @@ fn gen_fhir(
       "
     }),
     #("list3_to_json", fn() {
-      "      pub fn list3_to_json(l: List3(a), tj: fn(a) -> Json) {
-        json.array([l.first, l.second, l.third, ..l.rest], tj)
+      "      pub fn list3_to_json(l: List3(a), to_json: fn(a) -> Json) -> Json {
+        json.array([l.first, l.second, l.third, ..l.rest], to_json)
       }
 
 "
@@ -902,8 +902,8 @@ fn gen_fhir(
         inner: decode.Decoder(a),
         next: fn(List3(a)) -> decode.Decoder(b),
       ) -> decode.Decoder(b) {
-        use lst <- decode.field(name, decode.list(inner))
-        case lst {
+        use items <- decode.field(name, decode.list(inner))
+        case items {
           [first, second, third, ..rest] -> next(List3(first:, second:, third:, rest:))
           _ -> {
             use fail_decode_to_satisfy_gleam_type <- decode.field(name, inner)
@@ -922,11 +922,11 @@ fn gen_fhir(
 "
     }),
     #("decode_number", fn() {
-      "      pub fn decode_number() {
+      "      pub fn decode_number() -> Decoder(Float) {
         decode.one_of(decode.float, [decode.map(decode.int, int.to_float)])
       }
 
-      // Primitive and PrimitiveExtPart are used for decoding JSON
+      // Primitive and PrimitiveExtensionPart are used for decoding JSON
       // but generic primitive extensions are NOT supported;
       // the only supported primitive extensions are when profiles define them
       // in which case they are generated as actual types
@@ -946,15 +946,15 @@ fn gen_fhir(
     #("Primitive", fn() {
       "      @internal
       pub type Primitive(a, b) {
-        Primitive(id: Option(String), ext: List(b), value: Option(a))
+        Primitive(id: Option(String), extension: List(b), value: Option(a))
       }
 
 "
     }),
-    #("PrimitiveExtPart", fn() {
+    #("PrimitiveExtensionPart", fn() {
       "      @internal
-      pub type PrimitiveExtPart(b) {
-        PrimitiveExtPart(id: Option(String), ext: List(b))
+      pub type PrimitiveExtensionPart(b) {
+        PrimitiveExtensionPart(id: Option(String), extension: List(b))
       }
 
 "
@@ -966,7 +966,7 @@ fn gen_fhir(
         field_value_to_json: fn(a) -> Option(Json),
         field_rest_to_json: fn(a) -> Option(Json),
         name: String,
-      ) {
+      ) -> List(#(String, Json)) {
         let old_fields = case field_rest_to_json(primitive) {
           None -> old_fields
           Some(value) -> [#(\"_\" <> name, value), ..old_fields]
@@ -986,34 +986,34 @@ fn gen_fhir(
         field_value_to_json: fn(a) -> Option(Json),
         field_rest_to_json: fn(a) -> Option(Json),
         name: String,
-      ) {
-        let vals = list.map(field, fn(value) {
+      ) -> List(#(String, Json)) {
+        let values = list.map(field, fn(value) {
           json.nullable(field_value_to_json(value), fn(json) { json })
         })
-        let exts = list.map(field, fn(value) {
+        let extensions = list.map(field, fn(value) {
           json.nullable(field_rest_to_json(value), fn(json) { json })
         })
-        let old_fields = case list.any(vals, fn(j) { j != json.null() }) {
+        let old_fields = case list.any(values, fn(j) { j != json.null() }) {
           False -> old_fields
-          True -> [#(name, json.preprocessed_array(vals)), ..old_fields]
+          True -> [#(name, json.preprocessed_array(values)), ..old_fields]
         }
-        case list.any(exts, fn(j) { j != json.null() }) {
+        case list.any(extensions, fn(j) { j != json.null() }) {
           False -> old_fields
-          True -> [#(\"_\" <> name, json.preprocessed_array(exts)), ..old_fields]
+          True -> [#(\"_\" <> name, json.preprocessed_array(extensions)), ..old_fields]
         }
       }
 
 "
     }),
-    #("primitive_ext_part_decoder", fn() {
-      "      pub fn primitive_ext_part_decoder(extension_decoder: Decoder(a)) {
-        use ext <- decode.optional_field(
+    #("primitive_extension_part_decoder", fn() {
+      "      pub fn primitive_extension_part_decoder(extension_decoder: Decoder(a)) -> Decoder(PrimitiveExtensionPart(a)) {
+        use extension <- decode.optional_field(
           \"extension\",
           [],
           decode.list(extension_decoder),
         )
         use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
-        decode.success(PrimitiveExtPart(ext:, id:))
+        decode.success(PrimitiveExtensionPart(extension:, id:))
       }
 
 "
@@ -1021,12 +1021,12 @@ fn gen_fhir(
     #("primitive_decoder", fn() {
       "      pub fn primitive_decoder(name: String, thing_decoder: Decoder(a), extension_decoder: Decoder(b), next: fn(Primitive(a, b)) -> Decoder(c)) -> Decoder(c){
           use value <- decode.optional_field(name, None, decode.optional(thing_decoder))
-          use pwe <- decode.optional_field(\"_\" <> name, None, decode.optional(primitive_ext_part_decoder(extension_decoder)))
-          let #(id, ext) = case pwe {
+          use primitive_extension_part <- decode.optional_field(\"_\" <> name, None, decode.optional(primitive_extension_part_decoder(extension_decoder)))
+          let #(id, extension) = case primitive_extension_part {
             None -> #(None, [])
-            Some(PrimitiveExtPart(id, ext)) -> #(id, ext)
+            Some(PrimitiveExtensionPart(id, extension)) -> #(id, extension)
           }
-          let together = Primitive(id:, ext:, value:,)
+          let together = Primitive(id:, extension:, value:,)
           next(together)
       }
 
@@ -1040,13 +1040,13 @@ fn gen_fhir(
         next: fn(List(Primitive(a, b))) -> Decoder(c),
       ) -> Decoder(c) {
           use values <- decode.optional_field(name, [], decode.list(decode.optional(thing_decoder)))
-          use pwes <- decode.optional_field(\"_\" <> name, [], decode.list(decode.optional(primitive_ext_part_decoder(extension_decoder))))
-          let together = map2_fillnone(pwes, values, fn(pwe, value){
-              let #(id, ext) = case pwe {
+          use primitive_extension_parts <- decode.optional_field(\"_\" <> name, [], decode.list(decode.optional(primitive_extension_part_decoder(extension_decoder))))
+          let together = map2_fillnone(primitive_extension_parts, values, fn(primitive_extension_part, value){
+              let #(id, extension) = case primitive_extension_part {
                   None -> #(None, [])
-                  Some(PrimitiveExtPart(id, ext)) -> #(id, ext)
+                  Some(PrimitiveExtensionPart(id, extension)) -> #(id, extension)
               }
-              Primitive(id:, ext:, value:,)
+              Primitive(id:, extension:, value:,)
           })
           next(together)
       }
@@ -1062,7 +1062,7 @@ fn gen_fhir(
         next: fn(c) -> Decoder(d),
       ) -> Decoder(d) {
         use primitive <- primitive_decoder(name, thing_decoder, extension_decoder)
-        use value <- decode.then(case primitive.value, primitive.id, primitive.ext {
+        use value <- decode.then(case primitive.value, primitive.id, primitive.extension {
           None, None, [] -> decode.field(name, thing_decoder, fn(_) { convert(primitive) })
           _, _, _ -> convert(primitive)
         })
@@ -1109,13 +1109,13 @@ fn gen_fhir(
         next: fn(List(c)) -> Decoder(d),
       ) -> Decoder(d) {
         use primitives <- primitives_decoder(name, thing_decoder, extension_decoder)
-        primitive_slice_list_from_primitives(primitives, convert, name, 0, next)
+        primitive_slice_list_parse_primitives(primitives, convert, name, 0, next)
       }
 
 "
     }),
-    #("primitive_slice_list_from_primitives", fn() {
-      "      fn primitive_slice_list_from_primitives(
+    #("primitive_slice_list_parse_primitives", fn() {
+      "      fn primitive_slice_list_parse_primitives(
         primitives: List(Primitive(a, b)),
         convert: fn(Primitive(a, b)) -> Decoder(c),
         name: String,
@@ -1134,7 +1134,7 @@ fn gen_fhir(
                 }
               })
             }))
-            use rest <- primitive_slice_list_from_primitives(rest, convert, name, index + 1)
+            use rest <- primitive_slice_list_parse_primitives(rest, convert, name, index + 1)
             next([first, ..rest])
           }
         }
@@ -1256,7 +1256,7 @@ fn gen_fhir(
         #("result", "gleam/result"),
         #("calendar", "gleam/time/calendar"),
         #("order", "gleam/order"),
-        #("valuesets", "fhir/" <> pkg_prefix <> "/valuesets"),
+        #("valueset", "fhir/" <> pkg_prefix <> "/valueset"),
       ]
       |> list.filter(fn(entry) { set.contains(modules, entry.0) })
       |> list.map(fn(entry) { "import " <> entry.1 <> "\n" })
@@ -1277,7 +1277,7 @@ fn gen_fhir(
       names ->
         "import fhir/"
         <> pkg_prefix
-        <> "/primitive_types.{"
+        <> "/primitive_type.{"
         <> {
           names |> list.map(fn(name) { "type " <> name }) |> string.join(", ")
         }
@@ -1300,7 +1300,7 @@ fn gen_fhir(
   let r_ct_import =
     "import fhir/"
     <> pkg_prefix
-    <> "/complex_types"
+    <> "/complex_type"
     <> case resource_complex_imports {
       [] -> ""
       names -> ".{" <> string.join(names, ", ") <> "}"
@@ -1333,7 +1333,7 @@ fn gen_fhir(
       r_ct_import,
       resources_gen,
     ])
-  let f_complex_types = filepath.join(gen_dir, "complex_types.gleam")
+  let f_complex_types = filepath.join(gen_dir, "complex_type.gleam")
   let assert Ok(_) = simplifile.write(to: f_complex_types, contents: ct_content)
   io.println("generated " <> f_complex_types)
   let assert Ok(_) = simplifile.write(to: gen_gleamfile, contents: r_content)
@@ -1355,13 +1355,14 @@ fn gen_fhir(
           capability_statement_file,
           gen_specific_resources,
           profile_resource_entries,
+          resource_entries,
           constructors,
         )
       [
         #("sansio.gleam", sansio),
         #("client_httpc.gleam", httpc_layer),
         #("client_rsvp.gleam", rsvp_layer),
-        #("search_params.gleam", search_params),
+        #("search_param.gleam", search_params),
       ]
     }
   }
@@ -1369,11 +1370,11 @@ fn gen_fhir(
     list.append(
       client_files,
       [
-        #("primitive_types.gleam", case set.is_empty(primitive_types) {
+        #("primitive_type.gleam", case set.is_empty(primitive_types) {
           True -> None
           False -> Some(template_primitive_types.source(primitive_types))
         }),
-        #("valuesets.gleam", case dict.is_empty(valueset_acc) {
+        #("valueset.gleam", case dict.is_empty(valueset_acc) {
           True -> None
           False -> Some(all_vs)
         }),
@@ -1387,11 +1388,16 @@ fn gen_fhir(
     )
   list.each(
     [
-      "primitive_types.gleam",
-      "valuesets.gleam",
+      "primitive_type.gleam",
+      "valueset.gleam",
       "sansio.gleam",
       "client_httpc.gleam",
       "client_rsvp.gleam",
+      "search_param.gleam",
+      "primitive_types.gleam",
+      "complex_types.gleam",
+      "resources.gleam",
+      "valuesets.gleam",
       "search_params.gleam",
     ],
     fn(to_file) {
@@ -1470,7 +1476,7 @@ fn required_complex_types_loop(
       let generated_names =
         generated
         |> dict.keys
-        |> list.map(fn(key) { string.replace(key, "complex_types.", "") })
+        |> list.map(fn(key) { string.replace(key, "complex_type.", "") })
         |> set.from_list
       required_complex_types_loop(
         spec_file,
@@ -1960,9 +1966,9 @@ fn file_to_types(
                               snake_type,
                               "_",
                               elt_last_part |> string.lowercase(),
-                              "_to_json(elt: ",
+                              "_to_json(element: ",
                               field_name_new,
-                              ") -> Json {case elt{",
+                              ") -> Json {case element{",
                               list.fold(
                                 over: elt.type_,
                                 from: "",
@@ -2431,12 +2437,12 @@ fn file_to_types(
                   #("
               ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
               pub type Extension {
-                Extension(id: Option(String), url: String, ext: ExtensionSimpleOrComplex)
+                Extension(id: Option(String), url: String, extension: ExtensionSimpleOrComplex)
               }
               ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
               pub type ExtensionSimpleOrComplex {
-                ExtComplex(children: List(Extension))
-                ExtSimple(value: ExtensionValue)
+                ExtensionComplex(children: List(Extension))
+                ExtensionSimple(value: ExtensionValue)
               }
               ///[http://hl7.org/fhir/r4/StructureDefinition/Extension#resource](http://hl7.org/fhir/r4/StructureDefinition/Extension#resource)
               pub type ExtensionValue {
@@ -2448,19 +2454,19 @@ fn file_to_types(
                   Some(v) -> [#(\"id\", json.string(v)), ..fields]
                   None -> fields
                 }
-                let fields = [ext_simple_or_complex_to_json(extension.ext), ..fields]
+                let fields = [extension_simple_or_complex_to_json(extension.extension), ..fields]
                 json.object(fields)
               }
-              fn ext_simple_or_complex_to_json(ext) {
-                case ext {
-                  ExtComplex(children) -> #(
+              fn extension_simple_or_complex_to_json(extension: ExtensionSimpleOrComplex) -> #(String, Json) {
+                case extension {
+                  ExtensionComplex(children) -> #(
                     \"extension\",
                     json.array(children, extension_to_json),
                   )
-                  ExtSimple(val) -> extsimple_to_json(val)
+                  ExtensionSimple(value) -> extension_simple_to_json(value)
                 }
               }
-              fn extsimple_to_json(v: ExtensionValue) -> #(String, Json) {
+              fn extension_simple_to_json(v: ExtensionValue) -> #(String, Json) {
                 #(
                   \"value\"
                     <> case v {" <> list.fold(
@@ -2484,8 +2490,8 @@ fn file_to_types(
                   extension_value_to_json(v),
                 )
               }
-              pub fn extension_value_to_json(elt: ExtensionValue) -> Json {
-                case elt {
+              pub fn extension_value_to_json(element: ExtensionValue) -> Json {
+                case element {
                   " <> list.fold(
                     over: elt.type_,
                     from: "",
@@ -2511,13 +2517,13 @@ fn file_to_types(
               pub fn extension_decoder() -> Decoder(Extension) {
                 use url <- decode.field(\"url\", decode.string)
                 use id <- decode.optional_field(\"id\", None, decode.optional(decode.string))
-                use ext <- decode.then(ext_simple_or_complex_decoder())
-                decode.success(Extension(url:, id:, ext:))
+                use extension <- decode.then(extension_simple_or_complex_decoder())
+                decode.success(Extension(url:, id:, extension:))
               }
-              pub fn ext_simple_or_complex_decoder() {
+              pub fn extension_simple_or_complex_decoder() -> Decoder(ExtensionSimpleOrComplex) {
                 decode.one_of(
                   decode.field(\"extension\", decode.list(extension_decoder()), decode.success)
-                    |> decode.map(ExtComplex),
+                    |> decode.map(ExtensionComplex),
                   [" <> list.fold(
                     over: elt.type_,
                     from: "",
@@ -2541,7 +2547,7 @@ fn file_to_types(
                        |> decode.map(ExtensionValue"
                           <> string.capitalise(typ.code)
                           <> ")
-                       |> decode.map(ExtSimple),",
+                       |> decode.map(ExtensionSimple),",
                       ])
                     },
                   ) <> "],
@@ -2699,8 +2705,8 @@ fn add_forgiving_type_and_decoder_if_bundle_or_bundleentry(
         "decode.optional(
       decode.one_of(resource_decoder() |> decode.map(Ok), [
         decode.dynamic
-        |> decode.map(fn(res_json) {
-          decode.run(res_json, resource_decoder())
+        |> decode.map(fn(resource_json) {
+          decode.run(resource_json, resource_decoder())
         }),
       ]),
     )"
@@ -2913,8 +2919,8 @@ fn valueset_type_source(
   }
   let failure_variant_replacements = [
     #(
-      "valuesets." <> string.lowercase(vsname) <> "_failure_variant",
-      "valuesets."
+      "valueset." <> string.lowercase(vsname) <> "_failure_variant",
+      "valueset."
         <> codegen_bound_coding.valueset_failure_variant_source(vsname, codes),
     ),
   ]
@@ -3106,7 +3112,7 @@ fn gen_valueset_decoder(
   let template =
     "pub fn " <> vsname_lower <> "_decoder() -> Decoder(" <> vsname <> ") {
     use variant <- decode.then(decode.string)
-    case " <> vsname_lower <> "_from_code(variant) {
+    case " <> vsname_lower <> "_parse_code(variant) {
       Ok(code) -> decode.success(code)
       Error(_) -> " <> fallback <> "
     }
@@ -3128,7 +3134,7 @@ fn gen_valueset_from_code(
   let template =
     "pub fn "
     <> vsname_lower
-    <> "_from_code(code: String) -> Result("
+    <> "_parse_code(code: String) -> Result("
     <> vsname
     <> ", Nil) {
     case code {"

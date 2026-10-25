@@ -1,8 +1,9 @@
-pub const source = "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using rsvp
+pub const source =
+  "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using rsvp
 
-import fhir/FHIRVERSION/resources
+import fhir/FHIRVERSION/resource
 import fhir/FHIRVERSION/sansio
-import fhir/FHIRVERSION/search_params
+import fhir/FHIRVERSION/search_param
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
@@ -15,9 +16,9 @@ import lustre/effect.{type Effect}
 import rsvp
 
 /// FHIR client for sending http requests to server such as
-/// `let pat = resources.patient_read(\"123\", client)`
+/// `let pat = resource.patient_read(\"123\", client)`
 ///
-/// create client from server base url with fhirclient_new(baseurl)`
+/// create client from server base url with fhirclient_new(base_url)`
 ///
 /// `let assert Ok(client) = client_rsvp.fhirclient_new(\"r4.smarthealthit.org/\")`
 ///
@@ -54,13 +55,13 @@ pub fn fhirclient_new(
 
 pub type Err {
   ErrRsvp(err: rsvp.Error(String))
-  ErrSansio(err: sansio.ErrResp)
+  ErrSansio(err: sansio.ErrResponse)
 }
 
 pub fn err_to_string(err: Err) -> String {
   case err {
     ErrRsvp(err:) -> rsvp_err_to_string(err)
-    ErrSansio(err:) -> sansio.err_resp_to_string(err)
+    ErrSansio(err:) -> sansio.err_response_to_string(err)
   }
 }
 
@@ -73,51 +74,51 @@ pub type ErrNoId {
 
 fn any_create(
   resource: Json,
-  res_type: resources.ResourceType,
-  resource_dec: Decoder(r),
+  resource_type: resource.ResourceType,
+  resource_decoder: Decoder(r),
   client: FhirClient,
   handle_response: fn(Result(r, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = sansio.any_create_req(resource, res_type, client.client)
-  sendreq_handleresponse(req, resource_dec, handle_response, client)
+  let http_request = sansio.any_create_request(resource, resource_type, client.client)
+  send_request_and_handle_response(http_request, resource_decoder, handle_response, client)
 }
 
 fn any_read(
   id: String,
-  res_type: resources.ResourceType,
-  resource_dec: Decoder(r),
+  resource_type: resource.ResourceType,
+  resource_decoder: Decoder(r),
   client: FhirClient,
   handle_response: fn(Result(r, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = sansio.any_read_req(id, res_type, client.client)
-  sendreq_handleresponse(req, resource_dec, handle_response, client)
+  let http_request = sansio.any_read_request(id, resource_type, client.client)
+  send_request_and_handle_response(http_request, resource_decoder, handle_response, client)
 }
 
 fn any_update(
   id: Option(String),
   resource: Json,
-  res_type: resources.ResourceType,
-  resource_dec: Decoder(r),
+  resource_type: resource.ResourceType,
+  resource_decoder: Decoder(r),
   client: FhirClient,
   handle_response: fn(Result(r, Err)) -> msg,
 ) -> Result(Effect(msg), ErrNoId) {
-  let req = sansio.any_update_req(id, resource, res_type, client.client)
-  case req {
-    Ok(req) ->
-      Ok(sendreq_handleresponse(req, resource_dec, handle_response, client))
+  let http_request = sansio.any_update_request(id, resource, resource_type, client.client)
+  case http_request {
+    Ok(http_request) ->
+      Ok(send_request_and_handle_response(http_request, resource_decoder, handle_response, client))
     Error(_) -> Error(ErrNoId)
   }
 }
 
 pub fn any_delete(
   id: String,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
-  handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> msg,
+  handle_response: fn(Result(sansio.OperationoutcomeOrHttp, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = sansio.any_delete_req(id, res_type, client.client)
+  let http_request = sansio.any_delete_request(id, resource_type, client.client)
   case client.client.print_sent_requests {
-    sansio.LoggingOn -> req |> sansio.req_to_string |> io.println
+    sansio.LoggingOn -> http_request |> sansio.request_to_string |> io.println
     sansio.LoggingOff -> Nil
   }
   let handle_read = fn(
@@ -126,7 +127,7 @@ pub fn any_delete(
     case client.client.print_received_responses {
       sansio.LoggingOn ->
         case response_result {
-          Ok(resp) -> resp |> sansio.resp_to_string
+          Ok(http_response) -> http_response |> sansio.response_to_string
           Error(err) -> err |> rsvp_err_to_string
         }
         |> io.println
@@ -136,14 +137,14 @@ pub fn any_delete(
       Error(err) -> Error(ErrRsvp(err)) |> handle_response
       Ok(response) ->
         case sansio.delete_response(response) {
-          Ok(oo_or_http) -> Ok(oo_or_http) |> handle_response
+          Ok(operation_outcome_or_http) -> Ok(operation_outcome_or_http) |> handle_response
           Error(err) -> Error(ErrSansio(err)) |> handle_response
         }
     }
   }
   let handler = rsvp.expect_any_response(handle_read)
-  req
-  |> request.set_body(case req.body {
+  http_request
+  |> request.set_body(case http_request.body {
     None -> \"\"
     Some(body) -> json.to_string(body)
   })
@@ -153,14 +154,14 @@ pub fn any_delete(
 /// write out search string manually, in case typed search params don't work
 pub fn search_any(
   search_string: String,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
-  handle_response: fn(Result(resources.Bundle, Err)) -> msg,
+  handle_response: fn(Result(resource.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = sansio.any_search_req(search_string, res_type, client.client)
-  sendreq_handleresponse(
-    req,
-    resources.bundle_decoder(),
+  let http_request = sansio.any_search_request(search_string, resource_type, client.client)
+  send_request_and_handle_response(
+    http_request,
+    resource.bundle_decoder(),
     handle_response,
     client,
   )
@@ -170,14 +171,14 @@ pub fn search_any(
 /// return valid resources alongside list of errors
 pub fn search_any_forgiving(
   search_string: String,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
-  handle_response: fn(Result(resources.BundleForgiving, Err)) -> msg,
+  handle_response: fn(Result(resource.BundleForgiving, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = sansio.any_search_req(search_string, res_type, client.client)
-  sendreq_handleresponse(
-    req,
-    resources.bundle_decoder_forgiving(),
+  let http_request = sansio.any_search_request(search_string, resource_type, client.client)
+  send_request_and_handle_response(
+    http_request,
+    resource.bundle_decoder_forgiving(),
     handle_response,
     client,
   )
@@ -185,48 +186,48 @@ pub fn search_any_forgiving(
 
 // run any operation string on any resource string, optionally using Parameters
 pub fn operation_any(
-  params params: Option(resources.Parameters),
+  params params: Option(resource.Parameters),
   operation_name operation_name: String,
-  res_type res_type: resources.ResourceType,
-  res_id res_id: Option(String),
-  res_decoder res_decoder: Decoder(res),
+  resource_type resource_type: resource.ResourceType,
+  resource_id resource_id: Option(String),
+  resource_decoder resource_decoder: Decoder(resource),
   client client: FhirClient,
-  handle_response handle_response: fn(Result(res, Err)) -> msg,
+  handle_response handle_response: fn(Result(resource, Err)) -> msg,
 ) -> Effect(msg) {
-  let req =
-    sansio.any_operation_req(
-      res_type,
-      res_id,
+  let http_request =
+    sansio.any_operation_request(
+      resource_type,
+      resource_id,
       operation_name,
       params,
       client.client,
     )
-  sendreq_handleresponse(req, res_decoder, handle_response, client)
+  send_request_and_handle_response(http_request, resource_decoder, handle_response, client)
 }
 
 pub fn batch(
-  reqs: List(Request(Option(Json))),
+  http_requests: List(Request(Option(Json))),
   bundle_type: sansio.PostBundleType,
   client: FhirClient,
-  handle_response: fn(Result(resources.Bundle, Err)) -> msg,
+  handle_response: fn(Result(resource.Bundle, Err)) -> msg,
 ) -> Effect(msg) {
-  let req = sansio.batch_req(reqs, bundle_type, client.client)
-  sendreq_handleresponse(
-    req,
-    resources.bundle_decoder(),
+  let http_request = sansio.batch_request(http_requests, bundle_type, client.client)
+  send_request_and_handle_response(
+    http_request,
+    resource.bundle_decoder(),
     handle_response,
     client,
   )
 }
 
-fn sendreq_handleresponse(
-  req: Request(Option(Json)),
-  res_dec: Decoder(resource),
+fn send_request_and_handle_response(
+  http_request: Request(Option(Json)),
+  resource_decoder: Decoder(resource),
   handle_response: fn(Result(resource, Err)) -> msg,
   client: FhirClient,
 ) -> Effect(msg) {
   case client.client.print_sent_requests {
-    sansio.LoggingOn -> req |> sansio.req_to_string |> io.println
+    sansio.LoggingOn -> http_request |> sansio.request_to_string |> io.println
     sansio.LoggingOff -> Nil
   }
   let handle_read = fn(
@@ -235,7 +236,7 @@ fn sendreq_handleresponse(
     case client.client.print_received_responses {
       sansio.LoggingOn ->
         case response_result {
-          Ok(resp) -> resp |> sansio.resp_to_string
+          Ok(http_response) -> http_response |> sansio.response_to_string
           Error(err) -> err |> rsvp_err_to_string
         }
         |> io.println
@@ -244,16 +245,16 @@ fn sendreq_handleresponse(
     case response_result {
       Error(err) -> Error(ErrRsvp(err)) |> handle_response
       Ok(response) -> {
-        case sansio.any_response(response, res_dec) {
-          Ok(res) -> Ok(res) |> handle_response
+        case sansio.any_response(response, resource_decoder) {
+          Ok(resource) -> Ok(resource) |> handle_response
           Error(err) -> Error(ErrSansio(err)) |> handle_response
         }
       }
     }
   }
   let handler = rsvp.expect_any_response(handle_read)
-  req
-  |> request.set_body(case req.body {
+  http_request
+  |> request.set_body(case http_request.body {
     None -> \"\"
     Some(body) -> json.to_string(body)
   })
@@ -264,7 +265,7 @@ fn rsvp_err_to_string(err: rsvp.Error(String)) -> String {
   case err {
     rsvp.BadBody -> \"invalid http response body\"
     rsvp.BadUrl(url) -> \"invalid url: \" <> url
-    rsvp.HttpError(resp) -> \"resp not 2xx: \" <> sansio.resp_to_string(resp)
+    rsvp.HttpError(http_response) -> \"http_response not 2xx: \" <> sansio.response_to_string(http_response)
     rsvp.JsonError(err) ->
       \"err decoding json: \"
       <> case err {
@@ -285,9 +286,9 @@ fn rsvp_err_to_string(err: rsvp.Error(String)) -> String {
       }
     rsvp.NetworkError ->
       \"network error, http request could not connect to server\"
-    rsvp.UnhandledResponse(resp) ->
+    rsvp.UnhandledResponse(http_response) ->
       \"rsvp handler does not know how to handle response: \"
-      <> sansio.resp_to_string(resp)
+      <> sansio.response_to_string(http_response)
   }
 }
 "

@@ -71,9 +71,9 @@ pub fn string_to_encoder_call(
           <> name
           <> "_to_json("
           <> value
-          <> ", valuesets."
+          <> ", valueset."
           <> valueset
-          <> "_to_code, valuesets."
+          <> "_to_code, valueset."
           <> valueset
           <> "_system)"
         }
@@ -162,9 +162,9 @@ pub fn string_to_encoder_type(
           "fn(coding) { "
           <> prefix
           <> name
-          <> "_to_json(coding, valuesets."
+          <> "_to_json(coding, valueset."
           <> valueset
-          <> "_to_code, valuesets."
+          <> "_to_code, valueset."
           <> valueset
           <> "_system) }"
         }
@@ -190,6 +190,7 @@ pub fn string_to_encoder_type(
             "DateTime" -> "pt.datetime_to_json"
             "Instant" -> "pt.instant_to_json"
             "Time" -> "pt.time_to_json"
+            "Resource" -> "to_json"
             _ ->
               gleam_type
               |> string.split(".")

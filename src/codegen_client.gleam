@@ -195,6 +195,7 @@ pub fn gen(
   profile_resource_entries profile_resource_entries: List(
     #(String, String, String),
   ),
+  resource_entries resource_entries: List(#(String, String, String)),
   constructors constructors: dict.Dict(
     String,
     codegen_profile_json.ConstructorDefinition,
@@ -340,20 +341,20 @@ pub fn gen(
   //   gen_specific_crud(
   //     entries,
   //     "
-  //         pub fn NAMELOWER_create_req(resource: resources.NAMECAPITAL, client: FhirClient) -> Request(Option(Json)) {
-  //           any_create_req(resources.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
+  //         pub fn NAMELOWER_create_req(resource: resource.NAMECAPITAL, client: FhirClient) -> Request(Option(Json)) {
+  //           any_create_req(resource.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
   //         }
 
   //         pub fn NAMELOWER_read_req(id: String, client: FhirClient) -> Request(Option(Json)) {
   //           any_read_req(id, \"NAMEUPPER\", client)
   //         }
 
-  //         pub fn NAMELOWER_update_req(resource: resources.NAMECAPITAL, client: FhirClient) -> Result(Request(Option(Json)), ErrReq) {
-  //           any_update_req(resource.id, resources.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
+  //         pub fn NAMELOWER_update_req(resource: resource.NAMECAPITAL, client: FhirClient) -> Result(Request(Option(Json)), ErrReq) {
+  //           any_update_req(resource.id, resource.NAMELOWER_to_json(resource), \"NAMEUPPER\", client)
   //         }
 
-  //         pub fn NAMELOWER_resp(resp: Response(String)) -> Result(resources.NAMECAPITAL, ErrResp) {
-  //           any_resp(resp, resources.NAMELOWER_decoder(), \"NAMEUPPER\")
+  //         pub fn NAMELOWER_resp(resp: Response(String)) -> Result(resource.NAMECAPITAL, ErrResp) {
+  //           any_resp(resp, resource.NAMELOWER_decoder(), \"NAMEUPPER\")
   //         }
   //         ",
   //   )
@@ -460,7 +461,9 @@ pub fn gen(
         let #(name_lower, name_capital) = id_to_name(res.type_)
         "pub fn "
         <> name_lower
-        <> "_new(){"
+        <> "_new() -> "
+        <> name_capital
+        <> " {"
         <> name_capital
         //+1 to list.length(res.search_param) if you want includes
         <> {
@@ -496,18 +499,14 @@ pub fn gen(
   let _include_type = "pub type Include {Include(" <> include_type <> ")}"
 
   let grouped_field_names =
-    list.flat_map(expanded_rest, fn(rest) {
-      list.map(rest.resource, fn(res) { id_to_name(res.type_).0 })
+    list.map(resource_entries, fn(entry) {
+      codegen_helpers.to_snake_case(entry.1)
     })
   let grouped_type =
     string.concat(
-      list.map(expanded_rest, fn(rest) {
-        string.concat(
-          list.map(rest.resource, fn(res) {
-            let #(name_lower, name_capital) = id_to_name(res.type_)
-            name_lower <> ": List(resources." <> name_capital <> "),"
-          }),
-        )
+      list.map(resource_entries, fn(entry) {
+        let name_lower = codegen_helpers.to_snake_case(entry.1)
+        name_lower <> ": List(resource." <> entry.1 <> "),"
       }),
     )
   let grouped_type = "
@@ -517,13 +516,8 @@ pub fn gen(
 
   let grouped_type_new =
     string.concat(
-      list.map(expanded_rest, fn(rest) {
-        string.concat(
-          list.map(rest.resource, fn(res) {
-            let #(name_lower, _) = id_to_name(res.type_)
-            name_lower <> ": [],"
-          }),
-        )
+      list.map(resource_entries, fn(entry) {
+        codegen_helpers.to_snake_case(entry.1) <> ": [],"
       }),
     )
   let grouped_type_new =
@@ -533,20 +527,16 @@ pub fn gen(
 
   let bundle_to_gt =
     string.concat(
-      list.map(expanded_rest, fn(rest) {
-        string.concat(
-          list.map(rest.resource, fn(res) {
-            let #(name_lower, name_capital) = id_to_name(res.type_)
-            "resources.Resource"
-            <> name_capital
-            <> "(r) -> "
-            <> codegen_helpers.record_update_source(
-              "GroupedResources",
-              "acc",
-              grouped_field_names,
-              [#(name_lower, "[r, ..acc." <> name_lower <> "]")],
-            )
-          }),
+      list.map(resource_entries, fn(entry) {
+        let name_lower = codegen_helpers.to_snake_case(entry.1)
+        "resource.Resource"
+        <> entry.1
+        <> "(resource) -> "
+        <> codegen_helpers.record_update_source(
+          "GroupedResources",
+          "acc",
+          grouped_field_names,
+          [#(name_lower, "[resource, ..acc." <> name_lower <> "]")],
         )
       }),
     )
@@ -554,15 +544,14 @@ pub fn gen(
   // "r4.ResourceAccount(r) ->
   //   GroupedResources(..acc, account: [r, ..acc.account])"
   let bundle_to_gt =
-    "pub fn bundle_to_groupedresources(from bundle: resources.Bundle) -> GroupedResources {
+    "pub fn bundle_to_groupedresources(from bundle: resource.Bundle) -> GroupedResources {
       list.fold(from: groupedresources_new(), over: bundle.entry, with: fn(acc, entry) {
         case entry.resource {
           None -> acc
-          Some(res) ->
-            case res {"
+          Some(resource) ->
+            case resource {"
     <> bundle_to_gt
     <> "
-            _ -> acc
             }
         }
       })
@@ -570,26 +559,26 @@ pub fn gen(
 
   //   let #(next_relation, version_imports) = case fhir_version {
   //     "r5" -> #(
-  //       "valuesets.IanalinkrelationsNext",
-  //       "import fhir/FHIRVERSION/valuesets",
+  //       "valueset.IanalinkrelationsNext",
+  //       "import fhir/FHIRVERSION/valueset",
   //     )
   //     _ -> #("\"next\"", "")
   //   }
   let assert Ok(codegen_profile_json.RecordConstructor(_, _, fields)) =
-    dict.get(constructors, "resources.BundleLink")
+    dict.get(constructors, "resource.BundleLink")
   let assert Ok(#(relation, _)) =
     list.find(fields, fn(field) { field.0.path == "Bundle.link.relation" })
   let assert Some(relation_type) = relation.gleam_type
   let #(next_relation, version_imports) = case relation_type {
     "String" -> #("l.relation", "")
     _ -> {
-      let assert True = string.starts_with(relation_type, "valuesets.")
+      let assert True = string.starts_with(relation_type, "valueset.")
       let function =
         relation_type
         |> string.split(".")
         |> list.map(codegen_helpers.to_snake_case)
         |> string.join(".")
-      #(function <> "_to_code(l.relation)", "import fhir/FHIRVERSION/valuesets")
+      #(function <> "_to_code(l.relation)", "import fhir/FHIRVERSION/valueset")
     }
   }
 
@@ -597,11 +586,11 @@ pub fn gen(
     False -> ""
     True -> {
       let assert Ok(codegen_profile_json.RecordConstructor(_, _, fields)) =
-        dict.get(constructors, "resources.Parameters")
+        dict.get(constructors, "resource.Parameters")
       case list.map(fields, fn(field) { codegen_helpers.field_name(field.0) }) {
         ["parameter"] ->
           template_codegen_client_sansio.valueset_expand
-          |> string.replace("..resources.parameters_new(),", "")
+          |> string.replace("..resource.parameters_new(),", "")
           |> string.replace("..state.params,", "")
         _ -> template_codegen_client_sansio.valueset_expand
       }
@@ -624,7 +613,7 @@ pub fn gen(
       version_imports
         <> case has_valueset {
         True ->
-          "\nimport fhir/FHIRVERSION/complex_types\nimport gleam/bool\nimport gleam/set\n"
+          "\nimport fhir/FHIRVERSION/complex_type\nimport gleam/bool\nimport gleam/set\n"
         False -> ""
       },
     )
@@ -641,13 +630,13 @@ pub fn gen(
       client_entries,
       "
             pub fn NAMELOWER_create(
-              resource: resources.NAMECAPITAL,
+              resource: resource.NAMECAPITAL,
               client: FhirClient,
-            ) -> Result(resources.NAMECAPITAL, Err) {
+            ) -> Result(resource.NAMECAPITAL, Err) {
               any_create(
-                resources.NAMELOWER_to_json(resource),
-                resources.RtNAMERT,
-                resources.NAMELOWER_decoder(),
+                resource.NAMELOWER_to_json(resource),
+                resource.ResourceTypeNAMERT,
+                resource.NAMELOWER_decoder(),
                 client,
               )
             }
@@ -655,32 +644,32 @@ pub fn gen(
             pub fn NAMELOWER_read(
               id: String,
               client: FhirClient,
-            ) -> Result(resources.NAMECAPITAL, Err) {
-              any_read(id, client, resources.RtNAMERT, resources.NAMELOWER_decoder())
+            ) -> Result(resource.NAMECAPITAL, Err) {
+              any_read(id, client, resource.ResourceTypeNAMERT, resource.NAMELOWER_decoder())
             }
 
             //ID_METHODS
             pub fn NAMELOWER_update(
-              resource: resources.NAMECAPITAL,
+              resource: resource.NAMECAPITAL,
               client: FhirClient,
-            ) -> Result(resources.NAMECAPITAL, Err) {
+            ) -> Result(resource.NAMECAPITAL, Err) {
               let id = RESOURCE_ID
               any_update(
                 id,
-                resources.NAMELOWER_to_json(resource),
-                resources.RtNAMERT,
-                resources.NAMELOWER_decoder(),
+                resource.NAMELOWER_to_json(resource),
+                resource.ResourceTypeNAMERT,
+                resource.NAMELOWER_decoder(),
                 client,
               )
             }
 
             pub fn NAMELOWER_delete(
-              resource: resources.NAMECAPITAL,
+              resource: resource.NAMECAPITAL,
               client: FhirClient,
-            ) -> Result(sansio.OperationoutcomeOrHTTP, Err) {
+            ) -> Result(sansio.OperationoutcomeOrHttp, Err) {
               let id = RESOURCE_ID
               case id {
-                Some(id) -> any_delete(id, resources.RtNAMERT, client)
+                Some(id) -> any_delete(id, resource.ResourceTypeNAMERT, client)
                 None -> Error(ErrSansio(ErrNoId))
               }
             }
@@ -711,14 +700,14 @@ pub fn gen(
       client_entries,
       "
             pub fn NAMELOWER_create(
-              resource: resources.NAMECAPITAL,
+              resource: resource.NAMECAPITAL,
               client: FhirClient,
-              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> msg,
+              handle_response: fn(Result(resource.NAMECAPITAL, Err)) -> msg,
             ) -> Effect(msg) {
               any_create(
-                resources.NAMELOWER_to_json(resource),
-                resources.RtNAMERT,
-                resources.NAMELOWER_decoder(),
+                resource.NAMELOWER_to_json(resource),
+                resource.ResourceTypeNAMERT,
+                resource.NAMELOWER_decoder(),
                 client,
                 handle_response,
               )
@@ -727,36 +716,36 @@ pub fn gen(
             pub fn NAMELOWER_read(
               id: String,
               client: FhirClient,
-              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> msg,
+              handle_response: fn(Result(resource.NAMECAPITAL, Err)) -> msg,
             ) -> Effect(msg) {
-              any_read(id, resources.RtNAMERT, resources.NAMELOWER_decoder(), client, handle_response)
+              any_read(id, resource.ResourceTypeNAMERT, resource.NAMELOWER_decoder(), client, handle_response)
             }
 
             //ID_METHODS
             pub fn NAMELOWER_update(
-              resource: resources.NAMECAPITAL,
+              resource: resource.NAMECAPITAL,
               client: FhirClient,
-              handle_response: fn(Result(resources.NAMECAPITAL, Err)) -> msg,
+              handle_response: fn(Result(resource.NAMECAPITAL, Err)) -> msg,
             ) -> Result(Effect(msg), ErrNoId) {
               let id = RESOURCE_ID
               any_update(
                 id,
-                resources.NAMELOWER_to_json(resource),
-                resources.RtNAMERT,
-                resources.NAMELOWER_decoder(),
+                resource.NAMELOWER_to_json(resource),
+                resource.ResourceTypeNAMERT,
+                resource.NAMELOWER_decoder(),
                 client,
                 handle_response,
               )
             }
 
             pub fn NAMELOWER_delete(
-              resource: resources.NAMECAPITAL,
+              resource: resource.NAMECAPITAL,
               client: FhirClient,
-              handle_response: fn(Result(sansio.OperationoutcomeOrHTTP, Err)) -> msg,
+              handle_response: fn(Result(sansio.OperationoutcomeOrHttp, Err)) -> msg,
             ) -> Result(Effect(msg), ErrNoId) {
               let id = RESOURCE_ID
               case id {
-                Some(id) -> Ok(any_delete(id, resources.RtNAMERT, client, handle_response))
+                Some(id) -> Ok(any_delete(id, resource.ResourceTypeNAMERT, client, handle_response))
                 None -> Error(ErrNoId)
               }
             }
@@ -806,13 +795,17 @@ fn gen_search_encode(
       let #(name_lower, name_capital) = id_to_name(res.type_)
       let #(_, route_type) = id_to_name(res.base_type)
       let sp_arg = case res.search_param {
-        [] -> "_sp"
-        _ -> "sp"
+        [] -> "_search_param"
+        _ -> "search_param"
       }
       let search_fields =
         res.search_param
         |> list.map(fn(sp) {
-          "#(\"" <> sp.name <> "\", sp." <> escape_spname(sp.name) <> "),"
+          "#(\""
+          <> sp.name
+          <> "\", search_param."
+          <> escape_spname(sp.name)
+          <> "),"
         })
         |> string.concat
 
@@ -826,21 +819,21 @@ fn gen_search_encode(
         name_lower,
         "_search_bundled(",
         sp_arg,
-        ": search_params.",
+        ": search_param.",
         name_capital,
         ", client: FhirClient",
         case client {
-          Httpc -> ") {"
+          Httpc -> ") -> Result(resource.Bundle, Err) {"
           Rsvp ->
             ",
-            handle_response: fn(Result(resources.Bundle, Err)) -> msg,
+            handle_response: fn(Result(resource.Bundle, Err)) -> msg,
             ) -> Effect(msg) {"
         },
         "
-          search_params.to_string([",
+          search_param.to_string([",
         search_fields,
         "])
-          |> search_any(resources.Rt",
+          |> search_any(resource.ResourceType",
         route_type,
         ", client",
         case client {
@@ -853,22 +846,22 @@ fn gen_search_encode(
         pub fn ",
         name_lower,
         "_search(
-        sp: search_params.",
+        search_param: search_param.",
         name_capital,
         ", client: FhirClient",
         case client {
           Httpc -> ",
-            ) -> Result(List(resources." <> name_capital <> "), Err) {
-              case " <> name_lower <> "_search_bundled(sp, client) {
+            ) -> Result(List(resource." <> name_capital <> "), Err) {
+              case " <> name_lower <> "_search_bundled(search_param, client) {
                 Ok(bundle) -> " <> grouped_ok <> "
                 Error(error) -> Error(error)
               }
             }"
           Rsvp -> ",
-            handle_response: fn(Result(List(resources." <> name_capital <> "), Err)) -> msg,
+            handle_response: fn(Result(List(resource." <> name_capital <> "), Err)) -> msg,
             ) -> Effect(msg) {
-              " <> name_lower <> "_search_bundled(sp, client, fn(resp) {
-                handle_response(case resp {
+              " <> name_lower <> "_search_bundled(search_param, client, fn(http_response) {
+                handle_response(case http_response {
                   Ok(bundle) -> " <> grouped_ok <> "
                   Error(error) -> Error(error)
                 })

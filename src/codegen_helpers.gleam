@@ -1,10 +1,10 @@
 import argv
 import codegen_constraint
 import fhir/r4_gen/client_httpc
-import fhir/r4_gen/complex_types as r4ct
-import fhir/r4_gen/resources as r4
+import fhir/r4_gen/complex_type as r4ct
+import fhir/r4_gen/resource as r4
 import fhir/r4_gen/sansio
-import fhir/r4_gen/valuesets
+import fhir/r4_gen/valueset
 import filepath
 import gleam/bool
 import gleam/dict.{type Dict}
@@ -637,7 +637,7 @@ pub fn new_fn_arg_and_field(
     1, "*" | 2, "*" | 3, "*" -> #(True, field_name <> ":,")
     0, "1" | 1, _ if is_primitive -> #(
       False,
-      field_name <> ": Primitive(id: None, ext: [], value: None),",
+      field_name <> ": Primitive(id: None, extension: [], value: None),",
     )
     0, "1" -> #(False, field_name <> ": None,")
     0, _ -> #(False, field_name <> ": [],")
@@ -883,7 +883,7 @@ pub fn string_to_type(
           // {
           //   True -> #("String", required_value_sets_acc)
           //   False -> #(
-          //     "valuesets." <> concept_name_from_url(url),
+          //     "valueset." <> concept_name_from_url(url),
           //     insert_valueset(
           //       required_value_sets_acc,
           //       url,
@@ -892,7 +892,7 @@ pub fn string_to_type(
           //   )
           // }
           #(
-            "valuesets." <> concept_name_from_url(url),
+            "valueset." <> concept_name_from_url(url),
             insert_valueset(
               required_value_sets_acc,
               url,
@@ -979,7 +979,7 @@ fn bound_complex_type(
             }
           _ -> bound_type
         }
-          <> "(valuesets."
+          <> "(valueset."
           <> concept_name_from_url(url)
           <> ")",
         insert_valueset(
@@ -1272,7 +1272,7 @@ pub fn load_valuesets(
           Error(_) -> {
             let definition =
               r4.Valueset(
-                ..r4.valueset_new(valuesets.PublicationstatusActive),
+                ..r4.valueset_new(valueset.PublicationstatusActive),
                 url: Some(url),
                 version:,
               )
@@ -1476,7 +1476,8 @@ fn complete_valueset(value_set: r4.Valueset) -> Result(VsOrCs, Nil) {
       && !list.any(expansion.extension, fn(extension) {
         extension.url
         == "http://hl7.org/fhir/StructureDefinition/valueset-unclosed"
-        && extension.ext == r4ct.ExtSimple(r4ct.ExtensionValueBoolean(True))
+        && extension.extension
+        == r4ct.ExtensionSimple(r4ct.ExtensionValueBoolean(True))
       })
   }
   case complete {
@@ -1721,7 +1722,7 @@ fn complete_valueset(value_set: r4.Valueset) -> Result(VsOrCs, Nil) {
 //                 && !list.any(expansion.extension, fn(extension) {
 //                   extension.url
 //                   == "http://hl7.org/fhir/StructureDefinition/valueset-unclosed"
-//                   && extension.ext
+//                   && extension.extension
 //                   == r4ct.ExtSimple(r4ct.ExtensionValueBoolean(True))
 //                 })
 //               let includes =

@@ -1015,7 +1015,7 @@ fn generate_extension_types(
                 )
               }
               let stored_field_type = case preserve_slice_order {
-                True -> "ExtensionSliceElt(" <> field_type <> ")"
+                True -> "ExtensionSliceElement(" <> field_type <> ")"
                 False -> field_type
               }
               let field_name = codegen_helpers.field_name(field)
@@ -1047,7 +1047,7 @@ fn generate_extension_types(
                   )
                 case preserve_slice_order {
                   True ->
-                    "SliceElt("
+                    "SliceElement("
                     <> encoded
                     <> ", "
                     <> value
@@ -1159,7 +1159,7 @@ fn generate_extension_types(
           let open_field_source = case open {
             True -> {
               let field_type = case preserve_slice_order {
-                True -> "SliceElt(Extension)"
+                True -> "SliceElement(Extension)"
                 False -> "Extension"
               }
               "    extension: List(" <> field_type <> "),\n"
@@ -1175,10 +1175,10 @@ fn generate_extension_types(
             True, False ->
               "  let children = list.map(value.extension, extension_to_json)"
             True, True ->
-              "  let children = list.map(value.extension, fn(value) { SliceElt(extension_to_json(value.value), value.internal_gleam_fhir_index) })"
+              "  let children = list.map(value.extension, fn(value) { SliceElement(extension_to_json(value.value), value.internal_gleam_fhir_index) })"
           }
           let ordered_children = case preserve_slice_order {
-            True -> "\n  let children = slice_elts_to_values(children)"
+            True -> "\n  let children = slice_elements_to_values(children)"
             False -> ""
           }
           let json_fields =
@@ -5163,13 +5163,13 @@ pub fn profile_files_to_types(
     |> set.to_list
     |> list.map(fn(url) {
       let assert Ok(id) = url |> string.split("/") |> list.last
-      #("complex_types." <> codegen_helpers.to_camel_case(id), url)
+      #("complex_type." <> codegen_helpers.to_camel_case(id), url)
     })
   let extension_names =
     profile_structures.extensions
     |> dict.values
     |> list.map(fn(extension) {
-      #("complex_types." <> extension.name, extension.url)
+      #("complex_type." <> extension.name, extension.url)
     })
   let profile_names =
     list.map(profile_definitions, fn(profile) {
@@ -5178,8 +5178,8 @@ pub fn profile_files_to_types(
         name -> name
       }
       let module = case profile.kind {
-        Some("resource") -> "resources."
-        _ -> "complex_types."
+        Some("resource") -> "resource."
+        _ -> "complex_type."
       }
       #(module <> name, profile.url)
     })
@@ -5283,7 +5283,7 @@ pub fn profile_files_to_types(
           codegen_helpers.bucket_prefix("Quantity", current_bucket)
         let classifier_key = case current_bucket {
           codegen_helpers.ComplexTypes -> "complex"
-          codegen_helpers.Resources -> "resources"
+          codegen_helpers.Resources -> "resource"
         }
         let classifier_sets = generated_extension_classifiers
         let generated_extension_classifiers =
@@ -6107,11 +6107,14 @@ pub fn profile_files_to_types(
                         {
                           Some(_) ->
                             complex_prefix
-                            <> "ExtensionSliceElt("
+                            <> "ExtensionSliceElement("
                             <> field_type
                             <> ")"
                           None ->
-                            complex_prefix <> "SliceElt(" <> field_type <> ")"
+                            complex_prefix
+                            <> "SliceElement("
+                            <> field_type
+                            <> ")"
                         }
                       False -> field_type
                     }
@@ -6230,7 +6233,10 @@ pub fn profile_files_to_types(
                           )
                         let value = case is_resource_slice_elt {
                           True ->
-                            complex_prefix <> "SliceElt(" <> value <> ", None)"
+                            complex_prefix
+                            <> "SliceElement("
+                            <> value
+                            <> ", None)"
                           False -> value
                         }
                         #(
@@ -6635,7 +6641,7 @@ pub fn profile_files_to_types(
         let #(profile_type, context) = item
         let classifier_key = case context.current_bucket {
           codegen_helpers.ComplexTypes -> "complex"
-          codegen_helpers.Resources -> "resources"
+          codegen_helpers.Resources -> "resource"
         }
         let generated_classifiers =
           dict.get(classifier_sets, classifier_key)
@@ -6832,7 +6838,7 @@ pub fn profile_files_to_types(
         True ->
           codegen_helpers.require_function(
             complex_required,
-            "slice_elts_to_values",
+            "slice_elements_to_values",
           )
         False -> complex_required
       },

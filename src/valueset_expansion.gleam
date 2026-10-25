@@ -1,6 +1,6 @@
 import argv
 import fhir/r4_gen/client_httpc
-import fhir/r4_gen/resources
+import fhir/r4_gen/resource
 import fhir/r4_gen/sansio
 import gleam/io
 import gleam/json
@@ -17,11 +17,11 @@ pub fn main() {
       panic as "Usage: gleam run -m valueset_expansion [valueset.json server_url]"
   }
   let assert Ok(contents) = simplifile.read(filename)
-  let assert Ok(definition) = json.parse(contents, resources.valueset_decoder())
+  let assert Ok(definition) = json.parse(contents, resource.valueset_decoder())
   let assert Ok(client) = sansio.fhirclient_new(server)
   case expand(definition, client) {
     Ok(expanded) ->
-      expanded |> resources.valueset_to_json |> json.to_string |> io.println
+      expanded |> resource.valueset_to_json |> json.to_string |> io.println
     Error(err) -> panic as client_httpc.err_valueset_to_string(err)
   }
 }
@@ -29,8 +29,8 @@ pub fn main() {
 /// Ask a terminology server to expand the supplied ValueSet definition.
 /// Collect every page into the returned ValueSet.
 pub fn expand(
-  value_set: resources.Valueset,
+  value_set: resource.Valueset,
   client: sansio.FhirClient,
-) -> Result(resources.Valueset, client_httpc.ErrValueset) {
+) -> Result(resource.Valueset, client_httpc.ErrValueset) {
   client_httpc.valueset_expand(value_set, client)
 }

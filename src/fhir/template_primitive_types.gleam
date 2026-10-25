@@ -71,16 +71,16 @@ pub fn source(types: Set(String)) -> String {
 /// where precision is number of digits after decimal point
 /// and value is nanoseconds
 /// eg 123_000_000 nanoseconds = 0.123 seconds
-/// NanosecWithPrecision(123_000_000, Some(3)) -> .123
-/// NanosecWithPrecision(123_000_000, Some(4)) -> .1230
-/// NanosecWithPrecision(123_000, Some(5)) -> .00012
+/// NanosecondsWithPrecision(123_000_000, Some(3)) -> .123
+/// NanosecondsWithPrecision(123_000_000, Some(4)) -> .1230
+/// NanosecondsWithPrecision(123_000, Some(5)) -> .00012
 ",
     ),
     #(
-      "NanosecWithPrecision",
+      "NanosecondsWithPrecision",
       ["import:option"],
-      "pub type NanosecWithPrecision {
-  NanosecWithPrecision(value: Int, precision: Option(Int))
+      "pub type NanosecondsWithPrecision {
+  NanosecondsWithPrecision(value: Int, precision: Option(Int))
 }
 
 /// Elliot Silver: The example formats for dateTime shows second resolution, while the example format for instant shows millisecond resolution. However both regexes allow 9 subsecond digits. What is the actual maximum precision of each datatype?
@@ -250,7 +250,7 @@ pub fn source(types: Set(String)) -> String {
     #(
       "parse_time_of_day",
       [
-        "NanosecWithPrecision",
+        "NanosecondsWithPrecision",
         "byte_colon",
         "expect_byte",
         "import:option",
@@ -263,7 +263,7 @@ pub fn source(types: Set(String)) -> String {
       ],
       "fn parse_time_of_day(
   bytes: BitArray,
-) -> Result(#(Int, Int, Int, Option(NanosecWithPrecision), BitArray), Nil) {
+) -> Result(#(Int, Int, Int, Option(NanosecondsWithPrecision), BitArray), Nil) {
   use #(hour, bytes) <- result.try(parse_digits(from: bytes, count: 2))
   use _ <- result.try(validate_hour(hour))
   use bytes <- result.try(expect_byte(bytes, byte_colon))
@@ -272,10 +272,10 @@ pub fn source(types: Set(String)) -> String {
   use bytes <- result.try(expect_byte(bytes, byte_colon))
   use #(second, bytes) <- result.try(parse_digits(from: bytes, count: 2))
   use _ <- result.try(validate_second(second))
-  use #(nanosec, bytes) <- result.try(parse_optional_fraction_as_nanoseconds(
+  use #(nanosecond, bytes) <- result.try(parse_optional_fraction_as_nanoseconds(
     bytes,
   ))
-  Ok(#(hour, minute, second, nanosec, bytes))
+  Ok(#(hour, minute, second, nanosecond, bytes))
 }
 
 ",
@@ -283,17 +283,17 @@ pub fn source(types: Set(String)) -> String {
     #(
       "time_of_day_to_string",
       [
-        "NanosecWithPrecision",
+        "NanosecondsWithPrecision",
         "import:option",
         "import:string",
         "n2",
-        "nanosec_to_string",
+        "nanosecond_to_string",
       ],
       "pub fn time_of_day_to_string(
   hour: Int,
   minute: Int,
   second: Int,
-  nanosec: Option(NanosecWithPrecision),
+  nanosecond: Option(NanosecondsWithPrecision),
 ) -> String {
   string.concat([
     n2(hour),
@@ -301,7 +301,7 @@ pub fn source(types: Set(String)) -> String {
     n2(minute),
     \":\",
     n2(second),
-    nanosec_to_string(nanosec),
+    nanosecond_to_string(nanosecond),
   ])
 }
 
@@ -310,7 +310,7 @@ pub fn source(types: Set(String)) -> String {
     #(
       "parse_optional_fraction_as_nanoseconds",
       [
-        "NanosecWithPrecision",
+        "NanosecondsWithPrecision",
         "byte_dot",
         "import:option",
         "import:result",
@@ -318,13 +318,13 @@ pub fn source(types: Set(String)) -> String {
       ],
       "fn parse_optional_fraction_as_nanoseconds(
   bytes: BitArray,
-) -> Result(#(Option(NanosecWithPrecision), BitArray), Nil) {
+) -> Result(#(Option(NanosecondsWithPrecision), BitArray), Nil) {
   case bytes {
     <<byte, rest:bytes>> -> {
       case byte == byte_dot {
         True -> {
-          use #(ns, bytes) <- result.try(parse_fraction_as_nanoseconds(rest))
-          Ok(#(Some(ns), bytes))
+          use #(nanoseconds, bytes) <- result.try(parse_fraction_as_nanoseconds(rest))
+          Ok(#(Some(nanoseconds), bytes))
         }
         False -> Ok(#(None, <<byte, rest:bits>>))
       }
@@ -338,7 +338,7 @@ pub fn source(types: Set(String)) -> String {
     #(
       "parse_fraction_as_nanoseconds",
       [
-        "NanosecWithPrecision",
+        "NanosecondsWithPrecision",
         "byte_nine",
         "byte_zero",
         "nanoseconds_per_second",
@@ -346,7 +346,7 @@ pub fn source(types: Set(String)) -> String {
       ],
       "fn parse_fraction_as_nanoseconds(
   bytes: BitArray,
-) -> Result(#(NanosecWithPrecision, BitArray), Nil) {
+) -> Result(#(NanosecondsWithPrecision, BitArray), Nil) {
   case bytes {
     <<byte, _:bytes>> -> {
       case byte >= byte_zero && byte <= byte_nine {
@@ -368,13 +368,13 @@ pub fn source(types: Set(String)) -> String {
     ),
     #(
       "parse_fraction_as_nanoseconds_loop",
-      ["NanosecWithPrecision", "byte_nine", "byte_zero", "import:option"],
+      ["NanosecondsWithPrecision", "byte_nine", "byte_zero", "import:option"],
       "fn parse_fraction_as_nanoseconds_loop(
   bytes: BitArray,
   acc: Int,
   power: Int,
   digits: Int,
-) -> Result(#(NanosecWithPrecision, BitArray), Nil) {
+) -> Result(#(NanosecondsWithPrecision, BitArray), Nil) {
   let power = power / 10
   case bytes {
     <<byte, rest:bytes>> -> {
@@ -393,10 +393,10 @@ pub fn source(types: Set(String)) -> String {
             }
           }
         }
-        False -> Ok(#(NanosecWithPrecision(acc, Some(digits)), bytes))
+        False -> Ok(#(NanosecondsWithPrecision(acc, Some(digits)), bytes))
       }
     }
-    _ -> Ok(#(NanosecWithPrecision(acc, Some(digits)), bytes))
+    _ -> Ok(#(NanosecondsWithPrecision(acc, Some(digits)), bytes))
   }
 }
 
@@ -482,16 +482,21 @@ pub fn source(types: Set(String)) -> String {
 ",
     ),
     #(
-      "nanosec_to_string",
-      ["NanosecWithPrecision", "import:int", "import:option", "import:string"],
-      "pub fn nanosec_to_string(nanosec: Option(NanosecWithPrecision)) -> String {
-  case nanosec {
+      "nanosecond_to_string",
+      [
+        "NanosecondsWithPrecision",
+        "import:int",
+        "import:option",
+        "import:string",
+      ],
+      "pub fn nanosecond_to_string(nanosecond: Option(NanosecondsWithPrecision)) -> String {
+  case nanosecond {
     None -> \"\"
-    Some(NanosecWithPrecision(value, Some(digits))) -> {
+    Some(NanosecondsWithPrecision(value, Some(digits))) -> {
       let all = int.to_string(value) |> string.pad_start(9, \"0\")
       \".\" <> string.slice(all, 0, digits)
     }
-    Some(NanosecWithPrecision(value, None)) -> {
+    Some(NanosecondsWithPrecision(value, None)) -> {
       let all = int.to_string(value) |> string.pad_start(9, \"0\")
       \".\" <> all
     }
@@ -503,8 +508,8 @@ pub fn source(types: Set(String)) -> String {
     #(
       "timezone_to_string",
       ["Sign", "Timezone", "import:string", "n2"],
-      "pub fn timezone_to_string(tz: Timezone) -> String {
-  case tz {
+      "pub fn timezone_to_string(timezone: Timezone) -> String {
+  case timezone {
     Z -> \"Z\"
     Offset(Plus, hours, minutes) ->
       string.concat([\"+\", n2(hours), \":\", n2(minutes)])
@@ -683,13 +688,18 @@ pub fn source(types: Set(String)) -> String {
     ),
     #(
       "Time",
-      ["NanosecWithPrecision", "import:option", "time_decoder", "time_to_json"],
+      [
+        "NanosecondsWithPrecision",
+        "import:option",
+        "time_decoder",
+        "time_to_json",
+      ],
       "pub type Time {
   Time(
     hour: Int,
     minute: Int,
     second: Int,
-    nanosec: Option(NanosecWithPrecision),
+    nanosecond: Option(NanosecondsWithPrecision),
   )
 }
 
@@ -699,11 +709,11 @@ pub fn source(types: Set(String)) -> String {
       "parse_time",
       ["Time", "import:result", "parse_time_of_day"],
       "pub fn parse_time(input: String) -> Result(Time, Nil) {
-  use #(hour, minute, second, nanosec, bytes) <- result.try(
+  use #(hour, minute, second, nanosecond, bytes) <- result.try(
     parse_time_of_day(<<input:utf8>>),
   )
   case bytes {
-    <<>> -> Ok(Time(hour, minute, second, nanosec))
+    <<>> -> Ok(Time(hour, minute, second, nanosecond))
     _ -> Error(Nil)
   }
 }
@@ -714,7 +724,7 @@ pub fn source(types: Set(String)) -> String {
       "time_to_string",
       ["Time", "time_of_day_to_string"],
       "pub fn time_to_string(time: Time) -> String {
-  time_of_day_to_string(time.hour, time.minute, time.second, time.nanosec)
+  time_of_day_to_string(time.hour, time.minute, time.second, time.nanosecond)
 }
 
 ",
@@ -833,13 +843,13 @@ pub fn source(types: Set(String)) -> String {
 ) -> Result(DateTime, Nil) {
   case bytes {
     <<byte, rest:bytes>> if byte == byte_t_uppercase -> {
-      use #(hour, minute, second, nanosec, bytes) <- result.try(
+      use #(hour, minute, second, nanosecond, bytes) <- result.try(
         parse_time_of_day(rest),
       )
       use #(timezone, bytes) <- result.try(parse_timezone(bytes))
       case bytes {
         <<>> ->
-          Ok(DateWithTime(date, Time(hour, minute, second, nanosec), timezone))
+          Ok(DateWithTime(date, Time(hour, minute, second, nanosecond), timezone))
         _ -> Error(Nil)
       }
     }
@@ -859,8 +869,8 @@ pub fn source(types: Set(String)) -> String {
         "time_to_string",
         "timezone_to_string",
       ],
-      "pub fn datetime_to_string(dt: DateTime) -> String {
-  case dt {
+      "pub fn datetime_to_string(from datetime: DateTime) -> String {
+  case datetime {
     DateNoTime(date:) -> date_to_string(date)
     DateWithTime(date:, time:, zone:) ->
       string.concat([
@@ -880,7 +890,7 @@ pub fn source(types: Set(String)) -> String {
       "pub fn datetime_decoder() -> decode.Decoder(DateTime) {
   use s <- decode.then(decode.string)
   case parse_datetime(s) {
-    Ok(dt) -> decode.success(dt)
+    Ok(datetime) -> decode.success(datetime)
     Error(Nil) -> decode.failure(DateNoTime(Year(123)), \"DateTime\")
   }
 }
@@ -890,8 +900,8 @@ pub fn source(types: Set(String)) -> String {
     #(
       "datetime_to_json",
       ["DateTime", "datetime_to_string", "import:json"],
-      "pub fn datetime_to_json(dt: DateTime) -> json.Json {
-  json.string(datetime_to_string(dt))
+      "pub fn datetime_to_json(datetime: DateTime) -> json.Json {
+  json.string(datetime_to_string(datetime))
 }
 
 //-----------------------------------------instant-----------------------------------------
@@ -946,7 +956,7 @@ pub fn source(types: Set(String)) -> String {
   use #(day, bytes) <- result.try(parse_digits(from: bytes, count: 2))
   use _ <- result.try(validate_day(year, month, day))
   use bytes <- result.try(expect_byte(bytes, byte_t_uppercase))
-  use #(hour, minute, second, nanosec, bytes) <- result.try(parse_time_of_day(
+  use #(hour, minute, second, nanosecond, bytes) <- result.try(parse_time_of_day(
     bytes,
   ))
   use #(timezone, bytes) <- result.try(parse_timezone(bytes))
@@ -954,7 +964,7 @@ pub fn source(types: Set(String)) -> String {
     <<>> ->
       Ok(Instant(
         calendar.Date(year, month, day),
-        Time(hour, minute, second, nanosec),
+        Time(hour, minute, second, nanosecond),
         timezone,
       ))
     _ -> Error(Nil)

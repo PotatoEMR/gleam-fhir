@@ -7,7 +7,7 @@
 //// and 2 for input errors. Imports alone do not count as usage. Constructors
 //// belong to their type. This command only reads files.
 //// Functions ending in _new are omitted from the report. Functions ending in
-//// _from_code are checked normally through their references.
+//// _parse_code are checked normally through their references.
 
 import argv
 import filepath
@@ -50,7 +50,7 @@ pub fn main() {
     [directory] -> {
       let sources =
         list.try_map(
-          ["resources", "primitive_types", "complex_types", "valuesets"],
+          ["resource", "primitive_type", "complex_type", "valueset"],
           fn(module_name) {
             let path = filepath.join(directory, module_name <> ".gleam")
             simplifile.read(path)
@@ -66,7 +66,7 @@ pub fn main() {
           shellout.exit(2)
         }
         Ok([]) ->
-          io.println("All public declarations are used by resources.gleam.")
+          io.println("All public declarations are used by resource.gleam.")
         Ok(declarations) -> {
           list.each(declarations, fn(declaration) {
             io.println(
@@ -113,9 +113,9 @@ pub fn unused(
   )
   let module_names =
     list.map(modules, fn(module_) { module_.0 }) |> set.from_list
-  use _ <- result.try(case set.contains(module_names, "resources") {
+  use _ <- result.try(case set.contains(module_names, "resource") {
     True -> Ok(Nil)
-    False -> Error("Missing resources.gleam")
+    False -> Error("Missing resource.gleam")
   })
   let #(declarations, constructors) =
     list.fold(modules, #(dict.new(), dict.new()), fn(acc, entry) {
@@ -267,7 +267,7 @@ pub fn unused(
     declarations
     |> dict.to_list
     |> list.filter_map(fn(entry) {
-      case entry.0.0 == "resources" && entry.1.public {
+      case entry.0.0 == "resource" && entry.1.public {
         True -> Ok(entry.0)
         False -> Error(Nil)
       }
@@ -280,7 +280,7 @@ pub fn unused(
     let #(key, declaration) = entry
     let is_new = declaration.kind == "fn" && string.ends_with(key.1, "_new")
     case
-      key.0 != "resources"
+      key.0 != "resource"
       && declaration.public
       && !set.contains(used, key)
       && !is_new

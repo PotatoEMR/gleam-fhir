@@ -1,10 +1,11 @@
-pub const source = "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION search params
+pub const source =
+  "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION search params
 
 import gleam/list
 import gleam/string
 import gleam/option.{type Option, Some, None}
 
-pub fn to_string(params) {
+pub fn to_string(params: List(#(String, Option(String)))) -> String {
   list.fold(
     from: [],
     over: params,

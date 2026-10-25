@@ -146,9 +146,9 @@ pub fn decoder_for_type(
         string.replace(name, prefix, "") |> codegen_helpers.to_snake_case
       prefix
       <> name
-      <> "_decoder(valuesets."
+      <> "_decoder(valueset."
       <> valueset
-      <> "_from_code_and_system, valuesets."
+      <> "_parse_code_and_system, valueset."
       <> valueset
       <> "_failure_variant)"
     }
@@ -279,8 +279,9 @@ pub fn gen_res_decoder(
   decoder_always_failure_fordr: String,
 ) {
   let resource_type = case is_domainresource {
-    True -> "\n    use rt <- decode.field(\"resourceType\", decode.string)
-      use <- bool.guard(rt != \"" <> respascal <> "\", decode.failure(RESNAMELOWER_new(" <> decoder_always_failure_fordr <> "), \"resourceType\"))"
+    True ->
+      "\n    use resource_type <- decode.field(\"resourceType\", decode.string)
+      use <- bool.guard(resource_type != \"" <> respascal <> "\", decode.failure(RESNAMELOWER_new(" <> decoder_always_failure_fordr <> "), \"resourceType\"))"
     False -> ""
   }
   let success = case success_list {

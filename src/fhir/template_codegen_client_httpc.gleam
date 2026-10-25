@@ -1,9 +1,9 @@
 pub const source =
   "////[https://hl7.org/fhir/FHIRVERSION](https://hl7.org/fhir/FHIRVERSION) FHIRVERSION client using httpc
 
-import fhir/FHIRVERSION/resources
+import fhir/FHIRVERSION/resource
 import fhir/FHIRVERSION/sansio.{type FhirClient}
-import fhir/FHIRVERSION/search_params
+import fhir/FHIRVERSION/search_param
 import gleam/dynamic/decode.{type Decoder}
 import gleam/http/request.{type Request}
 import gleam/http/response.{type Response}
@@ -24,7 +24,7 @@ pub type ErrFromSansio {
   ///did not get resource json, often server eg nginx gives basic html response
   ErrServer(Response(String))
   ///got operationoutcome error from fhir server
-  ErrOperationoutcome(resources.Operationoutcome)
+  ErrOperationoutcome(resource.Operationoutcome)
   ///could not make an update or delete request because resource has no id
   ErrNoId
 }
@@ -33,11 +33,11 @@ pub fn err_to_string(err: Err) -> String {
   case err {
     ErrSansio(err:) ->
       case err {
-        ErrParseJson(err) -> sansio.err_resp_to_string(sansio.ErrParseJson(err))
-        ErrServer(err) -> sansio.err_resp_to_string(sansio.ErrServer(err))
+        ErrParseJson(err) -> sansio.err_response_to_string(sansio.ErrParseJson(err))
+        ErrServer(err) -> sansio.err_response_to_string(sansio.ErrServer(err))
         ErrOperationoutcome(err) ->
-          sansio.err_resp_to_string(sansio.ErrOperationoutcome(err))
-        ErrNoId -> sansio.err_req_to_string
+          sansio.err_response_to_string(sansio.ErrOperationoutcome(err))
+        ErrNoId -> sansio.err_request_to_string
       }
     ErrHttpc(err:) -> http_err_to_string(err)
   }
@@ -45,34 +45,34 @@ pub fn err_to_string(err: Err) -> String {
 
 fn any_create(
   resource: Json,
-  res_type: resources.ResourceType,
-  resource_dec: Decoder(r),
+  resource_type: resource.ResourceType,
+  resource_decoder: Decoder(r),
   client: FhirClient,
 ) -> Result(r, Err) {
-  let req = sansio.any_create_req(resource, res_type, client)
-  sendreq_parseresource(req, resource_dec, client)
+  let http_request = sansio.any_create_request(resource, resource_type, client)
+  send_request_and_parse_resource(http_request, resource_decoder, client)
 }
 
 fn any_read(
   id: String,
   client: FhirClient,
-  res_type: resources.ResourceType,
-  resource_dec: Decoder(a),
+  resource_type: resource.ResourceType,
+  resource_decoder: Decoder(a),
 ) -> Result(a, Err) {
-  let req = sansio.any_read_req(id, res_type, client)
-  sendreq_parseresource(req, resource_dec, client)
+  let http_request = sansio.any_read_request(id, resource_type, client)
+  send_request_and_parse_resource(http_request, resource_decoder, client)
 }
 
 fn any_update(
   id: Option(String),
   resource: Json,
-  res_type: resources.ResourceType,
-  res_dec: Decoder(r),
+  resource_type: resource.ResourceType,
+  resource_decoder: Decoder(r),
   client: FhirClient,
 ) -> Result(r, Err) {
-  let req = sansio.any_update_req(id, resource, res_type, client)
-  case req {
-    Ok(req) -> sendreq_parseresource(req, res_dec, client)
+  let http_request = sansio.any_update_request(id, resource, resource_type, client)
+  case http_request {
+    Ok(http_request) -> send_request_and_parse_resource(http_request, resource_decoder, client)
     Error(_) -> Error(ErrSansio(ErrNoId))
     //can have error preparing update request if resource has no id
   }
@@ -80,15 +80,15 @@ fn any_update(
 
 pub fn any_delete(
   id: String,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
-) -> Result(sansio.OperationoutcomeOrHTTP, Err) {
-  let req = sansio.any_delete_req(id, res_type, client)
-  case httpc.send(req |> request.set_body(\"\")) {
+) -> Result(sansio.OperationoutcomeOrHttp, Err) {
+  let http_request = sansio.any_delete_request(id, resource_type, client)
+  case httpc.send(http_request |> request.set_body(\"\")) {
     Error(err) -> Error(ErrHttpc(err))
-    Ok(resp) ->
-      case sansio.delete_response(resp) {
-        Ok(oo_or_http) -> Ok(oo_or_http)
+    Ok(http_response) ->
+      case sansio.delete_response(http_response) {
+        Ok(operation_outcome_or_http) -> Ok(operation_outcome_or_http)
         Error(err) ->
           Error(
             ErrSansio(case err {
@@ -104,11 +104,11 @@ pub fn any_delete(
 /// write out search string manually, in case typed search params don't work
 pub fn search_any(
   search_string: String,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
-) -> Result(resources.Bundle, Err) {
-  sansio.any_search_req(search_string, res_type, client)
-  |> sendreq_parseresource(resources.bundle_decoder(), client)
+) -> Result(resource.Bundle, Err) {
+  sansio.any_search_request(search_string, resource_type, client)
+  |> send_request_and_parse_resource(resource.bundle_decoder(), client)
 }
 
 /// get all resources in paginated bundle,
@@ -116,9 +116,9 @@ pub fn search_any(
 ///
 /// fhirclient_httpc.search_any(\"name=e&_count=25\", \"Patient\", client) |> fhirclient_httpc.all_pages(client)
 pub fn all_pages(
-  first_bundle: Result(resources.Bundle, Err),
+  first_bundle: Result(resource.Bundle, Err),
   client: FhirClient,
-) -> Result(resources.Bundle, Err) {
+) -> Result(resource.Bundle, Err) {
   case all_pages_loop(first_bundle, [], client) {
     Error(err) -> Error(err)
     Ok(#(last_bundle, bundles)) -> {
@@ -126,7 +126,7 @@ pub fn all_pages(
         list.fold(from: [], over: bundles, with: fn(acc, bundle) {
           list.append(bundle.entry, acc)
         })
-      Ok(resources.Bundle(..last_bundle, entry: entries, link: []))
+      Ok(resource.Bundle(..last_bundle, entry: entries, link: []))
     }
   }
 }
@@ -135,20 +135,20 @@ pub fn all_pages(
 /// also returns last bundle individually
 /// because all_pages smushes everything in there
 fn all_pages_loop(
-  curr_bundle: Result(resources.Bundle, Err),
-  acc_bundles: List(resources.Bundle),
+  current_bundle: Result(resource.Bundle, Err),
+  acc_bundles: List(resource.Bundle),
   client: FhirClient,
-) -> Result(#(resources.Bundle, List(resources.Bundle)), Err) {
-  case curr_bundle {
+) -> Result(#(resource.Bundle, List(resource.Bundle)), Err) {
+  case current_bundle {
     Error(err) -> Error(err)
-    Ok(curr_bundle) -> {
-      let acc_bundles = [curr_bundle, ..acc_bundles]
-      case sansio.bundle_next_page_req(curr_bundle, client) {
+    Ok(current_bundle) -> {
+      let acc_bundles = [current_bundle, ..acc_bundles]
+      case sansio.bundle_next_page_request(current_bundle, client) {
         // Error(_) -> reached last page
-        Error(_) -> Ok(#(curr_bundle, acc_bundles))
-        Ok(req) -> {
+        Error(_) -> Ok(#(current_bundle, acc_bundles))
+        Ok(http_request) -> {
           let next =
-            sendreq_parseresource(req, resources.bundle_decoder(), client)
+            send_request_and_parse_resource(http_request, resource.bundle_decoder(), client)
           all_pages_loop(next, acc_bundles, client)
         }
       }
@@ -157,9 +157,9 @@ fn all_pages_loop(
 }
 
 pub fn all_pages_forgiving(
-  first_bundle: Result(resources.BundleForgiving, Err),
+  first_bundle: Result(resource.BundleForgiving, Err),
   client: FhirClient,
-) -> Result(resources.BundleForgiving, Err) {
+) -> Result(resource.BundleForgiving, Err) {
   case all_pages_loop_forgiving(first_bundle, [], client) {
     Error(err) -> Error(err)
     Ok(#(last_bundle, bundles)) -> {
@@ -167,29 +167,29 @@ pub fn all_pages_forgiving(
         list.fold(from: [], over: bundles, with: fn(acc, bundle) {
           list.append(bundle.entry, acc)
         })
-      Ok(resources.BundleForgiving(..last_bundle, entry: entries, link: []))
+      Ok(resource.BundleForgiving(..last_bundle, entry: entries, link: []))
     }
   }
 }
 
 // arguably very duplicated, maybe should be combined somehow
 fn all_pages_loop_forgiving(
-  curr_bundle: Result(resources.BundleForgiving, Err),
-  acc_bundles: List(resources.BundleForgiving),
+  current_bundle: Result(resource.BundleForgiving, Err),
+  acc_bundles: List(resource.BundleForgiving),
   client: FhirClient,
-) -> Result(#(resources.BundleForgiving, List(resources.BundleForgiving)), Err) {
-  case curr_bundle {
+) -> Result(#(resource.BundleForgiving, List(resource.BundleForgiving)), Err) {
+  case current_bundle {
     Error(err) -> Error(err)
-    Ok(curr_bundle) -> {
-      let acc_bundles = [curr_bundle, ..acc_bundles]
-      case sansio.bundle_next_page_req_forgiving(curr_bundle, client) {
+    Ok(current_bundle) -> {
+      let acc_bundles = [current_bundle, ..acc_bundles]
+      case sansio.bundle_next_page_request_forgiving(current_bundle, client) {
         // Error(_) -> reached last page
-        Error(_) -> Ok(#(curr_bundle, acc_bundles))
-        Ok(req) -> {
+        Error(_) -> Ok(#(current_bundle, acc_bundles))
+        Ok(http_request) -> {
           let next =
-            sendreq_parseresource(
-              req,
-              resources.bundle_decoder_forgiving(),
+            send_request_and_parse_resource(
+              http_request,
+              resource.bundle_decoder_forgiving(),
               client,
             )
           all_pages_loop_forgiving(next, acc_bundles, client)
@@ -203,64 +203,64 @@ fn all_pages_loop_forgiving(
 /// return valid resources alongside list of errors
 pub fn search_any_forgiving(
   search_string: String,
-  res_type: resources.ResourceType,
+  resource_type: resource.ResourceType,
   client: FhirClient,
-) -> Result(resources.BundleForgiving, Err) {
-  sansio.any_search_req(search_string, res_type, client)
-  |> sendreq_parseresource(resources.bundle_decoder_forgiving(), client)
+) -> Result(resource.BundleForgiving, Err) {
+  sansio.any_search_request(search_string, resource_type, client)
+  |> send_request_and_parse_resource(resource.bundle_decoder_forgiving(), client)
 }
 
 /// run any operation string on any resource type, optionally using Parameters
 pub fn operation_any(
-  params params: Option(resources.Parameters),
+  params params: Option(resource.Parameters),
   operation_name operation_name: String,
-  res_type res_type: resources.ResourceType,
-  res_id res_id: Option(String),
-  res_decoder res_decoder: Decoder(res),
+  resource_type resource_type: resource.ResourceType,
+  resource_id resource_id: Option(String),
+  resource_decoder resource_decoder: Decoder(resource),
   client client: FhirClient,
-) -> Result(res, Err) {
-  let req =
-    sansio.any_operation_req(res_type, res_id, operation_name, params, client)
-  sendreq_parseresource(req, res_decoder, client)
+) -> Result(resource, Err) {
+  let http_request =
+    sansio.any_operation_request(resource_type, resource_id, operation_name, params, client)
+  send_request_and_parse_resource(http_request, resource_decoder, client)
 }
 
 pub fn batch(
-  reqs: List(Request(Option(Json))),
+  http_requests: List(Request(Option(Json))),
   bundle_type: sansio.PostBundleType,
   client: FhirClient,
-) -> Result(resources.Bundle, Err) {
-  let req = sansio.batch_req(reqs, bundle_type, client)
-  sendreq_parseresource(req, resources.bundle_decoder(), client)
+) -> Result(resource.Bundle, Err) {
+  let http_request = sansio.batch_request(http_requests, bundle_type, client)
+  send_request_and_parse_resource(http_request, resource.bundle_decoder(), client)
 }
 
-fn sendreq_parseresource(
-  req: Request(Option(Json)),
-  res_dec: Decoder(r),
+fn send_request_and_parse_resource(
+  http_request: Request(Option(Json)),
+  resource_decoder: Decoder(r),
   client: sansio.FhirClient,
 ) -> Result(r, Err) {
   case client.print_sent_requests {
-    sansio.LoggingOn -> req |> sansio.req_to_string |> io.println
+    sansio.LoggingOn -> http_request |> sansio.request_to_string |> io.println
     sansio.LoggingOff -> Nil
   }
-  let req =
-    request.set_body(req, case req.body {
+  let http_request =
+    request.set_body(http_request, case http_request.body {
       None -> \"\"
       Some(body) -> json.to_string(body)
     })
-  let resp = httpc.send(req)
+  let http_response = httpc.send(http_request)
   case client.print_received_responses {
     sansio.LoggingOn ->
-      case resp {
-        Ok(resp) -> resp |> sansio.resp_to_string
+      case http_response {
+        Ok(http_response) -> http_response |> sansio.response_to_string
         Error(err) -> err |> http_err_to_string
       }
       |> io.println
     sansio.LoggingOff -> Nil
   }
-  case resp {
+  case http_response {
     Error(err) -> Error(ErrHttpc(err))
-    Ok(resp) ->
-      case sansio.any_response(resp, res_dec) {
+    Ok(http_response) ->
+      case sansio.any_response(http_response, resource_decoder) {
         Ok(resource) -> Ok(resource)
         Error(err) ->
           Error(
@@ -274,7 +274,7 @@ fn sendreq_parseresource(
   }
 }
 
-fn http_err_to_string(err: httpc.HttpError) {
+fn http_err_to_string(err: httpc.HttpError) -> String {
   case err {
     httpc.InvalidUtf8Response -> \"non-UTF-8 data in response\"
     httpc.FailedToConnect(ip4:, ip6:) ->
@@ -306,7 +306,7 @@ pub fn err_valueset_to_string(err: ErrValueset) -> String {
   case err {
     ErrValuesetHttpc(err) -> http_err_to_string(err)
     ErrValuesetSansio(err) -> case err {
-      sansio.ValuesetResponseError(err) -> sansio.err_resp_to_string(err)
+      sansio.ValuesetResponseError(err) -> sansio.err_response_to_string(err)
       sansio.ValuesetMissingExpansion -> \"ValueSet response has no expansion\"
       sansio.ValuesetUnexpectedOffset -> \"ValueSet expansion returned an unexpected offset\"
       sansio.ValuesetNestedEntries -> \"ValueSet expansion returned nested entries despite excludeNested\"
@@ -322,41 +322,41 @@ pub fn err_valueset_to_string(err: ErrValueset) -> String {
 
 /// Expand a supplied ValueSet definition and collect every page.
 pub fn valueset_expand(
-  value_set: resources.Valueset,
+  value_set: resource.Valueset,
   client: FhirClient,
-) -> Result(resources.Valueset, ErrValueset) {
-  valueset_expand_loop(sansio.valueset_expand_req(value_set, client), client)
+) -> Result(resource.Valueset, ErrValueset) {
+  valueset_expand_loop(sansio.valueset_expand_request(value_set, client), client)
 }
 
 fn valueset_expand_loop(
   step: sansio.ValuesetExpandStep,
   client: FhirClient,
-) -> Result(resources.Valueset, ErrValueset) {
+) -> Result(resource.Valueset, ErrValueset) {
   case step {
     sansio.ValuesetExpandDone(value_set) -> Ok(value_set)
-    sansio.ValuesetExpandNext(req, state) -> {
+    sansio.ValuesetExpandNext(http_request, state) -> {
       case client.print_sent_requests {
-        sansio.LoggingOn -> req |> sansio.req_to_string |> io.println
+        sansio.LoggingOn -> http_request |> sansio.request_to_string |> io.println
         sansio.LoggingOff -> Nil
       }
-      let req = request.set_body(req, case req.body {
+      let http_request = request.set_body(http_request, case http_request.body {
         None -> \"\"
         Some(body) -> json.to_string(body)
       })
-      let resp = httpc.send(req)
+      let http_response = httpc.send(http_request)
       case client.print_received_responses {
         sansio.LoggingOn -> {
-          case resp {
-            Ok(resp) -> sansio.resp_to_string(resp)
+          case http_response {
+            Ok(http_response) -> sansio.response_to_string(http_response)
             Error(err) -> http_err_to_string(err)
           }
           |> io.println
         }
         sansio.LoggingOff -> Nil
       }
-      case resp {
+      case http_response {
         Error(err) -> Error(ErrValuesetHttpc(err))
-        Ok(resp) -> case sansio.any_response(resp, resources.valueset_decoder()) {
+        Ok(http_response) -> case sansio.any_response(http_response, resource.valueset_decoder()) {
           Error(err) -> Error(ErrValuesetSansio(sansio.ValuesetResponseError(err)))
           Ok(page) -> case sansio.valueset_expand_response(page, state, client) {
             Error(err) -> Error(ErrValuesetSansio(err))

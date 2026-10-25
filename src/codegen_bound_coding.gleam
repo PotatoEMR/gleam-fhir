@@ -183,11 +183,11 @@ pub fn bound_coding_and_cc(
         True ->
           "pub fn "
           <> function
-          <> "_decoder(from_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder("
+          <> "_decoder(binding_parse_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder("
           <> name
           <> "(required_binding)) {\n"
           <> "use <- decode.recursive\nuse code <- decode.field(\"code\", decode.string)\nuse system <- decode.field(\"system\", decode.string)\n"
-          <> "case from_code_and_system(code, system) { Error(_) -> decode.failure("
+          <> "case binding_parse_code_and_system(code, system) { Error(_) -> decode.failure("
           <> function
           <> "_new(code: failure_placeholder"
           <> fallback
@@ -289,7 +289,7 @@ pub fn bound_coding_and_cc(
         CodingOutsideBinding(Coding)
       }
 
-      pub fn bound_codeableconcept_discriminator(from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Decoder(#(Option(#(BoundCoding(required_binding), Int)), List(Coding))) {
+      pub fn bound_codeableconcept_discriminator(binding_parse_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Decoder(#(Option(#(BoundCoding(required_binding), Int)), List(Coding))) {
         use codings <- decode.optional_field(\"coding\", [], decode.list({
           use code <- decode.optional_field(\"code\", None, decode.optional(decode.string))
           use system <- decode.optional_field(\"system\", None, decode.optional(decode.string))
@@ -299,7 +299,7 @@ pub fn bound_coding_and_cc(
           use display <- decode.optional_field(\"display\", None, decode.optional(decode.string))
           use user_selected <- decode.optional_field(\"userSelected\", None, decode.optional(decode.bool))
           let binding = case code, system {
-            Some(code), Some(system) -> from_code_and_system(code, system)
+            Some(code), Some(system) -> binding_parse_code_and_system(code, system)
             _, _ -> Error(Nil)
           }
           case binding, code, system {
@@ -321,9 +321,9 @@ pub fn bound_coding_and_cc(
         decode.success(#(required, list.reverse(more)))
       }
 
-      pub fn bound_codeableconcept_decoder(binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder(BoundCodeableconcept(required_binding)) {
+      pub fn bound_codeableconcept_decoder(binding_parse_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder(BoundCodeableconcept(required_binding)) {
         use <- decode.recursive
-        use matched <- decode.then(bound_codeableconcept_discriminator(binding_from_code_and_system))
+        use matched <- decode.then(bound_codeableconcept_discriminator(binding_parse_code_and_system))
         case matched {
           #(None, _) -> decode.failure(bound_codeableconcept_new(failure_placeholder), \"need a coding with code + system from required ValueSet\")
           #(Some(#(required, index)), more) -> bound_codeableconcept_slice_decoder(required, index, more)
@@ -400,7 +400,7 @@ pub fn bound_codeablereference_to_json(codeablereference: BoundCodeablereference
   json.object(fields)
 }
 
-pub fn bound_codeablereference_decoder(binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder(BoundCodeablereference(required_binding)) {
+pub fn bound_codeablereference_decoder(binding_parse_code_and_system: fn(String, String) -> Result(required_binding, Nil), failure_placeholder: required_binding) -> Decoder(BoundCodeablereference(required_binding)) {
   use <- decode.recursive
   use reference <- decode.optional_field(
     \"reference\",
@@ -410,7 +410,7 @@ pub fn bound_codeablereference_decoder(binding_from_code_and_system: fn(String, 
   use concept <- decode.optional_field(
     \"concept\",
     None,
-    decode.optional(bound_codeableconcept_decoder(binding_from_code_and_system, failure_placeholder)),
+    decode.optional(bound_codeableconcept_decoder(binding_parse_code_and_system, failure_placeholder)),
   )
   use extension <- decode.optional_field(
     \"extension\",
@@ -431,7 +431,7 @@ pub const bound_quantity =
     id: Option(String),
     extension: List(Extension),
     value: Option(Float),
-    comparator: Option(valuesets.Quantitycomparator),
+    comparator: Option(valueset.Quantitycomparator),
     unit: Option(String),
     code: Option(required_binding)
   )
@@ -462,7 +462,7 @@ pub fn bound_quantity_to_json(quantity: BoundQuantity(required_binding), get_cod
   }
   let fields = case quantity.comparator {
     Some(v) -> [
-      #(\"comparator\", valuesets.quantitycomparator_to_json(v)),
+      #(\"comparator\", valueset.quantitycomparator_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -482,7 +482,7 @@ pub fn bound_quantity_to_json(quantity: BoundQuantity(required_binding), get_cod
   json.object(fields)
 }
 
-pub fn bound_quantity_decoder(binding_from_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Decoder(BoundQuantity(required_binding)) {
+pub fn bound_quantity_decoder(binding_parse_code_and_system: fn(String, String) -> Result(required_binding, Nil)) -> Decoder(BoundQuantity(required_binding)) {
   use <- decode.recursive
   use code <- decode.optional_field(
     \"code\",
@@ -496,7 +496,7 @@ pub fn bound_quantity_decoder(binding_from_code_and_system: fn(String, String) -
   )
   case code, system {
     None, None -> bound_quantity_decode_rest(None)
-    Some(code), Some(system) -> case binding_from_code_and_system(code, system) {
+    Some(code), Some(system) -> case binding_parse_code_and_system(code, system) {
         Error(_) -> decode.failure(bound_quantity_new(), \"need code + system from required ValueSet\")
         Ok(binding) -> bound_quantity_decode_rest(Some(binding))
       }
@@ -513,7 +513,7 @@ fn bound_quantity_decode_rest(with_binding: Option(required_binding)) -> Decoder
   use comparator <- decode.optional_field(
     \"comparator\",
     None,
-    decode.optional(valuesets.quantitycomparator_decoder()),
+    decode.optional(valueset.quantitycomparator_decoder()),
   )
   use value <- decode.optional_field(
     \"value\",
@@ -549,7 +549,7 @@ pub type ValuesetCodeWithSystem {
 // }
 //
 pub fn bound_valueset_function_name(gleam_type: String) -> Option(String) {
-  case string.split(gleam_type, "(valuesets.") {
+  case string.split(gleam_type, "(valueset.") {
     [_, valueset] ->
       Some(valueset |> string.drop_end(1) |> codegen_helpers.to_snake_case)
     _ -> None
@@ -577,9 +577,9 @@ pub fn bound_codeableconcept_encoder_call_source(
   prefix
   <> "bound_codeableconcept_to_json("
   <> value
-  <> ", valuesets."
+  <> ", valueset."
   <> valueset
-  <> "_to_code, valuesets."
+  <> "_to_code, valueset."
   <> valueset
   <> "_system)"
 }
@@ -605,9 +605,9 @@ pub fn bound_codeablereference_encoder_call_source(
   prefix
   <> "bound_codeablereference_to_json("
   <> value
-  <> ", valuesets."
+  <> ", valueset."
   <> valueset
-  <> "_to_code, valuesets."
+  <> "_to_code, valueset."
   <> valueset
   <> "_system)"
 }
@@ -629,9 +629,9 @@ pub fn bound_quantity_encoder_call_source(
   prefix
   <> "bound_quantity_to_json("
   <> value
-  <> ", valuesets."
+  <> ", valueset."
   <> valueset
-  <> "_to_code, valuesets."
+  <> "_to_code, valueset."
   <> valueset
   <> "_system)"
 }
@@ -641,9 +641,9 @@ pub fn bound_codeableconcept_decoder_source(
   valueset: String,
 ) -> String {
   prefix
-  <> "bound_codeableconcept_decoder(valuesets."
+  <> "bound_codeableconcept_decoder(valueset."
   <> valueset
-  <> "_from_code_and_system, valuesets."
+  <> "_parse_code_and_system, valueset."
   <> valueset
   <> "_failure_variant)"
 }
@@ -653,9 +653,9 @@ pub fn bound_codeablereference_decoder_source(
   valueset: String,
 ) -> String {
   prefix
-  <> "bound_codeablereference_decoder(valuesets."
+  <> "bound_codeablereference_decoder(valueset."
   <> valueset
-  <> "_from_code_and_system, valuesets."
+  <> "_parse_code_and_system, valueset."
   <> valueset
   <> "_failure_variant)"
 }
@@ -665,9 +665,9 @@ pub fn bound_quantity_decoder_source(
   valueset: String,
 ) -> String {
   prefix
-  <> "bound_quantity_decoder(valuesets."
+  <> "bound_quantity_decoder(valueset."
   <> valueset
-  <> "_from_code_and_system)"
+  <> "_parse_code_and_system)"
 }
 
 //
@@ -689,7 +689,7 @@ pub fn gen_valueset_from_code_and_system(
   let template =
     "pub fn "
     <> vsname_lower
-    <> "_from_code_and_system(code code: String, system system: String) -> Result("
+    <> "_parse_code_and_system(code code: String, system system: String) -> Result("
     <> case with_type {
       True -> vsname
       False -> "Nil"
@@ -780,8 +780,8 @@ pub fn valueset_failure_variant_source(
 }
 
 pub const insert_at =
-  "fn insert_at(elt: a, in: List(a), at: Int) {
+  "fn insert_at(element: a, in: List(a), at: Int) -> List(a) {
   let #(before, after) = list.split(in, at)
-  before |> list.append([elt, ..after])
+  before |> list.append([element, ..after])
 }
 "
