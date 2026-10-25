@@ -5,51 +5,51 @@ import gleam/json.{type Json}
 import gleam/list
 import gleam/string
 
-pub type Addresstype {
-  AddresstypePostal
-  AddresstypePhysical
-  AddresstypeBoth
+pub type AddressType {
+  AddressTypePostal
+  AddressTypePhysical
+  AddressTypeBoth
 }
 
-pub const addresstype: List(Addresstype) = [
-  AddresstypePostal,
-  AddresstypePhysical,
-  AddresstypeBoth,
+pub const address_type: List(AddressType) = [
+  AddressTypePostal,
+  AddressTypePhysical,
+  AddressTypeBoth,
 ]
 
-pub fn addresstype_to_json(addresstype: Addresstype) -> Json {
-  json.string(addresstype_to_code(addresstype))
+pub fn address_type_to_json(address_type: AddressType) -> Json {
+  json.string(address_type_to_code(address_type))
 }
 
-pub fn addresstype_to_code(addresstype: Addresstype) -> String {
-  case addresstype {
-    AddresstypePostal -> "postal"
-    AddresstypePhysical -> "physical"
-    AddresstypeBoth -> "both"
+pub fn address_type_to_code(address_type: AddressType) -> String {
+  case address_type {
+    AddressTypePostal -> "postal"
+    AddressTypePhysical -> "physical"
+    AddressTypeBoth -> "both"
   }
 }
 
-pub fn addresstype_parse_code(code: String) -> Result(Addresstype, Nil) {
+pub fn address_type_parse_code(code: String) -> Result(AddressType, Nil) {
   case code {
-    "postal" -> Ok(AddresstypePostal)
-    "physical" -> Ok(AddresstypePhysical)
-    "both" -> Ok(AddresstypeBoth)
+    "postal" -> Ok(AddressTypePostal)
+    "physical" -> Ok(AddressTypePhysical)
+    "both" -> Ok(AddressTypeBoth)
     _ -> Error(Nil)
   }
 }
 
-pub fn addresstype_decoder() -> Decoder(Addresstype) {
+pub fn address_type_decoder() -> Decoder(AddressType) {
   use variant <- decode.then(decode.string)
   case variant {
-    "postal" -> decode.success(AddresstypePostal)
-    "physical" -> decode.success(AddresstypePhysical)
-    "both" -> decode.success(AddresstypeBoth)
+    "postal" -> decode.success(AddressTypePostal)
+    "physical" -> decode.success(AddressTypePhysical)
+    "both" -> decode.success(AddressTypeBoth)
     _ ->
       decode.failure(
-        AddresstypePostal,
-        "code from valueset Addresstype ["
+        AddressTypePostal,
+        "code from valueset AddressType ["
           <> {
-          addresstype |> list.map(addresstype_to_code) |> string.join(", ")
+          address_type |> list.map(address_type_to_code) |> string.join(", ")
         }
           <> "]",
       )
@@ -61,1341 +61,1345 @@ pub fn addresstype_decoder() -> Decoder(Addresstype) {
   }
 }
 
-pub type Addressuse {
-  AddressuseHome
-  AddressuseWork
-  AddressuseTemp
-  AddressuseOld
-  AddressuseBilling
+pub type AddressUse {
+  AddressUseHome
+  AddressUseWork
+  AddressUseTemp
+  AddressUseOld
+  AddressUseBilling
 }
 
-pub const addressuse: List(Addressuse) = [
-  AddressuseHome,
-  AddressuseWork,
-  AddressuseTemp,
-  AddressuseOld,
-  AddressuseBilling,
+pub const address_use: List(AddressUse) = [
+  AddressUseHome,
+  AddressUseWork,
+  AddressUseTemp,
+  AddressUseOld,
+  AddressUseBilling,
 ]
 
-pub fn addressuse_to_json(addressuse: Addressuse) -> Json {
-  json.string(addressuse_to_code(addressuse))
+pub fn address_use_to_json(address_use: AddressUse) -> Json {
+  json.string(address_use_to_code(address_use))
 }
 
-pub fn addressuse_to_code(addressuse: Addressuse) -> String {
-  case addressuse {
-    AddressuseHome -> "home"
-    AddressuseWork -> "work"
-    AddressuseTemp -> "temp"
-    AddressuseOld -> "old"
-    AddressuseBilling -> "billing"
+pub fn address_use_to_code(address_use: AddressUse) -> String {
+  case address_use {
+    AddressUseHome -> "home"
+    AddressUseWork -> "work"
+    AddressUseTemp -> "temp"
+    AddressUseOld -> "old"
+    AddressUseBilling -> "billing"
   }
 }
 
-pub fn addressuse_parse_code(code: String) -> Result(Addressuse, Nil) {
+pub fn address_use_parse_code(code: String) -> Result(AddressUse, Nil) {
   case code {
-    "home" -> Ok(AddressuseHome)
-    "work" -> Ok(AddressuseWork)
-    "temp" -> Ok(AddressuseTemp)
-    "old" -> Ok(AddressuseOld)
-    "billing" -> Ok(AddressuseBilling)
+    "home" -> Ok(AddressUseHome)
+    "work" -> Ok(AddressUseWork)
+    "temp" -> Ok(AddressUseTemp)
+    "old" -> Ok(AddressUseOld)
+    "billing" -> Ok(AddressUseBilling)
     _ -> Error(Nil)
   }
 }
 
-pub fn addressuse_decoder() -> Decoder(Addressuse) {
+pub fn address_use_decoder() -> Decoder(AddressUse) {
   use variant <- decode.then(decode.string)
   case variant {
-    "home" -> decode.success(AddressuseHome)
-    "work" -> decode.success(AddressuseWork)
-    "temp" -> decode.success(AddressuseTemp)
-    "old" -> decode.success(AddressuseOld)
-    "billing" -> decode.success(AddressuseBilling)
+    "home" -> decode.success(AddressUseHome)
+    "work" -> decode.success(AddressUseWork)
+    "temp" -> decode.success(AddressUseTemp)
+    "old" -> decode.success(AddressUseOld)
+    "billing" -> decode.success(AddressUseBilling)
     _ ->
       decode.failure(
-        AddressuseHome,
-        "code from valueset Addressuse ["
-          <> { addressuse |> list.map(addressuse_to_code) |> string.join(", ") }
-          <> "]",
-      )
-      |> decode.map_errors(fn(errors) {
-        list.map(errors, fn(error) {
-          decode.DecodeError(..error, found: variant)
-        })
-      })
-  }
-}
-
-pub type Alltypes {
-  AlltypesAddress
-  AlltypesAge
-  AlltypesAnnotation
-  AlltypesAttachment
-  AlltypesBackboneelement
-  AlltypesCodeableconcept
-  AlltypesCoding
-  AlltypesContactdetail
-  AlltypesContactpoint
-  AlltypesContributor
-  AlltypesCount
-  AlltypesDatarequirement
-  AlltypesDistance
-  AlltypesDosage
-  AlltypesDuration
-  AlltypesElement
-  AlltypesElementdefinition
-  AlltypesExpression
-  AlltypesExtension
-  AlltypesHumanname
-  AlltypesIdentifier
-  AlltypesMarketingstatus
-  AlltypesMeta
-  AlltypesMoney
-  AlltypesMoneyquantity
-  AlltypesNarrative
-  AlltypesParameterdefinition
-  AlltypesPeriod
-  AlltypesPopulation
-  AlltypesProdcharacteristic
-  AlltypesProductshelflife
-  AlltypesQuantity
-  AlltypesRange
-  AlltypesRatio
-  AlltypesReference
-  AlltypesRelatedartifact
-  AlltypesSampleddata
-  AlltypesSignature
-  AlltypesSimplequantity
-  AlltypesSubstanceamount
-  AlltypesTiming
-  AlltypesTriggerdefinition
-  AlltypesUsagecontext
-  AlltypesBase64binary
-  AlltypesBoolean
-  AlltypesCanonical
-  AlltypesCode
-  AlltypesDate
-  AlltypesDatetime
-  AlltypesDecimal
-  AlltypesId
-  AlltypesInstant
-  AlltypesInteger
-  AlltypesMarkdown
-  AlltypesOid
-  AlltypesPositiveint
-  AlltypesString
-  AlltypesTime
-  AlltypesUnsignedint
-  AlltypesUri
-  AlltypesUrl
-  AlltypesUuid
-  AlltypesXhtml
-  AlltypesAccount
-  AlltypesActivitydefinition
-  AlltypesAdverseevent
-  AlltypesAllergyintolerance
-  AlltypesAppointment
-  AlltypesAppointmentresponse
-  AlltypesAuditevent
-  AlltypesBasic
-  AlltypesBinary
-  AlltypesBiologicallyderivedproduct
-  AlltypesBodystructure
-  AlltypesBundle
-  AlltypesCapabilitystatement
-  AlltypesCareplan
-  AlltypesCareteam
-  AlltypesCatalogentry
-  AlltypesChargeitem
-  AlltypesChargeitemdefinition
-  AlltypesClaim
-  AlltypesClaimresponse
-  AlltypesClinicalimpression
-  AlltypesCodesystem
-  AlltypesCommunication
-  AlltypesCommunicationrequest
-  AlltypesCompartmentdefinition
-  AlltypesComposition
-  AlltypesConceptmap
-  AlltypesCondition
-  AlltypesConsent
-  AlltypesContract
-  AlltypesCoverage
-  AlltypesCoverageeligibilityrequest
-  AlltypesCoverageeligibilityresponse
-  AlltypesDetectedissue
-  AlltypesDevice
-  AlltypesDevicedefinition
-  AlltypesDevicemetric
-  AlltypesDevicerequest
-  AlltypesDeviceusestatement
-  AlltypesDiagnosticreport
-  AlltypesDocumentmanifest
-  AlltypesDocumentreference
-  AlltypesDomainresource
-  AlltypesEffectevidencesynthesis
-  AlltypesEncounter
-  AlltypesEndpoint
-  AlltypesEnrollmentrequest
-  AlltypesEnrollmentresponse
-  AlltypesEpisodeofcare
-  AlltypesEventdefinition
-  AlltypesEvidence
-  AlltypesEvidencevariable
-  AlltypesExamplescenario
-  AlltypesExplanationofbenefit
-  AlltypesFamilymemberhistory
-  AlltypesFlag
-  AlltypesGoal
-  AlltypesGraphdefinition
-  AlltypesGroup
-  AlltypesGuidanceresponse
-  AlltypesHealthcareservice
-  AlltypesImagingstudy
-  AlltypesImmunization
-  AlltypesImmunizationevaluation
-  AlltypesImmunizationrecommendation
-  AlltypesImplementationguide
-  AlltypesInsuranceplan
-  AlltypesInvoice
-  AlltypesLibrary
-  AlltypesLinkage
-  AlltypesList
-  AlltypesLocation
-  AlltypesMeasure
-  AlltypesMeasurereport
-  AlltypesMedia
-  AlltypesMedication
-  AlltypesMedicationadministration
-  AlltypesMedicationdispense
-  AlltypesMedicationknowledge
-  AlltypesMedicationrequest
-  AlltypesMedicationstatement
-  AlltypesMedicinalproduct
-  AlltypesMedicinalproductauthorization
-  AlltypesMedicinalproductcontraindication
-  AlltypesMedicinalproductindication
-  AlltypesMedicinalproductingredient
-  AlltypesMedicinalproductinteraction
-  AlltypesMedicinalproductmanufactured
-  AlltypesMedicinalproductpackaged
-  AlltypesMedicinalproductpharmaceutical
-  AlltypesMedicinalproductundesirableeffect
-  AlltypesMessagedefinition
-  AlltypesMessageheader
-  AlltypesMolecularsequence
-  AlltypesNamingsystem
-  AlltypesNutritionorder
-  AlltypesObservation
-  AlltypesObservationdefinition
-  AlltypesOperationdefinition
-  AlltypesOperationoutcome
-  AlltypesOrganization
-  AlltypesOrganizationaffiliation
-  AlltypesParameters
-  AlltypesPatient
-  AlltypesPaymentnotice
-  AlltypesPaymentreconciliation
-  AlltypesPerson
-  AlltypesPlandefinition
-  AlltypesPractitioner
-  AlltypesPractitionerrole
-  AlltypesProcedure
-  AlltypesProvenance
-  AlltypesQuestionnaire
-  AlltypesQuestionnaireresponse
-  AlltypesRelatedperson
-  AlltypesRequestgroup
-  AlltypesResearchdefinition
-  AlltypesResearchelementdefinition
-  AlltypesResearchstudy
-  AlltypesResearchsubject
-  AlltypesResource
-  AlltypesRiskassessment
-  AlltypesRiskevidencesynthesis
-  AlltypesSchedule
-  AlltypesSearchparameter
-  AlltypesServicerequest
-  AlltypesSlot
-  AlltypesSpecimen
-  AlltypesSpecimendefinition
-  AlltypesStructuredefinition
-  AlltypesStructuremap
-  AlltypesSubscription
-  AlltypesSubstance
-  AlltypesSubstancenucleicacid
-  AlltypesSubstancepolymer
-  AlltypesSubstanceprotein
-  AlltypesSubstancereferenceinformation
-  AlltypesSubstancesourcematerial
-  AlltypesSubstancespecification
-  AlltypesSupplydelivery
-  AlltypesSupplyrequest
-  AlltypesTask
-  AlltypesTerminologycapabilities
-  AlltypesTestreport
-  AlltypesTestscript
-  AlltypesValueset
-  AlltypesVerificationresult
-  AlltypesVisionprescription
-  AlltypesType
-  AlltypesAny
-}
-
-pub const alltypes: List(Alltypes) = [
-  AlltypesAddress,
-  AlltypesAge,
-  AlltypesAnnotation,
-  AlltypesAttachment,
-  AlltypesBackboneelement,
-  AlltypesCodeableconcept,
-  AlltypesCoding,
-  AlltypesContactdetail,
-  AlltypesContactpoint,
-  AlltypesContributor,
-  AlltypesCount,
-  AlltypesDatarequirement,
-  AlltypesDistance,
-  AlltypesDosage,
-  AlltypesDuration,
-  AlltypesElement,
-  AlltypesElementdefinition,
-  AlltypesExpression,
-  AlltypesExtension,
-  AlltypesHumanname,
-  AlltypesIdentifier,
-  AlltypesMarketingstatus,
-  AlltypesMeta,
-  AlltypesMoney,
-  AlltypesMoneyquantity,
-  AlltypesNarrative,
-  AlltypesParameterdefinition,
-  AlltypesPeriod,
-  AlltypesPopulation,
-  AlltypesProdcharacteristic,
-  AlltypesProductshelflife,
-  AlltypesQuantity,
-  AlltypesRange,
-  AlltypesRatio,
-  AlltypesReference,
-  AlltypesRelatedartifact,
-  AlltypesSampleddata,
-  AlltypesSignature,
-  AlltypesSimplequantity,
-  AlltypesSubstanceamount,
-  AlltypesTiming,
-  AlltypesTriggerdefinition,
-  AlltypesUsagecontext,
-  AlltypesBase64binary,
-  AlltypesBoolean,
-  AlltypesCanonical,
-  AlltypesCode,
-  AlltypesDate,
-  AlltypesDatetime,
-  AlltypesDecimal,
-  AlltypesId,
-  AlltypesInstant,
-  AlltypesInteger,
-  AlltypesMarkdown,
-  AlltypesOid,
-  AlltypesPositiveint,
-  AlltypesString,
-  AlltypesTime,
-  AlltypesUnsignedint,
-  AlltypesUri,
-  AlltypesUrl,
-  AlltypesUuid,
-  AlltypesXhtml,
-  AlltypesAccount,
-  AlltypesActivitydefinition,
-  AlltypesAdverseevent,
-  AlltypesAllergyintolerance,
-  AlltypesAppointment,
-  AlltypesAppointmentresponse,
-  AlltypesAuditevent,
-  AlltypesBasic,
-  AlltypesBinary,
-  AlltypesBiologicallyderivedproduct,
-  AlltypesBodystructure,
-  AlltypesBundle,
-  AlltypesCapabilitystatement,
-  AlltypesCareplan,
-  AlltypesCareteam,
-  AlltypesCatalogentry,
-  AlltypesChargeitem,
-  AlltypesChargeitemdefinition,
-  AlltypesClaim,
-  AlltypesClaimresponse,
-  AlltypesClinicalimpression,
-  AlltypesCodesystem,
-  AlltypesCommunication,
-  AlltypesCommunicationrequest,
-  AlltypesCompartmentdefinition,
-  AlltypesComposition,
-  AlltypesConceptmap,
-  AlltypesCondition,
-  AlltypesConsent,
-  AlltypesContract,
-  AlltypesCoverage,
-  AlltypesCoverageeligibilityrequest,
-  AlltypesCoverageeligibilityresponse,
-  AlltypesDetectedissue,
-  AlltypesDevice,
-  AlltypesDevicedefinition,
-  AlltypesDevicemetric,
-  AlltypesDevicerequest,
-  AlltypesDeviceusestatement,
-  AlltypesDiagnosticreport,
-  AlltypesDocumentmanifest,
-  AlltypesDocumentreference,
-  AlltypesDomainresource,
-  AlltypesEffectevidencesynthesis,
-  AlltypesEncounter,
-  AlltypesEndpoint,
-  AlltypesEnrollmentrequest,
-  AlltypesEnrollmentresponse,
-  AlltypesEpisodeofcare,
-  AlltypesEventdefinition,
-  AlltypesEvidence,
-  AlltypesEvidencevariable,
-  AlltypesExamplescenario,
-  AlltypesExplanationofbenefit,
-  AlltypesFamilymemberhistory,
-  AlltypesFlag,
-  AlltypesGoal,
-  AlltypesGraphdefinition,
-  AlltypesGroup,
-  AlltypesGuidanceresponse,
-  AlltypesHealthcareservice,
-  AlltypesImagingstudy,
-  AlltypesImmunization,
-  AlltypesImmunizationevaluation,
-  AlltypesImmunizationrecommendation,
-  AlltypesImplementationguide,
-  AlltypesInsuranceplan,
-  AlltypesInvoice,
-  AlltypesLibrary,
-  AlltypesLinkage,
-  AlltypesList,
-  AlltypesLocation,
-  AlltypesMeasure,
-  AlltypesMeasurereport,
-  AlltypesMedia,
-  AlltypesMedication,
-  AlltypesMedicationadministration,
-  AlltypesMedicationdispense,
-  AlltypesMedicationknowledge,
-  AlltypesMedicationrequest,
-  AlltypesMedicationstatement,
-  AlltypesMedicinalproduct,
-  AlltypesMedicinalproductauthorization,
-  AlltypesMedicinalproductcontraindication,
-  AlltypesMedicinalproductindication,
-  AlltypesMedicinalproductingredient,
-  AlltypesMedicinalproductinteraction,
-  AlltypesMedicinalproductmanufactured,
-  AlltypesMedicinalproductpackaged,
-  AlltypesMedicinalproductpharmaceutical,
-  AlltypesMedicinalproductundesirableeffect,
-  AlltypesMessagedefinition,
-  AlltypesMessageheader,
-  AlltypesMolecularsequence,
-  AlltypesNamingsystem,
-  AlltypesNutritionorder,
-  AlltypesObservation,
-  AlltypesObservationdefinition,
-  AlltypesOperationdefinition,
-  AlltypesOperationoutcome,
-  AlltypesOrganization,
-  AlltypesOrganizationaffiliation,
-  AlltypesParameters,
-  AlltypesPatient,
-  AlltypesPaymentnotice,
-  AlltypesPaymentreconciliation,
-  AlltypesPerson,
-  AlltypesPlandefinition,
-  AlltypesPractitioner,
-  AlltypesPractitionerrole,
-  AlltypesProcedure,
-  AlltypesProvenance,
-  AlltypesQuestionnaire,
-  AlltypesQuestionnaireresponse,
-  AlltypesRelatedperson,
-  AlltypesRequestgroup,
-  AlltypesResearchdefinition,
-  AlltypesResearchelementdefinition,
-  AlltypesResearchstudy,
-  AlltypesResearchsubject,
-  AlltypesResource,
-  AlltypesRiskassessment,
-  AlltypesRiskevidencesynthesis,
-  AlltypesSchedule,
-  AlltypesSearchparameter,
-  AlltypesServicerequest,
-  AlltypesSlot,
-  AlltypesSpecimen,
-  AlltypesSpecimendefinition,
-  AlltypesStructuredefinition,
-  AlltypesStructuremap,
-  AlltypesSubscription,
-  AlltypesSubstance,
-  AlltypesSubstancenucleicacid,
-  AlltypesSubstancepolymer,
-  AlltypesSubstanceprotein,
-  AlltypesSubstancereferenceinformation,
-  AlltypesSubstancesourcematerial,
-  AlltypesSubstancespecification,
-  AlltypesSupplydelivery,
-  AlltypesSupplyrequest,
-  AlltypesTask,
-  AlltypesTerminologycapabilities,
-  AlltypesTestreport,
-  AlltypesTestscript,
-  AlltypesValueset,
-  AlltypesVerificationresult,
-  AlltypesVisionprescription,
-  AlltypesType,
-  AlltypesAny,
-]
-
-pub fn alltypes_to_json(alltypes: Alltypes) -> Json {
-  json.string(alltypes_to_code(alltypes))
-}
-
-pub fn alltypes_to_code(alltypes: Alltypes) -> String {
-  case alltypes {
-    AlltypesAddress -> "Address"
-    AlltypesAge -> "Age"
-    AlltypesAnnotation -> "Annotation"
-    AlltypesAttachment -> "Attachment"
-    AlltypesBackboneelement -> "BackboneElement"
-    AlltypesCodeableconcept -> "CodeableConcept"
-    AlltypesCoding -> "Coding"
-    AlltypesContactdetail -> "ContactDetail"
-    AlltypesContactpoint -> "ContactPoint"
-    AlltypesContributor -> "Contributor"
-    AlltypesCount -> "Count"
-    AlltypesDatarequirement -> "DataRequirement"
-    AlltypesDistance -> "Distance"
-    AlltypesDosage -> "Dosage"
-    AlltypesDuration -> "Duration"
-    AlltypesElement -> "Element"
-    AlltypesElementdefinition -> "ElementDefinition"
-    AlltypesExpression -> "Expression"
-    AlltypesExtension -> "Extension"
-    AlltypesHumanname -> "HumanName"
-    AlltypesIdentifier -> "Identifier"
-    AlltypesMarketingstatus -> "MarketingStatus"
-    AlltypesMeta -> "Meta"
-    AlltypesMoney -> "Money"
-    AlltypesMoneyquantity -> "MoneyQuantity"
-    AlltypesNarrative -> "Narrative"
-    AlltypesParameterdefinition -> "ParameterDefinition"
-    AlltypesPeriod -> "Period"
-    AlltypesPopulation -> "Population"
-    AlltypesProdcharacteristic -> "ProdCharacteristic"
-    AlltypesProductshelflife -> "ProductShelfLife"
-    AlltypesQuantity -> "Quantity"
-    AlltypesRange -> "Range"
-    AlltypesRatio -> "Ratio"
-    AlltypesReference -> "Reference"
-    AlltypesRelatedartifact -> "RelatedArtifact"
-    AlltypesSampleddata -> "SampledData"
-    AlltypesSignature -> "Signature"
-    AlltypesSimplequantity -> "SimpleQuantity"
-    AlltypesSubstanceamount -> "SubstanceAmount"
-    AlltypesTiming -> "Timing"
-    AlltypesTriggerdefinition -> "TriggerDefinition"
-    AlltypesUsagecontext -> "UsageContext"
-    AlltypesBase64binary -> "base64Binary"
-    AlltypesBoolean -> "boolean"
-    AlltypesCanonical -> "canonical"
-    AlltypesCode -> "code"
-    AlltypesDate -> "date"
-    AlltypesDatetime -> "dateTime"
-    AlltypesDecimal -> "decimal"
-    AlltypesId -> "id"
-    AlltypesInstant -> "instant"
-    AlltypesInteger -> "integer"
-    AlltypesMarkdown -> "markdown"
-    AlltypesOid -> "oid"
-    AlltypesPositiveint -> "positiveInt"
-    AlltypesString -> "string"
-    AlltypesTime -> "time"
-    AlltypesUnsignedint -> "unsignedInt"
-    AlltypesUri -> "uri"
-    AlltypesUrl -> "url"
-    AlltypesUuid -> "uuid"
-    AlltypesXhtml -> "xhtml"
-    AlltypesAccount -> "Account"
-    AlltypesActivitydefinition -> "ActivityDefinition"
-    AlltypesAdverseevent -> "AdverseEvent"
-    AlltypesAllergyintolerance -> "AllergyIntolerance"
-    AlltypesAppointment -> "Appointment"
-    AlltypesAppointmentresponse -> "AppointmentResponse"
-    AlltypesAuditevent -> "AuditEvent"
-    AlltypesBasic -> "Basic"
-    AlltypesBinary -> "Binary"
-    AlltypesBiologicallyderivedproduct -> "BiologicallyDerivedProduct"
-    AlltypesBodystructure -> "BodyStructure"
-    AlltypesBundle -> "Bundle"
-    AlltypesCapabilitystatement -> "CapabilityStatement"
-    AlltypesCareplan -> "CarePlan"
-    AlltypesCareteam -> "CareTeam"
-    AlltypesCatalogentry -> "CatalogEntry"
-    AlltypesChargeitem -> "ChargeItem"
-    AlltypesChargeitemdefinition -> "ChargeItemDefinition"
-    AlltypesClaim -> "Claim"
-    AlltypesClaimresponse -> "ClaimResponse"
-    AlltypesClinicalimpression -> "ClinicalImpression"
-    AlltypesCodesystem -> "CodeSystem"
-    AlltypesCommunication -> "Communication"
-    AlltypesCommunicationrequest -> "CommunicationRequest"
-    AlltypesCompartmentdefinition -> "CompartmentDefinition"
-    AlltypesComposition -> "Composition"
-    AlltypesConceptmap -> "ConceptMap"
-    AlltypesCondition -> "Condition"
-    AlltypesConsent -> "Consent"
-    AlltypesContract -> "Contract"
-    AlltypesCoverage -> "Coverage"
-    AlltypesCoverageeligibilityrequest -> "CoverageEligibilityRequest"
-    AlltypesCoverageeligibilityresponse -> "CoverageEligibilityResponse"
-    AlltypesDetectedissue -> "DetectedIssue"
-    AlltypesDevice -> "Device"
-    AlltypesDevicedefinition -> "DeviceDefinition"
-    AlltypesDevicemetric -> "DeviceMetric"
-    AlltypesDevicerequest -> "DeviceRequest"
-    AlltypesDeviceusestatement -> "DeviceUseStatement"
-    AlltypesDiagnosticreport -> "DiagnosticReport"
-    AlltypesDocumentmanifest -> "DocumentManifest"
-    AlltypesDocumentreference -> "DocumentReference"
-    AlltypesDomainresource -> "DomainResource"
-    AlltypesEffectevidencesynthesis -> "EffectEvidenceSynthesis"
-    AlltypesEncounter -> "Encounter"
-    AlltypesEndpoint -> "Endpoint"
-    AlltypesEnrollmentrequest -> "EnrollmentRequest"
-    AlltypesEnrollmentresponse -> "EnrollmentResponse"
-    AlltypesEpisodeofcare -> "EpisodeOfCare"
-    AlltypesEventdefinition -> "EventDefinition"
-    AlltypesEvidence -> "Evidence"
-    AlltypesEvidencevariable -> "EvidenceVariable"
-    AlltypesExamplescenario -> "ExampleScenario"
-    AlltypesExplanationofbenefit -> "ExplanationOfBenefit"
-    AlltypesFamilymemberhistory -> "FamilyMemberHistory"
-    AlltypesFlag -> "Flag"
-    AlltypesGoal -> "Goal"
-    AlltypesGraphdefinition -> "GraphDefinition"
-    AlltypesGroup -> "Group"
-    AlltypesGuidanceresponse -> "GuidanceResponse"
-    AlltypesHealthcareservice -> "HealthcareService"
-    AlltypesImagingstudy -> "ImagingStudy"
-    AlltypesImmunization -> "Immunization"
-    AlltypesImmunizationevaluation -> "ImmunizationEvaluation"
-    AlltypesImmunizationrecommendation -> "ImmunizationRecommendation"
-    AlltypesImplementationguide -> "ImplementationGuide"
-    AlltypesInsuranceplan -> "InsurancePlan"
-    AlltypesInvoice -> "Invoice"
-    AlltypesLibrary -> "Library"
-    AlltypesLinkage -> "Linkage"
-    AlltypesList -> "List"
-    AlltypesLocation -> "Location"
-    AlltypesMeasure -> "Measure"
-    AlltypesMeasurereport -> "MeasureReport"
-    AlltypesMedia -> "Media"
-    AlltypesMedication -> "Medication"
-    AlltypesMedicationadministration -> "MedicationAdministration"
-    AlltypesMedicationdispense -> "MedicationDispense"
-    AlltypesMedicationknowledge -> "MedicationKnowledge"
-    AlltypesMedicationrequest -> "MedicationRequest"
-    AlltypesMedicationstatement -> "MedicationStatement"
-    AlltypesMedicinalproduct -> "MedicinalProduct"
-    AlltypesMedicinalproductauthorization -> "MedicinalProductAuthorization"
-    AlltypesMedicinalproductcontraindication ->
-      "MedicinalProductContraindication"
-    AlltypesMedicinalproductindication -> "MedicinalProductIndication"
-    AlltypesMedicinalproductingredient -> "MedicinalProductIngredient"
-    AlltypesMedicinalproductinteraction -> "MedicinalProductInteraction"
-    AlltypesMedicinalproductmanufactured -> "MedicinalProductManufactured"
-    AlltypesMedicinalproductpackaged -> "MedicinalProductPackaged"
-    AlltypesMedicinalproductpharmaceutical -> "MedicinalProductPharmaceutical"
-    AlltypesMedicinalproductundesirableeffect ->
-      "MedicinalProductUndesirableEffect"
-    AlltypesMessagedefinition -> "MessageDefinition"
-    AlltypesMessageheader -> "MessageHeader"
-    AlltypesMolecularsequence -> "MolecularSequence"
-    AlltypesNamingsystem -> "NamingSystem"
-    AlltypesNutritionorder -> "NutritionOrder"
-    AlltypesObservation -> "Observation"
-    AlltypesObservationdefinition -> "ObservationDefinition"
-    AlltypesOperationdefinition -> "OperationDefinition"
-    AlltypesOperationoutcome -> "OperationOutcome"
-    AlltypesOrganization -> "Organization"
-    AlltypesOrganizationaffiliation -> "OrganizationAffiliation"
-    AlltypesParameters -> "Parameters"
-    AlltypesPatient -> "Patient"
-    AlltypesPaymentnotice -> "PaymentNotice"
-    AlltypesPaymentreconciliation -> "PaymentReconciliation"
-    AlltypesPerson -> "Person"
-    AlltypesPlandefinition -> "PlanDefinition"
-    AlltypesPractitioner -> "Practitioner"
-    AlltypesPractitionerrole -> "PractitionerRole"
-    AlltypesProcedure -> "Procedure"
-    AlltypesProvenance -> "Provenance"
-    AlltypesQuestionnaire -> "Questionnaire"
-    AlltypesQuestionnaireresponse -> "QuestionnaireResponse"
-    AlltypesRelatedperson -> "RelatedPerson"
-    AlltypesRequestgroup -> "RequestGroup"
-    AlltypesResearchdefinition -> "ResearchDefinition"
-    AlltypesResearchelementdefinition -> "ResearchElementDefinition"
-    AlltypesResearchstudy -> "ResearchStudy"
-    AlltypesResearchsubject -> "ResearchSubject"
-    AlltypesResource -> "Resource"
-    AlltypesRiskassessment -> "RiskAssessment"
-    AlltypesRiskevidencesynthesis -> "RiskEvidenceSynthesis"
-    AlltypesSchedule -> "Schedule"
-    AlltypesSearchparameter -> "SearchParameter"
-    AlltypesServicerequest -> "ServiceRequest"
-    AlltypesSlot -> "Slot"
-    AlltypesSpecimen -> "Specimen"
-    AlltypesSpecimendefinition -> "SpecimenDefinition"
-    AlltypesStructuredefinition -> "StructureDefinition"
-    AlltypesStructuremap -> "StructureMap"
-    AlltypesSubscription -> "Subscription"
-    AlltypesSubstance -> "Substance"
-    AlltypesSubstancenucleicacid -> "SubstanceNucleicAcid"
-    AlltypesSubstancepolymer -> "SubstancePolymer"
-    AlltypesSubstanceprotein -> "SubstanceProtein"
-    AlltypesSubstancereferenceinformation -> "SubstanceReferenceInformation"
-    AlltypesSubstancesourcematerial -> "SubstanceSourceMaterial"
-    AlltypesSubstancespecification -> "SubstanceSpecification"
-    AlltypesSupplydelivery -> "SupplyDelivery"
-    AlltypesSupplyrequest -> "SupplyRequest"
-    AlltypesTask -> "Task"
-    AlltypesTerminologycapabilities -> "TerminologyCapabilities"
-    AlltypesTestreport -> "TestReport"
-    AlltypesTestscript -> "TestScript"
-    AlltypesValueset -> "ValueSet"
-    AlltypesVerificationresult -> "VerificationResult"
-    AlltypesVisionprescription -> "VisionPrescription"
-    AlltypesType -> "Type"
-    AlltypesAny -> "Any"
-  }
-}
-
-pub fn alltypes_parse_code(code: String) -> Result(Alltypes, Nil) {
-  case code {
-    "Address" -> Ok(AlltypesAddress)
-    "Age" -> Ok(AlltypesAge)
-    "Annotation" -> Ok(AlltypesAnnotation)
-    "Attachment" -> Ok(AlltypesAttachment)
-    "BackboneElement" -> Ok(AlltypesBackboneelement)
-    "CodeableConcept" -> Ok(AlltypesCodeableconcept)
-    "Coding" -> Ok(AlltypesCoding)
-    "ContactDetail" -> Ok(AlltypesContactdetail)
-    "ContactPoint" -> Ok(AlltypesContactpoint)
-    "Contributor" -> Ok(AlltypesContributor)
-    "Count" -> Ok(AlltypesCount)
-    "DataRequirement" -> Ok(AlltypesDatarequirement)
-    "Distance" -> Ok(AlltypesDistance)
-    "Dosage" -> Ok(AlltypesDosage)
-    "Duration" -> Ok(AlltypesDuration)
-    "Element" -> Ok(AlltypesElement)
-    "ElementDefinition" -> Ok(AlltypesElementdefinition)
-    "Expression" -> Ok(AlltypesExpression)
-    "Extension" -> Ok(AlltypesExtension)
-    "HumanName" -> Ok(AlltypesHumanname)
-    "Identifier" -> Ok(AlltypesIdentifier)
-    "MarketingStatus" -> Ok(AlltypesMarketingstatus)
-    "Meta" -> Ok(AlltypesMeta)
-    "Money" -> Ok(AlltypesMoney)
-    "MoneyQuantity" -> Ok(AlltypesMoneyquantity)
-    "Narrative" -> Ok(AlltypesNarrative)
-    "ParameterDefinition" -> Ok(AlltypesParameterdefinition)
-    "Period" -> Ok(AlltypesPeriod)
-    "Population" -> Ok(AlltypesPopulation)
-    "ProdCharacteristic" -> Ok(AlltypesProdcharacteristic)
-    "ProductShelfLife" -> Ok(AlltypesProductshelflife)
-    "Quantity" -> Ok(AlltypesQuantity)
-    "Range" -> Ok(AlltypesRange)
-    "Ratio" -> Ok(AlltypesRatio)
-    "Reference" -> Ok(AlltypesReference)
-    "RelatedArtifact" -> Ok(AlltypesRelatedartifact)
-    "SampledData" -> Ok(AlltypesSampleddata)
-    "Signature" -> Ok(AlltypesSignature)
-    "SimpleQuantity" -> Ok(AlltypesSimplequantity)
-    "SubstanceAmount" -> Ok(AlltypesSubstanceamount)
-    "Timing" -> Ok(AlltypesTiming)
-    "TriggerDefinition" -> Ok(AlltypesTriggerdefinition)
-    "UsageContext" -> Ok(AlltypesUsagecontext)
-    "base64Binary" -> Ok(AlltypesBase64binary)
-    "boolean" -> Ok(AlltypesBoolean)
-    "canonical" -> Ok(AlltypesCanonical)
-    "code" -> Ok(AlltypesCode)
-    "date" -> Ok(AlltypesDate)
-    "dateTime" -> Ok(AlltypesDatetime)
-    "decimal" -> Ok(AlltypesDecimal)
-    "id" -> Ok(AlltypesId)
-    "instant" -> Ok(AlltypesInstant)
-    "integer" -> Ok(AlltypesInteger)
-    "markdown" -> Ok(AlltypesMarkdown)
-    "oid" -> Ok(AlltypesOid)
-    "positiveInt" -> Ok(AlltypesPositiveint)
-    "string" -> Ok(AlltypesString)
-    "time" -> Ok(AlltypesTime)
-    "unsignedInt" -> Ok(AlltypesUnsignedint)
-    "uri" -> Ok(AlltypesUri)
-    "url" -> Ok(AlltypesUrl)
-    "uuid" -> Ok(AlltypesUuid)
-    "xhtml" -> Ok(AlltypesXhtml)
-    "Account" -> Ok(AlltypesAccount)
-    "ActivityDefinition" -> Ok(AlltypesActivitydefinition)
-    "AdverseEvent" -> Ok(AlltypesAdverseevent)
-    "AllergyIntolerance" -> Ok(AlltypesAllergyintolerance)
-    "Appointment" -> Ok(AlltypesAppointment)
-    "AppointmentResponse" -> Ok(AlltypesAppointmentresponse)
-    "AuditEvent" -> Ok(AlltypesAuditevent)
-    "Basic" -> Ok(AlltypesBasic)
-    "Binary" -> Ok(AlltypesBinary)
-    "BiologicallyDerivedProduct" -> Ok(AlltypesBiologicallyderivedproduct)
-    "BodyStructure" -> Ok(AlltypesBodystructure)
-    "Bundle" -> Ok(AlltypesBundle)
-    "CapabilityStatement" -> Ok(AlltypesCapabilitystatement)
-    "CarePlan" -> Ok(AlltypesCareplan)
-    "CareTeam" -> Ok(AlltypesCareteam)
-    "CatalogEntry" -> Ok(AlltypesCatalogentry)
-    "ChargeItem" -> Ok(AlltypesChargeitem)
-    "ChargeItemDefinition" -> Ok(AlltypesChargeitemdefinition)
-    "Claim" -> Ok(AlltypesClaim)
-    "ClaimResponse" -> Ok(AlltypesClaimresponse)
-    "ClinicalImpression" -> Ok(AlltypesClinicalimpression)
-    "CodeSystem" -> Ok(AlltypesCodesystem)
-    "Communication" -> Ok(AlltypesCommunication)
-    "CommunicationRequest" -> Ok(AlltypesCommunicationrequest)
-    "CompartmentDefinition" -> Ok(AlltypesCompartmentdefinition)
-    "Composition" -> Ok(AlltypesComposition)
-    "ConceptMap" -> Ok(AlltypesConceptmap)
-    "Condition" -> Ok(AlltypesCondition)
-    "Consent" -> Ok(AlltypesConsent)
-    "Contract" -> Ok(AlltypesContract)
-    "Coverage" -> Ok(AlltypesCoverage)
-    "CoverageEligibilityRequest" -> Ok(AlltypesCoverageeligibilityrequest)
-    "CoverageEligibilityResponse" -> Ok(AlltypesCoverageeligibilityresponse)
-    "DetectedIssue" -> Ok(AlltypesDetectedissue)
-    "Device" -> Ok(AlltypesDevice)
-    "DeviceDefinition" -> Ok(AlltypesDevicedefinition)
-    "DeviceMetric" -> Ok(AlltypesDevicemetric)
-    "DeviceRequest" -> Ok(AlltypesDevicerequest)
-    "DeviceUseStatement" -> Ok(AlltypesDeviceusestatement)
-    "DiagnosticReport" -> Ok(AlltypesDiagnosticreport)
-    "DocumentManifest" -> Ok(AlltypesDocumentmanifest)
-    "DocumentReference" -> Ok(AlltypesDocumentreference)
-    "DomainResource" -> Ok(AlltypesDomainresource)
-    "EffectEvidenceSynthesis" -> Ok(AlltypesEffectevidencesynthesis)
-    "Encounter" -> Ok(AlltypesEncounter)
-    "Endpoint" -> Ok(AlltypesEndpoint)
-    "EnrollmentRequest" -> Ok(AlltypesEnrollmentrequest)
-    "EnrollmentResponse" -> Ok(AlltypesEnrollmentresponse)
-    "EpisodeOfCare" -> Ok(AlltypesEpisodeofcare)
-    "EventDefinition" -> Ok(AlltypesEventdefinition)
-    "Evidence" -> Ok(AlltypesEvidence)
-    "EvidenceVariable" -> Ok(AlltypesEvidencevariable)
-    "ExampleScenario" -> Ok(AlltypesExamplescenario)
-    "ExplanationOfBenefit" -> Ok(AlltypesExplanationofbenefit)
-    "FamilyMemberHistory" -> Ok(AlltypesFamilymemberhistory)
-    "Flag" -> Ok(AlltypesFlag)
-    "Goal" -> Ok(AlltypesGoal)
-    "GraphDefinition" -> Ok(AlltypesGraphdefinition)
-    "Group" -> Ok(AlltypesGroup)
-    "GuidanceResponse" -> Ok(AlltypesGuidanceresponse)
-    "HealthcareService" -> Ok(AlltypesHealthcareservice)
-    "ImagingStudy" -> Ok(AlltypesImagingstudy)
-    "Immunization" -> Ok(AlltypesImmunization)
-    "ImmunizationEvaluation" -> Ok(AlltypesImmunizationevaluation)
-    "ImmunizationRecommendation" -> Ok(AlltypesImmunizationrecommendation)
-    "ImplementationGuide" -> Ok(AlltypesImplementationguide)
-    "InsurancePlan" -> Ok(AlltypesInsuranceplan)
-    "Invoice" -> Ok(AlltypesInvoice)
-    "Library" -> Ok(AlltypesLibrary)
-    "Linkage" -> Ok(AlltypesLinkage)
-    "List" -> Ok(AlltypesList)
-    "Location" -> Ok(AlltypesLocation)
-    "Measure" -> Ok(AlltypesMeasure)
-    "MeasureReport" -> Ok(AlltypesMeasurereport)
-    "Media" -> Ok(AlltypesMedia)
-    "Medication" -> Ok(AlltypesMedication)
-    "MedicationAdministration" -> Ok(AlltypesMedicationadministration)
-    "MedicationDispense" -> Ok(AlltypesMedicationdispense)
-    "MedicationKnowledge" -> Ok(AlltypesMedicationknowledge)
-    "MedicationRequest" -> Ok(AlltypesMedicationrequest)
-    "MedicationStatement" -> Ok(AlltypesMedicationstatement)
-    "MedicinalProduct" -> Ok(AlltypesMedicinalproduct)
-    "MedicinalProductAuthorization" -> Ok(AlltypesMedicinalproductauthorization)
-    "MedicinalProductContraindication" ->
-      Ok(AlltypesMedicinalproductcontraindication)
-    "MedicinalProductIndication" -> Ok(AlltypesMedicinalproductindication)
-    "MedicinalProductIngredient" -> Ok(AlltypesMedicinalproductingredient)
-    "MedicinalProductInteraction" -> Ok(AlltypesMedicinalproductinteraction)
-    "MedicinalProductManufactured" -> Ok(AlltypesMedicinalproductmanufactured)
-    "MedicinalProductPackaged" -> Ok(AlltypesMedicinalproductpackaged)
-    "MedicinalProductPharmaceutical" ->
-      Ok(AlltypesMedicinalproductpharmaceutical)
-    "MedicinalProductUndesirableEffect" ->
-      Ok(AlltypesMedicinalproductundesirableeffect)
-    "MessageDefinition" -> Ok(AlltypesMessagedefinition)
-    "MessageHeader" -> Ok(AlltypesMessageheader)
-    "MolecularSequence" -> Ok(AlltypesMolecularsequence)
-    "NamingSystem" -> Ok(AlltypesNamingsystem)
-    "NutritionOrder" -> Ok(AlltypesNutritionorder)
-    "Observation" -> Ok(AlltypesObservation)
-    "ObservationDefinition" -> Ok(AlltypesObservationdefinition)
-    "OperationDefinition" -> Ok(AlltypesOperationdefinition)
-    "OperationOutcome" -> Ok(AlltypesOperationoutcome)
-    "Organization" -> Ok(AlltypesOrganization)
-    "OrganizationAffiliation" -> Ok(AlltypesOrganizationaffiliation)
-    "Parameters" -> Ok(AlltypesParameters)
-    "Patient" -> Ok(AlltypesPatient)
-    "PaymentNotice" -> Ok(AlltypesPaymentnotice)
-    "PaymentReconciliation" -> Ok(AlltypesPaymentreconciliation)
-    "Person" -> Ok(AlltypesPerson)
-    "PlanDefinition" -> Ok(AlltypesPlandefinition)
-    "Practitioner" -> Ok(AlltypesPractitioner)
-    "PractitionerRole" -> Ok(AlltypesPractitionerrole)
-    "Procedure" -> Ok(AlltypesProcedure)
-    "Provenance" -> Ok(AlltypesProvenance)
-    "Questionnaire" -> Ok(AlltypesQuestionnaire)
-    "QuestionnaireResponse" -> Ok(AlltypesQuestionnaireresponse)
-    "RelatedPerson" -> Ok(AlltypesRelatedperson)
-    "RequestGroup" -> Ok(AlltypesRequestgroup)
-    "ResearchDefinition" -> Ok(AlltypesResearchdefinition)
-    "ResearchElementDefinition" -> Ok(AlltypesResearchelementdefinition)
-    "ResearchStudy" -> Ok(AlltypesResearchstudy)
-    "ResearchSubject" -> Ok(AlltypesResearchsubject)
-    "Resource" -> Ok(AlltypesResource)
-    "RiskAssessment" -> Ok(AlltypesRiskassessment)
-    "RiskEvidenceSynthesis" -> Ok(AlltypesRiskevidencesynthesis)
-    "Schedule" -> Ok(AlltypesSchedule)
-    "SearchParameter" -> Ok(AlltypesSearchparameter)
-    "ServiceRequest" -> Ok(AlltypesServicerequest)
-    "Slot" -> Ok(AlltypesSlot)
-    "Specimen" -> Ok(AlltypesSpecimen)
-    "SpecimenDefinition" -> Ok(AlltypesSpecimendefinition)
-    "StructureDefinition" -> Ok(AlltypesStructuredefinition)
-    "StructureMap" -> Ok(AlltypesStructuremap)
-    "Subscription" -> Ok(AlltypesSubscription)
-    "Substance" -> Ok(AlltypesSubstance)
-    "SubstanceNucleicAcid" -> Ok(AlltypesSubstancenucleicacid)
-    "SubstancePolymer" -> Ok(AlltypesSubstancepolymer)
-    "SubstanceProtein" -> Ok(AlltypesSubstanceprotein)
-    "SubstanceReferenceInformation" -> Ok(AlltypesSubstancereferenceinformation)
-    "SubstanceSourceMaterial" -> Ok(AlltypesSubstancesourcematerial)
-    "SubstanceSpecification" -> Ok(AlltypesSubstancespecification)
-    "SupplyDelivery" -> Ok(AlltypesSupplydelivery)
-    "SupplyRequest" -> Ok(AlltypesSupplyrequest)
-    "Task" -> Ok(AlltypesTask)
-    "TerminologyCapabilities" -> Ok(AlltypesTerminologycapabilities)
-    "TestReport" -> Ok(AlltypesTestreport)
-    "TestScript" -> Ok(AlltypesTestscript)
-    "ValueSet" -> Ok(AlltypesValueset)
-    "VerificationResult" -> Ok(AlltypesVerificationresult)
-    "VisionPrescription" -> Ok(AlltypesVisionprescription)
-    "Type" -> Ok(AlltypesType)
-    "Any" -> Ok(AlltypesAny)
-    _ -> Error(Nil)
-  }
-}
-
-pub fn alltypes_decoder() -> Decoder(Alltypes) {
-  use variant <- decode.then(decode.string)
-  case variant {
-    "Address" -> decode.success(AlltypesAddress)
-    "Age" -> decode.success(AlltypesAge)
-    "Annotation" -> decode.success(AlltypesAnnotation)
-    "Attachment" -> decode.success(AlltypesAttachment)
-    "BackboneElement" -> decode.success(AlltypesBackboneelement)
-    "CodeableConcept" -> decode.success(AlltypesCodeableconcept)
-    "Coding" -> decode.success(AlltypesCoding)
-    "ContactDetail" -> decode.success(AlltypesContactdetail)
-    "ContactPoint" -> decode.success(AlltypesContactpoint)
-    "Contributor" -> decode.success(AlltypesContributor)
-    "Count" -> decode.success(AlltypesCount)
-    "DataRequirement" -> decode.success(AlltypesDatarequirement)
-    "Distance" -> decode.success(AlltypesDistance)
-    "Dosage" -> decode.success(AlltypesDosage)
-    "Duration" -> decode.success(AlltypesDuration)
-    "Element" -> decode.success(AlltypesElement)
-    "ElementDefinition" -> decode.success(AlltypesElementdefinition)
-    "Expression" -> decode.success(AlltypesExpression)
-    "Extension" -> decode.success(AlltypesExtension)
-    "HumanName" -> decode.success(AlltypesHumanname)
-    "Identifier" -> decode.success(AlltypesIdentifier)
-    "MarketingStatus" -> decode.success(AlltypesMarketingstatus)
-    "Meta" -> decode.success(AlltypesMeta)
-    "Money" -> decode.success(AlltypesMoney)
-    "MoneyQuantity" -> decode.success(AlltypesMoneyquantity)
-    "Narrative" -> decode.success(AlltypesNarrative)
-    "ParameterDefinition" -> decode.success(AlltypesParameterdefinition)
-    "Period" -> decode.success(AlltypesPeriod)
-    "Population" -> decode.success(AlltypesPopulation)
-    "ProdCharacteristic" -> decode.success(AlltypesProdcharacteristic)
-    "ProductShelfLife" -> decode.success(AlltypesProductshelflife)
-    "Quantity" -> decode.success(AlltypesQuantity)
-    "Range" -> decode.success(AlltypesRange)
-    "Ratio" -> decode.success(AlltypesRatio)
-    "Reference" -> decode.success(AlltypesReference)
-    "RelatedArtifact" -> decode.success(AlltypesRelatedartifact)
-    "SampledData" -> decode.success(AlltypesSampleddata)
-    "Signature" -> decode.success(AlltypesSignature)
-    "SimpleQuantity" -> decode.success(AlltypesSimplequantity)
-    "SubstanceAmount" -> decode.success(AlltypesSubstanceamount)
-    "Timing" -> decode.success(AlltypesTiming)
-    "TriggerDefinition" -> decode.success(AlltypesTriggerdefinition)
-    "UsageContext" -> decode.success(AlltypesUsagecontext)
-    "base64Binary" -> decode.success(AlltypesBase64binary)
-    "boolean" -> decode.success(AlltypesBoolean)
-    "canonical" -> decode.success(AlltypesCanonical)
-    "code" -> decode.success(AlltypesCode)
-    "date" -> decode.success(AlltypesDate)
-    "dateTime" -> decode.success(AlltypesDatetime)
-    "decimal" -> decode.success(AlltypesDecimal)
-    "id" -> decode.success(AlltypesId)
-    "instant" -> decode.success(AlltypesInstant)
-    "integer" -> decode.success(AlltypesInteger)
-    "markdown" -> decode.success(AlltypesMarkdown)
-    "oid" -> decode.success(AlltypesOid)
-    "positiveInt" -> decode.success(AlltypesPositiveint)
-    "string" -> decode.success(AlltypesString)
-    "time" -> decode.success(AlltypesTime)
-    "unsignedInt" -> decode.success(AlltypesUnsignedint)
-    "uri" -> decode.success(AlltypesUri)
-    "url" -> decode.success(AlltypesUrl)
-    "uuid" -> decode.success(AlltypesUuid)
-    "xhtml" -> decode.success(AlltypesXhtml)
-    "Account" -> decode.success(AlltypesAccount)
-    "ActivityDefinition" -> decode.success(AlltypesActivitydefinition)
-    "AdverseEvent" -> decode.success(AlltypesAdverseevent)
-    "AllergyIntolerance" -> decode.success(AlltypesAllergyintolerance)
-    "Appointment" -> decode.success(AlltypesAppointment)
-    "AppointmentResponse" -> decode.success(AlltypesAppointmentresponse)
-    "AuditEvent" -> decode.success(AlltypesAuditevent)
-    "Basic" -> decode.success(AlltypesBasic)
-    "Binary" -> decode.success(AlltypesBinary)
-    "BiologicallyDerivedProduct" ->
-      decode.success(AlltypesBiologicallyderivedproduct)
-    "BodyStructure" -> decode.success(AlltypesBodystructure)
-    "Bundle" -> decode.success(AlltypesBundle)
-    "CapabilityStatement" -> decode.success(AlltypesCapabilitystatement)
-    "CarePlan" -> decode.success(AlltypesCareplan)
-    "CareTeam" -> decode.success(AlltypesCareteam)
-    "CatalogEntry" -> decode.success(AlltypesCatalogentry)
-    "ChargeItem" -> decode.success(AlltypesChargeitem)
-    "ChargeItemDefinition" -> decode.success(AlltypesChargeitemdefinition)
-    "Claim" -> decode.success(AlltypesClaim)
-    "ClaimResponse" -> decode.success(AlltypesClaimresponse)
-    "ClinicalImpression" -> decode.success(AlltypesClinicalimpression)
-    "CodeSystem" -> decode.success(AlltypesCodesystem)
-    "Communication" -> decode.success(AlltypesCommunication)
-    "CommunicationRequest" -> decode.success(AlltypesCommunicationrequest)
-    "CompartmentDefinition" -> decode.success(AlltypesCompartmentdefinition)
-    "Composition" -> decode.success(AlltypesComposition)
-    "ConceptMap" -> decode.success(AlltypesConceptmap)
-    "Condition" -> decode.success(AlltypesCondition)
-    "Consent" -> decode.success(AlltypesConsent)
-    "Contract" -> decode.success(AlltypesContract)
-    "Coverage" -> decode.success(AlltypesCoverage)
-    "CoverageEligibilityRequest" ->
-      decode.success(AlltypesCoverageeligibilityrequest)
-    "CoverageEligibilityResponse" ->
-      decode.success(AlltypesCoverageeligibilityresponse)
-    "DetectedIssue" -> decode.success(AlltypesDetectedissue)
-    "Device" -> decode.success(AlltypesDevice)
-    "DeviceDefinition" -> decode.success(AlltypesDevicedefinition)
-    "DeviceMetric" -> decode.success(AlltypesDevicemetric)
-    "DeviceRequest" -> decode.success(AlltypesDevicerequest)
-    "DeviceUseStatement" -> decode.success(AlltypesDeviceusestatement)
-    "DiagnosticReport" -> decode.success(AlltypesDiagnosticreport)
-    "DocumentManifest" -> decode.success(AlltypesDocumentmanifest)
-    "DocumentReference" -> decode.success(AlltypesDocumentreference)
-    "DomainResource" -> decode.success(AlltypesDomainresource)
-    "EffectEvidenceSynthesis" -> decode.success(AlltypesEffectevidencesynthesis)
-    "Encounter" -> decode.success(AlltypesEncounter)
-    "Endpoint" -> decode.success(AlltypesEndpoint)
-    "EnrollmentRequest" -> decode.success(AlltypesEnrollmentrequest)
-    "EnrollmentResponse" -> decode.success(AlltypesEnrollmentresponse)
-    "EpisodeOfCare" -> decode.success(AlltypesEpisodeofcare)
-    "EventDefinition" -> decode.success(AlltypesEventdefinition)
-    "Evidence" -> decode.success(AlltypesEvidence)
-    "EvidenceVariable" -> decode.success(AlltypesEvidencevariable)
-    "ExampleScenario" -> decode.success(AlltypesExamplescenario)
-    "ExplanationOfBenefit" -> decode.success(AlltypesExplanationofbenefit)
-    "FamilyMemberHistory" -> decode.success(AlltypesFamilymemberhistory)
-    "Flag" -> decode.success(AlltypesFlag)
-    "Goal" -> decode.success(AlltypesGoal)
-    "GraphDefinition" -> decode.success(AlltypesGraphdefinition)
-    "Group" -> decode.success(AlltypesGroup)
-    "GuidanceResponse" -> decode.success(AlltypesGuidanceresponse)
-    "HealthcareService" -> decode.success(AlltypesHealthcareservice)
-    "ImagingStudy" -> decode.success(AlltypesImagingstudy)
-    "Immunization" -> decode.success(AlltypesImmunization)
-    "ImmunizationEvaluation" -> decode.success(AlltypesImmunizationevaluation)
-    "ImmunizationRecommendation" ->
-      decode.success(AlltypesImmunizationrecommendation)
-    "ImplementationGuide" -> decode.success(AlltypesImplementationguide)
-    "InsurancePlan" -> decode.success(AlltypesInsuranceplan)
-    "Invoice" -> decode.success(AlltypesInvoice)
-    "Library" -> decode.success(AlltypesLibrary)
-    "Linkage" -> decode.success(AlltypesLinkage)
-    "List" -> decode.success(AlltypesList)
-    "Location" -> decode.success(AlltypesLocation)
-    "Measure" -> decode.success(AlltypesMeasure)
-    "MeasureReport" -> decode.success(AlltypesMeasurereport)
-    "Media" -> decode.success(AlltypesMedia)
-    "Medication" -> decode.success(AlltypesMedication)
-    "MedicationAdministration" ->
-      decode.success(AlltypesMedicationadministration)
-    "MedicationDispense" -> decode.success(AlltypesMedicationdispense)
-    "MedicationKnowledge" -> decode.success(AlltypesMedicationknowledge)
-    "MedicationRequest" -> decode.success(AlltypesMedicationrequest)
-    "MedicationStatement" -> decode.success(AlltypesMedicationstatement)
-    "MedicinalProduct" -> decode.success(AlltypesMedicinalproduct)
-    "MedicinalProductAuthorization" ->
-      decode.success(AlltypesMedicinalproductauthorization)
-    "MedicinalProductContraindication" ->
-      decode.success(AlltypesMedicinalproductcontraindication)
-    "MedicinalProductIndication" ->
-      decode.success(AlltypesMedicinalproductindication)
-    "MedicinalProductIngredient" ->
-      decode.success(AlltypesMedicinalproductingredient)
-    "MedicinalProductInteraction" ->
-      decode.success(AlltypesMedicinalproductinteraction)
-    "MedicinalProductManufactured" ->
-      decode.success(AlltypesMedicinalproductmanufactured)
-    "MedicinalProductPackaged" ->
-      decode.success(AlltypesMedicinalproductpackaged)
-    "MedicinalProductPharmaceutical" ->
-      decode.success(AlltypesMedicinalproductpharmaceutical)
-    "MedicinalProductUndesirableEffect" ->
-      decode.success(AlltypesMedicinalproductundesirableeffect)
-    "MessageDefinition" -> decode.success(AlltypesMessagedefinition)
-    "MessageHeader" -> decode.success(AlltypesMessageheader)
-    "MolecularSequence" -> decode.success(AlltypesMolecularsequence)
-    "NamingSystem" -> decode.success(AlltypesNamingsystem)
-    "NutritionOrder" -> decode.success(AlltypesNutritionorder)
-    "Observation" -> decode.success(AlltypesObservation)
-    "ObservationDefinition" -> decode.success(AlltypesObservationdefinition)
-    "OperationDefinition" -> decode.success(AlltypesOperationdefinition)
-    "OperationOutcome" -> decode.success(AlltypesOperationoutcome)
-    "Organization" -> decode.success(AlltypesOrganization)
-    "OrganizationAffiliation" -> decode.success(AlltypesOrganizationaffiliation)
-    "Parameters" -> decode.success(AlltypesParameters)
-    "Patient" -> decode.success(AlltypesPatient)
-    "PaymentNotice" -> decode.success(AlltypesPaymentnotice)
-    "PaymentReconciliation" -> decode.success(AlltypesPaymentreconciliation)
-    "Person" -> decode.success(AlltypesPerson)
-    "PlanDefinition" -> decode.success(AlltypesPlandefinition)
-    "Practitioner" -> decode.success(AlltypesPractitioner)
-    "PractitionerRole" -> decode.success(AlltypesPractitionerrole)
-    "Procedure" -> decode.success(AlltypesProcedure)
-    "Provenance" -> decode.success(AlltypesProvenance)
-    "Questionnaire" -> decode.success(AlltypesQuestionnaire)
-    "QuestionnaireResponse" -> decode.success(AlltypesQuestionnaireresponse)
-    "RelatedPerson" -> decode.success(AlltypesRelatedperson)
-    "RequestGroup" -> decode.success(AlltypesRequestgroup)
-    "ResearchDefinition" -> decode.success(AlltypesResearchdefinition)
-    "ResearchElementDefinition" ->
-      decode.success(AlltypesResearchelementdefinition)
-    "ResearchStudy" -> decode.success(AlltypesResearchstudy)
-    "ResearchSubject" -> decode.success(AlltypesResearchsubject)
-    "Resource" -> decode.success(AlltypesResource)
-    "RiskAssessment" -> decode.success(AlltypesRiskassessment)
-    "RiskEvidenceSynthesis" -> decode.success(AlltypesRiskevidencesynthesis)
-    "Schedule" -> decode.success(AlltypesSchedule)
-    "SearchParameter" -> decode.success(AlltypesSearchparameter)
-    "ServiceRequest" -> decode.success(AlltypesServicerequest)
-    "Slot" -> decode.success(AlltypesSlot)
-    "Specimen" -> decode.success(AlltypesSpecimen)
-    "SpecimenDefinition" -> decode.success(AlltypesSpecimendefinition)
-    "StructureDefinition" -> decode.success(AlltypesStructuredefinition)
-    "StructureMap" -> decode.success(AlltypesStructuremap)
-    "Subscription" -> decode.success(AlltypesSubscription)
-    "Substance" -> decode.success(AlltypesSubstance)
-    "SubstanceNucleicAcid" -> decode.success(AlltypesSubstancenucleicacid)
-    "SubstancePolymer" -> decode.success(AlltypesSubstancepolymer)
-    "SubstanceProtein" -> decode.success(AlltypesSubstanceprotein)
-    "SubstanceReferenceInformation" ->
-      decode.success(AlltypesSubstancereferenceinformation)
-    "SubstanceSourceMaterial" -> decode.success(AlltypesSubstancesourcematerial)
-    "SubstanceSpecification" -> decode.success(AlltypesSubstancespecification)
-    "SupplyDelivery" -> decode.success(AlltypesSupplydelivery)
-    "SupplyRequest" -> decode.success(AlltypesSupplyrequest)
-    "Task" -> decode.success(AlltypesTask)
-    "TerminologyCapabilities" -> decode.success(AlltypesTerminologycapabilities)
-    "TestReport" -> decode.success(AlltypesTestreport)
-    "TestScript" -> decode.success(AlltypesTestscript)
-    "ValueSet" -> decode.success(AlltypesValueset)
-    "VerificationResult" -> decode.success(AlltypesVerificationresult)
-    "VisionPrescription" -> decode.success(AlltypesVisionprescription)
-    "Type" -> decode.success(AlltypesType)
-    "Any" -> decode.success(AlltypesAny)
-    _ ->
-      decode.failure(
-        AlltypesAddress,
-        "code from valueset Alltypes ["
-          <> { alltypes |> list.map(alltypes_to_code) |> string.join(", ") }
-          <> "]",
-      )
-      |> decode.map_errors(fn(errors) {
-        list.map(errors, fn(error) {
-          decode.DecodeError(..error, found: variant)
-        })
-      })
-  }
-}
-
-pub type Bundletype {
-  BundletypeDocument
-  BundletypeMessage
-  BundletypeTransaction
-  BundletypeTransactionresponse
-  BundletypeBatch
-  BundletypeBatchresponse
-  BundletypeHistory
-  BundletypeSearchset
-  BundletypeCollection
-}
-
-pub const bundletype: List(Bundletype) = [
-  BundletypeDocument,
-  BundletypeMessage,
-  BundletypeTransaction,
-  BundletypeTransactionresponse,
-  BundletypeBatch,
-  BundletypeBatchresponse,
-  BundletypeHistory,
-  BundletypeSearchset,
-  BundletypeCollection,
-]
-
-pub fn bundletype_to_json(bundletype: Bundletype) -> Json {
-  json.string(bundletype_to_code(bundletype))
-}
-
-pub fn bundletype_to_code(bundletype: Bundletype) -> String {
-  case bundletype {
-    BundletypeDocument -> "document"
-    BundletypeMessage -> "message"
-    BundletypeTransaction -> "transaction"
-    BundletypeTransactionresponse -> "transaction-response"
-    BundletypeBatch -> "batch"
-    BundletypeBatchresponse -> "batch-response"
-    BundletypeHistory -> "history"
-    BundletypeSearchset -> "searchset"
-    BundletypeCollection -> "collection"
-  }
-}
-
-pub fn bundletype_parse_code(code: String) -> Result(Bundletype, Nil) {
-  case code {
-    "document" -> Ok(BundletypeDocument)
-    "message" -> Ok(BundletypeMessage)
-    "transaction" -> Ok(BundletypeTransaction)
-    "transaction-response" -> Ok(BundletypeTransactionresponse)
-    "batch" -> Ok(BundletypeBatch)
-    "batch-response" -> Ok(BundletypeBatchresponse)
-    "history" -> Ok(BundletypeHistory)
-    "searchset" -> Ok(BundletypeSearchset)
-    "collection" -> Ok(BundletypeCollection)
-    _ -> Error(Nil)
-  }
-}
-
-pub fn bundletype_decoder() -> Decoder(Bundletype) {
-  use variant <- decode.then(decode.string)
-  case variant {
-    "document" -> decode.success(BundletypeDocument)
-    "message" -> decode.success(BundletypeMessage)
-    "transaction" -> decode.success(BundletypeTransaction)
-    "transaction-response" -> decode.success(BundletypeTransactionresponse)
-    "batch" -> decode.success(BundletypeBatch)
-    "batch-response" -> decode.success(BundletypeBatchresponse)
-    "history" -> decode.success(BundletypeHistory)
-    "searchset" -> decode.success(BundletypeSearchset)
-    "collection" -> decode.success(BundletypeCollection)
-    _ ->
-      decode.failure(
-        BundletypeDocument,
-        "code from valueset Bundletype ["
-          <> { bundletype |> list.map(bundletype_to_code) |> string.join(", ") }
-          <> "]",
-      )
-      |> decode.map_errors(fn(errors) {
-        list.map(errors, fn(error) {
-          decode.DecodeError(..error, found: variant)
-        })
-      })
-  }
-}
-
-pub type Codesystemcontentmode {
-  CodesystemcontentmodeNotpresent
-  CodesystemcontentmodeExample
-  CodesystemcontentmodeFragment
-  CodesystemcontentmodeComplete
-  CodesystemcontentmodeSupplement
-}
-
-pub const codesystemcontentmode: List(Codesystemcontentmode) = [
-  CodesystemcontentmodeNotpresent,
-  CodesystemcontentmodeExample,
-  CodesystemcontentmodeFragment,
-  CodesystemcontentmodeComplete,
-  CodesystemcontentmodeSupplement,
-]
-
-pub fn codesystemcontentmode_to_json(
-  codesystemcontentmode: Codesystemcontentmode,
-) -> Json {
-  json.string(codesystemcontentmode_to_code(codesystemcontentmode))
-}
-
-pub fn codesystemcontentmode_to_code(
-  codesystemcontentmode: Codesystemcontentmode,
-) -> String {
-  case codesystemcontentmode {
-    CodesystemcontentmodeNotpresent -> "not-present"
-    CodesystemcontentmodeExample -> "example"
-    CodesystemcontentmodeFragment -> "fragment"
-    CodesystemcontentmodeComplete -> "complete"
-    CodesystemcontentmodeSupplement -> "supplement"
-  }
-}
-
-pub fn codesystemcontentmode_parse_code(
-  code: String,
-) -> Result(Codesystemcontentmode, Nil) {
-  case code {
-    "not-present" -> Ok(CodesystemcontentmodeNotpresent)
-    "example" -> Ok(CodesystemcontentmodeExample)
-    "fragment" -> Ok(CodesystemcontentmodeFragment)
-    "complete" -> Ok(CodesystemcontentmodeComplete)
-    "supplement" -> Ok(CodesystemcontentmodeSupplement)
-    _ -> Error(Nil)
-  }
-}
-
-pub fn codesystemcontentmode_decoder() -> Decoder(Codesystemcontentmode) {
-  use variant <- decode.then(decode.string)
-  case variant {
-    "not-present" -> decode.success(CodesystemcontentmodeNotpresent)
-    "example" -> decode.success(CodesystemcontentmodeExample)
-    "fragment" -> decode.success(CodesystemcontentmodeFragment)
-    "complete" -> decode.success(CodesystemcontentmodeComplete)
-    "supplement" -> decode.success(CodesystemcontentmodeSupplement)
-    _ ->
-      decode.failure(
-        CodesystemcontentmodeNotpresent,
-        "code from valueset Codesystemcontentmode ["
+        AddressUseHome,
+        "code from valueset AddressUse ["
           <> {
-          codesystemcontentmode
-          |> list.map(codesystemcontentmode_to_code)
+          address_use |> list.map(address_use_to_code) |> string.join(", ")
+        }
+          <> "]",
+      )
+      |> decode.map_errors(fn(errors) {
+        list.map(errors, fn(error) {
+          decode.DecodeError(..error, found: variant)
+        })
+      })
+  }
+}
+
+pub type AllTypes {
+  AllTypesAddress
+  AllTypesAge
+  AllTypesAnnotation
+  AllTypesAttachment
+  AllTypesBackboneelement
+  AllTypesCodeableconcept
+  AllTypesCoding
+  AllTypesContactdetail
+  AllTypesContactpoint
+  AllTypesContributor
+  AllTypesCount
+  AllTypesDatarequirement
+  AllTypesDistance
+  AllTypesDosage
+  AllTypesDuration
+  AllTypesElement
+  AllTypesElementdefinition
+  AllTypesExpression
+  AllTypesExtension
+  AllTypesHumanname
+  AllTypesIdentifier
+  AllTypesMarketingstatus
+  AllTypesMeta
+  AllTypesMoney
+  AllTypesMoneyquantity
+  AllTypesNarrative
+  AllTypesParameterdefinition
+  AllTypesPeriod
+  AllTypesPopulation
+  AllTypesProdcharacteristic
+  AllTypesProductshelflife
+  AllTypesQuantity
+  AllTypesRange
+  AllTypesRatio
+  AllTypesReference
+  AllTypesRelatedartifact
+  AllTypesSampleddata
+  AllTypesSignature
+  AllTypesSimplequantity
+  AllTypesSubstanceamount
+  AllTypesTiming
+  AllTypesTriggerdefinition
+  AllTypesUsagecontext
+  AllTypesBase64binary
+  AllTypesBoolean
+  AllTypesCanonical
+  AllTypesCode
+  AllTypesDate
+  AllTypesDatetime
+  AllTypesDecimal
+  AllTypesId
+  AllTypesInstant
+  AllTypesInteger
+  AllTypesMarkdown
+  AllTypesOid
+  AllTypesPositiveint
+  AllTypesString
+  AllTypesTime
+  AllTypesUnsignedint
+  AllTypesUri
+  AllTypesUrl
+  AllTypesUuid
+  AllTypesXhtml
+  AllTypesAccount
+  AllTypesActivitydefinition
+  AllTypesAdverseevent
+  AllTypesAllergyintolerance
+  AllTypesAppointment
+  AllTypesAppointmentresponse
+  AllTypesAuditevent
+  AllTypesBasic
+  AllTypesBinary
+  AllTypesBiologicallyderivedproduct
+  AllTypesBodystructure
+  AllTypesBundle
+  AllTypesCapabilitystatement
+  AllTypesCareplan
+  AllTypesCareteam
+  AllTypesCatalogentry
+  AllTypesChargeitem
+  AllTypesChargeitemdefinition
+  AllTypesClaim
+  AllTypesClaimresponse
+  AllTypesClinicalimpression
+  AllTypesCodesystem
+  AllTypesCommunication
+  AllTypesCommunicationrequest
+  AllTypesCompartmentdefinition
+  AllTypesComposition
+  AllTypesConceptmap
+  AllTypesCondition
+  AllTypesConsent
+  AllTypesContract
+  AllTypesCoverage
+  AllTypesCoverageeligibilityrequest
+  AllTypesCoverageeligibilityresponse
+  AllTypesDetectedissue
+  AllTypesDevice
+  AllTypesDevicedefinition
+  AllTypesDevicemetric
+  AllTypesDevicerequest
+  AllTypesDeviceusestatement
+  AllTypesDiagnosticreport
+  AllTypesDocumentmanifest
+  AllTypesDocumentreference
+  AllTypesDomainresource
+  AllTypesEffectevidencesynthesis
+  AllTypesEncounter
+  AllTypesEndpoint
+  AllTypesEnrollmentrequest
+  AllTypesEnrollmentresponse
+  AllTypesEpisodeofcare
+  AllTypesEventdefinition
+  AllTypesEvidence
+  AllTypesEvidencevariable
+  AllTypesExamplescenario
+  AllTypesExplanationofbenefit
+  AllTypesFamilymemberhistory
+  AllTypesFlag
+  AllTypesGoal
+  AllTypesGraphdefinition
+  AllTypesGroup
+  AllTypesGuidanceresponse
+  AllTypesHealthcareservice
+  AllTypesImagingstudy
+  AllTypesImmunization
+  AllTypesImmunizationevaluation
+  AllTypesImmunizationrecommendation
+  AllTypesImplementationguide
+  AllTypesInsuranceplan
+  AllTypesInvoice
+  AllTypesLibrary
+  AllTypesLinkage
+  AllTypesList
+  AllTypesLocation
+  AllTypesMeasure
+  AllTypesMeasurereport
+  AllTypesMedia
+  AllTypesMedication
+  AllTypesMedicationadministration
+  AllTypesMedicationdispense
+  AllTypesMedicationknowledge
+  AllTypesMedicationrequest
+  AllTypesMedicationstatement
+  AllTypesMedicinalproduct
+  AllTypesMedicinalproductauthorization
+  AllTypesMedicinalproductcontraindication
+  AllTypesMedicinalproductindication
+  AllTypesMedicinalproductingredient
+  AllTypesMedicinalproductinteraction
+  AllTypesMedicinalproductmanufactured
+  AllTypesMedicinalproductpackaged
+  AllTypesMedicinalproductpharmaceutical
+  AllTypesMedicinalproductundesirableeffect
+  AllTypesMessagedefinition
+  AllTypesMessageheader
+  AllTypesMolecularsequence
+  AllTypesNamingsystem
+  AllTypesNutritionorder
+  AllTypesObservation
+  AllTypesObservationdefinition
+  AllTypesOperationdefinition
+  AllTypesOperationoutcome
+  AllTypesOrganization
+  AllTypesOrganizationaffiliation
+  AllTypesParameters
+  AllTypesPatient
+  AllTypesPaymentnotice
+  AllTypesPaymentreconciliation
+  AllTypesPerson
+  AllTypesPlandefinition
+  AllTypesPractitioner
+  AllTypesPractitionerrole
+  AllTypesProcedure
+  AllTypesProvenance
+  AllTypesQuestionnaire
+  AllTypesQuestionnaireresponse
+  AllTypesRelatedperson
+  AllTypesRequestgroup
+  AllTypesResearchdefinition
+  AllTypesResearchelementdefinition
+  AllTypesResearchstudy
+  AllTypesResearchsubject
+  AllTypesResource
+  AllTypesRiskassessment
+  AllTypesRiskevidencesynthesis
+  AllTypesSchedule
+  AllTypesSearchparameter
+  AllTypesServicerequest
+  AllTypesSlot
+  AllTypesSpecimen
+  AllTypesSpecimendefinition
+  AllTypesStructuredefinition
+  AllTypesStructuremap
+  AllTypesSubscription
+  AllTypesSubstance
+  AllTypesSubstancenucleicacid
+  AllTypesSubstancepolymer
+  AllTypesSubstanceprotein
+  AllTypesSubstancereferenceinformation
+  AllTypesSubstancesourcematerial
+  AllTypesSubstancespecification
+  AllTypesSupplydelivery
+  AllTypesSupplyrequest
+  AllTypesTask
+  AllTypesTerminologycapabilities
+  AllTypesTestreport
+  AllTypesTestscript
+  AllTypesValueset
+  AllTypesVerificationresult
+  AllTypesVisionprescription
+  AllTypesType
+  AllTypesAny
+}
+
+pub const all_types: List(AllTypes) = [
+  AllTypesAddress,
+  AllTypesAge,
+  AllTypesAnnotation,
+  AllTypesAttachment,
+  AllTypesBackboneelement,
+  AllTypesCodeableconcept,
+  AllTypesCoding,
+  AllTypesContactdetail,
+  AllTypesContactpoint,
+  AllTypesContributor,
+  AllTypesCount,
+  AllTypesDatarequirement,
+  AllTypesDistance,
+  AllTypesDosage,
+  AllTypesDuration,
+  AllTypesElement,
+  AllTypesElementdefinition,
+  AllTypesExpression,
+  AllTypesExtension,
+  AllTypesHumanname,
+  AllTypesIdentifier,
+  AllTypesMarketingstatus,
+  AllTypesMeta,
+  AllTypesMoney,
+  AllTypesMoneyquantity,
+  AllTypesNarrative,
+  AllTypesParameterdefinition,
+  AllTypesPeriod,
+  AllTypesPopulation,
+  AllTypesProdcharacteristic,
+  AllTypesProductshelflife,
+  AllTypesQuantity,
+  AllTypesRange,
+  AllTypesRatio,
+  AllTypesReference,
+  AllTypesRelatedartifact,
+  AllTypesSampleddata,
+  AllTypesSignature,
+  AllTypesSimplequantity,
+  AllTypesSubstanceamount,
+  AllTypesTiming,
+  AllTypesTriggerdefinition,
+  AllTypesUsagecontext,
+  AllTypesBase64binary,
+  AllTypesBoolean,
+  AllTypesCanonical,
+  AllTypesCode,
+  AllTypesDate,
+  AllTypesDatetime,
+  AllTypesDecimal,
+  AllTypesId,
+  AllTypesInstant,
+  AllTypesInteger,
+  AllTypesMarkdown,
+  AllTypesOid,
+  AllTypesPositiveint,
+  AllTypesString,
+  AllTypesTime,
+  AllTypesUnsignedint,
+  AllTypesUri,
+  AllTypesUrl,
+  AllTypesUuid,
+  AllTypesXhtml,
+  AllTypesAccount,
+  AllTypesActivitydefinition,
+  AllTypesAdverseevent,
+  AllTypesAllergyintolerance,
+  AllTypesAppointment,
+  AllTypesAppointmentresponse,
+  AllTypesAuditevent,
+  AllTypesBasic,
+  AllTypesBinary,
+  AllTypesBiologicallyderivedproduct,
+  AllTypesBodystructure,
+  AllTypesBundle,
+  AllTypesCapabilitystatement,
+  AllTypesCareplan,
+  AllTypesCareteam,
+  AllTypesCatalogentry,
+  AllTypesChargeitem,
+  AllTypesChargeitemdefinition,
+  AllTypesClaim,
+  AllTypesClaimresponse,
+  AllTypesClinicalimpression,
+  AllTypesCodesystem,
+  AllTypesCommunication,
+  AllTypesCommunicationrequest,
+  AllTypesCompartmentdefinition,
+  AllTypesComposition,
+  AllTypesConceptmap,
+  AllTypesCondition,
+  AllTypesConsent,
+  AllTypesContract,
+  AllTypesCoverage,
+  AllTypesCoverageeligibilityrequest,
+  AllTypesCoverageeligibilityresponse,
+  AllTypesDetectedissue,
+  AllTypesDevice,
+  AllTypesDevicedefinition,
+  AllTypesDevicemetric,
+  AllTypesDevicerequest,
+  AllTypesDeviceusestatement,
+  AllTypesDiagnosticreport,
+  AllTypesDocumentmanifest,
+  AllTypesDocumentreference,
+  AllTypesDomainresource,
+  AllTypesEffectevidencesynthesis,
+  AllTypesEncounter,
+  AllTypesEndpoint,
+  AllTypesEnrollmentrequest,
+  AllTypesEnrollmentresponse,
+  AllTypesEpisodeofcare,
+  AllTypesEventdefinition,
+  AllTypesEvidence,
+  AllTypesEvidencevariable,
+  AllTypesExamplescenario,
+  AllTypesExplanationofbenefit,
+  AllTypesFamilymemberhistory,
+  AllTypesFlag,
+  AllTypesGoal,
+  AllTypesGraphdefinition,
+  AllTypesGroup,
+  AllTypesGuidanceresponse,
+  AllTypesHealthcareservice,
+  AllTypesImagingstudy,
+  AllTypesImmunization,
+  AllTypesImmunizationevaluation,
+  AllTypesImmunizationrecommendation,
+  AllTypesImplementationguide,
+  AllTypesInsuranceplan,
+  AllTypesInvoice,
+  AllTypesLibrary,
+  AllTypesLinkage,
+  AllTypesList,
+  AllTypesLocation,
+  AllTypesMeasure,
+  AllTypesMeasurereport,
+  AllTypesMedia,
+  AllTypesMedication,
+  AllTypesMedicationadministration,
+  AllTypesMedicationdispense,
+  AllTypesMedicationknowledge,
+  AllTypesMedicationrequest,
+  AllTypesMedicationstatement,
+  AllTypesMedicinalproduct,
+  AllTypesMedicinalproductauthorization,
+  AllTypesMedicinalproductcontraindication,
+  AllTypesMedicinalproductindication,
+  AllTypesMedicinalproductingredient,
+  AllTypesMedicinalproductinteraction,
+  AllTypesMedicinalproductmanufactured,
+  AllTypesMedicinalproductpackaged,
+  AllTypesMedicinalproductpharmaceutical,
+  AllTypesMedicinalproductundesirableeffect,
+  AllTypesMessagedefinition,
+  AllTypesMessageheader,
+  AllTypesMolecularsequence,
+  AllTypesNamingsystem,
+  AllTypesNutritionorder,
+  AllTypesObservation,
+  AllTypesObservationdefinition,
+  AllTypesOperationdefinition,
+  AllTypesOperationoutcome,
+  AllTypesOrganization,
+  AllTypesOrganizationaffiliation,
+  AllTypesParameters,
+  AllTypesPatient,
+  AllTypesPaymentnotice,
+  AllTypesPaymentreconciliation,
+  AllTypesPerson,
+  AllTypesPlandefinition,
+  AllTypesPractitioner,
+  AllTypesPractitionerrole,
+  AllTypesProcedure,
+  AllTypesProvenance,
+  AllTypesQuestionnaire,
+  AllTypesQuestionnaireresponse,
+  AllTypesRelatedperson,
+  AllTypesRequestgroup,
+  AllTypesResearchdefinition,
+  AllTypesResearchelementdefinition,
+  AllTypesResearchstudy,
+  AllTypesResearchsubject,
+  AllTypesResource,
+  AllTypesRiskassessment,
+  AllTypesRiskevidencesynthesis,
+  AllTypesSchedule,
+  AllTypesSearchparameter,
+  AllTypesServicerequest,
+  AllTypesSlot,
+  AllTypesSpecimen,
+  AllTypesSpecimendefinition,
+  AllTypesStructuredefinition,
+  AllTypesStructuremap,
+  AllTypesSubscription,
+  AllTypesSubstance,
+  AllTypesSubstancenucleicacid,
+  AllTypesSubstancepolymer,
+  AllTypesSubstanceprotein,
+  AllTypesSubstancereferenceinformation,
+  AllTypesSubstancesourcematerial,
+  AllTypesSubstancespecification,
+  AllTypesSupplydelivery,
+  AllTypesSupplyrequest,
+  AllTypesTask,
+  AllTypesTerminologycapabilities,
+  AllTypesTestreport,
+  AllTypesTestscript,
+  AllTypesValueset,
+  AllTypesVerificationresult,
+  AllTypesVisionprescription,
+  AllTypesType,
+  AllTypesAny,
+]
+
+pub fn all_types_to_json(all_types: AllTypes) -> Json {
+  json.string(all_types_to_code(all_types))
+}
+
+pub fn all_types_to_code(all_types: AllTypes) -> String {
+  case all_types {
+    AllTypesAddress -> "Address"
+    AllTypesAge -> "Age"
+    AllTypesAnnotation -> "Annotation"
+    AllTypesAttachment -> "Attachment"
+    AllTypesBackboneelement -> "BackboneElement"
+    AllTypesCodeableconcept -> "CodeableConcept"
+    AllTypesCoding -> "Coding"
+    AllTypesContactdetail -> "ContactDetail"
+    AllTypesContactpoint -> "ContactPoint"
+    AllTypesContributor -> "Contributor"
+    AllTypesCount -> "Count"
+    AllTypesDatarequirement -> "DataRequirement"
+    AllTypesDistance -> "Distance"
+    AllTypesDosage -> "Dosage"
+    AllTypesDuration -> "Duration"
+    AllTypesElement -> "Element"
+    AllTypesElementdefinition -> "ElementDefinition"
+    AllTypesExpression -> "Expression"
+    AllTypesExtension -> "Extension"
+    AllTypesHumanname -> "HumanName"
+    AllTypesIdentifier -> "Identifier"
+    AllTypesMarketingstatus -> "MarketingStatus"
+    AllTypesMeta -> "Meta"
+    AllTypesMoney -> "Money"
+    AllTypesMoneyquantity -> "MoneyQuantity"
+    AllTypesNarrative -> "Narrative"
+    AllTypesParameterdefinition -> "ParameterDefinition"
+    AllTypesPeriod -> "Period"
+    AllTypesPopulation -> "Population"
+    AllTypesProdcharacteristic -> "ProdCharacteristic"
+    AllTypesProductshelflife -> "ProductShelfLife"
+    AllTypesQuantity -> "Quantity"
+    AllTypesRange -> "Range"
+    AllTypesRatio -> "Ratio"
+    AllTypesReference -> "Reference"
+    AllTypesRelatedartifact -> "RelatedArtifact"
+    AllTypesSampleddata -> "SampledData"
+    AllTypesSignature -> "Signature"
+    AllTypesSimplequantity -> "SimpleQuantity"
+    AllTypesSubstanceamount -> "SubstanceAmount"
+    AllTypesTiming -> "Timing"
+    AllTypesTriggerdefinition -> "TriggerDefinition"
+    AllTypesUsagecontext -> "UsageContext"
+    AllTypesBase64binary -> "base64Binary"
+    AllTypesBoolean -> "boolean"
+    AllTypesCanonical -> "canonical"
+    AllTypesCode -> "code"
+    AllTypesDate -> "date"
+    AllTypesDatetime -> "dateTime"
+    AllTypesDecimal -> "decimal"
+    AllTypesId -> "id"
+    AllTypesInstant -> "instant"
+    AllTypesInteger -> "integer"
+    AllTypesMarkdown -> "markdown"
+    AllTypesOid -> "oid"
+    AllTypesPositiveint -> "positiveInt"
+    AllTypesString -> "string"
+    AllTypesTime -> "time"
+    AllTypesUnsignedint -> "unsignedInt"
+    AllTypesUri -> "uri"
+    AllTypesUrl -> "url"
+    AllTypesUuid -> "uuid"
+    AllTypesXhtml -> "xhtml"
+    AllTypesAccount -> "Account"
+    AllTypesActivitydefinition -> "ActivityDefinition"
+    AllTypesAdverseevent -> "AdverseEvent"
+    AllTypesAllergyintolerance -> "AllergyIntolerance"
+    AllTypesAppointment -> "Appointment"
+    AllTypesAppointmentresponse -> "AppointmentResponse"
+    AllTypesAuditevent -> "AuditEvent"
+    AllTypesBasic -> "Basic"
+    AllTypesBinary -> "Binary"
+    AllTypesBiologicallyderivedproduct -> "BiologicallyDerivedProduct"
+    AllTypesBodystructure -> "BodyStructure"
+    AllTypesBundle -> "Bundle"
+    AllTypesCapabilitystatement -> "CapabilityStatement"
+    AllTypesCareplan -> "CarePlan"
+    AllTypesCareteam -> "CareTeam"
+    AllTypesCatalogentry -> "CatalogEntry"
+    AllTypesChargeitem -> "ChargeItem"
+    AllTypesChargeitemdefinition -> "ChargeItemDefinition"
+    AllTypesClaim -> "Claim"
+    AllTypesClaimresponse -> "ClaimResponse"
+    AllTypesClinicalimpression -> "ClinicalImpression"
+    AllTypesCodesystem -> "CodeSystem"
+    AllTypesCommunication -> "Communication"
+    AllTypesCommunicationrequest -> "CommunicationRequest"
+    AllTypesCompartmentdefinition -> "CompartmentDefinition"
+    AllTypesComposition -> "Composition"
+    AllTypesConceptmap -> "ConceptMap"
+    AllTypesCondition -> "Condition"
+    AllTypesConsent -> "Consent"
+    AllTypesContract -> "Contract"
+    AllTypesCoverage -> "Coverage"
+    AllTypesCoverageeligibilityrequest -> "CoverageEligibilityRequest"
+    AllTypesCoverageeligibilityresponse -> "CoverageEligibilityResponse"
+    AllTypesDetectedissue -> "DetectedIssue"
+    AllTypesDevice -> "Device"
+    AllTypesDevicedefinition -> "DeviceDefinition"
+    AllTypesDevicemetric -> "DeviceMetric"
+    AllTypesDevicerequest -> "DeviceRequest"
+    AllTypesDeviceusestatement -> "DeviceUseStatement"
+    AllTypesDiagnosticreport -> "DiagnosticReport"
+    AllTypesDocumentmanifest -> "DocumentManifest"
+    AllTypesDocumentreference -> "DocumentReference"
+    AllTypesDomainresource -> "DomainResource"
+    AllTypesEffectevidencesynthesis -> "EffectEvidenceSynthesis"
+    AllTypesEncounter -> "Encounter"
+    AllTypesEndpoint -> "Endpoint"
+    AllTypesEnrollmentrequest -> "EnrollmentRequest"
+    AllTypesEnrollmentresponse -> "EnrollmentResponse"
+    AllTypesEpisodeofcare -> "EpisodeOfCare"
+    AllTypesEventdefinition -> "EventDefinition"
+    AllTypesEvidence -> "Evidence"
+    AllTypesEvidencevariable -> "EvidenceVariable"
+    AllTypesExamplescenario -> "ExampleScenario"
+    AllTypesExplanationofbenefit -> "ExplanationOfBenefit"
+    AllTypesFamilymemberhistory -> "FamilyMemberHistory"
+    AllTypesFlag -> "Flag"
+    AllTypesGoal -> "Goal"
+    AllTypesGraphdefinition -> "GraphDefinition"
+    AllTypesGroup -> "Group"
+    AllTypesGuidanceresponse -> "GuidanceResponse"
+    AllTypesHealthcareservice -> "HealthcareService"
+    AllTypesImagingstudy -> "ImagingStudy"
+    AllTypesImmunization -> "Immunization"
+    AllTypesImmunizationevaluation -> "ImmunizationEvaluation"
+    AllTypesImmunizationrecommendation -> "ImmunizationRecommendation"
+    AllTypesImplementationguide -> "ImplementationGuide"
+    AllTypesInsuranceplan -> "InsurancePlan"
+    AllTypesInvoice -> "Invoice"
+    AllTypesLibrary -> "Library"
+    AllTypesLinkage -> "Linkage"
+    AllTypesList -> "List"
+    AllTypesLocation -> "Location"
+    AllTypesMeasure -> "Measure"
+    AllTypesMeasurereport -> "MeasureReport"
+    AllTypesMedia -> "Media"
+    AllTypesMedication -> "Medication"
+    AllTypesMedicationadministration -> "MedicationAdministration"
+    AllTypesMedicationdispense -> "MedicationDispense"
+    AllTypesMedicationknowledge -> "MedicationKnowledge"
+    AllTypesMedicationrequest -> "MedicationRequest"
+    AllTypesMedicationstatement -> "MedicationStatement"
+    AllTypesMedicinalproduct -> "MedicinalProduct"
+    AllTypesMedicinalproductauthorization -> "MedicinalProductAuthorization"
+    AllTypesMedicinalproductcontraindication ->
+      "MedicinalProductContraindication"
+    AllTypesMedicinalproductindication -> "MedicinalProductIndication"
+    AllTypesMedicinalproductingredient -> "MedicinalProductIngredient"
+    AllTypesMedicinalproductinteraction -> "MedicinalProductInteraction"
+    AllTypesMedicinalproductmanufactured -> "MedicinalProductManufactured"
+    AllTypesMedicinalproductpackaged -> "MedicinalProductPackaged"
+    AllTypesMedicinalproductpharmaceutical -> "MedicinalProductPharmaceutical"
+    AllTypesMedicinalproductundesirableeffect ->
+      "MedicinalProductUndesirableEffect"
+    AllTypesMessagedefinition -> "MessageDefinition"
+    AllTypesMessageheader -> "MessageHeader"
+    AllTypesMolecularsequence -> "MolecularSequence"
+    AllTypesNamingsystem -> "NamingSystem"
+    AllTypesNutritionorder -> "NutritionOrder"
+    AllTypesObservation -> "Observation"
+    AllTypesObservationdefinition -> "ObservationDefinition"
+    AllTypesOperationdefinition -> "OperationDefinition"
+    AllTypesOperationoutcome -> "OperationOutcome"
+    AllTypesOrganization -> "Organization"
+    AllTypesOrganizationaffiliation -> "OrganizationAffiliation"
+    AllTypesParameters -> "Parameters"
+    AllTypesPatient -> "Patient"
+    AllTypesPaymentnotice -> "PaymentNotice"
+    AllTypesPaymentreconciliation -> "PaymentReconciliation"
+    AllTypesPerson -> "Person"
+    AllTypesPlandefinition -> "PlanDefinition"
+    AllTypesPractitioner -> "Practitioner"
+    AllTypesPractitionerrole -> "PractitionerRole"
+    AllTypesProcedure -> "Procedure"
+    AllTypesProvenance -> "Provenance"
+    AllTypesQuestionnaire -> "Questionnaire"
+    AllTypesQuestionnaireresponse -> "QuestionnaireResponse"
+    AllTypesRelatedperson -> "RelatedPerson"
+    AllTypesRequestgroup -> "RequestGroup"
+    AllTypesResearchdefinition -> "ResearchDefinition"
+    AllTypesResearchelementdefinition -> "ResearchElementDefinition"
+    AllTypesResearchstudy -> "ResearchStudy"
+    AllTypesResearchsubject -> "ResearchSubject"
+    AllTypesResource -> "Resource"
+    AllTypesRiskassessment -> "RiskAssessment"
+    AllTypesRiskevidencesynthesis -> "RiskEvidenceSynthesis"
+    AllTypesSchedule -> "Schedule"
+    AllTypesSearchparameter -> "SearchParameter"
+    AllTypesServicerequest -> "ServiceRequest"
+    AllTypesSlot -> "Slot"
+    AllTypesSpecimen -> "Specimen"
+    AllTypesSpecimendefinition -> "SpecimenDefinition"
+    AllTypesStructuredefinition -> "StructureDefinition"
+    AllTypesStructuremap -> "StructureMap"
+    AllTypesSubscription -> "Subscription"
+    AllTypesSubstance -> "Substance"
+    AllTypesSubstancenucleicacid -> "SubstanceNucleicAcid"
+    AllTypesSubstancepolymer -> "SubstancePolymer"
+    AllTypesSubstanceprotein -> "SubstanceProtein"
+    AllTypesSubstancereferenceinformation -> "SubstanceReferenceInformation"
+    AllTypesSubstancesourcematerial -> "SubstanceSourceMaterial"
+    AllTypesSubstancespecification -> "SubstanceSpecification"
+    AllTypesSupplydelivery -> "SupplyDelivery"
+    AllTypesSupplyrequest -> "SupplyRequest"
+    AllTypesTask -> "Task"
+    AllTypesTerminologycapabilities -> "TerminologyCapabilities"
+    AllTypesTestreport -> "TestReport"
+    AllTypesTestscript -> "TestScript"
+    AllTypesValueset -> "ValueSet"
+    AllTypesVerificationresult -> "VerificationResult"
+    AllTypesVisionprescription -> "VisionPrescription"
+    AllTypesType -> "Type"
+    AllTypesAny -> "Any"
+  }
+}
+
+pub fn all_types_parse_code(code: String) -> Result(AllTypes, Nil) {
+  case code {
+    "Address" -> Ok(AllTypesAddress)
+    "Age" -> Ok(AllTypesAge)
+    "Annotation" -> Ok(AllTypesAnnotation)
+    "Attachment" -> Ok(AllTypesAttachment)
+    "BackboneElement" -> Ok(AllTypesBackboneelement)
+    "CodeableConcept" -> Ok(AllTypesCodeableconcept)
+    "Coding" -> Ok(AllTypesCoding)
+    "ContactDetail" -> Ok(AllTypesContactdetail)
+    "ContactPoint" -> Ok(AllTypesContactpoint)
+    "Contributor" -> Ok(AllTypesContributor)
+    "Count" -> Ok(AllTypesCount)
+    "DataRequirement" -> Ok(AllTypesDatarequirement)
+    "Distance" -> Ok(AllTypesDistance)
+    "Dosage" -> Ok(AllTypesDosage)
+    "Duration" -> Ok(AllTypesDuration)
+    "Element" -> Ok(AllTypesElement)
+    "ElementDefinition" -> Ok(AllTypesElementdefinition)
+    "Expression" -> Ok(AllTypesExpression)
+    "Extension" -> Ok(AllTypesExtension)
+    "HumanName" -> Ok(AllTypesHumanname)
+    "Identifier" -> Ok(AllTypesIdentifier)
+    "MarketingStatus" -> Ok(AllTypesMarketingstatus)
+    "Meta" -> Ok(AllTypesMeta)
+    "Money" -> Ok(AllTypesMoney)
+    "MoneyQuantity" -> Ok(AllTypesMoneyquantity)
+    "Narrative" -> Ok(AllTypesNarrative)
+    "ParameterDefinition" -> Ok(AllTypesParameterdefinition)
+    "Period" -> Ok(AllTypesPeriod)
+    "Population" -> Ok(AllTypesPopulation)
+    "ProdCharacteristic" -> Ok(AllTypesProdcharacteristic)
+    "ProductShelfLife" -> Ok(AllTypesProductshelflife)
+    "Quantity" -> Ok(AllTypesQuantity)
+    "Range" -> Ok(AllTypesRange)
+    "Ratio" -> Ok(AllTypesRatio)
+    "Reference" -> Ok(AllTypesReference)
+    "RelatedArtifact" -> Ok(AllTypesRelatedartifact)
+    "SampledData" -> Ok(AllTypesSampleddata)
+    "Signature" -> Ok(AllTypesSignature)
+    "SimpleQuantity" -> Ok(AllTypesSimplequantity)
+    "SubstanceAmount" -> Ok(AllTypesSubstanceamount)
+    "Timing" -> Ok(AllTypesTiming)
+    "TriggerDefinition" -> Ok(AllTypesTriggerdefinition)
+    "UsageContext" -> Ok(AllTypesUsagecontext)
+    "base64Binary" -> Ok(AllTypesBase64binary)
+    "boolean" -> Ok(AllTypesBoolean)
+    "canonical" -> Ok(AllTypesCanonical)
+    "code" -> Ok(AllTypesCode)
+    "date" -> Ok(AllTypesDate)
+    "dateTime" -> Ok(AllTypesDatetime)
+    "decimal" -> Ok(AllTypesDecimal)
+    "id" -> Ok(AllTypesId)
+    "instant" -> Ok(AllTypesInstant)
+    "integer" -> Ok(AllTypesInteger)
+    "markdown" -> Ok(AllTypesMarkdown)
+    "oid" -> Ok(AllTypesOid)
+    "positiveInt" -> Ok(AllTypesPositiveint)
+    "string" -> Ok(AllTypesString)
+    "time" -> Ok(AllTypesTime)
+    "unsignedInt" -> Ok(AllTypesUnsignedint)
+    "uri" -> Ok(AllTypesUri)
+    "url" -> Ok(AllTypesUrl)
+    "uuid" -> Ok(AllTypesUuid)
+    "xhtml" -> Ok(AllTypesXhtml)
+    "Account" -> Ok(AllTypesAccount)
+    "ActivityDefinition" -> Ok(AllTypesActivitydefinition)
+    "AdverseEvent" -> Ok(AllTypesAdverseevent)
+    "AllergyIntolerance" -> Ok(AllTypesAllergyintolerance)
+    "Appointment" -> Ok(AllTypesAppointment)
+    "AppointmentResponse" -> Ok(AllTypesAppointmentresponse)
+    "AuditEvent" -> Ok(AllTypesAuditevent)
+    "Basic" -> Ok(AllTypesBasic)
+    "Binary" -> Ok(AllTypesBinary)
+    "BiologicallyDerivedProduct" -> Ok(AllTypesBiologicallyderivedproduct)
+    "BodyStructure" -> Ok(AllTypesBodystructure)
+    "Bundle" -> Ok(AllTypesBundle)
+    "CapabilityStatement" -> Ok(AllTypesCapabilitystatement)
+    "CarePlan" -> Ok(AllTypesCareplan)
+    "CareTeam" -> Ok(AllTypesCareteam)
+    "CatalogEntry" -> Ok(AllTypesCatalogentry)
+    "ChargeItem" -> Ok(AllTypesChargeitem)
+    "ChargeItemDefinition" -> Ok(AllTypesChargeitemdefinition)
+    "Claim" -> Ok(AllTypesClaim)
+    "ClaimResponse" -> Ok(AllTypesClaimresponse)
+    "ClinicalImpression" -> Ok(AllTypesClinicalimpression)
+    "CodeSystem" -> Ok(AllTypesCodesystem)
+    "Communication" -> Ok(AllTypesCommunication)
+    "CommunicationRequest" -> Ok(AllTypesCommunicationrequest)
+    "CompartmentDefinition" -> Ok(AllTypesCompartmentdefinition)
+    "Composition" -> Ok(AllTypesComposition)
+    "ConceptMap" -> Ok(AllTypesConceptmap)
+    "Condition" -> Ok(AllTypesCondition)
+    "Consent" -> Ok(AllTypesConsent)
+    "Contract" -> Ok(AllTypesContract)
+    "Coverage" -> Ok(AllTypesCoverage)
+    "CoverageEligibilityRequest" -> Ok(AllTypesCoverageeligibilityrequest)
+    "CoverageEligibilityResponse" -> Ok(AllTypesCoverageeligibilityresponse)
+    "DetectedIssue" -> Ok(AllTypesDetectedissue)
+    "Device" -> Ok(AllTypesDevice)
+    "DeviceDefinition" -> Ok(AllTypesDevicedefinition)
+    "DeviceMetric" -> Ok(AllTypesDevicemetric)
+    "DeviceRequest" -> Ok(AllTypesDevicerequest)
+    "DeviceUseStatement" -> Ok(AllTypesDeviceusestatement)
+    "DiagnosticReport" -> Ok(AllTypesDiagnosticreport)
+    "DocumentManifest" -> Ok(AllTypesDocumentmanifest)
+    "DocumentReference" -> Ok(AllTypesDocumentreference)
+    "DomainResource" -> Ok(AllTypesDomainresource)
+    "EffectEvidenceSynthesis" -> Ok(AllTypesEffectevidencesynthesis)
+    "Encounter" -> Ok(AllTypesEncounter)
+    "Endpoint" -> Ok(AllTypesEndpoint)
+    "EnrollmentRequest" -> Ok(AllTypesEnrollmentrequest)
+    "EnrollmentResponse" -> Ok(AllTypesEnrollmentresponse)
+    "EpisodeOfCare" -> Ok(AllTypesEpisodeofcare)
+    "EventDefinition" -> Ok(AllTypesEventdefinition)
+    "Evidence" -> Ok(AllTypesEvidence)
+    "EvidenceVariable" -> Ok(AllTypesEvidencevariable)
+    "ExampleScenario" -> Ok(AllTypesExamplescenario)
+    "ExplanationOfBenefit" -> Ok(AllTypesExplanationofbenefit)
+    "FamilyMemberHistory" -> Ok(AllTypesFamilymemberhistory)
+    "Flag" -> Ok(AllTypesFlag)
+    "Goal" -> Ok(AllTypesGoal)
+    "GraphDefinition" -> Ok(AllTypesGraphdefinition)
+    "Group" -> Ok(AllTypesGroup)
+    "GuidanceResponse" -> Ok(AllTypesGuidanceresponse)
+    "HealthcareService" -> Ok(AllTypesHealthcareservice)
+    "ImagingStudy" -> Ok(AllTypesImagingstudy)
+    "Immunization" -> Ok(AllTypesImmunization)
+    "ImmunizationEvaluation" -> Ok(AllTypesImmunizationevaluation)
+    "ImmunizationRecommendation" -> Ok(AllTypesImmunizationrecommendation)
+    "ImplementationGuide" -> Ok(AllTypesImplementationguide)
+    "InsurancePlan" -> Ok(AllTypesInsuranceplan)
+    "Invoice" -> Ok(AllTypesInvoice)
+    "Library" -> Ok(AllTypesLibrary)
+    "Linkage" -> Ok(AllTypesLinkage)
+    "List" -> Ok(AllTypesList)
+    "Location" -> Ok(AllTypesLocation)
+    "Measure" -> Ok(AllTypesMeasure)
+    "MeasureReport" -> Ok(AllTypesMeasurereport)
+    "Media" -> Ok(AllTypesMedia)
+    "Medication" -> Ok(AllTypesMedication)
+    "MedicationAdministration" -> Ok(AllTypesMedicationadministration)
+    "MedicationDispense" -> Ok(AllTypesMedicationdispense)
+    "MedicationKnowledge" -> Ok(AllTypesMedicationknowledge)
+    "MedicationRequest" -> Ok(AllTypesMedicationrequest)
+    "MedicationStatement" -> Ok(AllTypesMedicationstatement)
+    "MedicinalProduct" -> Ok(AllTypesMedicinalproduct)
+    "MedicinalProductAuthorization" -> Ok(AllTypesMedicinalproductauthorization)
+    "MedicinalProductContraindication" ->
+      Ok(AllTypesMedicinalproductcontraindication)
+    "MedicinalProductIndication" -> Ok(AllTypesMedicinalproductindication)
+    "MedicinalProductIngredient" -> Ok(AllTypesMedicinalproductingredient)
+    "MedicinalProductInteraction" -> Ok(AllTypesMedicinalproductinteraction)
+    "MedicinalProductManufactured" -> Ok(AllTypesMedicinalproductmanufactured)
+    "MedicinalProductPackaged" -> Ok(AllTypesMedicinalproductpackaged)
+    "MedicinalProductPharmaceutical" ->
+      Ok(AllTypesMedicinalproductpharmaceutical)
+    "MedicinalProductUndesirableEffect" ->
+      Ok(AllTypesMedicinalproductundesirableeffect)
+    "MessageDefinition" -> Ok(AllTypesMessagedefinition)
+    "MessageHeader" -> Ok(AllTypesMessageheader)
+    "MolecularSequence" -> Ok(AllTypesMolecularsequence)
+    "NamingSystem" -> Ok(AllTypesNamingsystem)
+    "NutritionOrder" -> Ok(AllTypesNutritionorder)
+    "Observation" -> Ok(AllTypesObservation)
+    "ObservationDefinition" -> Ok(AllTypesObservationdefinition)
+    "OperationDefinition" -> Ok(AllTypesOperationdefinition)
+    "OperationOutcome" -> Ok(AllTypesOperationoutcome)
+    "Organization" -> Ok(AllTypesOrganization)
+    "OrganizationAffiliation" -> Ok(AllTypesOrganizationaffiliation)
+    "Parameters" -> Ok(AllTypesParameters)
+    "Patient" -> Ok(AllTypesPatient)
+    "PaymentNotice" -> Ok(AllTypesPaymentnotice)
+    "PaymentReconciliation" -> Ok(AllTypesPaymentreconciliation)
+    "Person" -> Ok(AllTypesPerson)
+    "PlanDefinition" -> Ok(AllTypesPlandefinition)
+    "Practitioner" -> Ok(AllTypesPractitioner)
+    "PractitionerRole" -> Ok(AllTypesPractitionerrole)
+    "Procedure" -> Ok(AllTypesProcedure)
+    "Provenance" -> Ok(AllTypesProvenance)
+    "Questionnaire" -> Ok(AllTypesQuestionnaire)
+    "QuestionnaireResponse" -> Ok(AllTypesQuestionnaireresponse)
+    "RelatedPerson" -> Ok(AllTypesRelatedperson)
+    "RequestGroup" -> Ok(AllTypesRequestgroup)
+    "ResearchDefinition" -> Ok(AllTypesResearchdefinition)
+    "ResearchElementDefinition" -> Ok(AllTypesResearchelementdefinition)
+    "ResearchStudy" -> Ok(AllTypesResearchstudy)
+    "ResearchSubject" -> Ok(AllTypesResearchsubject)
+    "Resource" -> Ok(AllTypesResource)
+    "RiskAssessment" -> Ok(AllTypesRiskassessment)
+    "RiskEvidenceSynthesis" -> Ok(AllTypesRiskevidencesynthesis)
+    "Schedule" -> Ok(AllTypesSchedule)
+    "SearchParameter" -> Ok(AllTypesSearchparameter)
+    "ServiceRequest" -> Ok(AllTypesServicerequest)
+    "Slot" -> Ok(AllTypesSlot)
+    "Specimen" -> Ok(AllTypesSpecimen)
+    "SpecimenDefinition" -> Ok(AllTypesSpecimendefinition)
+    "StructureDefinition" -> Ok(AllTypesStructuredefinition)
+    "StructureMap" -> Ok(AllTypesStructuremap)
+    "Subscription" -> Ok(AllTypesSubscription)
+    "Substance" -> Ok(AllTypesSubstance)
+    "SubstanceNucleicAcid" -> Ok(AllTypesSubstancenucleicacid)
+    "SubstancePolymer" -> Ok(AllTypesSubstancepolymer)
+    "SubstanceProtein" -> Ok(AllTypesSubstanceprotein)
+    "SubstanceReferenceInformation" -> Ok(AllTypesSubstancereferenceinformation)
+    "SubstanceSourceMaterial" -> Ok(AllTypesSubstancesourcematerial)
+    "SubstanceSpecification" -> Ok(AllTypesSubstancespecification)
+    "SupplyDelivery" -> Ok(AllTypesSupplydelivery)
+    "SupplyRequest" -> Ok(AllTypesSupplyrequest)
+    "Task" -> Ok(AllTypesTask)
+    "TerminologyCapabilities" -> Ok(AllTypesTerminologycapabilities)
+    "TestReport" -> Ok(AllTypesTestreport)
+    "TestScript" -> Ok(AllTypesTestscript)
+    "ValueSet" -> Ok(AllTypesValueset)
+    "VerificationResult" -> Ok(AllTypesVerificationresult)
+    "VisionPrescription" -> Ok(AllTypesVisionprescription)
+    "Type" -> Ok(AllTypesType)
+    "Any" -> Ok(AllTypesAny)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn all_types_decoder() -> Decoder(AllTypes) {
+  use variant <- decode.then(decode.string)
+  case variant {
+    "Address" -> decode.success(AllTypesAddress)
+    "Age" -> decode.success(AllTypesAge)
+    "Annotation" -> decode.success(AllTypesAnnotation)
+    "Attachment" -> decode.success(AllTypesAttachment)
+    "BackboneElement" -> decode.success(AllTypesBackboneelement)
+    "CodeableConcept" -> decode.success(AllTypesCodeableconcept)
+    "Coding" -> decode.success(AllTypesCoding)
+    "ContactDetail" -> decode.success(AllTypesContactdetail)
+    "ContactPoint" -> decode.success(AllTypesContactpoint)
+    "Contributor" -> decode.success(AllTypesContributor)
+    "Count" -> decode.success(AllTypesCount)
+    "DataRequirement" -> decode.success(AllTypesDatarequirement)
+    "Distance" -> decode.success(AllTypesDistance)
+    "Dosage" -> decode.success(AllTypesDosage)
+    "Duration" -> decode.success(AllTypesDuration)
+    "Element" -> decode.success(AllTypesElement)
+    "ElementDefinition" -> decode.success(AllTypesElementdefinition)
+    "Expression" -> decode.success(AllTypesExpression)
+    "Extension" -> decode.success(AllTypesExtension)
+    "HumanName" -> decode.success(AllTypesHumanname)
+    "Identifier" -> decode.success(AllTypesIdentifier)
+    "MarketingStatus" -> decode.success(AllTypesMarketingstatus)
+    "Meta" -> decode.success(AllTypesMeta)
+    "Money" -> decode.success(AllTypesMoney)
+    "MoneyQuantity" -> decode.success(AllTypesMoneyquantity)
+    "Narrative" -> decode.success(AllTypesNarrative)
+    "ParameterDefinition" -> decode.success(AllTypesParameterdefinition)
+    "Period" -> decode.success(AllTypesPeriod)
+    "Population" -> decode.success(AllTypesPopulation)
+    "ProdCharacteristic" -> decode.success(AllTypesProdcharacteristic)
+    "ProductShelfLife" -> decode.success(AllTypesProductshelflife)
+    "Quantity" -> decode.success(AllTypesQuantity)
+    "Range" -> decode.success(AllTypesRange)
+    "Ratio" -> decode.success(AllTypesRatio)
+    "Reference" -> decode.success(AllTypesReference)
+    "RelatedArtifact" -> decode.success(AllTypesRelatedartifact)
+    "SampledData" -> decode.success(AllTypesSampleddata)
+    "Signature" -> decode.success(AllTypesSignature)
+    "SimpleQuantity" -> decode.success(AllTypesSimplequantity)
+    "SubstanceAmount" -> decode.success(AllTypesSubstanceamount)
+    "Timing" -> decode.success(AllTypesTiming)
+    "TriggerDefinition" -> decode.success(AllTypesTriggerdefinition)
+    "UsageContext" -> decode.success(AllTypesUsagecontext)
+    "base64Binary" -> decode.success(AllTypesBase64binary)
+    "boolean" -> decode.success(AllTypesBoolean)
+    "canonical" -> decode.success(AllTypesCanonical)
+    "code" -> decode.success(AllTypesCode)
+    "date" -> decode.success(AllTypesDate)
+    "dateTime" -> decode.success(AllTypesDatetime)
+    "decimal" -> decode.success(AllTypesDecimal)
+    "id" -> decode.success(AllTypesId)
+    "instant" -> decode.success(AllTypesInstant)
+    "integer" -> decode.success(AllTypesInteger)
+    "markdown" -> decode.success(AllTypesMarkdown)
+    "oid" -> decode.success(AllTypesOid)
+    "positiveInt" -> decode.success(AllTypesPositiveint)
+    "string" -> decode.success(AllTypesString)
+    "time" -> decode.success(AllTypesTime)
+    "unsignedInt" -> decode.success(AllTypesUnsignedint)
+    "uri" -> decode.success(AllTypesUri)
+    "url" -> decode.success(AllTypesUrl)
+    "uuid" -> decode.success(AllTypesUuid)
+    "xhtml" -> decode.success(AllTypesXhtml)
+    "Account" -> decode.success(AllTypesAccount)
+    "ActivityDefinition" -> decode.success(AllTypesActivitydefinition)
+    "AdverseEvent" -> decode.success(AllTypesAdverseevent)
+    "AllergyIntolerance" -> decode.success(AllTypesAllergyintolerance)
+    "Appointment" -> decode.success(AllTypesAppointment)
+    "AppointmentResponse" -> decode.success(AllTypesAppointmentresponse)
+    "AuditEvent" -> decode.success(AllTypesAuditevent)
+    "Basic" -> decode.success(AllTypesBasic)
+    "Binary" -> decode.success(AllTypesBinary)
+    "BiologicallyDerivedProduct" ->
+      decode.success(AllTypesBiologicallyderivedproduct)
+    "BodyStructure" -> decode.success(AllTypesBodystructure)
+    "Bundle" -> decode.success(AllTypesBundle)
+    "CapabilityStatement" -> decode.success(AllTypesCapabilitystatement)
+    "CarePlan" -> decode.success(AllTypesCareplan)
+    "CareTeam" -> decode.success(AllTypesCareteam)
+    "CatalogEntry" -> decode.success(AllTypesCatalogentry)
+    "ChargeItem" -> decode.success(AllTypesChargeitem)
+    "ChargeItemDefinition" -> decode.success(AllTypesChargeitemdefinition)
+    "Claim" -> decode.success(AllTypesClaim)
+    "ClaimResponse" -> decode.success(AllTypesClaimresponse)
+    "ClinicalImpression" -> decode.success(AllTypesClinicalimpression)
+    "CodeSystem" -> decode.success(AllTypesCodesystem)
+    "Communication" -> decode.success(AllTypesCommunication)
+    "CommunicationRequest" -> decode.success(AllTypesCommunicationrequest)
+    "CompartmentDefinition" -> decode.success(AllTypesCompartmentdefinition)
+    "Composition" -> decode.success(AllTypesComposition)
+    "ConceptMap" -> decode.success(AllTypesConceptmap)
+    "Condition" -> decode.success(AllTypesCondition)
+    "Consent" -> decode.success(AllTypesConsent)
+    "Contract" -> decode.success(AllTypesContract)
+    "Coverage" -> decode.success(AllTypesCoverage)
+    "CoverageEligibilityRequest" ->
+      decode.success(AllTypesCoverageeligibilityrequest)
+    "CoverageEligibilityResponse" ->
+      decode.success(AllTypesCoverageeligibilityresponse)
+    "DetectedIssue" -> decode.success(AllTypesDetectedissue)
+    "Device" -> decode.success(AllTypesDevice)
+    "DeviceDefinition" -> decode.success(AllTypesDevicedefinition)
+    "DeviceMetric" -> decode.success(AllTypesDevicemetric)
+    "DeviceRequest" -> decode.success(AllTypesDevicerequest)
+    "DeviceUseStatement" -> decode.success(AllTypesDeviceusestatement)
+    "DiagnosticReport" -> decode.success(AllTypesDiagnosticreport)
+    "DocumentManifest" -> decode.success(AllTypesDocumentmanifest)
+    "DocumentReference" -> decode.success(AllTypesDocumentreference)
+    "DomainResource" -> decode.success(AllTypesDomainresource)
+    "EffectEvidenceSynthesis" -> decode.success(AllTypesEffectevidencesynthesis)
+    "Encounter" -> decode.success(AllTypesEncounter)
+    "Endpoint" -> decode.success(AllTypesEndpoint)
+    "EnrollmentRequest" -> decode.success(AllTypesEnrollmentrequest)
+    "EnrollmentResponse" -> decode.success(AllTypesEnrollmentresponse)
+    "EpisodeOfCare" -> decode.success(AllTypesEpisodeofcare)
+    "EventDefinition" -> decode.success(AllTypesEventdefinition)
+    "Evidence" -> decode.success(AllTypesEvidence)
+    "EvidenceVariable" -> decode.success(AllTypesEvidencevariable)
+    "ExampleScenario" -> decode.success(AllTypesExamplescenario)
+    "ExplanationOfBenefit" -> decode.success(AllTypesExplanationofbenefit)
+    "FamilyMemberHistory" -> decode.success(AllTypesFamilymemberhistory)
+    "Flag" -> decode.success(AllTypesFlag)
+    "Goal" -> decode.success(AllTypesGoal)
+    "GraphDefinition" -> decode.success(AllTypesGraphdefinition)
+    "Group" -> decode.success(AllTypesGroup)
+    "GuidanceResponse" -> decode.success(AllTypesGuidanceresponse)
+    "HealthcareService" -> decode.success(AllTypesHealthcareservice)
+    "ImagingStudy" -> decode.success(AllTypesImagingstudy)
+    "Immunization" -> decode.success(AllTypesImmunization)
+    "ImmunizationEvaluation" -> decode.success(AllTypesImmunizationevaluation)
+    "ImmunizationRecommendation" ->
+      decode.success(AllTypesImmunizationrecommendation)
+    "ImplementationGuide" -> decode.success(AllTypesImplementationguide)
+    "InsurancePlan" -> decode.success(AllTypesInsuranceplan)
+    "Invoice" -> decode.success(AllTypesInvoice)
+    "Library" -> decode.success(AllTypesLibrary)
+    "Linkage" -> decode.success(AllTypesLinkage)
+    "List" -> decode.success(AllTypesList)
+    "Location" -> decode.success(AllTypesLocation)
+    "Measure" -> decode.success(AllTypesMeasure)
+    "MeasureReport" -> decode.success(AllTypesMeasurereport)
+    "Media" -> decode.success(AllTypesMedia)
+    "Medication" -> decode.success(AllTypesMedication)
+    "MedicationAdministration" ->
+      decode.success(AllTypesMedicationadministration)
+    "MedicationDispense" -> decode.success(AllTypesMedicationdispense)
+    "MedicationKnowledge" -> decode.success(AllTypesMedicationknowledge)
+    "MedicationRequest" -> decode.success(AllTypesMedicationrequest)
+    "MedicationStatement" -> decode.success(AllTypesMedicationstatement)
+    "MedicinalProduct" -> decode.success(AllTypesMedicinalproduct)
+    "MedicinalProductAuthorization" ->
+      decode.success(AllTypesMedicinalproductauthorization)
+    "MedicinalProductContraindication" ->
+      decode.success(AllTypesMedicinalproductcontraindication)
+    "MedicinalProductIndication" ->
+      decode.success(AllTypesMedicinalproductindication)
+    "MedicinalProductIngredient" ->
+      decode.success(AllTypesMedicinalproductingredient)
+    "MedicinalProductInteraction" ->
+      decode.success(AllTypesMedicinalproductinteraction)
+    "MedicinalProductManufactured" ->
+      decode.success(AllTypesMedicinalproductmanufactured)
+    "MedicinalProductPackaged" ->
+      decode.success(AllTypesMedicinalproductpackaged)
+    "MedicinalProductPharmaceutical" ->
+      decode.success(AllTypesMedicinalproductpharmaceutical)
+    "MedicinalProductUndesirableEffect" ->
+      decode.success(AllTypesMedicinalproductundesirableeffect)
+    "MessageDefinition" -> decode.success(AllTypesMessagedefinition)
+    "MessageHeader" -> decode.success(AllTypesMessageheader)
+    "MolecularSequence" -> decode.success(AllTypesMolecularsequence)
+    "NamingSystem" -> decode.success(AllTypesNamingsystem)
+    "NutritionOrder" -> decode.success(AllTypesNutritionorder)
+    "Observation" -> decode.success(AllTypesObservation)
+    "ObservationDefinition" -> decode.success(AllTypesObservationdefinition)
+    "OperationDefinition" -> decode.success(AllTypesOperationdefinition)
+    "OperationOutcome" -> decode.success(AllTypesOperationoutcome)
+    "Organization" -> decode.success(AllTypesOrganization)
+    "OrganizationAffiliation" -> decode.success(AllTypesOrganizationaffiliation)
+    "Parameters" -> decode.success(AllTypesParameters)
+    "Patient" -> decode.success(AllTypesPatient)
+    "PaymentNotice" -> decode.success(AllTypesPaymentnotice)
+    "PaymentReconciliation" -> decode.success(AllTypesPaymentreconciliation)
+    "Person" -> decode.success(AllTypesPerson)
+    "PlanDefinition" -> decode.success(AllTypesPlandefinition)
+    "Practitioner" -> decode.success(AllTypesPractitioner)
+    "PractitionerRole" -> decode.success(AllTypesPractitionerrole)
+    "Procedure" -> decode.success(AllTypesProcedure)
+    "Provenance" -> decode.success(AllTypesProvenance)
+    "Questionnaire" -> decode.success(AllTypesQuestionnaire)
+    "QuestionnaireResponse" -> decode.success(AllTypesQuestionnaireresponse)
+    "RelatedPerson" -> decode.success(AllTypesRelatedperson)
+    "RequestGroup" -> decode.success(AllTypesRequestgroup)
+    "ResearchDefinition" -> decode.success(AllTypesResearchdefinition)
+    "ResearchElementDefinition" ->
+      decode.success(AllTypesResearchelementdefinition)
+    "ResearchStudy" -> decode.success(AllTypesResearchstudy)
+    "ResearchSubject" -> decode.success(AllTypesResearchsubject)
+    "Resource" -> decode.success(AllTypesResource)
+    "RiskAssessment" -> decode.success(AllTypesRiskassessment)
+    "RiskEvidenceSynthesis" -> decode.success(AllTypesRiskevidencesynthesis)
+    "Schedule" -> decode.success(AllTypesSchedule)
+    "SearchParameter" -> decode.success(AllTypesSearchparameter)
+    "ServiceRequest" -> decode.success(AllTypesServicerequest)
+    "Slot" -> decode.success(AllTypesSlot)
+    "Specimen" -> decode.success(AllTypesSpecimen)
+    "SpecimenDefinition" -> decode.success(AllTypesSpecimendefinition)
+    "StructureDefinition" -> decode.success(AllTypesStructuredefinition)
+    "StructureMap" -> decode.success(AllTypesStructuremap)
+    "Subscription" -> decode.success(AllTypesSubscription)
+    "Substance" -> decode.success(AllTypesSubstance)
+    "SubstanceNucleicAcid" -> decode.success(AllTypesSubstancenucleicacid)
+    "SubstancePolymer" -> decode.success(AllTypesSubstancepolymer)
+    "SubstanceProtein" -> decode.success(AllTypesSubstanceprotein)
+    "SubstanceReferenceInformation" ->
+      decode.success(AllTypesSubstancereferenceinformation)
+    "SubstanceSourceMaterial" -> decode.success(AllTypesSubstancesourcematerial)
+    "SubstanceSpecification" -> decode.success(AllTypesSubstancespecification)
+    "SupplyDelivery" -> decode.success(AllTypesSupplydelivery)
+    "SupplyRequest" -> decode.success(AllTypesSupplyrequest)
+    "Task" -> decode.success(AllTypesTask)
+    "TerminologyCapabilities" -> decode.success(AllTypesTerminologycapabilities)
+    "TestReport" -> decode.success(AllTypesTestreport)
+    "TestScript" -> decode.success(AllTypesTestscript)
+    "ValueSet" -> decode.success(AllTypesValueset)
+    "VerificationResult" -> decode.success(AllTypesVerificationresult)
+    "VisionPrescription" -> decode.success(AllTypesVisionprescription)
+    "Type" -> decode.success(AllTypesType)
+    "Any" -> decode.success(AllTypesAny)
+    _ ->
+      decode.failure(
+        AllTypesAddress,
+        "code from valueset AllTypes ["
+          <> { all_types |> list.map(all_types_to_code) |> string.join(", ") }
+          <> "]",
+      )
+      |> decode.map_errors(fn(errors) {
+        list.map(errors, fn(error) {
+          decode.DecodeError(..error, found: variant)
+        })
+      })
+  }
+}
+
+pub type BundleType {
+  BundleTypeDocument
+  BundleTypeMessage
+  BundleTypeTransaction
+  BundleTypeTransactionresponse
+  BundleTypeBatch
+  BundleTypeBatchresponse
+  BundleTypeHistory
+  BundleTypeSearchset
+  BundleTypeCollection
+}
+
+pub const bundle_type: List(BundleType) = [
+  BundleTypeDocument,
+  BundleTypeMessage,
+  BundleTypeTransaction,
+  BundleTypeTransactionresponse,
+  BundleTypeBatch,
+  BundleTypeBatchresponse,
+  BundleTypeHistory,
+  BundleTypeSearchset,
+  BundleTypeCollection,
+]
+
+pub fn bundle_type_to_json(bundle_type: BundleType) -> Json {
+  json.string(bundle_type_to_code(bundle_type))
+}
+
+pub fn bundle_type_to_code(bundle_type: BundleType) -> String {
+  case bundle_type {
+    BundleTypeDocument -> "document"
+    BundleTypeMessage -> "message"
+    BundleTypeTransaction -> "transaction"
+    BundleTypeTransactionresponse -> "transaction-response"
+    BundleTypeBatch -> "batch"
+    BundleTypeBatchresponse -> "batch-response"
+    BundleTypeHistory -> "history"
+    BundleTypeSearchset -> "searchset"
+    BundleTypeCollection -> "collection"
+  }
+}
+
+pub fn bundle_type_parse_code(code: String) -> Result(BundleType, Nil) {
+  case code {
+    "document" -> Ok(BundleTypeDocument)
+    "message" -> Ok(BundleTypeMessage)
+    "transaction" -> Ok(BundleTypeTransaction)
+    "transaction-response" -> Ok(BundleTypeTransactionresponse)
+    "batch" -> Ok(BundleTypeBatch)
+    "batch-response" -> Ok(BundleTypeBatchresponse)
+    "history" -> Ok(BundleTypeHistory)
+    "searchset" -> Ok(BundleTypeSearchset)
+    "collection" -> Ok(BundleTypeCollection)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn bundle_type_decoder() -> Decoder(BundleType) {
+  use variant <- decode.then(decode.string)
+  case variant {
+    "document" -> decode.success(BundleTypeDocument)
+    "message" -> decode.success(BundleTypeMessage)
+    "transaction" -> decode.success(BundleTypeTransaction)
+    "transaction-response" -> decode.success(BundleTypeTransactionresponse)
+    "batch" -> decode.success(BundleTypeBatch)
+    "batch-response" -> decode.success(BundleTypeBatchresponse)
+    "history" -> decode.success(BundleTypeHistory)
+    "searchset" -> decode.success(BundleTypeSearchset)
+    "collection" -> decode.success(BundleTypeCollection)
+    _ ->
+      decode.failure(
+        BundleTypeDocument,
+        "code from valueset BundleType ["
+          <> {
+          bundle_type |> list.map(bundle_type_to_code) |> string.join(", ")
+        }
+          <> "]",
+      )
+      |> decode.map_errors(fn(errors) {
+        list.map(errors, fn(error) {
+          decode.DecodeError(..error, found: variant)
+        })
+      })
+  }
+}
+
+pub type CodesystemContentMode {
+  CodesystemContentModeNotpresent
+  CodesystemContentModeExample
+  CodesystemContentModeFragment
+  CodesystemContentModeComplete
+  CodesystemContentModeSupplement
+}
+
+pub const codesystem_content_mode: List(CodesystemContentMode) = [
+  CodesystemContentModeNotpresent,
+  CodesystemContentModeExample,
+  CodesystemContentModeFragment,
+  CodesystemContentModeComplete,
+  CodesystemContentModeSupplement,
+]
+
+pub fn codesystem_content_mode_to_json(
+  codesystem_content_mode: CodesystemContentMode,
+) -> Json {
+  json.string(codesystem_content_mode_to_code(codesystem_content_mode))
+}
+
+pub fn codesystem_content_mode_to_code(
+  codesystem_content_mode: CodesystemContentMode,
+) -> String {
+  case codesystem_content_mode {
+    CodesystemContentModeNotpresent -> "not-present"
+    CodesystemContentModeExample -> "example"
+    CodesystemContentModeFragment -> "fragment"
+    CodesystemContentModeComplete -> "complete"
+    CodesystemContentModeSupplement -> "supplement"
+  }
+}
+
+pub fn codesystem_content_mode_parse_code(
+  code: String,
+) -> Result(CodesystemContentMode, Nil) {
+  case code {
+    "not-present" -> Ok(CodesystemContentModeNotpresent)
+    "example" -> Ok(CodesystemContentModeExample)
+    "fragment" -> Ok(CodesystemContentModeFragment)
+    "complete" -> Ok(CodesystemContentModeComplete)
+    "supplement" -> Ok(CodesystemContentModeSupplement)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn codesystem_content_mode_decoder() -> Decoder(CodesystemContentMode) {
+  use variant <- decode.then(decode.string)
+  case variant {
+    "not-present" -> decode.success(CodesystemContentModeNotpresent)
+    "example" -> decode.success(CodesystemContentModeExample)
+    "fragment" -> decode.success(CodesystemContentModeFragment)
+    "complete" -> decode.success(CodesystemContentModeComplete)
+    "supplement" -> decode.success(CodesystemContentModeSupplement)
+    _ ->
+      decode.failure(
+        CodesystemContentModeNotpresent,
+        "code from valueset CodesystemContentMode ["
+          <> {
+          codesystem_content_mode
+          |> list.map(codesystem_content_mode_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -1408,66 +1412,66 @@ pub fn codesystemcontentmode_decoder() -> Decoder(Codesystemcontentmode) {
   }
 }
 
-pub type Codesystemhierarchymeaning {
-  CodesystemhierarchymeaningGroupedby
-  CodesystemhierarchymeaningIsa
-  CodesystemhierarchymeaningPartof
-  CodesystemhierarchymeaningClassifiedwith
+pub type CodesystemHierarchyMeaning {
+  CodesystemHierarchyMeaningGroupedby
+  CodesystemHierarchyMeaningIsa
+  CodesystemHierarchyMeaningPartof
+  CodesystemHierarchyMeaningClassifiedwith
 }
 
-pub const codesystemhierarchymeaning: List(Codesystemhierarchymeaning) = [
-  CodesystemhierarchymeaningGroupedby,
-  CodesystemhierarchymeaningIsa,
-  CodesystemhierarchymeaningPartof,
-  CodesystemhierarchymeaningClassifiedwith,
+pub const codesystem_hierarchy_meaning: List(CodesystemHierarchyMeaning) = [
+  CodesystemHierarchyMeaningGroupedby,
+  CodesystemHierarchyMeaningIsa,
+  CodesystemHierarchyMeaningPartof,
+  CodesystemHierarchyMeaningClassifiedwith,
 ]
 
-pub fn codesystemhierarchymeaning_to_json(
-  codesystemhierarchymeaning: Codesystemhierarchymeaning,
+pub fn codesystem_hierarchy_meaning_to_json(
+  codesystem_hierarchy_meaning: CodesystemHierarchyMeaning,
 ) -> Json {
-  json.string(codesystemhierarchymeaning_to_code(codesystemhierarchymeaning))
+  json.string(codesystem_hierarchy_meaning_to_code(codesystem_hierarchy_meaning))
 }
 
-pub fn codesystemhierarchymeaning_to_code(
-  codesystemhierarchymeaning: Codesystemhierarchymeaning,
+pub fn codesystem_hierarchy_meaning_to_code(
+  codesystem_hierarchy_meaning: CodesystemHierarchyMeaning,
 ) -> String {
-  case codesystemhierarchymeaning {
-    CodesystemhierarchymeaningGroupedby -> "grouped-by"
-    CodesystemhierarchymeaningIsa -> "is-a"
-    CodesystemhierarchymeaningPartof -> "part-of"
-    CodesystemhierarchymeaningClassifiedwith -> "classified-with"
+  case codesystem_hierarchy_meaning {
+    CodesystemHierarchyMeaningGroupedby -> "grouped-by"
+    CodesystemHierarchyMeaningIsa -> "is-a"
+    CodesystemHierarchyMeaningPartof -> "part-of"
+    CodesystemHierarchyMeaningClassifiedwith -> "classified-with"
   }
 }
 
-pub fn codesystemhierarchymeaning_parse_code(
+pub fn codesystem_hierarchy_meaning_parse_code(
   code: String,
-) -> Result(Codesystemhierarchymeaning, Nil) {
+) -> Result(CodesystemHierarchyMeaning, Nil) {
   case code {
-    "grouped-by" -> Ok(CodesystemhierarchymeaningGroupedby)
-    "is-a" -> Ok(CodesystemhierarchymeaningIsa)
-    "part-of" -> Ok(CodesystemhierarchymeaningPartof)
-    "classified-with" -> Ok(CodesystemhierarchymeaningClassifiedwith)
+    "grouped-by" -> Ok(CodesystemHierarchyMeaningGroupedby)
+    "is-a" -> Ok(CodesystemHierarchyMeaningIsa)
+    "part-of" -> Ok(CodesystemHierarchyMeaningPartof)
+    "classified-with" -> Ok(CodesystemHierarchyMeaningClassifiedwith)
     _ -> Error(Nil)
   }
 }
 
-pub fn codesystemhierarchymeaning_decoder() -> Decoder(
-  Codesystemhierarchymeaning,
+pub fn codesystem_hierarchy_meaning_decoder() -> Decoder(
+  CodesystemHierarchyMeaning,
 ) {
   use variant <- decode.then(decode.string)
   case variant {
-    "grouped-by" -> decode.success(CodesystemhierarchymeaningGroupedby)
-    "is-a" -> decode.success(CodesystemhierarchymeaningIsa)
-    "part-of" -> decode.success(CodesystemhierarchymeaningPartof)
+    "grouped-by" -> decode.success(CodesystemHierarchyMeaningGroupedby)
+    "is-a" -> decode.success(CodesystemHierarchyMeaningIsa)
+    "part-of" -> decode.success(CodesystemHierarchyMeaningPartof)
     "classified-with" ->
-      decode.success(CodesystemhierarchymeaningClassifiedwith)
+      decode.success(CodesystemHierarchyMeaningClassifiedwith)
     _ ->
       decode.failure(
-        CodesystemhierarchymeaningGroupedby,
-        "code from valueset Codesystemhierarchymeaning ["
+        CodesystemHierarchyMeaningGroupedby,
+        "code from valueset CodesystemHierarchyMeaning ["
           <> {
-          codesystemhierarchymeaning
-          |> list.map(codesystemhierarchymeaning_to_code)
+          codesystem_hierarchy_meaning
+          |> list.map(codesystem_hierarchy_meaning_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -1480,78 +1484,78 @@ pub fn codesystemhierarchymeaning_decoder() -> Decoder(
   }
 }
 
-pub type Conceptpropertytype {
-  ConceptpropertytypeCode
-  ConceptpropertytypeCoding
-  ConceptpropertytypeString
-  ConceptpropertytypeInteger
-  ConceptpropertytypeBoolean
-  ConceptpropertytypeDatetime
-  ConceptpropertytypeDecimal
+pub type ConceptPropertyType {
+  ConceptPropertyTypeCode
+  ConceptPropertyTypeCoding
+  ConceptPropertyTypeString
+  ConceptPropertyTypeInteger
+  ConceptPropertyTypeBoolean
+  ConceptPropertyTypeDatetime
+  ConceptPropertyTypeDecimal
 }
 
-pub const conceptpropertytype: List(Conceptpropertytype) = [
-  ConceptpropertytypeCode,
-  ConceptpropertytypeCoding,
-  ConceptpropertytypeString,
-  ConceptpropertytypeInteger,
-  ConceptpropertytypeBoolean,
-  ConceptpropertytypeDatetime,
-  ConceptpropertytypeDecimal,
+pub const concept_property_type: List(ConceptPropertyType) = [
+  ConceptPropertyTypeCode,
+  ConceptPropertyTypeCoding,
+  ConceptPropertyTypeString,
+  ConceptPropertyTypeInteger,
+  ConceptPropertyTypeBoolean,
+  ConceptPropertyTypeDatetime,
+  ConceptPropertyTypeDecimal,
 ]
 
-pub fn conceptpropertytype_to_json(
-  conceptpropertytype: Conceptpropertytype,
+pub fn concept_property_type_to_json(
+  concept_property_type: ConceptPropertyType,
 ) -> Json {
-  json.string(conceptpropertytype_to_code(conceptpropertytype))
+  json.string(concept_property_type_to_code(concept_property_type))
 }
 
-pub fn conceptpropertytype_to_code(
-  conceptpropertytype: Conceptpropertytype,
+pub fn concept_property_type_to_code(
+  concept_property_type: ConceptPropertyType,
 ) -> String {
-  case conceptpropertytype {
-    ConceptpropertytypeCode -> "code"
-    ConceptpropertytypeCoding -> "Coding"
-    ConceptpropertytypeString -> "string"
-    ConceptpropertytypeInteger -> "integer"
-    ConceptpropertytypeBoolean -> "boolean"
-    ConceptpropertytypeDatetime -> "dateTime"
-    ConceptpropertytypeDecimal -> "decimal"
+  case concept_property_type {
+    ConceptPropertyTypeCode -> "code"
+    ConceptPropertyTypeCoding -> "Coding"
+    ConceptPropertyTypeString -> "string"
+    ConceptPropertyTypeInteger -> "integer"
+    ConceptPropertyTypeBoolean -> "boolean"
+    ConceptPropertyTypeDatetime -> "dateTime"
+    ConceptPropertyTypeDecimal -> "decimal"
   }
 }
 
-pub fn conceptpropertytype_parse_code(
+pub fn concept_property_type_parse_code(
   code: String,
-) -> Result(Conceptpropertytype, Nil) {
+) -> Result(ConceptPropertyType, Nil) {
   case code {
-    "code" -> Ok(ConceptpropertytypeCode)
-    "Coding" -> Ok(ConceptpropertytypeCoding)
-    "string" -> Ok(ConceptpropertytypeString)
-    "integer" -> Ok(ConceptpropertytypeInteger)
-    "boolean" -> Ok(ConceptpropertytypeBoolean)
-    "dateTime" -> Ok(ConceptpropertytypeDatetime)
-    "decimal" -> Ok(ConceptpropertytypeDecimal)
+    "code" -> Ok(ConceptPropertyTypeCode)
+    "Coding" -> Ok(ConceptPropertyTypeCoding)
+    "string" -> Ok(ConceptPropertyTypeString)
+    "integer" -> Ok(ConceptPropertyTypeInteger)
+    "boolean" -> Ok(ConceptPropertyTypeBoolean)
+    "dateTime" -> Ok(ConceptPropertyTypeDatetime)
+    "decimal" -> Ok(ConceptPropertyTypeDecimal)
     _ -> Error(Nil)
   }
 }
 
-pub fn conceptpropertytype_decoder() -> Decoder(Conceptpropertytype) {
+pub fn concept_property_type_decoder() -> Decoder(ConceptPropertyType) {
   use variant <- decode.then(decode.string)
   case variant {
-    "code" -> decode.success(ConceptpropertytypeCode)
-    "Coding" -> decode.success(ConceptpropertytypeCoding)
-    "string" -> decode.success(ConceptpropertytypeString)
-    "integer" -> decode.success(ConceptpropertytypeInteger)
-    "boolean" -> decode.success(ConceptpropertytypeBoolean)
-    "dateTime" -> decode.success(ConceptpropertytypeDatetime)
-    "decimal" -> decode.success(ConceptpropertytypeDecimal)
+    "code" -> decode.success(ConceptPropertyTypeCode)
+    "Coding" -> decode.success(ConceptPropertyTypeCoding)
+    "string" -> decode.success(ConceptPropertyTypeString)
+    "integer" -> decode.success(ConceptPropertyTypeInteger)
+    "boolean" -> decode.success(ConceptPropertyTypeBoolean)
+    "dateTime" -> decode.success(ConceptPropertyTypeDatetime)
+    "decimal" -> decode.success(ConceptPropertyTypeDecimal)
     _ ->
       decode.failure(
-        ConceptpropertytypeCode,
-        "code from valueset Conceptpropertytype ["
+        ConceptPropertyTypeCode,
+        "code from valueset ConceptPropertyType ["
           <> {
-          conceptpropertytype
-          |> list.map(conceptpropertytype_to_code)
+          concept_property_type
+          |> list.map(concept_property_type_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -1564,78 +1568,78 @@ pub fn conceptpropertytype_decoder() -> Decoder(Conceptpropertytype) {
   }
 }
 
-pub type Contactpointsystem {
-  ContactpointsystemPhone
-  ContactpointsystemFax
-  ContactpointsystemEmail
-  ContactpointsystemPager
-  ContactpointsystemUrl
-  ContactpointsystemSms
-  ContactpointsystemOther
+pub type ContactpointSystem {
+  ContactpointSystemPhone
+  ContactpointSystemFax
+  ContactpointSystemEmail
+  ContactpointSystemPager
+  ContactpointSystemUrl
+  ContactpointSystemSms
+  ContactpointSystemOther
 }
 
-pub const contactpointsystem: List(Contactpointsystem) = [
-  ContactpointsystemPhone,
-  ContactpointsystemFax,
-  ContactpointsystemEmail,
-  ContactpointsystemPager,
-  ContactpointsystemUrl,
-  ContactpointsystemSms,
-  ContactpointsystemOther,
+pub const contactpoint_system: List(ContactpointSystem) = [
+  ContactpointSystemPhone,
+  ContactpointSystemFax,
+  ContactpointSystemEmail,
+  ContactpointSystemPager,
+  ContactpointSystemUrl,
+  ContactpointSystemSms,
+  ContactpointSystemOther,
 ]
 
-pub fn contactpointsystem_to_json(
-  contactpointsystem: Contactpointsystem,
+pub fn contactpoint_system_to_json(
+  contactpoint_system: ContactpointSystem,
 ) -> Json {
-  json.string(contactpointsystem_to_code(contactpointsystem))
+  json.string(contactpoint_system_to_code(contactpoint_system))
 }
 
-pub fn contactpointsystem_to_code(
-  contactpointsystem: Contactpointsystem,
+pub fn contactpoint_system_to_code(
+  contactpoint_system: ContactpointSystem,
 ) -> String {
-  case contactpointsystem {
-    ContactpointsystemPhone -> "phone"
-    ContactpointsystemFax -> "fax"
-    ContactpointsystemEmail -> "email"
-    ContactpointsystemPager -> "pager"
-    ContactpointsystemUrl -> "url"
-    ContactpointsystemSms -> "sms"
-    ContactpointsystemOther -> "other"
+  case contactpoint_system {
+    ContactpointSystemPhone -> "phone"
+    ContactpointSystemFax -> "fax"
+    ContactpointSystemEmail -> "email"
+    ContactpointSystemPager -> "pager"
+    ContactpointSystemUrl -> "url"
+    ContactpointSystemSms -> "sms"
+    ContactpointSystemOther -> "other"
   }
 }
 
-pub fn contactpointsystem_parse_code(
+pub fn contactpoint_system_parse_code(
   code: String,
-) -> Result(Contactpointsystem, Nil) {
+) -> Result(ContactpointSystem, Nil) {
   case code {
-    "phone" -> Ok(ContactpointsystemPhone)
-    "fax" -> Ok(ContactpointsystemFax)
-    "email" -> Ok(ContactpointsystemEmail)
-    "pager" -> Ok(ContactpointsystemPager)
-    "url" -> Ok(ContactpointsystemUrl)
-    "sms" -> Ok(ContactpointsystemSms)
-    "other" -> Ok(ContactpointsystemOther)
+    "phone" -> Ok(ContactpointSystemPhone)
+    "fax" -> Ok(ContactpointSystemFax)
+    "email" -> Ok(ContactpointSystemEmail)
+    "pager" -> Ok(ContactpointSystemPager)
+    "url" -> Ok(ContactpointSystemUrl)
+    "sms" -> Ok(ContactpointSystemSms)
+    "other" -> Ok(ContactpointSystemOther)
     _ -> Error(Nil)
   }
 }
 
-pub fn contactpointsystem_decoder() -> Decoder(Contactpointsystem) {
+pub fn contactpoint_system_decoder() -> Decoder(ContactpointSystem) {
   use variant <- decode.then(decode.string)
   case variant {
-    "phone" -> decode.success(ContactpointsystemPhone)
-    "fax" -> decode.success(ContactpointsystemFax)
-    "email" -> decode.success(ContactpointsystemEmail)
-    "pager" -> decode.success(ContactpointsystemPager)
-    "url" -> decode.success(ContactpointsystemUrl)
-    "sms" -> decode.success(ContactpointsystemSms)
-    "other" -> decode.success(ContactpointsystemOther)
+    "phone" -> decode.success(ContactpointSystemPhone)
+    "fax" -> decode.success(ContactpointSystemFax)
+    "email" -> decode.success(ContactpointSystemEmail)
+    "pager" -> decode.success(ContactpointSystemPager)
+    "url" -> decode.success(ContactpointSystemUrl)
+    "sms" -> decode.success(ContactpointSystemSms)
+    "other" -> decode.success(ContactpointSystemOther)
     _ ->
       decode.failure(
-        ContactpointsystemPhone,
-        "code from valueset Contactpointsystem ["
+        ContactpointSystemPhone,
+        "code from valueset ContactpointSystem ["
           <> {
-          contactpointsystem
-          |> list.map(contactpointsystem_to_code)
+          contactpoint_system
+          |> list.map(contactpoint_system_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -1648,64 +1652,64 @@ pub fn contactpointsystem_decoder() -> Decoder(Contactpointsystem) {
   }
 }
 
-pub type Contactpointuse {
-  ContactpointuseHome
-  ContactpointuseWork
-  ContactpointuseTemp
-  ContactpointuseOld
-  ContactpointuseMobile
+pub type ContactpointUse {
+  ContactpointUseHome
+  ContactpointUseWork
+  ContactpointUseTemp
+  ContactpointUseOld
+  ContactpointUseMobile
 }
 
-pub const contactpointuse: List(Contactpointuse) = [
-  ContactpointuseHome,
-  ContactpointuseWork,
-  ContactpointuseTemp,
-  ContactpointuseOld,
-  ContactpointuseMobile,
+pub const contactpoint_use: List(ContactpointUse) = [
+  ContactpointUseHome,
+  ContactpointUseWork,
+  ContactpointUseTemp,
+  ContactpointUseOld,
+  ContactpointUseMobile,
 ]
 
-pub fn contactpointuse_to_json(contactpointuse: Contactpointuse) -> Json {
-  json.string(contactpointuse_to_code(contactpointuse))
+pub fn contactpoint_use_to_json(contactpoint_use: ContactpointUse) -> Json {
+  json.string(contactpoint_use_to_code(contactpoint_use))
 }
 
-pub fn contactpointuse_to_code(contactpointuse: Contactpointuse) -> String {
-  case contactpointuse {
-    ContactpointuseHome -> "home"
-    ContactpointuseWork -> "work"
-    ContactpointuseTemp -> "temp"
-    ContactpointuseOld -> "old"
-    ContactpointuseMobile -> "mobile"
+pub fn contactpoint_use_to_code(contactpoint_use: ContactpointUse) -> String {
+  case contactpoint_use {
+    ContactpointUseHome -> "home"
+    ContactpointUseWork -> "work"
+    ContactpointUseTemp -> "temp"
+    ContactpointUseOld -> "old"
+    ContactpointUseMobile -> "mobile"
   }
 }
 
-pub fn contactpointuse_parse_code(
+pub fn contactpoint_use_parse_code(
   code: String,
-) -> Result(Contactpointuse, Nil) {
+) -> Result(ContactpointUse, Nil) {
   case code {
-    "home" -> Ok(ContactpointuseHome)
-    "work" -> Ok(ContactpointuseWork)
-    "temp" -> Ok(ContactpointuseTemp)
-    "old" -> Ok(ContactpointuseOld)
-    "mobile" -> Ok(ContactpointuseMobile)
+    "home" -> Ok(ContactpointUseHome)
+    "work" -> Ok(ContactpointUseWork)
+    "temp" -> Ok(ContactpointUseTemp)
+    "old" -> Ok(ContactpointUseOld)
+    "mobile" -> Ok(ContactpointUseMobile)
     _ -> Error(Nil)
   }
 }
 
-pub fn contactpointuse_decoder() -> Decoder(Contactpointuse) {
+pub fn contactpoint_use_decoder() -> Decoder(ContactpointUse) {
   use variant <- decode.then(decode.string)
   case variant {
-    "home" -> decode.success(ContactpointuseHome)
-    "work" -> decode.success(ContactpointuseWork)
-    "temp" -> decode.success(ContactpointuseTemp)
-    "old" -> decode.success(ContactpointuseOld)
-    "mobile" -> decode.success(ContactpointuseMobile)
+    "home" -> decode.success(ContactpointUseHome)
+    "work" -> decode.success(ContactpointUseWork)
+    "temp" -> decode.success(ContactpointUseTemp)
+    "old" -> decode.success(ContactpointUseOld)
+    "mobile" -> decode.success(ContactpointUseMobile)
     _ ->
       decode.failure(
-        ContactpointuseHome,
-        "code from valueset Contactpointuse ["
+        ContactpointUseHome,
+        "code from valueset ContactpointUse ["
           <> {
-          contactpointuse
-          |> list.map(contactpointuse_to_code)
+          contactpoint_use
+          |> list.map(contactpoint_use_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -1718,59 +1722,59 @@ pub fn contactpointuse_decoder() -> Decoder(Contactpointuse) {
   }
 }
 
-pub type Contributortype {
-  ContributortypeAuthor
-  ContributortypeEditor
-  ContributortypeReviewer
-  ContributortypeEndorser
+pub type ContributorType {
+  ContributorTypeAuthor
+  ContributorTypeEditor
+  ContributorTypeReviewer
+  ContributorTypeEndorser
 }
 
-pub const contributortype: List(Contributortype) = [
-  ContributortypeAuthor,
-  ContributortypeEditor,
-  ContributortypeReviewer,
-  ContributortypeEndorser,
+pub const contributor_type: List(ContributorType) = [
+  ContributorTypeAuthor,
+  ContributorTypeEditor,
+  ContributorTypeReviewer,
+  ContributorTypeEndorser,
 ]
 
-pub fn contributortype_to_json(contributortype: Contributortype) -> Json {
-  json.string(contributortype_to_code(contributortype))
+pub fn contributor_type_to_json(contributor_type: ContributorType) -> Json {
+  json.string(contributor_type_to_code(contributor_type))
 }
 
-pub fn contributortype_to_code(contributortype: Contributortype) -> String {
-  case contributortype {
-    ContributortypeAuthor -> "author"
-    ContributortypeEditor -> "editor"
-    ContributortypeReviewer -> "reviewer"
-    ContributortypeEndorser -> "endorser"
+pub fn contributor_type_to_code(contributor_type: ContributorType) -> String {
+  case contributor_type {
+    ContributorTypeAuthor -> "author"
+    ContributorTypeEditor -> "editor"
+    ContributorTypeReviewer -> "reviewer"
+    ContributorTypeEndorser -> "endorser"
   }
 }
 
-pub fn contributortype_parse_code(
+pub fn contributor_type_parse_code(
   code: String,
-) -> Result(Contributortype, Nil) {
+) -> Result(ContributorType, Nil) {
   case code {
-    "author" -> Ok(ContributortypeAuthor)
-    "editor" -> Ok(ContributortypeEditor)
-    "reviewer" -> Ok(ContributortypeReviewer)
-    "endorser" -> Ok(ContributortypeEndorser)
+    "author" -> Ok(ContributorTypeAuthor)
+    "editor" -> Ok(ContributorTypeEditor)
+    "reviewer" -> Ok(ContributorTypeReviewer)
+    "endorser" -> Ok(ContributorTypeEndorser)
     _ -> Error(Nil)
   }
 }
 
-pub fn contributortype_decoder() -> Decoder(Contributortype) {
+pub fn contributor_type_decoder() -> Decoder(ContributorType) {
   use variant <- decode.then(decode.string)
   case variant {
-    "author" -> decode.success(ContributortypeAuthor)
-    "editor" -> decode.success(ContributortypeEditor)
-    "reviewer" -> decode.success(ContributortypeReviewer)
-    "endorser" -> decode.success(ContributortypeEndorser)
+    "author" -> decode.success(ContributorTypeAuthor)
+    "editor" -> decode.success(ContributorTypeEditor)
+    "reviewer" -> decode.success(ContributorTypeReviewer)
+    "endorser" -> decode.success(ContributorTypeEndorser)
     _ ->
       decode.failure(
-        ContributortypeAuthor,
-        "code from valueset Contributortype ["
+        ContributorTypeAuthor,
+        "code from valueset ContributorType ["
           <> {
-          contributortype
-          |> list.map(contributortype_to_code)
+          contributor_type
+          |> list.map(contributor_type_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -2732,240 +2736,71 @@ pub fn currencies_decoder() -> Decoder(Currencies) {
   }
 }
 
-pub type Daysofweek {
-  DaysofweekMon
-  DaysofweekTue
-  DaysofweekWed
-  DaysofweekThu
-  DaysofweekFri
-  DaysofweekSat
-  DaysofweekSun
+pub type DaysOfWeek {
+  DaysOfWeekMon
+  DaysOfWeekTue
+  DaysOfWeekWed
+  DaysOfWeekThu
+  DaysOfWeekFri
+  DaysOfWeekSat
+  DaysOfWeekSun
 }
 
-pub const daysofweek: List(Daysofweek) = [
-  DaysofweekMon,
-  DaysofweekTue,
-  DaysofweekWed,
-  DaysofweekThu,
-  DaysofweekFri,
-  DaysofweekSat,
-  DaysofweekSun,
+pub const days_of_week: List(DaysOfWeek) = [
+  DaysOfWeekMon,
+  DaysOfWeekTue,
+  DaysOfWeekWed,
+  DaysOfWeekThu,
+  DaysOfWeekFri,
+  DaysOfWeekSat,
+  DaysOfWeekSun,
 ]
 
-pub fn daysofweek_to_json(daysofweek: Daysofweek) -> Json {
-  json.string(daysofweek_to_code(daysofweek))
+pub fn days_of_week_to_json(days_of_week: DaysOfWeek) -> Json {
+  json.string(days_of_week_to_code(days_of_week))
 }
 
-pub fn daysofweek_to_code(daysofweek: Daysofweek) -> String {
-  case daysofweek {
-    DaysofweekMon -> "mon"
-    DaysofweekTue -> "tue"
-    DaysofweekWed -> "wed"
-    DaysofweekThu -> "thu"
-    DaysofweekFri -> "fri"
-    DaysofweekSat -> "sat"
-    DaysofweekSun -> "sun"
+pub fn days_of_week_to_code(days_of_week: DaysOfWeek) -> String {
+  case days_of_week {
+    DaysOfWeekMon -> "mon"
+    DaysOfWeekTue -> "tue"
+    DaysOfWeekWed -> "wed"
+    DaysOfWeekThu -> "thu"
+    DaysOfWeekFri -> "fri"
+    DaysOfWeekSat -> "sat"
+    DaysOfWeekSun -> "sun"
   }
 }
 
-pub fn daysofweek_parse_code(code: String) -> Result(Daysofweek, Nil) {
+pub fn days_of_week_parse_code(code: String) -> Result(DaysOfWeek, Nil) {
   case code {
-    "mon" -> Ok(DaysofweekMon)
-    "tue" -> Ok(DaysofweekTue)
-    "wed" -> Ok(DaysofweekWed)
-    "thu" -> Ok(DaysofweekThu)
-    "fri" -> Ok(DaysofweekFri)
-    "sat" -> Ok(DaysofweekSat)
-    "sun" -> Ok(DaysofweekSun)
+    "mon" -> Ok(DaysOfWeekMon)
+    "tue" -> Ok(DaysOfWeekTue)
+    "wed" -> Ok(DaysOfWeekWed)
+    "thu" -> Ok(DaysOfWeekThu)
+    "fri" -> Ok(DaysOfWeekFri)
+    "sat" -> Ok(DaysOfWeekSat)
+    "sun" -> Ok(DaysOfWeekSun)
     _ -> Error(Nil)
   }
 }
 
-pub fn daysofweek_decoder() -> Decoder(Daysofweek) {
+pub fn days_of_week_decoder() -> Decoder(DaysOfWeek) {
   use variant <- decode.then(decode.string)
   case variant {
-    "mon" -> decode.success(DaysofweekMon)
-    "tue" -> decode.success(DaysofweekTue)
-    "wed" -> decode.success(DaysofweekWed)
-    "thu" -> decode.success(DaysofweekThu)
-    "fri" -> decode.success(DaysofweekFri)
-    "sat" -> decode.success(DaysofweekSat)
-    "sun" -> decode.success(DaysofweekSun)
+    "mon" -> decode.success(DaysOfWeekMon)
+    "tue" -> decode.success(DaysOfWeekTue)
+    "wed" -> decode.success(DaysOfWeekWed)
+    "thu" -> decode.success(DaysOfWeekThu)
+    "fri" -> decode.success(DaysOfWeekFri)
+    "sat" -> decode.success(DaysOfWeekSat)
+    "sun" -> decode.success(DaysOfWeekSun)
     _ ->
       decode.failure(
-        DaysofweekMon,
-        "code from valueset Daysofweek ["
-          <> { daysofweek |> list.map(daysofweek_to_code) |> string.join(", ") }
-          <> "]",
-      )
-      |> decode.map_errors(fn(errors) {
-        list.map(errors, fn(error) {
-          decode.DecodeError(..error, found: variant)
-        })
-      })
-  }
-}
-
-pub type Eventtiming {
-  EventtimingMorn
-  EventtimingMornearly
-  EventtimingMornlate
-  EventtimingNoon
-  EventtimingAft
-  EventtimingAftearly
-  EventtimingAftlate
-  EventtimingEve
-  EventtimingEveearly
-  EventtimingEvelate
-  EventtimingNight
-  EventtimingPhs
-  EventtimingHs
-  EventtimingWake
-  EventtimingC
-  EventtimingCm
-  EventtimingCd
-  EventtimingCv
-  EventtimingAc
-  EventtimingAcm
-  EventtimingAcd
-  EventtimingAcv
-  EventtimingPc
-  EventtimingPcm
-  EventtimingPcd
-  EventtimingPcv
-}
-
-pub const eventtiming: List(Eventtiming) = [
-  EventtimingMorn,
-  EventtimingMornearly,
-  EventtimingMornlate,
-  EventtimingNoon,
-  EventtimingAft,
-  EventtimingAftearly,
-  EventtimingAftlate,
-  EventtimingEve,
-  EventtimingEveearly,
-  EventtimingEvelate,
-  EventtimingNight,
-  EventtimingPhs,
-  EventtimingHs,
-  EventtimingWake,
-  EventtimingC,
-  EventtimingCm,
-  EventtimingCd,
-  EventtimingCv,
-  EventtimingAc,
-  EventtimingAcm,
-  EventtimingAcd,
-  EventtimingAcv,
-  EventtimingPc,
-  EventtimingPcm,
-  EventtimingPcd,
-  EventtimingPcv,
-]
-
-pub fn eventtiming_to_json(eventtiming: Eventtiming) -> Json {
-  json.string(eventtiming_to_code(eventtiming))
-}
-
-pub fn eventtiming_to_code(eventtiming: Eventtiming) -> String {
-  case eventtiming {
-    EventtimingMorn -> "MORN"
-    EventtimingMornearly -> "MORN.early"
-    EventtimingMornlate -> "MORN.late"
-    EventtimingNoon -> "NOON"
-    EventtimingAft -> "AFT"
-    EventtimingAftearly -> "AFT.early"
-    EventtimingAftlate -> "AFT.late"
-    EventtimingEve -> "EVE"
-    EventtimingEveearly -> "EVE.early"
-    EventtimingEvelate -> "EVE.late"
-    EventtimingNight -> "NIGHT"
-    EventtimingPhs -> "PHS"
-    EventtimingHs -> "HS"
-    EventtimingWake -> "WAKE"
-    EventtimingC -> "C"
-    EventtimingCm -> "CM"
-    EventtimingCd -> "CD"
-    EventtimingCv -> "CV"
-    EventtimingAc -> "AC"
-    EventtimingAcm -> "ACM"
-    EventtimingAcd -> "ACD"
-    EventtimingAcv -> "ACV"
-    EventtimingPc -> "PC"
-    EventtimingPcm -> "PCM"
-    EventtimingPcd -> "PCD"
-    EventtimingPcv -> "PCV"
-  }
-}
-
-pub fn eventtiming_parse_code(code: String) -> Result(Eventtiming, Nil) {
-  case code {
-    "MORN" -> Ok(EventtimingMorn)
-    "MORN.early" -> Ok(EventtimingMornearly)
-    "MORN.late" -> Ok(EventtimingMornlate)
-    "NOON" -> Ok(EventtimingNoon)
-    "AFT" -> Ok(EventtimingAft)
-    "AFT.early" -> Ok(EventtimingAftearly)
-    "AFT.late" -> Ok(EventtimingAftlate)
-    "EVE" -> Ok(EventtimingEve)
-    "EVE.early" -> Ok(EventtimingEveearly)
-    "EVE.late" -> Ok(EventtimingEvelate)
-    "NIGHT" -> Ok(EventtimingNight)
-    "PHS" -> Ok(EventtimingPhs)
-    "HS" -> Ok(EventtimingHs)
-    "WAKE" -> Ok(EventtimingWake)
-    "C" -> Ok(EventtimingC)
-    "CM" -> Ok(EventtimingCm)
-    "CD" -> Ok(EventtimingCd)
-    "CV" -> Ok(EventtimingCv)
-    "AC" -> Ok(EventtimingAc)
-    "ACM" -> Ok(EventtimingAcm)
-    "ACD" -> Ok(EventtimingAcd)
-    "ACV" -> Ok(EventtimingAcv)
-    "PC" -> Ok(EventtimingPc)
-    "PCM" -> Ok(EventtimingPcm)
-    "PCD" -> Ok(EventtimingPcd)
-    "PCV" -> Ok(EventtimingPcv)
-    _ -> Error(Nil)
-  }
-}
-
-pub fn eventtiming_decoder() -> Decoder(Eventtiming) {
-  use variant <- decode.then(decode.string)
-  case variant {
-    "MORN" -> decode.success(EventtimingMorn)
-    "MORN.early" -> decode.success(EventtimingMornearly)
-    "MORN.late" -> decode.success(EventtimingMornlate)
-    "NOON" -> decode.success(EventtimingNoon)
-    "AFT" -> decode.success(EventtimingAft)
-    "AFT.early" -> decode.success(EventtimingAftearly)
-    "AFT.late" -> decode.success(EventtimingAftlate)
-    "EVE" -> decode.success(EventtimingEve)
-    "EVE.early" -> decode.success(EventtimingEveearly)
-    "EVE.late" -> decode.success(EventtimingEvelate)
-    "NIGHT" -> decode.success(EventtimingNight)
-    "PHS" -> decode.success(EventtimingPhs)
-    "HS" -> decode.success(EventtimingHs)
-    "WAKE" -> decode.success(EventtimingWake)
-    "C" -> decode.success(EventtimingC)
-    "CM" -> decode.success(EventtimingCm)
-    "CD" -> decode.success(EventtimingCd)
-    "CV" -> decode.success(EventtimingCv)
-    "AC" -> decode.success(EventtimingAc)
-    "ACM" -> decode.success(EventtimingAcm)
-    "ACD" -> decode.success(EventtimingAcd)
-    "ACV" -> decode.success(EventtimingAcv)
-    "PC" -> decode.success(EventtimingPc)
-    "PCM" -> decode.success(EventtimingPcm)
-    "PCD" -> decode.success(EventtimingPcd)
-    "PCV" -> decode.success(EventtimingPcv)
-    _ ->
-      decode.failure(
-        EventtimingMorn,
-        "code from valueset Eventtiming ["
+        DaysOfWeekMon,
+        "code from valueset DaysOfWeek ["
           <> {
-          eventtiming |> list.map(eventtiming_to_code) |> string.join(", ")
+          days_of_week |> list.map(days_of_week_to_code) |> string.join(", ")
         }
           <> "]",
       )
@@ -2977,82 +2812,253 @@ pub fn eventtiming_decoder() -> Decoder(Eventtiming) {
   }
 }
 
-pub type Filteroperator {
-  FilteroperatorEqual
-  FilteroperatorIsa
-  FilteroperatorDescendentof
-  FilteroperatorIsnota
-  FilteroperatorRegex
-  FilteroperatorIn
-  FilteroperatorNotin
-  FilteroperatorGeneralizes
-  FilteroperatorExists
+pub type EventTiming {
+  EventTimingMorn
+  EventTimingMornearly
+  EventTimingMornlate
+  EventTimingNoon
+  EventTimingAft
+  EventTimingAftearly
+  EventTimingAftlate
+  EventTimingEve
+  EventTimingEveearly
+  EventTimingEvelate
+  EventTimingNight
+  EventTimingPhs
+  EventTimingHs
+  EventTimingWake
+  EventTimingC
+  EventTimingCm
+  EventTimingCd
+  EventTimingCv
+  EventTimingAc
+  EventTimingAcm
+  EventTimingAcd
+  EventTimingAcv
+  EventTimingPc
+  EventTimingPcm
+  EventTimingPcd
+  EventTimingPcv
 }
 
-pub const filteroperator: List(Filteroperator) = [
-  FilteroperatorEqual,
-  FilteroperatorIsa,
-  FilteroperatorDescendentof,
-  FilteroperatorIsnota,
-  FilteroperatorRegex,
-  FilteroperatorIn,
-  FilteroperatorNotin,
-  FilteroperatorGeneralizes,
-  FilteroperatorExists,
+pub const event_timing: List(EventTiming) = [
+  EventTimingMorn,
+  EventTimingMornearly,
+  EventTimingMornlate,
+  EventTimingNoon,
+  EventTimingAft,
+  EventTimingAftearly,
+  EventTimingAftlate,
+  EventTimingEve,
+  EventTimingEveearly,
+  EventTimingEvelate,
+  EventTimingNight,
+  EventTimingPhs,
+  EventTimingHs,
+  EventTimingWake,
+  EventTimingC,
+  EventTimingCm,
+  EventTimingCd,
+  EventTimingCv,
+  EventTimingAc,
+  EventTimingAcm,
+  EventTimingAcd,
+  EventTimingAcv,
+  EventTimingPc,
+  EventTimingPcm,
+  EventTimingPcd,
+  EventTimingPcv,
 ]
 
-pub fn filteroperator_to_json(filteroperator: Filteroperator) -> Json {
-  json.string(filteroperator_to_code(filteroperator))
+pub fn event_timing_to_json(event_timing: EventTiming) -> Json {
+  json.string(event_timing_to_code(event_timing))
 }
 
-pub fn filteroperator_to_code(filteroperator: Filteroperator) -> String {
-  case filteroperator {
-    FilteroperatorEqual -> "="
-    FilteroperatorIsa -> "is-a"
-    FilteroperatorDescendentof -> "descendent-of"
-    FilteroperatorIsnota -> "is-not-a"
-    FilteroperatorRegex -> "regex"
-    FilteroperatorIn -> "in"
-    FilteroperatorNotin -> "not-in"
-    FilteroperatorGeneralizes -> "generalizes"
-    FilteroperatorExists -> "exists"
+pub fn event_timing_to_code(event_timing: EventTiming) -> String {
+  case event_timing {
+    EventTimingMorn -> "MORN"
+    EventTimingMornearly -> "MORN.early"
+    EventTimingMornlate -> "MORN.late"
+    EventTimingNoon -> "NOON"
+    EventTimingAft -> "AFT"
+    EventTimingAftearly -> "AFT.early"
+    EventTimingAftlate -> "AFT.late"
+    EventTimingEve -> "EVE"
+    EventTimingEveearly -> "EVE.early"
+    EventTimingEvelate -> "EVE.late"
+    EventTimingNight -> "NIGHT"
+    EventTimingPhs -> "PHS"
+    EventTimingHs -> "HS"
+    EventTimingWake -> "WAKE"
+    EventTimingC -> "C"
+    EventTimingCm -> "CM"
+    EventTimingCd -> "CD"
+    EventTimingCv -> "CV"
+    EventTimingAc -> "AC"
+    EventTimingAcm -> "ACM"
+    EventTimingAcd -> "ACD"
+    EventTimingAcv -> "ACV"
+    EventTimingPc -> "PC"
+    EventTimingPcm -> "PCM"
+    EventTimingPcd -> "PCD"
+    EventTimingPcv -> "PCV"
   }
 }
 
-pub fn filteroperator_parse_code(code: String) -> Result(Filteroperator, Nil) {
+pub fn event_timing_parse_code(code: String) -> Result(EventTiming, Nil) {
   case code {
-    "=" -> Ok(FilteroperatorEqual)
-    "is-a" -> Ok(FilteroperatorIsa)
-    "descendent-of" -> Ok(FilteroperatorDescendentof)
-    "is-not-a" -> Ok(FilteroperatorIsnota)
-    "regex" -> Ok(FilteroperatorRegex)
-    "in" -> Ok(FilteroperatorIn)
-    "not-in" -> Ok(FilteroperatorNotin)
-    "generalizes" -> Ok(FilteroperatorGeneralizes)
-    "exists" -> Ok(FilteroperatorExists)
+    "MORN" -> Ok(EventTimingMorn)
+    "MORN.early" -> Ok(EventTimingMornearly)
+    "MORN.late" -> Ok(EventTimingMornlate)
+    "NOON" -> Ok(EventTimingNoon)
+    "AFT" -> Ok(EventTimingAft)
+    "AFT.early" -> Ok(EventTimingAftearly)
+    "AFT.late" -> Ok(EventTimingAftlate)
+    "EVE" -> Ok(EventTimingEve)
+    "EVE.early" -> Ok(EventTimingEveearly)
+    "EVE.late" -> Ok(EventTimingEvelate)
+    "NIGHT" -> Ok(EventTimingNight)
+    "PHS" -> Ok(EventTimingPhs)
+    "HS" -> Ok(EventTimingHs)
+    "WAKE" -> Ok(EventTimingWake)
+    "C" -> Ok(EventTimingC)
+    "CM" -> Ok(EventTimingCm)
+    "CD" -> Ok(EventTimingCd)
+    "CV" -> Ok(EventTimingCv)
+    "AC" -> Ok(EventTimingAc)
+    "ACM" -> Ok(EventTimingAcm)
+    "ACD" -> Ok(EventTimingAcd)
+    "ACV" -> Ok(EventTimingAcv)
+    "PC" -> Ok(EventTimingPc)
+    "PCM" -> Ok(EventTimingPcm)
+    "PCD" -> Ok(EventTimingPcd)
+    "PCV" -> Ok(EventTimingPcv)
     _ -> Error(Nil)
   }
 }
 
-pub fn filteroperator_decoder() -> Decoder(Filteroperator) {
+pub fn event_timing_decoder() -> Decoder(EventTiming) {
   use variant <- decode.then(decode.string)
   case variant {
-    "=" -> decode.success(FilteroperatorEqual)
-    "is-a" -> decode.success(FilteroperatorIsa)
-    "descendent-of" -> decode.success(FilteroperatorDescendentof)
-    "is-not-a" -> decode.success(FilteroperatorIsnota)
-    "regex" -> decode.success(FilteroperatorRegex)
-    "in" -> decode.success(FilteroperatorIn)
-    "not-in" -> decode.success(FilteroperatorNotin)
-    "generalizes" -> decode.success(FilteroperatorGeneralizes)
-    "exists" -> decode.success(FilteroperatorExists)
+    "MORN" -> decode.success(EventTimingMorn)
+    "MORN.early" -> decode.success(EventTimingMornearly)
+    "MORN.late" -> decode.success(EventTimingMornlate)
+    "NOON" -> decode.success(EventTimingNoon)
+    "AFT" -> decode.success(EventTimingAft)
+    "AFT.early" -> decode.success(EventTimingAftearly)
+    "AFT.late" -> decode.success(EventTimingAftlate)
+    "EVE" -> decode.success(EventTimingEve)
+    "EVE.early" -> decode.success(EventTimingEveearly)
+    "EVE.late" -> decode.success(EventTimingEvelate)
+    "NIGHT" -> decode.success(EventTimingNight)
+    "PHS" -> decode.success(EventTimingPhs)
+    "HS" -> decode.success(EventTimingHs)
+    "WAKE" -> decode.success(EventTimingWake)
+    "C" -> decode.success(EventTimingC)
+    "CM" -> decode.success(EventTimingCm)
+    "CD" -> decode.success(EventTimingCd)
+    "CV" -> decode.success(EventTimingCv)
+    "AC" -> decode.success(EventTimingAc)
+    "ACM" -> decode.success(EventTimingAcm)
+    "ACD" -> decode.success(EventTimingAcd)
+    "ACV" -> decode.success(EventTimingAcv)
+    "PC" -> decode.success(EventTimingPc)
+    "PCM" -> decode.success(EventTimingPcm)
+    "PCD" -> decode.success(EventTimingPcd)
+    "PCV" -> decode.success(EventTimingPcv)
     _ ->
       decode.failure(
-        FilteroperatorEqual,
-        "code from valueset Filteroperator ["
+        EventTimingMorn,
+        "code from valueset EventTiming ["
           <> {
-          filteroperator
-          |> list.map(filteroperator_to_code)
+          event_timing |> list.map(event_timing_to_code) |> string.join(", ")
+        }
+          <> "]",
+      )
+      |> decode.map_errors(fn(errors) {
+        list.map(errors, fn(error) {
+          decode.DecodeError(..error, found: variant)
+        })
+      })
+  }
+}
+
+pub type FilterOperator {
+  FilterOperatorEqual
+  FilterOperatorIsa
+  FilterOperatorDescendentof
+  FilterOperatorIsnota
+  FilterOperatorRegex
+  FilterOperatorIn
+  FilterOperatorNotin
+  FilterOperatorGeneralizes
+  FilterOperatorExists
+}
+
+pub const filter_operator: List(FilterOperator) = [
+  FilterOperatorEqual,
+  FilterOperatorIsa,
+  FilterOperatorDescendentof,
+  FilterOperatorIsnota,
+  FilterOperatorRegex,
+  FilterOperatorIn,
+  FilterOperatorNotin,
+  FilterOperatorGeneralizes,
+  FilterOperatorExists,
+]
+
+pub fn filter_operator_to_json(filter_operator: FilterOperator) -> Json {
+  json.string(filter_operator_to_code(filter_operator))
+}
+
+pub fn filter_operator_to_code(filter_operator: FilterOperator) -> String {
+  case filter_operator {
+    FilterOperatorEqual -> "="
+    FilterOperatorIsa -> "is-a"
+    FilterOperatorDescendentof -> "descendent-of"
+    FilterOperatorIsnota -> "is-not-a"
+    FilterOperatorRegex -> "regex"
+    FilterOperatorIn -> "in"
+    FilterOperatorNotin -> "not-in"
+    FilterOperatorGeneralizes -> "generalizes"
+    FilterOperatorExists -> "exists"
+  }
+}
+
+pub fn filter_operator_parse_code(code: String) -> Result(FilterOperator, Nil) {
+  case code {
+    "=" -> Ok(FilterOperatorEqual)
+    "is-a" -> Ok(FilterOperatorIsa)
+    "descendent-of" -> Ok(FilterOperatorDescendentof)
+    "is-not-a" -> Ok(FilterOperatorIsnota)
+    "regex" -> Ok(FilterOperatorRegex)
+    "in" -> Ok(FilterOperatorIn)
+    "not-in" -> Ok(FilterOperatorNotin)
+    "generalizes" -> Ok(FilterOperatorGeneralizes)
+    "exists" -> Ok(FilterOperatorExists)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn filter_operator_decoder() -> Decoder(FilterOperator) {
+  use variant <- decode.then(decode.string)
+  case variant {
+    "=" -> decode.success(FilterOperatorEqual)
+    "is-a" -> decode.success(FilterOperatorIsa)
+    "descendent-of" -> decode.success(FilterOperatorDescendentof)
+    "is-not-a" -> decode.success(FilterOperatorIsnota)
+    "regex" -> decode.success(FilterOperatorRegex)
+    "in" -> decode.success(FilterOperatorIn)
+    "not-in" -> decode.success(FilterOperatorNotin)
+    "generalizes" -> decode.success(FilterOperatorGeneralizes)
+    "exists" -> decode.success(FilterOperatorExists)
+    _ ->
+      decode.failure(
+        FilterOperatorEqual,
+        "code from valueset FilterOperator ["
+          <> {
+          filter_operator
+          |> list.map(filter_operator_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -3065,65 +3071,65 @@ pub fn filteroperator_decoder() -> Decoder(Filteroperator) {
   }
 }
 
-pub type Httpverb {
-  HttpverbGet
-  HttpverbHead
-  HttpverbPost
-  HttpverbPut
-  HttpverbDelete
-  HttpverbPatch
+pub type HttpVerb {
+  HttpVerbGet
+  HttpVerbHead
+  HttpVerbPost
+  HttpVerbPut
+  HttpVerbDelete
+  HttpVerbPatch
 }
 
-pub const httpverb: List(Httpverb) = [
-  HttpverbGet,
-  HttpverbHead,
-  HttpverbPost,
-  HttpverbPut,
-  HttpverbDelete,
-  HttpverbPatch,
+pub const http_verb: List(HttpVerb) = [
+  HttpVerbGet,
+  HttpVerbHead,
+  HttpVerbPost,
+  HttpVerbPut,
+  HttpVerbDelete,
+  HttpVerbPatch,
 ]
 
-pub fn httpverb_to_json(httpverb: Httpverb) -> Json {
-  json.string(httpverb_to_code(httpverb))
+pub fn http_verb_to_json(http_verb: HttpVerb) -> Json {
+  json.string(http_verb_to_code(http_verb))
 }
 
-pub fn httpverb_to_code(httpverb: Httpverb) -> String {
-  case httpverb {
-    HttpverbGet -> "GET"
-    HttpverbHead -> "HEAD"
-    HttpverbPost -> "POST"
-    HttpverbPut -> "PUT"
-    HttpverbDelete -> "DELETE"
-    HttpverbPatch -> "PATCH"
+pub fn http_verb_to_code(http_verb: HttpVerb) -> String {
+  case http_verb {
+    HttpVerbGet -> "GET"
+    HttpVerbHead -> "HEAD"
+    HttpVerbPost -> "POST"
+    HttpVerbPut -> "PUT"
+    HttpVerbDelete -> "DELETE"
+    HttpVerbPatch -> "PATCH"
   }
 }
 
-pub fn httpverb_parse_code(code: String) -> Result(Httpverb, Nil) {
+pub fn http_verb_parse_code(code: String) -> Result(HttpVerb, Nil) {
   case code {
-    "GET" -> Ok(HttpverbGet)
-    "HEAD" -> Ok(HttpverbHead)
-    "POST" -> Ok(HttpverbPost)
-    "PUT" -> Ok(HttpverbPut)
-    "DELETE" -> Ok(HttpverbDelete)
-    "PATCH" -> Ok(HttpverbPatch)
+    "GET" -> Ok(HttpVerbGet)
+    "HEAD" -> Ok(HttpVerbHead)
+    "POST" -> Ok(HttpVerbPost)
+    "PUT" -> Ok(HttpVerbPut)
+    "DELETE" -> Ok(HttpVerbDelete)
+    "PATCH" -> Ok(HttpVerbPatch)
     _ -> Error(Nil)
   }
 }
 
-pub fn httpverb_decoder() -> Decoder(Httpverb) {
+pub fn http_verb_decoder() -> Decoder(HttpVerb) {
   use variant <- decode.then(decode.string)
   case variant {
-    "GET" -> decode.success(HttpverbGet)
-    "HEAD" -> decode.success(HttpverbHead)
-    "POST" -> decode.success(HttpverbPost)
-    "PUT" -> decode.success(HttpverbPut)
-    "DELETE" -> decode.success(HttpverbDelete)
-    "PATCH" -> decode.success(HttpverbPatch)
+    "GET" -> decode.success(HttpVerbGet)
+    "HEAD" -> decode.success(HttpVerbHead)
+    "POST" -> decode.success(HttpVerbPost)
+    "PUT" -> decode.success(HttpVerbPut)
+    "DELETE" -> decode.success(HttpVerbDelete)
+    "PATCH" -> decode.success(HttpVerbPatch)
     _ ->
       decode.failure(
-        HttpverbGet,
-        "code from valueset Httpverb ["
-          <> { httpverb |> list.map(httpverb_to_code) |> string.join(", ") }
+        HttpVerbGet,
+        "code from valueset HttpVerb ["
+          <> { http_verb |> list.map(http_verb_to_code) |> string.join(", ") }
           <> "]",
       )
       |> decode.map_errors(fn(errors) {
@@ -3134,61 +3140,63 @@ pub fn httpverb_decoder() -> Decoder(Httpverb) {
   }
 }
 
-pub type Identifieruse {
-  IdentifieruseUsual
-  IdentifieruseOfficial
-  IdentifieruseTemp
-  IdentifieruseSecondary
-  IdentifieruseOld
+pub type IdentifierUse {
+  IdentifierUseUsual
+  IdentifierUseOfficial
+  IdentifierUseTemp
+  IdentifierUseSecondary
+  IdentifierUseOld
 }
 
-pub const identifieruse: List(Identifieruse) = [
-  IdentifieruseUsual,
-  IdentifieruseOfficial,
-  IdentifieruseTemp,
-  IdentifieruseSecondary,
-  IdentifieruseOld,
+pub const identifier_use: List(IdentifierUse) = [
+  IdentifierUseUsual,
+  IdentifierUseOfficial,
+  IdentifierUseTemp,
+  IdentifierUseSecondary,
+  IdentifierUseOld,
 ]
 
-pub fn identifieruse_to_json(identifieruse: Identifieruse) -> Json {
-  json.string(identifieruse_to_code(identifieruse))
+pub fn identifier_use_to_json(identifier_use: IdentifierUse) -> Json {
+  json.string(identifier_use_to_code(identifier_use))
 }
 
-pub fn identifieruse_to_code(identifieruse: Identifieruse) -> String {
-  case identifieruse {
-    IdentifieruseUsual -> "usual"
-    IdentifieruseOfficial -> "official"
-    IdentifieruseTemp -> "temp"
-    IdentifieruseSecondary -> "secondary"
-    IdentifieruseOld -> "old"
+pub fn identifier_use_to_code(identifier_use: IdentifierUse) -> String {
+  case identifier_use {
+    IdentifierUseUsual -> "usual"
+    IdentifierUseOfficial -> "official"
+    IdentifierUseTemp -> "temp"
+    IdentifierUseSecondary -> "secondary"
+    IdentifierUseOld -> "old"
   }
 }
 
-pub fn identifieruse_parse_code(code: String) -> Result(Identifieruse, Nil) {
+pub fn identifier_use_parse_code(code: String) -> Result(IdentifierUse, Nil) {
   case code {
-    "usual" -> Ok(IdentifieruseUsual)
-    "official" -> Ok(IdentifieruseOfficial)
-    "temp" -> Ok(IdentifieruseTemp)
-    "secondary" -> Ok(IdentifieruseSecondary)
-    "old" -> Ok(IdentifieruseOld)
+    "usual" -> Ok(IdentifierUseUsual)
+    "official" -> Ok(IdentifierUseOfficial)
+    "temp" -> Ok(IdentifierUseTemp)
+    "secondary" -> Ok(IdentifierUseSecondary)
+    "old" -> Ok(IdentifierUseOld)
     _ -> Error(Nil)
   }
 }
 
-pub fn identifieruse_decoder() -> Decoder(Identifieruse) {
+pub fn identifier_use_decoder() -> Decoder(IdentifierUse) {
   use variant <- decode.then(decode.string)
   case variant {
-    "usual" -> decode.success(IdentifieruseUsual)
-    "official" -> decode.success(IdentifieruseOfficial)
-    "temp" -> decode.success(IdentifieruseTemp)
-    "secondary" -> decode.success(IdentifieruseSecondary)
-    "old" -> decode.success(IdentifieruseOld)
+    "usual" -> decode.success(IdentifierUseUsual)
+    "official" -> decode.success(IdentifierUseOfficial)
+    "temp" -> decode.success(IdentifierUseTemp)
+    "secondary" -> decode.success(IdentifierUseSecondary)
+    "old" -> decode.success(IdentifierUseOld)
     _ ->
       decode.failure(
-        IdentifieruseUsual,
-        "code from valueset Identifieruse ["
+        IdentifierUseUsual,
+        "code from valueset IdentifierUse ["
           <> {
-          identifieruse |> list.map(identifieruse_to_code) |> string.join(", ")
+          identifier_use
+          |> list.map(identifier_use_to_code)
+          |> string.join(", ")
         }
           <> "]",
       )
@@ -3200,56 +3208,58 @@ pub fn identifieruse_decoder() -> Decoder(Identifieruse) {
   }
 }
 
-pub type Issueseverity {
-  IssueseverityFatal
-  IssueseverityError
-  IssueseverityWarning
-  IssueseverityInformation
+pub type IssueSeverity {
+  IssueSeverityFatal
+  IssueSeverityError
+  IssueSeverityWarning
+  IssueSeverityInformation
 }
 
-pub const issueseverity: List(Issueseverity) = [
-  IssueseverityFatal,
-  IssueseverityError,
-  IssueseverityWarning,
-  IssueseverityInformation,
+pub const issue_severity: List(IssueSeverity) = [
+  IssueSeverityFatal,
+  IssueSeverityError,
+  IssueSeverityWarning,
+  IssueSeverityInformation,
 ]
 
-pub fn issueseverity_to_json(issueseverity: Issueseverity) -> Json {
-  json.string(issueseverity_to_code(issueseverity))
+pub fn issue_severity_to_json(issue_severity: IssueSeverity) -> Json {
+  json.string(issue_severity_to_code(issue_severity))
 }
 
-pub fn issueseverity_to_code(issueseverity: Issueseverity) -> String {
-  case issueseverity {
-    IssueseverityFatal -> "fatal"
-    IssueseverityError -> "error"
-    IssueseverityWarning -> "warning"
-    IssueseverityInformation -> "information"
+pub fn issue_severity_to_code(issue_severity: IssueSeverity) -> String {
+  case issue_severity {
+    IssueSeverityFatal -> "fatal"
+    IssueSeverityError -> "error"
+    IssueSeverityWarning -> "warning"
+    IssueSeverityInformation -> "information"
   }
 }
 
-pub fn issueseverity_parse_code(code: String) -> Result(Issueseverity, Nil) {
+pub fn issue_severity_parse_code(code: String) -> Result(IssueSeverity, Nil) {
   case code {
-    "fatal" -> Ok(IssueseverityFatal)
-    "error" -> Ok(IssueseverityError)
-    "warning" -> Ok(IssueseverityWarning)
-    "information" -> Ok(IssueseverityInformation)
+    "fatal" -> Ok(IssueSeverityFatal)
+    "error" -> Ok(IssueSeverityError)
+    "warning" -> Ok(IssueSeverityWarning)
+    "information" -> Ok(IssueSeverityInformation)
     _ -> Error(Nil)
   }
 }
 
-pub fn issueseverity_decoder() -> Decoder(Issueseverity) {
+pub fn issue_severity_decoder() -> Decoder(IssueSeverity) {
   use variant <- decode.then(decode.string)
   case variant {
-    "fatal" -> decode.success(IssueseverityFatal)
-    "error" -> decode.success(IssueseverityError)
-    "warning" -> decode.success(IssueseverityWarning)
-    "information" -> decode.success(IssueseverityInformation)
+    "fatal" -> decode.success(IssueSeverityFatal)
+    "error" -> decode.success(IssueSeverityError)
+    "warning" -> decode.success(IssueSeverityWarning)
+    "information" -> decode.success(IssueSeverityInformation)
     _ ->
       decode.failure(
-        IssueseverityFatal,
-        "code from valueset Issueseverity ["
+        IssueSeverityFatal,
+        "code from valueset IssueSeverity ["
           <> {
-          issueseverity |> list.map(issueseverity_to_code) |> string.join(", ")
+          issue_severity
+          |> list.map(issue_severity_to_code)
+          |> string.join(", ")
         }
           <> "]",
       )
@@ -3261,190 +3271,190 @@ pub fn issueseverity_decoder() -> Decoder(Issueseverity) {
   }
 }
 
-pub type Issuetype {
-  IssuetypeInvalid
-  IssuetypeStructure
-  IssuetypeRequired
-  IssuetypeValue
-  IssuetypeInvariant
-  IssuetypeSecurity
-  IssuetypeLogin
-  IssuetypeUnknown
-  IssuetypeExpired
-  IssuetypeForbidden
-  IssuetypeSuppressed
-  IssuetypeProcessing
-  IssuetypeNotsupported
-  IssuetypeDuplicate
-  IssuetypeMultiplematches
-  IssuetypeNotfound
-  IssuetypeDeleted
-  IssuetypeToolong
-  IssuetypeCodeinvalid
-  IssuetypeExtension
-  IssuetypeToocostly
-  IssuetypeBusinessrule
-  IssuetypeConflict
-  IssuetypeTransient
-  IssuetypeLockerror
-  IssuetypeNostore
-  IssuetypeException
-  IssuetypeTimeout
-  IssuetypeIncomplete
-  IssuetypeThrottled
-  IssuetypeInformational
+pub type IssueType {
+  IssueTypeInvalid
+  IssueTypeStructure
+  IssueTypeRequired
+  IssueTypeValue
+  IssueTypeInvariant
+  IssueTypeSecurity
+  IssueTypeLogin
+  IssueTypeUnknown
+  IssueTypeExpired
+  IssueTypeForbidden
+  IssueTypeSuppressed
+  IssueTypeProcessing
+  IssueTypeNotsupported
+  IssueTypeDuplicate
+  IssueTypeMultiplematches
+  IssueTypeNotfound
+  IssueTypeDeleted
+  IssueTypeToolong
+  IssueTypeCodeinvalid
+  IssueTypeExtension
+  IssueTypeToocostly
+  IssueTypeBusinessrule
+  IssueTypeConflict
+  IssueTypeTransient
+  IssueTypeLockerror
+  IssueTypeNostore
+  IssueTypeException
+  IssueTypeTimeout
+  IssueTypeIncomplete
+  IssueTypeThrottled
+  IssueTypeInformational
 }
 
-pub const issuetype: List(Issuetype) = [
-  IssuetypeInvalid,
-  IssuetypeStructure,
-  IssuetypeRequired,
-  IssuetypeValue,
-  IssuetypeInvariant,
-  IssuetypeSecurity,
-  IssuetypeLogin,
-  IssuetypeUnknown,
-  IssuetypeExpired,
-  IssuetypeForbidden,
-  IssuetypeSuppressed,
-  IssuetypeProcessing,
-  IssuetypeNotsupported,
-  IssuetypeDuplicate,
-  IssuetypeMultiplematches,
-  IssuetypeNotfound,
-  IssuetypeDeleted,
-  IssuetypeToolong,
-  IssuetypeCodeinvalid,
-  IssuetypeExtension,
-  IssuetypeToocostly,
-  IssuetypeBusinessrule,
-  IssuetypeConflict,
-  IssuetypeTransient,
-  IssuetypeLockerror,
-  IssuetypeNostore,
-  IssuetypeException,
-  IssuetypeTimeout,
-  IssuetypeIncomplete,
-  IssuetypeThrottled,
-  IssuetypeInformational,
+pub const issue_type: List(IssueType) = [
+  IssueTypeInvalid,
+  IssueTypeStructure,
+  IssueTypeRequired,
+  IssueTypeValue,
+  IssueTypeInvariant,
+  IssueTypeSecurity,
+  IssueTypeLogin,
+  IssueTypeUnknown,
+  IssueTypeExpired,
+  IssueTypeForbidden,
+  IssueTypeSuppressed,
+  IssueTypeProcessing,
+  IssueTypeNotsupported,
+  IssueTypeDuplicate,
+  IssueTypeMultiplematches,
+  IssueTypeNotfound,
+  IssueTypeDeleted,
+  IssueTypeToolong,
+  IssueTypeCodeinvalid,
+  IssueTypeExtension,
+  IssueTypeToocostly,
+  IssueTypeBusinessrule,
+  IssueTypeConflict,
+  IssueTypeTransient,
+  IssueTypeLockerror,
+  IssueTypeNostore,
+  IssueTypeException,
+  IssueTypeTimeout,
+  IssueTypeIncomplete,
+  IssueTypeThrottled,
+  IssueTypeInformational,
 ]
 
-pub fn issuetype_to_json(issuetype: Issuetype) -> Json {
-  json.string(issuetype_to_code(issuetype))
+pub fn issue_type_to_json(issue_type: IssueType) -> Json {
+  json.string(issue_type_to_code(issue_type))
 }
 
-pub fn issuetype_to_code(issuetype: Issuetype) -> String {
-  case issuetype {
-    IssuetypeInvalid -> "invalid"
-    IssuetypeStructure -> "structure"
-    IssuetypeRequired -> "required"
-    IssuetypeValue -> "value"
-    IssuetypeInvariant -> "invariant"
-    IssuetypeSecurity -> "security"
-    IssuetypeLogin -> "login"
-    IssuetypeUnknown -> "unknown"
-    IssuetypeExpired -> "expired"
-    IssuetypeForbidden -> "forbidden"
-    IssuetypeSuppressed -> "suppressed"
-    IssuetypeProcessing -> "processing"
-    IssuetypeNotsupported -> "not-supported"
-    IssuetypeDuplicate -> "duplicate"
-    IssuetypeMultiplematches -> "multiple-matches"
-    IssuetypeNotfound -> "not-found"
-    IssuetypeDeleted -> "deleted"
-    IssuetypeToolong -> "too-long"
-    IssuetypeCodeinvalid -> "code-invalid"
-    IssuetypeExtension -> "extension"
-    IssuetypeToocostly -> "too-costly"
-    IssuetypeBusinessrule -> "business-rule"
-    IssuetypeConflict -> "conflict"
-    IssuetypeTransient -> "transient"
-    IssuetypeLockerror -> "lock-error"
-    IssuetypeNostore -> "no-store"
-    IssuetypeException -> "exception"
-    IssuetypeTimeout -> "timeout"
-    IssuetypeIncomplete -> "incomplete"
-    IssuetypeThrottled -> "throttled"
-    IssuetypeInformational -> "informational"
+pub fn issue_type_to_code(issue_type: IssueType) -> String {
+  case issue_type {
+    IssueTypeInvalid -> "invalid"
+    IssueTypeStructure -> "structure"
+    IssueTypeRequired -> "required"
+    IssueTypeValue -> "value"
+    IssueTypeInvariant -> "invariant"
+    IssueTypeSecurity -> "security"
+    IssueTypeLogin -> "login"
+    IssueTypeUnknown -> "unknown"
+    IssueTypeExpired -> "expired"
+    IssueTypeForbidden -> "forbidden"
+    IssueTypeSuppressed -> "suppressed"
+    IssueTypeProcessing -> "processing"
+    IssueTypeNotsupported -> "not-supported"
+    IssueTypeDuplicate -> "duplicate"
+    IssueTypeMultiplematches -> "multiple-matches"
+    IssueTypeNotfound -> "not-found"
+    IssueTypeDeleted -> "deleted"
+    IssueTypeToolong -> "too-long"
+    IssueTypeCodeinvalid -> "code-invalid"
+    IssueTypeExtension -> "extension"
+    IssueTypeToocostly -> "too-costly"
+    IssueTypeBusinessrule -> "business-rule"
+    IssueTypeConflict -> "conflict"
+    IssueTypeTransient -> "transient"
+    IssueTypeLockerror -> "lock-error"
+    IssueTypeNostore -> "no-store"
+    IssueTypeException -> "exception"
+    IssueTypeTimeout -> "timeout"
+    IssueTypeIncomplete -> "incomplete"
+    IssueTypeThrottled -> "throttled"
+    IssueTypeInformational -> "informational"
   }
 }
 
-pub fn issuetype_parse_code(code: String) -> Result(Issuetype, Nil) {
+pub fn issue_type_parse_code(code: String) -> Result(IssueType, Nil) {
   case code {
-    "invalid" -> Ok(IssuetypeInvalid)
-    "structure" -> Ok(IssuetypeStructure)
-    "required" -> Ok(IssuetypeRequired)
-    "value" -> Ok(IssuetypeValue)
-    "invariant" -> Ok(IssuetypeInvariant)
-    "security" -> Ok(IssuetypeSecurity)
-    "login" -> Ok(IssuetypeLogin)
-    "unknown" -> Ok(IssuetypeUnknown)
-    "expired" -> Ok(IssuetypeExpired)
-    "forbidden" -> Ok(IssuetypeForbidden)
-    "suppressed" -> Ok(IssuetypeSuppressed)
-    "processing" -> Ok(IssuetypeProcessing)
-    "not-supported" -> Ok(IssuetypeNotsupported)
-    "duplicate" -> Ok(IssuetypeDuplicate)
-    "multiple-matches" -> Ok(IssuetypeMultiplematches)
-    "not-found" -> Ok(IssuetypeNotfound)
-    "deleted" -> Ok(IssuetypeDeleted)
-    "too-long" -> Ok(IssuetypeToolong)
-    "code-invalid" -> Ok(IssuetypeCodeinvalid)
-    "extension" -> Ok(IssuetypeExtension)
-    "too-costly" -> Ok(IssuetypeToocostly)
-    "business-rule" -> Ok(IssuetypeBusinessrule)
-    "conflict" -> Ok(IssuetypeConflict)
-    "transient" -> Ok(IssuetypeTransient)
-    "lock-error" -> Ok(IssuetypeLockerror)
-    "no-store" -> Ok(IssuetypeNostore)
-    "exception" -> Ok(IssuetypeException)
-    "timeout" -> Ok(IssuetypeTimeout)
-    "incomplete" -> Ok(IssuetypeIncomplete)
-    "throttled" -> Ok(IssuetypeThrottled)
-    "informational" -> Ok(IssuetypeInformational)
+    "invalid" -> Ok(IssueTypeInvalid)
+    "structure" -> Ok(IssueTypeStructure)
+    "required" -> Ok(IssueTypeRequired)
+    "value" -> Ok(IssueTypeValue)
+    "invariant" -> Ok(IssueTypeInvariant)
+    "security" -> Ok(IssueTypeSecurity)
+    "login" -> Ok(IssueTypeLogin)
+    "unknown" -> Ok(IssueTypeUnknown)
+    "expired" -> Ok(IssueTypeExpired)
+    "forbidden" -> Ok(IssueTypeForbidden)
+    "suppressed" -> Ok(IssueTypeSuppressed)
+    "processing" -> Ok(IssueTypeProcessing)
+    "not-supported" -> Ok(IssueTypeNotsupported)
+    "duplicate" -> Ok(IssueTypeDuplicate)
+    "multiple-matches" -> Ok(IssueTypeMultiplematches)
+    "not-found" -> Ok(IssueTypeNotfound)
+    "deleted" -> Ok(IssueTypeDeleted)
+    "too-long" -> Ok(IssueTypeToolong)
+    "code-invalid" -> Ok(IssueTypeCodeinvalid)
+    "extension" -> Ok(IssueTypeExtension)
+    "too-costly" -> Ok(IssueTypeToocostly)
+    "business-rule" -> Ok(IssueTypeBusinessrule)
+    "conflict" -> Ok(IssueTypeConflict)
+    "transient" -> Ok(IssueTypeTransient)
+    "lock-error" -> Ok(IssueTypeLockerror)
+    "no-store" -> Ok(IssueTypeNostore)
+    "exception" -> Ok(IssueTypeException)
+    "timeout" -> Ok(IssueTypeTimeout)
+    "incomplete" -> Ok(IssueTypeIncomplete)
+    "throttled" -> Ok(IssueTypeThrottled)
+    "informational" -> Ok(IssueTypeInformational)
     _ -> Error(Nil)
   }
 }
 
-pub fn issuetype_decoder() -> Decoder(Issuetype) {
+pub fn issue_type_decoder() -> Decoder(IssueType) {
   use variant <- decode.then(decode.string)
   case variant {
-    "invalid" -> decode.success(IssuetypeInvalid)
-    "structure" -> decode.success(IssuetypeStructure)
-    "required" -> decode.success(IssuetypeRequired)
-    "value" -> decode.success(IssuetypeValue)
-    "invariant" -> decode.success(IssuetypeInvariant)
-    "security" -> decode.success(IssuetypeSecurity)
-    "login" -> decode.success(IssuetypeLogin)
-    "unknown" -> decode.success(IssuetypeUnknown)
-    "expired" -> decode.success(IssuetypeExpired)
-    "forbidden" -> decode.success(IssuetypeForbidden)
-    "suppressed" -> decode.success(IssuetypeSuppressed)
-    "processing" -> decode.success(IssuetypeProcessing)
-    "not-supported" -> decode.success(IssuetypeNotsupported)
-    "duplicate" -> decode.success(IssuetypeDuplicate)
-    "multiple-matches" -> decode.success(IssuetypeMultiplematches)
-    "not-found" -> decode.success(IssuetypeNotfound)
-    "deleted" -> decode.success(IssuetypeDeleted)
-    "too-long" -> decode.success(IssuetypeToolong)
-    "code-invalid" -> decode.success(IssuetypeCodeinvalid)
-    "extension" -> decode.success(IssuetypeExtension)
-    "too-costly" -> decode.success(IssuetypeToocostly)
-    "business-rule" -> decode.success(IssuetypeBusinessrule)
-    "conflict" -> decode.success(IssuetypeConflict)
-    "transient" -> decode.success(IssuetypeTransient)
-    "lock-error" -> decode.success(IssuetypeLockerror)
-    "no-store" -> decode.success(IssuetypeNostore)
-    "exception" -> decode.success(IssuetypeException)
-    "timeout" -> decode.success(IssuetypeTimeout)
-    "incomplete" -> decode.success(IssuetypeIncomplete)
-    "throttled" -> decode.success(IssuetypeThrottled)
-    "informational" -> decode.success(IssuetypeInformational)
+    "invalid" -> decode.success(IssueTypeInvalid)
+    "structure" -> decode.success(IssueTypeStructure)
+    "required" -> decode.success(IssueTypeRequired)
+    "value" -> decode.success(IssueTypeValue)
+    "invariant" -> decode.success(IssueTypeInvariant)
+    "security" -> decode.success(IssueTypeSecurity)
+    "login" -> decode.success(IssueTypeLogin)
+    "unknown" -> decode.success(IssueTypeUnknown)
+    "expired" -> decode.success(IssueTypeExpired)
+    "forbidden" -> decode.success(IssueTypeForbidden)
+    "suppressed" -> decode.success(IssueTypeSuppressed)
+    "processing" -> decode.success(IssueTypeProcessing)
+    "not-supported" -> decode.success(IssueTypeNotsupported)
+    "duplicate" -> decode.success(IssueTypeDuplicate)
+    "multiple-matches" -> decode.success(IssueTypeMultiplematches)
+    "not-found" -> decode.success(IssueTypeNotfound)
+    "deleted" -> decode.success(IssueTypeDeleted)
+    "too-long" -> decode.success(IssueTypeToolong)
+    "code-invalid" -> decode.success(IssueTypeCodeinvalid)
+    "extension" -> decode.success(IssueTypeExtension)
+    "too-costly" -> decode.success(IssueTypeToocostly)
+    "business-rule" -> decode.success(IssueTypeBusinessrule)
+    "conflict" -> decode.success(IssueTypeConflict)
+    "transient" -> decode.success(IssueTypeTransient)
+    "lock-error" -> decode.success(IssueTypeLockerror)
+    "no-store" -> decode.success(IssueTypeNostore)
+    "exception" -> decode.success(IssueTypeException)
+    "timeout" -> decode.success(IssueTypeTimeout)
+    "incomplete" -> decode.success(IssueTypeIncomplete)
+    "throttled" -> decode.success(IssueTypeThrottled)
+    "informational" -> decode.success(IssueTypeInformational)
     _ ->
       decode.failure(
-        IssuetypeInvalid,
-        "code from valueset Issuetype ["
-          <> { issuetype |> list.map(issuetype_to_code) |> string.join(", ") }
+        IssueTypeInvalid,
+        "code from valueset IssueType ["
+          <> { issue_type |> list.map(issue_type_to_code) |> string.join(", ") }
           <> "]",
       )
       |> decode.map_errors(fn(errors) {
@@ -3455,70 +3465,70 @@ pub fn issuetype_decoder() -> Decoder(Issuetype) {
   }
 }
 
-pub type Nameuse {
-  NameuseUsual
-  NameuseOfficial
-  NameuseTemp
-  NameuseNickname
-  NameuseAnonymous
-  NameuseOld
-  NameuseMaiden
+pub type NameUse {
+  NameUseUsual
+  NameUseOfficial
+  NameUseTemp
+  NameUseNickname
+  NameUseAnonymous
+  NameUseOld
+  NameUseMaiden
 }
 
-pub const nameuse: List(Nameuse) = [
-  NameuseUsual,
-  NameuseOfficial,
-  NameuseTemp,
-  NameuseNickname,
-  NameuseAnonymous,
-  NameuseOld,
-  NameuseMaiden,
+pub const name_use: List(NameUse) = [
+  NameUseUsual,
+  NameUseOfficial,
+  NameUseTemp,
+  NameUseNickname,
+  NameUseAnonymous,
+  NameUseOld,
+  NameUseMaiden,
 ]
 
-pub fn nameuse_to_json(nameuse: Nameuse) -> Json {
-  json.string(nameuse_to_code(nameuse))
+pub fn name_use_to_json(name_use: NameUse) -> Json {
+  json.string(name_use_to_code(name_use))
 }
 
-pub fn nameuse_to_code(nameuse: Nameuse) -> String {
-  case nameuse {
-    NameuseUsual -> "usual"
-    NameuseOfficial -> "official"
-    NameuseTemp -> "temp"
-    NameuseNickname -> "nickname"
-    NameuseAnonymous -> "anonymous"
-    NameuseOld -> "old"
-    NameuseMaiden -> "maiden"
+pub fn name_use_to_code(name_use: NameUse) -> String {
+  case name_use {
+    NameUseUsual -> "usual"
+    NameUseOfficial -> "official"
+    NameUseTemp -> "temp"
+    NameUseNickname -> "nickname"
+    NameUseAnonymous -> "anonymous"
+    NameUseOld -> "old"
+    NameUseMaiden -> "maiden"
   }
 }
 
-pub fn nameuse_parse_code(code: String) -> Result(Nameuse, Nil) {
+pub fn name_use_parse_code(code: String) -> Result(NameUse, Nil) {
   case code {
-    "usual" -> Ok(NameuseUsual)
-    "official" -> Ok(NameuseOfficial)
-    "temp" -> Ok(NameuseTemp)
-    "nickname" -> Ok(NameuseNickname)
-    "anonymous" -> Ok(NameuseAnonymous)
-    "old" -> Ok(NameuseOld)
-    "maiden" -> Ok(NameuseMaiden)
+    "usual" -> Ok(NameUseUsual)
+    "official" -> Ok(NameUseOfficial)
+    "temp" -> Ok(NameUseTemp)
+    "nickname" -> Ok(NameUseNickname)
+    "anonymous" -> Ok(NameUseAnonymous)
+    "old" -> Ok(NameUseOld)
+    "maiden" -> Ok(NameUseMaiden)
     _ -> Error(Nil)
   }
 }
 
-pub fn nameuse_decoder() -> Decoder(Nameuse) {
+pub fn name_use_decoder() -> Decoder(NameUse) {
   use variant <- decode.then(decode.string)
   case variant {
-    "usual" -> decode.success(NameuseUsual)
-    "official" -> decode.success(NameuseOfficial)
-    "temp" -> decode.success(NameuseTemp)
-    "nickname" -> decode.success(NameuseNickname)
-    "anonymous" -> decode.success(NameuseAnonymous)
-    "old" -> decode.success(NameuseOld)
-    "maiden" -> decode.success(NameuseMaiden)
+    "usual" -> decode.success(NameUseUsual)
+    "official" -> decode.success(NameUseOfficial)
+    "temp" -> decode.success(NameUseTemp)
+    "nickname" -> decode.success(NameUseNickname)
+    "anonymous" -> decode.success(NameUseAnonymous)
+    "old" -> decode.success(NameUseOld)
+    "maiden" -> decode.success(NameUseMaiden)
     _ ->
       decode.failure(
-        NameuseUsual,
-        "code from valueset Nameuse ["
-          <> { nameuse |> list.map(nameuse_to_code) |> string.join(", ") }
+        NameUseUsual,
+        "code from valueset NameUse ["
+          <> { name_use |> list.map(name_use_to_code) |> string.join(", ") }
           <> "]",
       )
       |> decode.map_errors(fn(errors) {
@@ -3529,59 +3539,59 @@ pub fn nameuse_decoder() -> Decoder(Nameuse) {
   }
 }
 
-pub type Narrativestatus {
-  NarrativestatusGenerated
-  NarrativestatusExtensions
-  NarrativestatusAdditional
-  NarrativestatusEmpty
+pub type NarrativeStatus {
+  NarrativeStatusGenerated
+  NarrativeStatusExtensions
+  NarrativeStatusAdditional
+  NarrativeStatusEmpty
 }
 
-pub const narrativestatus: List(Narrativestatus) = [
-  NarrativestatusGenerated,
-  NarrativestatusExtensions,
-  NarrativestatusAdditional,
-  NarrativestatusEmpty,
+pub const narrative_status: List(NarrativeStatus) = [
+  NarrativeStatusGenerated,
+  NarrativeStatusExtensions,
+  NarrativeStatusAdditional,
+  NarrativeStatusEmpty,
 ]
 
-pub fn narrativestatus_to_json(narrativestatus: Narrativestatus) -> Json {
-  json.string(narrativestatus_to_code(narrativestatus))
+pub fn narrative_status_to_json(narrative_status: NarrativeStatus) -> Json {
+  json.string(narrative_status_to_code(narrative_status))
 }
 
-pub fn narrativestatus_to_code(narrativestatus: Narrativestatus) -> String {
-  case narrativestatus {
-    NarrativestatusGenerated -> "generated"
-    NarrativestatusExtensions -> "extensions"
-    NarrativestatusAdditional -> "additional"
-    NarrativestatusEmpty -> "empty"
+pub fn narrative_status_to_code(narrative_status: NarrativeStatus) -> String {
+  case narrative_status {
+    NarrativeStatusGenerated -> "generated"
+    NarrativeStatusExtensions -> "extensions"
+    NarrativeStatusAdditional -> "additional"
+    NarrativeStatusEmpty -> "empty"
   }
 }
 
-pub fn narrativestatus_parse_code(
+pub fn narrative_status_parse_code(
   code: String,
-) -> Result(Narrativestatus, Nil) {
+) -> Result(NarrativeStatus, Nil) {
   case code {
-    "generated" -> Ok(NarrativestatusGenerated)
-    "extensions" -> Ok(NarrativestatusExtensions)
-    "additional" -> Ok(NarrativestatusAdditional)
-    "empty" -> Ok(NarrativestatusEmpty)
+    "generated" -> Ok(NarrativeStatusGenerated)
+    "extensions" -> Ok(NarrativeStatusExtensions)
+    "additional" -> Ok(NarrativeStatusAdditional)
+    "empty" -> Ok(NarrativeStatusEmpty)
     _ -> Error(Nil)
   }
 }
 
-pub fn narrativestatus_decoder() -> Decoder(Narrativestatus) {
+pub fn narrative_status_decoder() -> Decoder(NarrativeStatus) {
   use variant <- decode.then(decode.string)
   case variant {
-    "generated" -> decode.success(NarrativestatusGenerated)
-    "extensions" -> decode.success(NarrativestatusExtensions)
-    "additional" -> decode.success(NarrativestatusAdditional)
-    "empty" -> decode.success(NarrativestatusEmpty)
+    "generated" -> decode.success(NarrativeStatusGenerated)
+    "extensions" -> decode.success(NarrativeStatusExtensions)
+    "additional" -> decode.success(NarrativeStatusAdditional)
+    "empty" -> decode.success(NarrativeStatusEmpty)
     _ ->
       decode.failure(
-        NarrativestatusGenerated,
-        "code from valueset Narrativestatus ["
+        NarrativeStatusGenerated,
+        "code from valueset NarrativeStatus ["
           <> {
-          narrativestatus
-          |> list.map(narrativestatus_to_code)
+          narrative_status
+          |> list.map(narrative_status_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -3594,53 +3604,53 @@ pub fn narrativestatus_decoder() -> Decoder(Narrativestatus) {
   }
 }
 
-pub type Operationparameteruse {
-  OperationparameteruseIn
-  OperationparameteruseOut
+pub type OperationParameterUse {
+  OperationParameterUseIn
+  OperationParameterUseOut
 }
 
-pub const operationparameteruse: List(Operationparameteruse) = [
-  OperationparameteruseIn,
-  OperationparameteruseOut,
+pub const operation_parameter_use: List(OperationParameterUse) = [
+  OperationParameterUseIn,
+  OperationParameterUseOut,
 ]
 
-pub fn operationparameteruse_to_json(
-  operationparameteruse: Operationparameteruse,
+pub fn operation_parameter_use_to_json(
+  operation_parameter_use: OperationParameterUse,
 ) -> Json {
-  json.string(operationparameteruse_to_code(operationparameteruse))
+  json.string(operation_parameter_use_to_code(operation_parameter_use))
 }
 
-pub fn operationparameteruse_to_code(
-  operationparameteruse: Operationparameteruse,
+pub fn operation_parameter_use_to_code(
+  operation_parameter_use: OperationParameterUse,
 ) -> String {
-  case operationparameteruse {
-    OperationparameteruseIn -> "in"
-    OperationparameteruseOut -> "out"
+  case operation_parameter_use {
+    OperationParameterUseIn -> "in"
+    OperationParameterUseOut -> "out"
   }
 }
 
-pub fn operationparameteruse_parse_code(
+pub fn operation_parameter_use_parse_code(
   code: String,
-) -> Result(Operationparameteruse, Nil) {
+) -> Result(OperationParameterUse, Nil) {
   case code {
-    "in" -> Ok(OperationparameteruseIn)
-    "out" -> Ok(OperationparameteruseOut)
+    "in" -> Ok(OperationParameterUseIn)
+    "out" -> Ok(OperationParameterUseOut)
     _ -> Error(Nil)
   }
 }
 
-pub fn operationparameteruse_decoder() -> Decoder(Operationparameteruse) {
+pub fn operation_parameter_use_decoder() -> Decoder(OperationParameterUse) {
   use variant <- decode.then(decode.string)
   case variant {
-    "in" -> decode.success(OperationparameteruseIn)
-    "out" -> decode.success(OperationparameteruseOut)
+    "in" -> decode.success(OperationParameterUseIn)
+    "out" -> decode.success(OperationParameterUseOut)
     _ ->
       decode.failure(
-        OperationparameteruseIn,
-        "code from valueset Operationparameteruse ["
+        OperationParameterUseIn,
+        "code from valueset OperationParameterUse ["
           <> {
-          operationparameteruse
-          |> list.map(operationparameteruse_to_code)
+          operation_parameter_use
+          |> list.map(operation_parameter_use_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -3653,130 +3663,63 @@ pub fn operationparameteruse_decoder() -> Decoder(Operationparameteruse) {
   }
 }
 
-pub type Publicationstatus {
-  PublicationstatusDraft
-  PublicationstatusActive
-  PublicationstatusRetired
-  PublicationstatusUnknown
+pub type PublicationStatus {
+  PublicationStatusDraft
+  PublicationStatusActive
+  PublicationStatusRetired
+  PublicationStatusUnknown
 }
 
-pub const publicationstatus: List(Publicationstatus) = [
-  PublicationstatusDraft,
-  PublicationstatusActive,
-  PublicationstatusRetired,
-  PublicationstatusUnknown,
+pub const publication_status: List(PublicationStatus) = [
+  PublicationStatusDraft,
+  PublicationStatusActive,
+  PublicationStatusRetired,
+  PublicationStatusUnknown,
 ]
 
-pub fn publicationstatus_to_json(publicationstatus: Publicationstatus) -> Json {
-  json.string(publicationstatus_to_code(publicationstatus))
-}
-
-pub fn publicationstatus_to_code(
-  publicationstatus: Publicationstatus,
-) -> String {
-  case publicationstatus {
-    PublicationstatusDraft -> "draft"
-    PublicationstatusActive -> "active"
-    PublicationstatusRetired -> "retired"
-    PublicationstatusUnknown -> "unknown"
-  }
-}
-
-pub fn publicationstatus_parse_code(
-  code: String,
-) -> Result(Publicationstatus, Nil) {
-  case code {
-    "draft" -> Ok(PublicationstatusDraft)
-    "active" -> Ok(PublicationstatusActive)
-    "retired" -> Ok(PublicationstatusRetired)
-    "unknown" -> Ok(PublicationstatusUnknown)
-    _ -> Error(Nil)
-  }
-}
-
-pub fn publicationstatus_decoder() -> Decoder(Publicationstatus) {
-  use variant <- decode.then(decode.string)
-  case variant {
-    "draft" -> decode.success(PublicationstatusDraft)
-    "active" -> decode.success(PublicationstatusActive)
-    "retired" -> decode.success(PublicationstatusRetired)
-    "unknown" -> decode.success(PublicationstatusUnknown)
-    _ ->
-      decode.failure(
-        PublicationstatusDraft,
-        "code from valueset Publicationstatus ["
-          <> {
-          publicationstatus
-          |> list.map(publicationstatus_to_code)
-          |> string.join(", ")
-        }
-          <> "]",
-      )
-      |> decode.map_errors(fn(errors) {
-        list.map(errors, fn(error) {
-          decode.DecodeError(..error, found: variant)
-        })
-      })
-  }
-}
-
-pub type Quantitycomparator {
-  QuantitycomparatorLessthan
-  QuantitycomparatorLessthanequal
-  QuantitycomparatorGreaterthanequal
-  QuantitycomparatorGreaterthan
-}
-
-pub const quantitycomparator: List(Quantitycomparator) = [
-  QuantitycomparatorLessthan,
-  QuantitycomparatorLessthanequal,
-  QuantitycomparatorGreaterthanequal,
-  QuantitycomparatorGreaterthan,
-]
-
-pub fn quantitycomparator_to_json(
-  quantitycomparator: Quantitycomparator,
+pub fn publication_status_to_json(
+  publication_status: PublicationStatus,
 ) -> Json {
-  json.string(quantitycomparator_to_code(quantitycomparator))
+  json.string(publication_status_to_code(publication_status))
 }
 
-pub fn quantitycomparator_to_code(
-  quantitycomparator: Quantitycomparator,
+pub fn publication_status_to_code(
+  publication_status: PublicationStatus,
 ) -> String {
-  case quantitycomparator {
-    QuantitycomparatorLessthan -> "<"
-    QuantitycomparatorLessthanequal -> "<="
-    QuantitycomparatorGreaterthanequal -> ">="
-    QuantitycomparatorGreaterthan -> ">"
+  case publication_status {
+    PublicationStatusDraft -> "draft"
+    PublicationStatusActive -> "active"
+    PublicationStatusRetired -> "retired"
+    PublicationStatusUnknown -> "unknown"
   }
 }
 
-pub fn quantitycomparator_parse_code(
+pub fn publication_status_parse_code(
   code: String,
-) -> Result(Quantitycomparator, Nil) {
+) -> Result(PublicationStatus, Nil) {
   case code {
-    "<" -> Ok(QuantitycomparatorLessthan)
-    "<=" -> Ok(QuantitycomparatorLessthanequal)
-    ">=" -> Ok(QuantitycomparatorGreaterthanequal)
-    ">" -> Ok(QuantitycomparatorGreaterthan)
+    "draft" -> Ok(PublicationStatusDraft)
+    "active" -> Ok(PublicationStatusActive)
+    "retired" -> Ok(PublicationStatusRetired)
+    "unknown" -> Ok(PublicationStatusUnknown)
     _ -> Error(Nil)
   }
 }
 
-pub fn quantitycomparator_decoder() -> Decoder(Quantitycomparator) {
+pub fn publication_status_decoder() -> Decoder(PublicationStatus) {
   use variant <- decode.then(decode.string)
   case variant {
-    "<" -> decode.success(QuantitycomparatorLessthan)
-    "<=" -> decode.success(QuantitycomparatorLessthanequal)
-    ">=" -> decode.success(QuantitycomparatorGreaterthanequal)
-    ">" -> decode.success(QuantitycomparatorGreaterthan)
+    "draft" -> decode.success(PublicationStatusDraft)
+    "active" -> decode.success(PublicationStatusActive)
+    "retired" -> decode.success(PublicationStatusRetired)
+    "unknown" -> decode.success(PublicationStatusUnknown)
     _ ->
       decode.failure(
-        QuantitycomparatorLessthan,
-        "code from valueset Quantitycomparator ["
+        PublicationStatusDraft,
+        "code from valueset PublicationStatus ["
           <> {
-          quantitycomparator
-          |> list.map(quantitycomparator_to_code)
+          publication_status
+          |> list.map(publication_status_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -3789,83 +3732,63 @@ pub fn quantitycomparator_decoder() -> Decoder(Quantitycomparator) {
   }
 }
 
-pub type Relatedartifacttype {
-  RelatedartifacttypeDocumentation
-  RelatedartifacttypeJustification
-  RelatedartifacttypeCitation
-  RelatedartifacttypePredecessor
-  RelatedartifacttypeSuccessor
-  RelatedartifacttypeDerivedfrom
-  RelatedartifacttypeDependson
-  RelatedartifacttypeComposedof
+pub type QuantityComparator {
+  QuantityComparatorLessthan
+  QuantityComparatorLessthanequal
+  QuantityComparatorGreaterthanequal
+  QuantityComparatorGreaterthan
 }
 
-pub const relatedartifacttype: List(Relatedartifacttype) = [
-  RelatedartifacttypeDocumentation,
-  RelatedartifacttypeJustification,
-  RelatedartifacttypeCitation,
-  RelatedartifacttypePredecessor,
-  RelatedartifacttypeSuccessor,
-  RelatedartifacttypeDerivedfrom,
-  RelatedartifacttypeDependson,
-  RelatedartifacttypeComposedof,
+pub const quantity_comparator: List(QuantityComparator) = [
+  QuantityComparatorLessthan,
+  QuantityComparatorLessthanequal,
+  QuantityComparatorGreaterthanequal,
+  QuantityComparatorGreaterthan,
 ]
 
-pub fn relatedartifacttype_to_json(
-  relatedartifacttype: Relatedartifacttype,
+pub fn quantity_comparator_to_json(
+  quantity_comparator: QuantityComparator,
 ) -> Json {
-  json.string(relatedartifacttype_to_code(relatedartifacttype))
+  json.string(quantity_comparator_to_code(quantity_comparator))
 }
 
-pub fn relatedartifacttype_to_code(
-  relatedartifacttype: Relatedartifacttype,
+pub fn quantity_comparator_to_code(
+  quantity_comparator: QuantityComparator,
 ) -> String {
-  case relatedartifacttype {
-    RelatedartifacttypeDocumentation -> "documentation"
-    RelatedartifacttypeJustification -> "justification"
-    RelatedartifacttypeCitation -> "citation"
-    RelatedartifacttypePredecessor -> "predecessor"
-    RelatedartifacttypeSuccessor -> "successor"
-    RelatedartifacttypeDerivedfrom -> "derived-from"
-    RelatedartifacttypeDependson -> "depends-on"
-    RelatedartifacttypeComposedof -> "composed-of"
+  case quantity_comparator {
+    QuantityComparatorLessthan -> "<"
+    QuantityComparatorLessthanequal -> "<="
+    QuantityComparatorGreaterthanequal -> ">="
+    QuantityComparatorGreaterthan -> ">"
   }
 }
 
-pub fn relatedartifacttype_parse_code(
+pub fn quantity_comparator_parse_code(
   code: String,
-) -> Result(Relatedartifacttype, Nil) {
+) -> Result(QuantityComparator, Nil) {
   case code {
-    "documentation" -> Ok(RelatedartifacttypeDocumentation)
-    "justification" -> Ok(RelatedartifacttypeJustification)
-    "citation" -> Ok(RelatedartifacttypeCitation)
-    "predecessor" -> Ok(RelatedartifacttypePredecessor)
-    "successor" -> Ok(RelatedartifacttypeSuccessor)
-    "derived-from" -> Ok(RelatedartifacttypeDerivedfrom)
-    "depends-on" -> Ok(RelatedartifacttypeDependson)
-    "composed-of" -> Ok(RelatedartifacttypeComposedof)
+    "<" -> Ok(QuantityComparatorLessthan)
+    "<=" -> Ok(QuantityComparatorLessthanequal)
+    ">=" -> Ok(QuantityComparatorGreaterthanequal)
+    ">" -> Ok(QuantityComparatorGreaterthan)
     _ -> Error(Nil)
   }
 }
 
-pub fn relatedartifacttype_decoder() -> Decoder(Relatedartifacttype) {
+pub fn quantity_comparator_decoder() -> Decoder(QuantityComparator) {
   use variant <- decode.then(decode.string)
   case variant {
-    "documentation" -> decode.success(RelatedartifacttypeDocumentation)
-    "justification" -> decode.success(RelatedartifacttypeJustification)
-    "citation" -> decode.success(RelatedartifacttypeCitation)
-    "predecessor" -> decode.success(RelatedartifacttypePredecessor)
-    "successor" -> decode.success(RelatedartifacttypeSuccessor)
-    "derived-from" -> decode.success(RelatedartifacttypeDerivedfrom)
-    "depends-on" -> decode.success(RelatedartifacttypeDependson)
-    "composed-of" -> decode.success(RelatedartifacttypeComposedof)
+    "<" -> decode.success(QuantityComparatorLessthan)
+    "<=" -> decode.success(QuantityComparatorLessthanequal)
+    ">=" -> decode.success(QuantityComparatorGreaterthanequal)
+    ">" -> decode.success(QuantityComparatorGreaterthan)
     _ ->
       decode.failure(
-        RelatedartifacttypeDocumentation,
-        "code from valueset Relatedartifacttype ["
+        QuantityComparatorLessthan,
+        "code from valueset QuantityComparator ["
           <> {
-          relatedartifacttype
-          |> list.map(relatedartifacttype_to_code)
+          quantity_comparator
+          |> list.map(quantity_comparator_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -3878,54 +3801,83 @@ pub fn relatedartifacttype_decoder() -> Decoder(Relatedartifacttype) {
   }
 }
 
-pub type Searchentrymode {
-  SearchentrymodeMatch
-  SearchentrymodeInclude
-  SearchentrymodeOutcome
+pub type RelatedartifactType {
+  RelatedartifactTypeDocumentation
+  RelatedartifactTypeJustification
+  RelatedartifactTypeCitation
+  RelatedartifactTypePredecessor
+  RelatedartifactTypeSuccessor
+  RelatedartifactTypeDerivedfrom
+  RelatedartifactTypeDependson
+  RelatedartifactTypeComposedof
 }
 
-pub const searchentrymode: List(Searchentrymode) = [
-  SearchentrymodeMatch,
-  SearchentrymodeInclude,
-  SearchentrymodeOutcome,
+pub const relatedartifact_type: List(RelatedartifactType) = [
+  RelatedartifactTypeDocumentation,
+  RelatedartifactTypeJustification,
+  RelatedartifactTypeCitation,
+  RelatedartifactTypePredecessor,
+  RelatedartifactTypeSuccessor,
+  RelatedartifactTypeDerivedfrom,
+  RelatedartifactTypeDependson,
+  RelatedartifactTypeComposedof,
 ]
 
-pub fn searchentrymode_to_json(searchentrymode: Searchentrymode) -> Json {
-  json.string(searchentrymode_to_code(searchentrymode))
+pub fn relatedartifact_type_to_json(
+  relatedartifact_type: RelatedartifactType,
+) -> Json {
+  json.string(relatedartifact_type_to_code(relatedartifact_type))
 }
 
-pub fn searchentrymode_to_code(searchentrymode: Searchentrymode) -> String {
-  case searchentrymode {
-    SearchentrymodeMatch -> "match"
-    SearchentrymodeInclude -> "include"
-    SearchentrymodeOutcome -> "outcome"
+pub fn relatedartifact_type_to_code(
+  relatedartifact_type: RelatedartifactType,
+) -> String {
+  case relatedartifact_type {
+    RelatedartifactTypeDocumentation -> "documentation"
+    RelatedartifactTypeJustification -> "justification"
+    RelatedartifactTypeCitation -> "citation"
+    RelatedartifactTypePredecessor -> "predecessor"
+    RelatedartifactTypeSuccessor -> "successor"
+    RelatedartifactTypeDerivedfrom -> "derived-from"
+    RelatedartifactTypeDependson -> "depends-on"
+    RelatedartifactTypeComposedof -> "composed-of"
   }
 }
 
-pub fn searchentrymode_parse_code(
+pub fn relatedartifact_type_parse_code(
   code: String,
-) -> Result(Searchentrymode, Nil) {
+) -> Result(RelatedartifactType, Nil) {
   case code {
-    "match" -> Ok(SearchentrymodeMatch)
-    "include" -> Ok(SearchentrymodeInclude)
-    "outcome" -> Ok(SearchentrymodeOutcome)
+    "documentation" -> Ok(RelatedartifactTypeDocumentation)
+    "justification" -> Ok(RelatedartifactTypeJustification)
+    "citation" -> Ok(RelatedartifactTypeCitation)
+    "predecessor" -> Ok(RelatedartifactTypePredecessor)
+    "successor" -> Ok(RelatedartifactTypeSuccessor)
+    "derived-from" -> Ok(RelatedartifactTypeDerivedfrom)
+    "depends-on" -> Ok(RelatedartifactTypeDependson)
+    "composed-of" -> Ok(RelatedartifactTypeComposedof)
     _ -> Error(Nil)
   }
 }
 
-pub fn searchentrymode_decoder() -> Decoder(Searchentrymode) {
+pub fn relatedartifact_type_decoder() -> Decoder(RelatedartifactType) {
   use variant <- decode.then(decode.string)
   case variant {
-    "match" -> decode.success(SearchentrymodeMatch)
-    "include" -> decode.success(SearchentrymodeInclude)
-    "outcome" -> decode.success(SearchentrymodeOutcome)
+    "documentation" -> decode.success(RelatedartifactTypeDocumentation)
+    "justification" -> decode.success(RelatedartifactTypeJustification)
+    "citation" -> decode.success(RelatedartifactTypeCitation)
+    "predecessor" -> decode.success(RelatedartifactTypePredecessor)
+    "successor" -> decode.success(RelatedartifactTypeSuccessor)
+    "derived-from" -> decode.success(RelatedartifactTypeDerivedfrom)
+    "depends-on" -> decode.success(RelatedartifactTypeDependson)
+    "composed-of" -> decode.success(RelatedartifactTypeComposedof)
     _ ->
       decode.failure(
-        SearchentrymodeMatch,
-        "code from valueset Searchentrymode ["
+        RelatedartifactTypeDocumentation,
+        "code from valueset RelatedartifactType ["
           <> {
-          searchentrymode
-          |> list.map(searchentrymode_to_code)
+          relatedartifact_type
+          |> list.map(relatedartifact_type_to_code)
           |> string.join(", ")
         }
           <> "]",
@@ -3938,46 +3890,55 @@ pub fn searchentrymode_decoder() -> Decoder(Searchentrymode) {
   }
 }
 
-pub type Sortdirection {
-  SortdirectionAscending
-  SortdirectionDescending
+pub type SearchEntryMode {
+  SearchEntryModeMatch
+  SearchEntryModeInclude
+  SearchEntryModeOutcome
 }
 
-pub const sortdirection: List(Sortdirection) = [
-  SortdirectionAscending,
-  SortdirectionDescending,
+pub const search_entry_mode: List(SearchEntryMode) = [
+  SearchEntryModeMatch,
+  SearchEntryModeInclude,
+  SearchEntryModeOutcome,
 ]
 
-pub fn sortdirection_to_json(sortdirection: Sortdirection) -> Json {
-  json.string(sortdirection_to_code(sortdirection))
+pub fn search_entry_mode_to_json(search_entry_mode: SearchEntryMode) -> Json {
+  json.string(search_entry_mode_to_code(search_entry_mode))
 }
 
-pub fn sortdirection_to_code(sortdirection: Sortdirection) -> String {
-  case sortdirection {
-    SortdirectionAscending -> "ascending"
-    SortdirectionDescending -> "descending"
+pub fn search_entry_mode_to_code(search_entry_mode: SearchEntryMode) -> String {
+  case search_entry_mode {
+    SearchEntryModeMatch -> "match"
+    SearchEntryModeInclude -> "include"
+    SearchEntryModeOutcome -> "outcome"
   }
 }
 
-pub fn sortdirection_parse_code(code: String) -> Result(Sortdirection, Nil) {
+pub fn search_entry_mode_parse_code(
+  code: String,
+) -> Result(SearchEntryMode, Nil) {
   case code {
-    "ascending" -> Ok(SortdirectionAscending)
-    "descending" -> Ok(SortdirectionDescending)
+    "match" -> Ok(SearchEntryModeMatch)
+    "include" -> Ok(SearchEntryModeInclude)
+    "outcome" -> Ok(SearchEntryModeOutcome)
     _ -> Error(Nil)
   }
 }
 
-pub fn sortdirection_decoder() -> Decoder(Sortdirection) {
+pub fn search_entry_mode_decoder() -> Decoder(SearchEntryMode) {
   use variant <- decode.then(decode.string)
   case variant {
-    "ascending" -> decode.success(SortdirectionAscending)
-    "descending" -> decode.success(SortdirectionDescending)
+    "match" -> decode.success(SearchEntryModeMatch)
+    "include" -> decode.success(SearchEntryModeInclude)
+    "outcome" -> decode.success(SearchEntryModeOutcome)
     _ ->
       decode.failure(
-        SortdirectionAscending,
-        "code from valueset Sortdirection ["
+        SearchEntryModeMatch,
+        "code from valueset SearchEntryMode ["
           <> {
-          sortdirection |> list.map(sortdirection_to_code) |> string.join(", ")
+          search_entry_mode
+          |> list.map(search_entry_mode_to_code)
+          |> string.join(", ")
         }
           <> "]",
       )
@@ -3989,76 +3950,48 @@ pub fn sortdirection_decoder() -> Decoder(Sortdirection) {
   }
 }
 
-pub type Triggertype {
-  TriggertypeNamedevent
-  TriggertypePeriodic
-  TriggertypeDatachanged
-  TriggertypeDataadded
-  TriggertypeDatamodified
-  TriggertypeDataremoved
-  TriggertypeDataaccessed
-  TriggertypeDataaccessended
+pub type SortDirection {
+  SortDirectionAscending
+  SortDirectionDescending
 }
 
-pub const triggertype: List(Triggertype) = [
-  TriggertypeNamedevent,
-  TriggertypePeriodic,
-  TriggertypeDatachanged,
-  TriggertypeDataadded,
-  TriggertypeDatamodified,
-  TriggertypeDataremoved,
-  TriggertypeDataaccessed,
-  TriggertypeDataaccessended,
+pub const sort_direction: List(SortDirection) = [
+  SortDirectionAscending,
+  SortDirectionDescending,
 ]
 
-pub fn triggertype_to_json(triggertype: Triggertype) -> Json {
-  json.string(triggertype_to_code(triggertype))
+pub fn sort_direction_to_json(sort_direction: SortDirection) -> Json {
+  json.string(sort_direction_to_code(sort_direction))
 }
 
-pub fn triggertype_to_code(triggertype: Triggertype) -> String {
-  case triggertype {
-    TriggertypeNamedevent -> "named-event"
-    TriggertypePeriodic -> "periodic"
-    TriggertypeDatachanged -> "data-changed"
-    TriggertypeDataadded -> "data-added"
-    TriggertypeDatamodified -> "data-modified"
-    TriggertypeDataremoved -> "data-removed"
-    TriggertypeDataaccessed -> "data-accessed"
-    TriggertypeDataaccessended -> "data-access-ended"
+pub fn sort_direction_to_code(sort_direction: SortDirection) -> String {
+  case sort_direction {
+    SortDirectionAscending -> "ascending"
+    SortDirectionDescending -> "descending"
   }
 }
 
-pub fn triggertype_parse_code(code: String) -> Result(Triggertype, Nil) {
+pub fn sort_direction_parse_code(code: String) -> Result(SortDirection, Nil) {
   case code {
-    "named-event" -> Ok(TriggertypeNamedevent)
-    "periodic" -> Ok(TriggertypePeriodic)
-    "data-changed" -> Ok(TriggertypeDatachanged)
-    "data-added" -> Ok(TriggertypeDataadded)
-    "data-modified" -> Ok(TriggertypeDatamodified)
-    "data-removed" -> Ok(TriggertypeDataremoved)
-    "data-accessed" -> Ok(TriggertypeDataaccessed)
-    "data-access-ended" -> Ok(TriggertypeDataaccessended)
+    "ascending" -> Ok(SortDirectionAscending)
+    "descending" -> Ok(SortDirectionDescending)
     _ -> Error(Nil)
   }
 }
 
-pub fn triggertype_decoder() -> Decoder(Triggertype) {
+pub fn sort_direction_decoder() -> Decoder(SortDirection) {
   use variant <- decode.then(decode.string)
   case variant {
-    "named-event" -> decode.success(TriggertypeNamedevent)
-    "periodic" -> decode.success(TriggertypePeriodic)
-    "data-changed" -> decode.success(TriggertypeDatachanged)
-    "data-added" -> decode.success(TriggertypeDataadded)
-    "data-modified" -> decode.success(TriggertypeDatamodified)
-    "data-removed" -> decode.success(TriggertypeDataremoved)
-    "data-accessed" -> decode.success(TriggertypeDataaccessed)
-    "data-access-ended" -> decode.success(TriggertypeDataaccessended)
+    "ascending" -> decode.success(SortDirectionAscending)
+    "descending" -> decode.success(SortDirectionDescending)
     _ ->
       decode.failure(
-        TriggertypeNamedevent,
-        "code from valueset Triggertype ["
+        SortDirectionAscending,
+        "code from valueset SortDirection ["
           <> {
-          triggertype |> list.map(triggertype_to_code) |> string.join(", ")
+          sort_direction
+          |> list.map(sort_direction_to_code)
+          |> string.join(", ")
         }
           <> "]",
       )
@@ -4070,71 +4003,152 @@ pub fn triggertype_decoder() -> Decoder(Triggertype) {
   }
 }
 
-pub type Unitsoftime {
-  UnitsoftimeS
-  UnitsoftimeMin
-  UnitsoftimeH
-  UnitsoftimeD
-  UnitsoftimeWk
-  UnitsoftimeMo
-  UnitsoftimeA
+pub type TriggerType {
+  TriggerTypeNamedevent
+  TriggerTypePeriodic
+  TriggerTypeDatachanged
+  TriggerTypeDataadded
+  TriggerTypeDatamodified
+  TriggerTypeDataremoved
+  TriggerTypeDataaccessed
+  TriggerTypeDataaccessended
 }
 
-pub const unitsoftime: List(Unitsoftime) = [
-  UnitsoftimeS,
-  UnitsoftimeMin,
-  UnitsoftimeH,
-  UnitsoftimeD,
-  UnitsoftimeWk,
-  UnitsoftimeMo,
-  UnitsoftimeA,
+pub const trigger_type: List(TriggerType) = [
+  TriggerTypeNamedevent,
+  TriggerTypePeriodic,
+  TriggerTypeDatachanged,
+  TriggerTypeDataadded,
+  TriggerTypeDatamodified,
+  TriggerTypeDataremoved,
+  TriggerTypeDataaccessed,
+  TriggerTypeDataaccessended,
 ]
 
-pub fn unitsoftime_to_json(unitsoftime: Unitsoftime) -> Json {
-  json.string(unitsoftime_to_code(unitsoftime))
+pub fn trigger_type_to_json(trigger_type: TriggerType) -> Json {
+  json.string(trigger_type_to_code(trigger_type))
 }
 
-pub fn unitsoftime_to_code(unitsoftime: Unitsoftime) -> String {
-  case unitsoftime {
-    UnitsoftimeS -> "s"
-    UnitsoftimeMin -> "min"
-    UnitsoftimeH -> "h"
-    UnitsoftimeD -> "d"
-    UnitsoftimeWk -> "wk"
-    UnitsoftimeMo -> "mo"
-    UnitsoftimeA -> "a"
+pub fn trigger_type_to_code(trigger_type: TriggerType) -> String {
+  case trigger_type {
+    TriggerTypeNamedevent -> "named-event"
+    TriggerTypePeriodic -> "periodic"
+    TriggerTypeDatachanged -> "data-changed"
+    TriggerTypeDataadded -> "data-added"
+    TriggerTypeDatamodified -> "data-modified"
+    TriggerTypeDataremoved -> "data-removed"
+    TriggerTypeDataaccessed -> "data-accessed"
+    TriggerTypeDataaccessended -> "data-access-ended"
   }
 }
 
-pub fn unitsoftime_parse_code(code: String) -> Result(Unitsoftime, Nil) {
+pub fn trigger_type_parse_code(code: String) -> Result(TriggerType, Nil) {
   case code {
-    "s" -> Ok(UnitsoftimeS)
-    "min" -> Ok(UnitsoftimeMin)
-    "h" -> Ok(UnitsoftimeH)
-    "d" -> Ok(UnitsoftimeD)
-    "wk" -> Ok(UnitsoftimeWk)
-    "mo" -> Ok(UnitsoftimeMo)
-    "a" -> Ok(UnitsoftimeA)
+    "named-event" -> Ok(TriggerTypeNamedevent)
+    "periodic" -> Ok(TriggerTypePeriodic)
+    "data-changed" -> Ok(TriggerTypeDatachanged)
+    "data-added" -> Ok(TriggerTypeDataadded)
+    "data-modified" -> Ok(TriggerTypeDatamodified)
+    "data-removed" -> Ok(TriggerTypeDataremoved)
+    "data-accessed" -> Ok(TriggerTypeDataaccessed)
+    "data-access-ended" -> Ok(TriggerTypeDataaccessended)
     _ -> Error(Nil)
   }
 }
 
-pub fn unitsoftime_decoder() -> Decoder(Unitsoftime) {
+pub fn trigger_type_decoder() -> Decoder(TriggerType) {
   use variant <- decode.then(decode.string)
   case variant {
-    "s" -> decode.success(UnitsoftimeS)
-    "min" -> decode.success(UnitsoftimeMin)
-    "h" -> decode.success(UnitsoftimeH)
-    "d" -> decode.success(UnitsoftimeD)
-    "wk" -> decode.success(UnitsoftimeWk)
-    "mo" -> decode.success(UnitsoftimeMo)
-    "a" -> decode.success(UnitsoftimeA)
+    "named-event" -> decode.success(TriggerTypeNamedevent)
+    "periodic" -> decode.success(TriggerTypePeriodic)
+    "data-changed" -> decode.success(TriggerTypeDatachanged)
+    "data-added" -> decode.success(TriggerTypeDataadded)
+    "data-modified" -> decode.success(TriggerTypeDatamodified)
+    "data-removed" -> decode.success(TriggerTypeDataremoved)
+    "data-accessed" -> decode.success(TriggerTypeDataaccessed)
+    "data-access-ended" -> decode.success(TriggerTypeDataaccessended)
     _ ->
       decode.failure(
-        UnitsoftimeS,
-        "code from valueset Unitsoftime ["
+        TriggerTypeNamedevent,
+        "code from valueset TriggerType ["
           <> {
-          unitsoftime |> list.map(unitsoftime_to_code) |> string.join(", ")
+          trigger_type |> list.map(trigger_type_to_code) |> string.join(", ")
+        }
+          <> "]",
+      )
+      |> decode.map_errors(fn(errors) {
+        list.map(errors, fn(error) {
+          decode.DecodeError(..error, found: variant)
+        })
+      })
+  }
+}
+
+pub type UnitsOfTime {
+  UnitsOfTimeS
+  UnitsOfTimeMin
+  UnitsOfTimeH
+  UnitsOfTimeD
+  UnitsOfTimeWk
+  UnitsOfTimeMo
+  UnitsOfTimeA
+}
+
+pub const units_of_time: List(UnitsOfTime) = [
+  UnitsOfTimeS,
+  UnitsOfTimeMin,
+  UnitsOfTimeH,
+  UnitsOfTimeD,
+  UnitsOfTimeWk,
+  UnitsOfTimeMo,
+  UnitsOfTimeA,
+]
+
+pub fn units_of_time_to_json(units_of_time: UnitsOfTime) -> Json {
+  json.string(units_of_time_to_code(units_of_time))
+}
+
+pub fn units_of_time_to_code(units_of_time: UnitsOfTime) -> String {
+  case units_of_time {
+    UnitsOfTimeS -> "s"
+    UnitsOfTimeMin -> "min"
+    UnitsOfTimeH -> "h"
+    UnitsOfTimeD -> "d"
+    UnitsOfTimeWk -> "wk"
+    UnitsOfTimeMo -> "mo"
+    UnitsOfTimeA -> "a"
+  }
+}
+
+pub fn units_of_time_parse_code(code: String) -> Result(UnitsOfTime, Nil) {
+  case code {
+    "s" -> Ok(UnitsOfTimeS)
+    "min" -> Ok(UnitsOfTimeMin)
+    "h" -> Ok(UnitsOfTimeH)
+    "d" -> Ok(UnitsOfTimeD)
+    "wk" -> Ok(UnitsOfTimeWk)
+    "mo" -> Ok(UnitsOfTimeMo)
+    "a" -> Ok(UnitsOfTimeA)
+    _ -> Error(Nil)
+  }
+}
+
+pub fn units_of_time_decoder() -> Decoder(UnitsOfTime) {
+  use variant <- decode.then(decode.string)
+  case variant {
+    "s" -> decode.success(UnitsOfTimeS)
+    "min" -> decode.success(UnitsOfTimeMin)
+    "h" -> decode.success(UnitsOfTimeH)
+    "d" -> decode.success(UnitsOfTimeD)
+    "wk" -> decode.success(UnitsOfTimeWk)
+    "mo" -> decode.success(UnitsOfTimeMo)
+    "a" -> decode.success(UnitsOfTimeA)
+    _ ->
+      decode.failure(
+        UnitsOfTimeS,
+        "code from valueset UnitsOfTime ["
+          <> {
+          units_of_time |> list.map(units_of_time_to_code) |> string.join(", ")
         }
           <> "]",
       )

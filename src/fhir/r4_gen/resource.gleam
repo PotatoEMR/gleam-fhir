@@ -21,7 +21,7 @@ pub type Bundle {
     implicit_rules: Option(String),
     language: Option(String),
     identifier: Option(ct.Identifier),
-    type_: valueset.Bundletype,
+    type_: valueset.BundleType,
     timestamp: Option(Instant),
     total: Option(Int),
     link: List(BundleLink),
@@ -30,7 +30,7 @@ pub type Bundle {
   )
 }
 
-pub fn bundle_new(type_ type_: valueset.Bundletype) -> Bundle {
+pub fn bundle_new(type_ type_: valueset.BundleType) -> Bundle {
   Bundle(
     signature: None,
     entry: [],
@@ -99,7 +99,7 @@ pub type BundleEntrySearch {
     id: Option(String),
     extension: List(ct.Extension),
     modifier_extension: List(ct.Extension),
-    mode: Option(valueset.Searchentrymode),
+    mode: Option(valueset.SearchEntryMode),
     score: Option(Float),
   )
 }
@@ -120,7 +120,7 @@ pub type BundleEntryRequest {
     id: Option(String),
     extension: List(ct.Extension),
     modifier_extension: List(ct.Extension),
-    method: valueset.Httpverb,
+    method: valueset.HttpVerb,
     url: String,
     if_none_match: Option(String),
     if_modified_since: Option(Instant),
@@ -131,7 +131,7 @@ pub type BundleEntryRequest {
 
 pub fn bundle_entry_request_new(
   url url: String,
-  method method: valueset.Httpverb,
+  method method: valueset.HttpVerb,
 ) -> BundleEntryRequest {
   BundleEntryRequest(
     if_none_exist: None,
@@ -276,7 +276,7 @@ pub fn bundle_entry_request_to_json(
 ) -> Json {
   let fields = [
     #("url", json.string(bundle_entry_request.url)),
-    #("method", valueset.httpverb_to_json(bundle_entry_request.method)),
+    #("method", valueset.http_verb_to_json(bundle_entry_request.method)),
   ]
   let fields = case bundle_entry_request.if_none_exist {
     Some(v) -> [#("ifNoneExist", json.string(v)), ..fields]
@@ -347,7 +347,7 @@ pub fn bundle_entry_request_decoder() -> Decoder(BundleEntryRequest) {
     decode.optional(decode.string),
   )
   use url <- decode.field("url", decode.string)
-  use method <- decode.field("method", valueset.httpverb_decoder())
+  use method <- decode.field("method", valueset.http_verb_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -381,7 +381,7 @@ pub fn bundle_entry_search_to_json(
     None -> fields
   }
   let fields = case bundle_entry_search.mode {
-    Some(v) -> [#("mode", valueset.searchentrymode_to_json(v)), ..fields]
+    Some(v) -> [#("mode", valueset.search_entry_mode_to_json(v)), ..fields]
     None -> fields
   }
   let fields = case bundle_entry_search.modifier_extension {
@@ -421,7 +421,7 @@ pub fn bundle_entry_search_decoder() -> Decoder(BundleEntrySearch) {
   use mode <- decode.optional_field(
     "mode",
     None,
-    decode.optional(valueset.searchentrymode_decoder()),
+    decode.optional(valueset.search_entry_mode_decoder()),
   )
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -684,7 +684,7 @@ pub fn bundle_link_decoder() -> Decoder(BundleLink) {
 
 pub fn bundle_to_json(bundle: Bundle) -> Json {
   let fields = [
-    #("type", valueset.bundletype_to_json(bundle.type_)),
+    #("type", valueset.bundle_type_to_json(bundle.type_)),
   ]
   let fields = case bundle.signature {
     Some(v) -> [#("signature", ct.signature_to_json(v)), ..fields]
@@ -753,7 +753,7 @@ pub fn bundle_decoder() -> Decoder(Bundle) {
     None,
     decode.optional(pt.instant_decoder()),
   )
-  use type_ <- decode.field("type", valueset.bundletype_decoder())
+  use type_ <- decode.field("type", valueset.bundle_type_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     None,
@@ -803,7 +803,7 @@ pub type BundleForgiving {
     implicit_rules: Option(String),
     language: Option(String),
     identifier: Option(ct.Identifier),
-    type_: valueset.Bundletype,
+    type_: valueset.BundleType,
     timestamp: Option(Instant),
     total: Option(Int),
     link: List(BundleLink),
@@ -835,7 +835,7 @@ pub fn bundle_decoder_forgiving() -> Decoder(BundleForgiving) {
     None,
     decode.optional(pt.instant_decoder()),
   )
-  use type_ <- decode.field("type", valueset.bundletype_decoder())
+  use type_ <- decode.field("type", valueset.bundle_type_decoder())
   use identifier <- decode.optional_field(
     "identifier",
     None,
@@ -909,7 +909,7 @@ pub type Codesystem {
     version: Option(String),
     name: Option(String),
     title: Option(String),
-    status: valueset.Publicationstatus,
+    status: valueset.PublicationStatus,
     experimental: Option(Bool),
     date: Option(DateTime),
     publisher: Option(String),
@@ -921,10 +921,10 @@ pub type Codesystem {
     copyright: Option(String),
     case_sensitive: Option(Bool),
     value_set: Option(String),
-    hierarchy_meaning: Option(valueset.Codesystemhierarchymeaning),
+    hierarchy_meaning: Option(valueset.CodesystemHierarchyMeaning),
     compositional: Option(Bool),
     version_needed: Option(Bool),
-    content: valueset.Codesystemcontentmode,
+    content: valueset.CodesystemContentMode,
     supplements: Option(String),
     count: Option(Int),
     filter: List(CodesystemFilter),
@@ -934,8 +934,8 @@ pub type Codesystem {
 }
 
 pub fn codesystem_new(
-  content content: valueset.Codesystemcontentmode,
-  status status: valueset.Publicationstatus,
+  content content: valueset.CodesystemContentMode,
+  status status: valueset.PublicationStatus,
 ) -> Codesystem {
   Codesystem(
     concept: [],
@@ -983,14 +983,14 @@ pub type CodesystemFilter {
     modifier_extension: List(ct.Extension),
     code: String,
     description: Option(String),
-    operator: List1(valueset.Filteroperator),
+    operator: List1(valueset.FilterOperator),
     value: String,
   )
 }
 
 pub fn codesystem_filter_new(
   value value: String,
-  operator operator: List1(valueset.Filteroperator),
+  operator operator: List1(valueset.FilterOperator),
   code code: String,
 ) -> CodesystemFilter {
   CodesystemFilter(
@@ -1013,12 +1013,12 @@ pub type CodesystemProperty {
     code: String,
     uri: Option(String),
     description: Option(String),
-    type_: valueset.Conceptpropertytype,
+    type_: valueset.ConceptPropertyType,
   )
 }
 
 pub fn codesystem_property_new(
-  type_ type_: valueset.Conceptpropertytype,
+  type_ type_: valueset.ConceptPropertyType,
   code code: String,
 ) -> CodesystemProperty {
   CodesystemProperty(
@@ -1451,7 +1451,7 @@ pub fn codesystem_property_to_json(
   codesystem_property: CodesystemProperty,
 ) -> Json {
   let fields = [
-    #("type", valueset.conceptpropertytype_to_json(codesystem_property.type_)),
+    #("type", valueset.concept_property_type_to_json(codesystem_property.type_)),
     #("code", json.string(codesystem_property.code)),
   ]
   let fields = case codesystem_property.description {
@@ -1491,7 +1491,7 @@ pub fn codesystem_property_to_json(
 
 pub fn codesystem_property_decoder() -> Decoder(CodesystemProperty) {
   use <- decode.recursive
-  use type_ <- decode.field("type", valueset.conceptpropertytype_decoder())
+  use type_ <- decode.field("type", valueset.concept_property_type_decoder())
   use description <- decode.optional_field(
     "description",
     None,
@@ -1526,7 +1526,10 @@ pub fn codesystem_filter_to_json(codesystem_filter: CodesystemFilter) -> Json {
     #("value", json.string(codesystem_filter.value)),
     #(
       "operator",
-      list1_to_json(codesystem_filter.operator, valueset.filteroperator_to_json),
+      list1_to_json(
+        codesystem_filter.operator,
+        valueset.filter_operator_to_json,
+      ),
     ),
     #("code", json.string(codesystem_filter.code)),
   ]
@@ -1564,7 +1567,7 @@ pub fn codesystem_filter_to_json(codesystem_filter: CodesystemFilter) -> Json {
 pub fn codesystem_filter_decoder() -> Decoder(CodesystemFilter) {
   use <- decode.recursive
   use value <- decode.field("value", decode.string)
-  use operator <- list1_decoder("operator", valueset.filteroperator_decoder())
+  use operator <- list1_decoder("operator", valueset.filter_operator_decoder())
   use description <- decode.optional_field(
     "description",
     None,
@@ -1595,8 +1598,8 @@ pub fn codesystem_filter_decoder() -> Decoder(CodesystemFilter) {
 
 pub fn codesystem_to_json(codesystem: Codesystem) -> Json {
   let fields = [
-    #("content", valueset.codesystemcontentmode_to_json(codesystem.content)),
-    #("status", valueset.publicationstatus_to_json(codesystem.status)),
+    #("content", valueset.codesystem_content_mode_to_json(codesystem.content)),
+    #("status", valueset.publication_status_to_json(codesystem.status)),
   ]
   let fields = case codesystem.concept {
     [] -> fields
@@ -1640,7 +1643,7 @@ pub fn codesystem_to_json(codesystem: Codesystem) -> Json {
   }
   let fields = case codesystem.hierarchy_meaning {
     Some(v) -> [
-      #("hierarchyMeaning", valueset.codesystemhierarchymeaning_to_json(v)),
+      #("hierarchyMeaning", valueset.codesystem_hierarchy_meaning_to_json(v)),
       ..fields
     ]
     None -> fields
@@ -1797,7 +1800,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
   )
   use content <- decode.field(
     "content",
-    valueset.codesystemcontentmode_decoder(),
+    valueset.codesystem_content_mode_decoder(),
   )
   use version_needed <- decode.optional_field(
     "versionNeeded",
@@ -1812,7 +1815,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
   use hierarchy_meaning <- decode.optional_field(
     "hierarchyMeaning",
     None,
-    decode.optional(valueset.codesystemhierarchymeaning_decoder()),
+    decode.optional(valueset.codesystem_hierarchy_meaning_decoder()),
   )
   use value_set <- decode.optional_field(
     "valueSet",
@@ -1869,7 +1872,7 @@ pub fn codesystem_decoder() -> Decoder(Codesystem) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", valueset.publicationstatus_decoder())
+  use status <- decode.field("status", valueset.publication_status_decoder())
   use title <- decode.optional_field(
     "title",
     None,
@@ -2008,8 +2011,8 @@ pub type OperationoutcomeIssue {
     id: Option(String),
     extension: List(ct.Extension),
     modifier_extension: List(ct.Extension),
-    severity: valueset.Issueseverity,
-    code: valueset.Issuetype,
+    severity: valueset.IssueSeverity,
+    code: valueset.IssueType,
     details: Option(ct.Codeableconcept),
     diagnostics: Option(String),
     location: List(String),
@@ -2018,8 +2021,8 @@ pub type OperationoutcomeIssue {
 }
 
 pub fn operationoutcome_issue_new(
-  code code: valueset.Issuetype,
-  severity severity: valueset.Issueseverity,
+  code code: valueset.IssueType,
+  severity severity: valueset.IssueSeverity,
 ) -> OperationoutcomeIssue {
   OperationoutcomeIssue(
     expression: [],
@@ -2038,10 +2041,10 @@ pub fn operationoutcome_issue_to_json(
   operationoutcome_issue: OperationoutcomeIssue,
 ) -> Json {
   let fields = [
-    #("code", valueset.issuetype_to_json(operationoutcome_issue.code)),
+    #("code", valueset.issue_type_to_json(operationoutcome_issue.code)),
     #(
       "severity",
-      valueset.issueseverity_to_json(operationoutcome_issue.severity),
+      valueset.issue_severity_to_json(operationoutcome_issue.severity),
     ),
   ]
   let fields = case operationoutcome_issue.expression {
@@ -2121,8 +2124,8 @@ pub fn operationoutcome_issue_decoder() -> Decoder(OperationoutcomeIssue) {
     None,
     decode.optional(ct.codeableconcept_decoder()),
   )
-  use code <- decode.field("code", valueset.issuetype_decoder())
-  use severity <- decode.field("severity", valueset.issueseverity_decoder())
+  use code <- decode.field("code", valueset.issue_type_decoder())
+  use severity <- decode.field("severity", valueset.issue_severity_decoder())
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
     [],
@@ -2792,7 +2795,7 @@ pub type Valueset {
     version: Option(String),
     name: Option(String),
     title: Option(String),
-    status: valueset.Publicationstatus,
+    status: valueset.PublicationStatus,
     experimental: Option(Bool),
     date: Option(DateTime),
     publisher: Option(String),
@@ -2808,7 +2811,7 @@ pub type Valueset {
   )
 }
 
-pub fn valueset_new(status status: valueset.Publicationstatus) -> Valueset {
+pub fn valueset_new(status status: valueset.PublicationStatus) -> Valueset {
   Valueset(
     expansion: None,
     compose: None,
@@ -2950,14 +2953,14 @@ pub type ValuesetComposeIncludeFilter {
     extension: List(ct.Extension),
     modifier_extension: List(ct.Extension),
     property: String,
-    op: valueset.Filteroperator,
+    op: valueset.FilterOperator,
     value: String,
   )
 }
 
 pub fn valueset_compose_include_filter_new(
   value value: String,
-  op op: valueset.Filteroperator,
+  op op: valueset.FilterOperator,
   property property: String,
 ) -> ValuesetComposeIncludeFilter {
   ValuesetComposeIncludeFilter(
@@ -3466,7 +3469,10 @@ pub fn valueset_compose_include_filter_to_json(
 ) -> Json {
   let fields = [
     #("value", json.string(valueset_compose_include_filter.value)),
-    #("op", valueset.filteroperator_to_json(valueset_compose_include_filter.op)),
+    #(
+      "op",
+      valueset.filter_operator_to_json(valueset_compose_include_filter.op),
+    ),
     #("property", json.string(valueset_compose_include_filter.property)),
   ]
   let fields = case valueset_compose_include_filter.modifier_extension {
@@ -3507,7 +3513,7 @@ pub fn valueset_compose_include_filter_decoder() -> Decoder(
 ) {
   use <- decode.recursive
   use value <- decode.field("value", decode.string)
-  use op <- decode.field("op", valueset.filteroperator_decoder())
+  use op <- decode.field("op", valueset.filter_operator_decoder())
   use property <- decode.field("property", decode.string)
   use modifier_extension <- decode.optional_field(
     "modifierExtension",
@@ -3926,7 +3932,7 @@ pub fn valueset_compose_decoder() -> Decoder(ValuesetCompose) {
 
 pub fn valueset_to_json(valueset: Valueset) -> Json {
   let fields = [
-    #("status", valueset.publicationstatus_to_json(valueset.status)),
+    #("status", valueset.publication_status_to_json(valueset.status)),
   ]
   let fields = case valueset.expansion {
     Some(v) -> [#("expansion", valueset_expansion_to_json(v)), ..fields]
@@ -4118,7 +4124,7 @@ pub fn valueset_decoder() -> Decoder(Valueset) {
     None,
     decode.optional(decode.bool),
   )
-  use status <- decode.field("status", valueset.publicationstatus_decoder())
+  use status <- decode.field("status", valueset.publication_status_decoder())
   use title <- decode.optional_field(
     "title",
     None,
